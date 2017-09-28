@@ -1192,14 +1192,14 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>==Format(Fields!date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format(Fields!date.Value, "dd/MM/yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1599,14 +1599,14 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="DriverBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	(SUM(liters_gived) - SUM(liters_outlayed)) as fuelBalance
 FROM
 	fuel_operations
 WHERE
-	driver_id = 14
+	driver_id = @driver_id
 	AND DATE(DATE_ADD(date, INTERVAL -1 DAY)) &lt;= @end_date
 GROUP BY
 	driver_id</CommandText>
@@ -1619,7 +1619,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="fuelBalance">
           <DataField>fuelBalance</DataField>
           <TypeName>System.Decimal</TypeName>

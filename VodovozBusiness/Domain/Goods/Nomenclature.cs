@@ -323,7 +323,9 @@ namespace Vodovoz.Domain.Goods
 		material,
 		[Display (Name= "Вода в одноразовой таре")] 
 		[Code1c("0790070")]
-		disposableBottleWater
+		disposableBottleWater,
+		[Display (Name= "Выезд мастера")]
+		master
 	}
 
 	public class NomenclatureCategoryStringType : NHibernate.Type.EnumStringType

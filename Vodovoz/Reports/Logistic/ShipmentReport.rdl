@@ -273,7 +273,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
 	employees.last_name,
@@ -324,7 +324,7 @@ where
 	and docs.operation_date &gt;= @start_date
 	and docs.operation_date &lt;= date_add(@start_date, interval 1 day)
 	and (@department = '-1' or docs.department = @department)
-order by employees.last_name asc, docs.operation_date asc</CommandText>
+order by if(@department = '-1', employees.last_name, 0) asc, docs.operation_date asc</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -334,7 +334,7 @@ order by employees.last_name asc, docs.operation_date asc</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="last_name">
           <DataField>last_name</DataField>
           <TypeName>System.String</TypeName>
@@ -394,7 +394,8 @@ order by employees.last_name asc, docs.operation_date asc</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>
+        </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

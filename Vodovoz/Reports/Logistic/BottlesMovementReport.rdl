@@ -84,7 +84,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>38.2pt</Height>
+              <Height>46.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -598,7 +598,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>38.9pt</Height>
+              <Height>47.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1212,7 +1212,7 @@
           </TableRows>
         </Details>
         <Left>77.3pt</Left>
-        <Top>203.9pt</Top>
+        <Top>210.2pt</Top>
       </Table>
       <Textbox Name="Textbox72">
         <Height>13.49pt</Height>
@@ -1265,7 +1265,7 @@
           </TableColumn>
         </TableColumns>
         <Left>0.0pt</Left>
-        <Top>98.3pt</Top>
+        <Top>102.2pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1724,7 +1724,7 @@ where
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
