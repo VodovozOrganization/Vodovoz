@@ -298,6 +298,8 @@ namespace Vodovoz
 
 			if(UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
 				IsEditable();
+
+			ButtonCloseOrderSensitivity();
 		}
 
 		void Entity_UpdateClientCanChange (object aList, int[] aIdx)
@@ -358,6 +360,7 @@ namespace Vodovoz
 			} */
 
 			logger.Info("Ok.");
+			ButtonCloseOrderSensitivity();
 			return true;
 		}
 
@@ -1199,6 +1202,22 @@ namespace Vodovoz
 			}
 		}
 
+		protected void OnButtonCloseOrderClicked(object sender, EventArgs e)
+		{
+			if(!MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?"))
+			{
+				return;
+			}
 
+			Entity.ChangeStatus(OrderStatus.Closed);
+			ButtonCloseOrderSensitivity();
+		}
+
+		void ButtonCloseOrderSensitivity()
+		{
+			buttonCloseOrder.Sensitive = QSMain.User.Permissions["can_close_orders"] 
+											&& Entity.OrderStatus >= OrderStatus.Accepted 
+											&& Entity.OrderStatus != OrderStatus.Closed;
+		}
 	}
 }

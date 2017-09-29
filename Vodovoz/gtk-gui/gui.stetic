@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -25580,6 +25580,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -27743,6 +27744,20 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
+              <widget class="Gtk.Button" id="buttonCloseOrder">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextOnly</property>
+                <property name="Label" translatable="yes">Закрыть заказ</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonCloseOrderClicked" />
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.Button" id="buttonCancelOrder">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
@@ -27753,7 +27768,7 @@ RegistrationNumber</property>
                 <signal name="Clicked" handler="OnButtonCancelOrderClicked" />
               </widget>
               <packing>
-                <property name="Position">2</property>
+                <property name="Position">3</property>
                 <property name="AutoSize">False</property>
               </packing>
             </child>
