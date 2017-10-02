@@ -96,17 +96,20 @@
         <NoRows>За период нет прихода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate">
+          <Parameter Name="StartDate" >
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate">
+          <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="IncomeCategory">
+          <Parameter Name="IncomeCategory" >
             <Value>=Parameters!IncomeCategory</Value>
           </Parameter>
-          <Parameter Name="Casher">
+          <Parameter Name="Casher" >
             <Value>=Parameters!Casher</Value>
+          </Parameter>
+          <Parameter Name="Employee" >
+            <Value>=Parameters!Employee</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -124,22 +127,22 @@
         <NoRows>За период нет расхода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategory" >
+          <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed" >
+          <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
-          <Parameter Name="Casher" >
+          <Parameter Name="Casher">
             <Value>=Parameters!Casher</Value>
           </Parameter>
-          <Parameter Name="Employee" >
+          <Parameter Name="Employee">
             <Value>=Parameters!Employee</Value>
           </Parameter>
         </Parameters>
@@ -158,22 +161,22 @@
         <NoRows>За период нет авансов.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategory" >
+          <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed" >
+          <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
-          <Parameter Name="Casher" >
+          <Parameter Name="Casher">
             <Value>=Parameters!Casher</Value>
           </Parameter>
-          <Parameter Name="Employee" >
+          <Parameter Name="Employee">
             <Value>=Parameters!Employee</Value>
           </Parameter>
         </Parameters>
@@ -207,22 +210,22 @@
         <NoRows>За период нет авансовых отчетов.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategory" >
+          <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed" >
+          <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
-          <Parameter Name="Casher" >
+          <Parameter Name="Casher">
             <Value>=Parameters!Casher</Value>
           </Parameter>
-          <Parameter Name="Employee" >
+          <Parameter Name="Employee">
             <Value>=Parameters!Employee</Value>
           </Parameter>
         </Parameters>
@@ -256,22 +259,22 @@
         <NoRows>За период нет возвратов денег.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategory" >
+          <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed" >
+          <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
-          <Parameter Name="Casher" >
+          <Parameter Name="Casher">
             <Value>=Parameters!Casher</Value>
           </Parameter>
-          <Parameter Name="Employee" >
+          <Parameter Name="Employee">
             <Value>=Parameters!Employee</Value>
           </Parameter>
         </Parameters>
@@ -290,22 +293,22 @@
         <NoRows>Все авансы закрыты.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategory" >
+          <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed" >
+          <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
-          <Parameter Name="Casher" >
+          <Parameter Name="Casher">
             <Value>=Parameters!Casher</Value>
           </Parameter>
-          <Parameter Name="Employee" >
+          <Parameter Name="Employee">
             <Value>=Parameters!Employee</Value>
           </Parameter>
         </Parameters>
@@ -361,7 +364,7 @@
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
