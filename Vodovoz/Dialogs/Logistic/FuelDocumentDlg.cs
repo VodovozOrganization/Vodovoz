@@ -152,14 +152,16 @@ namespace Vodovoz
 				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, Вы не можете выдавать денежные средства, так как некого указывать в качестве кассира.");
 				return false;
 			}
+
+			if(Entity.Author == null) {
+				Entity.Author = cashier;
+			}
+			Entity.LastEditor = cashier;
+			Entity.LastEditDate = DateTime.Now;
+
 			if (Entity.FuelCashExpense != null)
 			{
-				if(Entity.Author == null)
-				{
-					Entity.Author = cashier;
-				}
-				Entity.FuelCashExpense.Casher = Entity.LastEditor = cashier;
-				Entity.LastEditDate = DateTime.Now;
+				Entity.FuelCashExpense.Casher = cashier;
 			}
 
 			var valid = new QSValidator<FuelDocument> (UoWGeneric.Root);
