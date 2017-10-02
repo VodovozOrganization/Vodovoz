@@ -313,6 +313,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public ProposedRoute RebuidOneRoute(RouteList route)
 		{
+			var trip = new PossibleTrip(route);
+
 			logger.Info("Подготавливаем заказы...");
 			PerformanceHelper.StartMeasurement($"Строим маршрут");
 			MainClass.MainWin.ProgressStart(4);
@@ -337,7 +339,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			int horizon = 24 * 3600;
 
-			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), 3 * 3600, horizon, false, "Time");
+			routing.AddDimension(new CallbackTime(Nodes, trip, distanceCalculator), 3 * 3600, horizon, false, "Time");
 			var time_dimension = routing.GetDimensionOrDie("Time");
 
 			var cumulTimeOnEnd = routing.CumulVar(routing.End(0), "Time");
@@ -353,7 +355,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			for(int ix = 0; ix < Nodes.Length; ix++) {
 				var startWindow = Nodes[ix].Order.DeliverySchedule.From.TotalSeconds;
-				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(route.Forwarder != null) * 60;
+				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - trip.Driver.TimeCorrection(Nodes[ix].Order.CalculateTimeOnPoint(route.Forwarder != null) * 60);
 				if(endWindow < startWindow) {
 					logger.Warn("Время разгрузки на точке, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To);
 					endWindow = startWindow;
@@ -368,7 +370,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 								 FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
 
 			search_parameters.TimeLimitMs = MaxTimeSeconds * 1000;
-			search_parameters.FingerprintArcCostEvaluators = true;
+			//search_parameters.FingerprintArcCostEvaluators = true;
 			//search_parameters.OptimizationStep = 100;
 
 			var solver = routing.solver();
