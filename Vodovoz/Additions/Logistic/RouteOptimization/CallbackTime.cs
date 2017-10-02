@@ -10,13 +10,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private CalculatedOrder[] Nodes;
-		PossibleTrip Trip;
+		AtWorkDriver Driver;
 		ExtDistanceCalculator distanceCalculator;
 
-		public CallbackTime(CalculatedOrder[] nodes, PossibleTrip trip, ExtDistanceCalculator distanceCalculator)
+		public CallbackTime(CalculatedOrder[] nodes, AtWorkDriver driver, ExtDistanceCalculator distanceCalculator)
 		{
 			Nodes = nodes;
-			Trip = trip;
+			Driver = driver;
 			this.distanceCalculator = distanceCalculator;
 		}
 
@@ -40,10 +40,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			else
 				travelTime = distanceCalculator.TimeSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
 
-			if(first_index != 0)
+			if (first_index != 0)
 				serviceTime = Nodes[first_index - 1].Order.CalculateTimeOnPoint(false) * 60;
 
-			return (long)((double)(serviceTime + travelTime) / Trip.Driver.DriverSpeed);
+			return serviceTime + travelTime;
 		}
 	}
 }
