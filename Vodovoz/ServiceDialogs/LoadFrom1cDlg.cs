@@ -1042,9 +1042,7 @@ namespace Vodovoz
 
 						if(exist.OrderStatus == OrderStatus.Canceled)
 						{
-							exist = loaded;
-
-							if(loaded.DeliverySchedule != null && loaded.DeliveryPoint != null)
+							if(exist.DeliverySchedule != null && exist.DeliveryPoint != null)
 							{
 								exist.OrderStatus = OrderStatus.Accepted;
 							}
