@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>8.5in</PageHeight>
+  <PageWidth>11in</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="RouteLists">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.id AS routeListId,
@@ -28,13 +28,25 @@
                 NULL,
                 employees.patronymic)) AS driver_name,
     IFNULL( (SELECT 
-            SUM(total_cash)
+            SUM(total_cash) -  IFNULL(money,0)
         FROM
             route_list_addresses
         WHERE
+            route_list_addresses.status = 'Completed' AND
             route_list_addresses.route_list_id = routeListId), 0) AS nal,
-       IFNULL(money,0) AS nalreturn,
-       cashier_comment
+    IFNULL((SELECT 
+             count(*)*2
+        FROM
+            route_list_addresses
+        LEFT JOIN
+            route_lists ON route_list_addresses.route_list_id = route_lists.id
+        LEFT JOIN
+            cars ON cars.id = route_lists.car_id
+        WHERE
+            cars.type_of_use &lt;&gt; 'Truck' AND
+            route_list_addresses.status = 'Completed' AND
+            route_list_addresses.route_list_id = routeListId), 0)  AS paytelephone,
+           closing_comment
 FROM
     route_lists
         LEFT JOIN
@@ -57,7 +69,7 @@ GROUP BY routeListId</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="routeListId">
           <DataField>routeListId</DataField>
           <TypeName>System.Int32</TypeName>
@@ -74,13 +86,13 @@ GROUP BY routeListId</CommandText>
           <DataField>nal</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="cashier_comment">
-          <DataField>cashier_comment</DataField>
+        <Field Name="closing_comment">
+          <DataField>closing_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="nalreturn">
-          <DataField>nalreturn</DataField>
-          <TypeName>System.Int32</TypeName>
+        <Field Name="paytelephone">
+          <DataField>paytelephone</DataField>
+          <TypeName>System.Int16</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -89,8 +101,8 @@ GROUP BY routeListId</CommandText>
     <Height>30.4pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Top>7.23pt</Top>
-        <Left>7.23pt</Left>
+        <Top>8.0pt</Top>
+        <Left>112.4pt</Left>
         <Width>566.12pt</Width>
         <Height>18.82pt</Height>
         <Value>Отчет по незакрытыми МЛ</Value>
@@ -124,19 +136,22 @@ GROUP BY routeListId</CommandText>
             <Width>34.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>73.7pt</Width>
+            <Width>69.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>49.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>231.1pt</Width>
+            <Width>189.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>83.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.3pt</Width>
+            <Width>204.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>125.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -242,6 +257,22 @@ GROUP BY routeListId</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Ответственный</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -262,6 +293,7 @@ GROUP BY routeListId</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -318,7 +350,7 @@ GROUP BY routeListId</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>={nal} - {nalreturn}</Value>
+                      <Value>={nal} -{paytelephone}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -334,7 +366,24 @@ GROUP BY routeListId</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>={cashier_comment}</Value>
+                      <Value>={closing_comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -350,9 +399,9 @@ GROUP BY routeListId</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>25.8pt</Left>
-        <Top>18.6pt</Top>
-        <Footer >
+        <Left>6.1pt</Left>
+        <Top>21.0pt</Top>
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -384,7 +433,7 @@ GROUP BY routeListId</CommandText>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <Value>=Sum({nal} - {nalreturn})</Value>
+                      <Value>=Sum({nal} - {paytelephone})</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -398,6 +447,19 @@ GROUP BY routeListId</CommandText>
                       </Style>
                       <Value>
                       </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
