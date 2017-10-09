@@ -1188,17 +1188,17 @@ namespace Vodovoz.Domain.Logistic
 				{
 					minTime = Addresses[ix].Order.DeliverySchedule.From;
 
-					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(Addresses[ix].Order.DeliveryPoint));
+					var timeFromBase = TimeSpan.FromSeconds(Driver.TimeCorrection(sputnikCache.TimeFromBase(Addresses[ix].Order.DeliveryPoint)));
 					var onBase = minTime - timeFromBase;
 					if(Shift != null && onBase < Shift.StartTime)
 						minTime = Shift.StartTime + timeFromBase;
 				}
 				else
-					minTime += TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint));
+					minTime += TimeSpan.FromSeconds(Driver.TimeCorrection(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint)));
 
 				Addresses[ix].PlanTimeStart = minTime > Addresses[ix].Order.DeliverySchedule.From ? minTime : Addresses[ix].Order.DeliverySchedule.From;
 
-				minTime += TimeSpan.FromMinutes(Addresses[ix].TimeOnPoint);
+				minTime += TimeSpan.FromMinutes(Driver.TimeCorrection(Addresses[ix].TimeOnPoint));
 			}
 			//Расчет максимального времени до которого нужно подъехать.
 			TimeSpan maxTime;
@@ -1207,26 +1207,26 @@ namespace Vodovoz.Domain.Logistic
 				if(ix == Addresses.Count - 1)
 				{
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
-					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint));
+					var timeToBase = TimeSpan.FromSeconds(Driver.TimeCorrection(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint)));
 					var onBase = maxTime + timeToBase;
 					if(Shift != null && onBase > Shift.EndTime)
 						maxTime = Shift.EndTime - timeToBase;
 				}
 				else
-					maxTime -= TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix].Order.DeliveryPoint, Addresses[ix + 1].Order.DeliveryPoint));
+					maxTime -= TimeSpan.FromSeconds(Driver.TimeCorrection(sputnikCache.TimeSec(Addresses[ix].Order.DeliveryPoint, Addresses[ix + 1].Order.DeliveryPoint)));
 
 				if(maxTime > Addresses[ix].Order.DeliverySchedule.To)
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
 
-				maxTime -= TimeSpan.FromMinutes(Addresses[ix].TimeOnPoint);
+				maxTime -= TimeSpan.FromMinutes(Driver.TimeCorrection(Addresses[ix].TimeOnPoint));
 
 				if(maxTime < Addresses[ix].PlanTimeStart)
 				{ //Расписание испорчено, успеть нельзя. Пытаемся его более менее адекватно отобразить.
 					TimeSpan beforeMin = new TimeSpan(1, 0,0,0);
 					if(ix > 0)
 						beforeMin = Addresses[ix - 1].PlanTimeStart.Value 
-						                             + TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint)) 
-						                             + TimeSpan.FromMinutes(Addresses[ix - 1].TimeOnPoint);
+						                             + TimeSpan.FromSeconds(Driver.TimeCorrection(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint))) 
+						                             + TimeSpan.FromMinutes(Driver.TimeCorrection(Addresses[ix - 1].TimeOnPoint));
 					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From)
 					{
 						Addresses[ix].PlanTimeStart = beforeMin < maxTime ? maxTime : beforeMin;

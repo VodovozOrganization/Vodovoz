@@ -364,6 +364,11 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
+		public virtual double TimeCorrection(long timeValue)
+		{
+			return (double)timeValue / DriverSpeed;
+		}
+
 		#endregion
 
 		void ObservableDistricts_ElementAdded(object aList, int[] aIdx)
