@@ -15,33 +15,6 @@ namespace Vodovoz.Additions.Logistic
 {
 	public static class PrintRouteListHelper
 	{
-		public static void Print(IUnitOfWork uow, RouteList routeList, ITdiTab myTab)
-		{
-			List<RouteListPrintableDocs> docsList = new List<RouteListPrintableDocs>
-				{
-					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.LoadDocument),
-					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.TimeList),
-					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.RouteList),
-					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.OrderOfAddresses)
-				};
-			
-			DocumentPrinter.PrintAll(docsList);
-
-//			List<ReportInfo> docs = new List<ReportInfo>
-//			{
-//				GetRDLLoadDocument(routeListId),
-//				GetRDLRouteList(uow, routeListId),
-//				GetRDLTimeList(routeListId)
-//			};
-//
-//			foreach (var doc in docs)
-//			{
-//				myTab.TabParent.OpenTab(
-//					TdiTabBase.GenerateHashName<ReportViewDlg>(),
-//					() => new ReportViewDlg(doc, true));
-//			}
-		}
-
 		public static ReportInfo GetRDLTimeList(int routeListId)
 		{
 			return new ReportInfo {
@@ -273,6 +246,8 @@ namespace Vodovoz.Additions.Logistic
 		All,
 		[Display (Name = "Маршрутный лист")]
 		RouteList,
+		[Display(Name = "Карта маршрута")]
+		RouteMap,
 		[Display(Name = "Адреса по ежедневным номерам")]
 		DailyList,
 		[Display (Name = "Лист времени")]
