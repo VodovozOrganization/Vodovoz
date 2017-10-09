@@ -46,28 +46,34 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>54.3pt</Width>
+            <Width>39.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>103.4pt</Width>
+            <Width>75.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>135.6pt</Width>
+            <Width>119.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>68.4pt</Width>
+            <Width>49.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.1pt</Width>
+            <Width>72.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>133.6pt</Width>
+            <Width>106.9pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>57.4pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>57.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>25.1pt</Height>
+              <Height>30.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -97,6 +103,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -161,6 +168,40 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Количество полных 19л. бутылей</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize >8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>Количество возвратной тары</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -255,6 +296,34 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>={full_bottles_count}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>={returned_bottles_count}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -301,10 +370,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontWeight >Bold</FontWeight>
-                        <TextAlign >Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -352,6 +421,34 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>=Sum({full_bottles_count})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>=Sum({returned_bottles_count})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -382,7 +479,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
 	orders.id,
@@ -390,6 +487,26 @@
 	counterparty.name,
 	orders.sum_to_receive,
 	orders.order_status,
+	ifnull((select
+		sum(order_items.count)
+	from
+		order_items
+	left join
+		nomenclature on nomenclature.id = order_items.nomenclature_id
+	where
+		nomenclature.category = 'water'
+		and order_items.order_id = orders.id),0) as full_bottles_count,
+	truncate(ifnull((select
+		sum(store_self_delivery_document_returned.amount)
+	from
+		store_self_delivery_document
+	left join
+		store_self_delivery_document_returned on store_self_delivery_document_returned.store_self_delivery_document_id = store_self_delivery_document.id
+	left join
+		nomenclature on nomenclature.id = store_self_delivery_document_returned.nomenclature_id
+	where
+		nomenclature.category = 'bottle'
+		and store_self_delivery_document.order_id = orders.id),0),0) as returned_bottles_count,
 	ifnull(group_concat(warehouses.name separator ','), '') as warehouse_name
 from
 	orders
@@ -400,9 +517,8 @@ left join
 left join
 	warehouses on warehouses.id = store_self_delivery_document.warehouse_id
 where
-		self_delivery = 1
-	and
-		delivery_date = DATE(@date)
+	self_delivery = 1
+	and	delivery_date = DATE(@date)
 group by
 	orders.id,
 	orders.code1c,
@@ -415,7 +531,7 @@ group by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -436,6 +552,14 @@ group by
           <DataField>order_status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="full_bottles_count">
+          <DataField>full_bottles_count</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="returned_bottles_count">
+          <DataField>returned_bottles_count</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
         <Field Name="warehouse_name">
           <DataField>warehouse_name</DataField>
           <TypeName>System.String</TypeName>
@@ -445,12 +569,12 @@ group by
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017/04/24</Value>
+          <Value>2017/10/06</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -464,7 +588,8 @@ group by
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>
+        </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
