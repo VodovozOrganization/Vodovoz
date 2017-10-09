@@ -18,6 +18,12 @@ namespace Vodovoz.Reports
 
 		private global::Gamma.Widgets.yEntryReference yentryreferenceCar;
 
+		private global::Gtk.HBox hboxAuthor;
+
+		private global::Gtk.Label labelAuthor;
+
+		private global::Gamma.Widgets.yEntryReference yentryAuthor;
+
 		private global::Gtk.Button buttonCreateReport;
 
 		protected virtual void Build()
@@ -78,13 +84,36 @@ namespace Vodovoz.Reports
 			this.hbox3.Add(this.yentryreferenceCar);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryreferenceCar]));
 			w5.Position = 1;
-			w5.Expand = false;
-			w5.Fill = false;
 			this.vbox1.Add(this.hbox3);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
 			w6.Position = 1;
 			w6.Expand = false;
 			w6.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hboxAuthor = new global::Gtk.HBox();
+			this.hboxAuthor.Name = "hboxAuthor";
+			this.hboxAuthor.Spacing = 6;
+			// Container child hboxAuthor.Gtk.Box+BoxChild
+			this.labelAuthor = new global::Gtk.Label();
+			this.labelAuthor.Name = "labelAuthor";
+			this.labelAuthor.LabelProp = global::Mono.Unix.Catalog.GetString("Автор:");
+			this.hboxAuthor.Add(this.labelAuthor);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxAuthor[this.labelAuthor]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
+			// Container child hboxAuthor.Gtk.Box+BoxChild
+			this.yentryAuthor = new global::Gamma.Widgets.yEntryReference();
+			this.yentryAuthor.Events = ((global::Gdk.EventMask)(256));
+			this.yentryAuthor.Name = "yentryAuthor";
+			this.hboxAuthor.Add(this.yentryAuthor);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxAuthor[this.yentryAuthor]));
+			w8.Position = 1;
+			this.vbox1.Add(this.hboxAuthor);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxAuthor]));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.Sensitive = false;
@@ -93,17 +122,18 @@ namespace Vodovoz.Reports
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w7.Position = 3;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w10.Position = 4;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();
 			this.dateperiodpicker.PeriodChanged += new global::System.EventHandler(this.OnDateperiodpickerPeriodChanged);
+			this.yentryreferenceCar.Changed += new global::System.EventHandler(this.OnYentryreferenceCarChanged);
+			this.yentryAuthor.Changed += new global::System.EventHandler(this.OnYentryAuthorChanged);
 			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}

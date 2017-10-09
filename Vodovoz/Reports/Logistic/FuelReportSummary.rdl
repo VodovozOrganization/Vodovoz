@@ -22,7 +22,7 @@
       <Textbox Name="Textbox20">
         <Height>22.59pt</Height>
         <Width>815.89pt</Width>
-        <Value>="Отчет по топливу с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " до " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
+        <Value>="Отчет по топливу с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " до " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") + Iif({?author} = -1, "", ", сотрудник: " + First({author_name}, "FuelOther"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>12.00pt</Top>
@@ -36,7 +36,7 @@
       </Textbox>
       <Table Name="Table2">
         <DataSetName>FuelOther</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет подходящих результатов.</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -542,7 +542,7 @@
       </Table>
       <Table Name="Table3">
         <DataSetName>FuelTruck</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет подходящих результатов.</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1042,7 +1042,7 @@
       </Table>
       <Table Name="Table4">
         <DataSetName>FuelLargus</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет подходящих результатов.</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1588,7 +1588,7 @@
       </Textbox>
       <Table Name="Table1">
         <DataSetName>FuelSummary</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет подходящих результатов.</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1706,7 +1706,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="FuelOther">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	fuel_operations.date AS date,
@@ -1739,6 +1739,7 @@ WHERE
 	cars.type_of_use = 'Other' OR cars.type_of_use IS NULL
 	AND fuel_operations.date &gt;= @start_date
 	AND fuel_operations.date &lt;= @end_date
+	AND (@author = -1 OR author_id = @author)
 GROUP BY
 	route_list_id</CommandText>
         <QueryParameters>
@@ -1748,9 +1749,12 @@ GROUP BY
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
+          <QueryParameter Name="author">
+            <Value>={?author}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1798,7 +1802,7 @@ GROUP BY
       </Fields>
     </DataSet>
     <DataSet Name="FuelTruck">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	fuel_operations.date AS date,
@@ -1831,6 +1835,7 @@ WHERE
 	cars.type_of_use = 'Truck'
 	AND fuel_operations.date &gt;= @start_date
 	AND fuel_operations.date &lt;= @end_date
+	AND (@author = -1 OR author_id = @author)
 GROUP BY
 	route_list_id</CommandText>
         <QueryParameters>
@@ -1840,9 +1845,12 @@ GROUP BY
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
+          <QueryParameter Name="author">
+            <Value>={?author}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1890,7 +1898,7 @@ GROUP BY
       </Fields>
     </DataSet>
     <DataSet Name="FuelLargus">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	fuel_operations.date AS date,
@@ -1923,6 +1931,7 @@ WHERE
 	cars.type_of_use = 'Largus'
 	AND fuel_operations.date &gt;= @start_date
 	AND fuel_operations.date &lt;= @end_date
+	AND (@author = -1 OR author_id = @author)
 GROUP BY
 	route_list_id</CommandText>
         <QueryParameters>
@@ -1932,9 +1941,12 @@ GROUP BY
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
+          <QueryParameter Name="author">
+            <Value>={?author}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1982,7 +1994,7 @@ GROUP BY
       </Fields>
     </DataSet>
     <DataSet Name="FuelSummary">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	IFNULL(fuel_documents.fuel_type_id,0) AS fuel_type,
@@ -2000,7 +2012,8 @@ LEFT JOIN
 	fuel_documents ON fuel_documents.fuel_operation_id = fuel_operations.id
 WHERE
 	fuel_operations.date &gt;= @start_date
-	AND fuel_operations.date &lt;= @end_date</CommandText>
+	AND fuel_operations.date &lt;= @end_date
+	AND (@author = -1 OR author_id = @author)</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -2008,9 +2021,12 @@ WHERE
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
+          <QueryParameter Name="author">
+            <Value>={?author}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="fuel_type">
           <DataField>fuel_type</DataField>
           <TypeName>System.Int64</TypeName>
@@ -2036,7 +2052,7 @@ WHERE
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -2055,6 +2071,19 @@ WHERE
       <DefaultValue>
         <Values>
           <Value>2017/10/05</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="author">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>86</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
