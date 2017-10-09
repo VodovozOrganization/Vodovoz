@@ -329,12 +329,12 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     nomenclature.official_name AS name,
     SUM(order_items.count) AS total_count,
-    SUM(order_items.count * (order_items.price * (1 - order_items.discount))) AS total_sum,
+    truncate(SUM(order_items.count * (order_items.price * (100 - (cast(order_items.discount as decimal(2))))/100)),2) AS total_sum,
     nomenclature.category
 FROM
     order_items
@@ -367,7 +367,7 @@ GROUP BY nomenclature.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -387,15 +387,6 @@ GROUP BY nomenclature.id</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
@@ -422,4 +413,14 @@ GROUP BY nomenclature.id</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>
+        </ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>
