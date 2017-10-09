@@ -34,7 +34,7 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Table Name="Table2" >
+      <Table Name="Table2">
         <DataSetName>FuelOther</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -325,12 +325,14 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>=Fields!liters_coupons.Value</Value>
+                      <Value>=Iif({fuel_type}=3, {liters_coupons}, "")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -538,7 +540,7 @@
           </TableRows>
         </Footer>
       </Table>
-      <Table Name="Table3" >
+      <Table Name="Table3">
         <DataSetName>FuelTruck</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -1038,7 +1040,7 @@
           </TableRows>
         </Footer>
       </Table>
-      <Table Name="Table4" >
+      <Table Name="Table4">
         <DataSetName>FuelLargus</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -1542,7 +1544,7 @@
           </TableRows>
         </Footer>
       </Table>
-      <Textbox Name="Textbox2" >
+      <Textbox Name="Textbox2">
         <Height>13.51pt</Height>
         <Width>101.63pt</Width>
         <Value>Наёмные машины:</Value>
@@ -1556,7 +1558,7 @@
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox3" >
+      <Textbox Name="Textbox3">
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Фуры:</Value>
@@ -1570,7 +1572,7 @@
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox4" >
+      <Textbox Name="Textbox4">
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Ларгусы:</Value>
@@ -1584,7 +1586,7 @@
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Table Name="Table1" >
+      <Table Name="Table1">
         <DataSetName>FuelSummary</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -1704,7 +1706,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="FuelOther">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	fuel_operations.date AS date,
@@ -1748,7 +1750,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1795,7 +1797,7 @@ GROUP BY
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="FuelTruck" >
+    <DataSet Name="FuelTruck">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
@@ -1887,7 +1889,7 @@ GROUP BY
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="FuelLargus" >
+    <DataSet Name="FuelLargus">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
@@ -1979,7 +1981,7 @@ GROUP BY
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="FuelSummary" >
+    <DataSet Name="FuelSummary">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
@@ -2034,12 +2036,12 @@ WHERE
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017/08/01</Value>
+          <Value>2017/10/04</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2052,7 +2054,7 @@ WHERE
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017/09/21</Value>
+          <Value>2017/10/05</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2066,7 +2068,8 @@ WHERE
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru;Allow User Variables=True</ConnectString>
+        <ConnectString>
+        </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

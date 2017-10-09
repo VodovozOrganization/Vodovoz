@@ -397,7 +397,7 @@
 	route_lists.id,
 	sum(order_items.price * order_items.count) as profit,
 	sum(ifnull(cash_expense.money,0)) as advance,
-	(select
+	ifnull((select
 		sum(order_items.price * order_items.count) 
 	from
 		route_list_addresses
@@ -410,7 +410,7 @@
 	where
 		nomenclature.category = 'master'
 		and orders.payment_type = 'cash'
-		and route_list_addresses.route_list_id = route_lists.id) as profit_cash,
+		and route_list_addresses.route_list_id = route_lists.id),0) as profit_cash,
 	concat_ws('',
 		concat(employees.last_name, ' '),
             		if(employees.name = '', '',concat(left(employees.name, 1), '.')),
@@ -478,17 +478,7 @@ group by route_lists.id</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -529,4 +519,14 @@ group by route_lists.id</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>
+        </ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

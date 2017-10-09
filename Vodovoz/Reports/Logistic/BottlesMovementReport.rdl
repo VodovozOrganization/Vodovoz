@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>8.5in</PageHeight>
+  <PageWidth>11in</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -79,6 +79,9 @@
           </TableColumn>
           <TableColumn>
             <Width>50.8pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>178.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -252,6 +255,23 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>Коментарий к закрытию</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -402,6 +422,20 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>={closing_comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -539,6 +573,21 @@
                     <Textbox Name="Textbox70">
                       <Value>=Sum(Fields!total_fines.Value)</Value>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox78">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -1337,7 +1386,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="Closed">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
 	employees.last_name,
@@ -1348,7 +1397,8 @@
 	ifnull(rla.bottles_to_return,0) as bottles_to_return,
 	ifnull(rla.bottles_returned,0) as bottles_returned,
 	truncate(ifnull(returned_empty.amount,0),0) as amount_unloaded_empty,
-	sum(ifnull(fines.total_money,0)) as total_fines
+	sum(ifnull(fines.total_money,0)) as total_fines,
+	route_lists.closing_comment
 from
 	route_lists
 left join
@@ -1360,18 +1410,26 @@ left join
 		route_list_addresses.route_list_id as route_list_id,
 		sum(ifnull(orders.returned_tare,0)) as bottles_to_return,
 		sum(route_list_addresses.bottles_returned) as bottles_returned,
-		sum(order_items.count) as count,
-		sum(order_items.actual_count) as actual_count
+		sum(o_items.count) as count,
+		sum(o_items.actual_count) as actual_count
 	from
 		route_list_addresses
 	left join
 		orders on orders.id = route_list_addresses.order_id
 	left join 
-		order_items on order_items.order_id = orders.id
-	left join
-		nomenclature on nomenclature.id = order_items.nomenclature_id
-	where
-		nomenclature.category = 'water'
+		(select
+			order_items.order_id,
+			sum(order_items.count) as count,
+			sum(order_items.actual_count) as actual_count
+		from
+			order_items
+		left join
+			nomenclature on nomenclature.id = order_items.nomenclature_id
+		where
+			nomenclature.category = 'water'
+		group by
+			order_items.order_id
+		) as o_items on o_items.order_id = orders.id
 	group by
 		route_list_addresses.route_list_id) as rla on rla.route_list_id = route_lists.id
 left join
@@ -1421,7 +1479,7 @@ group by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="last_name">
           <DataField>last_name</DataField>
           <TypeName>System.String</TypeName>
@@ -1458,10 +1516,14 @@ group by
           <DataField>total_fines</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="closing_comment">
+          <DataField>closing_comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="NotClosed">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
 	employees.last_name,
@@ -1484,18 +1546,26 @@ left join
 		route_list_addresses.route_list_id as route_list_id,
 		sum(ifnull(orders.returned_tare,0)) as bottles_to_return,
 		sum(route_list_addresses.bottles_returned) as bottles_returned,
-		sum(order_items.count) as count,
-		sum(order_items.actual_count) as actual_count
+		sum(o_items.count) as count,
+		sum(o_items.actual_count) as actual_count
 	from
 		route_list_addresses
 	left join
 		orders on orders.id = route_list_addresses.order_id
 	left join 
-		order_items on order_items.order_id = orders.id
-	left join
-		nomenclature on nomenclature.id = order_items.nomenclature_id
-	where
-		nomenclature.category = 'water'
+		(select
+			order_items.order_id,
+			sum(order_items.count) as count,
+			sum(order_items.actual_count) as actual_count
+		from
+			order_items
+		left join
+			nomenclature on nomenclature.id = order_items.nomenclature_id
+		where
+			nomenclature.category = 'water'
+		group by
+			order_items.order_id
+		) as o_items on o_items.order_id = orders.id
 	group by
 		route_list_addresses.route_list_id) as rla on rla.route_list_id = route_lists.id
 left join
@@ -1545,7 +1615,7 @@ group by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="last_name">
           <DataField>last_name</DataField>
           <TypeName>System.String</TypeName>
@@ -1585,7 +1655,7 @@ group by
       </Fields>
     </DataSet>
     <DataSet Name="Total">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
 	sum(ifnull(rla.count,0)) as count,
@@ -1606,18 +1676,26 @@ left join
 		route_list_addresses.route_list_id as route_list_id,
 		sum(ifnull(orders.returned_tare,0)) as bottles_to_return,
 		sum(route_list_addresses.bottles_returned) as bottles_returned,
-		sum(order_items.count) as count,
-		sum(order_items.actual_count) as actual_count
+		sum(o_items.count) as count,
+		sum(o_items.actual_count) as actual_count
 	from
 		route_list_addresses
 	left join
 		orders on orders.id = route_list_addresses.order_id
 	left join 
-		order_items on order_items.order_id = orders.id
-	left join
-		nomenclature on nomenclature.id = order_items.nomenclature_id
-	where
-		nomenclature.category = 'water'
+		(select
+			order_items.order_id,
+			sum(order_items.count) as count,
+			sum(order_items.actual_count) as actual_count
+		from
+			order_items
+		left join
+			nomenclature on nomenclature.id = order_items.nomenclature_id
+		where
+			nomenclature.category = 'water'
+		group by
+			order_items.order_id
+		) as o_items on o_items.order_id = orders.id
 	group by
 		route_list_addresses.route_list_id) as rla on rla.route_list_id = route_lists.id
 left join
@@ -1664,7 +1742,7 @@ where
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="count">
           <DataField>count</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1696,12 +1774,12 @@ where
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017/09/25</Value>
+          <Value>2017/10/03</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1714,7 +1792,7 @@ where
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017/09/26</Value>
+          <Value>2017/10/03</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1724,12 +1802,11 @@ where
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString>database=Vodovoz_honeybee;user=saendra;password=qwerty;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
