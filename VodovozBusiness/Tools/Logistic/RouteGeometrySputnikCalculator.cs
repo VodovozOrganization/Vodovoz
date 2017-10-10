@@ -30,21 +30,11 @@ namespace Vodovoz.Tools.Logistic
 
 		public event EventHandler RouteCalculeted;
 
-		int startCached, totalCached, addedCached, totalErrors;
+		int totalCached, addedCached, totalErrors;
 
 		private Dictionary<long, Dictionary<long, CachedDistance>> cache = new Dictionary<long, Dictionary<long, CachedDistance>>();
 
 		public List<WayHash> ErrorWays = new List<WayHash>();
-
-		public RouteGeometrySputnikCalculator(WayHash[] ways)
-		{
-			var fromDB = Repository.Logistics.CachedDistanceRepository.GetCache(UoW, ways);
-			startCached = fromDB.Count;
-			foreach (var distance in fromDB)
-			{
-				AddNewCacheDistance(distance);
-			}
-		}
 
 		public RouteGeometrySputnikCalculator()
 		{
