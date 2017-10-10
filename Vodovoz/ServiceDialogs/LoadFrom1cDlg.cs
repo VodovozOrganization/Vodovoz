@@ -41,6 +41,8 @@ namespace Vodovoz
 
 		private string newAddressString = "НОВЫЙ АДРЕС", orderIncreaseString = "УВЕЛИЧЕНИЕ ЗАКАЗА", firstOrderString = "ПЕРВЫЙ ЗАКАЗ";
 
+		private ChangedItem ordersToClose = new ChangedItem();
+
 		#if SHORT
 		List<string> ExcludeNomenclatures = new List<string> {
 			 
@@ -866,6 +868,12 @@ namespace Vodovoz
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
+			if(ordersToClose.Fields.Count > 100)
+			{
+				MessageDialogWorks.RunWarningDialog("<b>ОШИБКА ПРИ ПОПЫТКЕ ЗАГРУЗИТЬ ВЫГРУЗКУ!\nПЕРЕДАЙТЕ ФАЙЛ ВЫГРУЗКИ В IT-ОТДЕЛ!</b>");
+				return;
+			}
+
 			progressbar.Text = "Записываем данные в базу...";
 			logger.Info("Записываем данные в базу...");
 			UoW.Commit ();
@@ -1040,20 +1048,17 @@ namespace Vodovoz
 							continue;
 						}
 
-						if(exist.OrderStatus == OrderStatus.Canceled)
-						{
-							if(exist.DeliverySchedule != null && exist.DeliveryPoint != null)
-							{
-								exist.OrderStatus = OrderStatus.Accepted;
-							}
-							else
-							{
-								exist.OrderStatus = OrderStatus.NewOrder;
-							}
-						}
-
 						ChangedOrders++;
 						Changes.Add(change);
+						UoW.Save(exist);
+					}
+
+					if(exist.OrderStatus == OrderStatus.Canceled) {
+						if(exist.DeliverySchedule != null && exist.DeliveryPoint != null) {
+							exist.OrderStatus = OrderStatus.Accepted;
+						} else {
+							exist.OrderStatus = OrderStatus.NewOrder;
+						}
 						UoW.Save(exist);
 					}
 				}
@@ -1074,6 +1079,7 @@ namespace Vodovoz
 			if (notLoaded != null)
 			{
 				Changes.Add(notLoaded);
+				ordersToClose = notLoaded;
 				labelLostOrders.LabelProp = notLoaded.Fields.Count.ToString();
 			}
 				
