@@ -1209,6 +1209,10 @@ namespace Vodovoz
 				return;
 			}
 
+			foreach(OrderItem item in Entity.OrderItems)
+			{
+				item.ActualCount = item.Count;
+			}
 			Entity.ChangeStatus(OrderStatus.Closed);
 			ButtonCloseOrderSensitivity();
 		}
