@@ -39,6 +39,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add ("store_manage", new UserPermission("store_manage", "Управление складом", "Пользователь имеет полный доступ к складу."));
 			QSMain.ProjectPermission.Add ("store_worker", new UserPermission("store_worker", "Работник склада", "Пользователь имеет доступ к складу."));
 			QSMain.ProjectPermission.Add ("store_production", new UserPermission("store_production", "Управление складом производство", ""));
+			QSMain.ProjectPermission.Add ("store_vartemyagi", new UserPermission("store_vartemyagi", "Управление складом производство Вартемяги", ""));
 			QSMain.ProjectPermission.Add ("store_office", new UserPermission("store_office", "Управление складом офис", ""));
 			QSMain.ProjectPermission.Add ("store_equipment", new UserPermission("store_equipment", "Управление складом оборудование", ""));
 			QSMain.ProjectPermission.Add ("can_delete", new UserPermission("can_delete", "Удаление заказов и маршрутных листов", "Пользователь может удалять заказы и маршрутные листы в журналах."));

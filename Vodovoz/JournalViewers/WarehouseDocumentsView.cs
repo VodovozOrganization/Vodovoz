@@ -28,7 +28,7 @@ namespace Vodovoz
 			tableDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
 			buttonAdd.ItemsEnum = typeof(Domain.Documents.DocumentType);
-			if(QSMain.User.Permissions["store_production"])
+			if(QSMain.User.Permissions["store_production"] || QSMain.User.Permissions["store_vartemyagi"])
 				IfUserTypeProduction();
 		}
 
