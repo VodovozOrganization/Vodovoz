@@ -684,6 +684,7 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.BottlesMovementReport.cs" />
     <Compile Include="ReportsParameters\MastersVisitReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersVisitReport.cs" />
+    <Compile Include="Additions\Logistic\MapDrawingHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1067,6 +1068,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\ServiceCenter\MastersVisitReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\RouteMap.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

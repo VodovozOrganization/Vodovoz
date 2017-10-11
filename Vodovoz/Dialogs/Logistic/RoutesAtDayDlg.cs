@@ -343,29 +343,7 @@ namespace Vodovoz
 				if(rl == null)
 					rl = (row as RouteListItem).RouteList;
 
-				List<PointLatLng> points;
-				if(UseSputnikDistance)
-				{
-					var address = GenerateHashPiontsOfRoute(rl);
-					MainClass.MainWin.ProgressStart(address.Count);
-					points = distanceCalculator.GetGeometryOfRoute(address.ToArray(), (val, max) => MainClass.MainWin.ProgressUpdate(val));
-					MainClass.MainWin.ProgressClose();
-				}
-				else
-				{
-					points = new List<PointLatLng>();
-					points.Add(DistanceCalculator.BasePoint);
-					points.AddRange(rl.Addresses.Select(x => x.Order.DeliveryPoint.GmapPoint));
-					points.Add(DistanceCalculator.BasePoint);
-				}
-
-				var route = new GMapRoute(points, rl.Id.ToString());
-
-				route.Stroke = new System.Drawing.Pen(System.Drawing.Color.Blue);
-				route.Stroke.Width = 2;
-				route.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-
-				routeOverlay.Routes.Add(route);
+				MapDrawingHelper.DrawRoute(routeOverlay, rl, distanceCalculator);
 
 				//Если выбран адрес, центруем на него карту.
 				var rli = row as RouteListItem;
@@ -375,15 +353,6 @@ namespace Vodovoz
 				}
 			}
 			logger.Info("Ok");
-		}
-
-		private List<long> GenerateHashPiontsOfRoute(RouteList rl)
-		{
-			var result = new List<long>();
-			result.Add(RouteGeometrySputnikCalculator.BaseHash);
-			result.AddRange(rl.Addresses.Where(x => x.Order.DeliveryPoint.СoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
-			result.Add(RouteGeometrySputnikCalculator.BaseHash);
-			return result;
 		}
 
 		void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)
@@ -530,7 +499,7 @@ namespace Vodovoz
 			if(rl != null)
 			{
 				var proposed = optimizer.ProposedRoutes.FirstOrDefault(x => x.RealRoute == rl);
-				var distanceMeters = distanceCalculator.GetRouteDistanceBackground(GenerateHashPiontsOfRoute(rl).ToArray());
+				var distanceMeters = distanceCalculator.GetRouteDistanceBackground(MapDrawingHelper.GenerateHashPiontsOfRoute(rl).ToArray());
 				if (distanceMeters == -1)
 					return "⌛";
 				if(proposed == null)

@@ -15,10 +15,6 @@ namespace Vodovoz.Tools.Logistic
 {
 	public class RouteGeometrySputnikCalculator : IDistanceCalculator
 	{
-		#region Настройки
-		public static int DistanceFalsePenality = 100000;
-		#endregion
-
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		public static long BaseHash = CachedDistance.GetHash(Constants.BaseLatitude, Constants.BaseLongitude);
 
