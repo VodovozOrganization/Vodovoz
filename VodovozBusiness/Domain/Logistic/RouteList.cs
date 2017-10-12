@@ -789,26 +789,41 @@ namespace Vodovoz.Domain.Logistic
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
 			foreach (RouteListItem item in addresesDelivered) {
 				if (item.DepositsCollected != 0) {
-					var bottlesOperation = new DepositOperation {
-						Order = item.Order,
-						OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-						DepositType = DepositType.Bottles,
-						Counterparty = item.Order.Client,
-						DeliveryPoint = item.Order.DeliveryPoint,
-						ReceivedDeposit = item.DepositsCollected
-					};
+					DepositOperation bottlesOperation;
+
+					if(item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Bottles).ToList().Count >= 1)
+					{
+						bottlesOperation = item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Bottles).FirstOrDefault();
+						bottlesOperation.ReceivedDeposit = item.DepositsCollected;
+					} else {
+						bottlesOperation = new DepositOperation {
+							Order = item.Order,
+							OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+							DepositType = DepositType.Bottles,
+							Counterparty = item.Order.Client,
+							DeliveryPoint = item.Order.DeliveryPoint,
+							ReceivedDeposit = item.DepositsCollected
+						};
+					}
 					result.Add(bottlesOperation);
 				}
 
 				if (item.EquipmentDepositsCollected != 0) {
-					var equipmentOperation = new DepositOperation {
-						Order = item.Order,
-						OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-						DepositType = DepositType.Equipment,
-						Counterparty = item.Order.Client,
-						DeliveryPoint = item.Order.DeliveryPoint,
-						ReceivedDeposit = item.EquipmentDepositsCollected
-					};
+					DepositOperation equipmentOperation;
+
+					if(item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Equipment).ToList().Count >= 1) {
+						equipmentOperation = item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Equipment).FirstOrDefault();
+						equipmentOperation.ReceivedDeposit = item.EquipmentDepositsCollected;
+					} else {
+						equipmentOperation = new DepositOperation {
+							Order = item.Order,
+							OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+							DepositType = DepositType.Equipment,
+							Counterparty = item.Order.Client,
+							DeliveryPoint = item.Order.DeliveryPoint,
+							ReceivedDeposit = item.EquipmentDepositsCollected
+						};
+					}
 					result.Add(equipmentOperation);
 				}
 			}

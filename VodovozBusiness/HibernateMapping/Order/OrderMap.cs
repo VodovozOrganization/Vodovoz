@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+﻿﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -61,6 +61,7 @@ namespace Vodovoz.HibernateMapping
 			HasMany (x => x.OrderEquipments)	.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");
 			HasMany (x => x.InitialOrderService).Cascade.None ().LazyLoad ().Inverse ().KeyColumn ("initial_order_id");
 			HasMany (x => x.FinalOrderService)	.Cascade.None ().LazyLoad ().Inverse ().KeyColumn ("final_order_id");
+			HasMany (x => x.DepositOperations)  .Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");
 		}
 	}
 }
