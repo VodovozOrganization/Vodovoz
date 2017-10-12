@@ -51,11 +51,17 @@ namespace Vodovoz.Reports
 
 		private ReportInfo GetReportInfo()
 		{
+			var endDate = dateperiodpicker.EndDateOrNull;
+			if(endDate != null)
+			{
+				endDate = endDate.GetValueOrDefault().AddHours(23).AddMinutes(59);
+			}
+
 			var parameters = new Dictionary<string, object>
 				{
 					{ "driver_id", (yentryreferenceDriver.Subject as Employee).Id},
 					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull }
+					{ "end_date", endDate }
 			};
 
 			if(checkShowBalance.Active) {
