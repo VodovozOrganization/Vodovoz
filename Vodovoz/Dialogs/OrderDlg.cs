@@ -23,6 +23,7 @@ using Vodovoz.Panel;
 using Vodovoz.Repository;
 using QSDocTemplates;
 using Vodovoz.JournalFilters;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz
 {
@@ -1213,6 +1214,27 @@ namespace Vodovoz
 			{
 				item.ActualCount = item.Count;
 			}
+
+			int amountDelivered = Entity.OrderItems
+					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+					.Sum(item => item.ActualCount);
+
+			if(Entity.BottlesMovementOperation == null)
+			{
+				if(amountDelivered != 0 || (Entity.ReturnedTare != 0 && Entity.ReturnedTare != null)) {
+					var bottlesMovementOperation = new BottlesMovementOperation {
+						OperationTime = Entity.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+						Order = Entity,
+						Delivered = amountDelivered,
+						Returned = Entity.ReturnedTare.GetValueOrDefault(),
+						Counterparty = Entity.Client,
+						DeliveryPoint = Entity.DeliveryPoint
+					};
+					UoW.Save(bottlesMovementOperation);
+					Entity.BottlesMovementOperation = bottlesMovementOperation;
+				}
+			}
+
 			Entity.ChangeStatus(OrderStatus.Closed);
 			ButtonCloseOrderSensitivity();
 		}
