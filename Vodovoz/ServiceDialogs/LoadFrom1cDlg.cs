@@ -868,7 +868,7 @@ namespace Vodovoz
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if(ordersToClose.Fields.Count > 100)
+			if(ordersToClose.Fields != null && ordersToClose.Fields.Count > 100)
 			{
 				MessageDialogWorks.RunWarningDialog("<b>ОШИБКА ПРИ ПОПЫТКЕ ЗАГРУЗИТЬ ВЫГРУЗКУ!\nПЕРЕДАЙТЕ ФАЙЛ ВЫГРУЗКИ В IT-ОТДЕЛ!</b>");
 				return;
