@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="RouteLists">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	route_lists.id AS routeListId,
@@ -87,7 +87,7 @@ GROUP BY routeListId</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="routeListId">
           <DataField>routeListId</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -181,13 +181,13 @@ GROUP BY routeListId</CommandText>
           <TableColumn>
             <Width>58.2pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>61.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>54.8pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>53.7pt</Width>
           </TableColumn>
           <TableColumn>
@@ -282,7 +282,7 @@ GROUP BY routeListId</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
                       <Value>Отгруженных бутылей</Value>
@@ -294,12 +294,12 @@ GROUP BY routeListId</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
                       <Value>Предполагаемая возвратная тара</Value>
@@ -311,12 +311,12 @@ GROUP BY routeListId</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
                       <Value>Сданная пустая тара</Value>
@@ -328,7 +328,7 @@ GROUP BY routeListId</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -457,7 +457,7 @@ GROUP BY routeListId</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
                       <Value>={bottles}</Value>
@@ -472,7 +472,7 @@ GROUP BY routeListId</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
                       <Value>={planned_returned_bottles}</Value>
@@ -487,7 +487,7 @@ GROUP BY routeListId</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26">
                       <Value>={returned_bottles}</Value>
@@ -576,7 +576,7 @@ GROUP BY routeListId</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
                       <Value>=Sum({bottles})</Value>
@@ -591,10 +591,10 @@ GROUP BY routeListId</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>=Sum({returned_bottles})</Value>
+                      <Value>=Sum({planned_returned_bottles})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -606,7 +606,7 @@ GROUP BY routeListId</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
                       <Value>=Sum({returned_bottles})</Value>
@@ -649,7 +649,7 @@ GROUP BY routeListId</CommandText>
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>.2in</Height>
               <TableCells>
                 <TableCell>
@@ -671,7 +671,7 @@ GROUP BY routeListId</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value>=Sum({returned_bottles}) - Sum({returned_bottles})</Value>
+                      <Value>=Sum({planned_returned_bottles}) - Sum({returned_bottles})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
