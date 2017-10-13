@@ -1483,6 +1483,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                       <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0))</Value>
                     </Textbox>
@@ -1495,6 +1497,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                       <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0))</Value>
                     </Textbox>
@@ -1634,7 +1638,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>=Fields!liters_used.Value</Value>
+                      <Value>=Sum({liters_outlayed}, "FuelOther") + Sum({liters_outlayed}, "FuelTruck") + Sum({liters_outlayed}, "FuelLargus")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1649,7 +1653,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>=Fields!coupons_diesel.Value</Value>
+                      <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelOther") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelTruck") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelLargus")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1664,7 +1668,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>=Fields!coupons_benzene.Value</Value>
+                      <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0), "FuelOther") + Sum(Iif({fuel_type}!=3, {liters_coupons}, 0), "FuelTruck") + Sum(Iif({fuel_type}!=3, {liters_coupons}, 0), "FuelLargus")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1736,8 +1740,10 @@ left join
 	cars on cars.id = route_lists.car_id
 where
 	(cars.type_of_use = 'Other' or cars.type_of_use is null)
-	and ifnull(fuel_operations.date,fuel_documents.date) &gt;= @start_date
-	and ifnull(fuel_operations.date,fuel_documents.date) &lt; @end_date
+	and fuel_documents.fuel_coupons is not null
+	and fuel_documents.fuel_coupons &lt;&gt; 0
+	and (fuel_operations.date &gt;= @start_date or fuel_documents.date &gt;= @start_date)
+	and (fuel_operations.date &lt; @end_date or fuel_documents.date &lt; @end_date)
 	AND (@author = -1 OR author_id = @author)
 group by
 	route_list_id</CommandText>
@@ -1831,8 +1837,10 @@ left join
 	cars on cars.id = route_lists.car_id
 where
 	cars.type_of_use = 'Truck'
-	and ifnull(fuel_operations.date,fuel_documents.date) &gt;= @start_date
-	and ifnull(fuel_operations.date,fuel_documents.date) &lt; @end_date
+	and fuel_documents.fuel_coupons is not null
+	and fuel_documents.fuel_coupons &lt;&gt; 0
+	and (fuel_operations.date &gt;= @start_date or fuel_documents.date &gt;= @start_date)
+	and (fuel_operations.date &lt; @end_date or fuel_documents.date &lt; @end_date)
 	AND (@author = -1 OR author_id = @author)
 group by
 	route_list_id</CommandText>
@@ -1926,8 +1934,10 @@ left join
 	cars on cars.id = route_lists.car_id
 where
 	cars.type_of_use = 'Largus'
-	and ifnull(fuel_operations.date,fuel_documents.date) &gt;= @start_date
-	and ifnull(fuel_operations.date,fuel_documents.date) &lt; @end_date
+	and fuel_documents.fuel_coupons is not null
+	and fuel_documents.fuel_coupons &lt;&gt; 0
+	and (fuel_operations.date &gt;= @start_date or fuel_documents.date &gt;= @start_date)
+	and (fuel_operations.date &lt; @end_date or fuel_documents.date &lt; @end_date)
 	AND (@author = -1 OR author_id = @author)
 group by
 	route_list_id</CommandText>

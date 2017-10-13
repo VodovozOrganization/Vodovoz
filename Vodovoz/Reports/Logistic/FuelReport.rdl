@@ -54,7 +54,7 @@
           <TableColumn>
             <Width>52.9pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>52.9pt</Width>
           </TableColumn>
           <TableColumn>
@@ -212,7 +212,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
                       <Value>Выдано литров талонами (,ензин)</Value>
@@ -418,7 +418,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
                       <Value>=Iif({fuel_type}!=3, {liters_coupons}, "")</Value>
@@ -486,7 +486,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>52.6pt</Top>
+        <Top>53.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -609,7 +609,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0))</Value>
@@ -726,7 +726,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Fuel">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     main.*,
@@ -742,7 +742,7 @@ FROM
             SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
             SUM(fuel_operations.liters_gived) AS liters_gived,
             SUM(fuel_documents.payed_for_fuel) AS payed_for_fuel,
-            IFNULL(fuel_documents.fuel_type_id,0) AS fuel_type,
+            IFNULL(fuel_operations.fuel_type_id,0) AS fuel_type,
             SUM(IFNULL(fuel_documents.fuel_coupons, 0)) AS liters_coupons,
             cars.reg_number AS reg_number
     FROM
@@ -781,7 +781,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
