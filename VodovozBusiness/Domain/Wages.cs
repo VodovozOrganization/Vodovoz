@@ -8,6 +8,7 @@ namespace Vodovoz.Domain
 			{
 				PhoneServiceCompensationRate = 2,
 				FullBottleRate = route_date < new DateTime(2017, 9, 18) ? (withForwarder ? 10 : 15) : (withForwarder ? 15 : 20),
+				SmallBottleRate = route_date < new DateTime(2017, 9, 18) ? (withForwarder ? 10 : 15) : (withForwarder ? 15 : 20),
 				EmptyBottleRate = 5,
 				CoolerRate = withForwarder ? 20 : 30,
 				PaymentPerAddress = 50,
@@ -24,6 +25,7 @@ namespace Vodovoz.Domain
 			{
 				PhoneServiceCompensationRate = 2,
 				FullBottleRate = route_date < new DateTime(2017, 8, 8) ? 7 : 10,
+				SmallBottleRate = route_date < new DateTime(2017, 8, 8) ? 7 : 10,
 				EmptyBottleRate = 5,
 				CoolerRate = 14,
 				PaymentPerAddress = 30,
@@ -36,10 +38,10 @@ namespace Vodovoz.Domain
 		}
 
 		public static Rates GetForwarderRates(){
-			return new Rates
-			{
-				PhoneServiceCompensationRate=0,
+			return new Rates {
+				PhoneServiceCompensationRate = 0,
 				FullBottleRate = 5,
+				SmallBottleRate = 0,
 				EmptyBottleRate = 5,
 				CoolerRate = 10,
 				PaymentPerAddress = 0,
@@ -54,6 +56,7 @@ namespace Vodovoz.Domain
 		public class Rates{
 			public decimal PhoneServiceCompensationRate;
 			public decimal FullBottleRate;
+			public decimal SmallBottleRate;
 			public decimal EmptyBottleRate;
 			public decimal CoolerRate;
 			public decimal PaymentPerAddress;

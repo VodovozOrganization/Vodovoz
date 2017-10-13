@@ -9,6 +9,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository;
 using Vodovoz.Tools.Logistic;
+using System.Text.RegularExpressions;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -567,6 +568,11 @@ namespace Vodovoz.Domain.Logistic
 							.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 							.Sum(item => item.ActualCount);
 
+			var smallBottleCount = Order.OrderItems
+			                            .Where(item => item.Nomenclature.Category == NomenclatureCategory.disposableBottleWater)
+			                            .Where(item => Regex.Match(item.Nomenclature.Name, @".*(0[\.,]6).*").Length > 0)
+										.Sum(item => item.ActualCount);
+
 			bool largeOrder = fullBottleCount >= rates.LargeOrderMinimumBottles;
 
 			var bottleCollectionOrder = Order.CollectBottles;
@@ -577,6 +583,8 @@ namespace Vodovoz.Domain.Logistic
 			var largeFullBottlesPayment = largeOrder
 				? fullBottleCount * rates.LargeOrderFullBottleRate
 				: fullBottleCount * rates.FullBottleRate;
+
+			var smallBottlePayment = Math.Truncate(100*(smallBottleCount * rates.SmallBottleRate)/36)/100;
 
 			var payForEquipment = fullBottleCount == 0
 				&& (Order.OrderEquipments.Count(item => item.Direction == Direction.Deliver && item.Confirmed) > 0
@@ -591,7 +599,7 @@ namespace Vodovoz.Domain.Logistic
 						&& item.Nomenclature.Weight == 6.0)
 					.Sum(item => item.ActualCount);
 
-			var wage = equpmentPayment + largeFullBottlesPayment
+			var wage = equpmentPayment + largeFullBottlesPayment + smallBottlePayment
 				+ contractCancelationPayment + emptyBottlesPayment
 				+ smallFullBottlesPayment + paymentForAddress;
 
