@@ -29,7 +29,7 @@
 			employees.patronymic)) AS driver_name,
 	IFNULL(
 		(SELECT
-			SUM(total_cash) -  IFNULL(money,0)
+			SUM(total_cash) -  IFNULL(money,0) - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected)) 
 		FROM
 			route_list_addresses
 		WHERE
@@ -45,8 +45,8 @@
 		LEFT JOIN
 			cars ON cars.id = route_lists.car_id
 		WHERE
-			cars.type_of_use &lt;&gt; 'Truck'
-			AND route_list_addresses.status = 'Completed'
+            (is_company_havings = 0 OR (is_company_havings = 1 AND (cars.type_of_use &lt;&gt; 'Truck' OR cars.type_of_use is null)))
+            AND route_list_addresses.status = 'Completed'
 			AND route_list_addresses.route_list_id = routeListId), 0)  AS paytelephone,
 	(select
 		sum(order_items.count)
