@@ -532,8 +532,14 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal CalculateDriverWage()
 		{
-			if (!IsDelivered())
+			if(!IsDelivered())
 				return 0;
+
+			if(RouteList.Driver.WageCalcType == WageCalculationType.fixedDay || RouteList.Driver.WageCalcType == WageCalculationType.fixedRoute)
+				return 0;
+
+			if(RouteList.Driver.WageCalcType == WageCalculationType.percentage)
+				return this.TotalCash * RouteList.Driver.WageCalcRate / 100;
 
 			bool withForwarder = RouteList.Forwarder != null;
 			bool ich = RouteList.Car.IsCompanyHavings;
@@ -544,11 +550,17 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal CalculateForwarderWage()
 		{
-			if (!WithForwarder || RouteList.Forwarder == null)
+			if(!WithForwarder || RouteList.Forwarder == null)
 				return 0;
 
-			if (!IsDelivered())
+			if(!IsDelivered())
 				return 0;
+
+			if(RouteList.Forwarder.WageCalcType == WageCalculationType.fixedDay || RouteList.Forwarder.WageCalcType == WageCalculationType.fixedRoute)
+				return 0;
+
+			if(RouteList.Forwarder.WageCalcType == WageCalculationType.percentage)
+				return this.TotalCash * RouteList.Forwarder.WageCalcRate /100;
 
 			var rates = Wages.GetForwarderRates();
 

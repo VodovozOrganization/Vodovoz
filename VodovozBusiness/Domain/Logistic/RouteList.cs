@@ -1096,8 +1096,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void UpdateWageOperation()
 		{
-			var driverWage = Addresses
-				.Where(item => item.IsDelivered()).Sum(item => item.DriverWageTotal);
+			var driverWage = GetDriversTotalWage();
 			if (DriverWageOperation == null) {
 				DriverWageOperation = new WagesMovementOperations {
 					OperationTime = this.Date,
@@ -1112,8 +1111,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 			UoW.Save(DriverWageOperation);
 
-			var forwarderWage = Addresses
-				.Where(item => item.IsDelivered()).Sum(item => item.ForwarderWageTotal);
+			var forwarderWage = GetForwardersTotalWage();
 
 			if (ForwarderWageOperation == null && forwarderWage > 0) {
 				ForwarderWageOperation = new WagesMovementOperations {
@@ -1132,6 +1130,54 @@ namespace Vodovoz.Domain.Logistic
 
 			if (ForwarderWageOperation != null)
 				UoW.Save(ForwarderWageOperation);
+		}
+
+		decimal GetDriversTotalWage() // Индивидуальный расчёт з/п водителя.
+		{
+			if(Driver.WageCalcType == WageCalculationType.normal
+			   || Driver.WageCalcType == WageCalculationType.percentage) {
+				return Addresses
+				.Where(item => item.IsDelivered()).Sum(item => item.DriverWageTotal);
+			}
+
+			if(Driver.WageCalcType == WageCalculationType.fixedRoute) {
+				return Driver.WageCalcRate;
+			}
+
+			if(Driver.WageCalcType == WageCalculationType.fixedDay) {
+				var wageOperation = UoW.Session.QueryOver<WagesMovementOperations>()
+									   .Where(x => x.Employee == Driver)
+									   .Where(x => x.OperationTime == Date)
+									   .Take(1);
+
+				return wageOperation == null ? Driver.WageCalcRate : 0;
+			}
+
+			return 0;
+		}
+
+		decimal GetForwardersTotalWage() // Индивидуальный расчёт з/п экспедитора.
+		{
+			if(Forwarder.WageCalcType == WageCalculationType.normal
+			   || Forwarder.WageCalcType == WageCalculationType.percentage) {
+				return Addresses
+				.Where(item => item.IsDelivered()).Sum(item => item.ForwarderWageTotal);
+			}
+
+			if(Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+				return Forwarder.WageCalcRate;
+			}
+
+			if(Forwarder.WageCalcType == WageCalculationType.fixedDay) {
+				var wageOperation = UoW.Session.QueryOver<WagesMovementOperations>()
+									   .Where(x => x.Employee == Forwarder)
+									   .Where(x => x.OperationTime == Date)
+									   .Take(1);
+
+				return wageOperation == null ? Forwarder.WageCalcRate : 0;
+			}
+
+			return 0;
 		}
 
 		#endregion

@@ -80,6 +80,8 @@ namespace Vodovoz
 
 			comboCategory.ItemsEnum = typeof(EmployeeCategory);
 			comboCategory.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
+			comboWageCalcType.ItemsEnum = typeof(WageCalculationType);
+			comboWageCalcType.Binding.AddBinding(Entity, e => e.WageCalcType, w => w.SelectedItem).InitializeFromSource();
 
 			photoviewEmployee.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewEmployee.GetSaveFileName = () => Entity.FullName;
@@ -98,6 +100,7 @@ namespace Vodovoz
 			ydateFirstWorkDay.Binding.AddBinding(Entity, e => e.FirstWorkDay, w => w.DateOrNull).InitializeFromSource();
 			yspinTripsPriority.Binding.AddBinding(Entity, e => e.TripPriority, w => w.ValueAsShort).InitializeFromSource();
 			yspinDriverSpeed.Binding.AddBinding(Entity, e => e.DriverSpeed, w => w.Value, new MultiplierToPercentConverter()).InitializeFromSource();
+			yspinWageCalcRate.Binding.AddBinding(Entity, e => e.WageCalcRate, w => w.ValueAsDecimal).InitializeFromSource();
 
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
 				.AddColumn("Район").AddTextRenderer(x => x.District.Name)
@@ -188,6 +191,11 @@ namespace Vodovoz
 			    = checkLargusDriver.Visible
 				= labelLargusDriver.Visible
 				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
+
+			labelWageCalcType.Visible
+				= hboxCustomWageCalc.Visible
+				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver
+				   || (EmployeeCategory)e.SelectedItem == EmployeeCategory.forwarder);
 		}
 
 		protected void OnRadioTabLogisticToggled(object sender, EventArgs e)
@@ -223,6 +231,23 @@ namespace Vodovoz
 						}).ToList().ForEach(x => Entity.ObservableDistricts.Add(x));
 		}
 
+		protected void OnComboWageCalcTypeEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			labelWageCalcRate.Visible 
+			    = yspinWageCalcRate.Visible
+				= (WageCalculationType)e.SelectedItem != WageCalculationType.normal;
+
+			if((WageCalculationType)e.SelectedItem == WageCalculationType.percentage)
+			{
+				yspinWageCalcRate.Adjustment.Upper = 100;
+			}
+
+			if((WageCalculationType)e.SelectedItem == WageCalculationType.fixedDay
+			   || (WageCalculationType)e.SelectedItem == WageCalculationType.fixedRoute)
+			{
+				yspinWageCalcRate.Adjustment.Upper = 100000;
+			}
+		}
 	}
 }
 

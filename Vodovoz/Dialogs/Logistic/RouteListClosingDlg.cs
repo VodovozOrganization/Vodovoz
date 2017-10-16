@@ -14,6 +14,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 
@@ -334,8 +335,8 @@ namespace Vodovoz
 			decimal depositsCollectedTotal = items.Sum(item => item.DepositsCollected);
 			decimal equipmentDepositsCollectedTotal = items.Sum(item => item.EquipmentDepositsCollected);
 			decimal totalCollected = items.Sum(item => item.TotalCash);
-			decimal driverWage = items.Sum(item => item.DriverWage) + items.Sum(item => item.DriverWageSurcharge);
-			decimal forwarderWage = items.Sum(item => item.ForwarderWage);
+			decimal driverWage = GetDriversTotalWage(items);
+			decimal forwarderWage = GetForwardersTotalWage(items);
 			labelAddressCount.Text = String.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = String.Format(
 				"Сот. связь: {0} {1}",
@@ -808,6 +809,60 @@ namespace Vodovoz
 		protected void OnAdvanceSpinbuttonChanged(object sender, EventArgs e)   // Поле изменения суммы аванса. @Дима
 		{
 			CalculateTotal();
+		}
+
+		protected decimal GetDriversTotalWage(IEnumerable<RouteListItem> items)
+		{
+			if(Entity.Driver.WageCalcType == WageCalculationType.normal
+			   || Entity.Driver.WageCalcType == WageCalculationType.percentage)
+			{
+				return items.Sum(item => item.DriverWage) + items.Sum(item => item.DriverWageSurcharge);
+			}
+
+			if(Entity.Driver.WageCalcType == WageCalculationType.fixedRoute)
+			{
+				return Entity.Driver.WageCalcRate;
+			}
+
+			if(Entity.Driver.WageCalcType == WageCalculationType.fixedDay)
+			{
+				var wageOperation = UoW.Session.QueryOver<WagesMovementOperations>()
+									   .Where(x => x.Employee == Entity.Driver)
+									   .Where(x => x.OperationTime == Entity.Date)
+									   .Take(1);
+
+				return wageOperation == null ? Entity.Driver.WageCalcRate : 0;
+			}
+
+			return 0;
+		}
+
+		protected decimal GetForwardersTotalWage(IEnumerable<RouteListItem> items)
+		{
+			if(Entity.Forwarder == null)
+			{
+				return 0;
+			}
+
+			if(Entity.Forwarder.WageCalcType == WageCalculationType.normal
+			   || Entity.Forwarder.WageCalcType == WageCalculationType.percentage) {
+				return items.Sum(item => item.ForwarderWage);
+			}
+
+			if(Entity.Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+				return Entity.Forwarder.WageCalcRate;
+			}
+
+			if(Entity.Forwarder.WageCalcType == WageCalculationType.fixedDay) {
+				var wageOperation = UoW.Session.QueryOver<WagesMovementOperations>()
+				                       .Where(x => x.Employee == Entity.Forwarder)
+									   .Where(x => x.OperationTime == Entity.Date)
+									   .Take(1);
+
+				return wageOperation == null ? Entity.Forwarder.WageCalcRate : 0;
+			}
+
+			return 0;
 		}
 
 		#endregion
