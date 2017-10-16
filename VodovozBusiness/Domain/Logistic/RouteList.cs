@@ -1158,6 +1158,11 @@ namespace Vodovoz.Domain.Logistic
 
 		decimal GetForwardersTotalWage() // Индивидуальный расчёт з/п экспедитора.
 		{
+			if(Forwarder == null)
+			{
+				return 0;
+			}
+			
 			if(Forwarder.WageCalcType == WageCalculationType.normal
 			   || Forwarder.WageCalcType == WageCalculationType.percentage) {
 				return Addresses

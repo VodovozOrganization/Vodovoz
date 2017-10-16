@@ -526,7 +526,7 @@ namespace Vodovoz
 		{
 			string fineReason = "Недосдача";
 			var bottleDifference = bottlesReturnedTotal - bottlesReturnedToWarehouse;
-			var summ = defaultBottle.SumOfDamage * bottleDifference;
+			var summ = defaultBottle.SumOfDamage * (bottleDifference > 0 ? bottleDifference : (decimal)0);
 			summ += routelistdiscrepancyview.Items.Where(x => x.UseFine).Sum(x => x.SumOfDamage);
 			var nomenclatures = routelistdiscrepancyview.Items.Where(x => x.UseFine)
 				.ToDictionary(x => x.Nomenclature, x => -x.Remainder);
