@@ -279,6 +279,14 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref wageCalcRate, value, () => WageCalcRate);}
 		}
 
+		bool visitingMaster;
+
+		public virtual bool VisitingMaster
+		{
+			get { return visitingMaster; }
+			set { SetField(ref visitingMaster, value, () => VisitingMaster);}
+		}
+
 		#endregion
 
 		public Employee()

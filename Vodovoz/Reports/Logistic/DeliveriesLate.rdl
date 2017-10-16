@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.id,
@@ -51,6 +51,7 @@ FROM
 WHERE
     route_lists.`date` BETWEEN @start_date AND @end_date
     AND route_list_addresses.status = 'Completed'
+    AND employees.visiting_master = 0
 HAVING delay &gt; 0;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -61,7 +62,7 @@ HAVING delay &gt; 0;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>

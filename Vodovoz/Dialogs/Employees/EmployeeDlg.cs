@@ -51,6 +51,7 @@ namespace Vodovoz
 
 			checkIsFired.Binding.AddBinding(Entity, e => e.IsFired, w => w.Active).InitializeFromSource();
 			checkLargusDriver.Binding.AddBinding(Entity, e => e.LargusDriver, w => w.Active).InitializeFromSource();
+			checkVisitingMaster.Binding.AddBinding(Entity, e => e.VisitingMaster, w => w.Active).InitializeFromSource();
 
 			dataentryLastName.Binding.AddBinding(Entity, e => e.LastName, w => w.Text).InitializeFromSource();
 			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
@@ -189,7 +190,7 @@ namespace Vodovoz
 		{
 			radioTabLogistic.Visible 
 			    = checkLargusDriver.Visible
-				= labelLargusDriver.Visible
+				= hboxDriversParameters.Visible
 				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
 
 			labelWageCalcType.Visible
