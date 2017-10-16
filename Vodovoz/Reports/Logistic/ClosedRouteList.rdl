@@ -80,6 +80,9 @@
             <Width>17pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>22.5pt</Width>
+          </TableColumn>
+          <TableColumn>
             <Width>159.2pt</Width>
           </TableColumn>
           <TableColumn>
@@ -129,7 +132,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>5</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -280,7 +283,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>5</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -421,6 +424,23 @@
                   <ReportItems>
                     <Textbox Name="Textbox2">
                       <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxDailyNumberHeader">
+                      <Value>Еж.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -638,6 +658,23 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="TextboxDailyNumberHeaderBot">
+                      <Value>Но.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox43">
                       <Value>
                       </Value>
@@ -817,6 +854,25 @@
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>=Iif(({Status} = "EnRoute") or ({Status} = "Completed"), White, Lightgrey)</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxDailyNumber">
+                      <Value>={daily_number_1c}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Color>Black</Color>
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1003,7 +1059,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>5</ColSpan>
                 </TableCell>
 				<!--table_cell_stock-->
 				<TableCell>
@@ -1128,7 +1184,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>5</ColSpan>
                 </TableCell><!--table_cell_total--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
@@ -1243,7 +1299,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>5</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1509,10 +1565,10 @@ WHERE route_lists.id = @route_list_id;</CommandText>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
 SELECT 
-route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
+route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, orders.daily_number_1c,
 CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
 #SHORT В сокращенной версии без комментариев.
-#orders.comment AS Comment,
+#orders.comment AS Comment, 
 NULL AS Comment,
 route_list_addresses.status AS Status,
  #orders.bottles_return AS EmptyBottles,
@@ -1595,6 +1651,10 @@ ORDER BY route_list_addresses.order_in_route;
         <Field Name="ToClient">
           <DataField>ToClient</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="daily_number_1c">
+          <DataField>daily_number_1c</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
         <Field Name="FromClient">
           <DataField>FromClient</DataField>
