@@ -29,6 +29,7 @@ namespace Vodovoz
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
 		private bool editing = QSMain.User.Permissions["money_manage"];
+		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;
 
 		List<RouteListRepository.ReturnsNode> allReturnsToWarehouse;
@@ -290,6 +291,12 @@ namespace Vodovoz
 
 		void OnRouteListItemChanged(object aList, int[] aIdx)
 		{
+			if(fixedWageTrigger)
+			{
+				fixedWageTrigger = false;
+				return;
+			}
+
 			var item = routeListAddressesView.Items[aIdx[0]];
 			item.RecalculateWages();
 			item.RecalculateTotalCash();
@@ -813,28 +820,38 @@ namespace Vodovoz
 
 		protected decimal GetDriversTotalWage(IEnumerable<RouteListItem> items)
 		{
-			if(Entity.Driver.WageCalcType == WageCalculationType.normal
-			   || Entity.Driver.WageCalcType == WageCalculationType.percentage)
-			{
-				return items.Sum(item => item.DriverWage) + items.Sum(item => item.DriverWageSurcharge);
-			}
-
-			if(Entity.Driver.WageCalcType == WageCalculationType.fixedRoute)
-			{
-				return Entity.Driver.WageCalcRate;
-			}
-
 			if(Entity.Driver.WageCalcType == WageCalculationType.fixedDay)
 			{
 				var wageOperation = UoW.Session.QueryOver<WagesMovementOperations>()
 									   .Where(x => x.Employee == Entity.Driver)
 									   .Where(x => x.OperationTime == Entity.Date)
-									   .Take(1);
+									   .List();
+				
+				if(wageOperation.Count() != 0)
+				{
+					return 0;
+				}
 
-				return wageOperation == null ? Entity.Driver.WageCalcRate : 0;
+				var item = Entity.Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
+
+				if(item != null && item.DriverWage == 0)
+				{
+					fixedWageTrigger = true;
+					item.SetDriversWage(Entity.Driver.WageCalcRate);
+				}
 			}
 
-			return 0;
+			if(Entity.Driver.WageCalcType == WageCalculationType.fixedRoute)
+			{
+				var item = Entity.Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
+
+				if(item != null && item.DriverWage == 0) {
+					fixedWageTrigger = true;
+					item.SetDriversWage(Entity.Driver.WageCalcRate);
+				}
+			}
+
+			return items.Sum(item => item.DriverWage) + items.Sum(item => item.DriverWageSurcharge);
 		}
 
 		protected decimal GetForwardersTotalWage(IEnumerable<RouteListItem> items)
@@ -844,25 +861,34 @@ namespace Vodovoz
 				return 0;
 			}
 
-			if(Entity.Forwarder.WageCalcType == WageCalculationType.normal
-			   || Entity.Forwarder.WageCalcType == WageCalculationType.percentage) {
-				return items.Sum(item => item.ForwarderWage);
-			}
-
-			if(Entity.Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
-				return Entity.Forwarder.WageCalcRate;
-			}
-
 			if(Entity.Forwarder.WageCalcType == WageCalculationType.fixedDay) {
 				var wageOperation = UoW.Session.QueryOver<WagesMovementOperations>()
 				                       .Where(x => x.Employee == Entity.Forwarder)
 									   .Where(x => x.OperationTime == Entity.Date)
-									   .Take(1);
+									   .List();
 
-				return wageOperation == null ? Entity.Forwarder.WageCalcRate : 0;
+				if(wageOperation.Count() != 0) {
+					return 0;
+				}
+
+				var item = Entity.Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
+
+				if(item != null && item.ForwarderWage == 0) {
+					fixedWageTrigger = true;
+					item.SetForwardersWage(Entity.Forwarder.WageCalcRate);
+				}
 			}
 
-			return 0;
+			if(Entity.Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+				var item = Entity.Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
+
+				if(item != null && item.ForwarderWage == 0) {
+					fixedWageTrigger = true;
+					item.SetForwardersWage(Entity.Forwarder.WageCalcRate);
+				}
+			}
+
+			return items.Sum(item => item.ForwarderWage);
 		}
 
 		#endregion

@@ -536,10 +536,12 @@ namespace Vodovoz.Domain.Logistic
 				return 0;
 
 			if(RouteList.Driver.WageCalcType == WageCalculationType.fixedDay || RouteList.Driver.WageCalcType == WageCalculationType.fixedRoute)
+			{
 				return 0;
+			}
 
 			if(RouteList.Driver.WageCalcType == WageCalculationType.percentage)
-				return this.TotalCash * RouteList.Driver.WageCalcRate / 100;
+				return this.Order.TotalSum * RouteList.Driver.WageCalcRate / 100;
 
 			bool withForwarder = RouteList.Forwarder != null;
 			bool ich = RouteList.Car.IsCompanyHavings;
@@ -557,10 +559,12 @@ namespace Vodovoz.Domain.Logistic
 				return 0;
 
 			if(RouteList.Forwarder.WageCalcType == WageCalculationType.fixedDay || RouteList.Forwarder.WageCalcType == WageCalculationType.fixedRoute)
+			{
 				return 0;
+			}
 
 			if(RouteList.Forwarder.WageCalcType == WageCalculationType.percentage)
-				return this.TotalCash * RouteList.Forwarder.WageCalcRate /100;
+				return this.Order.TotalSum * RouteList.Forwarder.WageCalcRate /100;
 
 			var rates = Wages.GetForwarderRates();
 
@@ -581,7 +585,7 @@ namespace Vodovoz.Domain.Logistic
 							.Sum(item => item.ActualCount);
 
 			var smallBottleCount = Order.OrderItems
-			                            .Where(item => item.Nomenclature.Category == NomenclatureCategory.disposableBottleWater)
+			                      //    .Where(item => item.Nomenclature.Category == NomenclatureCategory.disposableBottleWater)
 			                            .Where(item => Regex.Match(item.Nomenclature.Name, @".*(0[\.,]6).*").Length > 0)
 										.Sum(item => item.ActualCount);
 
@@ -596,7 +600,7 @@ namespace Vodovoz.Domain.Logistic
 				? fullBottleCount * rates.LargeOrderFullBottleRate
 				: fullBottleCount * rates.FullBottleRate;
 
-			var smallBottlePayment = Math.Truncate(100*(smallBottleCount * rates.SmallBottleRate)/36)/100;
+			var smallBottlePayment = Math.Truncate((smallBottleCount * rates.SmallBottleRate)/36);
 
 			var payForEquipment = fullBottleCount == 0
 				&& (Order.OrderEquipments.Count(item => item.Direction == Direction.Deliver && item.Confirmed) > 0
@@ -760,6 +764,16 @@ namespace Vodovoz.Domain.Logistic
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}
 			return null;
+		}
+
+		public virtual void SetDriversWage(decimal wage)
+		{
+			this.DriverWage = wage;
+		}
+
+		public virtual void SetForwardersWage(decimal wage)
+		{
+			this.ForwarderWage = wage;
 		}
 
 		#endregion
