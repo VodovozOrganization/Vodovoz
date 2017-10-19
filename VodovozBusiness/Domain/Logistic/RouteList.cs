@@ -355,8 +355,10 @@ namespace Vodovoz.Domain.Logistic
 			ObservableAddresses.Remove(address);
 		}
 
+		//TODO Убрать в будущем когда будет понятно что такая сортировка не нужна.
 		public virtual void ReorderAddressesByTime()
 		{
+			throw new InvalidOperationException("Вызван метод, который может нарушить последовательность адресов. Убирая этот эксепшен убедитесь что вы хорошо подумали.");
 			var orderedList = Addresses
 				.OrderBy(x => x.Order.DeliverySchedule.From)
 				.ThenBy(x => x.Order.DeliverySchedule.To)
@@ -373,6 +375,7 @@ namespace Vodovoz.Domain.Logistic
 		//TODO Убрать в будущем когда будет понятно что такая сортировка не нужна.
 		public virtual void ReorderAddressesByDailiNumber()
 		{
+			throw new InvalidOperationException("Вызван метод, который может нарушить последовательность адресов. Убирая этот эксепшен убедитесь что вы хорошо подумали.");
 			var orderedList = Addresses.Where(x => x != null)
 				.OrderBy(x => x.Order?.DailyNumber1c)
 				.ToList();
