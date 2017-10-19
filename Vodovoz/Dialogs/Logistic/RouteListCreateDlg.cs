@@ -11,7 +11,6 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz
@@ -192,6 +191,8 @@ namespace Vodovoz
 				if(newRoute != null) {
 					createroutelistitemsview1.DisableColumnsUpdate = true;
 					newRoute.UpdateAddressOrderInRealRoute(Entity);
+					//Рассчитываем расстояние
+					Entity.RecalculatePlanedDistance(new Tools.Logistic.RouteGeometrySputnikCalculator());
 					createroutelistitemsview1.DisableColumnsUpdate = false;
 					var noPlan = Entity.Addresses.Count(x => !x.PlanTimeStart.HasValue);
 					if(noPlan > 0)

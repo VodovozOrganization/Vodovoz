@@ -346,8 +346,8 @@ namespace Vodovoz
 				List<PointLatLng> points;
 				if(UseSputnikDistance)
 				{
-					var address = GenerateHashPiontsOfRoute(rl);
-					MainClass.MainWin.ProgressStart(address.Count);
+					var address = rl.GenerateHashPiontsOfRoute();
+					MainClass.MainWin.ProgressStart(address.Length);
 					points = distanceCalculator.GetGeometryOfRoute(address.ToArray(), (val, max) => MainClass.MainWin.ProgressUpdate(val));
 					MainClass.MainWin.ProgressClose();
 				}
@@ -375,15 +375,6 @@ namespace Vodovoz
 				}
 			}
 			logger.Info("Ok");
-		}
-
-		private List<long> GenerateHashPiontsOfRoute(RouteList rl)
-		{
-			var result = new List<long>();
-			result.Add(RouteGeometrySputnikCalculator.BaseHash);
-			result.AddRange(rl.Addresses.Where(x => x.Order.DeliveryPoint.СoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
-			result.Add(RouteGeometrySputnikCalculator.BaseHash);
-			return result;
 		}
 
 		void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)
@@ -530,14 +521,13 @@ namespace Vodovoz
 			if(rl != null)
 			{
 				var proposed = optimizer.ProposedRoutes.FirstOrDefault(x => x.RealRoute == rl);
-				var distanceMeters = distanceCalculator.GetRouteDistanceBackground(GenerateHashPiontsOfRoute(rl).ToArray());
-				if (distanceMeters == -1)
-					return "⌛";
+				if (rl.PlanedDistance == null)
+					return String.Empty;
 				if(proposed == null)
-					return String.Format("{0:N1}км", (double)distanceMeters / 1000);
+					return String.Format("{0:N1}км", rl.PlanedDistance);
 				else
 					return String.Format("{0:N1}км ({1:N})", 
-					                     (double)distanceMeters / 1000,
+					                     rl.PlanedDistance,
 					                     (double)proposed.RouteCost / 1000);
 			}
 
@@ -904,6 +894,7 @@ namespace Vodovoz
 					recalculeteLoading = true;
 			}
 			route.RecalculatePlanTime(distanceCalculator);
+			route.RecalculatePlanedDistance(distanceCalculator);
 			uow.Save (route);
 			logger.Info ("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			if(recalculeteLoading)
@@ -960,6 +951,7 @@ namespace Vodovoz
 			uow.Save (route);
 			UpdateAddressesOnMap ();
 			route.RecalculatePlanTime(distanceCalculator);
+			route.RecalculatePlanedDistance(distanceCalculator);
 			RoutesWasUpdated ();
 		}
 
@@ -1010,6 +1002,7 @@ namespace Vodovoz
 				var newRoute = optimizer.RebuidOneRoute(route);
 				if(newRoute != null) {
 					newRoute.UpdateAddressOrderInRealRoute(route);
+					route.RecalculatePlanedDistance(distanceCalculator);
 					var noPlan = route.Addresses.Count(x => !x.PlanTimeStart.HasValue);
 					if(noPlan > 0)
 						warnings.Add($"Для маршрута {route.Id} незапланировано {noPlan} адресов.");
@@ -1308,6 +1301,7 @@ namespace Vodovoz
 			var newRoute = optimizer.RebuidOneRoute(route);
 			if(newRoute != null) {
 				newRoute.UpdateAddressOrderInRealRoute(route);
+				route.RecalculatePlanedDistance(distanceCalculator);
 			} else
 				MessageDialogWorks.RunErrorDialog("Решение не найдено.");
 		}
