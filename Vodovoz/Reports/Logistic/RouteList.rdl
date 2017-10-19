@@ -1400,6 +1400,20 @@
           <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox72" >
+        <Height>26.31pt</Height>
+        <Width>145.14pt</Width>
+        <Value>="Планируемое растояние\n" + Format(First({plan_distance}, 'RouteList'), "N2") + " км."</Value>
+        <ZIndex>1</ZIndex>
+        <Left>671.73pt</Left>
+        <Top>2.40pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -1411,17 +1425,17 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="RouteList">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>
-SELECT 
+        <CommandText>SELECT 
 driver.name AS DriverName, driver.last_name AS DriverLastname, driver_phone.number AS DriverPhone, 
 cars.model AS CarModel, cars.reg_number AS CarRegNumber, cars.fuel_consumption AS FuelConsumption, fuel_types.name AS FuelType, 
 forwarder.name AS ForwarderName, forwarder.last_name AS ForwarderLastname, forwarder_phone.number AS ForwarderPhone, 
 logistican.name AS LogisticanName, logistican.last_name AS LogisticanLastname,
 route_lists.date as Date,
 route_lists.on_load_start,
-route_lists.on_load_end
+route_lists.on_load_end,
+route_lists.plan_distance
 FROM route_lists
 LEFT JOIN employees driver ON route_lists.driver_id = driver.id
 LEFT JOIN phones driver_phone ON driver.id = driver_phone.employee_id
@@ -1437,7 +1451,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="DriverName">
           <DataField>DriverName</DataField>
           <TypeName>System.String</TypeName>
@@ -1497,6 +1511,10 @@ WHERE route_lists.id = @route_list_id;</CommandText>
         <Field Name="on_load_end">
           <DataField>on_load_end</DataField>
           <TypeName>System.TimeSpan</TypeName>
+        </Field>
+        <Field Name="plan_distance">
+          <DataField>plan_distance</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
