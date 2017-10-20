@@ -213,7 +213,7 @@ namespace Vodovoz.Additions.Logistic
 			map.MarkersEnabled = true;
 
 			GMapOverlay routeOverlay = new GMapOverlay("route");
-			MapDrawingHelper.DrawRoute(routeOverlay, routeList, new Tools.Logistic.RouteGeometrySputnikCalculator());
+			MapDrawingHelper.DrawRoute(routeOverlay, routeList, new Tools.Logistic.RouteGeometryCalculator());
 			GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 			MapDrawingHelper.DrawAddressesOfRoute(addressesOverlay, routeList);
 			map.Overlays.Add(routeOverlay);

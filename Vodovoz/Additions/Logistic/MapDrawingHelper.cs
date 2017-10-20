@@ -10,7 +10,7 @@ namespace Vodovoz.Additions.Logistic
 {
 	public static class MapDrawingHelper
 	{
-		public static GMapRoute DrawRoute(GMapOverlay overlay, RouteList routeList, RouteGeometrySputnikCalculator geometryCalc = null)
+		public static GMapRoute DrawRoute(GMapOverlay overlay, RouteList routeList, RouteGeometryCalculator geometryCalc = null)
 		{
 			List<PointLatLng> points;
 			if(geometryCalc != null) {
@@ -38,9 +38,9 @@ namespace Vodovoz.Additions.Logistic
 		public static List<long> GenerateHashPiontsOfRoute(RouteList rl)
 		{
 			var result = new List<long>();
-			result.Add(RouteGeometrySputnikCalculator.BaseHash);
+			result.Add(RouteGeometryCalculator.BaseHash);
 			result.AddRange(rl.Addresses.Where(x => x.Order.DeliveryPoint.СoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
-			result.Add(RouteGeometrySputnikCalculator.BaseHash);
+			result.Add(RouteGeometryCalculator.BaseHash);
 			return result;
 		}
 

@@ -192,7 +192,7 @@ namespace Vodovoz
 					createroutelistitemsview1.DisableColumnsUpdate = true;
 					newRoute.UpdateAddressOrderInRealRoute(Entity);
 					//Рассчитываем расстояние
-					Entity.RecalculatePlanedDistance(new Tools.Logistic.RouteGeometrySputnikCalculator());
+					Entity.RecalculatePlanedDistance(new Tools.Logistic.RouteGeometryCalculator());
 					createroutelistitemsview1.DisableColumnsUpdate = false;
 					var noPlan = Entity.Addresses.Count(x => !x.PlanTimeStart.HasValue);
 					if(noPlan > 0)

@@ -1193,7 +1193,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void RecalculatePlanTime(RouteGeometrySputnikCalculator sputnikCache)
+		public virtual void RecalculatePlanTime(RouteGeometryCalculator sputnikCache)
 		{
 			TimeSpan minTime;
 			//Расчет минимального времени к которому нужно\можно подъехать.
@@ -1246,7 +1246,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void RecalculatePlanedDistance(RouteGeometrySputnikCalculator distanceCalculator)
+		public virtual void RecalculatePlanedDistance(RouteGeometryCalculator distanceCalculator)
 		{
 			if(Addresses.Count == 0)
 				PlanedDistance = 0;
@@ -1254,7 +1254,7 @@ namespace Vodovoz.Domain.Logistic
 				PlanedDistance = distanceCalculator.GetRouteDistance(GenerateHashPiontsOfRoute()) / 1000m;
 		}
 
-		public static void RecalculateOnLoadTime(IList<RouteList> routelists, RouteGeometrySputnikCalculator sputnikCache)
+		public static void RecalculateOnLoadTime(IList<RouteList> routelists, RouteGeometryCalculator sputnikCache)
 		{
 			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
 								   .Select(x => new Tuple<TimeSpan, RouteList>(
@@ -1310,9 +1310,9 @@ namespace Vodovoz.Domain.Logistic
 		public virtual long[] GenerateHashPiontsOfRoute()
 		{
 			var result = new List<long>();
-			result.Add(RouteGeometrySputnikCalculator.BaseHash);
+			result.Add(RouteGeometryCalculator.BaseHash);
 			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.СoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
-			result.Add(RouteGeometrySputnikCalculator.BaseHash);
+			result.Add(RouteGeometryCalculator.BaseHash);
 			return result.ToArray();
 		}
 

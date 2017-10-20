@@ -41,10 +41,7 @@ namespace Vodovoz
 		IList<AtWorkForwarder> forwardersAtDay;
 		IList<LogisticsArea> logisticanDistricts;
 		RouteOptimizer optimizer = new RouteOptimizer();
-		RouteGeometrySputnikCalculator distanceCalculator = new RouteGeometrySputnikCalculator();
-
-		//FIXME Временно, задаем из кода, в идеале потом позволить переключать режим пользователю.
-		bool UseSputnikDistance = true;
+		RouteGeometryCalculator distanceCalculator = new RouteGeometryCalculator();
 
 		GenericObservableList<AtWorkDriver> observableDriversAtDay;
 		GenericObservableList<AtWorkForwarder> observableForwardersAtDay;

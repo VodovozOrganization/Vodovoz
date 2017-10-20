@@ -789,7 +789,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual TimeSpan CalculatePlanedTime(RouteGeometrySputnikCalculator sputnikCache){
+		public virtual TimeSpan CalculatePlanedTime(RouteGeometryCalculator sputnikCache){
 			DateTime time = default(DateTime);
 
 			for (int ix = 0; ix < RouteList.Addresses.Count; ix++)
