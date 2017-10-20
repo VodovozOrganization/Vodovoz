@@ -9,6 +9,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository;
 using Vodovoz.Tools.Logistic;
+using System.Text.RegularExpressions;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -531,8 +532,16 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal CalculateDriverWage()
 		{
-			if (!IsDelivered())
+			if(!IsDelivered())
 				return 0;
+
+			if(RouteList.Driver.WageCalcType == WageCalculationType.fixedDay || RouteList.Driver.WageCalcType == WageCalculationType.fixedRoute)
+			{
+				return 0;
+			}
+
+			if(RouteList.Driver.WageCalcType == WageCalculationType.percentage)
+				return this.Order.TotalSum * RouteList.Driver.WageCalcRate / 100;
 
 			bool withForwarder = RouteList.Forwarder != null;
 			bool ich = RouteList.Car.IsCompanyHavings;
@@ -543,11 +552,19 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal CalculateForwarderWage()
 		{
-			if (!WithForwarder || RouteList.Forwarder == null)
+			if(!WithForwarder || RouteList.Forwarder == null)
 				return 0;
 
-			if (!IsDelivered())
+			if(!IsDelivered())
 				return 0;
+
+			if(RouteList.Forwarder.WageCalcType == WageCalculationType.fixedDay || RouteList.Forwarder.WageCalcType == WageCalculationType.fixedRoute)
+			{
+				return 0;
+			}
+
+			if(RouteList.Forwarder.WageCalcType == WageCalculationType.percentage)
+				return this.Order.TotalSum * RouteList.Forwarder.WageCalcRate /100;
 
 			var rates = Wages.GetForwarderRates();
 
@@ -567,6 +584,11 @@ namespace Vodovoz.Domain.Logistic
 							.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 							.Sum(item => item.ActualCount);
 
+			var smallBottleCount = Order.OrderItems
+			                      //    .Where(item => item.Nomenclature.Category == NomenclatureCategory.disposableBottleWater)
+			                            .Where(item => Regex.Match(item.Nomenclature.Name, @".*(0[\.,]6).*").Length > 0)
+										.Sum(item => item.ActualCount);
+
 			bool largeOrder = fullBottleCount >= rates.LargeOrderMinimumBottles;
 
 			var bottleCollectionOrder = Order.CollectBottles;
@@ -577,6 +599,8 @@ namespace Vodovoz.Domain.Logistic
 			var largeFullBottlesPayment = largeOrder
 				? fullBottleCount * rates.LargeOrderFullBottleRate
 				: fullBottleCount * rates.FullBottleRate;
+
+			var smallBottlePayment = Math.Truncate((smallBottleCount * rates.SmallBottleRate)/36);
 
 			var payForEquipment = fullBottleCount == 0
 				&& (Order.OrderEquipments.Count(item => item.Direction == Direction.Deliver && item.Confirmed) > 0
@@ -591,7 +615,7 @@ namespace Vodovoz.Domain.Logistic
 						&& item.Nomenclature.Weight == 6.0)
 					.Sum(item => item.ActualCount);
 
-			var wage = equpmentPayment + largeFullBottlesPayment
+			var wage = equpmentPayment + largeFullBottlesPayment + smallBottlePayment
 				+ contractCancelationPayment + emptyBottlesPayment
 				+ smallFullBottlesPayment + paymentForAddress;
 
@@ -740,6 +764,16 @@ namespace Vodovoz.Domain.Logistic
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}
 			return null;
+		}
+
+		public virtual void SetDriversWage(decimal wage)
+		{
+			this.DriverWage = wage;
+		}
+
+		public virtual void SetForwardersWage(decimal wage)
+		{
+			this.ForwarderWage = wage;
 		}
 
 		#endregion

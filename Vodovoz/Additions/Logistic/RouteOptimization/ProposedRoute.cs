@@ -27,6 +27,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// </summary>
 		public void UpdateAddressOrderInRealRoute(RouteList updatedRoute)
 		{
+			if(updatedRoute.Status > RouteListStatus.InLoading)
+				throw new InvalidOperationException($"Была выполнена попытка перестроить маршрут {updatedRoute.Id} после того, как он отгружен.");
+
 			for(int i = 0; i < updatedRoute.ObservableAddresses.Count; i++) {
 				var address = updatedRoute.ObservableAddresses[i];
 				if(i < Orders.Count) {

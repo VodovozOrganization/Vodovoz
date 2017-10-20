@@ -14,6 +14,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 
@@ -28,6 +29,7 @@ namespace Vodovoz
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
 		private bool editing = QSMain.User.Permissions["money_manage"];
+		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;
 
 		List<RouteListRepository.ReturnsNode> allReturnsToWarehouse;
@@ -289,6 +291,12 @@ namespace Vodovoz
 
 		void OnRouteListItemChanged(object aList, int[] aIdx)
 		{
+			if(fixedWageTrigger)
+			{
+				fixedWageTrigger = false;
+				return;
+			}
+
 			var item = routeListAddressesView.Items[aIdx[0]];
 			item.RecalculateWages();
 			item.RecalculateTotalCash();
@@ -334,8 +342,8 @@ namespace Vodovoz
 			decimal depositsCollectedTotal = items.Sum(item => item.DepositsCollected);
 			decimal equipmentDepositsCollectedTotal = items.Sum(item => item.EquipmentDepositsCollected);
 			decimal totalCollected = items.Sum(item => item.TotalCash);
-			decimal driverWage = items.Sum(item => item.DriverWage) + items.Sum(item => item.DriverWageSurcharge);
-			decimal forwarderWage = items.Sum(item => item.ForwarderWage);
+			decimal driverWage = GetDriversTotalWage(items);
+			decimal forwarderWage = GetForwardersTotalWage(items);
 			labelAddressCount.Text = String.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = String.Format(
 				"Сот. связь: {0} {1}",
@@ -525,7 +533,7 @@ namespace Vodovoz
 		{
 			string fineReason = "Недосдача";
 			var bottleDifference = bottlesReturnedTotal - bottlesReturnedToWarehouse;
-			var summ = defaultBottle.SumOfDamage * bottleDifference;
+			var summ = defaultBottle.SumOfDamage * (bottleDifference > 0 ? bottleDifference : (decimal)0);
 			summ += routelistdiscrepancyview.Items.Where(x => x.UseFine).Sum(x => x.SumOfDamage);
 			var nomenclatures = routelistdiscrepancyview.Items.Where(x => x.UseFine)
 				.ToDictionary(x => x.Nomenclature, x => -x.Remainder);
@@ -808,6 +816,79 @@ namespace Vodovoz
 		protected void OnAdvanceSpinbuttonChanged(object sender, EventArgs e)   // Поле изменения суммы аванса. @Дима
 		{
 			CalculateTotal();
+		}
+
+		protected decimal GetDriversTotalWage(IEnumerable<RouteListItem> items)
+		{
+			if(Entity.Driver.WageCalcType == WageCalculationType.fixedDay)
+			{
+				var wageOperation = UoW.Session.QueryOver<WagesMovementOperations>()
+									   .Where(x => x.Employee == Entity.Driver)
+									   .Where(x => x.OperationTime == Entity.Date)
+									   .List();
+				
+				if(wageOperation.Count() != 0)
+				{
+					return 0;
+				}
+
+				var item = Entity.Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
+
+				if(item != null && item.DriverWage == 0)
+				{
+					fixedWageTrigger = true;
+					item.SetDriversWage(Entity.Driver.WageCalcRate);
+				}
+			}
+
+			if(Entity.Driver.WageCalcType == WageCalculationType.fixedRoute)
+			{
+				var item = Entity.Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
+
+				if(item != null && item.DriverWage == 0) {
+					fixedWageTrigger = true;
+					item.SetDriversWage(Entity.Driver.WageCalcRate);
+				}
+			}
+
+			return items.Sum(item => item.DriverWage) + items.Sum(item => item.DriverWageSurcharge);
+		}
+
+		protected decimal GetForwardersTotalWage(IEnumerable<RouteListItem> items)
+		{
+			if(Entity.Forwarder == null)
+			{
+				return 0;
+			}
+
+			if(Entity.Forwarder.WageCalcType == WageCalculationType.fixedDay) {
+				var wageOperation = UoW.Session.QueryOver<WagesMovementOperations>()
+				                       .Where(x => x.Employee == Entity.Forwarder)
+									   .Where(x => x.OperationTime == Entity.Date)
+									   .List();
+
+				if(wageOperation.Count() != 0) {
+					return 0;
+				}
+
+				var item = Entity.Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
+
+				if(item != null && item.ForwarderWage == 0) {
+					fixedWageTrigger = true;
+					item.SetForwardersWage(Entity.Forwarder.WageCalcRate);
+				}
+			}
+
+			if(Entity.Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+				var item = Entity.Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
+
+				if(item != null && item.ForwarderWage == 0) {
+					fixedWageTrigger = true;
+					item.SetForwardersWage(Entity.Forwarder.WageCalcRate);
+				}
+			}
+
+			return items.Sum(item => item.ForwarderWage);
 		}
 
 		#endregion

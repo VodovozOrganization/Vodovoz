@@ -261,6 +261,32 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
+		WageCalculationType wageCalcType;
+
+		[Display(Name = "Тип расчёта зарплаты")]
+		public virtual WageCalculationType WageCalcType
+		{
+			get { return wageCalcType; }
+			set { SetField(ref wageCalcType, value, () => WageCalcType);}
+		}
+
+		decimal wageCalcRate;
+
+		[Display(Name = "Ставка для расчёта зарплаты")]
+		public virtual decimal WageCalcRate
+		{
+			get { return wageCalcRate; }
+			set { SetField(ref wageCalcRate, value, () => WageCalcRate);}
+		}
+
+		bool visitingMaster;
+
+		public virtual bool VisitingMaster
+		{
+			get { return visitingMaster; }
+			set { SetField(ref visitingMaster, value, () => VisitingMaster);}
+		}
+
 		#endregion
 
 		public Employee()
@@ -364,11 +390,6 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		public virtual double TimeCorrection(long timeValue)
-		{
-			return (double)timeValue / DriverSpeed;
-		}
-
 		#endregion
 
 		void ObservableDistricts_ElementAdded(object aList, int[] aIdx)
@@ -390,6 +411,18 @@ namespace Vodovoz.Domain.Employees
 		driver,
 		[Display (Name = "Экспедитор")]
 		forwarder
+	}
+
+	public enum WageCalculationType
+	{
+		[Display(Name = "Обычный")]
+		normal,
+		[Display(Name = "Процент от стоимости")]
+		percentage,
+		[Display(Name = "Фиксированная ставка за МЛ")]
+		fixedRoute,
+		[Display(Name = "Фиксированная ставка за день")]
+		fixedDay
 	}
 
 	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType

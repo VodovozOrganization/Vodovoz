@@ -42,8 +42,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual Employee Forwarder {
 			get { return forwarder; }
 			set {
-				if (NHibernate.NHibernateUtil.IsInitialized(Addresses) && (forwarder == null || value == null)) {
-					foreach (var address in Addresses)
+				if(NHibernate.NHibernateUtil.IsInitialized(Addresses) && (forwarder == null || value == null)) {
+					foreach(var address in Addresses)
 						address.WithForwarder = value != null;
 				}
 				SetField(ref forwarder, value, () => Forwarder);
@@ -65,7 +65,7 @@ namespace Vodovoz.Domain.Logistic
 			get { return car; }
 			set {
 				SetField(ref car, value, () => Car);
-				if (value?.Driver != null)
+				if(value?.Driver != null)
 					Driver = value.Driver;
 			}
 		}
@@ -90,6 +90,9 @@ namespace Vodovoz.Domain.Logistic
 
 		Decimal actualDistance;
 
+		/// <summary>
+		/// Расстояние в километрах
+		/// </summary>
 		[Display(Name = "Фактическое расстояние")]
 		public virtual Decimal ActualDistance {
 			get { return actualDistance; }
@@ -98,11 +101,25 @@ namespace Vodovoz.Domain.Logistic
 
 		Decimal confirmedDistance;
 
+		/// <summary>
+		/// Расстояние в километрах
+		/// </summary>
 		public virtual Decimal ConfirmedDistance {
 			get { return confirmedDistance; }
 			set {
 				SetField(ref confirmedDistance, value, () => ConfirmedDistance);
 			}
+		}
+
+		private decimal? planedDistance;
+
+		/// <summary>
+		/// Расстояние в километрах
+		/// </summary>
+		[Display(Name = "Планируемое расстояние")]
+		public virtual decimal? PlanedDistance {
+			get { return planedDistance; }
+			protected set { SetField(ref planedDistance, value, () => PlanedDistance); }
 		}
 
 		RouteListStatus status;
@@ -207,7 +224,7 @@ namespace Vodovoz.Domain.Logistic
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<RouteListItem> ObservableAddresses {
 			get {
-				if (observableAddresses == null) {
+				if(observableAddresses == null) {
 					observableAddresses = new GenericObservableList<RouteListItem>(addresses);
 					observableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
 					observableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
@@ -298,29 +315,10 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal MoneyToReturn {
 			get {
 				decimal payedForFuel = 0;
-				if (FuelGivedDocument != null && FuelGivedDocument.PayedForFuel.HasValue)
+				if(FuelGivedDocument != null && FuelGivedDocument.PayedForFuel.HasValue)
 					payedForFuel = FuelGivedDocument.PayedForFuel.Value;
 
 				return Total - payedForFuel;
-			}
-		}
-
-		//FIXME Удалить если не понадобится. Там где использовалось переписали на реальные расстояния.
-		public virtual double PlanedDistance {
-			get {
-				if (Addresses.Count == 0)
-					return 0;
-				var last_point = Addresses.First().Order.DeliveryPoint;
-				double distance = 0;
-				foreach (var next in Addresses.Select(x => x.Order.DeliveryPoint)) {
-					if (last_point == null)
-						distance += DistanceCalculator.GetDistanceFromBase(last_point);
-					else
-						distance += DistanceCalculator.GetDistance(last_point, next);
-					last_point = next;
-				}
-				distance += DistanceCalculator.GetDistanceToBase(last_point);
-				return distance;
 			}
 		}
 
@@ -340,7 +338,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual RouteListItem AddAddressFromOrder(Order order)
 		{
-			if (order.DeliveryPoint == null)
+			if(order.DeliveryPoint == null)
 				throw new NullReferenceException("В маршрутный нельзя добавить заказ без точки доставки.");
 			var item = new RouteListItem(this, order, RouteListItemStatus.EnRoute);
 			item.WithForwarder = Forwarder != null;
@@ -355,14 +353,16 @@ namespace Vodovoz.Domain.Logistic
 			ObservableAddresses.Remove(address);
 		}
 
+		//TODO Убрать в будущем когда будет понятно что такая сортировка не нужна.
 		public virtual void ReorderAddressesByTime()
 		{
+			throw new InvalidOperationException("Вызван метод, который может нарушить последовательность адресов. Убирая этот эксепшен убедитесь что вы хорошо подумали.");
 			var orderedList = Addresses
 				.OrderBy(x => x.Order.DeliverySchedule.From)
 				.ThenBy(x => x.Order.DeliverySchedule.To)
 				.ToList();
-			for (int i = 0; i < ObservableAddresses.Count; i++) {
-				if (orderedList[i] == ObservableAddresses[i])
+			for(int i = 0; i < ObservableAddresses.Count; i++) {
+				if(orderedList[i] == ObservableAddresses[i])
 					continue;
 
 				ObservableAddresses.Remove(orderedList[i]);
@@ -373,17 +373,18 @@ namespace Vodovoz.Domain.Logistic
 		//TODO Убрать в будущем когда будет понятно что такая сортировка не нужна.
 		public virtual void ReorderAddressesByDailiNumber()
 		{
+			throw new InvalidOperationException("Вызван метод, который может нарушить последовательность адресов. Убирая этот эксепшен убедитесь что вы хорошо подумали.");
 			var orderedList = Addresses.Where(x => x != null)
 				.OrderBy(x => x.Order?.DailyNumber1c)
 				.ToList();
-			for (int i = 0; i < ObservableAddresses.Count; i++) {
-				if (ObservableAddresses[i] == null) {
+			for(int i = 0; i < ObservableAddresses.Count; i++) {
+				if(ObservableAddresses[i] == null) {
 					ObservableAddresses.RemoveAt(i);
 					i--;
 					continue;
 				}
 
-				if (orderedList[i] == ObservableAddresses[i])
+				if(orderedList[i] == ObservableAddresses[i])
 					continue;
 
 				ObservableAddresses.Remove(orderedList[i]);
@@ -393,21 +394,21 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void CheckAddressOrder()
 		{
-			for (int i = 0; i < Addresses.Count; i++) {
-				if (Addresses[i] == null) {
+			for(int i = 0; i < Addresses.Count; i++) {
+				if(Addresses[i] == null) {
 					Addresses.RemoveAt(i);
 					i--;
 					continue;
 				}
 
-				if (Addresses[i].IndexInRoute != i)
+				if(Addresses[i].IndexInRoute != i)
 					Addresses[i].IndexInRoute = i;
 			}
 		}
 
 		private void SetNullToObservableAddresses()
 		{
-			if (observableAddresses == null)
+			if(observableAddresses == null)
 				return;
 			observableAddresses.ElementAdded -= ObservableAddresses_ElementAdded;
 			observableAddresses.ElementRemoved -= ObservableAddresses_ElementRemoved;
@@ -417,11 +418,11 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void CompleteRoute()
 		{
 			Status = RouteListStatus.OnClosing;
-			foreach (var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
+			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
 				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
 			}
 			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
-			if (track != null) {
+			if(track != null) {
 				track.CalculateDistance();
 				track.CalculateDistanceToBase();
 				UoW.Save(track);
@@ -434,7 +435,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			Status = RouteListStatus.EnRoute;
 			ClosingFilled = false;
-			foreach (var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed)) {
+			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed)) {
 				item.Order.OrderStatus = OrderStatus.OnTheWay;
 			}
 
@@ -447,9 +448,9 @@ namespace Vodovoz.Domain.Logistic
 			var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(uow, this);
 
 			bool closed = true;
-			foreach (var good in goods) {
+			foreach(var good in goods) {
 				var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);
-				if (loaded == null || loaded.Amount < good.Amount) {
+				if(loaded == null || loaded.Amount < good.Amount) {
 					closed = false;
 					break;
 				}
@@ -470,7 +471,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 #endif
 
-			if (closed)
+			if(closed)
 				ChangeStatus(RouteListStatus.EnRoute);
 
 			return closed;
@@ -483,29 +484,29 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void ChangeStatus(RouteListStatus newStatus)
 		{
-			if (newStatus == Status)
+			if(newStatus == Status)
 				return;
 
-			if (newStatus == RouteListStatus.EnRoute) {
-				if (Status == RouteListStatus.InLoading) {
+			if(newStatus == RouteListStatus.EnRoute) {
+				if(Status == RouteListStatus.InLoading) {
 					Status = RouteListStatus.EnRoute;
-					foreach (var item in Addresses) {
+					foreach(var item in Addresses) {
 						item.Order.OrderStatus = OrderStatus.OnTheWay;
 					}
 				} else
 					throw new NotImplementedException();
-			} else if (newStatus == RouteListStatus.InLoading) {
-				if (Status == RouteListStatus.EnRoute) {
+			} else if(newStatus == RouteListStatus.InLoading) {
+				if(Status == RouteListStatus.EnRoute) {
 					Status = RouteListStatus.InLoading;
-					foreach (var item in Addresses) {
+					foreach(var item in Addresses) {
 						item.Order.ChangeStatus(OrderStatus.OnLoading);
 					}
-				} else if (Status == RouteListStatus.New)
+				} else if(Status == RouteListStatus.New)
 					Status = RouteListStatus.InLoading;
 				else
 					throw new NotImplementedException();
-			} else if (newStatus == RouteListStatus.New) {
-				if (Status == RouteListStatus.InLoading)
+			} else if(newStatus == RouteListStatus.New) {
+				if(Status == RouteListStatus.InLoading)
 					Status = RouteListStatus.New;
 				else
 					throw new NotImplementedException();
@@ -518,33 +519,33 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if (validationContext.Items.ContainsKey("NewStatus")) {
+			if(validationContext.Items.ContainsKey("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
-				if (newStatus == RouteListStatus.InLoading) {
+				if(newStatus == RouteListStatus.InLoading) {
 				}
-				if (newStatus == RouteListStatus.Closed) {
-					if (ConfirmedDistance <= 0)
+				if(newStatus == RouteListStatus.Closed) {
+					if(ConfirmedDistance <= 0)
 						yield return new ValidationResult("Подтвержденное расстояние не может быть меньше 0",
 							new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.ConfirmedDistance) });
 				}
-				if (newStatus == RouteListStatus.MileageCheck) {
-					foreach (var address in Addresses) {
+				if(newStatus == RouteListStatus.MileageCheck) {
+					foreach(var address in Addresses) {
 						var valid = new QSValidator<Order>(address.Order,
 							new Dictionary<object, object> {
 							{ "NewStatus", OrderStatus.Closed }
 						});
 
-						foreach (var result in valid.Results) {
+						foreach(var result in valid.Results) {
 							yield return result;
 						}
 					}
 				}
 			}
 
-			if (Driver == null)
+			if(Driver == null)
 				yield return new ValidationResult("Не заполнен водитель.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Driver) });
-			if (Car == null)
+			if(Car == null)
 				yield return new ValidationResult("На заполнен автомобиль.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car) });
 		}
@@ -556,10 +557,10 @@ namespace Vodovoz.Domain.Logistic
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
 		public virtual void FirstFillClosing()
 		{
-			PerformanceHelper.StartMeasurement ("Первоначальное заполнение");
+			PerformanceHelper.StartMeasurement("Первоначальное заполнение");
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
-			foreach (var routeListItem in addresesDelivered) {
-				PerformanceHelper.StartPointsGroup ($"Заказ {routeListItem.Order.Id}");
+			foreach(var routeListItem in addresesDelivered) {
+				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
 				//				var nomenclatures = routeListItem.Order.OrderItems
 				//					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				//					.Where(item => !item.Nomenclature.Serial).ToList();
@@ -578,12 +579,12 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var result = new List<BottlesMovementOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
-			foreach (RouteListItem address in addresesDelivered) {
+			foreach(RouteListItem address in addresesDelivered) {
 				int amountDelivered = address.Order.OrderItems
 					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 					.Sum(item => item.ActualCount);
-				if (address.Order.BottlesMovementOperation == null) {
-					if (amountDelivered != 0 || address.BottlesReturned != 0) {
+				if(address.Order.BottlesMovementOperation == null) {
+					if(amountDelivered != 0 || address.BottlesReturned != 0) {
 						var bottlesMovementOperation = new BottlesMovementOperation {
 							OperationTime = address.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 							Order = address.Order,
@@ -609,22 +610,22 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var result = new List<CounterpartyMovementOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
-			foreach (var orderItem in addresesDelivered.SelectMany(item => item.Order.OrderItems)
+			foreach(var orderItem in addresesDelivered.SelectMany(item => item.Order.OrderItems)
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.Where(item => !item.Nomenclature.Serial)) {
 				var operation = orderItem.UpdateCounterpartyOperation(UoW);
-				if (operation != null)
+				if(operation != null)
 					result.Add(operation);
 			}
 
 			//FIXME Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
-			if (addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
+			if(addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
 				throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
 
-			foreach (var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments)
+			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments)
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Equipment.Nomenclature.Category))) {
 				var operation = orderEquipment.UpdateCounterpartyOperation();
-				if (operation != null)
+				if(operation != null)
 					result.Add(operation);
 			}
 			return result;
@@ -787,28 +788,42 @@ namespace Vodovoz.Domain.Logistic
 #else
 			var result = new List<DepositOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
-			foreach (RouteListItem item in addresesDelivered) {
-				if (item.DepositsCollected != 0) {
-					var bottlesOperation = new DepositOperation {
-						Order = item.Order,
-						OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-						DepositType = DepositType.Bottles,
-						Counterparty = item.Order.Client,
-						DeliveryPoint = item.Order.DeliveryPoint,
-						ReceivedDeposit = item.DepositsCollected
-					};
+			foreach(RouteListItem item in addresesDelivered) {
+				if(item.DepositsCollected != 0) {
+					DepositOperation bottlesOperation;
+
+					if(item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Bottles).ToList().Count >= 1) {
+						bottlesOperation = item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Bottles).FirstOrDefault();
+						bottlesOperation.ReceivedDeposit = item.DepositsCollected;
+					} else {
+						bottlesOperation = new DepositOperation {
+							Order = item.Order,
+							OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+							DepositType = DepositType.Bottles,
+							Counterparty = item.Order.Client,
+							DeliveryPoint = item.Order.DeliveryPoint,
+							ReceivedDeposit = item.DepositsCollected
+						};
+					}
 					result.Add(bottlesOperation);
 				}
 
-				if (item.EquipmentDepositsCollected != 0) {
-					var equipmentOperation = new DepositOperation {
-						Order = item.Order,
-						OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-						DepositType = DepositType.Equipment,
-						Counterparty = item.Order.Client,
-						DeliveryPoint = item.Order.DeliveryPoint,
-						ReceivedDeposit = item.EquipmentDepositsCollected
-					};
+				if(item.EquipmentDepositsCollected != 0) {
+					DepositOperation equipmentOperation;
+
+					if(item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Equipment).ToList().Count >= 1) {
+						equipmentOperation = item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Equipment).FirstOrDefault();
+						equipmentOperation.ReceivedDeposit = item.EquipmentDepositsCollected;
+					} else {
+						equipmentOperation = new DepositOperation {
+							Order = item.Order,
+							OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+							DepositType = DepositType.Equipment,
+							Counterparty = item.Order.Client,
+							DeliveryPoint = item.Order.DeliveryPoint,
+							ReceivedDeposit = item.EquipmentDepositsCollected
+						};
+					}
 					result.Add(equipmentOperation);
 				}
 			}
@@ -820,14 +835,14 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var result = new List<MoneyMovementOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
-			foreach (var address in addresesDelivered) {
+			foreach(var address in addresesDelivered) {
 				var order = address.Order;
 				var depositsTotal = order.OrderDepositItems.Sum(dep => dep.Count * dep.Deposit);
 				Decimal? money = null;
-				if (order.PaymentType == PaymentType.cash)
+				if(order.PaymentType == PaymentType.cash)
 					money = address.TotalCash;
 				MoneyMovementOperation moneyMovementOperation = order.MoneyMovementOperation;
-				if (moneyMovementOperation == null) {
+				if(moneyMovementOperation == null) {
 					moneyMovementOperation = new MoneyMovementOperation() {
 						OperationTime = order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 						Order = order,
@@ -857,8 +872,8 @@ namespace Vodovoz.Domain.Logistic
 			var oldCashOrder = Repository.Cash.CashRepository.CurrentRouteListCash(UoW, this.Id);
 			var isManual = this.IsManualAccounting;
 			var totalSum = Total - oldCashOrder;
-			if (isManual) {
-				if (totalSum > 0) {
+			if(isManual) {
+				if(totalSum > 0) {
 					cashIncome = new Income {
 						IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(UoW),
 						TypeOperation = IncomeType.DriverReport,
@@ -884,8 +899,8 @@ namespace Vodovoz.Domain.Logistic
 					messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
 				}
 			} else {
-				if (Total > 0) {
-					if (cashIncome == null) {
+				if(Total > 0) {
+					if(cashIncome == null) {
 						cashIncome = new Income {
 							IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(UoW),
 							TypeOperation = IncomeType.DriverReport,
@@ -898,7 +913,7 @@ namespace Vodovoz.Domain.Logistic
 						messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
 					} else {
 						var newSum = Math.Round(Total, 0, MidpointRounding.AwayFromZero);
-						if (cashIncome.Money != newSum) {
+						if(cashIncome.Money != newSum) {
 							cashIncome.Casher = cashier;
 							messages.Add(String.Format("В приходном ордере №{0} изменилась сумма на {1:C0}({2::+#;-#})",
 														 cashIncome.Id, newSum, newSum - cashIncome.Money));
@@ -906,12 +921,12 @@ namespace Vodovoz.Domain.Logistic
 						}
 					}
 					cashIncome.RouteListClosing = this;
-					if (cashExpense != null) {
+					if(cashExpense != null) {
 						messages.Add(String.Format("Расходный ордер №{0} на сумму {1:C0} был удалён.", cashExpense.Id, cashExpense.Money));
 						UoW.Delete(cashExpense);
 					}
 				} else {
-					if (cashExpense == null) {
+					if(cashExpense == null) {
 						cashExpense = new Expense {
 							ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(UoW),
 							TypeOperation = ExpenseType.Expense,
@@ -924,7 +939,7 @@ namespace Vodovoz.Domain.Logistic
 						messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
 					} else {
 						var newSum = Math.Round(-Total, 0, MidpointRounding.AwayFromZero);
-						if (cashExpense.Money != newSum) {
+						if(cashExpense.Money != newSum) {
 							cashExpense.Casher = cashier;
 							messages.Add(String.Format("В расходном ордере №{0} изменилась сумма на {1:C0}({2::+#;-#})",
 								 cashExpense.Id, newSum, newSum - cashExpense.Money));
@@ -932,7 +947,7 @@ namespace Vodovoz.Domain.Logistic
 						}
 					}
 					cashExpense.RouteListClosing = this;
-					if (cashIncome != null) {
+					if(cashIncome != null) {
 						messages.Add(String.Format("Приходный ордер №{0} на сумму {1:C0} был удалён.", cashIncome.Id, cashIncome.Money));
 						UoW.Delete(cashIncome);
 					}
@@ -945,7 +960,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string[] ManualCashOperations(ref Income cashIncome, ref Expense cashExpense, decimal casheInput)
 		{
 			var messages = new List<string>();
-			if (casheInput > 0) {
+			if(casheInput > 0) {
 				cashIncome = new Income {
 					IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(UoW),
 					TypeOperation = IncomeType.DriverReport,
@@ -997,29 +1012,29 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void Confirm()
 		{
-			if (Status != RouteListStatus.OnClosing)
+			if(Status != RouteListStatus.OnClosing)
 				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0}", RouteListStatus.OnClosing));
 
-			if (Driver != null && Driver.FirstWorkDay == null) {
+			if(Driver != null && Driver.FirstWorkDay == null) {
 				Driver.FirstWorkDay = date;
 				UoW.Save(Driver);
 			}
 
-			if (Forwarder != null && Forwarder.FirstWorkDay == null) {
+			if(Forwarder != null && Forwarder.FirstWorkDay == null) {
 				Forwarder.FirstWorkDay = date;
 				UoW.Save(Forwarder);
 			}
 
 
 			Status = RouteListStatus.Closed;
-			foreach (var address in Addresses) {
-				if (address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute) {
+			foreach(var address in Addresses) {
+				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute) {
 					address.Order.ChangeStatus(OrderStatus.Closed);
 					address.UpdateStatus(UoW, RouteListItemStatus.Completed);
 				}
-				if (address.Status == RouteListItemStatus.Canceled)
+				if(address.Status == RouteListItemStatus.Canceled)
 					address.Order.ChangeStatus(OrderStatus.DeliveryCanceled);
-				if (address.Status == RouteListItemStatus.Overdue)
+				if(address.Status == RouteListItemStatus.Overdue)
 					address.Order.ChangeStatus(OrderStatus.NotDelivered);
 			}
 			ClosingDate = DateTime.Now;
@@ -1028,16 +1043,16 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void UpdateFuelOperation()
 		{
 			//Необхомо для того что бы случайно не пересчитать операцию расхода топлива. После массовой смены расхода.
-			if (FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6))
+			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6))
 				return;
 
-			if (ActualDistance == 0) {
-				if (FuelOutlayedOperation != null) {
+			if(ActualDistance == 0) {
+				if(FuelOutlayedOperation != null) {
 					UoW.Delete(FuelOutlayedOperation);
 					FuelOutlayedOperation = null;
 				}
 			} else {
-				if (FuelOutlayedOperation == null) {
+				if(FuelOutlayedOperation == null) {
 					FuelOutlayedOperation = new FuelOperation();
 				}
 				decimal litresOutlayed = (decimal)Car.FuelConsumption
@@ -1046,7 +1061,7 @@ namespace Vodovoz.Domain.Logistic
 				Car car = Car;
 				Employee driver = Driver;
 
-				if (car.IsCompanyHavings)
+				if(car.IsCompanyHavings)
 					driver = null;
 				else
 					car = null;
@@ -1061,7 +1076,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RecalculateFuelOutlay()
 		{
-			if (this.ConfirmedDistance == 0)
+			if(this.ConfirmedDistance == 0)
 				return;
 
 			FuelOutlayedOperation.LitersOutlayed = GetLitersOutlayed();
@@ -1083,7 +1098,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var driverWage = Addresses
 				.Where(item => item.IsDelivered()).Sum(item => item.DriverWageTotal);
-			if (DriverWageOperation == null) {
+			if(DriverWageOperation == null) {
 				DriverWageOperation = new WagesMovementOperations {
 					OperationTime = this.Date,
 					Employee = Driver,
@@ -1100,22 +1115,22 @@ namespace Vodovoz.Domain.Logistic
 			var forwarderWage = Addresses
 				.Where(item => item.IsDelivered()).Sum(item => item.ForwarderWageTotal);
 
-			if (ForwarderWageOperation == null && forwarderWage > 0) {
+			if(ForwarderWageOperation == null && forwarderWage > 0) {
 				ForwarderWageOperation = new WagesMovementOperations {
 					OperationTime = this.Date,
 					Employee = Forwarder,
 					Money = forwarderWage,
 					OperationType = WagesType.AccrualWage
 				};
-			} else if (ForwarderWageOperation != null && forwarderWage > 0) {
+			} else if(ForwarderWageOperation != null && forwarderWage > 0) {
 				ForwarderWageOperation.Money = forwarderWage;
 				ForwarderWageOperation.Employee = Forwarder;
-			} else if (ForwarderWageOperation != null) {
+			} else if(ForwarderWageOperation != null) {
 				UoW.Delete(ForwarderWageOperation);
 				ForwarderWageOperation = null;
 			}
 
-			if (ForwarderWageOperation != null)
+			if(ForwarderWageOperation != null)
 				UoW.Save(ForwarderWageOperation);
 		}
 
@@ -1164,8 +1179,8 @@ namespace Vodovoz.Domain.Logistic
 			Expense cashExpense = null;
 			messages.AddRange(this.UpdateCashOperations(ref cashIncome, ref cashExpense));
 
-			if (cashIncome != null) UoW.Save(cashIncome);
-			if (cashExpense != null) UoW.Save(cashExpense);
+			if(cashIncome != null) UoW.Save(cashIncome);
+			if(cashExpense != null) UoW.Save(cashExpense);
 
 			return messages;
 		}
@@ -1182,53 +1197,47 @@ namespace Vodovoz.Domain.Logistic
 		{
 			TimeSpan minTime;
 			//Расчет минимального времени к которому нужно\можно подъехать.
-			for (int ix = 0; ix < Addresses.Count; ix++) {
-				
-				if (ix == 0)
-				{
+			for(int ix = 0; ix < Addresses.Count; ix++) {
+
+				if(ix == 0) {
 					minTime = Addresses[ix].Order.DeliverySchedule.From;
 
-					var timeFromBase = TimeSpan.FromSeconds(Driver.TimeCorrection(sputnikCache.TimeFromBase(Addresses[ix].Order.DeliveryPoint)));
+					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(Addresses[ix].Order.DeliveryPoint));
 					var onBase = minTime - timeFromBase;
 					if(Shift != null && onBase < Shift.StartTime)
 						minTime = Shift.StartTime + timeFromBase;
-				}
-				else
-					minTime += TimeSpan.FromSeconds(Driver.TimeCorrection(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint)));
+				} else
+					minTime += TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint));
 
 				Addresses[ix].PlanTimeStart = minTime > Addresses[ix].Order.DeliverySchedule.From ? minTime : Addresses[ix].Order.DeliverySchedule.From;
 
-				minTime += TimeSpan.FromMinutes(Driver.TimeCorrection(Addresses[ix].TimeOnPoint));
+				minTime += TimeSpan.FromMinutes(Addresses[ix].TimeOnPoint);
 			}
 			//Расчет максимального времени до которого нужно подъехать.
 			TimeSpan maxTime;
 			for(int ix = Addresses.Count - 1; ix >= 0; ix--) {
 
-				if(ix == Addresses.Count - 1)
-				{
+				if(ix == Addresses.Count - 1) {
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
-					var timeToBase = TimeSpan.FromSeconds(Driver.TimeCorrection(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint)));
+					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint));
 					var onBase = maxTime + timeToBase;
 					if(Shift != null && onBase > Shift.EndTime)
 						maxTime = Shift.EndTime - timeToBase;
-				}
-				else
-					maxTime -= TimeSpan.FromSeconds(Driver.TimeCorrection(sputnikCache.TimeSec(Addresses[ix].Order.DeliveryPoint, Addresses[ix + 1].Order.DeliveryPoint)));
+				} else
+					maxTime -= TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix].Order.DeliveryPoint, Addresses[ix + 1].Order.DeliveryPoint));
 
 				if(maxTime > Addresses[ix].Order.DeliverySchedule.To)
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
 
-				maxTime -= TimeSpan.FromMinutes(Driver.TimeCorrection(Addresses[ix].TimeOnPoint));
+				maxTime -= TimeSpan.FromMinutes(Addresses[ix].TimeOnPoint);
 
-				if(maxTime < Addresses[ix].PlanTimeStart)
-				{ //Расписание испорчено, успеть нельзя. Пытаемся его более менее адекватно отобразить.
-					TimeSpan beforeMin = new TimeSpan(1, 0,0,0);
+				if(maxTime < Addresses[ix].PlanTimeStart) { //Расписание испорчено, успеть нельзя. Пытаемся его более менее адекватно отобразить.
+					TimeSpan beforeMin = new TimeSpan(1, 0, 0, 0);
 					if(ix > 0)
-						beforeMin = Addresses[ix - 1].PlanTimeStart.Value 
-						                             + TimeSpan.FromSeconds(Driver.TimeCorrection(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint))) 
-						                             + TimeSpan.FromMinutes(Driver.TimeCorrection(Addresses[ix - 1].TimeOnPoint));
-					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From)
-					{
+						beforeMin = Addresses[ix - 1].PlanTimeStart.Value
+													 + TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint))
+													 + TimeSpan.FromMinutes(Addresses[ix - 1].TimeOnPoint);
+					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From) {
 						Addresses[ix].PlanTimeStart = beforeMin < maxTime ? maxTime : beforeMin;
 					}
 					maxTime = Addresses[ix].PlanTimeStart.Value;
@@ -1237,27 +1246,34 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public static void RecalculateOnLoadTime (IList<RouteList> routelists, RouteGeometrySputnikCalculator sputnikCache)
+		public virtual void RecalculatePlanedDistance(RouteGeometrySputnikCalculator distanceCalculator)
+		{
+			if(Addresses.Count == 0)
+				PlanedDistance = 0;
+			else
+				PlanedDistance = distanceCalculator.GetRouteDistance(GenerateHashPiontsOfRoute()) / 1000m;
+		}
+
+		public static void RecalculateOnLoadTime(IList<RouteList> routelists, RouteGeometrySputnikCalculator sputnikCache)
 		{
 			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
-			                       .Select(x => new Tuple<TimeSpan, RouteList>(
-				                       x.FirstAddressTime - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.Addresses.First().Order.DeliveryPoint)),
-			                                     x
-				                      ))
-			                       .OrderByDescending(x => x.Item1);
+								   .Select(x => new Tuple<TimeSpan, RouteList>(
+									   x.FirstAddressTime - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.Addresses.First().Order.DeliveryPoint)),
+												 x
+									  ))
+								   .OrderByDescending(x => x.Item1);
 			var fixedTime = routelists.Where(x => x.Addresses.Any() && x.OnloadTimeFixed).ToList();
 			var paralellLoading = 4;
-			var loadingPlaces = Enumerable.Range(0, paralellLoading).Select(x => new TimeSpan(1,0,0,0)).ToArray();
-			foreach(var route in sorted)
-			{
-				repeat:
+			var loadingPlaces = Enumerable.Range(0, paralellLoading).Select(x => new TimeSpan(1, 0, 0, 0)).ToArray();
+			foreach(var route in sorted) {
+			repeat:
 				int selectedPlace = Array.IndexOf(loadingPlaces, loadingPlaces.Max());
 				var endLoading = loadingPlaces[selectedPlace] < route.Item1 ? loadingPlaces[selectedPlace] : route.Item1;
 				var startLoading = endLoading - TimeSpan.FromMinutes(route.Item2.TimeOnLoadMinuts);
 				//Проверяем, не перекрываем ли мы фиксированное время.
 				var interfere = fixedTime.Where(x => x.OnLoadTimeEnd >= startLoading).ToList();
 				var freeplaces = interfere.Count == 0 ? paralellLoading
-				                          : loadingPlaces.Count(x => x.TotalSeconds >= interfere.Min(y => y.OnLoadTimeEnd.Value.TotalSeconds));
+										  : loadingPlaces.Count(x => x.TotalSeconds >= interfere.Min(y => y.OnLoadTimeEnd.Value.TotalSeconds));
 				if(endLoading == loadingPlaces[selectedPlace])
 					logger.Debug("Нехватило места на погрузке");
 
@@ -1289,6 +1305,15 @@ namespace Vodovoz.Domain.Logistic
 			get {
 				return Car.TypeOfUse == CarTypeOfUse.Largus ? 15 : 30;
 			}
+		}
+
+		public virtual long[] GenerateHashPiontsOfRoute()
+		{
+			var result = new List<long>();
+			result.Add(RouteGeometrySputnikCalculator.BaseHash);
+			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.СoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
+			result.Add(RouteGeometrySputnikCalculator.BaseHash);
+			return result.ToArray();
 		}
 
 		#endregion

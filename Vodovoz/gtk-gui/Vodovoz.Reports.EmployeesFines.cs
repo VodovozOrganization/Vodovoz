@@ -12,6 +12,16 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.Label label1;
 
+		private global::Gtk.Label labelCategory;
+
+		private global::Gtk.RadioButton radioCatAll;
+
+		private global::Gtk.RadioButton radioCatDriver;
+
+		private global::Gtk.RadioButton radioCatForwarder;
+
+		private global::Gtk.RadioButton radioCatOffice;
+
 		private global::Gamma.Widgets.yEntryReference yentryDriver;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
@@ -23,7 +33,7 @@ namespace Vodovoz.Reports
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Reports.EmployeesFines";
 			// Container child Vodovoz.Reports.EmployeesFines.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(9)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -37,8 +47,8 @@ namespace Vodovoz.Reports
 			this.buttonRun.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.table1.Add(this.buttonRun);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonRun]));
-			w1.TopAttach = ((uint)(5));
-			w1.BottomAttach = ((uint)(6));
+			w1.TopAttach = ((uint)(8));
+			w1.BottomAttach = ((uint)(9));
 			w1.RightAttach = ((uint)(2));
 			w1.XOptions = ((global::Gtk.AttachOptions)(0));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -63,28 +73,99 @@ namespace Vodovoz.Reports
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.labelCategory = new global::Gtk.Label();
+			this.labelCategory.Name = "labelCategory";
+			this.labelCategory.Xalign = 1F;
+			this.labelCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категория");
+			this.table1.Add(this.labelCategory);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.labelCategory]));
+			w4.TopAttach = ((uint)(1));
+			w4.BottomAttach = ((uint)(2));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.radioCatAll = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Все"));
+			this.radioCatAll.CanFocus = true;
+			this.radioCatAll.Name = "radioCatAll";
+			this.radioCatAll.DrawIndicator = true;
+			this.radioCatAll.UseUnderline = true;
+			this.radioCatAll.Group = new global::GLib.SList(global::System.IntPtr.Zero);
+			this.table1.Add(this.radioCatAll);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.radioCatAll]));
+			w5.TopAttach = ((uint)(1));
+			w5.BottomAttach = ((uint)(2));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.radioCatDriver = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Водители"));
+			this.radioCatDriver.CanFocus = true;
+			this.radioCatDriver.Name = "radioCatDriver";
+			this.radioCatDriver.DrawIndicator = true;
+			this.radioCatDriver.UseUnderline = true;
+			this.radioCatDriver.Group = this.radioCatAll.Group;
+			this.table1.Add(this.radioCatDriver);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.radioCatDriver]));
+			w6.TopAttach = ((uint)(2));
+			w6.BottomAttach = ((uint)(3));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.radioCatForwarder = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Экспедиторы"));
+			this.radioCatForwarder.CanFocus = true;
+			this.radioCatForwarder.Name = "radioCatForwarder";
+			this.radioCatForwarder.DrawIndicator = true;
+			this.radioCatForwarder.UseUnderline = true;
+			this.radioCatForwarder.Group = this.radioCatAll.Group;
+			this.table1.Add(this.radioCatForwarder);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.radioCatForwarder]));
+			w7.TopAttach = ((uint)(3));
+			w7.BottomAttach = ((uint)(4));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.radioCatOffice = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Офисные работники"));
+			this.radioCatOffice.CanFocus = true;
+			this.radioCatOffice.Name = "radioCatOffice";
+			this.radioCatOffice.DrawIndicator = true;
+			this.radioCatOffice.UseUnderline = true;
+			this.radioCatOffice.Group = this.radioCatAll.Group;
+			this.table1.Add(this.radioCatOffice);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.radioCatOffice]));
+			w8.TopAttach = ((uint)(4));
+			w8.BottomAttach = ((uint)(5));
+			w8.LeftAttach = ((uint)(1));
+			w8.RightAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.yentryDriver = new global::Gamma.Widgets.yEntryReference();
 			this.yentryDriver.Events = ((global::Gdk.EventMask)(256));
 			this.yentryDriver.Name = "yentryDriver";
 			this.table1.Add(this.yentryDriver);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryDriver]));
-			w4.TopAttach = ((uint)(1));
-			w4.BottomAttach = ((uint)(2));
-			w4.LeftAttach = ((uint)(1));
-			w4.RightAttach = ((uint)(2));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryDriver]));
+			w9.TopAttach = ((uint)(5));
+			w9.BottomAttach = ((uint)(6));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel2.Name = "ylabel2";
 			this.ylabel2.Xalign = 1F;
-			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Струдник");
+			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Сотрудник");
 			this.table1.Add(this.ylabel2);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel2]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel2]));
+			w10.TopAttach = ((uint)(5));
+			w10.BottomAttach = ((uint)(6));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
@@ -92,6 +173,10 @@ namespace Vodovoz.Reports
 			}
 			this.Hide();
 			this.yentryDriver.Changed += new global::System.EventHandler(this.OnYentryDriverChanged);
+			this.radioCatOffice.Toggled += new global::System.EventHandler(this.OnRadioCatAllToggled);
+			this.radioCatForwarder.Toggled += new global::System.EventHandler(this.OnRadioCatAllToggled);
+			this.radioCatDriver.Toggled += new global::System.EventHandler(this.OnRadioCatAllToggled);
+			this.radioCatAll.Toggled += new global::System.EventHandler(this.OnRadioCatAllToggled);
 			this.dateperiodpicker1.PeriodChanged += new global::System.EventHandler(this.OnDateperiodpicker1PeriodChanged);
 			this.buttonRun.Clicked += new global::System.EventHandler(this.OnButtonRunClicked);
 		}

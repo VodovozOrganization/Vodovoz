@@ -22,7 +22,7 @@
       <Textbox Name="Textbox20">
         <Height>22.59pt</Height>
         <Width>815.89pt</Width>
-        <Value>="Отчет по топливу с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " до " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
+        <Value>="Отчет по топливу с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " до " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") + Iif({?author} = -1, "", ", сотрудник: " + First({author_name}, "FuelOther"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>12.00pt</Top>
@@ -36,7 +36,7 @@
       </Textbox>
       <Table Name="Table2">
         <DataSetName>FuelOther</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет подходящих результатов.</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -542,7 +542,7 @@
       </Table>
       <Table Name="Table3">
         <DataSetName>FuelTruck</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет подходящих результатов.</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1042,7 +1042,7 @@
       </Table>
       <Table Name="Table4">
         <DataSetName>FuelLargus</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет подходящих результатов.</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1483,6 +1483,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                       <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0))</Value>
                     </Textbox>
@@ -1495,6 +1497,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                       <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0))</Value>
                     </Textbox>
@@ -1588,7 +1592,7 @@
       </Textbox>
       <Table Name="Table1">
         <DataSetName>FuelSummary</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет подходящих результатов.</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1634,7 +1638,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>=Fields!liters_used.Value</Value>
+                      <Value>=Sum({liters_outlayed}, "FuelOther") + Sum({liters_outlayed}, "FuelTruck") + Sum({liters_outlayed}, "FuelLargus")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1649,7 +1653,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>=Fields!coupons_diesel.Value</Value>
+                      <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelOther") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelTruck") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelLargus")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1664,7 +1668,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>=Fields!coupons_benzene.Value</Value>
+                      <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0), "FuelOther") + Sum(Iif({fuel_type}!=3, {liters_coupons}, 0), "FuelTruck") + Sum(Iif({fuel_type}!=3, {liters_coupons}, 0), "FuelLargus")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1708,8 +1712,8 @@
     <DataSet Name="FuelOther">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-	fuel_operations.date AS date,
+        <CommandText>select
+	ifnull(fuel_operations.date,fuel_documents.date) AS date,
 	route_lists.id AS route_list_id,
 	route_lists.date AS route_list_date,
 	CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
@@ -1717,29 +1721,31 @@
 	SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
 	SUM(IFNULL(fuel_documents.fuel_coupons, 0)) AS liters_coupons,
 	cars.reg_number AS reg_number,
-    IFNULL(author.last_name,'') AS author_name,
-    IFNULL(last_editor.last_name,'') AS last_editor_name,
-    IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
-FROM
-	fuel_operations
-LEFT JOIN
-	fuel_documents ON fuel_documents.fuel_operation_id = fuel_operations.id
-LEFT JOIN
-	route_lists ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-				OR route_lists.fuel_gived_document_id = fuel_documents.id
-LEFT JOIN
-	employees AS driver ON driver.id = route_lists.driver_id
-LEFT JOIN
-	employees AS author ON author.id = fuel_documents.author_id
-LEFT JOIN
-	employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
-LEFT JOIN
-	cars ON cars.id = route_lists.car_id
-WHERE
-	cars.type_of_use = 'Other' OR cars.type_of_use IS NULL
-	AND fuel_operations.date &gt;= @start_date
-	AND fuel_operations.date &lt;= @end_date
-GROUP BY
+	IFNULL(author.last_name,'') AS author_name,
+	IFNULL(last_editor.last_name,'') AS last_editor_name,
+	IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
+from
+	route_lists
+left join
+	fuel_operations on fuel_operations.id = route_lists.fuel_outlayed_operation_id
+left join
+	fuel_documents on fuel_documents.id = route_lists.fuel_gived_document_id
+left join
+	employees as driver on driver.id = route_lists.driver_id
+left join
+	employees as author on author.id = fuel_documents.author_id
+left join
+	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
+left join
+	cars on cars.id = route_lists.car_id
+where
+	(cars.type_of_use = 'Other' or cars.type_of_use is null)
+	and fuel_documents.fuel_coupons is not null
+	and fuel_documents.fuel_coupons &lt;&gt; 0
+	and (fuel_operations.date &gt;= @start_date or fuel_documents.date &gt;= @start_date)
+	and (fuel_operations.date &lt; @end_date or fuel_documents.date &lt; @end_date)
+	AND (@author = -1 OR author_id = @author)
+group by
 	route_list_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -1747,6 +1753,9 @@ GROUP BY
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="author">
+            <Value>={?author}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1798,10 +1807,10 @@ GROUP BY
       </Fields>
     </DataSet>
     <DataSet Name="FuelTruck">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-	fuel_operations.date AS date,
+        <CommandText>select
+	ifnull(fuel_operations.date,fuel_documents.date) AS date,
 	route_lists.id AS route_list_id,
 	route_lists.date AS route_list_date,
 	CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
@@ -1809,29 +1818,31 @@ GROUP BY
 	SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
 	SUM(IFNULL(fuel_documents.fuel_coupons, 0)) AS liters_coupons,
 	cars.reg_number AS reg_number,
-    IFNULL(author.last_name,'') AS author_name,
-    IFNULL(last_editor.last_name,'') AS last_editor_name,
-    IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
-FROM
-	fuel_operations
-LEFT JOIN
-	fuel_documents ON fuel_documents.fuel_operation_id = fuel_operations.id
-LEFT JOIN
-	route_lists ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-				OR route_lists.fuel_gived_document_id = fuel_documents.id
-LEFT JOIN
-	employees AS driver ON driver.id = route_lists.driver_id
-LEFT JOIN
-	employees AS author ON author.id = fuel_documents.author_id
-LEFT JOIN
-	employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
-LEFT JOIN
-	cars ON cars.id = route_lists.car_id
-WHERE
+	IFNULL(author.last_name,'') AS author_name,
+	IFNULL(last_editor.last_name,'') AS last_editor_name,
+	IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
+from
+	route_lists
+left join
+	fuel_operations on fuel_operations.id = route_lists.fuel_outlayed_operation_id
+left join
+	fuel_documents on fuel_documents.id = route_lists.fuel_gived_document_id
+left join
+	employees as driver on driver.id = route_lists.driver_id
+left join
+	employees as author on author.id = fuel_documents.author_id
+left join
+	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
+left join
+	cars on cars.id = route_lists.car_id
+where
 	cars.type_of_use = 'Truck'
-	AND fuel_operations.date &gt;= @start_date
-	AND fuel_operations.date &lt;= @end_date
-GROUP BY
+	and fuel_documents.fuel_coupons is not null
+	and fuel_documents.fuel_coupons &lt;&gt; 0
+	and (fuel_operations.date &gt;= @start_date or fuel_documents.date &gt;= @start_date)
+	and (fuel_operations.date &lt; @end_date or fuel_documents.date &lt; @end_date)
+	AND (@author = -1 OR author_id = @author)
+group by
 	route_list_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -1840,9 +1851,12 @@ GROUP BY
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
+          <QueryParameter Name="author">
+            <Value>={?author}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1890,10 +1904,10 @@ GROUP BY
       </Fields>
     </DataSet>
     <DataSet Name="FuelLargus">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-	fuel_operations.date AS date,
+        <CommandText>select
+	ifnull(fuel_operations.date,fuel_documents.date) AS date,
 	route_lists.id AS route_list_id,
 	route_lists.date AS route_list_date,
 	CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
@@ -1901,29 +1915,31 @@ GROUP BY
 	SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
 	SUM(IFNULL(fuel_documents.fuel_coupons, 0)) AS liters_coupons,
 	cars.reg_number AS reg_number,
-    IFNULL(author.last_name,'') AS author_name,
-    IFNULL(last_editor.last_name,'') AS last_editor_name,
-    IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
-FROM
-	fuel_operations
-LEFT JOIN
-	fuel_documents ON fuel_documents.fuel_operation_id = fuel_operations.id
-LEFT JOIN
-	route_lists ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-				OR route_lists.fuel_gived_document_id = fuel_documents.id
-LEFT JOIN
-	employees AS driver ON driver.id = route_lists.driver_id
-LEFT JOIN
-	employees AS author ON author.id = fuel_documents.author_id
-LEFT JOIN
-	employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
-LEFT JOIN
-	cars ON cars.id = route_lists.car_id
-WHERE
+	IFNULL(author.last_name,'') AS author_name,
+	IFNULL(last_editor.last_name,'') AS last_editor_name,
+	IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
+from
+	route_lists
+left join
+	fuel_operations on fuel_operations.id = route_lists.fuel_outlayed_operation_id
+left join
+	fuel_documents on fuel_documents.id = route_lists.fuel_gived_document_id
+left join
+	employees as driver on driver.id = route_lists.driver_id
+left join
+	employees as author on author.id = fuel_documents.author_id
+left join
+	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
+left join
+	cars on cars.id = route_lists.car_id
+where
 	cars.type_of_use = 'Largus'
-	AND fuel_operations.date &gt;= @start_date
-	AND fuel_operations.date &lt;= @end_date
-GROUP BY
+	and fuel_documents.fuel_coupons is not null
+	and fuel_documents.fuel_coupons &lt;&gt; 0
+	and (fuel_operations.date &gt;= @start_date or fuel_documents.date &gt;= @start_date)
+	and (fuel_operations.date &lt; @end_date or fuel_documents.date &lt; @end_date)
+	AND (@author = -1 OR author_id = @author)
+group by
 	route_list_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -1932,9 +1948,12 @@ GROUP BY
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
+          <QueryParameter Name="author">
+            <Value>={?author}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -2000,13 +2019,17 @@ LEFT JOIN
 	fuel_documents ON fuel_documents.fuel_operation_id = fuel_operations.id
 WHERE
 	fuel_operations.date &gt;= @start_date
-	AND fuel_operations.date &lt;= @end_date</CommandText>
+	AND fuel_operations.date &lt;= @end_date
+	AND (@author = -1 OR author_id = @author)</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="author">
+            <Value>={?author}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2036,12 +2059,21 @@ WHERE
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_honeybee;user=saendra;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017/10/04</Value>
+          <Value>2017/10/06</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2054,7 +2086,20 @@ WHERE
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017/10/05</Value>
+          <Value>2017/10/07</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="author">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2064,14 +2109,4 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

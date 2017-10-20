@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     CONCAT_WS(' ',
@@ -88,7 +88,7 @@ FROM
         OR store_writeoff_document_items.nomenclature_id = nomenclature.id
         OR store_regrading_of_goods_items.nomenclature_old_id = nomenclature.id
 WHERE
-    (fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY) AND @drivers = -1) OR
+    (fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY) AND @drivers = -1 AND (@category = '-1' OR employees.category = @category)) OR
     (employees.id = @drivers AND fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)) OR
     (employees.id = @drivers AND @startDate = '0' AND @endDate = '0')
 GROUP BY fines_items.id
@@ -103,9 +103,12 @@ ORDER BY employee , date</CommandText>
           <QueryParameter Name="drivers">
             <Value>={?drivers}</Value>
           </QueryParameter>
+          <QueryParameter Name="category">
+            <Value>={?category}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="employee">
           <DataField>employee</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -877,7 +880,7 @@ ORDER BY employee , date</CommandText>
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -922,6 +925,19 @@ ORDER BY employee , date</CommandText>
     </ReportParameter>
     <ReportParameter Name="routelist">
       <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="category">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

@@ -121,6 +121,11 @@ namespace Vodovoz.Tools.Logistic
 				       .ToList();
 		}
 
+		/// <summary>
+		/// Получаем расстояние по всем точкам маршрута в метрах.
+		/// </summary>
+		/// <returns>Расстояние в метрах</returns>
+		/// <param name="route">Хеши координат точек маршрута</param>
 		public int GetRouteDistance(long[] route)
 		{
 			var routeHash = String.Concat(route).GetHashCode();

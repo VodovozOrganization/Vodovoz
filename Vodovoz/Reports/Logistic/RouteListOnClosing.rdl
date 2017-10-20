@@ -16,52 +16,70 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    route_lists.id AS routeListId,
-    route_lists.date AS routeListDate,
-    route_lists.driver_id,
-    CONCAT_WS(' ',
-            employees.last_name,
-            IF(employees.name = '',
-                NULL,
-                employees.name),
-            IF(employees.patronymic = '',
-                NULL,
-                employees.patronymic)) AS driver_name,
-    IFNULL( (SELECT 
-            SUM(total_cash) -  IFNULL(money,0)
-        FROM
-            route_list_addresses
-        WHERE
-            route_list_addresses.status = 'Completed' AND
-            route_list_addresses.route_list_id = routeListId), 0) AS nal,
-    IFNULL((SELECT 
-             count(*)*2
-        FROM
-            route_list_addresses
-        LEFT JOIN
-            route_lists ON route_list_addresses.route_list_id = route_lists.id
-        LEFT JOIN
-            cars ON cars.id = route_lists.car_id
-        WHERE
-            cars.type_of_use &lt;&gt; 'Truck' AND
-            route_list_addresses.status = 'Completed' AND
-            route_list_addresses.route_list_id = routeListId), 0)  AS paytelephone,
-           closing_comment
+	route_lists.id AS routeListId,
+	route_lists.date AS routeListDate,
+	route_lists.driver_id,
+	CONCAT_WS(' ',
+		employees.last_name,
+		IF(employees.name = '',
+			NULL,
+			employees.name),
+		IF(employees.patronymic = '',
+			NULL,
+			employees.patronymic)) AS driver_name,
+	IFNULL(
+		(SELECT
+			SUM(total_cash) -  IFNULL(money,0) - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected)) 
+		FROM
+			route_list_addresses
+		WHERE
+			route_list_addresses.status = 'Completed'
+			AND route_list_addresses.route_list_id = routeListId), 0) AS nal,
+	IFNULL(
+		(SELECT 
+			count(*)*2
+		FROM
+			route_list_addresses
+		LEFT JOIN
+			route_lists ON route_list_addresses.route_list_id = route_lists.id
+		LEFT JOIN
+			cars ON cars.id = route_lists.car_id
+		WHERE
+            (is_company_havings = 0 OR (is_company_havings = 1 AND (cars.type_of_use &lt;&gt; 'Truck' OR cars.type_of_use is null)))
+            AND route_list_addresses.status = 'Completed'
+			AND route_list_addresses.route_list_id = routeListId), 0)  AS paytelephone,
+	(select
+		sum(order_items.count)
+	from
+		route_list_addresses
+	left join
+		orders on orders.id = route_list_addresses.order_id
+	left join
+		order_items on order_items.order_id = orders.id
+	left join
+		nomenclature on nomenclature.id = order_items.nomenclature_id
+	where
+		nomenclature.category = 'water'
+        and route_list_addresses.route_list_id = routeListId
+        ) as bottles,
+	sum(ifnull(orders.returned_tare,0)) as planned_returned_bottles,
+    sum(ifnull(route_list_addresses.bottles_returned,0)) as returned_bottles,
+	closing_comment
 FROM
-    route_lists
-        LEFT JOIN
-    employees ON employees.id = route_lists.driver_id
-        LEFT JOIN
-    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-        LEFT JOIN
-    orders ON route_list_addresses.order_id = orders.id
-        LEFT JOIN
-    cash_income ON cash_income.route_list_id = route_list_addresses.route_list_id
+	route_lists
+LEFT JOIN
+	employees ON employees.id = route_lists.driver_id
+LEFT JOIN
+	route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+LEFT JOIN
+	orders ON route_list_addresses.order_id = orders.id
+LEFT JOIN
+	cash_income ON cash_income.route_list_id = route_list_addresses.route_list_id
 WHERE
-    route_lists.status = 'OnClosing'
-        AND ((route_lists.date &lt; CURDATE()
-        AND @todayRloff = 1)
-        OR (@todayRloff = 0))
+	route_lists.status = 'OnClosing'
+	AND ((route_lists.date &lt; CURDATE()
+	AND @todayRloff = 1)
+	OR (@todayRloff = 0))
 GROUP BY routeListId</CommandText>
         <QueryParameters>
           <QueryParameter Name="@todayRloff">
@@ -72,11 +90,15 @@ GROUP BY routeListId</CommandText>
       <Fields>
         <Field Name="routeListId">
           <DataField>routeListId</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="routeListDate">
           <DataField>routeListDate</DataField>
           <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="driver_id">
+          <DataField>driver_id</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="driver_name">
           <DataField>driver_name</DataField>
@@ -84,15 +106,27 @@ GROUP BY routeListId</CommandText>
         </Field>
         <Field Name="nal">
           <DataField>nal</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="paytelephone">
+          <DataField>paytelephone</DataField>
+          <TypeName>System.Int64</TypeName>
+        </Field>
+        <Field Name="bottles">
+          <DataField>bottles</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="planned_returned_bottles">
+          <DataField>planned_returned_bottles</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="returned_bottles">
+          <DataField>returned_bottles</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="closing_comment">
           <DataField>closing_comment</DataField>
           <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="paytelephone">
-          <DataField>paytelephone</DataField>
-          <TypeName>System.Int16</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -105,7 +139,7 @@ GROUP BY routeListId</CommandText>
         <Left>112.4pt</Left>
         <Width>566.12pt</Width>
         <Height>18.82pt</Height>
-        <Value>Отчет по незакрытыми МЛ</Value>
+        <Value>Отчет по незакрытым МЛ</Value>
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
@@ -136,28 +170,37 @@ GROUP BY routeListId</CommandText>
             <Width>34.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>69.0pt</Width>
+            <Width>59.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.7pt</Width>
+            <Width>37.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>189.0pt</Width>
+            <Width>140.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>83.6pt</Width>
+            <Width>58.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>204.5pt</Width>
+            <Width>61.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>125.6pt</Width>
+            <Width>54.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>53.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>146.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>102.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>28.3pt</Height>
+              <Height>36.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -235,6 +278,57 @@ GROUP BY routeListId</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Отгруженных бутылей</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Предполагаемая возвратная тара</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>Сданная пустая тара</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -365,6 +459,51 @@ GROUP BY routeListId</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>={bottles}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>={planned_returned_bottles}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>={returned_bottles}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox3">
                       <Value>={closing_comment}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -439,6 +578,51 @@ GROUP BY routeListId</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>=Sum({bottles})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>=Sum({planned_returned_bottles})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>=Sum({returned_bottles})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox19">
                       <Style>
                         <BorderStyle>
@@ -453,6 +637,116 @@ GROUP BY routeListId</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>Бутылей зависло у водителей:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>4</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>=Sum({planned_returned_bottles}) - Sum({returned_bottles})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -495,15 +789,6 @@ GROUP BY routeListId</CommandText>
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=admey;password=9533;port=3306;server=192.168.0.7</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters>
     <ReportParameter Name="todayRloff">
       <DataType>Integer</DataType>
@@ -519,4 +804,14 @@ GROUP BY routeListId</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>
+        </ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

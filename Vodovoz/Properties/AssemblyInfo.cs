@@ -20,7 +20,8 @@ using QSProjectsLib;
 [assembly: AssemblyAppWebsite ("http://www.qsolution.ru/")]
 
 [assembly: AssemblyAuthor ("Ганьков Андрей 2014- <gav@qsolution.ru>")]
-[assembly: AssemblyAuthor ("Дмитрий Иванов 2017- <saendra.ru@gmail.com>")]
+[assembly: AssemblyAuthor ("Янина Дарья 2016- <nebofot@ya.ru>")]
+[assembly: AssemblyAuthor ("Иванов Дмитрий 2017- <saendra.ru@gmail.com>")]
 [assembly: AssemblyAuthor ("Якубовский Александр 2017- <all_reg@inbox.ru>")]
 [assembly: AssemblyAuthor ("Делов Дмитрий 2016-2017 <ddelov@qsolution.ru>")]
 [assembly: AssemblyAuthor ("Виноградов Андрей 2014-2016 <vad@qsolution.ru>")]

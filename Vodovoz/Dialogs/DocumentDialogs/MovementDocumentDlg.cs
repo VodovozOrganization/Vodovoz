@@ -102,7 +102,9 @@ namespace Vodovoz
 
 		private bool CheckUserAndStore()
 		{
-			if (QSMain.User.Permissions["store_production"] && Entity.ToWarehouse == WarehouseRepository.DefaultWarehouseForWater(UoWGeneric))
+			if(QSMain.User.Permissions["store_production"] && Entity.ToWarehouse == WarehouseRepository.DefaultWarehouseForWater(UoWGeneric))
+				return true;
+			if(QSMain.User.Permissions["store_vartemyagi"] && Entity.ToWarehouse == WarehouseRepository.DefaultWarehouseForWater(UoWGeneric))
 				return true;
 			return false;
 		}

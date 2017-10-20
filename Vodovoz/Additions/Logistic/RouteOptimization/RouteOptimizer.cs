@@ -194,7 +194,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			search_parameters.TimeLimitMs = MaxTimeSeconds * 1000;
 			search_parameters.FingerprintArcCostEvaluators = false;
-			//search_parameters.UseDepthFirstSearch = true;
 			//search_parameters.OptimizationStep = 100;
 
 			var solver = routing.solver();

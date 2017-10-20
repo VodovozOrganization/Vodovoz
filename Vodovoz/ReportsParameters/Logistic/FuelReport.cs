@@ -3,6 +3,7 @@ using QSOrmProject;
 using QSReport;
 using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Reports
 {
@@ -13,6 +14,7 @@ namespace Vodovoz.Reports
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			yentryreferenceCar.SubjectType = typeof(Car);
+			yentryAuthor.ItemsQuery = Repository.EmployeeRepository.OfficeWorkersQuery();
 		}
 
 		#region IOrmDialog implementation
@@ -54,6 +56,7 @@ namespace Vodovoz.Reports
 			else {
 				parameters.Add("car_id", -1);
 				parameters.Add("driver_id", -1);
+				parameters.Add("author", yentryAuthor.Subject == null ? -1 : (yentryAuthor.Subject as Employee).Id);
 
 				return new ReportInfo {
 					Identifier = "Logistic.FuelReportSummary",
@@ -91,6 +94,21 @@ namespace Vodovoz.Reports
 			CanRun();
 		}
 
+		protected void OnYentryreferenceCarChanged(object sender, EventArgs e)
+		{
+			if(yentryreferenceCar.Subject != null)
+			{
+				yentryAuthor.Subject = null;
+			}
+		}
+
+		protected void OnYentryAuthorChanged(object sender, EventArgs e)
+		{
+			if(yentryAuthor.Subject != null)
+			{
+				yentryreferenceCar.Subject = null;
+			}
+		}
 	}
 }
 

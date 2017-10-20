@@ -1252,8 +1252,8 @@
         <Width>166.38pt</Width>
         <Value>="ПРИНЯТО НА СКЛАДЕ"</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>157.0pt</Top>
+        <Left>0.00pt</Left>
+        <Top>157.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1271,7 +1271,7 @@
         <Value>="ПУСТЫХ:"</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>175.8pt</Top>
+        <Top>170.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1289,7 +1289,7 @@
         <Value>="БРАК: "</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>190.9pt</Top>
+        <Top>183.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1307,7 +1307,7 @@
         <Value>="ПОЛНЫХ:"</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>206.1pt</Top>
+        <Top>199.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1324,8 +1324,8 @@
         <Width>166.38pt</Width>
         <Value>="Нач. склада ____________"</Value>
         <ZIndex>1</ZIndex>
-        <Left>414.8pt</Left>
-        <Top>167.5pt</Top>
+        <Left>456.0pt</Left>
+        <Top>164.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1342,8 +1342,8 @@
         <Width>166.38pt</Width>
         <Value>="Водитель ______________"</Value>
         <ZIndex>1</ZIndex>
-        <Left>414.6pt</Left>
-        <Top>202.1pt</Top>
+        <Left>455.8pt</Left>
+        <Top>188.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1369,16 +1369,49 @@
         </Style>
       </Textbox>
       <Textbox Name="Textbox52">
-        <Height>14.99pt</Height>
-        <Width>714.51pt</Width>
+        <Height>14.98pt</Height>
+        <Width>628.68pt</Width>
         <Value>В случае возникновения проблем с мобильным приложением ОБЯЗАТЕЛЬНО звонить в IT-отдел по тел.: +7-953-165-93-98</Value>
         <ZIndex>1</ZIndex>
-        <Left>4.4pt</Left>
-        <Top>137.9pt</Top>
+        <Left>4.40pt</Left>
+        <Top>137.91pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
+          <TextDecoration>None</TextDecoration>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox59" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.76pt</Height>
+        <Width>381.73pt</Width>
+        <Value>ПОДПИСЬ КЛАДОВЩИКА __________     ПОДПИСЬ ВОДИТЕЛЯ _________</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>214.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <Color>Black</Color>
+          <BackgroundColor>
+          </BackgroundColor>
+          <FontFamily>Arial</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox72" >
+        <Height>26.31pt</Height>
+        <Width>145.14pt</Width>
+        <Value>="Планируемое растояние\n" + Format(First({plan_distance}, 'RouteList'), "N2") + " км."</Value>
+        <ZIndex>1</ZIndex>
+        <Left>671.73pt</Left>
+        <Top>2.40pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
@@ -1392,17 +1425,17 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="RouteList">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>
-SELECT 
+        <CommandText>SELECT 
 driver.name AS DriverName, driver.last_name AS DriverLastname, driver_phone.number AS DriverPhone, 
 cars.model AS CarModel, cars.reg_number AS CarRegNumber, cars.fuel_consumption AS FuelConsumption, fuel_types.name AS FuelType, 
 forwarder.name AS ForwarderName, forwarder.last_name AS ForwarderLastname, forwarder_phone.number AS ForwarderPhone, 
 logistican.name AS LogisticanName, logistican.last_name AS LogisticanLastname,
 route_lists.date as Date,
 route_lists.on_load_start,
-route_lists.on_load_end
+route_lists.on_load_end,
+route_lists.plan_distance
 FROM route_lists
 LEFT JOIN employees driver ON route_lists.driver_id = driver.id
 LEFT JOIN phones driver_phone ON driver.id = driver_phone.employee_id
@@ -1418,7 +1451,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="DriverName">
           <DataField>DriverName</DataField>
           <TypeName>System.String</TypeName>
@@ -1478,6 +1511,10 @@ WHERE route_lists.id = @route_list_id;</CommandText>
         <Field Name="on_load_end">
           <DataField>on_load_end</DataField>
           <TypeName>System.TimeSpan</TypeName>
+        </Field>
+        <Field Name="plan_distance">
+          <DataField>plan_distance</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>

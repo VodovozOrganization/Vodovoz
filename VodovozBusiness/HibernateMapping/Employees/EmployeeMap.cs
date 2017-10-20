@@ -32,7 +32,10 @@ namespace Vodovoz
 			Map (x => x.FirstWorkDay).Column ("first_work_day"); 
 			Map (x => x.TripPriority).Column("priority_for_trip");
 			Map (x => x.LargusDriver).Column("largus_driver");
-			Map(x => x.DriverSpeed).Column("driver_speed");
+			Map (x => x.DriverSpeed).Column("driver_speed");
+			Map (x => x.WageCalcType).Column("wage_calc_type");
+			Map (x => x.WageCalcRate).Column("wage_calc_rate");
+			Map (x => x.VisitingMaster).Column("visiting_master");
 
 			References (x => x.Subdivision).Column("subdivision_id");
 			References (x => x.Nationality).Column ("nationality_id");

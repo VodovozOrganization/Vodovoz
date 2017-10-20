@@ -3,6 +3,7 @@ using QSReport;
 using System.Collections.Generic;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
+using NHibernate.Criterion;
 
 namespace Vodovoz.Reports
 {
@@ -13,6 +14,7 @@ namespace Vodovoz.Reports
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			yentryDriver.SubjectType = typeof(Employee);
+
 		}
 		#region IOrmDialog implementation
 
@@ -69,6 +71,7 @@ namespace Vodovoz.Reports
 
 			parameters.Add("showbottom", false);
 			parameters.Add("routelist", 0);
+			parameters.Add("category", GetCategory());
 
 			return new ReportInfo
 			{
@@ -94,7 +97,43 @@ namespace Vodovoz.Reports
 			buttonRun.Sensitive = datePeriodSelected || driverSelected;
 		}
 
+		protected void OnRadioCatAllToggled(object sender, EventArgs e)
+		{
+			var query = QueryOver.Of<Employee>();
 
+			if(radioCatDriver.Active)
+			{
+				query = query.Where(x => x.Category == EmployeeCategory.driver);
+			}
+
+			if(radioCatForwarder.Active) {
+				query = query.Where(x => x.Category == EmployeeCategory.forwarder);
+			}
+
+			if(radioCatOffice.Active) {
+				query = query.Where(x => x.Category == EmployeeCategory.office);
+			}
+
+			yentryDriver.ItemsQuery = query;
+		}
+
+		protected string GetCategory()
+		{
+			string cat = "-1";
+
+			if(radioCatDriver.Active)
+			{
+				cat = EmployeeCategory.driver.ToString();
+			} else if(radioCatForwarder.Active)
+			{
+				cat = EmployeeCategory.forwarder.ToString();
+			} else if(radioCatOffice.Active) 
+			{
+				cat = EmployeeCategory.office.ToString();
+			}
+
+			return cat;
+		}
 	}
 }
 

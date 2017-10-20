@@ -29,6 +29,8 @@ namespace Vodovoz
 				yentryrefDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery();
 				if(QSMain.User.Permissions["store_production"])
 					IfUserTypeProduction();
+				if(QSMain.User.Permissions["store_vartemyagi"])
+					IfUserTypeVartemyagi();
 			}
 		}
 
@@ -140,6 +142,25 @@ namespace Vodovoz
 
 			if(productionWarehouse != null) {
 				yentryrefWarehouse.Subject = uow.GetById<Warehouse>(WarehouseRepository.DefaultWarehouseForProduction(uow).Id);
+				yentryrefWarehouse.Sensitive = false;
+			}
+
+		}
+
+		protected void IfUserTypeVartemyagi()
+		{
+			DocumentType[] filteredDoctypeList = { DocumentType.CarLoadDocument, DocumentType.CarUnloadDocument, DocumentType.SelfDeliveryDocument };
+
+			object[] fDoctypeList = Array.ConvertAll(filteredDoctypeList, x => (object)x);
+
+			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForVartemyagi(uow);
+
+			enumcomboDocumentType.AddEnumToHideList(fDoctypeList);
+			enumcomboDocumentType.ShowSpecialStateAll = false;
+			enumcomboDocumentType.SelectedItem = DocumentType.MovementDocument;
+
+			if(productionWarehouse != null) {
+				yentryrefWarehouse.Subject = uow.GetById<Warehouse>(WarehouseRepository.DefaultWarehouseForVartemyagi(uow).Id);
 				yentryrefWarehouse.Sensitive = false;
 			}
 

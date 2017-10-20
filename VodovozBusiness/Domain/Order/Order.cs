@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -238,6 +238,13 @@ namespace Vodovoz.Domain.Orders
 			set {
 				SetField(ref bottlesMovementOperation, value, () => BottlesMovementOperation);
 			}
+		}
+
+		IList<DepositOperation> depositOperations;
+
+		public virtual IList<DepositOperation> DepositOperations {
+			get { return depositOperations; }
+			set { SetField(ref depositOperations, value, () => DepositOperations);}
 		}
 
 		bool collectBottles;

@@ -311,6 +311,7 @@ namespace Vodovoz
 			this.createroutelistitemsview1.HeightRequest = 150;
 			this.createroutelistitemsview1.Events = ((global::Gdk.EventMask)(256));
 			this.createroutelistitemsview1.Name = "createroutelistitemsview1";
+			this.createroutelistitemsview1.DisableColumnsUpdate = false;
 			this.vbox1.Add(this.createroutelistitemsview1);
 			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.createroutelistitemsview1]));
 			w23.Position = 1;
@@ -355,7 +356,8 @@ namespace Vodovoz
 			w28.Expand = false;
 			w28.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

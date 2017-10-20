@@ -402,7 +402,7 @@ WHERE
     wages_movement_operations.employee_id = @employee_id
         AND wages_movement_operations.operation_time &gt;= @start_date
         AND wages_movement_operations.operation_time &lt;= @end_date
-ORDER BY date</CommandText>
+ORDER BY wages_movement_operations.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="employee_id">
             <Value>=Parameters!employee_id</Value>
