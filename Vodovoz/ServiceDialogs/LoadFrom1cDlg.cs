@@ -759,7 +759,8 @@ namespace Vodovoz
 					order.ToClientText += " раст";
 
 			}
-			#if SHORT
+
+#if SHORT
 			foreach(var item in order.OrderItems)
 			{
 				if (NoDeliveriNomenclatures.Contains(item.Nomenclature.Code1c))

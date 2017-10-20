@@ -25683,7 +25683,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="1092 638">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="1092 639">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
