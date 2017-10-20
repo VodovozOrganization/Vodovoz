@@ -1310,9 +1310,9 @@ namespace Vodovoz.Domain.Logistic
 		public virtual long[] GenerateHashPiontsOfRoute()
 		{
 			var result = new List<long>();
-			result.Add(RouteGeometryCalculator.BaseHash);
+			result.Add(CachedDistance.BaseHash);
 			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.СoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
-			result.Add(RouteGeometryCalculator.BaseHash);
+			result.Add(CachedDistance.BaseHash);
 			return result.ToArray();
 		}
 

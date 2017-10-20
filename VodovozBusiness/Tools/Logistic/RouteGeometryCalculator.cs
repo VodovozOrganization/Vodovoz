@@ -12,10 +12,9 @@ using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Tools.Logistic
 {
-	public class RouteGeometrySputnikCalculator : IDistanceCalculator
+	public class RouteGeometryCalculator : IDistanceCalculator
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		public static long BaseHash = CachedDistance.GetHash(Constants.BaseLatitude, Constants.BaseLongitude);
 
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -26,10 +25,11 @@ namespace Vodovoz.Tools.Logistic
 		private Dictionary<long, Dictionary<long, CachedDistance>> cache = new Dictionary<long, Dictionary<long, CachedDistance>>();
 
 		public List<WayHash> ErrorWays = new List<WayHash>();
+		public DistanceProvider Provider;
 
-		public RouteGeometrySputnikCalculator()
+		public RouteGeometryCalculator(DistanceProvider provider)
 		{
-			
+			Provider = provider;
 		}
 
 		private void AddNewCacheDistance(CachedDistance distance)
@@ -57,7 +57,7 @@ namespace Vodovoz.Tools.Logistic
 		public int DistanceFromBaseMeter(DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
-			return DistanceMeter(BaseHash, toHash);
+			return DistanceMeter(CachedDistance.BaseHash, toHash);
 		}
 
 		/// <summary>
@@ -66,7 +66,7 @@ namespace Vodovoz.Tools.Logistic
 		public int TimeFromBase(DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
-			return TimeSec(BaseHash, toHash);
+			return TimeSec(CachedDistance.BaseHash, toHash);
 		}
 
 		/// <summary>
@@ -75,13 +75,13 @@ namespace Vodovoz.Tools.Logistic
 		public int TimeToBase(DeliveryPoint fromDP)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
-			return TimeSec(fromHash, BaseHash);
+			return TimeSec(fromHash, CachedDistance.BaseHash);
 		}
 
 		public int DistanceToBaseMeter(DeliveryPoint fromDP)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
-			return DistanceMeter(fromHash, BaseHash);
+			return DistanceMeter(fromHash, CachedDistance.BaseHash);
 		}
 
 		private int DistanceMeter(long fromHash, long toHash)

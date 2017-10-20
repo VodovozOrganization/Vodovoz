@@ -22,7 +22,6 @@ namespace Vodovoz.Tools.Logistic
 		#endregion
 
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		static long BaseHash = CachedDistance.GetHash(Constants.BaseLatitude, Constants.BaseLongitude);
 
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -61,7 +60,7 @@ namespace Vodovoz.Tools.Logistic
 			statisticBuffer = buffer;
 			MultiThreadLoad = multiThreadLoad;
 			hashes = points.Select(x => CachedDistance.GetHash(x))
-			                   .Concat(new[] {BaseHash})
+			                   .Concat(new[] {CachedDistance.BaseHash})
 			                   .Distinct().ToArray();
 			totalPoints = hashes.Length;
 			ProposeNeedCached = (hashes.Length * hashes.Length) - hashes.Length;
@@ -182,13 +181,13 @@ namespace Vodovoz.Tools.Logistic
 		public int DistanceFromBaseMeter(DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
-			return DistanceMeter(BaseHash, toHash);
+			return DistanceMeter(CachedDistance.BaseHash, toHash);
 		}
 
 		public int DistanceToBaseMeter(DeliveryPoint fromDP)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
-			return DistanceMeter(fromHash, BaseHash);
+			return DistanceMeter(fromHash, CachedDistance.BaseHash);
 		}
 
 		public int TimeSec(DeliveryPoint fromDP, DeliveryPoint toDP)
@@ -201,13 +200,13 @@ namespace Vodovoz.Tools.Logistic
 		public int TimeFromBaseSec(DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
-			return TimeSec(BaseHash, toHash);
+			return TimeSec(CachedDistance.BaseHash, toHash);
 		}
 
 		public int TimeToBaseSec(DeliveryPoint fromDP)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
-			return TimeSec(fromHash, BaseHash);
+			return TimeSec(fromHash, CachedDistance.BaseHash);
 		}
 
 		private int DistanceMeter(long fromHash, long toHash)

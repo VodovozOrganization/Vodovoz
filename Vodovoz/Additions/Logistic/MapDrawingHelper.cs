@@ -14,9 +14,9 @@ namespace Vodovoz.Additions.Logistic
 		{
 			List<PointLatLng> points;
 			if(geometryCalc != null) {
-				var address = GenerateHashPiontsOfRoute(routeList);
-				MainClass.MainWin.ProgressStart(address.Count);
-				points = geometryCalc.GetGeometryOfRoute(address.ToArray(), (val, max) => MainClass.MainWin.ProgressUpdate(val));
+				var address = routeList.GenerateHashPiontsOfRoute();
+				MainClass.MainWin.ProgressStart(address.Length);
+				points = geometryCalc.GetGeometryOfRoute(address, (val, max) => MainClass.MainWin.ProgressUpdate(val));
 				MainClass.MainWin.ProgressClose();
 			} else {
 				points = new List<PointLatLng>();
@@ -33,15 +33,6 @@ namespace Vodovoz.Additions.Logistic
 
 			overlay.Routes.Add(route);
 			return route;
-		}
-
-		public static List<long> GenerateHashPiontsOfRoute(RouteList rl)
-		{
-			var result = new List<long>();
-			result.Add(RouteGeometryCalculator.BaseHash);
-			result.AddRange(rl.Addresses.Where(x => x.Order.DeliveryPoint.СoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
-			result.Add(RouteGeometryCalculator.BaseHash);
-			return result;
 		}
 
 		public static void DrawAddressesOfRoute(GMapOverlay overlay, RouteList routeList)
