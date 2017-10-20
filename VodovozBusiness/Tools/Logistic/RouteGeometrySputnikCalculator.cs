@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using GMap.NET;
 using Polylines;
 using QSOrmProject;
@@ -20,11 +19,7 @@ namespace Vodovoz.Tools.Logistic
 
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-		Dictionary<int, long[]> routeQueue = new Dictionary<int, long[]>();
 		Dictionary<int, int> calculetedRoutes = new Dictionary<int, int>();
-		Thread backgroundThread;
-
-		public event EventHandler RouteCalculeted;
 
 		int totalCached, addedCached, totalErrors;
 
@@ -139,41 +134,6 @@ namespace Vodovoz.Tools.Logistic
 			if (distance > 0)
 				calculetedRoutes.Add(routeHash, distance);
 			return distance;
-		}
-
-		public int GetRouteDistanceBackground(long[] route)
-		{
-			var routeHash = String.Concat(route).GetHashCode();
-			if (calculetedRoutes.ContainsKey(routeHash))
-				return calculetedRoutes[routeHash];
-
-			if (routeQueue.ContainsKey(routeHash))
-				return -1; //В процессе обработки.
-
-			if(route.Length < 2 || (route.Length == 2 && route[0] == route[1]))
-				return 0;
-
-			routeQueue.Add(routeHash, route);
-
-			if(backgroundThread == null)
-			{
-				backgroundThread = new Thread(delegate() {
-					//Вызываем чисто чтобы посчитать.
-					while(routeQueue.Count > 0)
-					{
-						var curPair = routeQueue.First();
-						GetRouteDistance(curPair.Value);
-						routeQueue.Remove(curPair.Key);
-						Gtk.Application.Invoke(delegate {
-							RouteCalculeted?.Invoke(this, EventArgs.Empty);
-						});
-					}
-					backgroundThread = null;
-				});
-				backgroundThread.Start();
-			}
-
-			return -1;
 		}
 
 		private int GetSimpleDistance(WayHash way)

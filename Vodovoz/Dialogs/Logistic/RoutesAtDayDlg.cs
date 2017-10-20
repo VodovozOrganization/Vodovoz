@@ -153,7 +153,6 @@ namespace Vodovoz
 			ytreeRoutes.HasTooltip = true;
 			ytreeRoutes.QueryTooltip += YtreeRoutes_QueryTooltip;;
 			ytreeRoutes.Selection.Changed += YtreeRoutes_Selection_Changed;
-			distanceCalculator.RouteCalculeted += DistanceCalculator_RouteCalculeted;
 
 			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
 				.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
@@ -1238,12 +1237,6 @@ namespace Vodovoz
 			var car = e.Subject as Car;
 			driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
 			driver.Car = car;
-		}
-
-		void DistanceCalculator_RouteCalculeted(object sender, EventArgs e)
-		{
-			ytreeRoutes.ColumnsAutosize();
-			ytreeRoutes.QueueDraw();
 		}
 
 		void OnLoadTimeEdited(object o, Gtk.EditedArgs args)
