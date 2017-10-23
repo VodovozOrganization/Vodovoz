@@ -864,6 +864,7 @@ Global
 		$27.scope = text/x-csharp
 		$27.FileWidth = 80
 		$27.NoTabsAfterNonTabs = True
+		$27.EolMarker = Unix
 		$0.CSharpFormattingPolicy = $28
 		$28.IndentSwitchBody = True
 		$28.IndentBlocksInsideExpressions = True
