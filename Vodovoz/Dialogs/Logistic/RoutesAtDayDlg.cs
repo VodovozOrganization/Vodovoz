@@ -41,7 +41,7 @@ namespace Vodovoz
 		IList<AtWorkForwarder> forwardersAtDay;
 		IList<LogisticsArea> logisticanDistricts;
 		RouteOptimizer optimizer = new RouteOptimizer();
-		RouteGeometryCalculator distanceCalculator = new RouteGeometryCalculator();
+		RouteGeometryCalculator distanceCalculator = new RouteGeometryCalculator(DistanceProvider.Osrm);
 
 		GenericObservableList<AtWorkDriver> observableDriversAtDay;
 		GenericObservableList<AtWorkForwarder> observableForwardersAtDay;

@@ -5,6 +5,7 @@ using GMap.NET;
 using Polylines;
 using QSOrmProject;
 using QSOsm;
+using QSOsm.Osrm;
 using QSOsm.Spuntik;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
@@ -233,7 +234,7 @@ namespace Vodovoz.Tools.Logistic
 			}
 			if(distance.PolylineGeometry == null)
 			{
-				if (!UpdateFromSputnik(distance))
+				if (!UpdateFromProvider(distance))
 					return null;
 			}
 
@@ -253,7 +254,7 @@ namespace Vodovoz.Tools.Logistic
 			return distance;
 		}
 
-		bool UpdateFromSputnik(CachedDistance distance)
+		bool UpdateFromProvider(CachedDistance distance)
 		{
 			if (ErrorWays.Any(x => x.FromHash == distance.FromGeoHash && x.ToHash == distance.ToGeoHash))
 			{
@@ -261,22 +262,37 @@ namespace Vodovoz.Tools.Logistic
 				return false;
 			}
 
-			logger.Info("Запрашиваем путь {0}->{1} у спутника.", distance.FromGeoHash, distance.ToGeoHash);
+			logger.Info("Запрашиваем путь {0}->{1} у сервиса {0}.", distance.FromGeoHash, distance.ToGeoHash, Provider);
 			List<PointOnEarth> points = new List<PointOnEarth>();
 			double latitude, longitude;
 			CachedDistance.GetLatLon(distance.FromGeoHash, out latitude, out longitude);
 			points.Add(new PointOnEarth(latitude, longitude));
 			CachedDistance.GetLatLon(distance.ToGeoHash, out latitude, out longitude);
 			points.Add(new PointOnEarth(latitude, longitude));
-			var result = SputnikMain.GetRoute(points, false, true);
-			if (result.Status == 0)
+			bool ok = false;
+			if(Provider == DistanceProvider.Osrm) {
+				var result = OsrmMain.GetRoute(points, false, true);
+				ok = result?.Code == "Ok";
+				if(ok && result.Routes.Any()) {
+					distance.Created = DateTime.Now;
+					distance.DistanceMeters = result.Routes.First().TotalDistance;
+					distance.TravelTimeSec = result.Routes.First().TotalTimeSeconds;
+					distance.PolylineGeometry = result.Routes.First().RouteGeometry;
+				}
+			} else {
+				var result = SputnikMain.GetRoute(points, false, true);
+				ok = result.Status == 0;
+				if(ok) {
+					distance.Created = DateTime.Now;
+					distance.DistanceMeters = result.RouteSummary.TotalDistance;
+					distance.TravelTimeSec = result.RouteSummary.TotalTimeSeconds;
+					distance.PolylineGeometry = result.RouteGeometry;
+				}
+			}
+
+			if(ok)
 			{
-				distance.Created = DateTime.Now;
-				distance.DistanceMeters = result.RouteSummary.TotalDistance;
-				distance.TravelTimeSec = result.RouteSummary.TotalTimeSeconds;
-				distance.PolylineGeometry = result.RouteGeometry;
-				lock(UoW)
-				{
+				lock(UoW) {
 					AddNewCacheDistance(distance);
 					UoW.TrySave(distance);
 					UoW.Commit();
@@ -284,6 +300,7 @@ namespace Vodovoz.Tools.Logistic
 				addedCached++;
 				return true;
 			}
+
 			ErrorWays.Add(new WayHash(distance.FromGeoHash, distance.ToGeoHash));
 			totalErrors++;
 			return false;

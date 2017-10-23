@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Google.OrTools.ConstraintSolver;
-using Vodovoz.Domain.Logistic;
+﻿using Google.OrTools.ConstraintSolver;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
