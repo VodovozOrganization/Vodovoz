@@ -1010,7 +1010,7 @@ namespace Vodovoz.Domain.Logistic
 			return (message);
 		}
 
-		public virtual void Confirm()
+		public virtual void Confirm(bool sendForMileageCheck)
 		{
 			if(Status != RouteListStatus.OnClosing)
 				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0}", RouteListStatus.OnClosing));
@@ -1026,7 +1026,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 
-			Status = RouteListStatus.Closed;
+			Status = sendForMileageCheck ? RouteListStatus.MileageCheck : RouteListStatus.Closed;
 			foreach(var address in Addresses) {
 				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute) {
 					address.Order.ChangeStatus(OrderStatus.Closed);
@@ -1037,7 +1037,12 @@ namespace Vodovoz.Domain.Logistic
 				if(address.Status == RouteListItemStatus.Overdue)
 					address.Order.ChangeStatus(OrderStatus.NotDelivered);
 			}
-			ClosingDate = DateTime.Now;
+
+			if(Status == RouteListStatus.Closed)
+			{
+				ClosingDate = DateTime.Now;
+			}
+
 		}
 
 		public virtual void UpdateFuelOperation()
@@ -1078,6 +1083,16 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(this.ConfirmedDistance == 0)
 				return;
+			
+			if(FuelOutlayedOperation == null)
+			{
+				FuelOutlayedOperation = new FuelOperation() {
+					OperationTime = DateTime.Now,
+					Driver = this.Driver,
+					Car = this.Car,
+					Fuel = this.Car.FuelType
+				};
+			}
 
 			FuelOutlayedOperation.LitersOutlayed = GetLitersOutlayed();
 		}

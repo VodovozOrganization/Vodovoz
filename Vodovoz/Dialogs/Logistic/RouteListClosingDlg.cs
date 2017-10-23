@@ -458,8 +458,12 @@ namespace Vodovoz
 
 			if(!isConsistentWithUnloadDocument())
 				return;
-			
-			Entity.ConfirmedDistance = Entity.ActualDistance;
+
+			if(!checkSendToMileageCheck.Active)
+			{
+				Entity.ConfirmedDistance = Entity.ActualDistance;
+			}
+
 
 			var valid = new QSValidator<RouteList>(UoWGeneric.Root,
 							new Dictionary<object, object>
@@ -475,7 +479,7 @@ namespace Vodovoz
 			}
 
 			Entity.Cashier = casher;
-			Entity.Confirm();
+			Entity.Confirm(checkSendToMileageCheck.Active);
 
 			if(!MessageDialogWorks.RunQuestionDialog("Перед выходом распечатать документ?"))
 				SaveAndClose();
@@ -622,6 +626,8 @@ namespace Vodovoz
 			//Проверка существования трека и заполнения дистанции
 			bool hasTrack = track?.Distance.HasValue ?? false;
 			buttonGetDistFromTrack.Sensitive = hasTrack && editing;
+			checkSendToMileageCheck.Active = !hasTrack;
+			checkSendToMileageCheck.Sensitive = hasTrack;
 
 			if(hasTrack)
 				text.Add(string.Format("Расстояние по треку: {0:F1} км.", track.TotalDistance));

@@ -1172,6 +1172,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1823,7 +1824,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -18365,7 +18365,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Table" id="table1">
                 <property name="MemberName" />
-                <property name="NRows">4</property>
+                <property name="NRows">5</property>
                 <property name="NColumns">7</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
@@ -18374,6 +18374,46 @@ RegistrationNumber</property>
                 </child>
                 <child>
                   <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <widget class="Gtk.CheckButton" id="checkSendToMileageCheck">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Label" translatable="yes">Проверка километража</property>
+                    <property name="DrawIndicator">True</property>
+                    <property name="HasLabel">True</property>
+                    <property name="UseUnderline">True</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">3</property>
+                    <property name="BottomAttach">4</property>
+                    <property name="LeftAttach">5</property>
+                    <property name="RightAttach">6</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
                 </child>
                 <child>
                   <widget class="Gamma.Widgets.yDatePicker" id="datePickerDate">
@@ -18413,7 +18453,7 @@ RegistrationNumber</property>
                   </widget>
                   <packing>
                     <property name="TopAttach">1</property>
-                    <property name="BottomAttach">4</property>
+                    <property name="BottomAttach">5</property>
                     <property name="LeftAttach">4</property>
                     <property name="RightAttach">5</property>
                     <property name="AutoSize">False</property>
@@ -18480,8 +18520,8 @@ RegistrationNumber</property>
                     </child>
                   </widget>
                   <packing>
-                    <property name="TopAttach">3</property>
-                    <property name="BottomAttach">4</property>
+                    <property name="TopAttach">4</property>
+                    <property name="BottomAttach">5</property>
                     <property name="LeftAttach">5</property>
                     <property name="RightAttach">7</property>
                     <property name="AutoSize">True</property>
@@ -18779,8 +18819,8 @@ RegistrationNumber</property>
                     <signal name="Toggled" handler="OnYcheckHideCellsToggled" />
                   </widget>
                   <packing>
-                    <property name="TopAttach">3</property>
-                    <property name="BottomAttach">4</property>
+                    <property name="TopAttach">4</property>
+                    <property name="BottomAttach">5</property>
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">False</property>
                     <property name="XOptions">Fill</property>
@@ -29551,7 +29591,6 @@ RegistrationNumber</property>
                 <property name="Icon">stock:gtk-save Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -29568,7 +29607,6 @@ RegistrationNumber</property>
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отменить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -33659,7 +33697,6 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Все</property>
-            <property name="Active">True</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
