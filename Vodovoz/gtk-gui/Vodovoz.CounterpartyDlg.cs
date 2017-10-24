@@ -691,8 +691,6 @@ namespace Vodovoz
 			this.referenceDefaultExpense = new global::Gamma.Widgets.yEntryReference();
 			this.referenceDefaultExpense.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDefaultExpense.Name = "referenceDefaultExpense";
-			this.referenceDefaultExpense.DisplayFields = new string[] {
-					"Name"};
 			this.table1.Add(this.referenceDefaultExpense);
 			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceDefaultExpense]));
 			w46.TopAttach = ((uint)(9));

@@ -754,8 +754,6 @@ namespace Vodovoz
 			this.referenceNationality = new global::Gamma.Widgets.yEntryReference();
 			this.referenceNationality.Events = ((global::Gdk.EventMask)(256));
 			this.referenceNationality.Name = "referenceNationality";
-			this.referenceNationality.DisplayFields = new string[] {
-					"Name"};
 			this.datatableMain.Add(this.referenceNationality);
 			global::Gtk.Table.TableChild w54 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.referenceNationality]));
 			w54.TopAttach = ((uint)(5));
@@ -768,8 +766,6 @@ namespace Vodovoz
 			this.referenceUser = new global::Gamma.Widgets.yEntryReference();
 			this.referenceUser.Events = ((global::Gdk.EventMask)(256));
 			this.referenceUser.Name = "referenceUser";
-			this.referenceUser.DisplayFields = new string[] {
-					"Name"};
 			this.datatableMain.Add(this.referenceUser);
 			global::Gtk.Table.TableChild w55 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.referenceUser]));
 			w55.TopAttach = ((uint)(7));

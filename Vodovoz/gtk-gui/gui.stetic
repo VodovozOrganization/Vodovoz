@@ -1678,8 +1678,6 @@
                           <widget class="Gamma.Widgets.yEntryReference" id="referenceBuhgalter">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="DisplayFields">FullName</property>
-                            <property name="DisplayFormatString">{0}</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">5</property>
@@ -1701,8 +1699,6 @@
                           <widget class="Gamma.Widgets.yEntryReference" id="referenceLeader">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="DisplayFields">FullName</property>
-                            <property name="DisplayFormatString">{0}</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">4</property>
@@ -2656,7 +2652,6 @@
                           <widget class="Gamma.Widgets.yEntryReference" id="referenceNationality">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="DisplayFields">Name</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">5</property>
@@ -2678,7 +2673,6 @@
                           <widget class="Gamma.Widgets.yEntryReference" id="referenceUser">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="DisplayFields">Name</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">7</property>
@@ -3521,10 +3515,6 @@
                   <widget class="Gamma.Widgets.yEntryReference" id="dataentryreferenceDriver">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">Name
-LastName
-Patronymic</property>
-                    <property name="DisplayFormatString">{0} {1} {2}</property>
                     <signal name="Changed" handler="OnDataentryreferenceDriverChanged" />
                   </widget>
                   <packing>
@@ -5314,7 +5304,6 @@ Patronymic</property>
                 <property name="Icon">stock:gtk-floppy Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -5331,7 +5320,6 @@ Patronymic</property>
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отмена</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -5352,7 +5340,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
@@ -5385,6 +5373,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -6088,7 +6077,6 @@ Patronymic</property>
                             <property name="MemberName" />
                             <property name="Visible">False</property>
                             <property name="Events">ButtonPressMask</property>
-                            <property name="DisplayFields">Name</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">9</property>
@@ -6154,7 +6142,6 @@ Patronymic</property>
                           <widget class="Gamma.Widgets.yEntryReference" id="referenceSignificance">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="DisplayFields">Name</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">7</property>
@@ -6176,7 +6163,6 @@ Patronymic</property>
                           <widget class="Gamma.Widgets.yEntryReference" id="referenceStatus">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="DisplayFields">Name</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">6</property>
@@ -6861,10 +6847,6 @@ Patronymic</property>
                   <widget class="Gamma.Widgets.yEntryReference" id="referenceAccountant">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">LastName
-Name
-Patronymic</property>
-                    <property name="DisplayFormatString">{0} {1} {2}</property>
                   </widget>
                   <packing>
                     <property name="TopAttach">1</property>
@@ -6886,10 +6868,6 @@ Patronymic</property>
                   <widget class="Gamma.Widgets.yEntryReference" id="referenceBottleManager">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">LastName
-Name
-Patronymic</property>
-                    <property name="DisplayFormatString">{0} {1} {2}</property>
                   </widget>
                   <packing>
                     <property name="TopAttach">2</property>
@@ -6911,10 +6889,6 @@ Patronymic</property>
                   <widget class="Gamma.Widgets.yEntryReference" id="referenceSalesManager">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">LastName
-Name
-Patronymic</property>
-                    <property name="DisplayFormatString">{0} {1} {2}</property>
                   </widget>
                   <packing>
                     <property name="LeftAttach">1</property>
@@ -8329,8 +8303,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceDepositService">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Name</property>
-                <property name="DisplayFormatString">{0}</property>
               </widget>
               <packing>
                 <property name="TopAttach">4</property>
@@ -8351,8 +8323,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceEquipmentType">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Name</property>
-                <property name="DisplayFormatString">{0}</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -8807,8 +8777,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceDepositService">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Name</property>
-                <property name="DisplayFormatString">{0}</property>
               </widget>
               <packing>
                 <property name="TopAttach">7</property>
@@ -8830,8 +8798,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceEquipmentType">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Name</property>
-                <property name="DisplayFormatString">{0}</property>
               </widget>
               <packing>
                 <property name="TopAttach">5</property>
@@ -8853,8 +8819,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceRentServiceDaily">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Name</property>
-                <property name="DisplayFormatString">{0}</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -8876,8 +8840,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceRentServiceMonthly">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Name</property>
-                <property name="DisplayFormatString">{0}</property>
               </widget>
               <packing>
                 <property name="TopAttach">4</property>
@@ -9279,8 +9241,6 @@ Patronymic</property>
                                     <property name="MemberName" />
                                     <property name="Tooltip" translatable="yes">При проставлении логистического района у данной точки доставки он проставится у всех точек доставки с совпадающим до номера дома включительно адресом.</property>
                                     <property name="Events">ButtonPressMask</property>
-                                    <property name="DisplayFields">Name</property>
-                                    <property name="DisplayFormatString">{0}</property>
                                   </widget>
                                   <packing>
                                     <property name="Position">0</property>
@@ -9962,8 +9922,6 @@ Patronymic</property>
                               <widget class="Gamma.Widgets.yEntryReference" id="referenceDeliverySchedule">
                                 <property name="MemberName" />
                                 <property name="Events">ButtonPressMask</property>
-                                <property name="DisplayFields">Name</property>
-                                <property name="DisplayFormatString">{0}</property>
                               </widget>
                               <packing>
                                 <property name="TopAttach">10</property>
@@ -11339,8 +11297,6 @@ Patronymic</property>
                   <widget class="Gamma.Widgets.yEntryReference" id="referenceNomenclature">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">Name</property>
-                    <property name="DisplayFormatString">{0}</property>
                   </widget>
                   <packing>
                     <property name="TopAttach">1</property>
@@ -13556,7 +13512,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceOrganization">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Name</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -15163,8 +15118,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceWarehouse">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Name</property>
-                <property name="DisplayFormatString">{0}</property>
               </widget>
               <packing>
                 <property name="TopAttach">4</property>
@@ -15828,8 +15781,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">FullName</property>
-                <property name="DisplayFormatString">{0}</property>
               </widget>
               <packing>
                 <property name="LeftAttach">3</property>
@@ -15985,8 +15936,6 @@ Patronymic</property>
                       <widget class="Gamma.Widgets.yEntryReference" id="referenceDeliveryPointFrom">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">CompiledAddress</property>
-                        <property name="DisplayFormatString">{0}</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">2</property>
@@ -16008,8 +15957,6 @@ Patronymic</property>
                       <widget class="Gamma.Widgets.yEntryReference" id="referenceWarehouseFrom">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">Name</property>
-                        <property name="DisplayFormatString">{0}</property>
                       </widget>
                       <packing>
                         <property name="LeftAttach">1</property>
@@ -16027,7 +15974,7 @@ Patronymic</property>
                   </widget>
                   <packing>
                     <property name="Position">1</property>
-                    <property name="AutoSize">True</property>
+                    <property name="AutoSize">False</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
                   </packing>
@@ -16156,8 +16103,6 @@ Patronymic</property>
                       <widget class="Gamma.Widgets.yEntryReference" id="referenceDeliveryPointTo">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">CompiledAddress</property>
-                        <property name="DisplayFormatString">{0}</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">2</property>
@@ -16179,8 +16124,6 @@ Patronymic</property>
                       <widget class="Gamma.Widgets.yEntryReference" id="referenceWarehouseTo">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">Name</property>
-                        <property name="DisplayFormatString">{0}</property>
                       </widget>
                       <packing>
                         <property name="LeftAttach">1</property>
@@ -16548,8 +16491,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">CompiledAddress</property>
-                <property name="DisplayFormatString">{0}</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -16571,8 +16512,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">FullName</property>
-                <property name="DisplayFormatString">{0}</property>
               </widget>
               <packing>
                 <property name="LeftAttach">3</property>
@@ -16592,8 +16531,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceWarehouse">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Name</property>
-                <property name="DisplayFormatString">{0}</property>
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -17169,7 +17106,6 @@ Patronymic</property>
                   <widget class="Gamma.Widgets.yEntryReference" id="referenceNomenclature">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">Name</property>
                     <signal name="Changed" handler="OnReferenceNomenclatureChanged" />
                   </widget>
                   <packing>
@@ -18088,9 +18024,6 @@ Patronymic</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceCar">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Model
-RegistrationNumber</property>
-                <property name="DisplayFormatString">{0} {1}</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -18112,7 +18045,6 @@ RegistrationNumber</property>
               <widget class="Gamma.Widgets.yEntryReference" id="referenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFormatString" />
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -21752,7 +21684,6 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="Sensitive">False</property>
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFormatString" />
                     <signal name="Changed" handler="OnReferenceEquipmentChanged" />
                   </widget>
                   <packing>
@@ -21776,8 +21707,6 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="Sensitive">False</property>
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">Name</property>
-                    <property name="DisplayFormatString">{0}</property>
                     <signal name="Changed" handler="OnReferenceNomenclatureChanged" />
                   </widget>
                   <packing>
@@ -21933,8 +21862,6 @@ RegistrationNumber</property>
                       <widget class="Gamma.Widgets.yEntryReference" id="referenceEngineer">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">FullName</property>
-                        <property name="DisplayFormatString">{0}</property>
                       </widget>
                       <packing>
                         <property name="LeftAttach">1</property>
@@ -41847,8 +41774,6 @@ RegistrationNumber</property>
                 <property name="Visible">False</property>
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">FullName</property>
-                <property name="DisplayFormatString">{0}</property>
               </widget>
               <packing>
                 <property name="LeftAttach">3</property>
@@ -42091,8 +42016,6 @@ RegistrationNumber</property>
                       <widget class="Gamma.Widgets.yEntryReference" id="referenceDeliveryPointFrom">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">CompiledAddress</property>
-                        <property name="DisplayFormatString">{0}</property>
                         <signal name="Changed" handler="OnReferenceDeliveryPointFromChanged" />
                       </widget>
                       <packing>
@@ -42414,8 +42337,6 @@ RegistrationNumber</property>
                       <widget class="Gamma.Widgets.yEntryReference" id="referenceDeliveryPointTo">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">CompiledAddress</property>
-                        <property name="DisplayFormatString">{0}</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">1</property>
@@ -44010,8 +43931,6 @@ RegistrationNumber</property>
           <widget class="Gamma.Widgets.yEntryReference" id="referenceWarehouse">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
-            <property name="DisplayFields">Name</property>
-            <property name="DisplayFormatString">{0}</property>
             <signal name="Changed" handler="OnReferenceWarehouseChanged" />
           </widget>
           <packing>

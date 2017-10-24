@@ -252,9 +252,6 @@ namespace Vodovoz
 			this.referenceDeliveryPoint = new global::Gamma.Widgets.yEntryReference();
 			this.referenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliveryPoint.Name = "referenceDeliveryPoint";
-			this.referenceDeliveryPoint.DisplayFields = new string[] {
-					"CompiledAddress"};
-			this.referenceDeliveryPoint.DisplayFormatString = "{0}";
 			this.tableWriteoff.Add(this.referenceDeliveryPoint);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.referenceDeliveryPoint]));
 			w20.TopAttach = ((uint)(2));
@@ -267,9 +264,6 @@ namespace Vodovoz
 			this.referenceEmployee = new global::Gamma.Widgets.yEntryReference();
 			this.referenceEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEmployee.Name = "referenceEmployee";
-			this.referenceEmployee.DisplayFields = new string[] {
-					"FullName"};
-			this.referenceEmployee.DisplayFormatString = "{0}";
 			this.tableWriteoff.Add(this.referenceEmployee);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.referenceEmployee]));
 			w21.LeftAttach = ((uint)(3));
@@ -280,9 +274,6 @@ namespace Vodovoz
 			this.referenceWarehouse = new global::Gamma.Widgets.yEntryReference();
 			this.referenceWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.referenceWarehouse.Name = "referenceWarehouse";
-			this.referenceWarehouse.DisplayFields = new string[] {
-					"Name"};
-			this.referenceWarehouse.DisplayFormatString = "{0}";
 			this.tableWriteoff.Add(this.referenceWarehouse);
 			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.referenceWarehouse]));
 			w22.TopAttach = ((uint)(1));

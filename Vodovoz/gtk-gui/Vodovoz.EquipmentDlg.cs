@@ -313,9 +313,6 @@ namespace Vodovoz
 			this.referenceNomenclature = new global::Gamma.Widgets.yEntryReference();
 			this.referenceNomenclature.Events = ((global::Gdk.EventMask)(256));
 			this.referenceNomenclature.Name = "referenceNomenclature";
-			this.referenceNomenclature.DisplayFields = new string[] {
-					"Name"};
-			this.referenceNomenclature.DisplayFormatString = "{0}";
 			this.datatable1.Add(this.referenceNomenclature);
 			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceNomenclature]));
 			w25.TopAttach = ((uint)(1));

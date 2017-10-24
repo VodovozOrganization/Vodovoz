@@ -340,9 +340,6 @@ namespace Vodovoz
 			this.referenceLogisticsArea.TooltipMarkup = "При проставлении логистического района у данной точки доставки он проставится у всех точек доставки с совпадающим до номера дома включительно адресом.";
 			this.referenceLogisticsArea.Events = ((global::Gdk.EventMask)(256));
 			this.referenceLogisticsArea.Name = "referenceLogisticsArea";
-			this.referenceLogisticsArea.DisplayFields = new string[] {
-					"Name"};
-			this.referenceLogisticsArea.DisplayFormatString = "{0}";
 			this.hbox11.Add(this.referenceLogisticsArea);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.referenceLogisticsArea]));
 			w19.Position = 0;
@@ -769,9 +766,6 @@ namespace Vodovoz
 			this.referenceDeliverySchedule = new global::Gamma.Widgets.yEntryReference();
 			this.referenceDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliverySchedule.Name = "referenceDeliverySchedule";
-			this.referenceDeliverySchedule.DisplayFields = new string[] {
-					"Name"};
-			this.referenceDeliverySchedule.DisplayFormatString = "{0}";
 			this.datatable1.Add(this.referenceDeliverySchedule);
 			global::Gtk.Table.TableChild w58 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceDeliverySchedule]));
 			w58.TopAttach = ((uint)(10));

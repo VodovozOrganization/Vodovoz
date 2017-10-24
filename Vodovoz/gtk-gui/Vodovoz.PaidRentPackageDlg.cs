@@ -316,9 +316,6 @@ namespace Vodovoz
 			this.referenceDepositService = new global::Gamma.Widgets.yEntryReference();
 			this.referenceDepositService.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDepositService.Name = "referenceDepositService";
-			this.referenceDepositService.DisplayFields = new string[] {
-					"Name"};
-			this.referenceDepositService.DisplayFormatString = "{0}";
 			this.datatable1.Add(this.referenceDepositService);
 			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceDepositService]));
 			w24.TopAttach = ((uint)(7));
@@ -331,9 +328,6 @@ namespace Vodovoz
 			this.referenceEquipmentType = new global::Gamma.Widgets.yEntryReference();
 			this.referenceEquipmentType.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEquipmentType.Name = "referenceEquipmentType";
-			this.referenceEquipmentType.DisplayFields = new string[] {
-					"Name"};
-			this.referenceEquipmentType.DisplayFormatString = "{0}";
 			this.datatable1.Add(this.referenceEquipmentType);
 			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceEquipmentType]));
 			w25.TopAttach = ((uint)(5));
@@ -346,9 +340,6 @@ namespace Vodovoz
 			this.referenceRentServiceDaily = new global::Gamma.Widgets.yEntryReference();
 			this.referenceRentServiceDaily.Events = ((global::Gdk.EventMask)(256));
 			this.referenceRentServiceDaily.Name = "referenceRentServiceDaily";
-			this.referenceRentServiceDaily.DisplayFields = new string[] {
-					"Name"};
-			this.referenceRentServiceDaily.DisplayFormatString = "{0}";
 			this.datatable1.Add(this.referenceRentServiceDaily);
 			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceRentServiceDaily]));
 			w26.TopAttach = ((uint)(2));
@@ -361,9 +352,6 @@ namespace Vodovoz
 			this.referenceRentServiceMonthly = new global::Gamma.Widgets.yEntryReference();
 			this.referenceRentServiceMonthly.Events = ((global::Gdk.EventMask)(256));
 			this.referenceRentServiceMonthly.Name = "referenceRentServiceMonthly";
-			this.referenceRentServiceMonthly.DisplayFields = new string[] {
-					"Name"};
-			this.referenceRentServiceMonthly.DisplayFormatString = "{0}";
 			this.datatable1.Add(this.referenceRentServiceMonthly);
 			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceRentServiceMonthly]));
 			w27.TopAttach = ((uint)(4));
