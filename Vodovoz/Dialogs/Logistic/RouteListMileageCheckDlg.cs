@@ -57,7 +57,7 @@ namespace Vodovoz
 			speccomboShift.Sensitive = editing;
 
 			yspinActualDistance.Binding.AddBinding(Entity, rl => rl.ActualDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
-			yspinActualDistance.Sensitive = editing;
+			yspinActualDistance.Sensitive = false;
 
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
 			datePickerDate.Sensitive = editing;

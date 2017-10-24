@@ -93,7 +93,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Расстояние в километрах
 		/// </summary>
-		[Display(Name = "Фактическое расстояние")]
+		[Display(Name = "Расстояние по кассе")]
 		public virtual Decimal ActualDistance {
 			get { return actualDistance; }
 			set { SetField(ref actualDistance, value, () => ActualDistance); }
