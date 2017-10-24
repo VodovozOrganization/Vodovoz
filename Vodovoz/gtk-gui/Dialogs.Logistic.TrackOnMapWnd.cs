@@ -24,6 +24,8 @@ namespace Dialogs.Logistic
 
 		private global::Gtk.Button buttonFindGap;
 
+		private global::Gtk.Button buttonRecountMileage;
+
 		private global::Gtk.VBox vbox7;
 
 		private global::Gtk.Label labelCutTrack;
@@ -146,11 +148,22 @@ namespace Dialogs.Logistic
 			w7.Position = 1;
 			w7.Expand = false;
 			w7.Fill = false;
-			this.hbox1.Add(this.vbox2);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox2]));
-			w8.Position = 4;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.buttonRecountMileage = new global::Gtk.Button();
+			this.buttonRecountMileage.CanFocus = true;
+			this.buttonRecountMileage.Name = "buttonRecountMileage";
+			this.buttonRecountMileage.UseUnderline = true;
+			this.buttonRecountMileage.Label = global::Mono.Unix.Catalog.GetString("Пересчитать километраж");
+			this.vbox2.Add(this.buttonRecountMileage);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonRecountMileage]));
+			w8.Position = 2;
 			w8.Expand = false;
 			w8.Fill = false;
+			this.hbox1.Add(this.vbox2);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox2]));
+			w9.Position = 4;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.vbox7 = new global::Gtk.VBox();
 			this.vbox7.Name = "vbox7";
@@ -160,16 +173,16 @@ namespace Dialogs.Logistic
 			this.labelCutTrack.Name = "labelCutTrack";
 			this.labelCutTrack.LabelProp = global::Mono.Unix.Catalog.GetString("Обработанный\nтрек:");
 			this.vbox7.Add(this.labelCutTrack);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.labelCutTrack]));
-			w9.Position = 0;
-			w9.Expand = false;
-			w9.Fill = false;
-			this.hbox1.Add(this.vbox7);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox7]));
-			w10.PackType = ((global::Gtk.PackType)(1));
-			w10.Position = 6;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.labelCutTrack]));
+			w10.Position = 0;
 			w10.Expand = false;
 			w10.Fill = false;
+			this.hbox1.Add(this.vbox7);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox7]));
+			w11.PackType = ((global::Gtk.PackType)(1));
+			w11.Position = 6;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.vbox5 = new global::Gtk.VBox();
 			this.vbox5.Name = "vbox5";
@@ -181,10 +194,10 @@ namespace Dialogs.Logistic
 			this.buttonLastAddress.UseUnderline = true;
 			this.buttonLastAddress.Label = global::Mono.Unix.Catalog.GetString("Последний адрес");
 			this.vbox5.Add(this.buttonLastAddress);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.buttonLastAddress]));
-			w11.Position = 0;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.buttonLastAddress]));
+			w12.Position = 0;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vbox5.Gtk.Box+BoxChild
 			this.buttonCutTrack = new global::Gtk.Button();
 			this.buttonCutTrack.CanFocus = true;
@@ -192,16 +205,16 @@ namespace Dialogs.Logistic
 			this.buttonCutTrack.UseUnderline = true;
 			this.buttonCutTrack.Label = global::Mono.Unix.Catalog.GetString("Обрезать");
 			this.vbox5.Add(this.buttonCutTrack);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.buttonCutTrack]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
-			this.hbox1.Add(this.vbox5);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox5]));
-			w13.PackType = ((global::Gtk.PackType)(1));
-			w13.Position = 7;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.buttonCutTrack]));
+			w13.Position = 1;
 			w13.Expand = false;
 			w13.Fill = false;
+			this.hbox1.Add(this.vbox5);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox5]));
+			w14.PackType = ((global::Gtk.PackType)(1));
+			w14.Position = 7;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.vbox4 = new global::Gtk.VBox();
 			this.vbox4.Name = "vbox4";
@@ -215,10 +228,10 @@ namespace Dialogs.Logistic
 			this.ydatepickerStart.IsEditable = true;
 			this.ydatepickerStart.AutoSeparation = false;
 			this.vbox4.Add(this.ydatepickerStart);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.ydatepickerStart]));
-			w14.Position = 0;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.ydatepickerStart]));
+			w15.Position = 0;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.ydatepickerEnd = new global::Gamma.Widgets.yDatePicker();
 			this.ydatepickerEnd.Events = ((global::Gdk.EventMask)(256));
@@ -228,13 +241,13 @@ namespace Dialogs.Logistic
 			this.ydatepickerEnd.IsEditable = true;
 			this.ydatepickerEnd.AutoSeparation = false;
 			this.vbox4.Add(this.ydatepickerEnd);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.ydatepickerEnd]));
-			w15.Position = 1;
-			w15.Expand = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.ydatepickerEnd]));
+			w16.Position = 1;
+			w16.Expand = false;
 			this.hbox1.Add(this.vbox4);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox4]));
-			w16.PackType = ((global::Gtk.PackType)(1));
-			w16.Position = 8;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox4]));
+			w17.PackType = ((global::Gtk.PackType)(1));
+			w17.Position = 8;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.vbox3 = new global::Gtk.VBox();
 			this.vbox3.Name = "vbox3";
@@ -244,40 +257,40 @@ namespace Dialogs.Logistic
 			this.label4.Name = "label4";
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("обрезать до");
 			this.vbox3.Add(this.label4);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.label4]));
-			w17.Position = 0;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.label4]));
+			w18.Position = 0;
+			w18.Expand = false;
+			w18.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Sensitive = false;
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("label1");
 			this.vbox3.Add(this.label2);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.label2]));
-			w18.Position = 1;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.label2]));
+			w19.Position = 1;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.label5 = new global::Gtk.Label();
 			this.label5.Name = "label5";
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("обрезать после");
 			this.vbox3.Add(this.label5);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.label5]));
-			w19.Position = 2;
-			w19.Expand = false;
-			w19.Fill = false;
-			this.hbox1.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox3]));
-			w20.PackType = ((global::Gtk.PackType)(1));
-			w20.Position = 9;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.label5]));
+			w20.Position = 2;
 			w20.Expand = false;
 			w20.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w21.Position = 0;
+			this.hbox1.Add(this.vbox3);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox3]));
+			w21.PackType = ((global::Gtk.PackType)(1));
+			w21.Position = 9;
 			w21.Expand = false;
 			w21.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w22.Position = 0;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.gmapWidget = new global::GMap.NET.GtkSharp.GMapControl();
 			this.gmapWidget.Name = "gmapWidget";
@@ -295,8 +308,8 @@ namespace Dialogs.Logistic
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
 			this.vbox1.Add(this.gmapWidget);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.gmapWidget]));
-			w22.Position = 2;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.gmapWidget]));
+			w23.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.statusbar1 = new global::Gtk.Statusbar();
 			this.statusbar1.Name = "statusbar1";
@@ -305,15 +318,15 @@ namespace Dialogs.Logistic
 			this.ylabelPoint = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelPoint.Name = "ylabelPoint";
 			this.statusbar1.Add(this.ylabelPoint);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.statusbar1[this.ylabelPoint]));
-			w23.Position = 2;
-			w23.Expand = false;
-			w23.Fill = false;
-			this.vbox1.Add(this.statusbar1);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbar1]));
-			w24.Position = 3;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.statusbar1[this.ylabelPoint]));
+			w24.Position = 2;
 			w24.Expand = false;
 			w24.Fill = false;
+			this.vbox1.Add(this.statusbar1);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbar1]));
+			w25.Position = 3;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -327,6 +340,7 @@ namespace Dialogs.Logistic
 			this.radioNumbers.Clicked += new global::System.EventHandler(this.OnRadioNumbersClicked);
 			this.buttonRecalculateToBase.Clicked += new global::System.EventHandler(this.OnButtonRecalculateToBaseClicked);
 			this.buttonFindGap.Clicked += new global::System.EventHandler(this.OnButtonFindGapClicked);
+			this.buttonRecountMileage.Clicked += new global::System.EventHandler(this.OnButtonRecountMileageClicked);
 			this.buttonLastAddress.Clicked += new global::System.EventHandler(this.OnButtonLastAddressClicked);
 			this.buttonCutTrack.Clicked += new global::System.EventHandler(this.OnButtonCutTrackClicked);
 		}

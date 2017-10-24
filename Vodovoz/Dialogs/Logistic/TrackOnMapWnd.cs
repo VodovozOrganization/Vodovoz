@@ -8,8 +8,10 @@ using GMap.NET.MapProviders;
 using Polylines;
 using QSOrmProject;
 using QSOsm;
+using QSOsm.Osrm;
 using QSOsm.Spuntik;
 using QSProjectsLib;
+using Vodovoz;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 
@@ -100,12 +102,20 @@ namespace Dialogs.Logistic
 			args.RetVal = false;
 		}
 
-		private void LoadTrack()
+		private void LoadTrack(List<PointOnEarth> pointsRecalculateMileage = null)
 		{
-			if (track == null)
+			if (track == null && pointsRecalculateMileage == null)
 				return;
 
-			var points = track.TrackPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude));
+			var points = new List<PointLatLng>();
+
+			if(pointsRecalculateMileage == null)
+			{
+				points = track.TrackPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
+			} else
+			{
+				points = pointsRecalculateMileage.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
+			}
 
 			trackRoute = new GMapRoute(points, routeList.Id.ToString());
 
@@ -137,12 +147,12 @@ namespace Dialogs.Logistic
 			labelDistance.LabelProp = String.Join("\n", text);
 		}
 
-		private void LoadAddresses()
+		private void LoadAddresses(bool recalculateMileage = false)
 		{
 			Console.WriteLine("Загружаем адреса");
 			addressesOverlay.Clear();
 
-			foreach(var orderItem in routeList.Addresses)
+			foreach(var orderItem in (recalculateMileage ? routeList.Addresses.OrderBy(x => x.StatusLastUpdate).ToList() : routeList.Addresses))
 			{
 				var point = orderItem.Order.DeliveryPoint;
 				if (point == null)
@@ -459,7 +469,58 @@ namespace Dialogs.Logistic
 									.Where(x => x.Status == RouteListItemStatus.Completed)
 									.Select(x => x.StatusLastUpdate).Max(x => x.Value);  
 		}
- 
+
+		protected void OnButtonRecountMileageClicked(object sender, EventArgs e)
+		{
+			var pointsToRecalculate = new List<PointOnEarth>();
+			var pointsToBase = new List<PointOnEarth>();
+
+			foreach(RouteListItem address in routeList.Addresses.OrderBy(x => x.StatusLastUpdate))
+			{
+				if(address.Status == RouteListItemStatus.Completed)
+				{
+					pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.Latitude, (double)address.Order.DeliveryPoint.Longitude));
+				}
+			}
+
+			pointsToBase.Add(pointsToRecalculate.Last());
+			pointsToBase.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
+		//	pointsToBase.Add(pointsToRecalculate.First());
+
+			var recalculatedTrackResponse = OsrmMain.GetRoute(pointsToRecalculate, false, true);
+			var recalculatedToBaseResponse = OsrmMain.GetRoute(pointsToBase, false, true);
+			var recalculatedTrack = recalculatedTrackResponse.Routes.First();
+			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
+
+			var decodedPoints = Polyline.DecodePolyline(recalculatedTrack.RouteGeometry);
+			var decodedToBase = Polyline.DecodePolyline(recalculatedToBase.RouteGeometry);
+
+			var pointsRecalculated = decodedPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
+			var pointsRecalculatedToBase = decodedToBase.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
+
+			var routeRecalculated = new GMapRoute(pointsRecalculated, "RecalculatedRoute");
+			routeRecalculated.Stroke = new System.Drawing.Pen(System.Drawing.Color.Red);
+			routeRecalculated.Stroke.Width = 4;
+			routeRecalculated.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+
+			var routeRecalculatedToBase = new GMapRoute(pointsRecalculatedToBase, "RecalculatedToBase");
+			routeRecalculatedToBase.Stroke = new System.Drawing.Pen(System.Drawing.Color.Blue);
+			routeRecalculatedToBase.Stroke.Width = 4;
+			routeRecalculatedToBase.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+
+			tracksOverlay.Clear();
+			tracksOverlay.Routes.Add(routeRecalculated);
+
+			trackToBaseOverlay.Clear();
+			trackToBaseOverlay.Routes.Add(routeRecalculatedToBase);
+
+			var text = new List<string>();
+			text.Add(String.Format("Дистанция трека: {0:N1} км.", recalculatedTrack.TotalDistanceKm));
+			text.Add(String.Format("Дистанция до базы: {0:N1} км.", recalculatedToBase.TotalDistanceKm));
+			text.Add(String.Format("Общее расстояние: {0:N1} км.", recalculatedTrack.TotalDistanceKm + recalculatedToBase.TotalDistanceKm));
+
+			labelDistance.LabelProp = String.Join("\n", text);
+		}
 	}
 
 	class DistanceTextInfo{
