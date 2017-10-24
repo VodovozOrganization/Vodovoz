@@ -485,7 +485,7 @@ namespace Dialogs.Logistic
 
 			pointsToBase.Add(pointsToRecalculate.Last());
 			pointsToBase.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
-		//	pointsToBase.Add(pointsToRecalculate.First());
+			pointsToBase.Add(pointsToRecalculate.First());
 
 			var recalculatedTrackResponse = OsrmMain.GetRoute(pointsToRecalculate, false, true);
 			var recalculatedToBaseResponse = OsrmMain.GetRoute(pointsToBase, false, true);
