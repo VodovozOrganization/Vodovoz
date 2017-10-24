@@ -7118,7 +7118,6 @@
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
-                <property name="ItemsEnumName" />
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -14500,7 +14499,6 @@
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
-                <property name="ItemsEnumName" />
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -14681,7 +14679,6 @@
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
-                <property name="ItemsEnumName" />
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -16256,7 +16253,6 @@
                 <property name="CanFocus">True</property>
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
-                <property name="ItemsEnumName" />
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
               </widget>
@@ -16726,7 +16722,6 @@
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
-                <property name="ItemsEnumName">Vodovoz.AddOrderEnum, Vodovoz</property>
                 <signal name="EnumItemClicked" handler="OnEnumbuttonAddOrderEnumItemClicked" />
               </widget>
               <packing>
@@ -22427,7 +22422,6 @@
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
-                <property name="ItemsEnumName" />
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -25308,7 +25302,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AccountingFilter" design-size="847 34">
+  <widget class="Gtk.Bin" id="Vodovoz.AccountingFilter" design-size="847 36">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -25359,7 +25353,6 @@
             <property name="MemberName" />
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
-            <property name="ItemsEnumName">Vodovoz.AccountingFilter.OperationType, Vodovoz</property>
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
             <signal name="EnumItemSelected" handler="OnComboTypeEnumItemSelected" />
@@ -26698,7 +26691,6 @@
                     <property name="MemberName" />
                     <property name="IsTextCombo">False</property>
                     <property name="Items" translatable="yes" />
-                    <property name="ItemsEnumName" />
                     <property name="ShowSpecialStateAll">False</property>
                     <property name="ShowSpecialStateNot">False</property>
                     <property name="UseShortTitle">False</property>
@@ -26726,7 +26718,6 @@
                     <property name="MemberName" />
                     <property name="IsTextCombo">False</property>
                     <property name="Items" translatable="yes" />
-                    <property name="ItemsEnumName" />
                     <property name="ShowSpecialStateAll">False</property>
                     <property name="ShowSpecialStateNot">False</property>
                     <property name="UseShortTitle">False</property>
@@ -27487,7 +27478,6 @@
                         <property name="Label" translatable="yes">В аренду</property>
                         <property name="UseUnderline">True</property>
                         <property name="UseMarkup">False</property>
-                        <property name="ItemsEnumName" />
                       </widget>
                       <packing>
                         <property name="Position">1</property>

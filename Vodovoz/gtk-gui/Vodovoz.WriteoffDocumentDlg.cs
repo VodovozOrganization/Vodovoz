@@ -120,7 +120,6 @@ namespace Vodovoz
 			this.comboType = new global::QSOrmProject.EnumComboBox();
 			this.comboType.CanFocus = true;
 			this.comboType.Name = "comboType";
-			this.comboType.ItemsEnumName = "";
 			this.comboType.ShowSpecialStateAll = false;
 			this.comboType.ShowSpecialStateNot = false;
 			this.tableWriteoff.Add(this.comboType);

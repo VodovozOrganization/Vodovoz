@@ -1,8 +1,6 @@
 ﻿using System;
 using QSOrmProject.RepresentationModel;
 using QSOrmProject;
-using Vodovoz.Domain.Cash;
-using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 
 namespace Vodovoz

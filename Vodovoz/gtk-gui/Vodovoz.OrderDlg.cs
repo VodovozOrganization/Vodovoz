@@ -861,7 +861,6 @@ namespace Vodovoz
 			// Container child table3.Gtk.Table+TableChild
 			this.enumareRasonType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumareRasonType.Name = "enumareRasonType";
-			this.enumareRasonType.ItemsEnumName = "";
 			this.enumareRasonType.ShowSpecialStateAll = false;
 			this.enumareRasonType.ShowSpecialStateNot = false;
 			this.enumareRasonType.UseShortTitle = false;
@@ -877,7 +876,6 @@ namespace Vodovoz
 			// Container child table3.Gtk.Table+TableChild
 			this.enumDiverCallType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumDiverCallType.Name = "enumDiverCallType";
-			this.enumDiverCallType.ItemsEnumName = "";
 			this.enumDiverCallType.ShowSpecialStateAll = false;
 			this.enumDiverCallType.ShowSpecialStateNot = false;
 			this.enumDiverCallType.UseShortTitle = false;
@@ -1338,7 +1336,6 @@ namespace Vodovoz
 			this.enumAddRentButton.Name = "enumAddRentButton";
 			this.enumAddRentButton.UseUnderline = true;
 			this.enumAddRentButton.UseMarkup = false;
-			this.enumAddRentButton.ItemsEnumName = "";
 			this.enumAddRentButton.Label = global::Mono.Unix.Catalog.GetString("В аренду");
 			global::Gtk.Image w100 = new global::Gtk.Image();
 			w100.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
@@ -1608,8 +1605,7 @@ namespace Vodovoz
 			w135.Expand = false;
 			w135.Fill = false;
 			this.Add(this.vbox2);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.labelProxyInfo.Hide();
