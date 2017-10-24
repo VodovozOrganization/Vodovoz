@@ -16,7 +16,7 @@ namespace Vodovoz
 
 		private global::Gtk.Table tableWriteoff;
 
-		private global::QSOrmProject.EnumComboBox comboType;
+		private global::Gamma.Widgets.yEnumComboBox comboType;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
@@ -117,11 +117,13 @@ namespace Vodovoz
 			this.tableWriteoff.RowSpacing = ((uint)(6));
 			this.tableWriteoff.ColumnSpacing = ((uint)(6));
 			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.comboType = new global::QSOrmProject.EnumComboBox();
+			this.comboType = new global::Gamma.Widgets.yEnumComboBox();
 			this.comboType.CanFocus = true;
 			this.comboType.Name = "comboType";
 			this.comboType.ShowSpecialStateAll = false;
 			this.comboType.ShowSpecialStateNot = false;
+			this.comboType.UseShortTitle = false;
+			this.comboType.DefaultFirst = false;
 			this.tableWriteoff.Add(this.comboType);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.comboType]));
 			w8.TopAttach = ((uint)(1));
