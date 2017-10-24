@@ -100,11 +100,13 @@ namespace Vodovoz.Dialogs.Logistic
 			progressPrint.Adjustment.Upper = docCount * routeCount;
 			progressPrint.Adjustment.Value = 0;
 			showDialog = true;
+			bool needCommit = false;
 
 			foreach(var route in Routes.Where(x => x.Selected))
 			{
 				progressPrint.Text = String.Format("Печатаем МЛ {0} - {1}", route.RouteList.Id, route.RouteList.Driver.ShortName);
 				QSMain.WaitRedraw();
+				bool printed = false;
 
 				if(checkDailyList.Active) {
 					PrintDoc(route.RouteList, RouteListPrintableDocuments.DailyList, PageOrientation.Portrait, 1);
@@ -116,9 +118,19 @@ namespace Vodovoz.Dialogs.Logistic
 					PrintDoc(route.RouteList, RouteListPrintableDocuments.RouteList, PageOrientation.Landscape, spinRoute.ValueAsInt);
 					progressPrint.Adjustment.Value++;
 					QSMain.WaitRedraw();
+					printed = true;
 				}
 
+				if(printed)
+				{
+					route.RouteList.Printed = true;
+					uow.Save(route.RouteList);
+					needCommit = true;
+				}
 			}
+
+			if(needCommit)
+				uow.Commit();
 			progressPrint.Text = "Готово";
 		}
 

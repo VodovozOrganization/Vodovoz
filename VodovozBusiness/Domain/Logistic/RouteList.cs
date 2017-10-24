@@ -287,6 +287,14 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref onLoadTimeFixed, value, () => OnloadTimeFixed); }
 		}
 
+		private bool printed;
+
+		[Display(Name = "МЛ уже напечатан")]
+		public virtual bool Printed {
+			get { return printed; }
+			set { SetField(ref printed, value, () => Printed); }
+		}
+
 		#endregion
 
 		#region readonly Свойства
