@@ -1073,6 +1073,7 @@
     <None Include="Reports\Logistic\RouteMap.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Additions\Logistic\RouteOptimization\README.md" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
