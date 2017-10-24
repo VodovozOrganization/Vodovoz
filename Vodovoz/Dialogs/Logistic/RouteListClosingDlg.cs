@@ -626,8 +626,6 @@ namespace Vodovoz
 			//Проверка существования трека и заполнения дистанции
 			bool hasTrack = track?.Distance.HasValue ?? false;
 			buttonGetDistFromTrack.Sensitive = hasTrack && editing;
-			checkSendToMileageCheck.Active = !hasTrack;
-			checkSendToMileageCheck.Sensitive = hasTrack;
 
 			if(hasTrack)
 				text.Add(string.Format("Расстояние по треку: {0:F1} км.", track.TotalDistance));
