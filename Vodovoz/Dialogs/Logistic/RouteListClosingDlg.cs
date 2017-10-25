@@ -203,6 +203,8 @@ namespace Vodovoz
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintDocuments);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintDocuments)e.ItemEnum);
+
+			ylabelRecalculatedMileage.Binding.AddBinding(Entity, x => x.RecalculatedDistance, e => e.LabelProp).InitializeFromSource();
 		}
 
 		private decimal GetCashOrder()
@@ -917,7 +919,7 @@ namespace Vodovoz
 			var recalculatedTrackResponse = OsrmMain.GetRoute(points, false, false);
 			var recalculatedTrack = recalculatedTrackResponse.Routes.First();
 
-			labelRecalculatedMileage.LabelProp = String.Format("{0:N1} км", recalculatedTrack.TotalDistanceKm);
+			ylabelRecalculatedMileage.LabelProp = String.Format("{0:N1} км", recalculatedTrack.TotalDistanceKm);
 		}
 
 		#endregion

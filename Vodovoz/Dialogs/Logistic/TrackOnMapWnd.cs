@@ -538,6 +538,10 @@ namespace Dialogs.Logistic
 			text.Add(String.Format("Общее расстояние: {0:N1} км.", totalDistanceTrack + recalculatedToBase.TotalDistanceKm));
 
 			labelDistance.LabelProp = String.Join("\n", text);
+
+			routeList.RecalculatedDistance = totalDistanceTrack + recalculatedToBase.TotalDistanceKm;
+			UoW.Save(routeList);
+			UoW.Commit();
 		}
 	}
 

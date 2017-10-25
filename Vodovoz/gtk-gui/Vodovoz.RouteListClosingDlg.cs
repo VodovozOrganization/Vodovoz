@@ -54,8 +54,6 @@ namespace Vodovoz
 
 		private global::Gtk.Label label9;
 
-		private global::Gtk.Label labelRecalculatedMileage;
-
 		private global::Gtk.Label labelSendToMileageCheck;
 
 		private global::Gamma.Widgets.yEntryReference referenceCar;
@@ -69,6 +67,8 @@ namespace Vodovoz
 		private global::Gamma.Widgets.ySpecComboBox speccomboShift;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckHideCells;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelRecalculatedMileage;
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinActualDistance;
 
@@ -442,76 +442,65 @@ namespace Vodovoz
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelRecalculatedMileage = new global::Gtk.Label();
-			this.labelRecalculatedMileage.Name = "labelRecalculatedMileage";
-			this.table1.Add(this.labelRecalculatedMileage);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table1[this.labelRecalculatedMileage]));
-			w27.TopAttach = ((uint)(3));
-			w27.BottomAttach = ((uint)(4));
-			w27.LeftAttach = ((uint)(6));
-			w27.RightAttach = ((uint)(7));
-			w27.XOptions = ((global::Gtk.AttachOptions)(4));
-			w27.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.labelSendToMileageCheck = new global::Gtk.Label();
 			this.labelSendToMileageCheck.Name = "labelSendToMileageCheck";
 			this.labelSendToMileageCheck.Xalign = 1F;
 			this.labelSendToMileageCheck.LabelProp = global::Mono.Unix.Catalog.GetString("<b><span foreground=\"red\">Проверка километража:</span></b>");
 			this.labelSendToMileageCheck.UseMarkup = true;
 			this.table1.Add(this.labelSendToMileageCheck);
-			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table1[this.labelSendToMileageCheck]));
-			w28.TopAttach = ((uint)(4));
-			w28.BottomAttach = ((uint)(5));
-			w28.LeftAttach = ((uint)(5));
-			w28.RightAttach = ((uint)(6));
-			w28.XOptions = ((global::Gtk.AttachOptions)(4));
-			w28.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table1[this.labelSendToMileageCheck]));
+			w27.TopAttach = ((uint)(4));
+			w27.BottomAttach = ((uint)(5));
+			w27.LeftAttach = ((uint)(5));
+			w27.RightAttach = ((uint)(6));
+			w27.XOptions = ((global::Gtk.AttachOptions)(4));
+			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.referenceCar = new global::Gamma.Widgets.yEntryReference();
 			this.referenceCar.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCar.Name = "referenceCar";
 			this.table1.Add(this.referenceCar);
-			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceCar]));
-			w29.LeftAttach = ((uint)(3));
-			w29.RightAttach = ((uint)(4));
-			w29.XOptions = ((global::Gtk.AttachOptions)(4));
-			w29.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceCar]));
+			w28.LeftAttach = ((uint)(3));
+			w28.RightAttach = ((uint)(4));
+			w28.XOptions = ((global::Gtk.AttachOptions)(4));
+			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.referenceDriver = new global::Gamma.Widgets.yEntryReference();
 			this.referenceDriver.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDriver.Name = "referenceDriver";
 			this.table1.Add(this.referenceDriver);
-			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceDriver]));
-			w30.TopAttach = ((uint)(1));
-			w30.BottomAttach = ((uint)(2));
-			w30.LeftAttach = ((uint)(3));
-			w30.RightAttach = ((uint)(4));
-			w30.XOptions = ((global::Gtk.AttachOptions)(4));
-			w30.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceDriver]));
+			w29.TopAttach = ((uint)(1));
+			w29.BottomAttach = ((uint)(2));
+			w29.LeftAttach = ((uint)(3));
+			w29.RightAttach = ((uint)(4));
+			w29.XOptions = ((global::Gtk.AttachOptions)(4));
+			w29.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.referenceForwarder = new global::Gamma.Widgets.yEntryReference();
 			this.referenceForwarder.Events = ((global::Gdk.EventMask)(256));
 			this.referenceForwarder.Name = "referenceForwarder";
 			this.table1.Add(this.referenceForwarder);
-			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceForwarder]));
-			w31.TopAttach = ((uint)(2));
-			w31.BottomAttach = ((uint)(3));
-			w31.LeftAttach = ((uint)(3));
-			w31.RightAttach = ((uint)(4));
-			w31.XOptions = ((global::Gtk.AttachOptions)(4));
-			w31.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceForwarder]));
+			w30.TopAttach = ((uint)(2));
+			w30.BottomAttach = ((uint)(3));
+			w30.LeftAttach = ((uint)(3));
+			w30.RightAttach = ((uint)(4));
+			w30.XOptions = ((global::Gtk.AttachOptions)(4));
+			w30.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.referenceLogistican = new global::Gamma.Widgets.yEntryReference();
 			this.referenceLogistican.Events = ((global::Gdk.EventMask)(256));
 			this.referenceLogistican.Name = "referenceLogistican";
 			this.table1.Add(this.referenceLogistican);
-			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceLogistican]));
-			w32.TopAttach = ((uint)(2));
-			w32.BottomAttach = ((uint)(3));
-			w32.LeftAttach = ((uint)(1));
-			w32.RightAttach = ((uint)(2));
-			w32.XOptions = ((global::Gtk.AttachOptions)(4));
-			w32.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceLogistican]));
+			w31.TopAttach = ((uint)(2));
+			w31.BottomAttach = ((uint)(3));
+			w31.LeftAttach = ((uint)(1));
+			w31.RightAttach = ((uint)(2));
+			w31.XOptions = ((global::Gtk.AttachOptions)(4));
+			w31.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.speccomboShift = new global::Gamma.Widgets.ySpecComboBox();
 			this.speccomboShift.Name = "speccomboShift";
@@ -520,13 +509,13 @@ namespace Vodovoz
 			this.speccomboShift.ShowSpecialStateAll = false;
 			this.speccomboShift.ShowSpecialStateNot = false;
 			this.table1.Add(this.speccomboShift);
-			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1[this.speccomboShift]));
-			w33.TopAttach = ((uint)(1));
-			w33.BottomAttach = ((uint)(2));
-			w33.LeftAttach = ((uint)(1));
-			w33.RightAttach = ((uint)(2));
-			w33.XOptions = ((global::Gtk.AttachOptions)(4));
-			w33.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.table1[this.speccomboShift]));
+			w32.TopAttach = ((uint)(1));
+			w32.BottomAttach = ((uint)(2));
+			w32.LeftAttach = ((uint)(1));
+			w32.RightAttach = ((uint)(2));
+			w32.XOptions = ((global::Gtk.AttachOptions)(4));
+			w32.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ycheckHideCells = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckHideCells.CanFocus = true;
@@ -536,10 +525,21 @@ namespace Vodovoz
 			this.ycheckHideCells.DrawIndicator = true;
 			this.ycheckHideCells.UseUnderline = true;
 			this.table1.Add(this.ycheckHideCells);
-			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckHideCells]));
-			w34.TopAttach = ((uint)(5));
-			w34.BottomAttach = ((uint)(6));
-			w34.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckHideCells]));
+			w33.TopAttach = ((uint)(5));
+			w33.BottomAttach = ((uint)(6));
+			w33.RightAttach = ((uint)(2));
+			w33.XOptions = ((global::Gtk.AttachOptions)(4));
+			w33.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabelRecalculatedMileage = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelRecalculatedMileage.Name = "ylabelRecalculatedMileage";
+			this.table1.Add(this.ylabelRecalculatedMileage);
+			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelRecalculatedMileage]));
+			w34.TopAttach = ((uint)(3));
+			w34.BottomAttach = ((uint)(4));
+			w34.LeftAttach = ((uint)(6));
+			w34.RightAttach = ((uint)(7));
 			w34.XOptions = ((global::Gtk.AttachOptions)(4));
 			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -982,7 +982,8 @@ namespace Vodovoz
 			w82.Expand = false;
 			w82.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

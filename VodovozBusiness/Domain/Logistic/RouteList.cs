@@ -104,6 +104,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Расстояние в километрах
 		/// </summary>
+		[Display(Name = "Подтверждённое расстояние")]
 		public virtual Decimal ConfirmedDistance {
 			get { return confirmedDistance; }
 			set {
@@ -120,6 +121,17 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal? PlanedDistance {
 			get { return planedDistance; }
 			protected set { SetField(ref planedDistance, value, () => PlanedDistance); }
+		}
+
+		decimal? recalculatedDistance;
+
+		/// <summary>
+		/// Расстояние в километрах.
+		/// </summary>
+		[Display(Name = "Пересчитанное расстояние")]
+		public virtual decimal? RecalculatedDistance {
+			get { return recalculatedDistance; }
+			set {SetField(ref recalculatedDistance, value, () => RecalculatedDistance); }
 		}
 
 		RouteListStatus status;
@@ -488,6 +500,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void ConfirmMileage()
 		{
 			Status = RouteListStatus.Closed;
+			ClosingDate = DateTime.Now;
 		}
 
 		public virtual void ChangeStatus(RouteListStatus newStatus)
