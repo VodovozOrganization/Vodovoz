@@ -92,7 +92,7 @@
       <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.dll</HintPath>
     </Reference>
     <Reference Condition=" '$(TargetOS)' == 'Win' " Include="Google.OrTools">
-      <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.x86.dll</HintPath>
+      <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
       <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.Protobuf.dll</HintPath>
@@ -684,6 +684,7 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.BottlesMovementReport.cs" />
     <Compile Include="ReportsParameters\MastersVisitReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersVisitReport.cs" />
+    <Compile Include="Additions\Logistic\MapDrawingHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1069,6 +1070,10 @@
     <None Include="Reports\ServiceCenter\MastersVisitReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\Logistic\RouteMap.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Additions\Logistic\RouteOptimization\README.md" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

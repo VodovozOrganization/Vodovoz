@@ -75,10 +75,9 @@ namespace Vodovoz
 			comboType.ItemsEnum = typeof(WriteoffType);
 			referenceWarehouse.Sensitive = (UoWGeneric.Root.WriteoffWarehouse != null);
 			referenceDeliveryPoint.Sensitive = referenceCounterparty.Sensitive = (UoWGeneric.Root.Client != null);
-			comboType.EnumItemSelected += (object sender, EnumItemClickedEventArgs e) => {
+			comboType.EnumItemSelected += (object sender, Gamma.Widgets.ItemSelectedEventArgs e) => {
 				referenceDeliveryPoint.Sensitive = (comboType.Active == (int)WriteoffType.counterparty && UoWGeneric.Root.Client != null);
 				referenceCounterparty.Sensitive = (comboType.Active == (int)WriteoffType.counterparty);
-				//referenceWarehouse.Sensitive = (comboType.Active == (int)WriteoffType.warehouse);
 			};
 			comboType.Active = UoWGeneric.Root.Client != null ?
 				(int)WriteoffType.counterparty :

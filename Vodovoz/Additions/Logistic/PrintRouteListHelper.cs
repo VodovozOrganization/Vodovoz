@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using Gamma.Utilities;
+using GMap.NET.GtkSharp;
+using GMap.NET.MapProviders;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
-using QSTDI;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
 
@@ -15,32 +17,7 @@ namespace Vodovoz.Additions.Logistic
 {
 	public static class PrintRouteListHelper
 	{
-		public static void Print(IUnitOfWork uow, RouteList routeList, ITdiTab myTab)
-		{
-			List<RouteListPrintableDocs> docsList = new List<RouteListPrintableDocs>
-				{
-					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.LoadDocument),
-					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.TimeList),
-					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.RouteList),
-					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.OrderOfAddresses)
-				};
-			
-			DocumentPrinter.PrintAll(docsList);
-
-//			List<ReportInfo> docs = new List<ReportInfo>
-//			{
-//				GetRDLLoadDocument(routeListId),
-//				GetRDLRouteList(uow, routeListId),
-//				GetRDLTimeList(routeListId)
-//			};
-//
-//			foreach (var doc in docs)
-//			{
-//				myTab.TabParent.OpenTab(
-//					TdiTabBase.GenerateHashName<ReportViewDlg>(),
-//					() => new ReportViewDlg(doc, true));
-//			}
-		}
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		public static ReportInfo GetRDLTimeList(int routeListId)
 		{
@@ -218,7 +195,51 @@ namespace Vodovoz.Additions.Logistic
 				}
 			};
 		}
-			
+
+		public static ReportInfo GetRDLRouteMap(IUnitOfWork uow, RouteList routeList)
+		{
+			string documentName = "RouteMap";
+
+			XmlDocument rdlText = new XmlDocument();
+			XmlNamespaceManager namespaces = new XmlNamespaceManager(rdlText.NameTable);
+			namespaces.AddNamespace("r", "http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition");
+			rdlText.Load(System.IO.Path.Combine(Environment.CurrentDirectory, "Reports/Logistic/" + documentName + ".rdl"));
+			var imageData = rdlText.DocumentElement.SelectSingleNode("/r:Report/r:EmbeddedImages/r:EmbeddedImage[@Name=\"map\"]/r:ImageData", namespaces);
+
+			var map = new GMapControl();
+			map.MapProvider = GMapProviders.OpenCycleMap;
+			map.MaxZoom = 18;
+			map.RoutesEnabled = true;
+			map.MarkersEnabled = true;
+
+			GMapOverlay routeOverlay = new GMapOverlay("route");
+			MapDrawingHelper.DrawRoute(routeOverlay, routeList, new Tools.Logistic.RouteGeometryCalculator(Tools.Logistic.DistanceProvider.Osrm));
+			GMapOverlay addressesOverlay = new GMapOverlay("addresses");
+			MapDrawingHelper.DrawAddressesOfRoute(addressesOverlay, routeList);
+			map.Overlays.Add(routeOverlay);
+			map.Overlays.Add(addressesOverlay);
+			map.SetFakeAllocationSize(new Gdk.Rectangle(0, 0, 1500, 1500));
+			map.ZoomAndCenterRoutes("route");
+			byte[] img;
+			using(var bitmap = map.ToBitmap((int count) => logger.Info("Загружаем плитки карты(осталось {0})...", count))) {
+				using(MemoryStream stream = new MemoryStream()) {
+					bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+					img = stream.ToArray();
+				}
+			}
+
+			string base64image = Convert.ToBase64String(img);
+			imageData.InnerText = base64image;
+
+			return new ReportInfo {
+				Title = String.Format("Карта маршрута № {0}", routeList.Id),
+				Source = rdlText.InnerXml,
+				Parameters = new Dictionary<string, object> {
+					{ "route_id", routeList.Id }
+				}
+			};
+		}
+
 		public static ReportInfo GetRDLLoadDocument(int routeListId)
 		{
 			return new ReportInfo {
@@ -255,6 +276,8 @@ namespace Vodovoz.Additions.Logistic
 					return GetRDLLoadDocument(routeList.Id);
 				case RouteListPrintableDocuments.RouteList:
 					return GetRDLRouteList(uow, routeList);
+				case RouteListPrintableDocuments.RouteMap:
+					return GetRDLRouteMap(uow, routeList);
 				case RouteListPrintableDocuments.TimeList:
 					return GetRDLTimeList(routeList.Id);
 				case RouteListPrintableDocuments.DailyList:
@@ -273,6 +296,8 @@ namespace Vodovoz.Additions.Logistic
 		All,
 		[Display (Name = "Маршрутный лист")]
 		RouteList,
+		[Display(Name = "Карта маршрута")]
+		RouteMap,
 		[Display(Name = "Адреса по ежедневным номерам")]
 		DailyList,
 		[Display (Name = "Лист времени")]

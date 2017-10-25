@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QSOrmProject;
@@ -170,9 +169,9 @@ namespace Vodovoz.Domain.Documents
 
 	public enum WriteoffType
 	{
-		[ItemTitleAttribute ("От клиента")]
+		[Display(Name = "От клиента")]
 		counterparty,
-		[ItemTitleAttribute ("Со склада")]
+		[Display(Name = "Со склада")]
 		warehouse
 	}
 

@@ -234,8 +234,6 @@ namespace Vodovoz
 			this.referenceOrganization = new global::Gamma.Widgets.yEntryReference();
 			this.referenceOrganization.Events = ((global::Gdk.EventMask)(256));
 			this.referenceOrganization.Name = "referenceOrganization";
-			this.referenceOrganization.DisplayFields = new string[] {
-					"Name"};
 			this.datatable5.Add(this.referenceOrganization);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable5[this.referenceOrganization]));
 			w18.TopAttach = ((uint)(2));

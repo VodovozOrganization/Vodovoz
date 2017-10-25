@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Google.OrTools.ConstraintSolver;
-using Vodovoz.Domain.Logistic;
+﻿using Google.OrTools.ConstraintSolver;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
@@ -10,13 +7,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private CalculatedOrder[] Nodes;
-		AtWorkDriver Driver;
+		PossibleTrip Trip;
 		ExtDistanceCalculator distanceCalculator;
 
-		public CallbackTime(CalculatedOrder[] nodes, AtWorkDriver driver, ExtDistanceCalculator distanceCalculator)
+		public CallbackTime(CalculatedOrder[] nodes, PossibleTrip trip, ExtDistanceCalculator distanceCalculator)
 		{
 			Nodes = nodes;
-			Driver = driver;
+			Trip = trip;
 			this.distanceCalculator = distanceCalculator;
 		}
 
@@ -41,9 +38,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				travelTime = distanceCalculator.TimeSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
 
 			if (first_index != 0)
-				serviceTime = Nodes[first_index - 1].Order.CalculateTimeOnPoint(false) * 60;
+				serviceTime = Nodes[first_index - 1].Order.CalculateTimeOnPoint(Trip.Forwarder != null) * 60;
 
-			return serviceTime + travelTime;
+			return (long)Trip.Driver.TimeCorrection(serviceTime + travelTime);
 		}
 	}
 }

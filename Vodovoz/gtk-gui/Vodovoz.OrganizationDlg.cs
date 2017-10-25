@@ -441,9 +441,6 @@ namespace Vodovoz
 			this.referenceBuhgalter = new global::Gamma.Widgets.yEntryReference();
 			this.referenceBuhgalter.Events = ((global::Gdk.EventMask)(256));
 			this.referenceBuhgalter.Name = "referenceBuhgalter";
-			this.referenceBuhgalter.DisplayFields = new string[] {
-					"FullName"};
-			this.referenceBuhgalter.DisplayFormatString = "{0}";
 			this.datatableMain.Add(this.referenceBuhgalter);
 			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.referenceBuhgalter]));
 			w34.TopAttach = ((uint)(5));
@@ -456,9 +453,6 @@ namespace Vodovoz
 			this.referenceLeader = new global::Gamma.Widgets.yEntryReference();
 			this.referenceLeader.Events = ((global::Gdk.EventMask)(256));
 			this.referenceLeader.Name = "referenceLeader";
-			this.referenceLeader.DisplayFields = new string[] {
-					"FullName"};
-			this.referenceLeader.DisplayFormatString = "{0}";
 			this.datatableMain.Add(this.referenceLeader);
 			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.referenceLeader]));
 			w35.TopAttach = ((uint)(4));

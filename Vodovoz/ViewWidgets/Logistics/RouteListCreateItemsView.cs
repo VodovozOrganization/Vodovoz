@@ -163,6 +163,7 @@ namespace Vodovoz
 		public RouteListCreateItemsView()
 		{
 			this.Build();
+			enumbuttonAddOrder.ItemsEnum = typeof(AddOrderEnum);
 			ytreeviewItems.Selection.Changed += OnSelectionChanged;
 		}
 

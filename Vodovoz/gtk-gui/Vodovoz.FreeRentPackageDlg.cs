@@ -193,9 +193,6 @@ namespace Vodovoz
 			this.referenceDepositService = new global::Gamma.Widgets.yEntryReference();
 			this.referenceDepositService.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDepositService.Name = "referenceDepositService";
-			this.referenceDepositService.DisplayFields = new string[] {
-					"Name"};
-			this.referenceDepositService.DisplayFormatString = "{0}";
 			this.datatable1.Add(this.referenceDepositService);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceDepositService]));
 			w15.TopAttach = ((uint)(4));
@@ -207,9 +204,6 @@ namespace Vodovoz
 			this.referenceEquipmentType = new global::Gamma.Widgets.yEntryReference();
 			this.referenceEquipmentType.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEquipmentType.Name = "referenceEquipmentType";
-			this.referenceEquipmentType.DisplayFields = new string[] {
-					"Name"};
-			this.referenceEquipmentType.DisplayFormatString = "{0}";
 			this.datatable1.Add(this.referenceEquipmentType);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceEquipmentType]));
 			w16.TopAttach = ((uint)(2));

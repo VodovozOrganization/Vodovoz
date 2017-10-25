@@ -261,11 +261,6 @@ namespace Vodovoz
 			this.dataentryreferenceDriver = new global::Gamma.Widgets.yEntryReference();
 			this.dataentryreferenceDriver.Events = ((global::Gdk.EventMask)(256));
 			this.dataentryreferenceDriver.Name = "dataentryreferenceDriver";
-			this.dataentryreferenceDriver.DisplayFields = new string[] {
-					"Name",
-					"LastName",
-					"Patronymic"};
-			this.dataentryreferenceDriver.DisplayFormatString = "{0} {1} {2}";
 			this.tableCarData.Add(this.dataentryreferenceDriver);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.dataentryreferenceDriver]));
 			w14.TopAttach = ((uint)(5));
@@ -643,8 +638,7 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
 			w47.Position = 1;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();

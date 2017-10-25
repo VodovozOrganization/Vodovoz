@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Globalization;
 using GMap.NET;
 using QSOsm;
@@ -24,6 +24,8 @@ namespace Vodovoz.Domain.Logistic
 		public CachedDistance()
 		{
 		}
+
+#region Static
 
 		public static long GetHash(DeliveryPoint point)
 		{
@@ -70,6 +72,10 @@ namespace Vodovoz.Domain.Logistic
 			GetLatLon(hash, out latitude, out longitude);
 			return String.Format(CultureInfo.InvariantCulture, "{0},{1}", longitude, latitude);
 		}
+
+		public static long BaseHash = GetHash(Constants.BaseLatitude, Constants.BaseLongitude);
+
+#endregion
 
 		public override bool Equals(object obj)
 		{

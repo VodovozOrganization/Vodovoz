@@ -240,10 +240,6 @@ namespace Vodovoz
 			this.referenceCar = new global::Gamma.Widgets.yEntryReference();
 			this.referenceCar.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCar.Name = "referenceCar";
-			this.referenceCar.DisplayFields = new string[] {
-					"Model",
-					"RegistrationNumber"};
-			this.referenceCar.DisplayFormatString = "{0} {1}";
 			this.dataRouteList.Add(this.referenceCar);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.dataRouteList[this.referenceCar]));
 			w17.TopAttach = ((uint)(2));
@@ -256,7 +252,6 @@ namespace Vodovoz
 			this.referenceDriver = new global::Gamma.Widgets.yEntryReference();
 			this.referenceDriver.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDriver.Name = "referenceDriver";
-			this.referenceDriver.DisplayFormatString = "";
 			this.dataRouteList.Add(this.referenceDriver);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.dataRouteList[this.referenceDriver]));
 			w18.TopAttach = ((uint)(3));

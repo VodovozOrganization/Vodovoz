@@ -145,8 +145,6 @@ namespace Vodovoz
 			this.referenceNomenclature = new global::Gamma.Widgets.yEntryReference();
 			this.referenceNomenclature.Events = ((global::Gdk.EventMask)(256));
 			this.referenceNomenclature.Name = "referenceNomenclature";
-			this.referenceNomenclature.DisplayFields = new string[] {
-					"Name"};
 			this.table1.Add(this.referenceNomenclature);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceNomenclature]));
 			w10.LeftAttach = ((uint)(1));
