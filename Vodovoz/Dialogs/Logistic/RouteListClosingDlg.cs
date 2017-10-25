@@ -6,6 +6,8 @@ using System.Text;
 using Gtk;
 using NLog;
 using QSOrmProject;
+using QSOsm;
+using QSOsm.Osrm;
 using QSProjectsLib;
 using QSSupportLib;
 using QSValidation;
@@ -627,6 +629,9 @@ namespace Vodovoz
 			bool hasTrack = track?.Distance.HasValue ?? false;
 			buttonGetDistFromTrack.Sensitive = hasTrack && editing;
 
+			if(Entity.PlanedDistance != null && Entity.PlanedDistance != 0)
+				text.Add(String.Format("Планируемое расстояние: {0:F1} км", Entity.PlanedDistance));
+
 			if(hasTrack)
 				text.Add(string.Format("Расстояние по треку: {0:F1} км.", track.TotalDistance));
 
@@ -893,6 +898,26 @@ namespace Vodovoz
 			}
 
 			return items.Sum(item => item.ForwarderWage);
+		}
+
+		protected void OnButtonRecalculateMileageClicked(object sender, EventArgs e)
+		{
+			var points = new List<PointOnEarth>();
+			points.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
+
+			foreach(RouteListItem address in Entity.Addresses.OrderBy(x => x.StatusLastUpdate))
+			{
+				if(address.Status == RouteListItemStatus.Completed) {
+					points.Add(new PointOnEarth((double)address.Order.DeliveryPoint.Latitude, (double)address.Order.DeliveryPoint.Longitude));
+				}
+			}
+
+			points.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
+
+			var recalculatedTrackResponse = OsrmMain.GetRoute(points, false, false);
+			var recalculatedTrack = recalculatedTrackResponse.Routes.First();
+
+			labelRecalculatedMileage.LabelProp = String.Format("{0:N1} км", recalculatedTrack.TotalDistanceKm);
 		}
 
 		#endregion
