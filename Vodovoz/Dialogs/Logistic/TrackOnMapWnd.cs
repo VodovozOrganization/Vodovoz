@@ -84,6 +84,7 @@ namespace Dialogs.Logistic
 			this.Title = $"Трек маршрутного листа №{routeList.Id}";
 			this.SetDefaultSize(700, 600);
 			this.DeleteEvent += MapWindow_DeleteEvent;
+			radioNumbers.Active = true;
 
 			LoadTrack();
 			LoadAddresses();
@@ -193,7 +194,15 @@ namespace Dialogs.Logistic
 					}
 					else
 						addressMarker = new GMarkerGoogle(new PointLatLng((double)point.Latitude, (double)point.Longitude),	type);
-					
+
+					var identicalPoint = addressesOverlay.Markers.Count(g => g.Position.Lat == (double)point.Latitude && g.Position.Lng == (double)point.Longitude);
+					var pointShift = 4;
+					if(identicalPoint > 0)
+					{
+						addressMarker.Offset = new System.Drawing.Point(addressMarker.Offset.X + (int)(Math.Pow(-1, (identicalPoint - 1) / 2)) * ((identicalPoint - 1) / 4 + 1) * pointShift, addressMarker.Offset.Y + (int)(Math.Pow(-1, identicalPoint/ 2)) * ((identicalPoint - 1) / 4 + 1) * pointShift);
+					}
+
+
 					var text = point.ShortAddress;
 					if (orderItem.StatusLastUpdate.HasValue)
 						text += String.Format("\nСтатус изменялся в {0:t}", orderItem.StatusLastUpdate.Value);
