@@ -620,7 +620,7 @@ namespace Vodovoz
 			if(withoutTime.Count > 0 || withoutLocation.Count > 0)
 				MessageDialogWorks.RunWarningDialog("Не все заказы были загружены!" +
 				                                    (withoutTime.Count > 0 ? ("\n* У заказов отсутсвует время доставки: " + String.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +
-				                                    (withoutLocation.Count > 0 ? ("\n* У заказов отсутствуют координаты: " + String.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "")
+				                                    (withoutLocation.Count > 0 ? ("\n* У заказов отсутствуют координаты: " + String.Join(", ", withoutLocation.Select(x => x.Id.ToString()))) : "")
 												   );
 
 			ordersAtDay = ordersQuery.Where (x => x.DeliverySchedule != null)
