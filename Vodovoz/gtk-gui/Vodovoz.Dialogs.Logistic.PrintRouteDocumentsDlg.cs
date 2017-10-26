@@ -38,6 +38,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.SpinButton spinRoute;
 
+		private global::Gtk.CheckButton checkRouteMap;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -194,14 +196,27 @@ namespace Vodovoz.Dialogs.Logistic
 			w15.Position = 2;
 			w15.Expand = false;
 			w15.Fill = false;
-			this.hbox3.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox3]));
-			w16.Position = 1;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.checkRouteMap = new global::Gtk.CheckButton();
+			this.checkRouteMap.CanFocus = true;
+			this.checkRouteMap.Name = "checkRouteMap";
+			this.checkRouteMap.Label = global::Mono.Unix.Catalog.GetString("Карта маршрута");
+			this.checkRouteMap.Active = true;
+			this.checkRouteMap.DrawIndicator = true;
+			this.checkRouteMap.UseUnderline = true;
+			this.vbox3.Add(this.checkRouteMap);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.checkRouteMap]));
+			w16.Position = 3;
 			w16.Expand = false;
 			w16.Fill = false;
+			this.hbox3.Add(this.vbox3);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox3]));
+			w17.Position = 1;
+			w17.Expand = false;
+			w17.Fill = false;
 			this.vbox1.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
-			w17.Position = 2;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
+			w18.Position = 2;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
