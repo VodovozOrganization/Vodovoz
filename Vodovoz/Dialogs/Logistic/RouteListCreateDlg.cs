@@ -201,7 +201,7 @@ namespace Vodovoz
 				}
 
 				//Строим маршрут для МЛ.
-				if(!Entity.Printed || MessageDialogWorks.RunQuestionDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
+				if(!Entity.Printed || MessageDialogWorks.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 					RouteOptimizer optimizer = new RouteOptimizer();
 					var newRoute = optimizer.RebuidOneRoute(Entity);
 					if(newRoute != null) {
