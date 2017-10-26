@@ -11,6 +11,7 @@ namespace Vodovoz.Additions.Logistic
 	{
 		none = 0,
 		green_large,
+		white_large
 	}
 
 	[Serializable]

@@ -251,6 +251,7 @@
     <EmbeddedResource Include="icons\buttons\car.png" />
     <EmbeddedResource Include="icons\buttons\sort-ascending.png" />
     <EmbeddedResource Include="icons\toolbar\employees.png" />
+    <EmbeddedResource Include="icons\map\points\white_large.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
