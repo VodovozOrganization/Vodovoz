@@ -218,7 +218,7 @@ namespace Vodovoz.Additions.Logistic
 			MapDrawingHelper.DrawAddressesOfRoute(addressesOverlay, routeList);
 			map.Overlays.Add(routeOverlay);
 			map.Overlays.Add(addressesOverlay);
-			map.SetFakeAllocationSize(new Gdk.Rectangle(0, 0, 1500, 1500));
+			map.SetFakeAllocationSize(new Gdk.Rectangle(0, 0, 900, 900));
 			map.ZoomAndCenterRoutes("route");
 			byte[] img;
 			using(var bitmap = map.ToBitmap((int count) => logger.Info("Загружаем плитки карты(осталось {0})...", count))) {
