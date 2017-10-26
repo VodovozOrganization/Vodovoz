@@ -232,9 +232,6 @@ namespace Vodovoz
 			this.referenceWarehouse = new global::Gamma.Widgets.yEntryReference();
 			this.referenceWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.referenceWarehouse.Name = "referenceWarehouse";
-			this.referenceWarehouse.DisplayFields = new string[] {
-					"Name"};
-			this.referenceWarehouse.DisplayFormatString = "{0}";
 			this.tableInvoice.Add(this.referenceWarehouse);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableInvoice[this.referenceWarehouse]));
 			w18.TopAttach = ((uint)(4));

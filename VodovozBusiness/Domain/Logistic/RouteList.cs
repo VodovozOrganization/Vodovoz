@@ -94,7 +94,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Расстояние в километрах
 		/// </summary>
-		[Display(Name = "Фактическое расстояние")]
+		[Display(Name = "Расстояние по кассе")]
 		public virtual Decimal ActualDistance {
 			get { return actualDistance; }
 			set { SetField(ref actualDistance, value, () => ActualDistance); }
@@ -105,6 +105,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Расстояние в километрах
 		/// </summary>
+		[Display(Name = "Подтверждённое расстояние")]
 		public virtual Decimal ConfirmedDistance {
 			get { return confirmedDistance; }
 			set {
@@ -121,6 +122,17 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal? PlanedDistance {
 			get { return planedDistance; }
 			protected set { SetField(ref planedDistance, value, () => PlanedDistance); }
+		}
+
+		decimal? recalculatedDistance;
+
+		/// <summary>
+		/// Расстояние в километрах.
+		/// </summary>
+		[Display(Name = "Пересчитанное расстояние")]
+		public virtual decimal? RecalculatedDistance {
+			get { return recalculatedDistance; }
+			set {SetField(ref recalculatedDistance, value, () => RecalculatedDistance); }
 		}
 
 		RouteListStatus status;
@@ -286,6 +298,14 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool OnloadTimeFixed {
 			get { return onLoadTimeFixed; }
 			set { SetField(ref onLoadTimeFixed, value, () => OnloadTimeFixed); }
+		}
+
+		private bool printed;
+
+		[Display(Name = "МЛ уже напечатан")]
+		public virtual bool Printed {
+			get { return printed; }
+			set { SetField(ref printed, value, () => Printed); }
 		}
 
 		#endregion
@@ -481,6 +501,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void ConfirmMileage()
 		{
 			Status = RouteListStatus.Closed;
+			ClosingDate = DateTime.Now;
 		}
 
 		public virtual void ChangeStatus(RouteListStatus newStatus)
@@ -1012,7 +1033,7 @@ namespace Vodovoz.Domain.Logistic
 			return (message);
 		}
 
-		public virtual void Confirm()
+		public virtual void Confirm(bool sendForMileageCheck)
 		{
 			if(Status != RouteListStatus.OnClosing)
 				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0}", RouteListStatus.OnClosing));
@@ -1028,7 +1049,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 
-			Status = RouteListStatus.Closed;
+			Status = sendForMileageCheck ? RouteListStatus.MileageCheck : RouteListStatus.Closed;
 			foreach(var address in Addresses) {
 				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute) {
 					address.Order.ChangeStatus(OrderStatus.Closed);
@@ -1039,7 +1060,12 @@ namespace Vodovoz.Domain.Logistic
 				if(address.Status == RouteListItemStatus.Overdue)
 					address.Order.ChangeStatus(OrderStatus.NotDelivered);
 			}
-			ClosingDate = DateTime.Now;
+
+			if(Status == RouteListStatus.Closed)
+			{
+				ClosingDate = DateTime.Now;
+			}
+
 		}
 
 		public virtual void UpdateFuelOperation()
@@ -1080,6 +1106,16 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(this.ConfirmedDistance == 0)
 				return;
+			
+			if(FuelOutlayedOperation == null)
+			{
+				FuelOutlayedOperation = new FuelOperation() {
+					OperationTime = DateTime.Now,
+					Driver = this.Driver,
+					Car = this.Car,
+					Fuel = this.Car.FuelType
+				};
+			}
 
 			FuelOutlayedOperation.LitersOutlayed = GetLitersOutlayed();
 		}
@@ -1195,7 +1231,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void RecalculatePlanTime(RouteGeometrySputnikCalculator sputnikCache)
+		public virtual void RecalculatePlanTime(RouteGeometryCalculator sputnikCache)
 		{
 			TimeSpan minTime;
 			//Расчет минимального времени к которому нужно\можно подъехать.
@@ -1248,7 +1284,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void RecalculatePlanedDistance(RouteGeometrySputnikCalculator distanceCalculator)
+		public virtual void RecalculatePlanedDistance(RouteGeometryCalculator distanceCalculator)
 		{
 			if(Addresses.Count == 0)
 				PlanedDistance = 0;
@@ -1256,7 +1292,7 @@ namespace Vodovoz.Domain.Logistic
 				PlanedDistance = distanceCalculator.GetRouteDistance(GenerateHashPiontsOfRoute()) / 1000m;
 		}
 
-		public static void RecalculateOnLoadTime(IList<RouteList> routelists, RouteGeometrySputnikCalculator sputnikCache)
+		public static void RecalculateOnLoadTime(IList<RouteList> routelists, RouteGeometryCalculator sputnikCache)
 		{
 			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
 								   .Select(x => new Tuple<TimeSpan, RouteList>(
@@ -1312,9 +1348,9 @@ namespace Vodovoz.Domain.Logistic
 		public virtual long[] GenerateHashPiontsOfRoute()
 		{
 			var result = new List<long>();
-			result.Add(RouteGeometrySputnikCalculator.BaseHash);
+			result.Add(CachedDistance.BaseHash);
 			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.СoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
-			result.Add(RouteGeometrySputnikCalculator.BaseHash);
+			result.Add(CachedDistance.BaseHash);
 			return result.ToArray();
 		}
 

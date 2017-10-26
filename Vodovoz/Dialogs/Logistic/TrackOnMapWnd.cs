@@ -8,8 +8,10 @@ using GMap.NET.MapProviders;
 using Polylines;
 using QSOrmProject;
 using QSOsm;
+using QSOsm.Osrm;
 using QSOsm.Spuntik;
 using QSProjectsLib;
+using Vodovoz;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 
@@ -82,6 +84,7 @@ namespace Dialogs.Logistic
 			this.Title = $"Трек маршрутного листа №{routeList.Id}";
 			this.SetDefaultSize(700, 600);
 			this.DeleteEvent += MapWindow_DeleteEvent;
+			radioNumbers.Active = true;
 
 			LoadTrack();
 			LoadAddresses();
@@ -100,12 +103,20 @@ namespace Dialogs.Logistic
 			args.RetVal = false;
 		}
 
-		private void LoadTrack()
+		private void LoadTrack(List<PointOnEarth> pointsRecalculateMileage = null)
 		{
-			if (track == null)
+			if (track == null && pointsRecalculateMileage == null)
 				return;
 
-			var points = track.TrackPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude));
+			var points = new List<PointLatLng>();
+
+			if(pointsRecalculateMileage == null)
+			{
+				points = track.TrackPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
+			} else
+			{
+				points = pointsRecalculateMileage.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
+			}
 
 			trackRoute = new GMapRoute(points, routeList.Id.ToString());
 
@@ -137,12 +148,12 @@ namespace Dialogs.Logistic
 			labelDistance.LabelProp = String.Join("\n", text);
 		}
 
-		private void LoadAddresses()
+		private void LoadAddresses(bool recalculateMileage = false)
 		{
 			Console.WriteLine("Загружаем адреса");
 			addressesOverlay.Clear();
 
-			foreach(var orderItem in routeList.Addresses)
+			foreach(var orderItem in (recalculateMileage ? routeList.Addresses.OrderBy(x => x.StatusLastUpdate).ToList() : routeList.Addresses))
 			{
 				var point = orderItem.Order.DeliveryPoint;
 				if (point == null)
@@ -183,7 +194,15 @@ namespace Dialogs.Logistic
 					}
 					else
 						addressMarker = new GMarkerGoogle(new PointLatLng((double)point.Latitude, (double)point.Longitude),	type);
-					
+
+					var identicalPoint = addressesOverlay.Markers.Count(g => g.Position.Lat == (double)point.Latitude && g.Position.Lng == (double)point.Longitude);
+					var pointShift = 4;
+					if(identicalPoint > 0)
+					{
+						addressMarker.Offset = new System.Drawing.Point(addressMarker.Offset.X + (int)(Math.Pow(-1, (identicalPoint - 1) / 2)) * ((identicalPoint - 1) / 4 + 1) * pointShift, addressMarker.Offset.Y + (int)(Math.Pow(-1, identicalPoint/ 2)) * ((identicalPoint - 1) / 4 + 1) * pointShift);
+					}
+
+
 					var text = point.ShortAddress;
 					if (orderItem.StatusLastUpdate.HasValue)
 						text += String.Format("\nСтатус изменялся в {0:t}", orderItem.StatusLastUpdate.Value);
@@ -459,7 +478,71 @@ namespace Dialogs.Logistic
 									.Where(x => x.Status == RouteListItemStatus.Completed)
 									.Select(x => x.StatusLastUpdate).Max(x => x.Value);  
 		}
- 
+
+		protected void OnButtonRecountMileageClicked(object sender, EventArgs e)
+		{
+			var pointsToRecalculate = new List<PointOnEarth>();
+			var pointsToBase = new List<PointOnEarth>();
+
+			decimal totalDistanceTrack = 0;
+
+			tracksOverlay.Clear();
+			trackToBaseOverlay.Clear();
+
+			if(routeList.Addresses.Where(x => x.Status == RouteListItemStatus.Completed).Count() > 1)
+			{
+				foreach(RouteListItem address in routeList.Addresses.OrderBy(x => x.StatusLastUpdate)) {
+					if(address.Status == RouteListItemStatus.Completed) {
+						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.Latitude, (double)address.Order.DeliveryPoint.Longitude));
+					}
+				}
+
+				var recalculatedTrackResponse = OsrmMain.GetRoute(pointsToRecalculate, false, true);
+				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
+				var decodedPoints = Polyline.DecodePolyline(recalculatedTrack.RouteGeometry);
+				var pointsRecalculated = decodedPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
+
+				var routeRecalculated = new GMapRoute(pointsRecalculated, "RecalculatedRoute");
+				routeRecalculated.Stroke = new System.Drawing.Pen(System.Drawing.Color.Red);
+				routeRecalculated.Stroke.Width = 4;
+				routeRecalculated.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+
+				tracksOverlay.Routes.Add(routeRecalculated);
+
+				totalDistanceTrack = recalculatedTrack.TotalDistanceKm;
+			} else
+			{
+				var point = routeList.Addresses.Where(x => x.Status == RouteListItemStatus.Completed).First().Order.DeliveryPoint;
+				pointsToRecalculate.Add(new PointOnEarth((double)point.Latitude, (double)point.Longitude));
+			}
+
+			pointsToBase.Add(pointsToRecalculate.Last());
+			pointsToBase.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
+			pointsToBase.Add(pointsToRecalculate.First());
+
+			var recalculatedToBaseResponse = OsrmMain.GetRoute(pointsToBase, false, true);
+			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
+			var decodedToBase = Polyline.DecodePolyline(recalculatedToBase.RouteGeometry);
+			var pointsRecalculatedToBase = decodedToBase.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
+
+			var routeRecalculatedToBase = new GMapRoute(pointsRecalculatedToBase, "RecalculatedToBase");
+			routeRecalculatedToBase.Stroke = new System.Drawing.Pen(System.Drawing.Color.Blue);
+			routeRecalculatedToBase.Stroke.Width = 4;
+			routeRecalculatedToBase.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+
+			trackToBaseOverlay.Routes.Add(routeRecalculatedToBase);
+
+			var text = new List<string>();
+			text.Add(String.Format("Дистанция трека: {0:N1} км.", totalDistanceTrack));
+			text.Add(String.Format("Дистанция до базы: {0:N1} км.", recalculatedToBase.TotalDistanceKm));
+			text.Add(String.Format("Общее расстояние: {0:N1} км.", totalDistanceTrack + recalculatedToBase.TotalDistanceKm));
+
+			labelDistance.LabelProp = String.Join("\n", text);
+
+			routeList.RecalculatedDistance = totalDistanceTrack + recalculatedToBase.TotalDistanceKm;
+			UoW.Save(routeList);
+			UoW.Commit();
+		}
 	}
 
 	class DistanceTextInfo{

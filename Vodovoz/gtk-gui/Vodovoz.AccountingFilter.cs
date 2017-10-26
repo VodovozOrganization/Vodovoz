@@ -12,7 +12,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label4;
 
-		private global::QSOrmProject.EnumComboBox comboType;
+		private global::Gamma.Widgets.yEnumComboBox comboType;
 
 		protected virtual void Build()
 		{
@@ -54,11 +54,12 @@ namespace Vodovoz
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.comboType = new global::QSOrmProject.EnumComboBox();
+			this.comboType = new global::Gamma.Widgets.yEnumComboBox();
 			this.comboType.Name = "comboType";
-			this.comboType.ItemsEnumName = "Vodovoz.AccountingFilter.OperationType, Vodovoz";
 			this.comboType.ShowSpecialStateAll = true;
 			this.comboType.ShowSpecialStateNot = false;
+			this.comboType.UseShortTitle = false;
+			this.comboType.DefaultFirst = false;
 			this.hbox1.Add(this.comboType);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.comboType]));
 			w4.Position = 3;
@@ -68,7 +69,7 @@ namespace Vodovoz
 			}
 			this.Hide();
 			this.periodPicker.PeriodChanged += new global::System.EventHandler(this.OnPeriodPickerPeriodChanged);
-			this.comboType.EnumItemSelected += new global::System.EventHandler< QSOrmProject.EnumItemClickedEventArgs > (this.OnComboTypeEnumItemSelected);
+			this.comboType.ChangedByUser += new global::System.EventHandler(this.OnComboTypeChangedByUser);
 		}
 	}
 }

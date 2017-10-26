@@ -215,7 +215,8 @@ namespace Vodovoz
 			// Container child table1.Gtk.Table+TableChild
 			this.label5 = new global::Gtk.Label();
 			this.label5.Name = "label5";
-			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Фактическое расстояние:");
+			this.label5.Xalign = 1F;
+			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Расстояние по кассе:");
 			this.table1.Add(this.label5);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.label5]));
 			w14.TopAttach = ((uint)(2));
@@ -394,8 +395,6 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 			this.buttonOpenMap.Clicked += new global::System.EventHandler(this.OnButtonOpenMapClicked);
 			this.buttonConfirm.Clicked += new global::System.EventHandler(this.OnButtonConfirmClicked);
 			this.buttonCloseRouteList.Clicked += new global::System.EventHandler(this.OnButtonCloseRouteListClicked);

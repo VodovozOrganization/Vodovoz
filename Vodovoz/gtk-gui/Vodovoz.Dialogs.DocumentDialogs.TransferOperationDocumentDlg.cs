@@ -217,9 +217,6 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.referenceEmployee.Sensitive = false;
 			this.referenceEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEmployee.Name = "referenceEmployee";
-			this.referenceEmployee.DisplayFields = new string[] {
-					"FullName"};
-			this.referenceEmployee.DisplayFormatString = "{0}";
 			this.tableCommon.Add(this.referenceEmployee);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.referenceEmployee]));
 			w12.LeftAttach = ((uint)(3));
@@ -366,9 +363,6 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.referenceDeliveryPointFrom = new global::Gamma.Widgets.yEntryReference();
 			this.referenceDeliveryPointFrom.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliveryPointFrom.Name = "referenceDeliveryPointFrom";
-			this.referenceDeliveryPointFrom.DisplayFields = new string[] {
-					"CompiledAddress"};
-			this.referenceDeliveryPointFrom.DisplayFormatString = "{0}";
 			this.tableSender.Add(this.referenceDeliveryPointFrom);
 			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.tableSender[this.referenceDeliveryPointFrom]));
 			w25.TopAttach = ((uint)(1));
@@ -564,9 +558,6 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.referenceDeliveryPointTo = new global::Gamma.Widgets.yEntryReference();
 			this.referenceDeliveryPointTo.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliveryPointTo.Name = "referenceDeliveryPointTo";
-			this.referenceDeliveryPointTo.DisplayFields = new string[] {
-					"CompiledAddress"};
-			this.referenceDeliveryPointTo.DisplayFormatString = "{0}";
 			this.tableReceiver.Add(this.referenceDeliveryPointTo);
 			global::Gtk.Table.TableChild w44 = ((global::Gtk.Table.TableChild)(this.tableReceiver[this.referenceDeliveryPointTo]));
 			w44.TopAttach = ((uint)(1));

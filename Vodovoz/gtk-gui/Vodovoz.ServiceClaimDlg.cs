@@ -567,7 +567,6 @@ namespace Vodovoz
 			this.referenceEquipment.Sensitive = false;
 			this.referenceEquipment.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEquipment.Name = "referenceEquipment";
-			this.referenceEquipment.DisplayFormatString = "";
 			this.datatable1.Add(this.referenceEquipment);
 			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceEquipment]));
 			w38.TopAttach = ((uint)(6));
@@ -581,9 +580,6 @@ namespace Vodovoz
 			this.referenceNomenclature.Sensitive = false;
 			this.referenceNomenclature.Events = ((global::Gdk.EventMask)(256));
 			this.referenceNomenclature.Name = "referenceNomenclature";
-			this.referenceNomenclature.DisplayFields = new string[] {
-					"Name"};
-			this.referenceNomenclature.DisplayFormatString = "{0}";
 			this.datatable1.Add(this.referenceNomenclature);
 			global::Gtk.Table.TableChild w39 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceNomenclature]));
 			w39.TopAttach = ((uint)(5));
@@ -675,9 +671,6 @@ namespace Vodovoz
 			this.referenceEngineer = new global::Gamma.Widgets.yEntryReference();
 			this.referenceEngineer.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEngineer.Name = "referenceEngineer";
-			this.referenceEngineer.DisplayFields = new string[] {
-					"FullName"};
-			this.referenceEngineer.DisplayFormatString = "{0}";
 			this.datatable2.Add(this.referenceEngineer);
 			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.datatable2[this.referenceEngineer]));
 			w47.LeftAttach = ((uint)(1));

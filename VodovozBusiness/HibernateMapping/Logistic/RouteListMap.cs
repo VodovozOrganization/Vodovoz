@@ -27,6 +27,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OnLoadGate).Column("on_load_gate");
 			Map(x => x.OnloadTimeFixed).Column("on_load_time_fixed");
 			Map(x => x.PlanedDistance).Column("plan_distance");
+			Map(x => x.Printed).Column("printed");
+			Map(x => x.RecalculatedDistance).Column("recalculated_distance");
 
 			References (x => x.Car).Column ("car_id");
 			References (x => x.Shift).Column ("delivery_shift_id");

@@ -101,9 +101,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.referenceWarehouse = new global::Gamma.Widgets.yEntryReference();
 			this.referenceWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.referenceWarehouse.Name = "referenceWarehouse";
-			this.referenceWarehouse.DisplayFields = new string[] {
-					"Name"};
-			this.referenceWarehouse.DisplayFormatString = "{0}";
 			this.vbox2.Add(this.referenceWarehouse);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.referenceWarehouse]));
 			w7.Position = 4;

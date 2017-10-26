@@ -41,10 +41,7 @@ namespace Vodovoz
 		IList<AtWorkForwarder> forwardersAtDay;
 		IList<LogisticsArea> logisticanDistricts;
 		RouteOptimizer optimizer = new RouteOptimizer();
-		RouteGeometrySputnikCalculator distanceCalculator = new RouteGeometrySputnikCalculator();
-
-		//FIXME Временно, задаем из кода, в идеале потом позволить переключать режим пользователю.
-		bool UseSputnikDistance = true;
+		RouteGeometryCalculator distanceCalculator = new RouteGeometryCalculator(DistanceProvider.Osrm);
 
 		GenericObservableList<AtWorkDriver> observableDriversAtDay;
 		GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
@@ -153,7 +150,6 @@ namespace Vodovoz
 			ytreeRoutes.HasTooltip = true;
 			ytreeRoutes.QueryTooltip += YtreeRoutes_QueryTooltip;;
 			ytreeRoutes.Selection.Changed += YtreeRoutes_Selection_Changed;
-			distanceCalculator.RouteCalculeted += DistanceCalculator_RouteCalculeted;
 
 			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
 				.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
@@ -343,29 +339,7 @@ namespace Vodovoz
 				if(rl == null)
 					rl = (row as RouteListItem).RouteList;
 
-				List<PointLatLng> points;
-				if(UseSputnikDistance)
-				{
-					var address = rl.GenerateHashPiontsOfRoute();
-					MainClass.MainWin.ProgressStart(address.Length);
-					points = distanceCalculator.GetGeometryOfRoute(address.ToArray(), (val, max) => MainClass.MainWin.ProgressUpdate(val));
-					MainClass.MainWin.ProgressClose();
-				}
-				else
-				{
-					points = new List<PointLatLng>();
-					points.Add(DistanceCalculator.BasePoint);
-					points.AddRange(rl.Addresses.Select(x => x.Order.DeliveryPoint.GmapPoint));
-					points.Add(DistanceCalculator.BasePoint);
-				}
-
-				var route = new GMapRoute(points, rl.Id.ToString());
-
-				route.Stroke = new System.Drawing.Pen(System.Drawing.Color.Blue);
-				route.Stroke.Width = 2;
-				route.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-
-				routeOverlay.Routes.Add(route);
+				MapDrawingHelper.DrawRoute(routeOverlay, rl, distanceCalculator);
 
 				//Если выбран адрес, центруем на него карту.
 				var rli = row as RouteListItem;
@@ -646,7 +620,7 @@ namespace Vodovoz
 			if(withoutTime.Count > 0 || withoutLocation.Count > 0)
 				MessageDialogWorks.RunWarningDialog("Не все заказы были загружены!" +
 				                                    (withoutTime.Count > 0 ? ("\n* У заказов отсутсвует время доставки: " + String.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +
-				                                    (withoutLocation.Count > 0 ? ("\n* У заказов отсутствуют координаты: " + String.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "")
+				                                    (withoutLocation.Count > 0 ? ("\n* У заказов отсутствуют координаты: " + String.Join(", ", withoutLocation.Select(x => x.Id.ToString()))) : "")
 												   );
 
 			ordersAtDay = ordersQuery.Where (x => x.DeliverySchedule != null)
@@ -1260,12 +1234,6 @@ namespace Vodovoz
 			var car = e.Subject as Car;
 			driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
 			driver.Car = car;
-		}
-
-		void DistanceCalculator_RouteCalculeted(object sender, EventArgs e)
-		{
-			ytreeRoutes.ColumnsAutosize();
-			ytreeRoutes.QueueDraw();
 		}
 
 		void OnLoadTimeEdited(object o, Gtk.EditedArgs args)

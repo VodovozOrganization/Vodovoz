@@ -1710,7 +1710,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="FuelOther">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
 	ifnull(fuel_operations.date,fuel_documents.date) AS date,
@@ -1759,7 +1759,7 @@ group by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -2063,7 +2063,7 @@ WHERE
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=saendra;password=qwerty;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_honeybee;user=saendra;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

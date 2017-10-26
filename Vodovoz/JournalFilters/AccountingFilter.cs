@@ -1,9 +1,7 @@
 ﻿using System;
-using QSOrmProject.RepresentationModel;
-using QSOrmProject;
-using Vodovoz.Domain.Cash;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings;
+using QSOrmProject;
+using QSOrmProject.RepresentationModel;
 
 namespace Vodovoz
 {
@@ -75,11 +73,11 @@ namespace Vodovoz
 
 		public enum OperationType
 		{
-			[ItemTitleAttribute ("Все")]
+			[Display (Name = "Все")]
 			all,
-			[ItemTitleAttribute ("Доходы")]
+			[Display(Name = "Доходы")]
 			income,
-			[ItemTitleAttribute ("Расходы")]
+			[Display(Name = "Расходы")]
 			expense
 		}
 
@@ -88,11 +86,10 @@ namespace Vodovoz
 			OnRefiltered ();
 		}
 
-		protected void OnComboTypeEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		protected void OnComboTypeChangedByUser(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
-
 	}
 }
 
