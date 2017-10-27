@@ -205,6 +205,7 @@ namespace Vodovoz
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintDocuments)e.ItemEnum);
 
 			ylabelRecalculatedMileage.Binding.AddFuncBinding(Entity, e => e.RecalculatedDistance.HasValue ? $" {e.RecalculatedDistance} км" : "", w => w.LabelProp).InitializeFromSource();		
+			checkSendToMileageCheck.Binding.AddBinding(Entity, x => x.MileageCheck, w => w.Active).InitializeFromSource();
 		}
 
 		private decimal GetCashOrder()
@@ -466,9 +467,6 @@ namespace Vodovoz
 			if(!checkSendToMileageCheck.Active)
 			{
 				Entity.ConfirmedDistance = Entity.ActualDistance;
-			} else
-			{
-				Entity.MileageCheck = true;
 			}
 
 			var valid = new QSValidator<RouteList>(UoWGeneric.Root,

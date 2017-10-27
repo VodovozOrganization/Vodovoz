@@ -22,7 +22,7 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonRecalculateMileage;
 
-		private global::Gtk.CheckButton checkSendToMileageCheck;
+		private global::Gamma.GtkWidgets.yCheckButton checkSendToMileageCheck;
 
 		private global::Gamma.Widgets.yDatePicker datePickerDate;
 
@@ -260,7 +260,7 @@ namespace Vodovoz
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.checkSendToMileageCheck = new global::Gtk.CheckButton();
+			this.checkSendToMileageCheck = new global::Gamma.GtkWidgets.yCheckButton();
 			this.checkSendToMileageCheck.CanFocus = true;
 			this.checkSendToMileageCheck.Name = "checkSendToMileageCheck";
 			this.checkSendToMileageCheck.Label = "";
@@ -982,8 +982,7 @@ namespace Vodovoz
 			w82.Expand = false;
 			w82.Fill = false;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();

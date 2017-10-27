@@ -18367,7 +18367,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.CheckButton" id="checkSendToMileageCheck">
+                  <widget class="Gamma.GtkWidgets.yCheckButton" id="checkSendToMileageCheck">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes" />
