@@ -78,10 +78,10 @@ public partial class MainWindow : Gtk.Window
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
 			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions["logistican"];
-		ActionStock.Sensitive = QSMain.User.Permissions["store_manage"] 
-			|| QSMain.User.Permissions["store_worker"] 
-			|| QSMain.User.Permissions["store_production"] 
-			|| QSMain.User.Permissions["store_office"] 
+		ActionStock.Sensitive = QSMain.User.Permissions["store_manage"]
+			|| QSMain.User.Permissions["store_worker"]
+			|| QSMain.User.Permissions["store_production"]
+			|| QSMain.User.Permissions["store_office"]
 			|| QSMain.User.Permissions["store_equipment"]
 			|| QSMain.User.Permissions["store_vartemyagi"];
 		if(QSMain.User.Permissions["store_production"] || QSMain.User.Permissions["store_vartemyagi"]) // TODO: Вот поэтому группы доступа стоило бы создавать и настраивать в каком-нибудь диалоге, а не хардкодить. @Дима
@@ -868,6 +868,15 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionMileageReportActivated(object sender, EventArgs e)
 	{
 		var widget = new Vodovoz.ReportsParameters.Logistic.MileageReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+
+	protected void OnActionMastersReportActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.MastersReport();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg(widget)

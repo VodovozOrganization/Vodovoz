@@ -688,6 +688,8 @@
     <Compile Include="Additions\Logistic\MapDrawingHelper.cs" />
     <Compile Include="ReportsParameters\Logistic\MileageReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.MileageReport.cs" />
+    <Compile Include="ReportsParameters\MastersReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1078,6 +1080,9 @@
     </None>
     <None Include="Additions\Logistic\RouteOptimization\README.md" />
     <None Include="Reports\Logistic\MileageReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\ServiceCenter\MastersReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
