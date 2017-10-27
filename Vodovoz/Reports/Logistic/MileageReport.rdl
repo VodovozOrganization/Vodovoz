@@ -61,7 +61,7 @@
           <TableColumn>
             <Width>57.3pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>57.3pt</Width>
           </TableColumn>
           <TableColumn>
@@ -76,7 +76,7 @@
           <TableColumn>
             <Width>37.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>42.5pt</Width>
           </TableColumn>
           <TableColumn>
@@ -91,7 +91,7 @@
           <TableColumn>
             <Width>46.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>130.0pt</Width>
           </TableColumn>
         </TableColumns>
@@ -148,7 +148,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
                       <Value>Водитель</Value>
@@ -225,12 +225,12 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
                       <Value>Про- верка километ- ража</Value>
@@ -242,7 +242,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -259,7 +259,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -276,7 +276,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -314,7 +314,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>Комментарий к километражу</Value>
@@ -380,7 +380,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26">
                       <Value>={driver}</Value>
@@ -388,8 +388,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -446,7 +446,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
                       <Value>=Iif({mileage_check} = true, "V", "")</Value>
@@ -454,8 +454,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -512,7 +512,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value>={mileage_comment}</Value>
@@ -520,8 +520,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -597,8 +597,8 @@ left join
 	cars on cars.id = route_lists.car_id
 where
 	route_lists.status = 'Closed'
-    and cars.type_of_use &lt;&gt; 'Truck'
-    and drivers.visiting_master = false
+	and (cars.type_of_use is null or cars.type_of_use &lt;&gt; 'Truck')
+	and drivers.visiting_master = false
 	and (@start_date = -1 or route_lists.closing_date &gt;= @start_date)
 	and (@end_date = -1 or route_lists.closing_date &lt; date_add(@end_date, interval 1 day))
 order by
@@ -700,11 +700,12 @@ order by
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString></ConnectString>
+        <ConnectString>
+        </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
