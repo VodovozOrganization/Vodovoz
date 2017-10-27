@@ -52,7 +52,7 @@ namespace Vodovoz
 			referenceLogistican.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 			referenceLogistican.Sensitive = editing;
 
-			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);
+			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoWGeneric);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
 			speccomboShift.Sensitive = editing;
 
@@ -93,6 +93,7 @@ namespace Vodovoz
 			} );
 
 			ytreeviewAddresses.ItemsDataSource = items;
+			entryMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Text).InitializeFromSource();
 
 			buttonConfirm.Sensitive = buttonCloseRouteList.Sensitive = editing;
 		}
@@ -131,8 +132,8 @@ namespace Vodovoz
 				string fineReason = "Перевыплата топлива";
 				var fine = new Fine();
 				fine.Fill(redundantPayForFuel, Entity, fineReason, DateTime.Today, Entity.Driver);
-				fine.UpdateWageOperations(UoW );
-				UoW.Save(fine);
+				fine.UpdateWageOperations(UoWGeneric);
+				UoWGeneric.Save(fine);
 			}
 			else if (Entity.ConfirmedDistance > Entity.ActualDistance)
 			{
@@ -144,7 +145,7 @@ namespace Vodovoz
 			buttonConfirm.Sensitive = false;
 			buttonCloseRouteList.Sensitive = false;
 
-			Entity.ConfirmMileage();
+			Entity.ConfirmMileage(UoWGeneric);
 		}
 
 		protected void OnButtonOpenMapClicked (object sender, EventArgs e)

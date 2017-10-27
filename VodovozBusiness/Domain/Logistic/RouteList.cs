@@ -13,6 +13,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repository;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
@@ -307,6 +308,24 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref printed, value, () => Printed); }
 		}
 
+		string mileageComment;
+
+		[Display(Name = "Комментарий к километражу")]
+		public virtual string MileageComment
+		{
+			get { return mileageComment; }
+			set { SetField(ref mileageComment, value, () => MileageComment);}
+		}
+
+		bool mileageCheck;
+
+		[Display(Name = "Проверка километража")]
+		public virtual bool MileageCheck
+		{
+			get { return mileageCheck; }
+			set { SetField(ref mileageCheck, value, () => MileageCheck);}
+		}
+
 		#endregion
 
 		#region readonly Свойства
@@ -497,10 +516,11 @@ namespace Vodovoz.Domain.Logistic
 			return closed;
 		}
 
-		public virtual void ConfirmMileage()
+		public virtual void ConfirmMileage(IUnitOfWork uow)
 		{
 			Status = RouteListStatus.Closed;
 			ClosingDate = DateTime.Now;
+			Cashier = EmployeeRepository.GetEmployeeForCurrentUser(uow);
 		}
 
 		public virtual void ChangeStatus(RouteListStatus newStatus)

@@ -462,18 +462,14 @@ namespace Vodovoz
 
 			if(!isConsistentWithUnloadDocument())
 				return;
-
-		/*	if(Decimal.TryParse(ylabelRecalculatedMileage.LabelProp, out decimal recalc))
-			{
-				Entity.RecalculatedDistance = recalc;
-			}*/
-
-
+					
 			if(!checkSendToMileageCheck.Active)
 			{
 				Entity.ConfirmedDistance = Entity.ActualDistance;
+			} else
+			{
+				Entity.MileageCheck = true;
 			}
-
 
 			var valid = new QSValidator<RouteList>(UoWGeneric.Root,
 							new Dictionary<object, object>
