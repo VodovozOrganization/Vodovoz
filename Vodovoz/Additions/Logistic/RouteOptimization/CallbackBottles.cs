@@ -3,6 +3,9 @@ using Google.OrTools.ConstraintSolver;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
+	/// <summary>
+	/// Класс возвращает количесто бутылей в заказе на адресе.
+	/// </summary>
 	public class CallbackBottles : NodeEvaluator2
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

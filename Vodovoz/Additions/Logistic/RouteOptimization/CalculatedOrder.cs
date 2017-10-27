@@ -5,9 +5,19 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
+
+	/// <summary>
+	/// Класс используется для указания адресов маршрута и хранения рассчитанных
+	/// на первоначальном этапе оптимизации итоговых значений заказа. Таких как 
+	/// количество бутылей, вес, объем.
+	/// </summary>
 	public class CalculatedOrder
 	{
 		public Order Order;
+
+		/// <summary>
+		/// Ссылка на существующий маршрутный лист, для механизма достраивания маршрутов. См. README.md
+		/// </summary>
 		public RouteList ExistRoute;
 
 		public int Bootles;

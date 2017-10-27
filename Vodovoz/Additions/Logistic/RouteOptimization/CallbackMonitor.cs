@@ -27,6 +27,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			return val;
 		}
 
+		/// <summary>
+		/// Нуже тольлко для отображения текущего состояния поиска решений.
+		/// </summary>
 		public override void PeriodicCheck()
 		{
 			if(buffer != null) {
