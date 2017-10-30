@@ -173,7 +173,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			for(int ix = 0; ix < Nodes.Length; ix++) {
 				var startWindow = Nodes[ix].Order.DeliverySchedule.From.TotalSeconds;
-				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(false) * 60; //FIXME Внимание здесь задаем экспедитора. Это не равильно, при реализации работы с экспедитором нужно это изменить.
+				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(false) * 60; //FIXME Внимание здесь задаем время без экспедитора и без учета скорости водителя. Это не правильно, но другого варианта я придумать не смог.
 				if(endWindow < startWindow) {
 					AddWarning("Время разгрузки на {2}, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To, Nodes[ix].Order.DeliveryPoint.ShortAddress);
 					endWindow = startWindow;

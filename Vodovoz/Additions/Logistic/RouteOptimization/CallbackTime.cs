@@ -3,6 +3,12 @@ using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
+	/// <summary>
+	/// Класс обратного вызова для расчета времени движения по маршруту.
+	/// </summary>
+	/// <remarks>
+	/// 
+	/// </remarks>
 	public class CallbackTime : NodeEvaluator2
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -28,6 +34,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(first_index == second_index)
 				return 0;
 
+			//Смотри 
 			long serviceTime = 0, travelTime = 0;
 
 			if(second_index == 0)
@@ -37,6 +44,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			else
 				travelTime = distanceCalculator.TimeSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
 
+			///<remarks>
+			/// 
+			/// </remarks>
 			if (first_index != 0)
 				serviceTime = Nodes[first_index - 1].Order.CalculateTimeOnPoint(Trip.Forwarder != null) * 60;
 
