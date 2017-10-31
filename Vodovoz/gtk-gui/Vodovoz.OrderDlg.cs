@@ -16,8 +16,6 @@ namespace Vodovoz
 
 		private global::Gtk.RadioButton toggleInformation;
 
-		private global::Gtk.RadioButton toggleTareControl;
-
 		private global::Gtk.RadioButton toggleGoods;
 
 		private global::Gtk.RadioButton toggleEquipment;
@@ -25,6 +23,8 @@ namespace Vodovoz
 		private global::Gtk.RadioButton toggleService;
 
 		private global::Gtk.RadioButton toggleDocuments;
+
+		private global::Gtk.RadioButton toggleTareControl;
 
 		private global::Gtk.Notebook notebook1;
 
@@ -338,17 +338,6 @@ namespace Vodovoz
 			w6.Position = 3;
 			w6.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.toggleTareControl = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Контроль тары"));
-			this.toggleTareControl.CanFocus = true;
-			this.toggleTareControl.Name = "toggleTareControl";
-			this.toggleTareControl.DrawIndicator = false;
-			this.toggleTareControl.UseUnderline = true;
-			this.toggleTareControl.Group = this.toggleInformation.Group;
-			this.hbox1.Add(this.toggleTareControl);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleTareControl]));
-			w7.Position = 4;
-			w7.Expand = false;
-			// Container child hbox1.Gtk.Box+BoxChild
 			this.toggleGoods = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Товары"));
 			this.toggleGoods.CanFocus = true;
 			this.toggleGoods.Name = "toggleGoods";
@@ -356,9 +345,9 @@ namespace Vodovoz
 			this.toggleGoods.UseUnderline = true;
 			this.toggleGoods.Group = this.toggleInformation.Group;
 			this.hbox1.Add(this.toggleGoods);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleGoods]));
-			w8.Position = 5;
-			w8.Expand = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleGoods]));
+			w7.Position = 4;
+			w7.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.toggleEquipment = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Оборудование"));
 			this.toggleEquipment.CanFocus = true;
@@ -367,9 +356,9 @@ namespace Vodovoz
 			this.toggleEquipment.UseUnderline = true;
 			this.toggleEquipment.Group = this.toggleInformation.Group;
 			this.hbox1.Add(this.toggleEquipment);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleEquipment]));
-			w9.Position = 6;
-			w9.Expand = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleEquipment]));
+			w8.Position = 5;
+			w8.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.toggleService = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Сервис"));
 			this.toggleService.CanFocus = true;
@@ -378,9 +367,9 @@ namespace Vodovoz
 			this.toggleService.UseUnderline = true;
 			this.toggleService.Group = this.toggleInformation.Group;
 			this.hbox1.Add(this.toggleService);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleService]));
-			w10.Position = 7;
-			w10.Expand = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleService]));
+			w9.Position = 6;
+			w9.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.toggleDocuments = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Документы"));
 			this.toggleDocuments.CanFocus = true;
@@ -389,7 +378,18 @@ namespace Vodovoz
 			this.toggleDocuments.UseUnderline = true;
 			this.toggleDocuments.Group = this.toggleInformation.Group;
 			this.hbox1.Add(this.toggleDocuments);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleDocuments]));
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleDocuments]));
+			w10.Position = 7;
+			w10.Expand = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.toggleTareControl = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Контроль тары"));
+			this.toggleTareControl.CanFocus = true;
+			this.toggleTareControl.Name = "toggleTareControl";
+			this.toggleTareControl.DrawIndicator = false;
+			this.toggleTareControl.UseUnderline = true;
+			this.toggleTareControl.Group = this.toggleInformation.Group;
+			this.hbox1.Add(this.toggleTareControl);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleTareControl]));
 			w11.Position = 8;
 			w11.Expand = false;
 			this.vbox2.Add(this.hbox1);
@@ -1664,17 +1664,18 @@ namespace Vodovoz
 			w140.Expand = false;
 			w140.Fill = false;
 			this.Add(this.vbox2);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.labelProxyInfo.Hide();
 			this.Hide();
 			this.toggleInformation.Toggled += new global::System.EventHandler(this.OnToggleInformationToggled);
-			this.toggleTareControl.Toggled += new global::System.EventHandler(this.OnToggleTareControlToggled);
 			this.toggleGoods.Toggled += new global::System.EventHandler(this.OnToggleGoodsToggled);
 			this.toggleEquipment.Toggled += new global::System.EventHandler(this.OnToggleEquipmentToggled);
 			this.toggleService.Toggled += new global::System.EventHandler(this.OnToggleServiceToggled);
 			this.toggleDocuments.Toggled += new global::System.EventHandler(this.OnToggleDocumentsToggled);
+			this.toggleTareControl.Toggled += new global::System.EventHandler(this.OnToggleTareControlToggled);
 			this.referenceDeliveryPoint.Changed += new global::System.EventHandler(this.OnReferenceDeliveryPointChanged);
 			this.referenceClient.Changed += new global::System.EventHandler(this.OnReferenceClientChanged);
 			this.referenceClient.ChangedByUser += new global::System.EventHandler(this.OnReferenceClientChangedByUser);

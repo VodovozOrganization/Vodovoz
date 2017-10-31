@@ -25807,23 +25807,6 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.RadioButton" id="toggleTareControl">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Label" translatable="yes">Контроль тары</property>
-                <property name="DrawIndicator">False</property>
-                <property name="HasLabel">True</property>
-                <property name="UseUnderline">True</property>
-                <property name="Group">group1</property>
-                <signal name="Toggled" handler="OnToggleTareControlToggled" />
-              </widget>
-              <packing>
-                <property name="Position">4</property>
-                <property name="AutoSize">False</property>
-                <property name="Expand">False</property>
-              </packing>
-            </child>
-            <child>
               <widget class="Gtk.RadioButton" id="toggleGoods">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
@@ -25835,7 +25818,7 @@
                 <signal name="Toggled" handler="OnToggleGoodsToggled" />
               </widget>
               <packing>
-                <property name="Position">5</property>
+                <property name="Position">4</property>
                 <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
               </packing>
@@ -25852,7 +25835,7 @@
                 <signal name="Toggled" handler="OnToggleEquipmentToggled" />
               </widget>
               <packing>
-                <property name="Position">6</property>
+                <property name="Position">5</property>
                 <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
               </packing>
@@ -25869,7 +25852,7 @@
                 <signal name="Toggled" handler="OnToggleServiceToggled" />
               </widget>
               <packing>
-                <property name="Position">7</property>
+                <property name="Position">6</property>
                 <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
               </packing>
@@ -25886,13 +25869,27 @@
                 <signal name="Toggled" handler="OnToggleDocumentsToggled" />
               </widget>
               <packing>
-                <property name="Position">8</property>
+                <property name="Position">7</property>
                 <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
               </packing>
             </child>
             <child>
-              <placeholder />
+              <widget class="Gtk.RadioButton" id="toggleTareControl">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Контроль тары</property>
+                <property name="DrawIndicator">False</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+                <property name="Group">group1</property>
+                <signal name="Toggled" handler="OnToggleTareControlToggled" />
+              </widget>
+              <packing>
+                <property name="Position">8</property>
+                <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
+              </packing>
             </child>
           </widget>
           <packing>
