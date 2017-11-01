@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -1186,7 +1186,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -8984,7 +8983,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.DeliveryPointDlg" design-size="701 629">
+  <widget class="Gtk.Bin" id="Vodovoz.DeliveryPointDlg" design-size="1087 629">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -9062,6 +9061,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -9532,6 +9532,18 @@
                                   </packing>
                                 </child>
                                 <child>
+                                  <widget class="Gamma.GtkWidgets.yLabel" id="ylabelChangedUser">
+                                    <property name="MemberName" />
+                                    <property name="LabelProp" translatable="yes">ChangedUser</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">2</property>
+                                    <property name="AutoSize">True</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
                                   <widget class="Gtk.Button" id="buttonInsertFromBuffer">
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
@@ -9541,7 +9553,7 @@
                                     <signal name="Clicked" handler="OnButtonInsertFromBufferClicked" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">2</property>
+                                    <property name="Position">3</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -9697,7 +9709,7 @@
                                     <property name="StepIncrement">1</property>
                                     <property name="ClimbRate">1</property>
                                     <property name="Numeric">True</property>
-                                    <property name="Value">4</property>
+                                    <property name="Value">7</property>
                                     <property name="ValueAsDecimal">0</property>
                                     <property name="ValueAsInt">0</property>
                                   </widget>

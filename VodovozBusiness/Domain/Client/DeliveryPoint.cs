@@ -9,6 +9,7 @@ using QSOrmProject;
 using QSOsm;
 using QSOsm.DTO;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Client
 {
@@ -321,6 +322,14 @@ namespace Vodovoz.Domain.Client
 		public virtual int BottleReserv {
 			get { return bottleReserv; }
 			set { SetField(ref bottleReserv, value, () => BottleReserv); }
+		}
+
+		User coordsLastChangeUser;
+
+		[Display(Name = "Последнее изменение пользователем")]
+		public virtual User СoordsLastChangeUser {
+			get { return coordsLastChangeUser; }
+			set { SetField(ref coordsLastChangeUser, value, () => СoordsLastChangeUser); }
 		}
 
 		#endregion
