@@ -687,6 +687,15 @@
     <Compile Include="Additions\Logistic\MapDrawingHelper.cs" />
     <Compile Include="ReportsParameters\Logistic\MileageReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.MileageReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.CommentsView.cs" />
+    <Compile Include="ViewWidgets\CommentsView.cs" />
+    <Compile Include="ViewWidgets\CommentsTemplateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.CommentsTemplateView.cs" />
+    <Compile Include="Dialogs\NuanceDlg.cs" />
+    <Compile Include="Dialogs\CommentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.CommentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.NuanceDlg.cs" />
+    <Compile Include="Representations\CommentsTemplatesVM.cs" />
 	<Compile Include="Dialogs\Logistic\ScheduleRestrictedDistrictsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.ScheduleRestrictedDistrictsDlg.cs" />
   </ItemGroup>
@@ -1089,10 +1098,7 @@
     <MonoDevelop>
       <Properties>
         <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild">
-            <inheritsSet />
-            <inheritsScope />
-          </DotNetNamingPolicy>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild" />
         </Policies>
         <Deployment.LinuxDeployData generateScript="False" />
       </Properties>

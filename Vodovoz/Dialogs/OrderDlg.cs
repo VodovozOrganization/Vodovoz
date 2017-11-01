@@ -439,34 +439,40 @@ namespace Vodovoz
 				notebook1.CurrentPage = 0;
 		}
 
+		protected void OnToggleCommentsToggled(object sender, EventArgs e)
+		{
+			if(toggleComments.Active)
+				notebook1.CurrentPage = 1;
+		}
+
 		protected void OnToggleTareControlToggled(object sender, EventArgs e)
 		{
 			if (toggleTareControl.Active)
-				notebook1.CurrentPage = 1;
+				notebook1.CurrentPage = 2;
 		}
 
 		protected void OnToggleGoodsToggled(object sender, EventArgs e)
 		{
 			if(toggleGoods.Active)
-				notebook1.CurrentPage = 2;
+				notebook1.CurrentPage = 3;
 		}
 
 		protected void OnToggleEquipmentToggled(object sender, EventArgs e)
 		{
 			if(toggleEquipment.Active)
-				notebook1.CurrentPage = 3;
+				notebook1.CurrentPage = 4;
 		}
 
 		protected void OnToggleServiceToggled(object sender, EventArgs e)
 		{
 			if(toggleService.Active)
-				notebook1.CurrentPage = 4;
+				notebook1.CurrentPage = 5;
 		}
 
 		protected void OnToggleDocumentsToggled(object sender, EventArgs e)
 		{
 			if(toggleDocuments.Active)
-				notebook1.CurrentPage = 5;
+				notebook1.CurrentPage = 6;
 		}
 
 		#endregion

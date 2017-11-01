@@ -406,11 +406,14 @@
     <Compile Include="Domain\Logistic\DeliveryDaySchedule.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryDayScheduleMap.cs" />
     <Compile Include="Domain\Logistic\IDistrictPriority.cs" />
-    <Compile Include="Domain\Logistic\ScheduleRestrictedDistrict.cs" />
+    <Compile Include="Domain\Client\Comments.cs" />
+    <Compile Include="Domain\Client\CommentsGroups.cs" />
+    <Compile Include="Domain\Client\CommentsTemplates.cs" />
+	<Compile Include="Domain\Logistic\ScheduleRestrictedDistrict.cs" />
     <Compile Include="Domain\Logistic\ScheduleRestriction.cs" />
     <Compile Include="HibernateMapping\Logistic\ScheduleRestrictedDistrictMap.cs" />
     <Compile Include="HibernateMapping\Logistic\ScheduleRestrictionMap.cs" />
-  </ItemGroup>
+   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Domain\" />

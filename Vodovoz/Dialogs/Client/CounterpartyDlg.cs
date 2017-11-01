@@ -73,6 +73,8 @@ namespace Vodovoz
 			if (UoWGeneric.Root.CounterpartyContracts == null) {
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract> ();
 			}
+
+			commentsview4.UoW = UoW;
 			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			validatedINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
@@ -203,46 +205,52 @@ namespace Vodovoz
 				notebook1.CurrentPage = 0;
 		}
 
-		protected void OnRadioContactsToggled (object sender, EventArgs e)
+		protected void OnRadioCommentsToggled(object sender, EventArgs e)
 		{
-			if (radioContacts.Active)
+			if(radioComments.Active)
 				notebook1.CurrentPage = 1;
 		}
 
-		protected void OnRadioDetailsToggled (object sender, EventArgs e)
+		protected void OnRadioContactsToggled(object sender, EventArgs e)
 		{
-			if (radioDetails.Active)
+			if(radioContacts.Active)
 				notebook1.CurrentPage = 2;
 		}
 
-		protected void OnRadioCuratorsToggled (object sender, EventArgs e)
+		protected void OnRadioDetailsToggled(object sender, EventArgs e)
 		{
-			if (radioCurators.Active)
+			if(radioDetails.Active)
 				notebook1.CurrentPage = 3;
 		}
 
-		protected void OnRadioContactPersonsToggled (object sender, EventArgs e)
+		protected void OnRadioCuratorsToggled(object sender, EventArgs e)
 		{
-			if (radioContactPersons.Active)
+			if(radioCurators.Active)
 				notebook1.CurrentPage = 4;
 		}
 
-		protected void OnRadiobuttonProxiesToggled (object sender, EventArgs e)
+		protected void OnRadioContactPersonsToggled(object sender, EventArgs e)
 		{
-			if (radiobuttonProxies.Active)
+			if(radioContactPersons.Active)
 				notebook1.CurrentPage = 5;
 		}
 
-		protected void OnRadioContractsToggled (object sender, EventArgs e)
+		protected void OnRadiobuttonProxiesToggled(object sender, EventArgs e)
 		{
-			if (radioContracts.Active)
+			if(radiobuttonProxies.Active)
 				notebook1.CurrentPage = 6;
 		}
 
-		protected void OnRadioDeliveryPointToggled (object sender, EventArgs e)
+		protected void OnRadioContractsToggled(object sender, EventArgs e)
 		{
-			if (radioDeliveryPoint.Active)
+			if(radioContracts.Active)
 				notebook1.CurrentPage = 7;
+		}
+
+		protected void OnRadioDeliveryPointToggled(object sender, EventArgs e)
+		{
+			if(radioDeliveryPoint.Active)
+				notebook1.CurrentPage = 8;
 		}
 
 		protected void OnEnumPersonTypeChanged (object sender, EventArgs e)

@@ -1,36 +1,44 @@
-﻿using Gamma.ColumnConfig;
+﻿using System;
+using Gamma.ColumnConfig;
+using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Representations
 {
-	public class CommentTemplatesVM : RepresentationModelEntityBase<CommentsTemplates, CommentsTemplatesVMNode>
+	public class CommentsTemplatesVM : RepresentationModelWithoutEntityBase<CommentsTemplatesVMNode>
 	{
- 
-		#region Поля
+
+		#region Fields
 		#endregion
 
-		#region Конструкторы
+		#region Constructors
 
-		public CommentTemplatesVM() : this(UnitOfWorkFactory.CreateWithoutRoot ())
+		public CommentsTemplatesVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			CreateRepresentationFilter = () => new FineFilter(UoW);
 		}
 
-		public CommentTemplatesVM(FineFilter filter) : this(filter.UoW)
+		public CommentsTemplatesVM(FineFilter filter) : this(filter.UoW)
 		{
 			Filter = filter;
 		}
 
-		public CommentTemplatesVM(IUnitOfWork uow) : base()
+		public CommentsTemplatesVM(IUnitOfWork uow) : base()
 		{
 			this.UoW = uow;
 		}
 
 		#endregion
 
-		#region Свойства
+		#region Property
+
+		public IUnitOfWorkGeneric<CommentsTemplates> CommentsTemplatesUoW {
+			get {
+				return UoW as IUnitOfWorkGeneric<CommentsTemplates>;
+			}
+		}
 
 		public virtual FineFilter Filter {
 			get {
@@ -40,8 +48,50 @@ namespace Vodovoz.Representations
 				RepresentationFilter = value as IRepresentationFilter;
 			}
 		}
-
 		#endregion
+
+		IColumnsConfig columnsConfig = FluentColumnsConfig<CommentsTemplatesVMNode>.Create()
+			.AddColumn("№").AddTextRenderer(node => node.Id.ToString())
+			.AddColumn("Комментарий").AddTextRenderer(node => node.CommentTmp)
+			.AddColumn("Группа").AddTextRenderer(node => node.GroupTmp)
+			.Finish();
+
+		public override void UpdateNodes()
+		{
+			CommentsTemplatesVMNode resultAlias = null;
+			CommentsTemplates commentsTemplatesAlias = null;
+			CommentsGroups commentsGroupsAlias = null;
+
+
+			var query = UoW.Session.QueryOver<CommentsTemplates>(() => commentsTemplatesAlias);
+
+			//if(Filter.RestrictionFineDateStart.HasValue) {
+			//	query.Where(() => fineAlias.Date >= Filter.RestrictionFineDateStart.Value);
+			//}
+
+
+			var result = query
+							.JoinAlias(() => commentsTemplatesAlias.CommentsTmpGroups, () => commentsGroupsAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+							.SelectList(list => list
+								.Select(() => commentsTemplatesAlias.Id).WithAlias(() => resultAlias.Id)
+								.Select(() => commentsTemplatesAlias.CommentTemplate).WithAlias(() => resultAlias.CommentTmp)
+								.Select(() => commentsGroupsAlias.Name).WithAlias(() => resultAlias.GroupTmp)
+							).TransformUsing(Transformers.AliasToBean<CommentsTemplatesVMNode>())
+							.List<CommentsTemplatesVMNode>();
+
+			SetItemsSource(result);
+		}
+
+		public override IColumnsConfig ColumnsConfig {
+			get {
+				return columnsConfig;
+			}
+		}
+
+		protected override bool NeedUpdateFunc(object updatedSubject)
+		{
+			return true;
+		}
 	}
 
 
@@ -51,14 +101,13 @@ namespace Vodovoz.Representations
 		[SearchHighlight]
 		public int Id { get; set; }
 
-		public DateTime Date { get; set; }
+		[UseForSearch]
+		[SearchHighlight]
+		public string CommentTmp { get; set; }
 
 		[UseForSearch]
 		[SearchHighlight]
-		public string EmployeesName { get; set; }
+		public string GroupTmp { get; set; }
 
-		[UseForSearch]
-		[SearchHighlight]
-		public string FineReason { get; set; }
 	}
 }

@@ -70,6 +70,7 @@ namespace Vodovoz
 			ytreeviewResponsiblePersons.ItemsDataSource = Entity.ObservableContacts;
 			ytreeviewResponsiblePersons.Selection.Changed += YtreeviewResponsiblePersons_Selection_Changed;
 
+			commentsview4.UoW = UoW;
 
 			entryPhone.ValidationMode = QSWidgetLib.ValidationType.phone;
 			entryPhone.Binding.AddBinding(Entity, e => e.Phone, w => w.Text).InitializeFromSource();
@@ -359,11 +360,18 @@ namespace Vodovoz
 			}
 		}
 
+		protected void OnRadioCommentsToggled(object sender, EventArgs e)
+		{
+			if(radioComments.Active) {
+				notebook1.CurrentPage = 1;
+			}
+		}
+
 		protected void OnRadioContactsToggled (object sender, EventArgs e)
 		{
 			if (radioContacts.Active)
 			{
-				notebook1.CurrentPage = 1;
+				notebook1.CurrentPage = 2;
 			}
 		}
 
