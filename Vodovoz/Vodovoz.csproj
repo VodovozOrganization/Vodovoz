@@ -92,7 +92,7 @@
       <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.dll</HintPath>
     </Reference>
     <Reference Condition=" '$(TargetOS)' == 'Win' " Include="Google.OrTools">
-      <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.dll</HintPath>
+      <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.x86.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
       <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.Protobuf.dll</HintPath>
@@ -687,6 +687,8 @@
     <Compile Include="Additions\Logistic\MapDrawingHelper.cs" />
     <Compile Include="ReportsParameters\Logistic\MileageReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.MileageReport.cs" />
+	<Compile Include="Dialogs\Logistic\ScheduleRestrictedDistrictsDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.ScheduleRestrictedDistrictsDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
