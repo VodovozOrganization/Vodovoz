@@ -135,7 +135,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		private long GetSimpleDistance(int first_index, int second_index)
 		{
-			if(first_index == 0)//РАССТОЯНИЯ ПРЯМЫЕ без спутника.
+			if(first_index == 0)//РАССТОЯНИЯ ПРЯМЫЕ без учета дорожной сети.
 				return (long)(DistanceCalculator.GetDistanceFromBase(Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
 			else
 				return (long)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);

@@ -4189,6 +4189,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Цены</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -4475,7 +4476,7 @@
                             <child>
                               <widget class="Gtk.Label" id="volumeLabel">
                                 <property name="MemberName" />
-                                <property name="LabelProp" translatable="yes">Объём (м&lt;sup&gt;2&lt;/sup&gt;):</property>
+                                <property name="LabelProp" translatable="yes">Объём (м&lt;sup&gt;3&lt;/sup&gt;):</property>
                                 <property name="UseMarkup">True</property>
                               </widget>
                               <packing>
