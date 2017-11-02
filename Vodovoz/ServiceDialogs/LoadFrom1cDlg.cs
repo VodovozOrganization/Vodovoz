@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -37,7 +37,14 @@ namespace Vodovoz
 			"03281439",
 		};
 
-		private string cahsString = "00002", cashlessString = "00003", barterString = "00093";
+		//Коды организаций в заказе
+		//коды для наличного расчета (25472 - ООО "Мир напитков")
+		private string[] 	cashStrings = new string[]{ "00002", "25472" };
+		//коды для безналичного расчета
+		private string 		cashlessString = "00003";
+		//коды для бартера
+		private string 		barterString = "00093";
+
 
 		private string newAddressString = "НОВЫЙ АДРЕС", orderIncreaseString = "УВЕЛИЧЕНИЕ ЗАКАЗА", firstOrderString = "ПЕРВЫЙ ЗАКАЗ";
 
@@ -376,7 +383,7 @@ namespace Vodovoz
 					break;
 				}
 			}
-			progressbar.Text = "Сопопоставляем расчетные счета с владельщами.";
+			progressbar.Text = "Сопопоставляем расчетные счета с владельцами.";
 			progressbar.Adjustment.Value = 0;
 			progressbar.Adjustment.Upper = AccountsList.Count;
 
@@ -696,7 +703,6 @@ namespace Vodovoz
 			var clientPhone	 		  = node.SelectSingleNode("Свойство[@Имя='НомерТелефона']/Значение");
 			var goodsNodes 		 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
 			var servicesNodes 	 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
-			var nPayment 			  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
 			var returnedTare		  = node.SelectSingleNode("Свойство[@Имя='ВозвратнаяТара']/Значение");
 			var informationOnTara	  = node.SelectSingleNode("Свойство[@Имя='ИнформацияПоТаре']/Значение");
 
@@ -720,10 +726,15 @@ namespace Vodovoz
 			var deliverySchedule = DeliverySchedules.FirstOrDefault(x => x.Name == deliverySchedulesNode?.InnerText);
 
 			PaymentType paymentType = PaymentType.cashless;
-			if(nPayment != null) {
-				if(nPayment.InnerText.Contains(cahsString))
-					paymentType = PaymentType.cash;
-				if(nPayment.InnerText.Contains(cashlessString) || nPayment.InnerText.Contains(barterString))
+			if(organisationNode != null) {
+				foreach(var cashStr in cashStrings) {
+					if(organisationNode.InnerText.Contains(cashStr)) {
+						paymentType = PaymentType.cash;
+						break;
+					}
+				}
+
+				if(organisationNode.InnerText.Contains(cashlessString) || organisationNode.InnerText.Contains(barterString))
 					paymentType = PaymentType.cashless;
 			}
 
