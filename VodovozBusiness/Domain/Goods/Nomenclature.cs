@@ -63,7 +63,10 @@ namespace Vodovoz.Domain.Goods
 
 		double volume;
 
-		[DisplayAttribute (Name = "Объём")]
+		/// <summary>
+		/// Объем измеряемый в квадратных метрах
+		/// </summary>
+		[Display (Name = "Объём")]
 		public virtual double Volume {
 			get { return volume; }
 			set { SetField (ref volume, value, () => Volume);}

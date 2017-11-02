@@ -356,7 +356,7 @@ namespace Vodovoz
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.volumeLabel = new global::Gtk.Label();
 			this.volumeLabel.Name = "volumeLabel";
-			this.volumeLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Объём (м<sup>2</sup>):");
+			this.volumeLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Объём (м<sup>3</sup>):");
 			this.volumeLabel.UseMarkup = true;
 			this.hbox3.Add(this.volumeLabel);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.volumeLabel]));
@@ -806,9 +806,7 @@ namespace Vodovoz
 			this.datatable2.RowSpacing = ((uint)(6));
 			this.datatable2.ColumnSpacing = ((uint)(6));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.pricesView = new global::Vodovoz.PricesView();
-			this.pricesView.Events = ((global::Gdk.EventMask)(256));
-			this.pricesView.Name = "pricesView";
+			this.pricesView = null;
 			this.datatable2.Add(this.pricesView);
 			global::Gtk.Table.TableChild w60 = ((global::Gtk.Table.TableChild)(this.datatable2[this.pricesView]));
 			w60.LeftAttach = ((uint)(1));
@@ -826,8 +824,7 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w62 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
 			w62.Position = 1;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();
