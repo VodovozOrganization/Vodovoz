@@ -738,7 +738,7 @@ FROM
             route_lists.date 	AS route_list_date,
             CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
             delivery_shift.name 		AS shift,
-            route_lists.actual_distance AS distance,
+            IF(route_lists.confirmed_distance = 0 OR route_lists.confirmed_distance is null, route_lists.actual_distance , route_lists.confirmed_distance) AS distance,
             SUM(fuel_operations.liters_outlayed) 	AS liters_outlayed,
             SUM(fuel_operations.liters_gived)	AS liters_gived,
             SUM(fuel_documents.payed_for_fuel) 	AS payed_for_fuel,
