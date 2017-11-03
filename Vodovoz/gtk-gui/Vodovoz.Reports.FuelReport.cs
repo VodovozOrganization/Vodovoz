@@ -238,9 +238,6 @@ namespace Vodovoz.Reports
 			this.radioDriver.Toggled += new global::System.EventHandler(this.OnRadioDriverToggled);
 			this.radioCar.Toggled += new global::System.EventHandler(this.OnRadioCarToggled);
 			this.radioSumm.Toggled += new global::System.EventHandler(this.OnRadioSummToggled);
-			this.yentryreferenceDriver.Changed += new global::System.EventHandler(this.OnYentryreferenceDriverChanged);
-			this.yentryreferenceCar.Changed += new global::System.EventHandler(this.OnYentryreferenceCarChanged);
-			this.yentryAuthor.Changed += new global::System.EventHandler(this.OnYentryAuthorChanged);
 			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
