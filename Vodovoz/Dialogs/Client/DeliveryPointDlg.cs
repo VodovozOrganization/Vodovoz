@@ -426,26 +426,28 @@ namespace Vodovoz
 
 		private void WriteCoordinates(decimal? latitude, decimal? longitude)
 		{
-			if(latitude.HasValue && longitude.HasValue) {
-				if(EqualCoords(Entity.Latitude.Value, latitude.Value)
-				&& EqualCoords(Entity.Longitude.Value, longitude.Value)) {
-					return;
-				}
-
-				Entity.Latitude = latitude;
-				Entity.Longitude = longitude;
-				Entity.СoordsLastChangeUser = UserRepository.GetCurrentUser(UnitOfWorkFactory.CreateWithoutRoot());
+			if(EqualCoords(Entity.Latitude, latitude)
+			&& EqualCoords(Entity.Longitude, longitude)) {
+				return;
 			}
+
+			Entity.Latitude = latitude;
+			Entity.Longitude = longitude;
+			Entity.СoordsLastChangeUser = UserRepository.GetCurrentUser(UnitOfWorkFactory.CreateWithoutRoot());
 		}
 
 		/// <summary>
 		/// Сравнивает координаты с точностью 6 знаков после запятой
 		/// </summary>
 		/// <returns><c>true</c>, Если координаты равны, <c>false</c> иначе.</returns>
-		private bool EqualCoords(decimal coord1, decimal coord2)
+		private bool EqualCoords(decimal? coord1, decimal? coord2)
 		{
-			decimal CoordDiff = Math.Abs(coord1 - coord2);
-			return Math.Round(CoordDiff, 6) == decimal.Zero;
+			if(coord1.HasValue && coord2.HasValue) {
+				decimal CoordDiff = Math.Abs(coord1.Value - coord2.Value);
+				return Math.Round(CoordDiff, 6) == decimal.Zero;
+			}
+
+			return false;
 		}
 	}
 }
