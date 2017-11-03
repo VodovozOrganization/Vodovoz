@@ -4,6 +4,7 @@ using QSReport;
 using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Employees;
+using QSProjectsLib;
 
 namespace Vodovoz.Reports
 {
@@ -12,7 +13,8 @@ namespace Vodovoz.Reports
 		public FuelReport()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			yentryreferenceDriver.SubjectType = typeof(Employee);
 			yentryreferenceCar.SubjectType = typeof(Car);
 			yentryAuthor.ItemsQuery = Repository.EmployeeRepository.OfficeWorkersQuery();
 		}
@@ -33,7 +35,7 @@ namespace Vodovoz.Reports
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title	{ 
+		public string Title {
 			get {
 				return "Отчет по выдаче топлива";
 			}
@@ -42,18 +44,23 @@ namespace Vodovoz.Reports
 		#endregion
 
 		private ReportInfo GetReportInfo()
-		{ 
+		{
 			var parameters = new Dictionary<string, object>();
 
 			parameters.Add("start_date", dateperiodpicker.StartDateOrNull);
 			parameters.Add("end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1));
 
-			if(yentryreferenceCar.Subject != null){
-				parameters.Add("car_id", (yentryreferenceCar.Subject as Car)?.Id);
-				parameters.Add("driver_id", (yentryreferenceCar.Subject as Car)?.IsCompanyHavings == true
-						   ? -1 : (yentryreferenceCar.Subject as Car)?.Driver?.Id);
+			if(radioDriver.Active) {
+				parameters.Add("car_id", -1);
+				parameters.Add("driver_id", (yentryreferenceDriver.Subject as Employee)?.Id);
 			}
-			else {
+
+			if(radioCar.Active) {
+				parameters.Add("car_id", (yentryreferenceCar.Subject as Car)?.Id);
+				parameters.Add("driver_id", -1);
+			}
+
+			if(radioSumm.Active) {
 				parameters.Add("car_id", -1);
 				parameters.Add("driver_id", -1);
 				parameters.Add("author", yentryAuthor.Subject == null ? -1 : (yentryAuthor.Subject as Employee).Id);
@@ -64,17 +71,32 @@ namespace Vodovoz.Reports
 					Parameters = parameters
 				};
 			}
-
-			return new ReportInfo
-			{
+			 
+			return new ReportInfo {
 				Identifier = "Logistic.FuelReport",
 				UseUserVariables = true,
 				Parameters = parameters
 			};
-		}	
+		}
 
-		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
+		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
+			string errorString = string.Empty;
+
+			if(radioDriver.Active && (dateperiodpicker.StartDateOrNull == null || yentryreferenceDriver.Subject == null)) {
+				errorString += "Не заполнена дата\n Не заполнен водитель\n";
+			}
+
+			if(radioCar.Active && (dateperiodpicker.StartDateOrNull == null | yentryreferenceCar.Subject == null)) {
+				errorString += "Не заполнена дата\n Не заполнен автомобиль\n";
+			}
+				
+			if(radioSumm.Active && dateperiodpicker.StartDateOrNull == null)
+				errorString += "Не заполнена дата\n";
+			if(!string.IsNullOrWhiteSpace(errorString)) {
+				MessageDialogWorks.RunErrorDialog(errorString);
+				return;
+			}
 			OnUpdate(true);
 		}
 
@@ -83,32 +105,36 @@ namespace Vodovoz.Reports
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
-		void CanRun()
+		protected void OnRadioDriverToggled(object sender, EventArgs e)
 		{
-			buttonCreateReport.Sensitive = 
-				(dateperiodpicker.EndDateOrNull != null && dateperiodpicker.StartDateOrNull != null);
+			hboxDriver.Visible = true;
+			hboxCar.Visible = false;
+			hboxAuthor.Visible = false;
+
+			yentryreferenceCar.Subject = null;
+			yentryAuthor.Subject = null;
 		}
 
-		protected void OnDateperiodpickerPeriodChanged(object sender, EventArgs e)
+		protected void OnRadioCarToggled(object sender, EventArgs e)
 		{
-			CanRun();
+			hboxDriver.Visible = false;
+			hboxCar.Visible = true;
+			hboxAuthor.Visible = false;
+
+			yentryAuthor.Subject = null;
+			yentryreferenceDriver.Subject = null;
 		}
 
-		protected void OnYentryreferenceCarChanged(object sender, EventArgs e)
+		protected void OnRadioSummToggled(object sender, EventArgs e)
 		{
-			if(yentryreferenceCar.Subject != null)
-			{
-				yentryAuthor.Subject = null;
-			}
+			hboxDriver.Visible = false;
+			hboxCar.Visible = false;
+			hboxAuthor.Visible = true;
+
+			yentryreferenceCar.Subject = null;
+			yentryreferenceDriver.Subject = null;
 		}
 
-		protected void OnYentryAuthorChanged(object sender, EventArgs e)
-		{
-			if(yentryAuthor.Subject != null)
-			{
-				yentryreferenceCar.Subject = null;
-			}
-		}
 	}
 }
 
