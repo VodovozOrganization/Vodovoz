@@ -546,34 +546,6 @@ GROUP BY responsible_person_name</CommandText>
               <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox32">
-            <Height>12.00pt</Height>
-            <Width>72.27pt</Width>
-            <Value>Координаты:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>7.2pt</Left>
-            <Top>139.2pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox33">
-            <Height>12.03pt</Height>
-            <Width>462.23pt</Width>
-            <Value>="широта N" + Format({latitude}, "F6") + ", долгота E" + Format( {longitude}, "F6")</Value>
-            <ZIndex>1</ZIndex>
-            <Left>84.50pt</Left>
-            <Top>139.80pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-            </Style>
-          </Textbox>
         </ReportItems>
         <Style>
           <BorderStyle />
@@ -868,19 +840,6 @@ GROUP BY responsible_person_name</CommandText>
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox11">
-            <Height>12.00pt</Height>
-            <Width>360.27pt</Width>
-            <Value>='Предварительно согласованная корректировка суммы: ' + ({total} - Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'))</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>2.7pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
             </Style>
           </Textbox>
           <Textbox Name="Textbox30">
