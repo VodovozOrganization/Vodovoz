@@ -160,7 +160,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>Расст.</Value>
+                      <Value>Подтв. км.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -678,7 +678,7 @@
       <Textbox Name="Textbox20">
         <Height>22.59pt</Height>
         <Width>815.89pt</Width>
-        <Value>="Отчет по бензину с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " до " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") + " по машине " + First({reg_number}, "Fuel")</Value>
+        <Value>="Отчет по бензину с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " до " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") +Iif({?car_id} &lt;&gt; -1, " по машине " + First({reg_number}, "Fuel"), " по водителю" + First({driver}, "Fuel"))  </Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>12.00pt</Top>
@@ -733,38 +733,37 @@
     @fuel_balance:=@fuel_balance - main.liters_outlayed + main.liters_gived AS balance
 FROM
     (SELECT 
-        DATE(fuel_operations.date) AS date,
-            route_lists.id AS route_list_id,
-            route_lists.date AS route_list_date,
+        DATE(fuel_operations.date) 	AS date,
+            route_lists.id 	AS route_list_id,
+            route_lists.date 	AS route_list_date,
             CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
-            delivery_shift.name AS shift,
-            route_lists.confirmed_distance AS distance,
-            SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
-            SUM(fuel_operations.liters_gived) AS liters_gived,
-            SUM(fuel_documents.payed_for_fuel) AS payed_for_fuel,
-            IFNULL(fuel_operations.fuel_type_id,0) AS fuel_type,
+            delivery_shift.name 		AS shift,
+            route_lists.actual_distance AS distance,
+            SUM(fuel_operations.liters_outlayed) 	AS liters_outlayed,
+            SUM(fuel_operations.liters_gived)	AS liters_gived,
+            SUM(fuel_documents.payed_for_fuel) 	AS payed_for_fuel,
+            IFNULL(fuel_operations.fuel_type_id,0) 	AS fuel_type,
             SUM(IFNULL(fuel_documents.fuel_coupons, 0)) AS liters_coupons,
             cars.reg_number AS reg_number
-    FROM
-        (SELECT 
-        SUM(@fuel_balance:=@fuel_balance + IF(internal.liters_gived IS NULL, 0, internal.liters_gived) - IF(internal.liters_outlayed IS NULL, 0, internal.liters_outlayed)) AS rows_first
-    FROM
-        fuel_operations AS internal, (SELECT @fuel_balance:=0) t
-    WHERE
-        internal.date &lt; @start_date
-            AND (IF(@driver_id = -1, internal.car_id = @car_id, internal.driver_id = @driver_id))) t1, fuel_operations
-    LEFT JOIN fuel_documents ON fuel_documents.fuel_operation_id = fuel_operations.id
-    LEFT JOIN route_lists ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-        OR route_lists.fuel_gived_document_id = fuel_documents.id
-    LEFT JOIN delivery_shift ON route_lists.delivery_shift_id = delivery_shift.id
-    LEFT JOIN employees ON route_lists.driver_id = employees.id
-    LEFT JOIN cars ON employees.id = cars.driver_id
-    WHERE
-        fuel_operations.date &gt;= @start_date
-            AND fuel_operations.date &lt;= @end_date
-	AND ((@driver_id = -1 AND fuel_operations.car_id = @car_id)
-	  OR (@driver_id &lt;&gt; -1 AND fuel_operations.driver_id = @driver_id)
-	  OR (@car_id = -1 AND @driver_id = -1))
+     FROM
+          (SELECT 
+              SUM(@fuel_balance:=@fuel_balance + IFNULL(internal.liters_gived, 0) - IFNULL(internal.liters_outlayed, 0)) AS rows_first
+	FROM
+	fuel_operations  AS internal, 
+	(SELECT @fuel_balance:=0) AS t
+	 WHERE
+	DATE(internal.date) &lt; @start_date AND (IF(@driver_id IS NULL, internal.car_id = @car_id, internal.driver_id = @driver_id))
+           ) AS t1, fuel_operations
+LEFT JOIN fuel_documents ON fuel_documents.fuel_operation_id = fuel_operations.id
+LEFT JOIN route_lists ON route_lists.fuel_outlayed_operation_id = fuel_operations.id OR route_lists.fuel_gived_document_id = fuel_documents.id
+LEFT JOIN delivery_shift ON route_lists.delivery_shift_id = delivery_shift.id
+LEFT JOIN employees ON IFNULL(fuel_documents.driver_id,route_lists.driver_id) = employees.id
+LEFT JOIN cars ON IFNULL(fuel_documents.car_id, route_lists.car_id) = cars.id 
+WHERE
+    fuel_operations.date &gt;= @start_date
+    AND fuel_operations.date &lt;= @end_date
+	AND ((@car_id &lt;&gt; -1 AND fuel_operations.car_id = @car_id)
+			   OR (@driver_id &lt;&gt; -1 AND fuel_operations.driver_id = @driver_id))
     GROUP BY route_list_id) AS main</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -837,7 +836,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="StartBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(IF(internal.liters_gived IS NULL, 0, internal.liters_gived)
@@ -862,7 +861,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>

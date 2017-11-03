@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>8.5in</PageHeight>
+  <PageWidth>11in</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -46,28 +46,40 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>39.9pt</Width>
+            <Width>37.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>75.6pt</Width>
+            <Width>65.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>119.7pt</Width>
+            <Width>102.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.0pt</Width>
+            <Width>44.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>56.3pt</Width>
+            <Width>45.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>94.5pt</Width>
+            <Width>43.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>59.7pt</Width>
+            <Width>78.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.0pt</Width>
+            <Width>81.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>54.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>79.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>57.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>46.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -126,8 +138,24 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>Статус заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>Сумма</Value>
+                      <Value>Сумма нал.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -142,9 +170,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox6">
-                      <Value>Статус заказа</Value>
-                      <Style>
+                    <Textbox Name="Textbox30">
+                      <Value>Сумма безнал.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -175,7 +203,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>Количество полных 19л. бутылей</Value>
+                      <Value>Товары</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -192,7 +220,58 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>Количество возвратной тары</Value>
+                      <Value>Кол-во возвратной тары</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>Коментарий к заказу</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>От клиента</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>К клиенту</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -214,7 +293,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>13.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -225,6 +304,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -251,6 +332,22 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>=Switch(Fields!order_status.Value = 'NewOrder', 'Новый', Fields!order_status.Value = 'Accepted', 'Принят', Fields!order_status.Value = 'HoldedFine', 'Принят', Fields!order_status.Value = 'InTravelList', 'В маршрутном листе', Fields!order_status.Value = 'OnLoading', 'На погрузке', Fields!order_status.Value = 'OnTheWay', 'В пути', Fields!order_status.Value = 'Shipped', 'Доставлен', Fields!order_status.Value = 'UnloadingOnStock', 'Выгрузка на складе', Fields!order_status.Value = 'ReportNotClosed', 'Отчет не закрыт', Fields!order_status.Value = 'Closed', 'Закрыт', Fields!order_status.Value = 'Canceled', 'Отменен', Fields!order_status.Value = 'NotDelivered', 'Недовоз', Fields!order_status.Value = 'DeliveryCanceled', 'Доставка отменена', Fields!order_status.Value = 'WaitForPayment', 'Ожидание оплаты')</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -258,22 +355,23 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>=Fields!sum_to_receive.Value</Value>
+                      <Value>=Iif({payment_type} ="cash", {sum_to_receive}, 0)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox12">
-                      <Value>=Switch(Fields!order_status.Value = 'NewOrder', 'Новый', Fields!order_status.Value = 'Accepted', 'Принят', Fields!order_status.Value = 'HoldedFine', 'Принят', Fields!order_status.Value = 'InTravelList', 'В маршрутном листе', Fields!order_status.Value = 'OnLoading', 'На погрузке', Fields!order_status.Value = 'OnTheWay', 'В пути', Fields!order_status.Value = 'Shipped', 'Доставлен', Fields!order_status.Value = 'UnloadingOnStock', 'Выгрузка на складе', Fields!order_status.Value = 'ReportNotClosed', 'Отчет не закрыт', Fields!order_status.Value = 'Closed', 'Закрыт', Fields!order_status.Value = 'Canceled', 'Отменен', Fields!order_status.Value = 'NotDelivered', 'Недовоз', Fields!order_status.Value = 'DeliveryCanceled', 'Доставка отменена', Fields!order_status.Value = 'WaitForPayment', 'Ожидание оплаты')</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                    <Textbox Name="Textbox31">
+                      <Value>=Iif({payment_type} ="cashless", {sum_to_receive}, 0)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -298,8 +396,24 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox25">
-                      <Value>={full_bottles_count}</Value>
+                    <Textbox Name="Textbox6">
+                      <Value>={nom_name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>={returned_bottles_count}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -312,8 +426,37 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox22">
-                      <Value>={returned_bottles_count}</Value>
+                    <Textbox Name="Textbox28">
+                      <Value>={comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>={from_client_text}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>={to_client_text}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -380,8 +523,23 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>=Sum({sum_to_receive})</Value>
+                      <Value>=Sum(Iif({payment_type} ="cash", {sum_to_receive}, 0))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -395,14 +553,14 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox18">
-                      <Value>
-                      </Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                    <Textbox Name="Textbox32">
+                      <Value>=Sum(Iif({payment_type} ="cashless", {sum_to_receive}, 0))</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -423,8 +581,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox26">
-                      <Value>=Sum({full_bottles_count})</Value>
+                    <Textbox Name="Textbox12">
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -439,6 +598,51 @@
                   <ReportItems>
                     <Textbox Name="Textbox23">
                       <Value>=Sum({returned_bottles_count})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -486,30 +690,38 @@
 	orders.code1c,
 	counterparty.name,
 	orders.sum_to_receive,
+    orders.payment_type,
 	orders.order_status,
-	ifnull((select
-		sum(order_items.count)
-	from
+    orders.comment,
+	    (SELECT 
+    GROUP_CONCAT(CONCAT_WS(' ', nomenclature.name, '-', order_items.count, 'шт.,', order_items.price, 'р.') SEPARATOR ', ') 
+	FROM
 		order_items
-	left join
-		nomenclature on nomenclature.id = order_items.nomenclature_id
-	where
-		nomenclature.category = 'water'
-		and order_items.order_id = orders.id),0) as full_bottles_count,
-	truncate(ifnull((select
-		sum(store_self_delivery_document_returned.amount)
-	from
-		store_self_delivery_document
-	left join
-		store_self_delivery_document_returned on store_self_delivery_document_returned.store_self_delivery_document_id = store_self_delivery_document.id
-	left join
-		nomenclature on nomenclature.id = store_self_delivery_document_returned.nomenclature_id
-	where
-		nomenclature.category = 'bottle'
-		and store_self_delivery_document.order_id = orders.id),0),0) as returned_bottles_count,
-	ifnull(group_concat(warehouses.name separator ','), '') as warehouse_name
+        LEFT JOIN
+        nomenclature ON nomenclature.id = order_items.nomenclature_id
+	WHERE orders.id = order_items.order_id
+    ) AS nom_name,
+   truncate(ifnull((select
+				sum(store_self_delivery_document_returned.amount)
+			from
+				store_self_delivery_document
+			left join
+				store_self_delivery_document_returned on store_self_delivery_document_returned.store_self_delivery_document_id = store_self_delivery_document.id
+			left join
+				nomenclature on nomenclature.id = store_self_delivery_document_returned.nomenclature_id
+			where
+				nomenclature.category = 'bottle'
+				and store_self_delivery_document.order_id = orders.id),0),0) as returned_bottles_count,
+ ifnull(group_concat(warehouses.name separator ', '), '') as warehouse_name,
+   orders.from_client_text,
+    orders.to_client_text
+ 
 from
 	orders
+LEFT JOIN
+	order_items ON orders.id = order_items.order_id
+LEFT JOIN
+	nomenclature ON nomenclature.id = order_items.nomenclature_id
 left join
 	counterparty on counterparty.id = orders.client_id
 left join
@@ -520,11 +732,7 @@ where
 	self_delivery = 1
 	and	delivery_date = DATE(@date)
 group by
-	orders.id,
-	orders.code1c,
-	counterparty.name,
-	orders.sum_to_receive,
-	orders.order_status</CommandText>
+	orders.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -552,10 +760,6 @@ group by
           <DataField>order_status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="full_bottles_count">
-          <DataField>full_bottles_count</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
         <Field Name="returned_bottles_count">
           <DataField>returned_bottles_count</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -564,11 +768,40 @@ group by
           <DataField>warehouse_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="payment_type">
+          <DataField>payment_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="from_client_text">
+          <DataField>from_client_text</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="to_client_text">
+          <DataField>to_client_text</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="nom_name">
+          <DataField>nom_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_honeybee;user=admey;password=9533;port=3306;server=vod-srv.qsolution.ru;Allow User Variables=True</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="date">
       <DataType>String</DataType>
@@ -584,14 +817,4 @@ group by
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>
