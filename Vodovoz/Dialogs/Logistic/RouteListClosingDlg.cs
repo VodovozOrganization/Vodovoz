@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using Gamma.Utilities;
 using Gtk;
+using NHibernate.Criterion;
 using NLog;
 using QSOrmProject;
 using QSOsm;
@@ -18,7 +20,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Repository;
+using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -116,6 +120,10 @@ namespace Vodovoz
 
 			ycheckConfirmDifferences.Binding.AddBinding(Entity, e => e.DifferencesConfirmed, w => w.Active).InitializeFromSource();
 			ycheckConfirmDifferences.Sensitive = editing && Entity.Status == RouteListStatus.OnClosing;
+
+			decimal unclosedAdvanceMoney = AccountableDebtsRepository.EmloyeeDebt(UoW, Entity.Driver);
+			ylabelUnclosedAdvancesMoney.LabelProp = 
+				String.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Долг: {0}</b></span>" : "", unclosedAdvanceMoney);
 
 			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
 			ytextClosingComment.Sensitive = editing;

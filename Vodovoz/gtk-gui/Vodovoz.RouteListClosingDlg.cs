@@ -152,6 +152,8 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelTotal;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelUnclosedAdvancesMoney;
+
 		private global::Gtk.Button buttonAccept;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckConfirmDifferences;
@@ -949,20 +951,27 @@ namespace Vodovoz
 			w78.Expand = false;
 			w78.Fill = false;
 			// Container child hbox9.Gtk.Box+BoxChild
+			this.ylabelUnclosedAdvancesMoney = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelUnclosedAdvancesMoney.Name = "ylabelUnclosedAdvancesMoney";
+			this.ylabelUnclosedAdvancesMoney.UseMarkup = true;
+			this.hbox9.Add(this.ylabelUnclosedAdvancesMoney);
+			global::Gtk.Box.BoxChild w79 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ylabelUnclosedAdvancesMoney]));
+			w79.Position = 9;
+			// Container child hbox9.Gtk.Box+BoxChild
 			this.buttonAccept = new global::Gtk.Button();
 			this.buttonAccept.CanFocus = true;
 			this.buttonAccept.Name = "buttonAccept";
 			this.buttonAccept.UseUnderline = true;
 			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString("Подтвердить");
-			global::Gtk.Image w79 = new global::Gtk.Image();
-			w79.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
-			this.buttonAccept.Image = w79;
+			global::Gtk.Image w80 = new global::Gtk.Image();
+			w80.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonAccept.Image = w80;
 			this.hbox9.Add(this.buttonAccept);
-			global::Gtk.Box.BoxChild w80 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.buttonAccept]));
-			w80.PackType = ((global::Gtk.PackType)(1));
-			w80.Position = 9;
-			w80.Expand = false;
-			w80.Fill = false;
+			global::Gtk.Box.BoxChild w81 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.buttonAccept]));
+			w81.PackType = ((global::Gtk.PackType)(1));
+			w81.Position = 10;
+			w81.Expand = false;
+			w81.Fill = false;
 			// Container child hbox9.Gtk.Box+BoxChild
 			this.ycheckConfirmDifferences = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckConfirmDifferences.CanFocus = true;
@@ -971,16 +980,16 @@ namespace Vodovoz
 			this.ycheckConfirmDifferences.DrawIndicator = true;
 			this.ycheckConfirmDifferences.UseUnderline = true;
 			this.hbox9.Add(this.ycheckConfirmDifferences);
-			global::Gtk.Box.BoxChild w81 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ycheckConfirmDifferences]));
-			w81.PackType = ((global::Gtk.PackType)(1));
-			w81.Position = 10;
-			w81.Expand = false;
-			w81.Fill = false;
-			this.vbox1.Add(this.hbox9);
-			global::Gtk.Box.BoxChild w82 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox9]));
-			w82.Position = 4;
+			global::Gtk.Box.BoxChild w82 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ycheckConfirmDifferences]));
+			w82.PackType = ((global::Gtk.PackType)(1));
+			w82.Position = 11;
 			w82.Expand = false;
 			w82.Fill = false;
+			this.vbox1.Add(this.hbox9);
+			global::Gtk.Box.BoxChild w83 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox9]));
+			w83.Position = 4;
+			w83.Expand = false;
+			w83.Fill = false;
 			this.Add(this.vbox1);
 			if((this.Child != null)) {
 				this.Child.ShowAll();
