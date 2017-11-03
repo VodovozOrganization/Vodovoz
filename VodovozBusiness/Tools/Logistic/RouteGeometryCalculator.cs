@@ -206,7 +206,10 @@ namespace Vodovoz.Tools.Logistic
 				if(way?.PolylineGeometry != null)
 				{
 					var decodedPoints = Polyline.DecodePolyline(way.PolylineGeometry);
-					resultRoute.AddRange(decodedPoints.Select(p => new PointLatLng(p.Latitude * 0.1, p.Longitude * 0.1)));
+					if(Provider == DistanceProvider.Sputnik)
+						resultRoute.AddRange(decodedPoints.Select(p => new PointLatLng(p.Latitude * 0.1, p.Longitude * 0.1)));
+					else
+						resultRoute.AddRange(decodedPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)));
 				}
 				else
 				{
