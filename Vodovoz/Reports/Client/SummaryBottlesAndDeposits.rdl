@@ -48,8 +48,8 @@
 	if(docs.doc_name = 'Заказ',
 		forfeits.forfeitCount,
         null) as forfeitCount,
-	bottles_movement_operations.delivered,
-	bottles_movement_operations.returned,
+    ifnull(bottles_movement_operations.delivered, 0) AS delivered,
+    ifnull(bottles_movement_operations.returned, 0) AS returned,
     case
 #bottles deposit if it's residue
 		when docs.doc_name = 'Ввод остатков' then
