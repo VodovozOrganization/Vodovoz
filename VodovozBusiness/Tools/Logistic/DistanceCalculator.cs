@@ -4,6 +4,10 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Tools.Logistic
 {
+	/// <summary>
+	/// Класс предназначен для расчета расстояний между точками.
+	/// Расчет происходит напрямую без учета дорожной сети.
+	/// </summary>
 	public class DistanceCalculator : IDistanceCalculator
 	{
 		public static PointLatLng BasePoint = new PointLatLng(Constants.BaseLatitude, Constants.BaseLongitude);
