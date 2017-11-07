@@ -35,7 +35,8 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
+    employees.visiting_master,
     route_list_addresses.route_list_id,
     CONCAT_WS('',
             CONCAT(employees.last_name, ' '),
@@ -44,7 +45,8 @@
                 CONCAT(LEFT(employees.name, 1), '.')),
             IF(employees.patronymic = '',
                 '',
-                CONCAT(LEFT(employees.patronymic, 1), '.'))) AS driver_name,
+                CONCAT(LEFT(employees.patronymic, 1), '.')),
+            IF(visiting_master = 1, ' (Выездной мастер)', '')) AS driver_name,
     delivery_schedule.name AS delivery_schedule,
     delivery_schedule.to_time AS max_time,
     counterparty.name AS client,
@@ -67,7 +69,7 @@ WHERE
     route_lists.date = CURDATE()
         AND route_list_addresses.status = 'EnRoute'
         AND delivery_schedule.to_time &lt;= @beforeTime
-ORDER BY driver_name , max_time;</CommandText>
+ORDER BY  driver_name, max_time;</CommandText>
         <QueryParameters>
           <QueryParameter Name="beforeTime">
             <Value>=Parameters!beforeTime</Value>
@@ -98,6 +100,10 @@ ORDER BY driver_name , max_time;</CommandText>
         <Field Name="compiled_address_short">
           <DataField>compiled_address_short</DataField>
           <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="visiting_master">
+          <DataField>visiting_master</DataField>
+          <rd:TypeName>System.Boolean</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -254,6 +260,16 @@ ORDER BY driver_name , max_time;</CommandText>
               <PageBreakAtStart >false</PageBreakAtStart>
               <PageBreakAtEnd >false</PageBreakAtEnd>
             </Grouping>
+            <Sorting >
+              <SortBy>
+                <SortExpression>=Fields!visiting_master.Value</SortExpression>
+                <Direction>Ascending</Direction>
+              </SortBy>
+              <SortBy>
+                <SortExpression>=Fields!driver_name.Value</SortExpression>
+                <Direction>Ascending</Direction>
+              </SortBy>
+            </Sorting>
           </TableGroup>
         </TableGroups>
         <Details>
@@ -283,7 +299,7 @@ ORDER BY driver_name , max_time;</CommandText>
                   <ReportItems>
                     <Textbox Name="route_list_id">
                       <Value>=Fields!client.Value</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
