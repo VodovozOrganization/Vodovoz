@@ -45,6 +45,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add ("can_delete", new UserPermission("can_delete", "Удаление заказов и маршрутных листов", "Пользователь может удалять заказы и маршрутные листы в журналах."));
 			QSMain.ProjectPermission.Add ("can_delete_fines", new UserPermission("can_delete_fines", "Удаление штрафов", "Пользователь может удалять штрафы."));
 			QSMain.ProjectPermission.Add ("can_close_orders", new UserPermission("can_close_orders", "Закрытие заказов", "Пользователь может закрывать заказы вручную.") );
+			QSMain.ProjectPermission.Add ("can_edit_wage", new UserPermission("can_edit_wage", "Установка заработной платы ", "Пользователь может устанавливать тип заработной платы и ставку."));
 		}
 
 		static void CreateBaseConfig()

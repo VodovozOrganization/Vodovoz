@@ -10,6 +10,7 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -197,6 +198,8 @@ namespace Vodovoz
 				= hboxCustomWageCalc.Visible
 				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver
 				   || (EmployeeCategory)e.SelectedItem == EmployeeCategory.forwarder);
+			
+			hboxCustomWageCalc.Sensitive = QSMain.User.Permissions["can_edit_wage"];
 		}
 
 		protected void OnRadioTabLogisticToggled(object sender, EventArgs e)
