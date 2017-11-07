@@ -298,7 +298,7 @@ namespace Vodovoz.Tools.Logistic
 			points.Add(new PointOnEarth(latitude, longitude));
 			bool ok = false;
 			if(Provider == DistanceProvider.Osrm) {
-				var result = OsrmMain.GetRoute(points, false, true);
+				var result = OsrmMain.GetRoute(points, false, GeometryOverview.Full);
 				ok = result?.Code == "Ok";
 				if(ok && result.Routes.Any()) {
 					distance.Created = DateTime.Now;

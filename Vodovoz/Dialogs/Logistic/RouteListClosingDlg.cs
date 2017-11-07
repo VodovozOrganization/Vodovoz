@@ -924,7 +924,7 @@ namespace Vodovoz
 
 			points.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
 
-			var recalculatedTrackResponse = OsrmMain.GetRoute(points, false, false);
+			var recalculatedTrackResponse = OsrmMain.GetRoute(points, false);
 			var recalculatedTrack = recalculatedTrackResponse.Routes.First();
 
 			Entity.RecalculatedDistance = recalculatedTrack.TotalDistanceKm;
