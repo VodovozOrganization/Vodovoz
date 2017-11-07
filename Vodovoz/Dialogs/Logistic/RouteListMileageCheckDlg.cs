@@ -95,7 +95,13 @@ namespace Vodovoz
 			ytreeviewAddresses.ItemsDataSource = items;
 			entryMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Text).InitializeFromSource();
 
-			buttonConfirm.Sensitive = buttonCloseRouteList.Sensitive = editing;
+			buttonConfirm.Sensitive = editing;
+
+			if(Entity.Status == RouteListStatus.MileageCheck){
+				buttonCloseRouteList.Sensitive = editing;
+			}
+			else
+				buttonCloseRouteList.Sensitive = false;
 		}
 
 		#endregion
