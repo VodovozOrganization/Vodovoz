@@ -1483,8 +1483,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0))</Value>
                     </Textbox>
@@ -1497,8 +1497,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0))</Value>
                     </Textbox>
@@ -1710,43 +1710,137 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="FuelOther">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    fuel_documents.date AS date,
+    fuel_documents.fuel_coupons AS liters_coupons,
+    IFNULL(fuel_operations.liters_outlayed,0) AS liters_outlayed,
+    route_lists.id AS route_list_id,
+    route_lists.date AS route_list_date,
+    CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
+    fuel_documents.fuel_type_id AS fuel_type,
+    cars.reg_number AS reg_number ,
+    IFNULL(author.last_name,'') AS author_name ,
+    IFNULL(last_editor.last_name,'') AS last_editor_name,
+    IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
+ 
+FROM 
+	fuel_documents
+LEFT JOIN
+ 	route_lists ON fuel_documents.id = route_lists.fuel_gived_document_id
+LEFT JOIN
+ 	fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
+LEFT JOIN 
+	cars ON fuel_documents.car_id = cars.id
+LEFT JOIN
+	employees as driver on driver.id = fuel_documents.driver_id
+LEFT JOIN
+ 	employees as author on author.id = fuel_documents.author_id
+LEFT JOIN
+ 	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
+LEFT JOIN
+	fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
+WHERE 
+    (cars.type_of_use = 'Other' or cars.type_of_use is null) AND
+    fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
+    AND (@author = -1 OR author_id = @author)
+ </CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="author">
+            <Value>={?author}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="route_list_id">
+          <DataField>route_list_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="route_list_date">
+          <DataField>route_list_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="driver_name">
+          <DataField>driver_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="fuel_type">
+          <DataField>fuel_type</DataField>
+          <TypeName>System.Int64</TypeName>
+        </Field>
+        <Field Name="liters_outlayed">
+          <DataField>liters_outlayed</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="liters_coupons">
+          <DataField>liters_coupons</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="reg_number">
+          <DataField>reg_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="author_name">
+          <DataField>author_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="last_editor_name">
+          <DataField>last_editor_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="last_edit_date">
+          <DataField>last_edit_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="FuelTruck">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>select
-	ifnull(fuel_operations.date,fuel_documents.date) AS date,
-	route_lists.id AS route_list_id,
-	route_lists.date AS route_list_date,
-	CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
-	IFNULL(fuel_documents.fuel_type_id,0) AS fuel_type,
-	SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
-	SUM(IFNULL(fuel_documents.fuel_coupons, 0)) AS liters_coupons,
-	cars.reg_number AS reg_number,
-	IFNULL(author.last_name,'') AS author_name,
-	IFNULL(last_editor.last_name,'') AS last_editor_name,
-	IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
-from
-	route_lists
-left join
-	fuel_operations on fuel_operations.id = route_lists.fuel_outlayed_operation_id
-left join
-	fuel_documents on fuel_documents.id = route_lists.fuel_gived_document_id
-left join
-	employees as driver on driver.id = route_lists.driver_id
-left join
-	employees as author on author.id = fuel_documents.author_id
-left join
-	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
-left join
-	cars on cars.id = route_lists.car_id
-where
-	(cars.type_of_use = 'Other' or cars.type_of_use is null)
-	and fuel_documents.fuel_coupons is not null
-	and fuel_documents.fuel_coupons &lt;&gt; 0
-	and (fuel_operations.date &gt;= @start_date or fuel_documents.date &gt;= @start_date)
-	and (fuel_operations.date &lt; @end_date or fuel_documents.date &lt; @end_date)
-	AND (@author = -1 OR author_id = @author)
-group by
-	route_list_id</CommandText>
+        <CommandText>SELECT 
+    fuel_documents.date AS date,
+    fuel_documents.fuel_coupons AS liters_coupons,
+    IFNULL(fuel_operations.liters_outlayed,0) AS liters_outlayed,
+    route_lists.id AS route_list_id,
+    route_lists.date AS route_list_date,
+    CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
+    fuel_documents.fuel_type_id AS fuel_type,
+    cars.reg_number AS reg_number ,
+    IFNULL(author.last_name,'') AS author_name ,
+    IFNULL(last_editor.last_name,'') AS last_editor_name,
+    IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
+ 
+FROM 
+	fuel_documents
+LEFT JOIN
+ 	route_lists ON fuel_documents.id = route_lists.fuel_gived_document_id
+LEFT JOIN
+ 	fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
+LEFT JOIN 
+	cars ON fuel_documents.car_id = cars.id
+LEFT JOIN
+	employees as driver on driver.id = fuel_documents.driver_id
+LEFT JOIN
+ 	employees as author on author.id = fuel_documents.author_id
+LEFT JOIN
+ 	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
+LEFT JOIN
+	fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
+WHERE 
+    cars.type_of_use = 'Truck' AND
+    fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
+    AND (@author = -1 OR author_id = @author)</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -1806,141 +1900,42 @@ group by
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="FuelTruck">
-      <Query >
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>select
-	ifnull(fuel_operations.date,fuel_documents.date) AS date,
-	route_lists.id AS route_list_id,
-	route_lists.date AS route_list_date,
-	CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
-	IFNULL(fuel_documents.fuel_type_id,0) AS fuel_type,
-	SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
-	SUM(IFNULL(fuel_documents.fuel_coupons, 0)) AS liters_coupons,
-	cars.reg_number AS reg_number,
-	IFNULL(author.last_name,'') AS author_name,
-	IFNULL(last_editor.last_name,'') AS last_editor_name,
-	IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
-from
-	route_lists
-left join
-	fuel_operations on fuel_operations.id = route_lists.fuel_outlayed_operation_id
-left join
-	fuel_documents on fuel_documents.id = route_lists.fuel_gived_document_id
-left join
-	employees as driver on driver.id = route_lists.driver_id
-left join
-	employees as author on author.id = fuel_documents.author_id
-left join
-	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
-left join
-	cars on cars.id = route_lists.car_id
-where
-	cars.type_of_use = 'Truck'
-	and fuel_documents.fuel_coupons is not null
-	and fuel_documents.fuel_coupons &lt;&gt; 0
-	and (fuel_operations.date &gt;= @start_date or fuel_documents.date &gt;= @start_date)
-	and (fuel_operations.date &lt; @end_date or fuel_documents.date &lt; @end_date)
-	AND (@author = -1 OR author_id = @author)
-group by
-	route_list_id</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="start_date">
-            <Value>=Parameters!start_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="end_date">
-            <Value>=Parameters!end_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="author">
-            <Value>={?author}</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields >
-        <Field Name="date">
-          <DataField>date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="route_list_id">
-          <DataField>route_list_id</DataField>
-          <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="route_list_date">
-          <DataField>route_list_date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="driver_name">
-          <DataField>driver_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="fuel_type">
-          <DataField>fuel_type</DataField>
-          <TypeName>System.Int64</TypeName>
-        </Field>
-        <Field Name="liters_outlayed">
-          <DataField>liters_outlayed</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="liters_coupons">
-          <DataField>liters_coupons</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="reg_number">
-          <DataField>reg_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="author_name">
-          <DataField>author_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="last_editor_name">
-          <DataField>last_editor_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="last_edit_date">
-          <DataField>last_edit_date</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-      </Fields>
-    </DataSet>
     <DataSet Name="FuelLargus">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>select
-	ifnull(fuel_operations.date,fuel_documents.date) AS date,
-	route_lists.id AS route_list_id,
-	route_lists.date AS route_list_date,
-	CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
-	IFNULL(fuel_documents.fuel_type_id,0) AS fuel_type,
-	SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
-	SUM(IFNULL(fuel_documents.fuel_coupons, 0)) AS liters_coupons,
-	cars.reg_number AS reg_number,
-	IFNULL(author.last_name,'') AS author_name,
-	IFNULL(last_editor.last_name,'') AS last_editor_name,
-	IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
-from
-	route_lists
-left join
-	fuel_operations on fuel_operations.id = route_lists.fuel_outlayed_operation_id
-left join
-	fuel_documents on fuel_documents.id = route_lists.fuel_gived_document_id
-left join
-	employees as driver on driver.id = route_lists.driver_id
-left join
-	employees as author on author.id = fuel_documents.author_id
-left join
-	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
-left join
-	cars on cars.id = route_lists.car_id
-where
-	cars.type_of_use = 'Largus'
-	and fuel_documents.fuel_coupons is not null
-	and fuel_documents.fuel_coupons &lt;&gt; 0
-	and (fuel_operations.date &gt;= @start_date or fuel_documents.date &gt;= @start_date)
-	and (fuel_operations.date &lt; @end_date or fuel_documents.date &lt; @end_date)
-	AND (@author = -1 OR author_id = @author)
-group by
-	route_list_id</CommandText>
+        <CommandText>SELECT 
+    fuel_documents.date AS date,
+    fuel_documents.fuel_coupons AS liters_coupons,
+    IFNULL(fuel_operations.liters_outlayed,0) AS liters_outlayed,
+    route_lists.id AS route_list_id,
+    route_lists.date AS route_list_date,
+    CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
+    fuel_documents.fuel_type_id AS fuel_type,
+    cars.reg_number AS reg_number ,
+    IFNULL(author.last_name,'') AS author_name ,
+    IFNULL(last_editor.last_name,'') AS last_editor_name,
+    IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
+ 
+FROM 
+	fuel_documents
+LEFT JOIN
+ 	route_lists ON fuel_documents.id = route_lists.fuel_gived_document_id
+LEFT JOIN
+ 	fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
+LEFT JOIN 
+	cars ON fuel_documents.car_id = cars.id
+LEFT JOIN
+	employees as driver on driver.id = fuel_documents.driver_id
+LEFT JOIN
+ 	employees as author on author.id = fuel_documents.author_id
+LEFT JOIN
+ 	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
+LEFT JOIN
+	fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
+WHERE 
+    cars.type_of_use = 'Largus' AND
+    fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
+    AND (@author = -1 OR author_id = @author)</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -1953,7 +1948,7 @@ group by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
