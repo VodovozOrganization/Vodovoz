@@ -12,6 +12,14 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual int Id { get; set; }
 
+		Nomenclature nomenclature;
+
+		[Display(Name = "Номенклатура")]
+		public virtual Nomenclature Nomenclature {
+			get { return nomenclature; }
+			set { SetField(ref nomenclature, value, () => Nomenclature); }
+		}
+
 		int minCount;
 
 		[Display (Name = "Минимальное количество")]

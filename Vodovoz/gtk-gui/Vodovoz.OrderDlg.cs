@@ -420,11 +420,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-<<<<<<< 8abfd0e9a7d9535d69131e8e44353dc9d6eba40e
 			this.notebook1.CurrentPage = 2;
-=======
-			this.notebook1.CurrentPage = 1;
->>>>>>> Восстановлена работа по коментариям.
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox();
 			this.vbox3.Name = "vbox3";

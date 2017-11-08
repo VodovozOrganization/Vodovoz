@@ -94,7 +94,7 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			PricesList.Add(new NomenclaturePrice());
+			PricesList.Add(new NomenclaturePrice() { Nomenclature = UoWGeneric.Root });
 		}
 
 		private void AddPriceRow(NomenclaturePrice newPrice) 
