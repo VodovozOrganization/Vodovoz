@@ -1243,9 +1243,9 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Для логистических расчетов
 
-		public virtual TimeSpan FirstAddressTime {
+		public virtual TimeSpan? FirstAddressTime {
 			get {
-				return Addresses.First().Order.DeliverySchedule.From;
+				return Addresses.FirstOrDefault()?.Order.DeliverySchedule.From;
 			}
 		}
 
@@ -1314,7 +1314,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
 								   .Select(x => new Tuple<TimeSpan, RouteList>(
-									   x.FirstAddressTime - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.Addresses.First().Order.DeliveryPoint)),
+				                       x.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.Addresses.First().Order.DeliveryPoint)),
 												 x
 									  ))
 								   .OrderByDescending(x => x.Item1);
