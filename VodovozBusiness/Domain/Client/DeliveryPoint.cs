@@ -356,12 +356,23 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		public virtual PointOnEarth PointOnEarth {
+			get {
+				return new PointOnEarth(Latitude.Value, Longitude.Value);
+			}
+		}
+
 		public virtual GMap.NET.PointLatLng GmapPoint {
 			get {
 				return new GMap.NET.PointLatLng((double)Latitude, (double)Longitude);
 			}
 		}
 
+		public virtual long СoordinatesHash{
+			get{
+				return CachedDistance.GetHash(this);
+			}
+		}
 
 
 

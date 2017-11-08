@@ -1,11 +1,9 @@
-﻿﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using Gamma.Utilities;
 using Gtk;
-using NHibernate.Criterion;
 using NLog;
 using QSOrmProject;
 using QSOsm;
@@ -22,7 +20,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Logistics;
-using Vodovoz.ViewModel;
+using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz
 {
@@ -912,22 +910,22 @@ namespace Vodovoz
 
 		protected void OnButtonRecalculateMileageClicked(object sender, EventArgs e)
 		{
-			var points = new List<PointOnEarth>();
-			points.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
+			logger.Info("Рассчет длинны маршрута...");
+			RouteGeometryCalculator routeCalculator = new RouteGeometryCalculator(DistanceProvider.Osrm);
 
+			var points = new List<long>();
+			points.Add(CachedDistance.BaseHash);
 			foreach(RouteListItem address in Entity.Addresses.OrderBy(x => x.StatusLastUpdate))
 			{
 				if(address.Status == RouteListItemStatus.Completed) {
-					points.Add(new PointOnEarth((double)address.Order.DeliveryPoint.Latitude, (double)address.Order.DeliveryPoint.Longitude));
+					points.Add(address.Order.DeliveryPoint.СoordinatesHash);
 				}
 			}
+			points.Add(CachedDistance.BaseHash);
 
-			points.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
-
-			var recalculatedTrackResponse = OsrmMain.GetRoute(points, false);
-			var recalculatedTrack = recalculatedTrackResponse.Routes.First();
-
-			Entity.RecalculatedDistance = recalculatedTrack.TotalDistanceKm;
+			var distance = (decimal)routeCalculator.GetRouteDistance(points.ToArray());
+			Entity.RecalculatedDistance = distance / 1000;
+			logger.Info("Ок.");
 		}
 
 		#endregion

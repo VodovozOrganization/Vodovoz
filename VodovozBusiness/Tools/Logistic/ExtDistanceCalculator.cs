@@ -329,7 +329,7 @@ namespace Vodovoz.Tools.Logistic
 			bool ok = false;
 			CachedDistance cachedValue = null;
 			if(Provider == DistanceProvider.Osrm) {
-				var result = OsrmMain.GetRoute(points, false);
+				var result = OsrmMain.GetRoute(points, false, GeometryOverview.False);
 				ok = result?.Code == "Ok";
 				if(ok && result.Routes.Any()) {
 					cachedValue = new CachedDistance {
