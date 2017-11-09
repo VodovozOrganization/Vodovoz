@@ -1265,7 +1265,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			var orderItemsWithCoolerWarranty = ObservableOrderItems
-				.Where(orderItem => orderItem.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
+				.Where(orderItem => orderItem.Nomenclature?.Type?.WarrantyCardType == WarrantyCardType.CoolerWarranty);
 			
 			if (orderItemsWithCoolerWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
 				AddDocumentIfNotExist(new CoolerWarrantyDocument {
@@ -1274,7 +1274,7 @@ namespace Vodovoz.Domain.Orders
 			}  
 
 			var orderItemsWithPumpWarranty = ObservableOrderItems
-				.Where(orderEquipment => orderEquipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
+				.Where(orderItem => orderItem.Nomenclature?.Type?.WarrantyCardType == WarrantyCardType.PumpWarranty);
 			
 			if(orderItemsWithPumpWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
 				AddDocumentIfNotExist(new PumpWarrantyDocument {
