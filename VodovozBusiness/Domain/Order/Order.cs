@@ -1086,10 +1086,12 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RemoveItem(IUnitOfWork uow, OrderItem item)
 		{
-			if(item.AdditionalAgreement.Type == AgreementType.DailyRent
-				|| item.AdditionalAgreement.Type == AgreementType.FreeRent
-				|| item.AdditionalAgreement.Type == AgreementType.NonfreeRent) {
-				RemoveRentItems(uow, item);
+			if(item.AdditionalAgreement != null) {
+				if(item.AdditionalAgreement.Type == AgreementType.DailyRent
+					|| item.AdditionalAgreement.Type == AgreementType.FreeRent
+					|| item.AdditionalAgreement.Type == AgreementType.NonfreeRent) {
+					RemoveRentItems(uow, item);
+				}
 			}
 			ObservableOrderItems.Remove(item);
 			foreach(var equip in ObservableOrderEquipments.Where(e => e.OrderItem == item).ToList()) {
