@@ -4,6 +4,7 @@ using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.DocTemplates;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -82,13 +83,17 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
+			if(Entity.IssueDate == DateTime.MinValue){
+				MessageDialogWorks.RunErrorDialog("Введите дату заключения (дату доставки)");
+				return false;
+			}
+
 			var valid = new QSValidator<CounterpartyContract> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
 			UoWGeneric.Save ();
-			if (ContractSaved != null)
-				ContractSaved (this, new ContractSavedEventArgs (UoWGeneric.Root));
+			ContractSaved?.Invoke(this, new ContractSavedEventArgs (UoWGeneric.Root));
 			return true;
 		}
 	}

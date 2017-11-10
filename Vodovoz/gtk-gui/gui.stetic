@@ -5395,7 +5395,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Контакты</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -6356,11 +6355,10 @@
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
-                    <property name="YOptions">Fill</property>
                     <property name="XExpand">False</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
+                    <property name="YExpand">True</property>
                     <property name="YFill">True</property>
                     <property name="YShrink">False</property>
                   </packing>
@@ -6723,6 +6721,8 @@
                       <widget class="Gamma.Widgets.yValidatedEntry" id="validatedINN">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
+                        <property name="IsEditable">True</property>
+                        <property name="InvisibleChar">●</property>
                       </widget>
                       <packing>
                         <property name="LeftAttach">1</property>
@@ -6741,6 +6741,8 @@
                       <widget class="Gamma.Widgets.yValidatedEntry" id="validatedKPP">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
+                        <property name="IsEditable">True</property>
+                        <property name="InvisibleChar">●</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">1</property>
@@ -9129,7 +9131,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -9146,7 +9147,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Комментарии</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -11138,7 +11138,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Наклейка</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25970,6 +25969,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25987,7 +25987,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Комментарии</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -26097,7 +26096,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">3</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -26831,6 +26830,10 @@
                       <widget class="Gamma.Widgets.yDatePicker" id="pickerDeliveryDate">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
+                        <property name="WithTime">False</property>
+                        <property name="Date">0</property>
+                        <property name="IsEditable">False</property>
+                        <property name="AutoSeparation">False</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">12</property>
@@ -27870,6 +27873,8 @@
                       <widget class="QSOrmProject.EnumMenuButton" id="enumAddRentButton">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
+                        <property name="Type">Custom</property>
+                        <property name="UseMarkup">False</property>
                       </widget>
                       <packing>
                         <property name="Position">1</property>
@@ -41999,8 +42004,6 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="Tooltip" translatable="yes">При проставлении логистического района у данной точки доставки он проставится у всех точек доставки с совпадающим до номера дома включительно адресом.</property>
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">Name</property>
-                    <property name="DisplayFormatString">{0}</property>
                   </widget>
                   <packing>
                     <property name="TopAttach">9</property>

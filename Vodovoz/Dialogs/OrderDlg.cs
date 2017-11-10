@@ -310,7 +310,7 @@ namespace Vodovoz
 			}
 
 			if(UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
-				IsEditable();
+				IsEditable(true);
 
 			ButtonCloseOrderSensitivity();
 		}
