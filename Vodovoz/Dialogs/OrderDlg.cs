@@ -174,7 +174,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Client != null);
 
 			buttonViewDocument.Sensitive = false;
-			buttonDelete.Sensitive = false;
+			buttonDelete1.Sensitive = false;
 //			enumStatus.Sensitive = false;
 			notebook1.ShowTabs = false;
 			notebook1.Page = 0;
@@ -310,7 +310,7 @@ namespace Vodovoz
 			}
 
 			if(UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
-				IsEditable(true);
+				IsUIEditable(true);
 
 			ButtonCloseOrderSensitivity();
 		}
@@ -376,7 +376,7 @@ namespace Vodovoz
 				treeDepositRefundItems.Selection.UnselectAll();
 			}
 
-			buttonDelete.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null || (items[0] as OrderItem).Nomenclature.Category == NomenclatureCategory.water
+			buttonDelete1.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null || (items[0] as OrderItem).Nomenclature.Category == NomenclatureCategory.water
 			                                              || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.DailyRent
 			                                              || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.FreeRent
 			                                              || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.NonfreeRent);
@@ -396,7 +396,7 @@ namespace Vodovoz
 				treeItems.Selection.UnselectAll();
 			}
 
-			buttonDelete.Sensitive = items.Length > 0;
+			buttonDelete1.Sensitive = items.Length > 0;
 		}
 
 		public override bool Save()
@@ -491,7 +491,7 @@ namespace Vodovoz
 		//	UpdateProxyInfo();
 		}
 
-		private void IsEditable(bool val = false)
+		private void IsUIEditable(bool val = true)
 		{
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable =
 				referenceClient.IsEditable = val;
@@ -509,7 +509,7 @@ namespace Vodovoz
 			yspinDiscountOrder.Visible = buttonSetDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 		}
 
-		protected void OnButtonDeleteClicked(object sender, EventArgs e)
+		protected void OnButtonDelete1Clicked(object sender, EventArgs e)
 		{
 			Entity.RemoveItem(UoWGeneric, treeItems.GetSelectedObject() as OrderItem);
 		}
@@ -927,7 +927,7 @@ namespace Vodovoz
 
 		void UpdateButtonState()
 		{
-			IsEditable(Entity.OrderStatus == OrderStatus.NewOrder);
+			IsUIEditable(Entity.OrderStatus == OrderStatus.NewOrder);
 			if(Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled) {
 				var icon = new Image();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu);
@@ -1462,5 +1462,6 @@ namespace Vodovoz
 		{
 			UoWGeneric.Root.DeleteEquipment(treeEquipment.GetSelectedObject() as OrderEquipment);
 		}
+
 	}
 }
