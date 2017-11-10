@@ -15,7 +15,7 @@
     <Height>.5in</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
-    <ReportItems >
+    <ReportItems>
       <Textbox Name="Textbox24">
         <Height>21.04pt</Height>
         <Width>758.81pt</Width>
@@ -36,7 +36,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>130.0pt</Height>
+    <Height>166.8pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table1">
@@ -434,7 +434,7 @@
           <TableGroup>
             <Grouping Name="TableGroupGroup1">
               <GroupExpressions>
-                <GroupExpression >={date}</GroupExpression>
+                <GroupExpression>={date}</GroupExpression>
               </GroupExpressions>
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
@@ -506,7 +506,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign >Right</TextAlign>
+                            <TextAlign>Right</TextAlign>
                           </Style>
                           <Value>Итого:</Value>
                         </Textbox>
@@ -709,6 +709,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                       <Value>=Sum(Fields!entry_wage.Value)</Value>
                     </Textbox>
@@ -733,8 +735,80 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                       <Value>=Sum(Fields!entry_advance.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>11</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>Итого к выдаче сотруднику:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <TextAlign >Right</TextAlign>
+                        <FontSize >11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>10</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox69">
+                      <Value>=Sum(Fields!entry_wage.Value) - Sum(Fields!entry_advance.Value)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <FontSize >11pt</FontSize>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -743,7 +817,7 @@
           </TableRows>
         </Footer>
       </Table>
-      <Textbox Name="Textbox25" >
+      <Textbox Name="Textbox25">
         <Height>17.31pt</Height>
         <Width>359.85pt</Width>
         <Value>=First({driver}, "data")
@@ -781,7 +855,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
 	route_lists.date,
@@ -849,7 +923,7 @@ order by route_lists.date, route_lists.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -929,7 +1003,7 @@ order by route_lists.date, route_lists.id</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
