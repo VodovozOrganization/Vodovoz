@@ -340,14 +340,14 @@ namespace Vodovoz
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.spinWeight = new global::Gamma.GtkWidgets.ySpinButton(0, 999, 1);
+			this.spinWeight = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
 			this.spinWeight.CanFocus = true;
 			this.spinWeight.Name = "spinWeight";
-			this.spinWeight.Adjustment.PageIncrement = 10;
-			this.spinWeight.ClimbRate = 1;
+			this.spinWeight.Adjustment.PageIncrement = 10D;
+			this.spinWeight.ClimbRate = 1D;
 			this.spinWeight.Digits = ((uint)(3));
 			this.spinWeight.Numeric = true;
-			this.spinWeight.Value = 3;
+			this.spinWeight.Value = 3D;
 			this.spinWeight.ValueAsDecimal = 0m;
 			this.spinWeight.ValueAsInt = 0;
 			this.hbox3.Add(this.spinWeight);
@@ -364,14 +364,14 @@ namespace Vodovoz
 			w19.Expand = false;
 			w19.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.spinVolume = new global::Gamma.GtkWidgets.ySpinButton(0, 999, 1);
+			this.spinVolume = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
 			this.spinVolume.CanFocus = true;
 			this.spinVolume.Name = "spinVolume";
-			this.spinVolume.Adjustment.PageIncrement = 10;
-			this.spinVolume.ClimbRate = 1;
+			this.spinVolume.Adjustment.PageIncrement = 10D;
+			this.spinVolume.ClimbRate = 1D;
 			this.spinVolume.Digits = ((uint)(3));
 			this.spinVolume.Numeric = true;
-			this.spinVolume.Value = 3;
+			this.spinVolume.Value = 3D;
 			this.spinVolume.ValueAsDecimal = 0m;
 			this.spinVolume.ValueAsInt = 0;
 			this.hbox3.Add(this.spinVolume);
@@ -390,11 +390,11 @@ namespace Vodovoz
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.yspinSumOfDamage = new global::Gamma.GtkWidgets.ySpinButton(0, 100000, 1);
+			this.yspinSumOfDamage = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
 			this.yspinSumOfDamage.CanFocus = true;
 			this.yspinSumOfDamage.Name = "yspinSumOfDamage";
-			this.yspinSumOfDamage.Adjustment.PageIncrement = 10;
-			this.yspinSumOfDamage.ClimbRate = 1;
+			this.yspinSumOfDamage.Adjustment.PageIncrement = 10D;
+			this.yspinSumOfDamage.ClimbRate = 1D;
 			this.yspinSumOfDamage.Digits = ((uint)(2));
 			this.yspinSumOfDamage.Numeric = true;
 			this.yspinSumOfDamage.ValueAsDecimal = 0m;
@@ -806,7 +806,9 @@ namespace Vodovoz
 			this.datatable2.RowSpacing = ((uint)(6));
 			this.datatable2.ColumnSpacing = ((uint)(6));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.pricesView = null;
+			this.pricesView = new global::Vodovoz.PricesView();
+			this.pricesView.Events = ((global::Gdk.EventMask)(256));
+			this.pricesView.Name = "pricesView";
 			this.datatable2.Add(this.pricesView);
 			global::Gtk.Table.TableChild w60 = ((global::Gtk.Table.TableChild)(this.datatable2[this.pricesView]));
 			w60.LeftAttach = ((uint)(1));
@@ -824,7 +826,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w62 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
 			w62.Position = 1;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
