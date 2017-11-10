@@ -49,7 +49,7 @@ namespace Vodovoz.Domain.Client
 		{
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<NonfreeRentAgreement> ();
 			uow.Root.Contract = uow.GetById<CounterpartyContract>(contract.Id);
-			uow.Root.AgreementNumber = AdditionalAgreement.GetNumber (uow.Root.Contract);
+			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithType (uow.Root.Contract, AgreementType.NonfreeRent);
 			return uow;
 		}
 

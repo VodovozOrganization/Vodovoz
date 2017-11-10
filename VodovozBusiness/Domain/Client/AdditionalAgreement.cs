@@ -104,7 +104,7 @@ namespace Vodovoz.Domain.Client
 		{
 			int count = 0;
 			foreach (AdditionalAgreement agreement in Contract.AdditionalAgreements)
-				if (agreement.AgreementNumber == this.AgreementNumber)
+				if (agreement.AgreementNumber == this.AgreementNumber && agreement.Type == this.Type)
 					count++;
 			if (count > 1)
 				yield return new ValidationResult ("Доп. соглашение с таким номером уже существует.", new[] { "AgreementNumber" });
@@ -130,12 +130,12 @@ namespace Vodovoz.Domain.Client
 		}
 		#region Статические
 
-		public static int GetNumber (CounterpartyContract contract)
+		public static int GetNumberWithType(CounterpartyContract contract, AgreementType type)
 		{
 			//Вычисляем номер для нового соглашения.
 			var additionalAgreements = contract.AdditionalAgreements;
-			var numbers = additionalAgreements.Select(x => x.AgreementNumber).ToList();
-			numbers.Sort ();
+			var numbers = additionalAgreements.Where(x => x.Type == type).Select(x => x.AgreementNumber).ToList();
+			numbers.Sort();
 
 			if (numbers.Count > 0) {
 				return numbers.Last() + 1;
@@ -150,7 +150,7 @@ namespace Vodovoz.Domain.Client
 				case AgreementType.DailyRent:
 					return "АС";
 				case AgreementType.NonfreeRent:
-					return "А";
+					return "АМ";
 				case AgreementType.FreeRent:
 					return "Б";
 				case AgreementType.Repair:

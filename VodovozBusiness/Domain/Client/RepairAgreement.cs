@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Client
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<RepairAgreement> ();
 			uow.Root.Contract = uow.GetById<CounterpartyContract>(contract.Id);
 			uow.Root.DeliveryPoint = null;
-			uow.Root.AgreementNumber = AdditionalAgreement.GetNumber (uow.Root.Contract);
+			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithType (uow.Root.Contract, AgreementType.Repair);
 			return uow;
 		}
 	}

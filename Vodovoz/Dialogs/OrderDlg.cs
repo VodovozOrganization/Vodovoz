@@ -821,7 +821,7 @@ namespace Vodovoz
 			using(var uow = WaterSalesAgreement.Create(contract)) {
 				AdditionalAgreement agreement = uow.Root;
 				agreement.Contract = contract;
-				agreement.AgreementNumber = WaterSalesAgreement.GetNumber(contract);
+				agreement.AgreementNumber = WaterSalesAgreement.GetNumberWithType(contract, AgreementType.WaterSales);
 				if(UoWGeneric.Root.DeliveryDate.HasValue) {
 					agreement.IssueDate = UoWGeneric.Root.DeliveryDate.Value;
 					agreement.StartDate = UoWGeneric.Root.DeliveryDate.Value;

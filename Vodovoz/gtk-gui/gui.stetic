@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -11846,7 +11846,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackagesView" design-size="674 300">
+  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackagesView" design-size="734 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -11997,7 +11997,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.NonFreeRentAgreementDlg" design-size="740 471">
+  <widget class="Gtk.Bin" id="Vodovoz.NonFreeRentAgreementDlg" design-size="746 471">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -12316,7 +12316,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.DailyRentAgreementDlg" design-size="922 454">
+  <widget class="Gtk.Bin" id="Vodovoz.DailyRentAgreementDlg" design-size="924 454">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -12335,7 +12335,6 @@
                 <property name="Icon">stock:gtk-save Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -12352,7 +12351,6 @@
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отмена</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -25970,6 +25968,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25987,7 +25986,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Комментарии</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -26097,7 +26095,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">3</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -26831,6 +26829,10 @@
                       <widget class="Gamma.Widgets.yDatePicker" id="pickerDeliveryDate">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
+                        <property name="WithTime">False</property>
+                        <property name="Date">0</property>
+                        <property name="IsEditable">False</property>
+                        <property name="AutoSeparation">False</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">12</property>
@@ -27870,6 +27872,8 @@
                       <widget class="QSOrmProject.EnumMenuButton" id="enumAddRentButton">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
+                        <property name="Type">Custom</property>
+                        <property name="UseMarkup">False</property>
                       </widget>
                       <packing>
                         <property name="Position">1</property>

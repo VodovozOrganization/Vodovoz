@@ -999,7 +999,7 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем номенклатуру залога
 					OrderItem orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
-							item => item.AdditionalAgreement.Id == a.Id &&
+							item => item.AdditionalAgreement == a &&
 							item.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id &&
 							item.Price == equipment.Deposit)) != null) {
 						orderItem.Count++;
@@ -1020,7 +1020,7 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем услугу аренды
 					orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
-							item => item.AdditionalAgreement.Id == a.Id &&
+							item => item.AdditionalAgreement == a &&
 							item.Nomenclature.Id == (IsDaily ? equipment.PaidRentPackage.RentServiceDaily.Id : equipment.PaidRentPackage.RentServiceMonthly.Id) &&
 							item.Price == equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : (a as NonfreeRentAgreement).RentMonths))) != null) {
 						orderItem.Count++;
@@ -1045,7 +1045,7 @@ namespace Vodovoz.Domain.Orders
 							Order = this,
 							Direction = Direction.Deliver,
 							Equipment = equipment.Equipment,
-							Nomenclature = equipment.Equipment.Nomenclature,
+							//Nomenclature = equipment.Equipment.Nomenclature,
 							Reason = Reason.Rent,
 							OrderItem = ObservableOrderItems[ItemId]
 						}
@@ -1094,9 +1094,11 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 			ObservableOrderItems.Remove(item);
-			foreach(var equip in ObservableOrderEquipments.Where(e => e.OrderItem == item).ToList()) {
-				ObservableOrderEquipments.Remove(equip);
-			}
+
+			DeleteOrderEquipmentOnOrderItem(item);
+			DeleteOrderAgreementDocumentOnOrderItem(item);
+
+
 			UpdateDocuments();
 		}
 
@@ -1107,11 +1109,10 @@ namespace Vodovoz.Domain.Orders
 				foreach(OrderItem orderItem in ObservableOrderItems.ToList()) {
 					if(orderItem.FreeRentEquipment == item.FreeRentEquipment && orderItem != item) {
 						ObservableOrderItems.Remove(orderItem);
+						DeleteOrderEquipmentOnOrderItem(orderItem);
+						DeleteOrderAgreementDocumentOnOrderItem(orderItem);
 					}
 				}
-
-				// TODO: разобраться с удалением оборудования.
-				//	item.DeleteFreeRentEquipment(uow);
 			}
 
 			if(item.PaidRentEquipment != null) // Для помесячной и посуточной аренды.
@@ -1119,20 +1120,49 @@ namespace Vodovoz.Domain.Orders
 				foreach(OrderItem orderItem in ObservableOrderItems.ToList()) {
 					if(orderItem.PaidRentEquipment == item.PaidRentEquipment && orderItem != item) {
 						ObservableOrderItems.Remove(orderItem);
+						DeleteOrderEquipmentOnOrderItem(orderItem);
+						DeleteOrderAgreementDocumentOnOrderItem(orderItem);
 					}
 				}
-				//	TODO: разобраться с удалением оборудования.
-				//	item.DeletePaidRentEquipment(uow);
 			}
 
 			foreach(OrderItem orderItem in ObservableOrderItems.ToList()) {
 				if(orderItem.AdditionalAgreement == item.AdditionalAgreement && orderItem != item) {
-					return;
+					DeleteOrderEquipmentOnOrderItem(orderItem);
+					DeleteOrderAgreementDocumentOnOrderItem(orderItem);
 				}
 			}
-			//	TODO: разобраться с удалением доп.соглашения.
-			//	item.DeleteAdditionalAgreement(uow);
 		}
+
+		/// <summary>
+		/// Удаляет оборудование в заказе связанное с товаром в заказе
+		/// </summary>
+		/// <param name="orderItem">Товар в заказе по которому будет удалятся оборудование</param>
+		private	void DeleteOrderEquipmentOnOrderItem(OrderItem orderItem)
+		{
+			var orderEquipments = ObservableOrderEquipments
+				.Where(x => x.OrderItem == orderItem)
+				.ToList();
+			foreach(var orderEquipment in orderEquipments) {
+				ObservableOrderEquipments.Remove(orderEquipment);
+			}
+		}
+
+		/// <summary>
+		/// Удаляет документы дополнительного соглашения в заказе связанные с товаром в заказе
+		/// </summary>
+		/// <param name="orderItem">Товар в заказе по которому будет удалятся документ</param>
+		private void DeleteOrderAgreementDocumentOnOrderItem(OrderItem orderItem)
+		{
+			var orderDocuments = ObservableOrderDocuments
+				.OfType<OrderAgreement>()
+				.Where(x => x.AdditionalAgreement == orderItem.AdditionalAgreement)
+				.ToList();
+			foreach(var orderDocument in orderDocuments) {
+				ObservableOrderDocuments.Remove(orderDocument);
+			}
+		}
+
 
 		public virtual void RemoveDepositItem(OrderDepositItem item)
 		{
@@ -1264,43 +1294,54 @@ namespace Vodovoz.Domain.Orders
 				RemoveDocumentByType(OrderDocumentType.ShetFactura);
 			}
 
+			CreateWarrantyDocuments();
+		}
+
+		/// <summary>
+		/// Создает необходимые гарантийные талоны
+		/// </summary>
+		protected virtual void CreateWarrantyDocuments()
+		{
+			// Кулера
 			var orderItemsWithCoolerWarranty = ObservableOrderItems
 				.Where(orderItem => orderItem.Nomenclature?.Type?.WarrantyCardType == WarrantyCardType.CoolerWarranty);
-			
-			if (orderItemsWithCoolerWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
-				AddDocumentIfNotExist(new CoolerWarrantyDocument {
-					Order = this
-				});
-			}  
 
-			var orderItemsWithPumpWarranty = ObservableOrderItems
-				.Where(orderItem => orderItem.Nomenclature?.Type?.WarrantyCardType == WarrantyCardType.PumpWarranty);
-			
-			if(orderItemsWithPumpWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
-				AddDocumentIfNotExist(new PumpWarrantyDocument {
+			if(orderItemsWithCoolerWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+				AddDocumentIfNotExist(new CoolerWarrantyDocument { 
 					Order = this
 				});
-			}  
+			}
 
 			var equipmentforSaleWithCoolerWarranty = ObservableOrderEquipments
 				.Where(orderEquipment => orderEquipment.Reason == Reason.Rent)
 				.Where(orderEquipment => orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
-			
-			if (equipmentforSaleWithCoolerWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+
+			if(equipmentforSaleWithCoolerWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
 				AddDocumentIfNotExist(new CoolerWarrantyDocument {
 					Order = this
 				});
-			}  
+			}
+
+
+			//Помпы
+			var orderItemsWithPumpWarranty = ObservableOrderItems
+				.Where(orderItem => orderItem.Nomenclature?.Type?.WarrantyCardType == WarrantyCardType.PumpWarranty);
+
+			if(orderItemsWithPumpWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+				AddDocumentIfNotExist(new PumpWarrantyDocument {
+					Order = this
+				});
+			}
 
 			var equipmentforSaleWithPumpWarranty = ObservableOrderEquipments
 				.Where(orderEquipment => orderEquipment.Reason == Reason.Rent)
 				.Where(orderEquipment => orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
-			
+
 			if(equipmentforSaleWithPumpWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
 				AddDocumentIfNotExist(new PumpWarrantyDocument {
 					Order = this
 				});
-			}  
+			}
 		}
 
 		protected virtual void AddDocumentIfNotExist(OrderDocument document)
