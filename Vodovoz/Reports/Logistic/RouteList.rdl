@@ -87,7 +87,7 @@
             <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>193.4pt</Width>
+            <Width>160.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.0pt</Width>
@@ -1400,7 +1400,7 @@
           <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox72" >
+      <Textbox Name="Textbox72">
         <Height>26.31pt</Height>
         <Width>145.14pt</Width>
         <Value>="Планируемое растояние\n" + Format(First({plan_distance}, 'RouteList'), "N2") + " км."</Value>
@@ -1425,7 +1425,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="RouteList">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 driver.name AS DriverName, driver.last_name AS DriverLastname, driver_phone.number AS DriverPhone, 
@@ -1451,7 +1451,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="DriverName">
           <DataField>DriverName</DataField>
           <TypeName>System.String</TypeName>
