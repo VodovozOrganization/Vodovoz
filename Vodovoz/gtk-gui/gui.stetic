@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -5395,7 +5395,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Контакты</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -6356,11 +6355,10 @@
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
-                    <property name="YOptions">Fill</property>
                     <property name="XExpand">False</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
+                    <property name="YExpand">True</property>
                     <property name="YFill">True</property>
                     <property name="YShrink">False</property>
                   </packing>
@@ -6723,6 +6721,8 @@
                       <widget class="Gamma.Widgets.yValidatedEntry" id="validatedINN">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
+                        <property name="IsEditable">True</property>
+                        <property name="InvisibleChar">●</property>
                       </widget>
                       <packing>
                         <property name="LeftAttach">1</property>
@@ -6741,6 +6741,8 @@
                       <widget class="Gamma.Widgets.yValidatedEntry" id="validatedKPP">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
+                        <property name="IsEditable">True</property>
+                        <property name="InvisibleChar">●</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">1</property>
@@ -9129,7 +9131,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -9146,7 +9147,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Комментарии</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -11138,7 +11138,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Наклейка</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -11846,7 +11845,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackagesView" design-size="734 300">
+  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackagesView" design-size="674 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -11997,7 +11996,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.NonFreeRentAgreementDlg" design-size="746 471">
+  <widget class="Gtk.Bin" id="Vodovoz.NonFreeRentAgreementDlg" design-size="740 471">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -12316,7 +12315,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.DailyRentAgreementDlg" design-size="924 454">
+  <widget class="Gtk.Bin" id="Vodovoz.DailyRentAgreementDlg" design-size="922 454">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -12335,6 +12334,7 @@
                 <property name="Icon">stock:gtk-save Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -12351,6 +12351,7 @@
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отмена</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -13443,7 +13444,6 @@
                 <property name="Icon">stock:gtk-save Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -13460,7 +13460,6 @@
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отменить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -25909,7 +25908,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="1092 650">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="1092 660">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -26095,7 +26094,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">3</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -26831,8 +26830,9 @@
                         <property name="Events">ButtonPressMask</property>
                         <property name="WithTime">False</property>
                         <property name="Date">0</property>
-                        <property name="IsEditable">False</property>
+                        <property name="IsEditable">True</property>
                         <property name="AutoSeparation">False</property>
+                        <signal name="DateChanged" handler="OnPickerDeliveryDateDateChanged" />
                       </widget>
                       <packing>
                         <property name="TopAttach">12</property>
@@ -26854,6 +26854,8 @@
                       <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceClient">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
+                        <signal name="Changed" handler="OnReferenceClientChanged" />
+                        <signal name="ChangedByUser" handler="OnReferenceClientChangedByUser" />
                       </widget>
                       <packing>
                         <property name="TopAttach">4</property>
@@ -26875,6 +26877,7 @@
                       <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
+                        <signal name="Changed" handler="OnReferenceDeliveryPointChanged" />
                       </widget>
                       <packing>
                         <property name="TopAttach">5</property>
@@ -27401,7 +27404,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.HBox" id="hbox8">
+                  <widget class="Gtk.HBox" id="hbox9">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
@@ -27848,7 +27851,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.HBox" id="hbox9">
+                  <widget class="Gtk.HBox" id="hbox12">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
@@ -27894,14 +27897,14 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Button" id="buttonDelete">
+                      <widget class="Gtk.Button" id="buttonDelete1">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Type">TextAndIcon</property>
                         <property name="Icon">stock:gtk-delete Menu</property>
                         <property name="Label" translatable="yes">Удалить</property>
                         <property name="UseUnderline">True</property>
-                        <signal name="Clicked" handler="OnButtonDeleteClicked" />
+                        <signal name="Clicked" handler="OnButtonDelete1Clicked" />
                       </widget>
                       <packing>
                         <property name="Position">3</property>
@@ -27942,7 +27945,7 @@
                   <placeholder />
                 </child>
                 <child>
-                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow2">
                     <property name="MemberName" />
                     <property name="ShadowType">In</property>
                     <child>
@@ -28066,7 +28069,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.HBox" id="hbox12">
+                  <widget class="Gtk.HBox" id="hbox13">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
@@ -28147,15 +28150,15 @@
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.HBox" id="hbox13">
+                  <widget class="Gtk.HBox" id="hbox14">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
-                      <widget class="Gtk.VBox" id="vbox1">
+                      <widget class="Gtk.VBox" id="vbox7">
                         <property name="MemberName" />
                         <property name="Spacing">6</property>
                         <child>
-                          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow2">
+                          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow3">
                             <property name="MemberName" />
                             <property name="ShadowType">In</property>
                             <child>
@@ -28172,7 +28175,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.HBox" id="hbox14">
+                          <widget class="Gtk.HBox" id="hbox18">
                             <property name="MemberName" />
                             <property name="Spacing">6</property>
                             <child>
@@ -42003,8 +42006,6 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="Tooltip" translatable="yes">При проставлении логистического района у данной точки доставки он проставится у всех точек доставки с совпадающим до номера дома включительно адресом.</property>
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">Name</property>
-                    <property name="DisplayFormatString">{0}</property>
                   </widget>
                   <packing>
                     <property name="TopAttach">9</property>
