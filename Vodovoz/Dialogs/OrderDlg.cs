@@ -402,6 +402,11 @@ namespace Vodovoz
 		public override bool Save()
 		{
 
+			if((PaymentType)enumPaymentType.SelectedItem == PaymentType.cashless && enumSignatureType.SelectedItem == null) {
+				MessageDialogWorks.RunErrorDialog("Выберите подписание документов");
+				return false;
+			}
+
 			var valid = new QSValidator<Order>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
@@ -859,6 +864,11 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
+			if((PaymentType)enumPaymentType.SelectedItem == PaymentType.cashless && enumSignatureType.SelectedItem == null) {
+				MessageDialogWorks.RunErrorDialog("Выберите подписание документов");
+				return;
+			}
+
 			if(UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder) {
 				var valid = new QSValidator<Order>(UoWGeneric.Root,
 								new Dictionary<object, object> {
