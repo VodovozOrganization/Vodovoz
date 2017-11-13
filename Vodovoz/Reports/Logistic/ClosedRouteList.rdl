@@ -83,32 +83,32 @@
             <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>159.2pt</Width>
+            <Width>139.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>0.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>39.4pt</Width>
+            <Width>37.0pt</Width>
           </TableColumn>
           <!--table_column-->
           <TableColumn>
-            <Width>111.2pt</Width>
+            <Width>105.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>105.9pt</Width>
+            <Width>97.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.8pt</Width>
+            <Width>48.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>39.1pt</Width>
+            <Width>35.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>41.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.9pt</Width>
+            <Width>43.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1356,8 +1356,8 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>1.6pt</Left>
-        <Top>33.7pt</Top>
+        <Left>0.0pt</Left>
+        <Top>32.9pt</Top>
       </Table>
       <Textbox Name="Textbox5">
         <Height>25.53pt</Height>
