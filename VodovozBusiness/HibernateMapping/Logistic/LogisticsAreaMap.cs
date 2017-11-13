@@ -12,6 +12,7 @@ namespace Vodovoz.HibernateMapping
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.Name).Column ("name");
+			Map(x => x.IsCity).Column("is_city");
 			Map(x => x.Geometry).Column("logistics_district").CustomType<GeometryType>();
 		}
 	}
