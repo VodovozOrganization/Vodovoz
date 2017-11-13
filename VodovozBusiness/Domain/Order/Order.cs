@@ -387,6 +387,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref isService, value, () => IsService); }
 		}
 
+		int trifle;
+
+		[Display(Name = "Сдача")]
+		public virtual int Trifle {
+			get { return trifle; }
+			set { SetField(ref trifle, value, () => Trifle); }
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()

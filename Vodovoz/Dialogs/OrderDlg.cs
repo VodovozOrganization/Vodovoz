@@ -300,6 +300,8 @@ namespace Vodovoz
 			enumareRasonType.ItemsEnum = typeof(ReasonType);
 			enumareRasonType.Binding.AddBinding(Entity, s => s.ReasonType, w => w.SelectedItem).InitializeFromSource();
 
+			spinTrifle.Binding.AddBinding(Entity, t => t.Trifle, w => w.ValueAsInt).InitializeFromSource();
+
 			UpdateVisibleOfWingets();
 			UpdateButtonState();
 
