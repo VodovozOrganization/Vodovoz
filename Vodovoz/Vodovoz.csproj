@@ -690,6 +690,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.MileageReport.cs" />
     <Compile Include="ReportsParameters\MastersReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersReport.cs" />
+    <Compile Include="Dialogs\Logistic\LogisticsAreaDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.LogisticsAreaDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1090,10 +1092,7 @@
     <MonoDevelop>
       <Properties>
         <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild">
-            <inheritsSet />
-            <inheritsScope />
-          </DotNetNamingPolicy>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild" />
         </Policies>
         <Deployment.LinuxDeployData generateScript="False" />
       </Properties>
