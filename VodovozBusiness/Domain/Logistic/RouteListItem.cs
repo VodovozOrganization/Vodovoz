@@ -781,7 +781,7 @@ namespace Vodovoz.Domain.Logistic
 		#region Для расчетов в логистике
 
 		/// <summary>
-		/// Время в минутах.
+		/// Время разгрузки на адресе в секундах.
 		/// </summary>
 		public virtual int TimeOnPoint{
 			get{
@@ -803,7 +803,7 @@ namespace Vodovoz.Domain.Logistic
 				if (address == this)
 					break;
 
-				time = time.AddMinutes(RouteList.Addresses[ix].TimeOnPoint);
+				time = time.AddSeconds(RouteList.Addresses[ix].TimeOnPoint);
 			}
 			return time.TimeOfDay;
 		}

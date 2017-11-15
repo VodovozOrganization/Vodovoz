@@ -430,7 +430,7 @@ namespace Vodovoz
 				string color;
 				if(rli.PlanTimeStart == null || rli.PlanTimeEnd == null)
 					color = "grey";
-				else if(rli.PlanTimeEnd.Value + TimeSpan.FromMinutes(rli.TimeOnPoint) > rli.Order.DeliverySchedule.To)
+				else if(rli.PlanTimeEnd.Value + TimeSpan.FromSeconds(rli.TimeOnPoint) > rli.Order.DeliverySchedule.To)
 					color = "red";
 				else if(rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From)
 					color = "blue";
@@ -442,7 +442,7 @@ namespace Vodovoz
 					color = "dark green";
 						
 				return String.Format("<span foreground=\"{2}\">{0:hh\\:mm}-{1:hh\\:mm}</span> ({3} мин.)",
-				                     rli.PlanTimeStart, rli.PlanTimeEnd, color, rli.TimeOnPoint);
+				                     rli.PlanTimeStart, rli.PlanTimeEnd, color, rli.TimeOnPoint/60);
 			}
 
 			return null;

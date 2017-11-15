@@ -1148,18 +1148,19 @@ namespace Vodovoz.Domain.Orders
 		#region Для расчетов в логистике
 
 		/// <summary>
-		/// Время в минутах.
+		/// Время разгрузки в секундах.
 		/// </summary>
-		public virtual int CalculateTimeOnPoint(bool hasForwarder){
-			int byFormula = 3; //На подпись документво 3 мин.
+		public virtual int CalculateTimeOnPoint(bool hasForwarder)
+		{
+			int byFormula = 3 * 60; //На подпись документво 3 мин.
 			int bottels = TotalDeliveredBottles;
-			if (!hasForwarder)
-				byFormula += CalculateGoDoorCount(bottels, 2) * 5; //5 минут на 2 бутыли без экспедитора.
+			if(!hasForwarder)
+				byFormula += CalculateGoDoorCount(bottels, 2) * 100; //100 секун(5/3 минуты) на 2 бутыли без экспедитора.
 			else
-				byFormula += CalculateGoDoorCount(bottels, 4) * 3; //3 минут на 4 бутыли c экспедитором.
+				byFormula += CalculateGoDoorCount(bottels, 4) * 1 * 60; //1 минута на 4 бутыли c экспедитором.
 
-			if (byFormula < 15) // минимальное время нахождения на адресе.
-				return 15;
+			if(byFormula < 5 * 60) // минимальное время нахождения на адресе.
+				return 5 * 60;
 			else
 				return byFormula;
 		}

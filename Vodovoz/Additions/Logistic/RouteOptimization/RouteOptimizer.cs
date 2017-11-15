@@ -248,7 +248,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			for(int ix = 0; ix < Nodes.Length; ix++) {
 				/// Проставляем на каждый адрес окно времени приезда.
 				var startWindow = Nodes[ix].Order.DeliverySchedule.From.TotalSeconds;
-				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(false) * 60; //FIXME Внимание здесь задаем время без экспедитора и без учета скорости водителя. Это не правильно, но другого варианта я придумать не смог.
+				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(false); //FIXME Внимание здесь задаем время без экспедитора и без учета скорости водителя. Это не правильно, но другого варианта я придумать не смог.
 				if(endWindow < startWindow) {
 					AddWarning("Время разгрузки на {2}, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To, Nodes[ix].Order.DeliveryPoint.ShortAddress);
 					endWindow = startWindow;
@@ -454,7 +454,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			for(int ix = 0; ix < Nodes.Length; ix++) {
 				var startWindow = Nodes[ix].Order.DeliverySchedule.From.TotalSeconds;
-				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - trip.Driver.TimeCorrection(Nodes[ix].Order.CalculateTimeOnPoint(route.Forwarder != null) * 60);
+				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - trip.Driver.TimeCorrection(Nodes[ix].Order.CalculateTimeOnPoint(route.Forwarder != null));
 				if(endWindow < startWindow) {
 					logger.Warn("Время разгрузки на точке, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To);
 					endWindow = startWindow;

@@ -1267,7 +1267,7 @@ namespace Vodovoz.Domain.Logistic
 
 				Addresses[ix].PlanTimeStart = minTime > Addresses[ix].Order.DeliverySchedule.From ? minTime : Addresses[ix].Order.DeliverySchedule.From;
 
-				minTime += TimeSpan.FromMinutes(Addresses[ix].TimeOnPoint);
+				minTime += TimeSpan.FromSeconds(Addresses[ix].TimeOnPoint);
 			}
 			//Расчет максимального времени до которого нужно подъехать.
 			TimeSpan maxTime;
@@ -1285,14 +1285,14 @@ namespace Vodovoz.Domain.Logistic
 				if(maxTime > Addresses[ix].Order.DeliverySchedule.To)
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
 
-				maxTime -= TimeSpan.FromMinutes(Addresses[ix].TimeOnPoint);
+				maxTime -= TimeSpan.FromSeconds(Addresses[ix].TimeOnPoint);
 
 				if(maxTime < Addresses[ix].PlanTimeStart) { //Расписание испорчено, успеть нельзя. Пытаемся его более менее адекватно отобразить.
 					TimeSpan beforeMin = new TimeSpan(1, 0, 0, 0);
 					if(ix > 0)
 						beforeMin = Addresses[ix - 1].PlanTimeStart.Value
 													 + TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint))
-													 + TimeSpan.FromMinutes(Addresses[ix - 1].TimeOnPoint);
+						                             + TimeSpan.FromSeconds(Addresses[ix - 1].TimeOnPoint);
 					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From) {
 						Addresses[ix].PlanTimeStart = beforeMin < maxTime ? maxTime : beforeMin;
 					}
