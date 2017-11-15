@@ -135,10 +135,10 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref previousOrder, value, () => PreviousOrder); }
 		}
 
-		int bottlesReturn;
+		int? bottlesReturn;
 
 		[Display(Name = "Бутылей на возврат")]
-		public virtual int BottlesReturn {
+		public virtual int? BottlesReturn {
 			get { return bottlesReturn; }
 			set { SetField(ref bottlesReturn, value, () => BottlesReturn); }
 		}
@@ -554,7 +554,6 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("Не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
 
-#if !SHORT
 					if (PaymentType == PaymentType.cashless && !SignatureType.HasValue)
 						yield return new ValidationResult ("Не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName (o => o.SignatureType) });
@@ -562,7 +561,8 @@ namespace Vodovoz.Domain.Orders
 					if (Contract == null)
 						yield return new ValidationResult ("Не указан договор.",
 							new[] { this.GetPropertyName (o => o.Contract) });
-
+					
+ #if !SHORT
 					//Проверка товаров
 					var itemsWithBlankWarehouse = OrderItems
 						.Where(orderItem => Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category))
@@ -985,9 +985,9 @@ namespace Vodovoz.Domain.Orders
 
 			var waterItemsCount = ObservableOrderItems.Select(item => item)
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
-				.Sum(item => item.Count);
+			    .Sum(item => item.Count);
 
-			return waterItemsCount - BottlesReturn;
+			return waterItemsCount - BottlesReturn ?? 0 ;
 		}
 
 		public virtual void FillItemsFromAgreement(AdditionalAgreement a)

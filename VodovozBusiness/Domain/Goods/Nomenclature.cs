@@ -224,7 +224,7 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual string CategoryString { get { return Category.GetEnumTitle (); } }
 
-		public virtual decimal GetPrice (int itemsCount)
+		public virtual decimal GetPrice (int? itemsCount)
 		{
 			if (itemsCount < 1)
 				itemsCount = 1;
