@@ -255,6 +255,7 @@ namespace Vodovoz.Dialogs.Sale
 			}
 			this.Hide();
 			this.yspinBottles.ValueChanged += new global::System.EventHandler(this.OnYspinBottlesValueChanged);
+			this.buttonInsertFromBuffer.Clicked += new global::System.EventHandler(this.OnButtonInsertFromBufferClicked);
 		}
 	}
 }

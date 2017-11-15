@@ -1186,6 +1186,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -9061,7 +9062,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -38675,7 +38675,6 @@
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Баланс по водителям</property>
-                    <property name="Active">True</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -44910,6 +44909,7 @@
                     <property name="Type">TextOnly</property>
                     <property name="Label" translatable="yes">Вставить из буфера обмена</property>
                     <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonInsertFromBufferClicked" />
                   </widget>
                   <packing>
                     <property name="Position">1</property>

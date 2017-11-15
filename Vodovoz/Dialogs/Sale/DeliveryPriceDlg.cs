@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -13,7 +14,6 @@ using QSOsm.Osrm;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
-using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Dialogs.Sale
 {
@@ -67,6 +67,7 @@ namespace Vodovoz.Dialogs.Sale
 			{
 				FailInitialize = true;
 				MessageDialogWorks.RunErrorDialog("Топливо по умолчанию «АИ-92» не найдено в справочке. Работа с диалогом не может быть продолжена.");
+				return;
 			}
 			fuelCost = (double)fuel.Cost;
 			districts = LogisticAreaRepository.AreaWithGeometry(uow);
@@ -89,12 +90,9 @@ namespace Vodovoz.Dialogs.Sale
 
 			string[] coordinates = booferCoordinates?.Split(',');
 			if(coordinates?.Length == 2) {
-				coordinates[0] = coordinates[0].Replace('.', ',');
-				coordinates[1] = coordinates[1].Replace('.', ',');
-
 				decimal latitude, longitude;
-				bool goodLat = decimal.TryParse(coordinates[0].Trim(), out latitude);
-				bool goodLon = decimal.TryParse(coordinates[1].Trim(), out longitude);
+				bool goodLat = decimal.TryParse(coordinates[0].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out latitude);
+				bool goodLon = decimal.TryParse(coordinates[1].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out longitude);
 
 				if(goodLat && goodLon) {
 					SetCoordinates(latitude, longitude);
