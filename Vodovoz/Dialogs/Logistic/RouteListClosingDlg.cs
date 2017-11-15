@@ -447,7 +447,7 @@ namespace Vodovoz
 
 			var messages = new List<string>();
 
-			if(Entity.Status > RouteListStatus.OnClosing) {
+			if(Entity.Status == RouteListStatus.MileageCheck) {
 				messages.AddRange(Entity.UpdateMovementOperations());
 			}
 
