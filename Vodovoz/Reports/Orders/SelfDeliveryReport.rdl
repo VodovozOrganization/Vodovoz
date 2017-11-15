@@ -60,16 +60,16 @@
           <TableColumn>
             <Width>42.8pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>35.1pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>43.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>81.1pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>81.1pt</Width>
           </TableColumn>
           <TableColumn>
@@ -171,7 +171,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
                       <Value>Полн. бут.</Value>
@@ -187,7 +187,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
                       <Value>Кол-во возвр. тары</Value>
@@ -220,7 +220,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox45">
                       <Value>Статус заказа</Value>
@@ -387,7 +387,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
                       <Value>={full_bottles_count}</Value>
@@ -401,7 +401,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox43">
                       <Value>={returned_bottles_count}</Value>
@@ -431,7 +431,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value>=Switch(Fields!order_status.Value = 'NewOrder', 'Новый', Fields!order_status.Value = 'Accepted', 'Принят', Fields!order_status.Value = 'HoldedFine', 'Принят', Fields!order_status.Value = 'InTravelList', 'В маршрутном листе', Fields!order_status.Value = 'OnLoading', 'На погрузке', Fields!order_status.Value = 'OnTheWay', 'В пути', Fields!order_status.Value = 'Shipped', 'Доставлен', Fields!order_status.Value = 'UnloadingOnStock', 'Выгрузка на складе', Fields!order_status.Value = 'ReportNotClosed', 'Отчет не закрыт', Fields!order_status.Value = 'Closed', 'Закрыт', Fields!order_status.Value = 'Canceled', 'Отменен', Fields!order_status.Value = 'NotDelivered', 'Недовоз', Fields!order_status.Value = 'DeliveryCanceled', 'Доставка отменена', Fields!order_status.Value = 'WaitForPayment', 'Ожидание оплаты')</Value>
@@ -585,7 +585,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26">
                       <Value>=Sum({full_bottles_count})</Value>
@@ -599,7 +599,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
                       <Value>=Sum({returned_bottles_count})</Value>
@@ -628,7 +628,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
                       <Value>
@@ -733,13 +733,20 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
     orders.id,
     orders.code1c,
     counterparty.name,
-    orders.sum_to_receive,
+    IF(orders.sum_to_receive &lt;&gt; 0, orders.sum_to_receive,(
+		SELECT 
+			SUM(order_items.price * order_items.count)  
+		FROM
+			order_items
+		WHERE orders.id = order_items.order_id
+		GROUP BY order_items.order_id
+		)) AS sum_to_receive,
     orders.payment_type,
     orders.order_status,
     orders.comment,
@@ -798,7 +805,7 @@ group by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
