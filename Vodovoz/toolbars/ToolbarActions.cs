@@ -1,16 +1,21 @@
+using Dialogs.Employees;
 using Gtk;
 using QSOrmProject;
+using QSProjectsLib;
 using QSTDI;
 using Vodovoz;
-using Vodovoz.ViewModel;
-using Dialogs.Employees;
-using Vodovoz.Dialogs.DocumentDialogs;
-using QSProjectsLib;
 using Vodovoz.Dialogs.Logistic;
+using Vodovoz.Dialogs.Sale;
+using Vodovoz.ViewModel;
 
 public partial class MainWindow : Window
 {
+	//Заказы
 	Action ActionOrdersTable;
+	Action ActionAddOrder;
+	Action ActionLoadOrders;
+	Action ActionDeliveryPrice;
+
 	Action ActionServiceClaims;
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
@@ -25,8 +30,6 @@ public partial class MainWindow : Window
 	Action ActionRouteListMileageCheck;
 	Action ActionRouteListTracking;
 
-	Action ActionAddOrder;
-	Action ActionLoadOrders;
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
 	Action ActionCashDocuments;
@@ -44,7 +47,6 @@ public partial class MainWindow : Window
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
 	Action ActionRouteListAddressesTransferring;
-//	Action ActionTransferOperationDlg;
 	Action ActionTransferOperationJournal;
 
 	public void BuildToolbarActions ()
@@ -54,6 +56,7 @@ public partial class MainWindow : Window
 		ActionOrdersTable = new Action ("ActionOrdersTable", "Журнал заказов", null, "table");
 		ActionAddOrder = new Action ("ActionAddOrder", "Новый заказ", null, "table");
 		ActionLoadOrders = new Action("ActionLoadOrders", "Загрузить из 1С", null, "table");
+		ActionDeliveryPrice = new Action("ActionDeliveryPrice", "Стоимость доставки", null, null);
 		//Сервис
 		ActionServiceClaims = new Action ("ActionServiceTickets", "Журнал заявок", null, "table");
 		//Склад
@@ -87,17 +90,19 @@ public partial class MainWindow : Window
 		ActionReportDebtorsBottles = new Action ("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
 		ActionRevisionBottlesAndDeposits = new Action ("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
 		ActionResidue = new Action("ActionResidue", "Вввод остатков", null, "table");
-//		ActionTransferOperationDlg = new Action("ActionTransferOperationDlg", "Перемещения между точками доставки", null, "table");
 		ActionTransferOperationJournal = new Action("ActionTransferOperationJournal", "Переносы между точками доставки", null, "table");
 		//Кадры
 		ActionEmployeeWorkChart = new Action("ActionEmployeeWorkChart", "График работы сотрудников", null, "table");
 		ActionFinesJournal = new Action("ActionFinesJournal", "Штрафы", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
-		ActionGroup w1 = new ActionGroup ("ToolbarActions");
+		ActionGroup w1 = new ActionGroup("ToolbarActions");
+		//Заказы
 		w1.Add (ActionOrdersTable, null);
 		w1.Add (ActionAddOrder, null);
 		w1.Add (ActionLoadOrders, null);
+		w1.Add(ActionDeliveryPrice, null);
+		//
 		w1.Add (ActionServiceClaims, null);
 		w1.Add (ActionWarehouseDocuments, null);
 		w1.Add (ActionReadyForShipment, null);
@@ -129,14 +134,16 @@ public partial class MainWindow : Window
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
 		w1.Add(ActionRouteListAddressesTransferring, null);
-//		w1.Add(ActionTransferOperationDlg, null);
 		w1.Add(ActionTransferOperationJournal, null);
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
 		#region Creating events
+		//Заказы
 		ActionOrdersTable.Activated += ActionOrdersTableActivated;
 		ActionAddOrder.Activated += ActionAddOrder_Activated;
 		ActionLoadOrders.Activated += ActionLoadOrders_Activated;
+		ActionDeliveryPrice.Activated += ActionDeliveryPrice_Activated;
+
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionReadyForShipment.Activated += ActionReadyForShipmentActivated;
@@ -168,7 +175,6 @@ public partial class MainWindow : Window
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
-//		ActionTransferOperationDlg.Activated += ActionTransferOperationDlg_Activated;
 		ActionTransferOperationJournal.Activated += ActionTransferOperationJournal_Activated;
 		#endregion
 	}
@@ -431,21 +437,11 @@ public partial class MainWindow : Window
 
 	void ActionResidueActivated (object sender, System.EventArgs e)
 	{
-		//tdiMain.AddTab(new ResidueDlg());
-
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<ResidueVM>(),
 			() => new ReferenceRepresentation (new ResidueVM ()).CustomTabName("Журнал остатков")
 		);
 	}
-
-/*	void ActionTransferOperationDlg_Activated (object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			OrmMain.GenerateDialogHashName<Vodovoz.Domain.Documents.TransferOperationDocument>(0),
-			() => new TransferOperationDocumentDlg()
-		); 
-	} */
 
 	void ActionTransferOperationJournal_Activated (object sender, System.EventArgs e)
 	{
@@ -453,4 +449,13 @@ public partial class MainWindow : Window
 			ReferenceRepresentation.GenerateHashName<TransferOperationsVM>(),
 			() => new ReferenceRepresentation(new TransferOperationsVM()).CustomTabName("Переносы между точками доставки").Buttons(ReferenceButtonMode.CanAll)		);
 	}
+
+	void ActionDeliveryPrice_Activated(object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<DeliveryPriceDlg>(),
+			() => new DeliveryPriceDlg()
+		);
+	}
+
 }

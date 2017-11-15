@@ -20,6 +20,18 @@ namespace Vodovoz.Repository.Logistics
 			return QueryOver.Of<LogisticsArea>();
 		}
 
+		public static QueryOver<LogisticsArea> AreaWithGeometryQuery()
+		{
+			return QueryOver.Of<LogisticsArea>().Where(x => x.Geometry != null);
+		}
+
+		public static IList<LogisticsArea> AreaWithGeometry(IUnitOfWork uow)
+		{
+			return AreaWithGeometryQuery()
+				            .GetExecutableQueryOver(uow.Session)
+				            .List();
+		}
+
 		public static IList<OrderCountResult> OrdersCountByArea(IUnitOfWork uow, DateTime date, int minBottlesInOrder)
 		{
 			OrderCountResult resultAlias = null;
