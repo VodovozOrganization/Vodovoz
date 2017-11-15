@@ -29,6 +29,15 @@ namespace Vodovoz.Dialogs.Sale
 
 		decimal? Latitude;
 		decimal? Longitude;
+		double? distance;
+
+		public double? Distance { 
+			get => distance; 
+			set{ 
+				distance = value;
+				ylabelDistance.LabelProp = distance.HasValue ? distance.Value.ToString("N1") + " км." : "Нет";
+				CalculatePrice();
+			}}
 
 		public DeliveryPriceDlg()
 		{
@@ -132,21 +141,8 @@ namespace Vodovoz.Dialogs.Sale
 				ylabelFoundOnOsm.LabelProp = "нет координат";
 			}
 
-			CalculatePrice();
-		}
-
-		void CalculatePrice()
-		{
-			if(Latitude == null || Longitude == null)
-			{
-				labelPrice.LabelProp = "не рассчитана";
-				return;
-			}
-
-			var point = new Point((double)Latitude, (double)Longitude);
-			if(districts.Where(x => x.IsCity).Any(x => x.Geometry.Contains(point)))
-			{
-				labelPrice.LabelProp = "Это город! Расчет по прайсу";
+			if(Latitude == null || Longitude == null) {
+				Distance = null;
 				return;
 			}
 
@@ -155,19 +151,32 @@ namespace Vodovoz.Dialogs.Sale
 			route.Add(new PointOnEarth(Latitude.Value, Longitude.Value));
 
 			var result = OsrmMain.GetRoute(route, false, GeometryOverview.False);
-			if(result.Code != "Ok")
-			{
+			if(result.Code != "Ok") {
 				MessageDialogWorks.RunErrorDialog("Сервер расчета расстояний вернул следующее сообщение:\n" + result.StatusMessageRus);
 				return;
 			}
 
-			var distance =  result.Routes[0].TotalDistance/ 1000d;
+			Distance = result.Routes[0].TotalDistance / 1000d;
+		}
 
-			//(((а-10)/100)*20*б)/в+90
+		void CalculatePrice()
+		{
+			if(Distance == null) {
+				labelPrice.LabelProp = "Не рассчитана";
+				return;
+			}
+
+			var point = new Point((double)Latitude, (double)Longitude);
+			if(districts.Where(x => x.IsCity).Any(x => x.Geometry.Contains(point))) {
+				labelPrice.LabelProp = "Это город! Расчет по прайсу";
+				return;
+			}
+
+			//(((а-10)/100)*20*б)/в+110
 			//а - расстояние от границы города минус
 			//б - стоимость литра топлива(есть в справочниках)
 			//в - кол-во бут
-			var price = (((distance - 10) / 100) * 20 * fuelCost) / yspinBottles.Value + 90;
+			var price = (((Distance.Value - 10) / 100) * 20 * fuelCost) / yspinBottles.Value + 110;
 			labelPrice.LabelProp = price.ToString("N2");
 		}
 
