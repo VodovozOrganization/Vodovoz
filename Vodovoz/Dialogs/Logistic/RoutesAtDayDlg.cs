@@ -1052,7 +1052,7 @@ namespace Vodovoz
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			logisticanDistricts = uow.GetAll<LogisticsArea>().Where(x => x.Geometry != null).ToList();
+			logisticanDistricts = LogisticAreaRepository.AreaWithGeometry(uow);
 			foreach(var district in logisticanDistricts)
 			{
 				var poligon = new GMapPolygon(

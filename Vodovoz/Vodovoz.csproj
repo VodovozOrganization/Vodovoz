@@ -692,6 +692,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersReport.cs" />
     <Compile Include="Dialogs\Logistic\LogisticsAreaDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.LogisticsAreaDlg.cs" />
+    <Compile Include="Dialogs\Sale\DeliveryPriceDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.DeliveryPriceDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -839,6 +841,7 @@
     <Folder Include="ServiceDialogs\Database\" />
     <Folder Include="Additions\Logistic\RouteOptimization\" />
     <Folder Include="Reports\ServiceCenter\" />
+    <Folder Include="Dialogs\Sale\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
