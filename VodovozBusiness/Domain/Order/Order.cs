@@ -306,12 +306,12 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref toClientText, value, () => ToClientText); }
 		}
 
-		private int? dailyNumber1c;
+		private int? dailyNumber;
 
-		[Display(Name = "Ежедневный номер из 1с")]
-		public virtual int? DailyNumber1c {
-			get { return dailyNumber1c; }
-			set { SetField(ref dailyNumber1c, value, () => DailyNumber1c); }
+		[Display(Name = "Ежедневный номер")]
+		public virtual int? DailyNumber {
+			get { return dailyNumber; }
+			set { SetField(ref dailyNumber, value, () => DailyNumber); }
 		}
 
 		Employee lastEditor;
@@ -561,6 +561,10 @@ namespace Vodovoz.Domain.Orders
 					if (Contract == null)
 						yield return new ValidationResult ("Не указан договор.",
 							new[] { this.GetPropertyName (o => o.Contract) });
+
+					if(bottlesReturn == null)
+						yield return new ValidationResult("Не указано бутылей на возврат.",
+							new[] { this.GetPropertyName(o => o.Contract) });
 					
  #if !SHORT
 					//Проверка товаров

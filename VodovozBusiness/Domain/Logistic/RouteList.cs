@@ -396,7 +396,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			throw new InvalidOperationException("Вызван метод, который может нарушить последовательность адресов. Убирая этот эксепшен убедитесь что вы хорошо подумали.");
 			var orderedList = Addresses.Where(x => x != null)
-				.OrderBy(x => x.Order?.DailyNumber1c)
+				.OrderBy(x => x.Order?.DailyNumber)
 				.ToList();
 			for(int i = 0; i < ObservableAddresses.Count; i++) {
 				if(ObservableAddresses[i] == null) {

@@ -165,7 +165,7 @@ namespace Vodovoz
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
 			    .AddColumn("Еж.\n №").HeaderAlignment(0.5f)
-											 .AddTextRenderer(node => node.Order.DailyNumber1c.ToString())
+											 .AddTextRenderer(node => node.Order.DailyNumber.ToString())
 				.AddColumn("Заказ").HeaderAlignment(0.5f)
 			                                 .AddTextRenderer(node => node.Order.Id.ToString())
 			                                 .AddPixbufRenderer(x => GetRowIcon(x))

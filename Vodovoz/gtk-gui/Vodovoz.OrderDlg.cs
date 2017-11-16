@@ -108,7 +108,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yEntry yentryAddress1cDeliveryPoint;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelNumber1c;
+		private global::Gamma.GtkWidgets.yLabel ylabelNumber;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelOrderStatus;
 
@@ -704,7 +704,7 @@ namespace Vodovoz
 			this.label19 = new global::Gtk.Label();
 			this.label19.Name = "label19";
 			this.label19.Xalign = 1F;
-			this.label19.LabelProp = global::Mono.Unix.Catalog.GetString("Номер\nреализации в 1с:");
+			this.label19.LabelProp = global::Mono.Unix.Catalog.GetString("Номер\nреализации:");
 			this.table1.Add(this.label19);
 			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.table1[this.label19]));
 			w38.TopAttach = ((uint)(1));
@@ -856,12 +856,16 @@ namespace Vodovoz
 			w50.RightAttach = ((uint)(2));
 			w50.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ylabelNumber1c = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelNumber1c.Name = "ylabelNumber1c";
-			this.ylabelNumber1c.LabelProp = global::Mono.Unix.Catalog.GetString("номер в 1с");
-			this.ylabelNumber1c.Selectable = true;
-			this.table1.Add(this.ylabelNumber1c);
-			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelNumber1c]));
+			this.ylabelNumber = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelNumber.Name = "ylabelNumber";
+			this.ylabelNumber.Xalign = 0F;
+			this.ylabelNumber.Yalign = 0F;
+			this.ylabelNumber.LabelProp = global::Mono.Unix.Catalog.GetString("номер в 1с");
+			this.ylabelNumber.Selectable = true;
+			this.ylabelNumber.WidthChars = 0;
+			this.ylabelNumber.MaxWidthChars = 0;
+			this.table1.Add(this.ylabelNumber);
+			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelNumber]));
 			w51.TopAttach = ((uint)(1));
 			w51.BottomAttach = ((uint)(2));
 			w51.LeftAttach = ((uint)(1));

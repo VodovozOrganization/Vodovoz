@@ -659,7 +659,7 @@ namespace Vodovoz
 			var counterpartyNode = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
 			var addressNode = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
 			var addressCodeNode = node.SelectSingleNode("Свойство[@Имя='АдресДоставкиКод']/Значение");
-			var dailyNumber1c = node.SelectSingleNode("Свойство[@Имя='ЕжедневныйНомер']/Значение");
+			//var dailyNumber1c = node.SelectSingleNode("Свойство[@Имя='ЕжедневныйНомер']/Значение");
 			var toClient = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеКлиенту']/Значение");
 			var fromClient = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеОтКлиента']/Значение");
 			var clientPhone = node.SelectSingleNode("Свойство[@Имя='НомерТелефона']/Значение");
@@ -725,11 +725,11 @@ namespace Vodovoz
 				ReasonType = reasonType
 			};
 
-			if(!String.IsNullOrWhiteSpace(dailyNumber1c?.InnerText)) {
-				int number;
-				if(Int32.TryParse(dailyNumber1c.InnerText, out number))
-					order.DailyNumber1c = number;
-			}
+			//if(!String.IsNullOrWhiteSpace(dailyNumber1c?.InnerText)) {
+			//	int number;
+			//	if(Int32.TryParse(dailyNumber1c.InnerText, out number))
+			//		order.DailyNumber1c = number;
+			//}
 
 			if(!String.IsNullOrWhiteSpace(returnedTare?.InnerText)) {
 				int tareNumber;

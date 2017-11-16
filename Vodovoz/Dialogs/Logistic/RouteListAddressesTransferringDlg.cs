@@ -414,7 +414,7 @@ namespace Vodovoz
 		public RouteListItem RouteListItem { get; set; }
 
 		public string DalyNumber { 
-			get { return RouteListItem.Order.DailyNumber1c.ToString(); } 
+			get { return RouteListItem.Order.DailyNumber.ToString(); } 
 		}
 	}
 }

@@ -131,7 +131,7 @@ namespace Vodovoz
 			enumSignatureType.Binding.AddBinding (Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource ();
 
 			ylabelOrderStatus.Binding.AddFuncBinding(Entity, e => e.OrderStatus.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
-			ylabelNumber1c.Binding.AddFuncBinding (Entity, e => e.Code1c + (e.DailyNumber1c.HasValue ? $" ({e.DailyNumber1c})" : ""), w => w.LabelProp).InitializeFromSource();
+			ylabelNumber.Binding.AddFuncBinding (Entity, e => e.Code1c + (e.DailyNumber.HasValue ? $" ({e.DailyNumber})" : ""), w => w.LabelProp).InitializeFromSource();
 
 			enumDocumentType.ItemsEnum = typeof(DefaultDocumentType);
 			enumDocumentType.Binding.AddBinding (Entity, s => s.DocumentType, w => w.SelectedItem).InitializeFromSource ();
@@ -400,16 +400,6 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-
-			//if((PaymentType)enumPaymentType.SelectedItem == PaymentType.cashless && enumSignatureType.SelectedItem == null) {
-			//	MessageDialogWorks.RunErrorDialog("Выберите подписание документов");
-			//	return false;
-			//}
-
-			if(entryBottlesReturn.Text == "") {
-				MessageDialogWorks.RunErrorDialog("На заполнено обязательное поле -Бутылей на возврат");
-				return false;
-			}
 
 			var valid = new QSValidator<Order>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
@@ -861,15 +851,8 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			//if((PaymentType)enumPaymentType.SelectedItem == PaymentType.cashless && enumSignatureType.SelectedItem == null) {
-			//	MessageDialogWorks.RunErrorDialog("Выберите подписание документов");
-			//	return;
-			//}
 
-			if(entryBottlesReturn.Text == "") {
-				MessageDialogWorks.RunErrorDialog("На заполнено обязательное поле -Бутылей на возврат");
-				return;
-			}
+
 
 			if(UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder) {
 				var valid = new QSValidator<Order>(UoWGeneric.Root,
@@ -887,7 +870,7 @@ namespace Vodovoz
 				}
 
 #endif
-
+				 
 				foreach(OrderItem item in UoWGeneric.Root.ObservableOrderItems) {
 					if(item.Nomenclature.Category == NomenclatureCategory.equipment && item.Nomenclature.Serial) {
 						int[] alreadyAdded = UoWGeneric.Root.OrderEquipments
@@ -914,6 +897,8 @@ namespace Vodovoz
 					}
 				}
 
+				DailyNumberIncrement();
+
 				UoWGeneric.Root.OrderStatus = OrderStatus.Accepted;
 				UoWGeneric.Root.UpdateDocuments();
 
@@ -928,6 +913,22 @@ namespace Vodovoz
 				Entity.ChangeStatus(OrderStatus.NewOrder);
 				UpdateButtonState();
 				return;
+			}
+		}
+
+		private void DailyNumberIncrement()
+		{
+			var todayLastNumber = UoW.Session.QueryOver<Order>()
+													 .Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DailyNumber))
+													 .Where(d => d.DeliveryDate == DateTime.Now.Date)
+													 .SingleOrDefault<int>();
+
+
+			if(Entity.DailyNumber == null) {
+				if(todayLastNumber != 0)
+					Entity.DailyNumber = todayLastNumber + 1;
+				else
+					Entity.DailyNumber = 1;
 			}
 		}
 
@@ -1234,12 +1235,12 @@ namespace Vodovoz
 		{
 			var listDriverCallType = UoW.Session.QueryOver<Order>()
 										.Where(x => x.Id == Entity.Id)
-										.Select(x => x.DriverCallType).List<DriverCallType>();
+			                            .Select(x => x.DriverCallType).List<DriverCallType>().FirstOrDefault();
 
-			if(listDriverCallType.Count() == 0)
-				return;
+			//if(listDriverCallType.Count() == 0)
+				//return;
 
-			if(listDriverCallType[0] != (DriverCallType)enumDiverCallType.SelectedItem) {
+			if(listDriverCallType != (DriverCallType)enumDiverCallType.SelectedItem) {
 				var max = UoW.Session.QueryOver<Order>().Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DriverCallId)).SingleOrDefault<int>();
 				if(max != 0)
 					Entity.DriverCallId = max + 1;
