@@ -172,11 +172,11 @@ namespace Vodovoz.Dialogs.Sale
 				return;
 			}
 
-			//(((а-10)/100)*20*б)/в+110
+			//((а/100)*20*б)/в+110
 			//а - расстояние от границы города минус
 			//б - стоимость литра топлива(есть в справочниках)
 			//в - кол-во бут
-			var price = (((Distance.Value - 10) / 100) * 20 * fuelCost) / yspinBottles.Value + 110;
+			var price = ((Distance.Value / 100) * 20 * fuelCost) / yspinBottles.Value + 110;
 			labelPrice.LabelProp = price.ToString("N2");
 		}
 
