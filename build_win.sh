@@ -13,3 +13,5 @@ xbuild /p:Configuration=DebugShortWin /p:Platform=x86
 msbuild /p:Configuration=DebugShortWin /p:Platform=x86
 ;;
 esac
+
+read -p "Press enter to exit"
