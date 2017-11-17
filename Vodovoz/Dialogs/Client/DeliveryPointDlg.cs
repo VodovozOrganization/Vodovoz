@@ -431,8 +431,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.Latitude = latitude;
-			Entity.Longitude = longitude;
+			Entity.SetСoordinates(latitude, longitude);
 			Entity.СoordsLastChangeUser = UserRepository.GetCurrentUser(UnitOfWorkFactory.CreateWithoutRoot());
 		}
 

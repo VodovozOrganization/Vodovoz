@@ -10,6 +10,7 @@ using QSOsm;
 using QSOsm.DTO;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Employees;
+using QSOsm.Osrm;
 
 namespace Vodovoz.Domain.Client
 {
@@ -20,6 +21,8 @@ namespace Vodovoz.Domain.Client
 	)]
 	public class DeliveryPoint : PropertyChangedBase, IDomainObject
 	{
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -198,20 +201,26 @@ namespace Vodovoz.Domain.Client
 
 		decimal? latitude;
 
+		/// <summary>
+		/// Широта. Для установки координат используйте метод SetСoordinates
+		/// </summary>
 		[Display (Name = "Широта")]
 		[PropertyChangedAlso ("СoordinatesText")]
 		public virtual decimal? Latitude {
 			get { return latitude; }
-			set { SetField (ref latitude, value, () => Latitude); }
+			protected set { SetField (ref latitude, value, () => Latitude); }
 		}
 
 		decimal? longitude;
 
+		/// <summary>
+		/// Долгота. Для установки координат используйте метод SetСoordinates
+		/// </summary>
 		[Display (Name = "Долгота")]
 		[PropertyChangedAlso ("СoordinatesText")]
 		public virtual decimal? Longitude {
 			get { return longitude; }
-			set { SetField (ref longitude, value, () => Longitude); }
+			protected set { SetField (ref longitude, value, () => Longitude); }
 		}
 
 		bool isActive = true;
@@ -382,8 +391,6 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-
-
 		#endregion
 
 		public DeliveryPoint ()
@@ -403,6 +410,30 @@ namespace Vodovoz.Domain.Client
 			if (Contacts.Any(x => x.Id == contact.Id))
 				return;
 			ObservableContacts.Add(contact);
+		}
+
+		/// <summary>
+		/// Устанавливает правильно координты точки.
+		/// </summary>
+		public virtual bool SetСoordinates(decimal? latitude, decimal? longitude)
+		{
+			Latitude = latitude;
+			Longitude = longitude;
+
+			if(Longitude == null || Latitude == null)
+				return true;
+
+			var route = new List<PointOnEarth>(2);
+			route.Add(new PointOnEarth(Constants.CenterOfCityLatitude, Constants.CenterOfCityLongitude));
+			route.Add(new PointOnEarth(Latitude.Value, Longitude.Value));
+
+			var result = OsrmMain.GetRoute(route, false, GeometryOverview.False);
+			if(result.Code != "Ok") {
+				logger.Error("Сервер расчета расстояний вернул следующее сообщение:\n" + result.StatusMessageRus);
+				return false;
+			}
+			DistanceFromCenterMeters = result.Routes[0].TotalDistance;
+			return true;
 		}
 
 		public static IUnitOfWorkGeneric<DeliveryPoint> CreateUowForNew (Counterparty counterparty)
