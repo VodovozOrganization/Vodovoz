@@ -44799,7 +44799,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Sale.DeliveryPriceDlg" design-size="761 251">
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Sale.DeliveryPriceDlg" design-size="761 254">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -44978,7 +44978,10 @@
             <child>
               <widget class="Gtk.Label" id="label3">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">Расстояние от центра города:</property>
+                <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes">Расстояние от центра города
+(в одну сторону):</property>
+                <property name="Justify">Right</property>
               </widget>
               <packing>
                 <property name="TopAttach">5</property>

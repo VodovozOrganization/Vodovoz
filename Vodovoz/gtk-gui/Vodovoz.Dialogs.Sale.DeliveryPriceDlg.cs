@@ -160,7 +160,9 @@ namespace Vodovoz.Dialogs.Sale
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Расстояние от центра города:");
+			this.label3.Xalign = 1F;
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Расстояние от центра города\n(в одну сторону):");
+			this.label3.Justify = ((global::Gtk.Justification)(1));
 			this.datatable1.Add(this.label3);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1[this.label3]));
 			w9.TopAttach = ((uint)(5));
