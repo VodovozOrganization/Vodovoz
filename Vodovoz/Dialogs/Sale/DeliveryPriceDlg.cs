@@ -176,7 +176,7 @@ namespace Vodovoz.Dialogs.Sale
 			//а - расстояние от границы города минус
 			//б - стоимость литра топлива(есть в справочниках)
 			//в - кол-во бут
-			var price = ((Distance.Value * 2 / 100) * 20 * fuelCost) / yspinBottles.Value + 110;
+			var price = ((Distance.Value * 2 / 100) * 20 * fuelCost) / yspinBottles.Value + 120;
 			labelPrice.LabelProp = price.ToString("N2");
 		}
 
