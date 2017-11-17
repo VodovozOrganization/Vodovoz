@@ -414,7 +414,7 @@ namespace Vodovoz
 			SaveChanges();
 			UoWGeneric.Save();
 
-			/*	if (Entity.OrderDocuments.Count() > 0)
+			if (Entity.OrderDocuments.Count() > 0)
 				{
 					string whatToPrint = "Распечатать " +
 											Entity.OrderDocuments.Count() +
@@ -423,7 +423,7 @@ namespace Vodovoz
 					{
 						PrintDocuments(Entity.OrderDocuments);
 					}
-				} */
+				} 
 
 			logger.Info("Ok.");
 			ButtonCloseOrderSensitivity();
