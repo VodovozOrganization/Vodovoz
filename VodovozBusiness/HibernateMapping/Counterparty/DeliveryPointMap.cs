@@ -39,6 +39,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.Address1c)			  	.Column ("address_1c");
 			Map (x => x.Code1c)			  		.Column ("code1c");
 			Map	(x => x.BottleReserv)	  		.Column ("bottle_reserv");
+			Map(x => x.DistanceFromCenterMeters).Column("distance_from_center_meters");
 
 			References (x => x.Counterparty)		.Column ("counterparty_id");
 			References (x => x.LogisticsArea)		.Column ("logistic_area_id");
