@@ -28,7 +28,7 @@ namespace Vodovoz.Domain.Orders
 			
 		AdditionalAgreement additionalAgreement;
 
-		[Display (Name = "Дополнительное соглашения")]
+		[Display (Name = "Дополнительное соглашение")]
 		public virtual AdditionalAgreement AdditionalAgreement {
 			get { return additionalAgreement; }
 			set { SetField (ref additionalAgreement, value, () => AdditionalAgreement); }
