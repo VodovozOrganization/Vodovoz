@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.Utilities;
 using QSBanks;
 using QSOrmProject;
