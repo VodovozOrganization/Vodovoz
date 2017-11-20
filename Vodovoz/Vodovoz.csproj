@@ -694,6 +694,8 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.LogisticsAreaDlg.cs" />
     <Compile Include="Dialogs\Sale\DeliveryPriceDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.DeliveryPriceDlg.cs" />
+    <Compile Include="ReportsParameters\Sales\SuburbWaterPriceReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SuburbWaterPriceReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -842,6 +844,7 @@
     <Folder Include="Additions\Logistic\RouteOptimization\" />
     <Folder Include="Reports\ServiceCenter\" />
     <Folder Include="Dialogs\Sale\" />
+    <Folder Include="ReportsParameters\Sales\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1088,6 +1091,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\ServiceCenter\MastersReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\SuburbWaterPrice.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

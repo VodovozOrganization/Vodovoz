@@ -3,18 +3,10 @@ using System.Collections.Generic;
 using QSOrmProject;
 using QSReport;
 
-namespace Vodovoz.ReportsParameters
+namespace Vodovoz.ReportsParameters.Sales
 {
-	public partial class LastOrderByDeliveryPointReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class SuburbWaterPriceReport : Gtk.Bin, IOrmDialog, IParametersWidget
 	{
-		public LastOrderByDeliveryPointReport()
-		{
-			this.Build();
-			ydatepicker.Date = DateTime.Now.Date;
-		}
-
-		#region IOrmDialog implementation
-
 		public IUnitOfWork UoW { get; private set; }
 
 		public object EntityObject {
@@ -23,27 +15,28 @@ namespace Vodovoz.ReportsParameters
 			}
 		}
 
-		#endregion
-
-		#region IParametersWidget implementation
-
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		public string Title {
 			get {
-				return "Отчет по последнему заказу";
+				return "Отчет по ценам пригорода";
 			}
 		}
 
-		#endregion
+
+		public SuburbWaterPriceReport()
+		{
+			this.Build();
+		}
 
 		private ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Identifier = buttonSanitary.Active?"Orders.SanitaryReport":"Orders.OrdersByDeliveryPoint",
+				Identifier = "Sales.SuburbWaterPrice",
+				ParameterDatesWithTime = false,
 				Parameters = new Dictionary<string, object>
 				{
-					{ "date", ydatepicker.Date }
+					{ "report_date", ydatepicker.Date }
 				}
 			};
 		}
