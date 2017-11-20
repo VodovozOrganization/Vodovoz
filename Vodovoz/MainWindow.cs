@@ -891,4 +891,12 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
+
+	protected void OnActionDistanceFromCenterActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<CalculateDistanceToPointsDlg>(),
+			() => new CalculateDistanceToPointsDlg()
+		);
+	}
 }

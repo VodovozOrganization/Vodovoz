@@ -341,10 +341,10 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref coordsLastChangeUser, value, () => СoordsLastChangeUser); }
 		}
 
-		private int distanceFromCenterMeters;
+		private int? distanceFromCenterMeters;
 
 		[Display(Name = "Расстояние от центра в метрах")]
-		public virtual int DistanceFromCenterMeters {
+		public virtual int? DistanceFromCenterMeters {
 			get { return distanceFromCenterMeters; }
 			set { SetField(ref distanceFromCenterMeters, value, () => DistanceFromCenterMeters); }
 		}

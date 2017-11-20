@@ -696,6 +696,8 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.DeliveryPriceDlg.cs" />
     <Compile Include="ReportsParameters\Sales\SuburbWaterPriceReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SuburbWaterPriceReport.cs" />
+    <Compile Include="ServiceDialogs\Database\CalculateDistanceToPointsDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.CalculateDistanceToPointsDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
