@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -1179,6 +1179,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5289,7 +5290,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyDlg" design-size="976 670">
+  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyDlg" design-size="1037 670">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -5503,6 +5504,22 @@
               </packing>
             </child>
             <child>
+              <widget class="Gtk.RadioButton" id="radioDocuments">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Документы</property>
+                <property name="DrawIndicator">False</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+                <property name="Group">group1</property>
+                <signal name="Toggled" handler="OnRadioDocumentsToggled" after="yes" />
+              </widget>
+              <packing>
+                <property name="Position">8</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.RadioButton" id="radioDeliveryPoint">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
@@ -5514,7 +5531,7 @@
                 <signal name="Toggled" handler="OnRadioDeliveryPointToggled" />
               </widget>
               <packing>
-                <property name="Position">8</property>
+                <property name="Position">9</property>
                 <property name="AutoSize">True</property>
               </packing>
             </child>
@@ -5530,7 +5547,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">7</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
                 <property name="MemberName" />
@@ -7055,7 +7072,25 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.VBox" id="vbox9">
+              <widget class="Vodovoz.ViewWidgets.CounterpartyDocumentsView" id="counterpartydocumentsview">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+              </widget>
+              <packing>
+                <property name="Position">8</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label33">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Документы</property>
+              </widget>
+              <packing>
+                <property name="type">tab</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.VBox" id="vbox10">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <property name="BorderWidth">6</property>
@@ -7071,7 +7106,7 @@
                 </child>
               </widget>
               <packing>
-                <property name="Position">8</property>
+                <property name="Position">9</property>
               </packing>
             </child>
             <child>
@@ -26094,7 +26129,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">6</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -37605,7 +37640,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1015 351">
+  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1038 351">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -37924,7 +37959,7 @@ not tooltip</property>
               <widget class="Gtk.Notebook" id="notebook1">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="CurrentPage">1</property>
+                <property name="CurrentPage">2</property>
                 <property name="TabPos">Left</property>
                 <child>
                   <widget class="Gtk.VBox" id="vboxDrivers">
@@ -45988,6 +46023,79 @@ not tooltip</property>
           <packing>
             <property name="Position">1</property>
             <property name="AutoSize">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ViewWidgets.CounterpartyDocumentsView" design-size="311 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <property name="BorderWidth">6</property>
+        <child>
+          <widget class="Gtk.Label" id="label10">
+            <property name="MemberName" />
+            <property name="Xalign">0</property>
+            <property name="LabelProp" translatable="yes">Документы контрагента:</property>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">False</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+            <property name="MemberName" />
+            <property name="ShadowType">In</property>
+            <child>
+              <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeDocuments">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="ShowScrollbars">True</property>
+              </widget>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.HBox" id="hbox1">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Button" id="buttonViewDocument">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-find Menu</property>
+                <property name="Label" translatable="yes">Просмотреть документ</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonViewDocumentClicked" />
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder />
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
           </packing>
         </child>
       </widget>

@@ -117,6 +117,7 @@ namespace Vodovoz
 			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account> (UoWGeneric, c => c.Accounts);
 			deliveryPointView.DeliveryPointUoW = UoWGeneric;
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
+			counterpartydocumentsview.CounterpartyUoW = UoWGeneric;
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceSignificance.Binding.AddBinding(Entity, e => e.Significance, w => w.Subject).InitializeFromSource();
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
@@ -247,10 +248,16 @@ namespace Vodovoz
 				notebook1.CurrentPage = 7;
 		}
 
+		protected void OnRadioDocumentsToggled(object sender, EventArgs e)
+		{
+			if(radioDocuments.Active)
+				notebook1.CurrentPage = 8;
+		}
+
 		protected void OnRadioDeliveryPointToggled(object sender, EventArgs e)
 		{
 			if(radioDeliveryPoint.Active)
-				notebook1.CurrentPage = 8;
+				notebook1.CurrentPage = 9;
 		}
 
 		protected void OnEnumPersonTypeChanged (object sender, EventArgs e)

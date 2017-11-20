@@ -1306,42 +1306,82 @@ namespace Vodovoz.Domain.Orders
 			var orderItemsWithCoolerWarranty = ObservableOrderItems
 				.Where(orderItem => orderItem.Nomenclature?.Type?.WarrantyCardType == WarrantyCardType.CoolerWarranty);
 
-			if(orderItemsWithCoolerWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
-				AddDocumentIfNotExist(new CoolerWarrantyDocument { 
-					Order = this
+			// Кулера для продажи
+			var orderItemsCoolerWarrantyForSale = orderItemsWithCoolerWarranty.Where(x => x.AdditionalAgreement == null);
+			if(orderItemsCoolerWarrantyForSale.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+				AddWarrantyDocumentIfNotExist(new CoolerWarrantyDocument {
+					WarrantyNumber = CoolerWarrantyDocument.GetNumber(this),
+					Order = this,
+					Contract = this.Contract,
+					AdditionalAgreement = null
 				});
 			}
 
-			var equipmentforSaleWithCoolerWarranty = ObservableOrderEquipments
-				.Where(orderEquipment => orderEquipment.Reason == Reason.Rent)
-				.Where(orderEquipment => orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
-
-			if(equipmentforSaleWithCoolerWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
-				AddDocumentIfNotExist(new CoolerWarrantyDocument {
-					Order = this
-				});
+			// Кулера в аренду
+			var orderItemsCoolerWarrantyForRent = orderItemsWithCoolerWarranty.Where(x => x.AdditionalAgreement != null);
+			if(orderItemsCoolerWarrantyForRent.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+				var orderItemsDistinctAgreements = orderItemsWithCoolerWarranty.Select(x => x.AdditionalAgreement).Distinct().ToList();
+				foreach(var oItem in orderItemsDistinctAgreements) {
+					AddWarrantyDocumentIfNotExist(new CoolerWarrantyDocument {
+						WarrantyNumber = CoolerWarrantyDocument.GetNumber(this, oItem),
+						Order = this,
+						Contract = this.Contract,
+						AdditionalAgreement = oItem
+					});
+				}
 			}
 
-
-			//Помпы
+			// Помпы
 			var orderItemsWithPumpWarranty = ObservableOrderItems
 				.Where(orderItem => orderItem.Nomenclature?.Type?.WarrantyCardType == WarrantyCardType.PumpWarranty);
 
-			if(orderItemsWithPumpWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
-				AddDocumentIfNotExist(new PumpWarrantyDocument {
-					Order = this
+			// Помпы для продажи
+			var orderItemsPumpWarrantyForSale = orderItemsWithPumpWarranty.Where(x => x.AdditionalAgreement == null);
+			if(orderItemsPumpWarrantyForSale.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+				AddWarrantyDocumentIfNotExist(new PumpWarrantyDocument {
+					WarrantyNumber = PumpWarrantyDocument.GetNumber(this),
+					Order = this,
+					Contract = this.Contract,
+					AdditionalAgreement = null
 				});
 			}
 
-			var equipmentforSaleWithPumpWarranty = ObservableOrderEquipments
-				.Where(orderEquipment => orderEquipment.Reason == Reason.Rent)
-				.Where(orderEquipment => orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
-
-			if(equipmentforSaleWithPumpWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
-				AddDocumentIfNotExist(new PumpWarrantyDocument {
-					Order = this
-				});
+			// Помпы в аренду
+			var orderItemsPumpWarrantyForRent = orderItemsWithPumpWarranty.Where(x => x.AdditionalAgreement != null);
+			if(orderItemsPumpWarrantyForRent.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+				var orderItemsDistinctAgreements = orderItemsWithPumpWarranty.Select(x => x.AdditionalAgreement).Distinct().ToList();
+				foreach(var oItem in orderItemsDistinctAgreements) {
+					AddWarrantyDocumentIfNotExist(new PumpWarrantyDocument {
+						WarrantyNumber = PumpWarrantyDocument.GetNumber(this, oItem),
+						Order = this,
+						Contract = this.Contract,
+						AdditionalAgreement = oItem
+					});
+				}
 			}
+		}
+
+		protected virtual void AddWarrantyDocumentIfNotExist(OrderDocument document)
+		{
+			bool haveDocuments = true;
+			if(document is CoolerWarrantyDocument) {
+				haveDocuments = ObservableOrderDocuments
+					.Where(doc => doc.Order.Id == Id)
+					.OfType<CoolerWarrantyDocument>()
+					.Where(x => x.AdditionalAgreement == (document as CoolerWarrantyDocument).AdditionalAgreement)
+					.Any();
+			}
+			if(document is PumpWarrantyDocument) {
+				haveDocuments = ObservableOrderDocuments
+					.Where(doc => doc.Order.Id == Id)
+					.OfType<PumpWarrantyDocument>()
+					.Where(x => x.AdditionalAgreement == (document as PumpWarrantyDocument).AdditionalAgreement)
+					.Any();
+			}
+			if(!haveDocuments) {
+				ObservableOrderDocuments.Add(document);
+			}
+
 		}
 
 		protected virtual void AddDocumentIfNotExist(OrderDocument document)

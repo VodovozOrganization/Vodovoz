@@ -29,9 +29,9 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override string Name {
 			get {
-				return String.Format ("Доп. соглашение {0} №{1}", 
-					additionalAgreement.AgreementTypeTitle, 
-					additionalAgreement.AgreementNumber);
+				return String.Format ("Доп. соглашение {0} №{1}",
+				                      additionalAgreement.AgreementTypeTitle,
+				                      additionalAgreement.FullNumberText);
 			}
 		}
 
