@@ -51,7 +51,7 @@ namespace Vodovoz.Repository.Logistics
 			var orderitemsQuery = uow.Session.QueryOver<OrderItem> (() => orderItemsAlias)
 				.WithSubquery.WhereProperty (i => i.Order.Id).In (ordersQuery)
 				.JoinAlias (() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
-				.Where (() => !OrderItemNomenclatureAlias.Serial)
+				.Where (() => !OrderItemNomenclatureAlias.IsSerial)
 				.Where (() => OrderItemNomenclatureAlias.Category.IsIn (Nomenclature.GetCategoriesForShipment ()));
 			if (warehouse != null)
 				orderitemsQuery.Where (() => OrderItemNomenclatureAlias.Warehouse == warehouse);
@@ -83,7 +83,7 @@ namespace Vodovoz.Repository.Logistics
 			var orderitemsQuery = uow.Session.QueryOver<OrderItem> (() => orderItemsAlias)
 				.WithSubquery.WhereProperty (i => i.Order.Id).In (ordersQuery)
 				.JoinAlias (() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
-				.Where (() => !OrderItemNomenclatureAlias.Serial);
+				.Where (() => !OrderItemNomenclatureAlias.IsSerial);
 			if (warehouse != null)
 				orderitemsQuery.Where (() => OrderItemNomenclatureAlias.Warehouse == warehouse);
 
@@ -141,7 +141,7 @@ namespace Vodovoz.Repository.Logistics
 				.JoinAlias (() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
 				.Where (Restrictions.IsNotNull (Projections.Property (() => movementOperationAlias.IncomingWarehouse)))
 				.JoinAlias (() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
-				.Where (() => !nomenclatureAlias.Serial)
+				.Where (() => !nomenclatureAlias.IsSerial)
 				.Where (() => nomenclatureAlias.Category.IsIn (categories));
 			if (excludeNomenclatureIds != null)
 				returnableQuery.Where (() => !nomenclatureAlias.Id.IsIn (excludeNomenclatureIds));
@@ -172,7 +172,7 @@ namespace Vodovoz.Repository.Logistics
 					 .Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.Id)
 					 .SelectGroup (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
 					 .Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
-					 .Select (() => nomenclatureAlias.Serial).WithAlias (() => resultAlias.Trackable)
+					 .Select (() => nomenclatureAlias.IsSerial).WithAlias (() => resultAlias.Trackable)
 					 .Select (() => nomenclatureAlias.Category).WithAlias (() => resultAlias.NomenclatureCategory)
 					 .SelectSum (() => movementOperationAlias.Amount).WithAlias (() => resultAlias.Amount)
 					 .Select (() => nomenclatureAlias.Type).WithAlias (() => resultAlias.EquipmentType)

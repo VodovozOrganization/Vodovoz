@@ -713,7 +713,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(nomenclature.Category != NomenclatureCategory.equipment)
 				return;
-			if(!nomenclature.Serial) {
+			if(!nomenclature.IsSerial) {
 				ObservableOrderItems.Add(new OrderItem {
 					Order = this,
 					AdditionalAgreement = null,
@@ -722,7 +722,8 @@ namespace Vodovoz.Domain.Orders
 					Nomenclature = nomenclature,
 					Price = nomenclature.GetPrice(1)
 				});
-			} else {
+			} 
+			else {
 				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, nomenclature);
 				ObservableOrderItems.AddWithReturn(new OrderItem {
 					Order = this,
@@ -740,7 +741,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(nomenclature.Category != NomenclatureCategory.equipment)
 				return;
-			if(!nomenclature.Serial) {
+			if(!nomenclature.IsSerial) {
 				ObservableOrderEquipments.Add(new OrderEquipment {
 
 					Order = this,
@@ -759,7 +760,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(nomenclature.Category != NomenclatureCategory.equipment)
 				return;
-			if(!nomenclature.Serial) {
+			if(!nomenclature.IsSerial) {
 				ObservableOrderEquipments.Add(new OrderEquipment {
 
 					Order = this,
@@ -831,7 +832,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(orderItem.Nomenclature.Category != NomenclatureCategory.equipment)
 				return;
-			if(!orderItem.Nomenclature.Serial) {
+			if(!orderItem.Nomenclature.IsSerial) {
 				ObservableOrderItems.Add(new OrderItem {
 					Order = this,
 					AdditionalAgreement = orderItem.AdditionalAgreement,

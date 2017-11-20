@@ -154,13 +154,13 @@ namespace Vodovoz
 			var returnableOrderItems = routeListAddressesView.Items
 				.Where(address => address.IsDelivered())
 				.SelectMany(address => address.Order.OrderItems)
-				.Where(orderItem => !orderItem.Nomenclature.Serial)
+				.Where(orderItem => !orderItem.Nomenclature.IsSerial)
 				.Where(orderItem => Nomenclature.GetCategoriesForShipment().Any(nom => nom == orderItem.Nomenclature.Category));
 			foreach(var item in returnableOrderItems) {
 				if(allReturnsToWarehouse.All(r => r.NomenclatureId != item.Nomenclature.Id))
 					allReturnsToWarehouse.Add(new RouteListRepository.ReturnsNode {
 						Name = item.Nomenclature.Name,
-						Trackable = item.Nomenclature.Serial,
+						Trackable = item.Nomenclature.IsSerial,
 						NomenclatureId = item.Nomenclature.Id,
 						Amount = 0
 					});

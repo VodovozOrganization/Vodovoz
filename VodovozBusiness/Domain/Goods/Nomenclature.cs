@@ -93,12 +93,12 @@ namespace Vodovoz.Domain.Goods
 			set { SetField (ref rentPriority, value, () => RentPriority); }
 		}
 
-		bool serial;
+		bool isSerial;
 
 		[Display (Name = "Серийный номер")]
-		public virtual bool Serial {
-			get { return serial; }
-			set { SetField (ref serial, value, () => Serial); }
+		public virtual bool IsSerial {
+			get { return isSerial; }
+			set { SetField (ref isSerial, value, () => IsSerial); }
 		}
 
 		MeasurementUnits unit;
@@ -118,7 +118,7 @@ namespace Vodovoz.Domain.Goods
 				if(SetField (ref category, value, () => Category))
 				{
 					if (Category != NomenclatureCategory.equipment)
-						Serial = false;
+						IsSerial = false;
 				}
 
 			}
