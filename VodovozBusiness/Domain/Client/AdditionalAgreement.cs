@@ -189,7 +189,7 @@ namespace Vodovoz.Domain.Client
 
 	public enum AgreementType
 	{
-		[Display (Name = "Долгосрочая аренда")]
+		[Display (Name = "Долгосрочная аренда")]
 		NonfreeRent,
 		[Display (Name = "Посуточная аренда")]
 		DailyRent,
