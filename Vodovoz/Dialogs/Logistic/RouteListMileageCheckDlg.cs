@@ -141,9 +141,8 @@ namespace Vodovoz
 				fine.UpdateWageOperations(UoWGeneric);
 				UoWGeneric.Save(fine);
 			}
-			else if (Entity.ConfirmedDistance > Entity.ActualDistance)
+			else if(Entity.ConfirmedDistance > Entity.ActualDistance)
 			{
-				if (MessageDialogWorks.RunQuestionDialog ("Вы указали больший километраж, чем при сдаче в кассе. Пересчитать баланс водителя по топливу?"))
 					Entity.RecalculateFuelOutlay();
 			}
 
