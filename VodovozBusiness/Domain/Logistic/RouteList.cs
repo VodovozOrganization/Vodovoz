@@ -396,7 +396,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			throw new InvalidOperationException("Вызван метод, который может нарушить последовательность адресов. Убирая этот эксепшен убедитесь что вы хорошо подумали.");
 			var orderedList = Addresses.Where(x => x != null)
-				.OrderBy(x => x.Order?.DailyNumber1c)
+				.OrderBy(x => x.Order?.DailyNumber)
 				.ToList();
 			for(int i = 0; i < ObservableAddresses.Count; i++) {
 				if(ObservableAddresses[i] == null) {
@@ -585,7 +585,7 @@ namespace Vodovoz.Domain.Logistic
 				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
 				//				var nomenclatures = routeListItem.Order.OrderItems
 				//					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				//					.Where(item => !item.Nomenclature.Serial).ToList();
+				//					.Where(item => !item.Nomenclature.IsSerial).ToList();
 
 				logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
 				routeListItem.FirstFillClosing(UoW);
@@ -634,7 +634,7 @@ namespace Vodovoz.Domain.Logistic
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
 			foreach(var orderItem in addresesDelivered.SelectMany(item => item.Order.OrderItems)
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				.Where(item => !item.Nomenclature.Serial)) {
+				.Where(item => !item.Nomenclature.IsSerial)) {
 				var operation = orderItem.UpdateCounterpartyOperation(UoW);
 				if(operation != null)
 					result.Add(operation);

@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -46,7 +46,8 @@
                 CONCAT(LEFT(employees.name, 1), '.')),
             IF(employees.patronymic = '',
                 '',
-                CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author
+                CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
+    orders.trifle AS trifle
 FROM
     orders
         LEFT JOIN
@@ -71,7 +72,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -163,6 +164,10 @@ WHERE
         <Field Name="author">
           <DataField>author</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="trifle">
+          <DataField>trifle</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -546,6 +551,34 @@ GROUP BY responsible_person_name</CommandText>
               <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
+          <Textbox Name="Textbox32">
+            <Height>12.00pt</Height>
+            <Width>72.27pt</Width>
+            <Value>Координаты:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>7.2pt</Left>
+            <Top>139.2pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Right</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox33">
+            <Height>12.03pt</Height>
+            <Width>462.23pt</Width>
+            <Value>="широта N" + Format({latitude}, "F6") + ", долгота E" + Format( {longitude}, "F6")</Value>
+            <ZIndex>1</ZIndex>
+            <Left>84.50pt</Left>
+            <Top>139.80pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+            </Style>
+          </Textbox>
         </ReportItems>
         <Style>
           <BorderStyle />
@@ -793,7 +826,7 @@ GROUP BY responsible_person_name</CommandText>
         <Top>189.4pt</Top>
       </Table>
       <List Name="List2">
-        <Height>105.65pt</Height>
+        <Height>120.65pt</Height>
         <Width>539.07pt</Width>
         <Left>32.6pt</Left>
         <Top>311.5pt</Top>
@@ -842,6 +875,19 @@ GROUP BY responsible_person_name</CommandText>
               <FontWeight>Bold</FontWeight>
             </Style>
           </Textbox>
+          <Textbox Name="Textbox11">
+            <Height>12.00pt</Height>
+            <Width>360.27pt</Width>
+            <Value>='Предварительно согласованная корректировка суммы: ' + ({total} - Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'))</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>2.7pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
           <Textbox Name="Textbox30">
             <Height>16.53pt</Height>
             <Width>536.74pt</Width>
@@ -850,6 +896,21 @@ GROUP BY responsible_person_name</CommandText>
             <Left>1.7pt</Left>
             <Top>73.0pt</Top>
             <CanGrow>true</CanGrow>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+              <FontSize>12pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>13.50pt</Height>
+            <Width>533.24pt</Width>
+            <Value>='Сдача: ' + {trifle}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.8pt</Left>
+            <Top>97.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />

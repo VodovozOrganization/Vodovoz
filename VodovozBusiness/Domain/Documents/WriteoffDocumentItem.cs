@@ -113,7 +113,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		public virtual string EquipmentString { 
-			get { return Equipment != null && Equipment.Nomenclature.Serial ? Equipment.Serial : "-"; } 
+			get { return Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "-"; } 
 		}
 
 		public virtual string CullingCategoryString {
@@ -121,7 +121,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		public virtual bool CanEditAmount { 
-			get { return Nomenclature != null && !Nomenclature.Serial; }
+			get { return Nomenclature != null && !Nomenclature.IsSerial; }
 		}
 
 		WarehouseMovementOperation warehouseWriteoffOperation;

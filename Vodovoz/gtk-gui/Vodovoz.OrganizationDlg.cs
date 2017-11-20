@@ -137,7 +137,6 @@ namespace Vodovoz
 			this.radioTabInfo = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Основное"));
 			this.radioTabInfo.CanFocus = true;
 			this.radioTabInfo.Name = "radioTabInfo";
-			this.radioTabInfo.Active = true;
 			this.radioTabInfo.DrawIndicator = false;
 			this.radioTabInfo.UseUnderline = true;
 			this.radioTabInfo.Group = new global::GLib.SList(global::System.IntPtr.Zero);
@@ -487,13 +486,12 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebookMain]));
 			w40.Position = 1;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			w1.SetUiManager(UIManager);
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 			this.radioTabInfo.Toggled += new global::System.EventHandler(this.OnRadioTabInfoToggled);
 			this.radioTabAccounts.Toggled += new global::System.EventHandler(this.OnRadioTabAccountsToggled);
 		}

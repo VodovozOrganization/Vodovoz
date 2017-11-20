@@ -688,8 +688,7 @@ namespace Vodovoz.Domain.Logistic
 				item.ActualCount = IsDelivered() ? item.Count : 0;
 			}
 			PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
-			BottlesReturned = IsDelivered()
-				? (DriverBottlesReturned ?? Order.BottlesReturn) : 0;
+			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
 			TotalCash = IsDelivered() &&
 				Order.PaymentType == Client.PaymentType.cash
 				? Order.SumToReceive : 0;

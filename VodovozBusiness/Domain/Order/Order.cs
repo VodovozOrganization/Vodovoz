@@ -135,10 +135,10 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref previousOrder, value, () => PreviousOrder); }
 		}
 
-		int bottlesReturn;
+		int? bottlesReturn;
 
 		[Display(Name = "Бутылей на возврат")]
-		public virtual int BottlesReturn {
+		public virtual int? BottlesReturn {
 			get { return bottlesReturn; }
 			set { SetField(ref bottlesReturn, value, () => BottlesReturn); }
 		}
@@ -306,12 +306,12 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref toClientText, value, () => ToClientText); }
 		}
 
-		private int? dailyNumber1c;
+		private int? dailyNumber;
 
-		[Display(Name = "Ежедневный номер из 1с")]
-		public virtual int? DailyNumber1c {
-			get { return dailyNumber1c; }
-			set { SetField(ref dailyNumber1c, value, () => DailyNumber1c); }
+		[Display(Name = "Ежедневный номер")]
+		public virtual int? DailyNumber {
+			get { return dailyNumber; }
+			set { SetField(ref dailyNumber, value, () => DailyNumber); }
 		}
 
 		Employee lastEditor;
@@ -385,6 +385,14 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsService {
 			get { return isService; }
 			set { SetField(ref isService, value, () => IsService); }
+		}
+
+		int trifle;
+
+		[Display(Name = "Сдача")]
+		public virtual int Trifle {
+			get { return trifle; }
+			set { SetField(ref trifle, value, () => Trifle); }
 		}
 
 		#endregion
@@ -546,7 +554,6 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("Не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
 
-#if !SHORT
 					if (PaymentType == PaymentType.cashless && !SignatureType.HasValue)
 						yield return new ValidationResult ("Не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName (o => o.SignatureType) });
@@ -555,6 +562,11 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult ("Не указан договор.",
 							new[] { this.GetPropertyName (o => o.Contract) });
 
+					if(bottlesReturn == null)
+						yield return new ValidationResult("Не указано бутылей на возврат.",
+							new[] { this.GetPropertyName(o => o.Contract) });
+					
+ #if !SHORT
 					//Проверка товаров
 					var itemsWithBlankWarehouse = OrderItems
 						.Where(orderItem => Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category))
@@ -701,7 +713,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(nomenclature.Category != NomenclatureCategory.equipment)
 				return;
-			if(!nomenclature.Serial) {
+			if(!nomenclature.IsSerial) {
 				ObservableOrderItems.Add(new OrderItem {
 					Order = this,
 					AdditionalAgreement = null,
@@ -710,7 +722,8 @@ namespace Vodovoz.Domain.Orders
 					Nomenclature = nomenclature,
 					Price = nomenclature.GetPrice(1)
 				});
-			} else {
+			} 
+			else {
 				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, nomenclature);
 				ObservableOrderItems.AddWithReturn(new OrderItem {
 					Order = this,
@@ -728,7 +741,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(nomenclature.Category != NomenclatureCategory.equipment)
 				return;
-			if(!nomenclature.Serial) {
+			if(!nomenclature.IsSerial) {
 				ObservableOrderEquipments.Add(new OrderEquipment {
 
 					Order = this,
@@ -747,7 +760,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(nomenclature.Category != NomenclatureCategory.equipment)
 				return;
-			if(!nomenclature.Serial) {
+			if(!nomenclature.IsSerial) {
 				ObservableOrderEquipments.Add(new OrderEquipment {
 
 					Order = this,
@@ -819,7 +832,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(orderItem.Nomenclature.Category != NomenclatureCategory.equipment)
 				return;
-			if(!orderItem.Nomenclature.Serial) {
+			if(!orderItem.Nomenclature.IsSerial) {
 				ObservableOrderItems.Add(new OrderItem {
 					Order = this,
 					AdditionalAgreement = orderItem.AdditionalAgreement,
@@ -977,9 +990,9 @@ namespace Vodovoz.Domain.Orders
 
 			var waterItemsCount = ObservableOrderItems.Select(item => item)
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
-				.Sum(item => item.Count);
+			    .Sum(item => item.Count);
 
-			return waterItemsCount - BottlesReturn;
+			return waterItemsCount - BottlesReturn ?? 0 ;
 		}
 
 		public virtual void FillItemsFromAgreement(AdditionalAgreement a)
