@@ -17,6 +17,7 @@ namespace Vodovoz
 		#region Поля
 
 		private bool editing = true;
+		private bool editingAdmin = true;
 
 		List<RouteListKeepingItemNode> items;
 
@@ -26,6 +27,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			editing = QSMain.User.Permissions ["logistican"];
+			editingAdmin = QSMain.User.Permissions["logistic_admin"];
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = String.Format("Контроль за километражом маршрутного листа №{0}",Entity.Id);
 			ConfigureDlg ();
@@ -99,6 +101,8 @@ namespace Vodovoz
 
 			if(Entity.Status == RouteListStatus.MileageCheck){
 				buttonCloseRouteList.Sensitive = editing;
+			}else if(editingAdmin){
+				buttonCloseRouteList.Sensitive = true;
 			}
 			else
 				buttonCloseRouteList.Sensitive = false;
