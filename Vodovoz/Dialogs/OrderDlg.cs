@@ -37,6 +37,14 @@ namespace Vodovoz
 
 		LastChosenAction lastChosenAction = LastChosenAction.None;
 
+		/// <summary>
+		/// Ширина колонки "Номенклатура" списка товаров 
+		/// (создано для храннения ширины колонки до автосайза ячейки по 
+		/// содержимому, чтобы отобразить по правильному положению ввод 
+		/// количества при добавлении нового товара)
+		/// </summary>
+		private int treeItemsNomenclatureColWidth;
+
 		private enum LastChosenAction //
 		{
 			None,
@@ -326,6 +334,9 @@ namespace Vodovoz
 
 		void Entity_ObservableOrderItems_ElementAdded(object aList, int[] aIdx)
 		{
+			treeItemsNomenclatureColWidth = treeItems.Columns.First(x => x.Title == "Номенклатура").Width;
+			treeItems.ExposeEvent += TreeItems_ExposeEvent;
+			//Выполнение в случае если размер не поменяется
 			EditItemCountCellOnAdd();
 		}
 
@@ -1336,6 +1347,9 @@ namespace Vodovoz
 											&& Entity.OrderStatus != OrderStatus.Closed;
 		}
 
+		/// <summary>
+		/// Активирует редактирование ячейки количества
+		/// </summary>
 		private void EditItemCountCellOnAdd()
 		{
 			int index = treeItems.Model.IterNChildren() - 1;
@@ -1351,6 +1365,15 @@ namespace Vodovoz
 				treeItems.SetCursorOnCell(path, column, renderer, true);
 			});
 			treeItems.GrabFocus();
+		}
+
+		void TreeItems_ExposeEvent(object o, ExposeEventArgs args)
+		{
+			var newColWidth = treeItems.Columns.First(x => x.Title == "Номенклатура").Width;
+			if(treeItemsNomenclatureColWidth != newColWidth) {
+				EditItemCountCellOnAdd();
+				treeItems.ExposeEvent -= TreeItems_ExposeEvent;
+			}
 		}
 
 		public void FillOrderItems(Order order)
