@@ -1012,9 +1012,11 @@ namespace Vodovoz
 		{
 			if(CurrentObjectChanged != null)
 				CurrentObjectChanged(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
-			UpdateProxyInfo();
-			fixedPrices = GetFixedPriceList(Entity.DeliveryPoint);
-			SetProxyForOrder();
+			if(Entity.DeliveryPoint != null) {
+				UpdateProxyInfo();
+				fixedPrices = GetFixedPriceList(Entity.DeliveryPoint);
+				SetProxyForOrder();
+			}
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
@@ -1146,6 +1148,8 @@ namespace Vodovoz
 				&& Entity.OrderStatus == OrderStatus.NewOrder && !Entity.SelfDelivery
 				&& Entity.Client.DeliveryPoints.Count == 1) {
 				Entity.DeliveryPoint = Entity.Client.DeliveryPoints[0];
+			}else {
+				Entity.DeliveryPoint = null;
 			}
 			//Устанавливаем тип документа
 			if(Entity.Client != null && Entity.Client.DefaultDocumentType != null) {
@@ -1153,6 +1157,17 @@ namespace Vodovoz
 			} else if(Entity.Client != null) {
 				Entity.DocumentType = DefaultDocumentType.upd;
 			}
+
+			//Выбираем конракт, если он один у контрагента
+			if(Entity.Client.CounterpartyContracts.Count == 1) {
+				Entity.Contract = Entity.Client.CounterpartyContracts.FirstOrDefault();
+			}else {
+				Entity.Contract = null;
+			}
+
+			//Очищаем время доставки
+			Entity.DeliverySchedule = null;
+
 			//Устанавливаем тип оплаты
 			if(Entity.Client != null) {
 				Entity.PaymentType = Entity.Client.PaymentMethod;
