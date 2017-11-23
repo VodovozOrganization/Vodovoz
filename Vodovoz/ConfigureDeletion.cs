@@ -402,7 +402,8 @@ namespace Vodovoz
 				.AddDeleteDependence<CarUnloadDocument>(x => x.RouteList)
 				.AddDeleteDependence<Track>(x => x.RouteList)
 				.AddClearDependence<Fine>(x => x.RouteList)
-				.AddDeleteCascadeDependence(x => x.FuelOutlayedOperation)
+				.AddDeleteCascadeDependence(x => x.FuelOutlayedOperation) 
+			    .AddDeleteCascadeDependence(x => x.FuelGivedDocument)
 				.AddDeleteCascadeDependence(x => x.DriverWageOperation)
 				.AddDeleteCascadeDependence(x => x.ForwarderWageOperation);
 
