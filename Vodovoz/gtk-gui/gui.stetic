@@ -28579,6 +28579,7 @@
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
                 <signal name="RowActivated" handler="OnRouteListActivated" />
+                <signal name="ButtonReleaseEvent" handler="OnTreeRouteListsButtonReleaseEvent" />
               </widget>
             </child>
           </widget>

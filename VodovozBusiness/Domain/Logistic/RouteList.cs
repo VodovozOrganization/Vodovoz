@@ -551,6 +551,10 @@ namespace Vodovoz.Domain.Logistic
 					Status = RouteListStatus.New;
 				else
 					throw new NotImplementedException();
+			} else if(newStatus == RouteListStatus.OnClosing) {
+				if(Status == RouteListStatus.Closed) {
+					Status = newStatus;
+				}
 			}
 		}
 
