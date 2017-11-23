@@ -46,6 +46,22 @@
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="TextboxPrintDate">
+        <Top>7.4pt</Top>
+        <Left>0pt</Left>
+        <Height>12.00pt</Height>
+        <Width>162.06pt</Width>
+        <Value>={?Print_date}</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Left</TextAlign>
+        </Style>
+        <ZIndex >1</ZIndex>
+      </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
@@ -1660,6 +1676,11 @@ ORDER BY order_in_route;
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Print_date">
+      <DataType>String</DataType>
+      <Nullable>False</Nullable>
+      <AllowBlank>False</AllowBlank>
     </ReportParameter>
   </ReportParameters>
   <DataSources>
