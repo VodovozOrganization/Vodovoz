@@ -36,6 +36,7 @@ namespace Vodovoz
 				"Пользователь имеет права для установки максимальной суммы кредита."));
 			QSMain.ProjectPermission.Add ("logistican", new UserPermission ("logistican", "Логист", "Пользователь является логистом."));
 			QSMain.ProjectPermission.Add ("logistic_admin", new UserPermission("logistic_admin", "Логист- пересчет топлива в закрытых МЛ", "Пользователь может пересчитывать километраж в закрытых МЛ"));
+			QSMain.ProjectPermission.Add ("logistic_changedeliverytime", new UserPermission("logistic_changedeliverytime", "Логистика. Изменение времени доставки при ведении МЛ", "Пользователь может изменять время доставки в диалоге ведения маршрутного листа"));
 			QSMain.ProjectPermission.Add ("money_manage", new UserPermission ("money_manage", "Управление деньгами", "Пользователь имеет доступ к денежным операциям(касса и т.п.)."));
 			QSMain.ProjectPermission.Add ("routelist_unclosing", new UserPermission ("routelist_unclosing", "Касса. Отмена закрытия маршрутных листов", "Пользователь может переводить маршрутные листы из статуса Закрыт в статус Сдается"));
 			QSMain.ProjectPermission.Add ("store_manage", new UserPermission("store_manage", "Управление складом", "Пользователь имеет полный доступ к складу."));

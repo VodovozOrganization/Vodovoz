@@ -203,7 +203,7 @@ namespace Vodovoz
 
 		public void OnSelectionChanged(object sender, EventArgs args){
 			buttonSetStatusComplete	.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() > 0;
-			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1;
+			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1 && QSMain.User.Permissions["logistic_changedeliverytime"];
 		}
 
 		void ReferenceForwarder_Changed (object sender, EventArgs e)
@@ -293,6 +293,9 @@ namespace Vodovoz
 
 		protected void OnButtonChangeDeliveryTimeClicked (object sender, EventArgs e)
 		{
+			if(!QSMain.User.Permissions["logistic_changedeliverytime"]) {
+				return;
+			}
 			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
 			if (selectedObjects.Count() != 1)
 				return;
