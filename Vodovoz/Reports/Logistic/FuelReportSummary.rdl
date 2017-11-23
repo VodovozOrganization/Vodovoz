@@ -1710,7 +1710,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="FuelOther">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     fuel_documents.date AS date,
@@ -1743,7 +1743,7 @@ LEFT JOIN
 	fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
 WHERE 
     (cars.type_of_use = 'Other' or cars.type_of_use is null) AND
-    fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
+    fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; @end_date 
     AND (@author = -1 OR author_id = @author)
  </CommandText>
         <QueryParameters>
@@ -1758,7 +1758,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1839,7 +1839,7 @@ LEFT JOIN
 	fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
 WHERE 
     cars.type_of_use = 'Truck' AND
-    fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
+    fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; @end_date 
     AND (@author = -1 OR author_id = @author)</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -1934,7 +1934,7 @@ LEFT JOIN
 	fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
 WHERE 
     cars.type_of_use = 'Largus' AND
-    fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
+    fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; @end_date 
     AND (@author = -1 OR author_id = @author)</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
