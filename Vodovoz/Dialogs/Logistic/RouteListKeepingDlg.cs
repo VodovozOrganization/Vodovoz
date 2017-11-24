@@ -139,6 +139,8 @@ namespace Vodovoz
 				.AddColumn("Комментарий")
 					.AddTextRenderer(node => node.Comment)
 					.Editable(allEditing)
+				.AddColumn("Переносы")
+					.AddTextRenderer(node => node.Transferred)
 				.RowCells ()
 					.AddSetter<CellRenderer> ((cell, node) => cell.CellBackgroundGdk = node.RowColor)
 				.Finish();
@@ -343,22 +345,6 @@ namespace Vodovoz
 			Entity.LastCallTime = DateTime.Now;
 		}
 
-		protected void OnYtreeviewAddressesRowActivated(object o, RowActivatedArgs args) 	// Метод вызывает по даблклику на статус адреса окно с сообщением, от кого и кому передан. @Дима
-		{
-			var checkedItems = ytreeviewAddresses.GetSelectedObjects();
-			if(checkedItems.Count() != 1) 													// Проверка на всякий случай, чтоб не даблкликнули по нескольким объектам. @Дима
-			{
-				return;
-			}
-			var node = checkedItems.Cast<RouteListKeepingItemNode>().First();
-			if(args.Column.Title == "Статус" &&
-				   node.Status == RouteListItemStatus.Transfered) {
-				MessageDialogWorks.RunInfoDialog(node.RouteListItem.GetTransferText(node.RouteListItem));
-				return;
-			}
-			//		OnClosingItemActivated(o, args);
-		}
-
 		protected void OnButtonRetriveEnRouteClicked(object sender, EventArgs e)
 		{
 			Entity.RollBackEnRouteStatus();
@@ -424,7 +410,11 @@ namespace Vodovoz
 			}
 		}
 
-
+		public string Transferred {
+			get{
+				return RouteListItem.GetTransferText(RouteListItem);
+			}
+		}
 
 		RouteListItem routeListItem;
 
