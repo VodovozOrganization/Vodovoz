@@ -565,7 +565,7 @@ namespace Vodovoz.Domain.Orders
 					if(bottlesReturn == null)
 						yield return new ValidationResult("Не указано бутылей на возврат.",
 							new[] { this.GetPropertyName(o => o.Contract) });
-					if(trifle == null)
+					if(trifle == null && PaymentType == PaymentType.cash)
 						yield return new ValidationResult("Не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					
