@@ -156,6 +156,9 @@ namespace Vodovoz
 			entryBottlesReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryBottlesReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
+			entryTrifle.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			entryTrifle.Binding.AddBinding(Entity, e => e.Trifle, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+
 			referenceContract.Binding.AddBinding(Entity, e => e.Contract, w => w.Subject).InitializeFromSource();
 
 			yentryAddress1cDeliveryPoint.Binding.AddBinding(Entity, e => e.Address1c, w => w.Text).InitializeFromSource();
@@ -310,7 +313,6 @@ namespace Vodovoz
 			enumareRasonType.ItemsEnum = typeof(ReasonType);
 			enumareRasonType.Binding.AddBinding(Entity, s => s.ReasonType, w => w.SelectedItem).InitializeFromSource();
 
-			spinTrifle.Binding.AddBinding(Entity, t => t.Trifle, w => w.ValueAsInt).InitializeFromSource();
 
 			UpdateVisibleOfWingets();
 			UpdateButtonState();
@@ -1504,6 +1506,14 @@ namespace Vodovoz
 			if(Int32.TryParse(entryBottlesReturn.Text,out result)) {
 				Entity.BottlesReturn = result;
 				UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
+			}
+		}
+
+		protected void OnEntryTrifleChanged(object sender, EventArgs e)
+		{
+			int result = 0;
+			if(Int32.TryParse(entryTrifle.Text, out result)) {
+				Entity.Trifle = result;
 			}
 		}
 	}

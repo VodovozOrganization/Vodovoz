@@ -202,7 +202,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox8;
 
-		private global::Gamma.GtkWidgets.ySpinButton spinTrifle;
+		private global::Gamma.Widgets.yValidatedEntry entryTrifle;
 
 		private global::Gtk.HSeparator hseparator1;
 
@@ -1301,16 +1301,13 @@ namespace Vodovoz
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.spinTrifle = new global::Gamma.GtkWidgets.ySpinButton(-100000D, 100000D, 1D);
-			this.spinTrifle.CanFocus = true;
-			this.spinTrifle.Name = "spinTrifle";
-			this.spinTrifle.Adjustment.PageIncrement = 10D;
-			this.spinTrifle.ClimbRate = 1D;
-			this.spinTrifle.Numeric = true;
-			this.spinTrifle.ValueAsDecimal = 0m;
-			this.spinTrifle.ValueAsInt = 0;
-			this.hbox8.Add(this.spinTrifle);
-			global::Gtk.Box.BoxChild w94 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.spinTrifle]));
+			this.entryTrifle = new global::Gamma.Widgets.yValidatedEntry();
+			this.entryTrifle.CanFocus = true;
+			this.entryTrifle.Name = "entryTrifle";
+			this.entryTrifle.IsEditable = true;
+			this.entryTrifle.InvisibleChar = '•';
+			this.hbox8.Add(this.entryTrifle);
+			global::Gtk.Box.BoxChild w94 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.entryTrifle]));
 			w94.Position = 0;
 			w94.Expand = false;
 			w94.Fill = false;
@@ -1773,6 +1770,7 @@ namespace Vodovoz
 			this.enumDiverCallType.Changed += new global::System.EventHandler(this.OnEnumDiverCallTypeChanged);
 			this.enumareRasonType.Changed += new global::System.EventHandler(this.OnEnumDiverCallTypeChanged);
 			this.spinSumDifference.ValueChanged += new global::System.EventHandler(this.OnSpinSumDifferenceValueChanged);
+			this.entryTrifle.Changed += new global::System.EventHandler(this.OnEntryTrifleChanged);
 			this.buttonSetDiscount.Clicked += new global::System.EventHandler(this.OnButtonSetDiscountClicked);
 			this.entryBottlesReturn.Changed += new global::System.EventHandler(this.OnEntryBottlesReturnChanged);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler(this.OnButtonAddForSaleClicked);
