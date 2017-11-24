@@ -323,6 +323,9 @@ namespace Vodovoz
 
 		private void EmptyBottleCellSetter(Gamma.GtkWidgets.Cells.NodeCellRendererSpin<RouteListItem> cell, RouteListItem node)
 		{
+			if(!ytreeviewItems.Sensitive) {
+				cell.Weight = 700; 
+			}
 			if(node.DriverBottlesReturned.HasValue)
 			{
 				if(node.BottlesReturned == node.DriverBottlesReturned)
