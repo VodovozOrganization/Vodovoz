@@ -633,6 +633,7 @@ namespace Vodovoz
 			decimal spentFuel = (decimal)Entity.Car.FuelConsumption
 										/ 100 * Entity.ActualDistance;
 
+
 			//Проверка существования трека и заполнения дистанции
 			bool hasTrack = track?.Distance.HasValue ?? false;
 			buttonGetDistFromTrack.Sensitive = hasTrack && editing;
@@ -659,7 +660,18 @@ namespace Vodovoz
 						Entity.FuelGivedDocument.Operation.LitersGived));
 			}
 
-			if(Entity.Car.FuelType != null) {
+			if(Entity.ConfirmedDistance != 0 && Entity.ConfirmedDistance != Entity.ActualDistance){
+				
+				decimal spentFuelConfirmed = (decimal)Entity.Car.FuelConsumption
+										/ 100 * Entity.ConfirmedDistance;
+				
+				text.Add(string.Format("Топливо подтвержденное логистами: {0:F2} л.",
+			 		spentFuelConfirmed, (decimal)Entity.Car.FuelConsumption));
+				
+				spentFuel = spentFuelConfirmed;
+			}
+
+			 if(Entity.Car.FuelType != null) {
 				text.Add(string.Format("Текущий остаток топлива {0:F2} л.", balanceBeforeOp
 					+ (Entity.FuelGivedDocument?.Operation.LitersGived ?? 0) - spentFuel));
 			}
