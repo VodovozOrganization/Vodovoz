@@ -663,6 +663,9 @@
           <TableColumn>
             <Width>85.6pt</Width>
           </TableColumn>
+          <TableColumn>
+            <Width>200pt</Width>
+          </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
@@ -689,6 +692,22 @@
                   <ReportItems>
                     <Textbox Name="Textbox37">
                       <Value>Сумма аванса</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxAdvanceDescrTitle">
+                      <Value>Основание к авансу</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -743,6 +762,22 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxAdvanceDescription">
+                      <Value>=Fields!description.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -782,6 +817,21 @@
                         <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum(Fields!advance.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1443,9 +1493,11 @@ GROUP BY fines.id
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     wages_movement_operations.operation_time AS date,
-    wages_movement_operations.money * (-1) AS advance
+    wages_movement_operations.money * (-1) AS advance,
+    cash_expense.description AS description
 FROM
     wages_movement_operations
+INNER JOIN cash_expense ON cash_expense.wages_movement_operations_id = wages_movement_operations.id
 WHERE
     wages_movement_operations.operation_type = 'GivedAdvance'
         AND wages_movement_operations.employee_id = @driver_id
@@ -1471,6 +1523,10 @@ WHERE
         <Field Name="advance">
           <DataField>advance</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="description">
+          <DataField>description</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
