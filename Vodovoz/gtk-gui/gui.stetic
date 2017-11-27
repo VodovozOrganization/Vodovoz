@@ -12136,7 +12136,7 @@
                 <child>
                   <widget class="Gtk.Label" id="label9">
                     <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes">Срок:</property>
+                    <property name="LabelProp" translatable="yes">Оплатить месяцев:</property>
                   </widget>
                   <packing>
                     <property name="Position">1</property>
@@ -12146,19 +12146,12 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.GtkWidgets.ySpinButton" id="spinMonths">
+                  <widget class="Gamma.Widgets.yValidatedEntry" id="entryMonths">
                     <property name="MemberName" />
-                    <property name="Tooltip" translatable="yes">1 - максимальный приоритет
-10 - минимальный приоритет</property>
                     <property name="CanFocus">True</property>
-                    <property name="Upper">100</property>
-                    <property name="PageIncrement">1</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
-                    <property name="Value">1</property>
-                    <property name="ValueAsDecimal">0</property>
-                    <property name="ValueAsInt">0</property>
+                    <property name="IsEditable">True</property>
+                    <property name="InvisibleChar">•</property>
+                    <signal name="Changed" handler="OnEntryMonthsChanged" />
                   </widget>
                   <packing>
                     <property name="Position">2</property>

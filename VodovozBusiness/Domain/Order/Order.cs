@@ -1038,19 +1038,19 @@ namespace Vodovoz.Domain.Orders
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
 							item => item.AdditionalAgreement == a &&
 							item.Nomenclature.Id == (IsDaily ? equipment.PaidRentPackage.RentServiceDaily.Id : equipment.PaidRentPackage.RentServiceMonthly.Id) &&
-							item.Price == equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : (a as NonfreeRentAgreement).RentMonths))) != null) {
-						orderItem.Count++;
-						orderItem.Price = orderItem.Nomenclature.GetPrice(orderItem.Count);
+							item.Price == equipment.Price)) != null) {
+						orderItem.Count = IsDaily ? (a as DailyRentAgreement).RentDays : (a as NonfreeRentAgreement).RentMonths.Value;
+						orderItem.Price = equipment.Price /*orderItem.Nomenclature.GetPrice(orderItem.Count)*/;
 						ItemId = ObservableOrderItems.IndexOf(orderItem);
 					} else {
 						ItemId = ObservableOrderItems.AddWithReturn(
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = a,
-								Count = 1,
+								Count = IsDaily ? (a as DailyRentAgreement).RentDays : (a as NonfreeRentAgreement).RentMonths.Value,
 								Equipment = null,
 								Nomenclature = IsDaily ? equipment.PaidRentPackage.RentServiceDaily : equipment.PaidRentPackage.RentServiceMonthly,
-								Price = equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : (a as NonfreeRentAgreement).RentMonths),
+								Price = equipment.Price,
 								PaidRentEquipment = equipment
 							}
 						);

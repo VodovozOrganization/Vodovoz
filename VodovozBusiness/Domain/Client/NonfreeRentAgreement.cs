@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Client
 	public class NonfreeRentAgreement : AdditionalAgreement
 	{
 		[Display(Name = "Количество месяцев аренды для оплаты")]
-		public virtual int RentMonths { get; set; }
+		public virtual int? RentMonths { get; set; }
 
 		IList<PaidRentEquipment> equipment = new List<PaidRentEquipment> ();
 
@@ -43,6 +43,9 @@ namespace Vodovoz.Domain.Client
 
 			if (Equipment.Count < 1)
 				yield return new ValidationResult("Необходимо добавить в список оборудование.", new[] { "Equipment" });
+			
+			if(RentMonths == null)
+				yield return new ValidationResult("Поле \"Оплатить месяцев\" должно быть заполнено.", new[] { "RentMonths" });
 		}
 
 		public static IUnitOfWorkGeneric<NonfreeRentAgreement> Create (CounterpartyContract contract)

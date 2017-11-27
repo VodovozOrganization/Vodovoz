@@ -65,7 +65,8 @@ namespace Vodovoz
 			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 
-			spinMonths.Binding.AddBinding(Entity, e => e.RentMonths, w => w.ValueAsInt).InitializeFromSource();
+			entryMonths.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			entryMonths.Binding.AddBinding(Entity, e => e.RentMonths, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			paidrentpackagesview1.AgreementUoW = UoWGeneric;
 			if (Entity.AgreementTemplate == null && Entity.Contract != null)
@@ -89,6 +90,14 @@ namespace Vodovoz
 			if (AgreementSaved != null)
 				AgreementSaved (this, new AgreementSavedEventArgs (UoWGeneric.Root));
 			return true;
+		}
+
+		protected void OnEntryMonthsChanged(object sender, EventArgs e)
+		{
+			int result = 0;
+			if(Int32.TryParse(entryMonths.Text, out result)) {
+				Entity.RentMonths = result;
+			}
 		}
 	}
 }

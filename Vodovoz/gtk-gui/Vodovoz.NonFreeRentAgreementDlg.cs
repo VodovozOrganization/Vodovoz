@@ -20,9 +20,9 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yDatePicker dateStart;
 
-		private global::Gtk.Label labelMonths;
+		private global::Gtk.Label label9;
 
-		private global::Gamma.GtkWidgets.ySpinButton spinMonths;
+		private global::Gamma.Widgets.yValidatedEntry entryMonths;
 
 		private global::Gtk.Label label4;
 
@@ -124,27 +124,25 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.dateStart]));
 			w7.Position = 0;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.labelMonths = new global::Gtk.Label();
-			this.labelMonths.Name = "labelMonths";
-			this.labelMonths.LabelProp = global::Mono.Unix.Catalog.GetString("Оплатить месяцев:");
-			this.hbox6.Add(this.labelMonths);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.labelMonths]));
+			this.label9 = new global::Gtk.Label();
+			this.label9.Name = "label9";
+			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString("Оплатить месяцев:");
+			this.hbox6.Add(this.label9);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.label9]));
 			w8.Position = 1;
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.spinMonths = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
-			this.spinMonths.CanFocus = true;
-			this.spinMonths.Name = "spinMonths";
-			this.spinMonths.Adjustment.PageIncrement = 10;
-			this.spinMonths.ClimbRate = 1;
-			this.spinMonths.Numeric = true;
-			this.spinMonths.Value = 1;
-			this.spinMonths.ValueAsDecimal = 0m;
-			this.spinMonths.ValueAsInt = 0;
-			this.hbox6.Add(this.spinMonths);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.spinMonths]));
+			this.entryMonths = new global::Gamma.Widgets.yValidatedEntry();
+			this.entryMonths.CanFocus = true;
+			this.entryMonths.Name = "entryMonths";
+			this.entryMonths.IsEditable = true;
+			this.entryMonths.InvisibleChar = '•';
+			this.hbox6.Add(this.entryMonths);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.entryMonths]));
 			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.datatable1.Add(this.hbox6);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1[this.hbox6]));
 			w10.TopAttach = ((uint)(3));
@@ -248,6 +246,7 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.entryMonths.Changed += new global::System.EventHandler(this.OnEntryMonthsChanged);
 		}
 	}
 }
