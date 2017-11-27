@@ -660,7 +660,7 @@ namespace Vodovoz
 		void UpdateVisibleOfWingets()
 		{
 			bool visibleDeposit = Entity.OrderDepositItems.Count > 0;
-			GtkScrolledWindowDeposit.Visible = labelDeposit.Visible = visibleDeposit;
+			treeDepositRefundItems.Visible = labelDeposit.Visible = visibleDeposit;
 		}
 
 		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
