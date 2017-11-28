@@ -89,7 +89,7 @@ namespace Vodovoz
 				.SelectMany(item => item.Order.OrderItems)
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.ToList();
-			var goodsReturnedFromClient = orderClosingItems.Where(item => !item.Nomenclature.Serial)
+			var goodsReturnedFromClient = orderClosingItems.Where(item => !item.Nomenclature.IsSerial)
 				.GroupBy(item => item.Nomenclature,
 					item => item.ReturnedCount,
 					(nomenclature, amounts) => new

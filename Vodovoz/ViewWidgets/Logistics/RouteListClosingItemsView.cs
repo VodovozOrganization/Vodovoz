@@ -263,7 +263,7 @@ namespace Vodovoz
 					else
 					{
 						var itemChanged = node.Order.OrderItems
-							.Where(item => !item.Nomenclature.Serial)
+							.Where(item => !item.Nomenclature.IsSerial)
 							.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 							.Any(item => item.Count != item.ActualCount);
 						var equipmentChanged = node.Order.OrderEquipments

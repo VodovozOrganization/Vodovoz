@@ -269,7 +269,7 @@ namespace Vodovoz
 			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim>()
 				.AddColumn("Статус заявки").SetDataProperty(node => node.Status.GetEnumTitle())
 				.AddColumn("Номенклатура оборудования").SetDataProperty(node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
-				.AddColumn("Серийный номер").SetDataProperty(node => node.Equipment != null ? node.Equipment.Serial : "-")
+				.AddColumn("Серийный номер").SetDataProperty(node => node.Equipment != null && node.Equipment.Nomenclature.IsSerial ? node.Equipment.Serial : "-")
 				.AddColumn("Причина").SetDataProperty(node => node.Reason)
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 				.Finish();
@@ -792,7 +792,7 @@ namespace Vodovoz
 #endif
 
 				foreach(OrderItem item in UoWGeneric.Root.ObservableOrderItems) {
-					if(item.Nomenclature.Category == NomenclatureCategory.equipment && item.Nomenclature.Serial) {
+					if(item.Nomenclature.Category == NomenclatureCategory.equipment && item.Nomenclature.IsSerial) {
 						int[] alreadyAdded = UoWGeneric.Root.OrderEquipments
 							.Where(orderEquipment => orderEquipment.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
 							.Where(orderEquipment => orderEquipment.Equipment != null)
