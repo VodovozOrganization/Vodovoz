@@ -35,7 +35,7 @@ namespace Vodovoz
 				.AddDeleteDependenceFromBag (item => item.NomenclaturePrice)
 				.AddDeleteDependence<Equipment> (item => item.Nomenclature)
 				.AddDeleteDependence<OrderItem>(x => x.Nomenclature)
-				.AddDeleteDependence<OrderEquipment>(x => x.NewEquipmentNomenclature)
+				.AddDeleteDependence<OrderEquipment>(x => x.Nomenclature)
 				.AddDeleteDependence<ServiceClaim>(x => x.Nomenclature)
 				.AddDeleteDependence<ServiceClaimItem>(x => x.Nomenclature)
 				.AddDeleteDependence<WarehouseMovementOperation> (item => item.Nomenclature)

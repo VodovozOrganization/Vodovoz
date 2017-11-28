@@ -105,6 +105,7 @@ namespace Vodovoz
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
 			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
+			//treeEquipmentFromClient.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
 			treeDepositRefundItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderDepositItems;
 			treeServiceClaim.ItemsDataSource = UoWGeneric.Root.ObservableInitialOrderService;
 			//TODO FIXME Добавить в таблицу закрывающие заказы.
@@ -247,11 +248,9 @@ namespace Vodovoz
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
 				.AddColumn("Наименование").SetDataProperty(node => node.NameString)
 				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
-				.AddColumn("Причина").SetDataProperty(node => node.ReasonString)
-				.AddColumn("Номер заявки").AddTextRenderer(
-					node => node.ServiceClaim != null
-					? node.ServiceClaim.Id.ToString()
-					: "")
+			    .AddColumn("Кол-во").AddNumericRenderer(node => node.Count)
+				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
+				.AddColumn("")
 				.Finish();
 
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument>()
@@ -1244,6 +1243,139 @@ namespace Vodovoz
 			buttonCloseOrder.Sensitive = QSMain.User.Permissions["can_close_orders"] 
 											&& Entity.OrderStatus >= OrderStatus.Accepted 
 											&& Entity.OrderStatus != OrderStatus.Closed;
+		}
+
+		private void EditItemCountCellOnAdd()
+		{
+			int index = treeItems.Model.IterNChildren() - 1;
+			Gtk.TreeIter iter;
+			Gtk.TreePath path;
+
+			treeItems.Model.IterNthChild(out iter, index);
+			path = treeItems.Model.GetPath(iter);
+
+			var column = treeItems.Columns.First(x => x.Title == "Кол-во");
+			var renderer = column.CellRenderers.First();
+			Application.Invoke(delegate {
+				treeItems.SetCursorOnCell(path, column, renderer, true);
+			});
+			treeItems.GrabFocus();
+		}
+
+		public void FillOrderItems(Order order)
+		{
+			if(Entity.ObservableOrderItems.Count > 0 && !MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите удалить все позиции текущего из заказа и заполнить его позициями из выбранного?"))
+			{
+				return;
+			}
+
+			Entity.ClearOrderItemsList();
+			foreach (OrderItem orderItem in order.OrderItems)
+			{
+				switch (orderItem.Nomenclature.Category)
+				{
+					case NomenclatureCategory.equipment:
+						Entity.AddEquipmentNomenclatureForSaleFromPreviousOrder(orderItem, UoWGeneric);
+						continue;
+					case NomenclatureCategory.water:
+						CounterpartyContract contract = CounterpartyContractRepository.
+						GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType);
+						if (contract == null)
+						{
+						/*	var result = AskCreateContract();
+							switch (result)
+							{
+								case (int)ResponseType.Yes:
+									RunContractAndWaterAgreementDialog(orderItem.Nomenclature);
+									break;
+								case (int)ResponseType.Accept:
+									CreateDefaultContractWithAgreement(orderItem.Nomenclature);
+									break;
+								default:
+									break;
+							} */
+							continue;
+						}
+						UoWGeneric.Session.Refresh(contract);
+						WaterSalesAgreement wsa = contract.GetWaterSalesAgreement(UoWGeneric.Root.DeliveryPoint, orderItem.Nomenclature);
+						if (wsa == null)
+						{
+							//Если нет доп. соглашения продажи воды.
+							if (MessageDialogWorks.RunQuestionDialog("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?"))
+							{
+								RunAdditionalAgreementWaterDialog();
+							}
+							else
+								continue;
+						}
+						else
+						{
+							Entity.AddWaterForSaleFromPreviousOrder(orderItem, wsa);
+							UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
+						}
+						continue;
+					default:
+						Entity.AddAnyGoodsNomenclatureForSaleFromPreviousOrder(orderItem);
+						continue;
+				}
+			}
+		}
+
+		protected void OnButtonAddEquipmentRepair(object sender, EventArgs e)
+		{
+			if(UoWGeneric.Root.Client == null) {
+				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				return;
+			}
+
+			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			nomenclatureFilter.NomenCategory = NomenclatureCategory.equipment;
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.TabName = "Номенклатура на ремонт";
+			SelectDialog.ObjectSelected += NomenclatureForRepair;
+			TabParent.AddSlaveTab(this, SelectDialog);
+		}
+
+		void NomenclatureForRepair(object sender, ReferenceRepresentationSelectedEventArgs e)
+		{
+			AddNomenclature1(UoWGeneric.Session.Get<Nomenclature>(e.ObjectId));
+		}
+
+		void AddNomenclature1(Nomenclature nomenclature)
+		{
+		 	UoWGeneric.Root.AddEquipmentNomenclatureForRepair(nomenclature, UoWGeneric);
+		}
+
+		protected void OnButtonAddEquipmentFromClient(object sender, EventArgs e)
+		{
+			if(UoWGeneric.Root.Client == null) {
+				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				return;
+			}
+
+			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			nomenclatureFilter.NomenCategory = NomenclatureCategory.equipment;
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.TabName = "Номенклатура на ремонт";
+			SelectDialog.ObjectSelected += NomenclatureForRepairFromClient;
+			TabParent.AddSlaveTab(this, SelectDialog);
+		}
+
+		void NomenclatureForRepairFromClient(object sender, ReferenceRepresentationSelectedEventArgs e)
+		{
+			AddNomenclatureFromClient(UoWGeneric.Session.Get<Nomenclature>(e.ObjectId));
+		}
+
+		void AddNomenclatureFromClient(Nomenclature nomenclature)
+		{
+			UoWGeneric.Root.AddEquipmentNomenclatureForRepairFromClient(nomenclature, UoWGeneric);
+		}
+
+  		protected void OnButtonDeleteEquipmentClicked(object sender, EventArgs e)
+		{
+			UoWGeneric.Root.DeleteEquipment(treeEquipment.GetSelectedObject() as OrderEquipment);
 		}
 	}
 }

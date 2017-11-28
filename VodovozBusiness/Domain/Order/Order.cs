@@ -725,6 +725,50 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
+		public virtual void AddEquipmentNomenclatureForRepair(Nomenclature nomenclature, IUnitOfWork UoW)
+		{
+			if(nomenclature.Category != NomenclatureCategory.equipment)
+				return;
+			if(!nomenclature.Serial) {
+				ObservableOrderEquipments.Add(new OrderEquipment {
+					
+					Order = this,
+					Direction = Direction.Deliver,
+				    Equipment = null,
+					OrderItem = null,
+					Reason = Reason.Service,
+					Confirmed = true,
+					Nomenclature = nomenclature
+				});
+			 } 
+			UpdateDocuments();
+		}
+
+		public virtual void AddEquipmentNomenclatureForRepairFromClient(Nomenclature nomenclature, IUnitOfWork UoW)
+		{
+			if(nomenclature.Category != NomenclatureCategory.equipment)
+				return;
+			if(!nomenclature.Serial) {
+				ObservableOrderEquipments.Add(new OrderEquipment {
+
+					Order = this,
+					Direction = Direction.PickUp,
+					Equipment = null,
+					OrderItem = null,
+					Reason = Reason.Service,
+					Confirmed = true,
+					Nomenclature = nomenclature
+				});
+			}
+			UpdateDocuments();
+		}
+
+		public virtual void DeleteEquipment( OrderEquipment item)
+		{
+			ObservableOrderEquipments.Remove(item);
+			UpdateDocuments();
+		}
+
 		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature)
 		{
 			if (nomenclature.Category != NomenclatureCategory.additional && nomenclature.Category != NomenclatureCategory.bottle &&
@@ -913,6 +957,7 @@ namespace Vodovoz.Domain.Orders
 							Order = this,
 							Direction = Direction.Deliver,
 							Equipment = equipment.Equipment,
+							Nomenclature = equipment.Equipment.Nomenclature,
 							Reason = Reason.Rent,
 							OrderItem = ObservableOrderItems[ItemId]
 						}
@@ -967,7 +1012,7 @@ namespace Vodovoz.Domain.Orders
 						Order = this,
 						Direction = Direction.PickUp,
 						Equipment = service.Equipment,
-						NewEquipmentNomenclature = service.Equipment == null ? service.Nomenclature : null,
+						Nomenclature = service.Equipment == null ? service.Nomenclature : null,
 						OrderItem = null,
 						Reason = Reason.Service,
 						ServiceClaim = service
@@ -978,7 +1023,7 @@ namespace Vodovoz.Domain.Orders
 						Order = this,
 						Direction = Direction.Deliver,
 						Equipment = service.ReplacementEquipment,
-						NewEquipmentNomenclature = null,
+						Nomenclature = null,
 						OrderItem = null,
 						Reason = Reason.Service
 					});
@@ -1022,11 +1067,11 @@ namespace Vodovoz.Domain.Orders
 		public virtual void FillNewEquipment(Equipment registeredEquipment)
 		{
 			var newEquipment = ObservableOrderEquipments
-				.Where(orderEq => orderEq.NewEquipmentNomenclature != null)
-				.FirstOrDefault(orderEq => orderEq.NewEquipmentNomenclature.Id == registeredEquipment.Nomenclature.Id);
+				.Where(orderEq => orderEq.Nomenclature != null)
+				.FirstOrDefault(orderEq => orderEq.Nomenclature.Id == registeredEquipment.Nomenclature.Id);
 			if (newEquipment != null) {
 				newEquipment.Equipment = registeredEquipment;
-				newEquipment.NewEquipmentNomenclature = null;
+				newEquipment.Nomenclature = null;
 			}
 		}
 

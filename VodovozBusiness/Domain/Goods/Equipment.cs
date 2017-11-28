@@ -27,12 +27,12 @@ namespace Vodovoz.Domain.Goods
 			set { SetField (ref onDuty, value, () => OnDuty); }
 		}
 
-		//string serial;
+		string serial;
 
 		[Display (Name = "Серийный номер")]
 		public virtual string Serial {
 			get { return Id > 0 ? Id.ToString () : "не определён"; }
-			//set { SetField (ref serial, value, () => Serial); }
+			set { SetField (ref serial, value, () => Serial); }
 		}
 
 		string comment;

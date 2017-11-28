@@ -365,13 +365,12 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.notebook1]));
 			w29.Position = 1;
 			this.Add(this.vbox3);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			w1.SetUiManager(UIManager);
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 			this.radiobuttonInfo.Toggled += new global::System.EventHandler(this.OnRadiobuttonInfoToggled);
 			this.radiobuttonSticker.Toggled += new global::System.EventHandler(this.OnRadiobuttonStickerToggled);
 		}

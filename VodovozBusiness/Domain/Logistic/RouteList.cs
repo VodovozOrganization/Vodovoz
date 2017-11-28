@@ -663,6 +663,7 @@ namespace Vodovoz.Domain.Logistic
 					result.Add(operation);
 			}
 
+			//FIXME запуск оборудования - временный фикс
 			//FIXME Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
 			if(addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
 				throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");

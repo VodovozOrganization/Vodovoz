@@ -89,9 +89,9 @@ namespace Vodovoz.Repository.Logistics
 
 			var orderEquipmentsQuery = uow.Session.QueryOver<OrderEquipment> (() => orderEquipmentAlias)
 				.WithSubquery.WhereProperty (i => i.Order.Id).In (ordersQuery)
-				.JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias)
+			    .JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where (() => orderEquipmentAlias.Direction == Direction.Deliver)
-				.JoinAlias (() => equipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias);
+			    .JoinAlias (() => orderEquipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias);
 			if (warehouse != null)
 				orderEquipmentsQuery.Where (() => OrderEquipmentNomenclatureAlias.Warehouse == warehouse);
 

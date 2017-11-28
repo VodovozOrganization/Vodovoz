@@ -42,9 +42,11 @@ namespace Vodovoz
 			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
 
 			referenceNomenclature.SubjectType = typeof(Nomenclature);
-			referenceNomenclature.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
-				.Add (Restrictions.Eq ("Category", NomenclatureCategory.equipment))
-				.Add (Restrictions.Eq ("Serial", true));
+			referenceNomenclature.Binding.AddBinding(Entity, e => e.Nomenclature, w => w.Subject).InitializeFromSource(); 
+			//FIXME запуск оборудования - временный фикс
+			//referenceNomenclature.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature>();
+												//.Add(Restrictions.Eq("Category", NomenclatureCategory.equipment));
+												//.Add (Restrictions.Eq ("Serial", true));
 			ydatepickerWarrantyEnd.Binding.AddBinding (UoWGeneric.Root, 
 				equipment => equipment.WarrantyEndDate, 
 				widget => widget.DateOrNull
