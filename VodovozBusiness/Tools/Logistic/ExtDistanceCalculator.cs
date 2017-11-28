@@ -147,11 +147,14 @@ namespace Vodovoz.Tools.Logistic
 		/// </remarks>
 		private void DoBackground()
 		{
-			while(waitDistance != null || NextTheadsPos.FromIx < hashes.Length)
+			while(true)
 			{
 				long fromHash, toHash;
 
 				lock(NextTheadsPos) {
+					if(NextTheadsPos.FromIx >= hashes.Length && waitDistance == null)
+						break;
+
 					if(waitDistance != null) {
 						fromHash = waitDistance.Value.FromHash;
 						toHash = waitDistance.Value.ToHash;
