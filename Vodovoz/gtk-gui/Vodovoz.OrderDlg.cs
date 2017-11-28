@@ -1202,11 +1202,11 @@ namespace Vodovoz
 			w86.Expand = false;
 			w86.Fill = false;
 			// Container child hbox11.Gtk.Box+BoxChild
-			this.yspinDiscountOrder = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
+			this.yspinDiscountOrder = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.yspinDiscountOrder.CanFocus = true;
 			this.yspinDiscountOrder.Name = "yspinDiscountOrder";
-			this.yspinDiscountOrder.Adjustment.PageIncrement = 10;
-			this.yspinDiscountOrder.ClimbRate = 1;
+			this.yspinDiscountOrder.Adjustment.PageIncrement = 10D;
+			this.yspinDiscountOrder.ClimbRate = 1D;
 			this.yspinDiscountOrder.Numeric = true;
 			this.yspinDiscountOrder.ValueAsDecimal = 0m;
 			this.yspinDiscountOrder.ValueAsInt = 0;
@@ -1287,11 +1287,11 @@ namespace Vodovoz
 			w94.XOptions = ((global::Gtk.AttachOptions)(4));
 			w94.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
-			this.spinBottlesReturn = new global::Gamma.GtkWidgets.ySpinButton(0, 10000, 1);
+			this.spinBottlesReturn = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000D, 1D);
 			this.spinBottlesReturn.CanFocus = true;
 			this.spinBottlesReturn.Name = "spinBottlesReturn";
-			this.spinBottlesReturn.Adjustment.PageIncrement = 10;
-			this.spinBottlesReturn.ClimbRate = 1;
+			this.spinBottlesReturn.Adjustment.PageIncrement = 10D;
+			this.spinBottlesReturn.ClimbRate = 1D;
 			this.spinBottlesReturn.Numeric = true;
 			this.spinBottlesReturn.ValueAsDecimal = 0m;
 			this.spinBottlesReturn.ValueAsInt = 0;
@@ -1301,11 +1301,11 @@ namespace Vodovoz
 			w95.RightAttach = ((uint)(2));
 			w95.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
-			this.spinSumDifference = new global::Gamma.GtkWidgets.ySpinButton(-100000, 100000, 1);
+			this.spinSumDifference = new global::Gamma.GtkWidgets.ySpinButton(-100000D, 100000D, 1D);
 			this.spinSumDifference.CanFocus = true;
 			this.spinSumDifference.Name = "spinSumDifference";
-			this.spinSumDifference.Adjustment.PageIncrement = 10;
-			this.spinSumDifference.ClimbRate = 1;
+			this.spinSumDifference.Adjustment.PageIncrement = 10D;
+			this.spinSumDifference.ClimbRate = 1D;
 			this.spinSumDifference.Numeric = true;
 			this.spinSumDifference.ValueAsDecimal = 0m;
 			this.spinSumDifference.ValueAsInt = 0;
@@ -1644,27 +1644,28 @@ namespace Vodovoz
 			this.buttonCloseOrder.UseUnderline = true;
 			this.buttonCloseOrder.Label = global::Mono.Unix.Catalog.GetString("Закрыть заказ");
 			this.hboxStatusButtons.Add(this.buttonCloseOrder);
-			global::Gtk.Box.BoxChild w132 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonCloseOrder]));
-			w132.Position = 2;
+			global::Gtk.Box.BoxChild w137 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonCloseOrder]));
+			w137.Position = 2;
 			// Container child hboxStatusButtons.Gtk.Box+BoxChild
 			this.buttonCancelOrder = new global::Gtk.Button();
 			this.buttonCancelOrder.CanFocus = true;
 			this.buttonCancelOrder.Name = "buttonCancelOrder";
 			this.buttonCancelOrder.UseUnderline = true;
 			this.buttonCancelOrder.Label = global::Mono.Unix.Catalog.GetString("Отменить заказ");
-			global::Gtk.Image w133 = new global::Gtk.Image();
-			w133.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
-			this.buttonCancelOrder.Image = w133;
+			global::Gtk.Image w138 = new global::Gtk.Image();
+			w138.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.buttonCancelOrder.Image = w138;
 			this.hboxStatusButtons.Add(this.buttonCancelOrder);
-			global::Gtk.Box.BoxChild w134 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonCancelOrder]));
-			w134.Position = 3;
+			global::Gtk.Box.BoxChild w139 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonCancelOrder]));
+			w139.Position = 3;
 			this.vbox2.Add(this.hboxStatusButtons);
-			global::Gtk.Box.BoxChild w135 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxStatusButtons]));
-			w135.Position = 2;
-			w135.Expand = false;
-			w135.Fill = false;
+			global::Gtk.Box.BoxChild w140 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxStatusButtons]));
+			w140.Position = 2;
+			w140.Expand = false;
+			w140.Fill = false;
 			this.Add(this.vbox2);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.labelProxyInfo.Hide();
@@ -1690,8 +1691,8 @@ namespace Vodovoz
 			this.buttonSetDiscount.Clicked += new global::System.EventHandler(this.OnButtonSetDiscountClicked);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler(this.OnButtonAddForSaleClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
-			this.buttonAddEquipmentRepair.Clicked += new global::System.EventHandler(this.OnButtonAddEquipmentRepairClicked);
-			this.buttonAddEquipmentRepair1.Clicked += new global::System.EventHandler(this.OnButtonAddEquipmentFromClietn);
+			this.buttonAddEquipmentRepair.Clicked += new global::System.EventHandler(this.OnButtonAddEquipmentRepair);
+			this.buttonAddEquipmentRepair1.Clicked += new global::System.EventHandler(this.OnButtonAddEquipmentFromClient);
 			this.buttonDeleteEquipment.Clicked += new global::System.EventHandler(this.OnButtonDeleteEquipmentClicked);
 			this.buttonAddServiceClaim.Clicked += new global::System.EventHandler(this.OnButtonAddServiceClaimClicked);
 			this.buttonAddDoneService.Clicked += new global::System.EventHandler(this.OnButtonAddDoneServiceClicked);
