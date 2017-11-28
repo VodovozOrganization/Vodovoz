@@ -1092,6 +1092,13 @@ namespace Vodovoz
 					}
 				}
 
+				foreach(var item in loaded.OrderEquipments) {
+					var existNom = ExistNomenclatures.FirstOrDefault(n => n.Code1c == item.Nomenclature.Code1c);
+					if(existNom != null) {
+						item.Nomenclature = existNom;
+					}
+				}
+
 				var exist = ExistOrders.FirstOrDefault(o => o.Code1c == loaded.Code1c
 					&& o.DeliveryDate.Value.Year == loaded.DeliveryDate.Value.Year);
 

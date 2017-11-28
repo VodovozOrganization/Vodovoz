@@ -198,6 +198,37 @@ namespace ServiceDialogs.LoadFrom1c
 				oldOrder.OrderItems.Remove(item);
 			}
 
+			//Сравнение строк оборудования
+
+			var oldOrderEquipments = oldOrder.OrderEquipments.ToList();
+			var newOrderEquipments = newOrder.OrderEquipments.ToList();
+
+			foreach(var newItem in newOrderEquipments) {
+				var oldItem = oldOrderEquipments.FirstOrDefault(oi => oi.Nomenclature.Code1c == newItem.Nomenclature.Code1c);
+				if(oldItem == null) {
+					result.Add(new FieldChange("Добавлено оборудование", "",
+					                           string.Format("Номенклатура \"{0}\", количество {1}, {2}",
+					                                         newItem.Nomenclature.Name, newItem.Count, newItem.DirectionString)));
+					oldOrder.OrderEquipments.Add(newItem);
+					newItem.Order = oldOrder;
+					continue;
+				}
+				if(oldItem.Count != newItem.Count) {
+					result.Add(new FieldChange(
+						string.Format("Оборудование \"{0}\" на {1}. Изменено количество", oldItem.Nomenclature.Name, oldItem.DirectionString),
+						oldItem.Count.ToString(), newItem.Count.ToString()));
+					oldItem.Count = newItem.Count;
+				}
+				oldOrderEquipments.Remove(oldItem);
+			}
+			foreach(var item in oldOrderEquipments) {
+				result.Add(new FieldChange("Удалено оборудование",
+					string.Format("Номенклатура \"{0}\", количество {1}, {2}",
+				                  item.Nomenclature.Name, item.Count, item.DirectionString),
+					""));
+				oldOrder.OrderEquipments.Remove(item);
+			}
+
 			if (result.Count > 0)
 				return new ChangedItem
 				{
