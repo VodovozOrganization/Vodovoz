@@ -693,6 +693,7 @@ namespace Vodovoz
 			var dateNode 		 	  = node.SelectSingleNode("Ссылка/Свойство[@Имя='Дата']/Значение");
 			var organisationNode 	  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
 			var commentNode 	 	  = node.SelectSingleNode("Свойство[@Имя='Комментарий']/Значение");
+			var commentLogistNode 	  = node.SelectSingleNode("Свойство[@Имя='КомДляЛог']/Значение");
 			var deliverySchedulesNode = node.SelectSingleNode("Свойство[@Имя='ВремяДоставки']/Значение");;
 			var counterpartyNode 	  = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
 			var addressNode 	 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
@@ -753,6 +754,7 @@ namespace Vodovoz
 				{
 					Code1c 		  	 	= code1cNode?.InnerText,
 					Comment 	  	 	= commentNode?.InnerText,
+					CommentLogist 		= commentLogistNode?.InnerText,
 					Client 		  	 	= client,
 					DeliveryDate  	 	= deliveryDate,
 					DeliverySchedule 	= deliverySchedule,

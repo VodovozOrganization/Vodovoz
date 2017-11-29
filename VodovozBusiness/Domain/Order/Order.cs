@@ -151,6 +151,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref comment, value, () => Comment); }
 		}
 
+		string commentLogist;
+
+		[Display(Name = "Комментарий логиста")]
+		public virtual string CommentLogist {
+			get { return commentLogist; }
+			set { SetField(ref commentLogist, value, () => CommentLogist); }
+		}
+
 		string clientPhone;
 
 		[Display(Name = "Номер телефона")]

@@ -86,6 +86,12 @@ namespace ServiceDialogs.LoadFrom1c
 					newOrder.Comment ?? noValue));
 				oldOrder.Comment = newOrder.Comment;
 			}
+			if(oldOrder.CommentLogist != newOrder.CommentLogist) {
+				result.Add(new FieldChange("Изменен комментарий логиста",
+					oldOrder.CommentLogist ?? noValue,
+					newOrder.CommentLogist ?? noValue));
+				oldOrder.CommentLogist = newOrder.CommentLogist;
+			}
 			if (oldOrder.Client.Code1c != newOrder.Client.Code1c)
 			{
 				result.Add(new FieldChange("Изменен клиент", oldOrder.Client.FullName, newOrder.Client.FullName));
