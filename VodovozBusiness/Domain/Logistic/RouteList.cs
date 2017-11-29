@@ -1255,7 +1255,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RecalculatePlanTime(RouteGeometryCalculator sputnikCache)
 		{
-			TimeSpan minTime;
+			TimeSpan minTime = new TimeSpan();;
 			//Расчет минимального времени к которому нужно\можно подъехать.
 			for(int ix = 0; ix < Addresses.Count; ix++) {
 
@@ -1274,7 +1274,7 @@ namespace Vodovoz.Domain.Logistic
 				minTime += TimeSpan.FromSeconds(Addresses[ix].TimeOnPoint);
 			}
 			//Расчет максимального времени до которого нужно подъехать.
-			TimeSpan maxTime;
+			TimeSpan maxTime = new TimeSpan();
 			for(int ix = Addresses.Count - 1; ix >= 0; ix--) {
 
 				if(ix == Addresses.Count - 1) {
