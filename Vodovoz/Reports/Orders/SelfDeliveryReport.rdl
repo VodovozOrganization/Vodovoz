@@ -733,7 +733,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
     orders.id,
@@ -797,6 +797,7 @@ left join
 where
 	self_delivery = 1
 	and	delivery_date = DATE(@date)
+	AND orders.order_status &lt;&gt; 'Canceled'
 group by
 	orders.id</CommandText>
         <QueryParameters>
@@ -805,7 +806,7 @@ group by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
