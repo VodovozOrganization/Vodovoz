@@ -1203,6 +1203,11 @@ namespace Vodovoz
 			}
 		}
 
+		/// <summary>
+		/// Ручное закрытие заказа
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">E.</param>
 		protected void OnButtonCloseOrderClicked(object sender, EventArgs e)
 		{
 			if(!MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?"))
@@ -1210,29 +1215,9 @@ namespace Vodovoz
 				return;
 			}
 
-			foreach(OrderItem item in Entity.OrderItems)
-			{
-				item.ActualCount = item.Count;
-			}
-
-			int amountDelivered = Entity.OrderItems
-					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
-					.Sum(item => item.ActualCount);
-
 			if(Entity.BottlesMovementOperation == null)
-			{
-				if(amountDelivered != 0 || (Entity.ReturnedTare != 0 && Entity.ReturnedTare != null)) {
-					var bottlesMovementOperation = new BottlesMovementOperation {
-						OperationTime = Entity.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-						Order = Entity,
-						Delivered = amountDelivered,
-						Returned = Entity.ReturnedTare.GetValueOrDefault(),
-						Counterparty = Entity.Client,
-						DeliveryPoint = Entity.DeliveryPoint
-					};
-					UoW.Save(bottlesMovementOperation);
-					Entity.BottlesMovementOperation = bottlesMovementOperation;
-				}
+            {
+				Entity.CreateBottlesMovementOperation(UoW);
 			}
 
 			Entity.ChangeStatus(OrderStatus.Closed);
