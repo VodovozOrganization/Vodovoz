@@ -128,6 +128,15 @@ namespace Vodovoz
 			text.Add(string.Format("Израсходовано топлива: {0:f2} л. ({1:f2} л/100км)",
 			                       FuelOutlayed, fc));
 
+			if(RouteListClosing.ConfirmedDistance != 0 && RouteListClosing.ConfirmedDistance != RouteListClosing.ActualDistance) {
+
+				decimal spentFuelConfirmed = (decimal)RouteListClosing.Car.FuelConsumption
+																	  / 100 * RouteListClosing.ConfirmedDistance;
+
+				text.Add(string.Format("Топливо подтвержденное логистами: {0:F2} л.", spentFuelConfirmed));
+			}
+
+
 			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
 		}
 
@@ -136,8 +145,14 @@ namespace Vodovoz
 			decimal litersGived = Entity.Operation?.LitersGived ?? default(decimal);
 			decimal spentFuel = (decimal)RouteListClosing.Car.FuelConsumption
 								 / 100 * RouteListClosing.ActualDistance;
-			
+
 			var text = new List<string>();
+
+			if(RouteListClosing.ConfirmedDistance != 0 && RouteListClosing.ConfirmedDistance != RouteListClosing.ActualDistance) {
+				decimal spentFuelConfirmed = (decimal)RouteListClosing.Car.FuelConsumption / 100 * RouteListClosing.ConfirmedDistance;
+				spentFuel = spentFuelConfirmed;
+			}
+
 			text.Add(string.Format("Итого выдано {0:N2} литров", litersGived));
 			text.Add(string.Format("Баланс после выдачи {0:N2}", FuelBalance + litersGived - spentFuel));
 

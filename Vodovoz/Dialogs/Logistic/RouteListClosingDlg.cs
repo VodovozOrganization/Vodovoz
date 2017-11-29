@@ -666,7 +666,7 @@ namespace Vodovoz
 										/ 100 * Entity.ConfirmedDistance;
 				
 				text.Add(string.Format("Топливо подтвержденное логистами: {0:F2} л.",
-			 		spentFuelConfirmed, (decimal)Entity.Car.FuelConsumption));
+			 		spentFuelConfirmed));
 				
 				spentFuel = spentFuelConfirmed;
 			}
