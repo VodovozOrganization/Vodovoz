@@ -146,17 +146,15 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			if (cashier == null)
-			{
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, Вы не можете выдавать денежные средства, так как некого указывать в качестве кассира.");
-				return false;
-			}
+			Employee cashier;
+			if(!GetCashier(out cashier)) return false;
 
 			if(Entity.Author == null) {
 				Entity.Author = cashier;
 			}
+
 			Entity.LastEditor = cashier;
+
 			Entity.LastEditDate = DateTime.Now;
 
 			if (Entity.FuelCashExpense != null)
@@ -179,6 +177,17 @@ namespace Vodovoz
 			return true;
 		}
 
+		private bool GetCashier(out Employee cashier)
+		{
+			cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(cashier == null) {
+				MessageDialogWorks.RunErrorDialog(
+					"Ваш пользователь не привязан к действующему сотруднику, Вы не можете выдавать денежные средства, так как некого указывать в качестве кассира.");
+				return false;
+			}
+			return true;
+		}
+
 		protected void OnDisablespinMoneyValueChanged (object sender, EventArgs e)
 		{
 			OnFuelUpdated ();
@@ -186,8 +195,15 @@ namespace Vodovoz
 
 		private void OnFuelUpdated()
 		{
+			Employee cashier;
+			if(RouteListClosing.Cashier != null)
+				cashier = RouteListClosing.Cashier;
+			else {
+				GetCashier(out cashier);
+			}
+
 			Entity.UpdateOperation();
-			Entity.UpdateFuelCashExpense(UoW, RouteListClosing.Cashier, RouteListClosing.Id);
+			Entity.UpdateFuelCashExpense(UoW, cashier, RouteListClosing.Id);
 			UpdateResutlInfo();
 			UpdateFuelCashExpenseInfo();
 		}
