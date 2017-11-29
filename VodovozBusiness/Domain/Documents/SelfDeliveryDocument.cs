@@ -222,11 +222,12 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual bool ShipIfCan()
+		public virtual bool ShipIfCan(IUnitOfWork uow)
 		{
 			bool closed = Items.All(x => (x.OrderItem != null ? x.OrderItem.Count : 1) == x.Amount + x.AmountUnloaded);
-			if (closed)
-				Order.Close();
+			if(closed) {
+				Order.Close(uow);
+			}
 			return closed;
 		}
 

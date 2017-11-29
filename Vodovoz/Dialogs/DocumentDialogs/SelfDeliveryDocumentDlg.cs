@@ -97,7 +97,7 @@ namespace Vodovoz
 			Entity.UpdateOperations(UoW);
 			var returnes = bottlereceptionview1.Items.ToDictionary(x => x.NomenclatureId, x => (decimal)x.Amount);
 			Entity.UpdateReturnedOperations(UoW, returnes);
-			if (Entity.ShipIfCan())
+			if (Entity.ShipIfCan(UoW))
 				MessageDialogWorks.RunInfoDialog("Заказ отгружен полностью.");
 
 			logger.Info ("Сохраняем документ самовывоза...");

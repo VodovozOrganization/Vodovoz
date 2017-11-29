@@ -1131,10 +1131,35 @@ namespace Vodovoz.Domain.Orders
 			);
 		}
 
-		public virtual void Close()
+		public virtual void Close(IUnitOfWork uow)
 		{
 			//FIXME Правильно закрывать заказ
+			CreateBottlesMovementOperation(uow);
 			OrderStatus = OrderStatus.Closed;
+		}
+
+		public virtual void CreateBottlesMovementOperation(IUnitOfWork uow)
+		{
+			foreach(OrderItem item in OrderItems) {
+				item.ActualCount = item.Count;
+			}
+
+			int amountDelivered = OrderItems
+					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+					.Sum(item => item.ActualCount);
+			
+			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
+				var bottlesOperation = new BottlesMovementOperation {
+					OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+					Order = this,
+					Delivered = amountDelivered,
+					Returned = ReturnedTare.GetValueOrDefault(),
+					Counterparty = Client,
+					DeliveryPoint = DeliveryPoint
+				};
+				uow.Save(bottlesOperation);
+				BottlesMovementOperation = bottlesOperation;
+			}
 		}
 
 		#endregion
