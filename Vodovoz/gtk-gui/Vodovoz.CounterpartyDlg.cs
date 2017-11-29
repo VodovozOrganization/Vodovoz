@@ -302,7 +302,7 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.radioInfo]));
 			w9.Position = 0;
 			// Container child hbox19.Gtk.Box+BoxChild
-			this.radioComments = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Контакты"));
+			this.radioComments = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Коментарии"));
 			this.radioComments.CanFocus = true;
 			this.radioComments.Name = "radioComments";
 			this.radioComments.DrawIndicator = false;
@@ -400,7 +400,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 7;
+			this.notebook1.CurrentPage = 1;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -1324,7 +1324,7 @@ namespace Vodovoz
 			this.referenceDefaultExpense.Hide();
 			this.Hide();
 			this.radioInfo.Toggled += new global::System.EventHandler(this.OnRadioInfoToggled);
-			this.radioComments.Toggled += new global::System.EventHandler(this.OnRadioContactsToggled);
+			this.radioComments.Toggled += new global::System.EventHandler(this.OnRadioCommentsToggled);
 			this.radioContacts.Toggled += new global::System.EventHandler(this.OnRadioContactsToggled);
 			this.radioDetails.Toggled += new global::System.EventHandler(this.OnRadioDetailsToggled);
 			this.radioCurators.Toggled += new global::System.EventHandler(this.OnRadioCuratorsToggled);
