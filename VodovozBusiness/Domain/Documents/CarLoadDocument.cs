@@ -154,10 +154,9 @@ namespace Vodovoz.Domain.Documents
 				ObservableItems.Add(new CarLoadDocumentItem(){
 					Document = this,
 					Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
-					//FIXME запуск оборудования - временный фикс
-					//Equipment = equipments.First(x => x.Id == inRoute.EquipmentId),
-					AmountInRouteList = 1,
-					Amount = 1
+					Equipment = equipments.FirstOrDefault(x => x.Id == inRoute.EquipmentId),
+					AmountInRouteList = inRoute.Amount,
+					Amount = inRoute.Amount
 				});
 			}
 		}

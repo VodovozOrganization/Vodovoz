@@ -99,7 +99,7 @@ namespace Vodovoz.Repository.Logistics
 				.SelectList (list => list
 					.SelectGroup (() => OrderEquipmentNomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
 					.SelectGroup (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)
-					.SelectSum (() => 1).WithAlias (() => resultAlias.Amount)
+				             .SelectSum (() => orderEquipmentAlias.Count).WithAlias (() => resultAlias.Amount)
 				)
 				.TransformUsing (Transformers.AliasToBean<GoodsInRouteListResult> ())
 				.List<GoodsInRouteListResult> ();
