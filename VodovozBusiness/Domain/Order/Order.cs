@@ -568,6 +568,8 @@ namespace Vodovoz.Domain.Orders
 					if(trifle == null && PaymentType == PaymentType.cash)
 						yield return new ValidationResult("Не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
+					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
+						yield return new ValidationResult("Должно быть указано количество во всех позициях товара и оборудования");
 					
  #if !SHORT
 					//Проверка товаров
