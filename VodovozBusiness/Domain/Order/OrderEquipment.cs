@@ -100,12 +100,10 @@ namespace Vodovoz.Domain.Orders
 			get { 
 				if (Equipment != null)
 					return Equipment.Title;
-				else if (Nomenclature != null)
-					//FIXME запуск оборудования - временный фикс
-					return   Nomenclature.ShortName;
-					//return String.Format ("{0} (не зарегистрированный)", NewEquipmentNomenclature.Name);
-				else
-					return "Неизвестное оборудование";
+				if (Nomenclature != null)
+					return Nomenclature.ShortOrFullName;
+				
+				return "Неизвестное оборудование";
 			}
 		}
 

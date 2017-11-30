@@ -209,7 +209,19 @@ namespace Vodovoz.Domain.Goods
 			get { return noDelivey; }
 			set { SetField(ref noDelivey, value, () => NoDelivey); }
 		}
-			
+
+		#endregion
+
+		#region Рассчетные
+
+		public virtual string CategoryString { get { return Category.GetEnumTitle (); } }
+
+		public virtual string ShortOrFullName{
+			get{
+				return String.IsNullOrWhiteSpace(ShortName) ? Name : ShortName;
+			}
+		}
+
 		#endregion
 
 		public override string ToString()
@@ -220,12 +232,9 @@ namespace Vodovoz.Domain.Goods
 
 		public Nomenclature ()
 		{
-			Name = String.Empty;
-			Model = String.Empty;
 			Category = NomenclatureCategory.water;
 		}
 
-		public virtual string CategoryString { get { return Category.GetEnumTitle (); } }
 
 		public virtual decimal GetPrice (int itemsCount)
 		{

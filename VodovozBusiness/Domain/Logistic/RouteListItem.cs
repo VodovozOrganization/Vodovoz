@@ -443,6 +443,28 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual string EquipmentsToClientText
+		{
+			get{
+				return String.Join("\n",  
+				                   Order.OrderEquipments
+										.Where(x => x.Direction == Direction.Deliver)
+				                   .Select(x => $"{x.NameString}: {x.Count}")
+				                  );
+			}
+		}
+
+		public virtual string EquipmentsFromClientText
+		{
+			get{
+				return String.Join("\n",  
+				                   Order.OrderEquipments
+				                   		.Where(x => x.Direction == Direction.PickUp)
+				                   .Select(x => $"{x.NameString}: {x.Count}")
+				                  );
+			}
+		}
+
 		#endregion
 
 		#region Проброс свойств для редактирования в заказе.
