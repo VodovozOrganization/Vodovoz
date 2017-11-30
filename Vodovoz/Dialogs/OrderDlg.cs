@@ -24,6 +24,7 @@ using Vodovoz.Repository;
 using QSDocTemplates;
 using Vodovoz.JournalFilters;
 using Vodovoz.Domain.Operations;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -134,6 +135,10 @@ namespace Vodovoz
 			Entity.ObservableInitialOrderService.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableOrderItems.ElementAdded += Entity_ObservableOrderItems_ElementAdded;
 			Entity.ObservableOrderDocuments.ElementAdded += Entity_ObservableOrderDocuments_ElementAdded;
+
+			//Подписываемся на изменение товара, для обновления количества оборудования в доп. соглашении
+			Entity.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged_ChangeCount;
+			Entity.ObservableOrderEquipments.ElementChanged += ObservableOrderEquipments_ElementChanged_ChangeCount;
 
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
 			enumSignatureType.Binding.AddBinding (Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource ();
@@ -254,6 +259,7 @@ namespace Vodovoz
 				.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 				.AddSetter((c, node) => c.Editable = node.CanEditAmount).WidthChars(10)
 				.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+				.AddColumn("Сроки аренды").AddTextRenderer(node => GetRentsCount(node))
 				.AddColumn("Цена").AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 				.AddSetter((c, node) => c.ForegroundGdk = node.HasUserSpecifiedPrice() && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category) ? colorBlue : colorBlack)
@@ -325,8 +331,24 @@ namespace Vodovoz
 
 			if(UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
 				IsUIEditable(true);
+			
+			OrderItemEquipmentCountHasChanges = false;
 
 			ButtonCloseOrderSensitivity();
+		}
+
+		string GetRentsCount(OrderItem orderItem)
+		{
+			switch(orderItem.AdditionalAgreement.Type) {
+				case AgreementType.NonfreeRent:
+					if(orderItem.NonFreeRentAgreement.RentMonths.HasValue){
+						return orderItem.NonFreeRentAgreement.RentMonths.Value.ToString();
+					}
+					return "";
+				case AgreementType.DailyRent:
+					return orderItem.DailyRentAgreement.RentDays.ToString();
+			}
+			return "";
 		}
 
 		void Entity_UpdateClientCanChange(object aList, int[] aIdx)
@@ -396,6 +418,99 @@ namespace Vodovoz
 														  || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.NonfreeRent);
 		}
 
+		/// <summary>
+		/// Для хранения состояния, было ли изменено количество оборудования в товарах, 
+		/// для информирования пользователя о том, что изменения сохранятся также и в 
+		/// дополнительном соглашении
+		/// </summary>
+		private bool OrderItemEquipmentCountHasChanges;
+
+		/// <summary>
+		/// При изменении количества оборудования в списке товаров меняет его 
+		/// также в доп. соглашении и списке оборудования заказа
+		/// </summary>
+		void ObservableOrderItems_ElementChanged_ChangeCount(object aList, int[] aIdx)
+		{
+			if(!(aList is GenericObservableList<OrderItem>)) {
+				return;
+			}
+			foreach(var i in aIdx) {
+				OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
+				if(oItem == null || oItem.PaidRentEquipment == null) {
+					return;
+				}
+				if(oItem.Nomenclature.Category == NomenclatureCategory.rent  
+				  || oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
+					ChangeEquipmentsCount(oItem, oItem.Count);
+				}
+			}
+		}
+
+		/// <summary>
+		/// При изменении количества оборудования в списке оборудования меняет его 
+		/// также в доп. соглашении и списке товаров заказа
+		/// </summary>
+		void ObservableOrderEquipments_ElementChanged_ChangeCount(object aList, int[] aIdx)
+		{
+			if(!(aList is GenericObservableList<OrderEquipment>)) {
+				return;
+			}
+			foreach(var i in aIdx) {
+				OrderEquipment oEquip = (aList as GenericObservableList<OrderEquipment>)[aIdx] as OrderEquipment;
+				if(oEquip == null
+				   || oEquip.OrderItem == null
+				   || oEquip.OrderItem.PaidRentEquipment == null) {
+					return;
+				}
+				if(oEquip.Count != oEquip.OrderItem.Count) {
+					ChangeEquipmentsCount(oEquip.OrderItem, oEquip.Count);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Меняет количество оборудования в списке оборудования заказа, в списке 
+		/// товаров заказа, в списке оборудования дополнитульного соглашения и 
+		/// меняет количество залогов за оборудование в списке товаров заказа
+		/// </summary>
+		void ChangeEquipmentsCount(OrderItem orderItem, int newCount)
+		{
+ 			orderItem.Count = newCount;
+
+			OrderEquipment orderEquip = Entity.OrderEquipments.FirstOrDefault(x => x.OrderItem == orderItem);
+			orderEquip.Count = newCount;
+
+			OrderItem depositItem;
+			if(orderItem.PaidRentEquipment != null) {
+				if(orderItem.PaidRentEquipment.Count != newCount) {
+					orderItem.PaidRentEquipment.Count = newCount;
+					OrderItemEquipmentCountHasChanges = true;
+				}
+				depositItem = Entity.OrderItems.FirstOrDefault
+								(x => x.Nomenclature.Category == NomenclatureCategory.deposit
+								 && x.AdditionalAgreement == orderItem.AdditionalAgreement
+								 && x.PaidRentEquipment == orderItem.PaidRentEquipment);
+				if(depositItem != null) {
+					depositItem.Count = newCount;
+				}
+			}
+			if(orderItem.FreeRentEquipment != null) {
+				if(orderItem.FreeRentEquipment.Count != newCount) {
+					orderItem.FreeRentEquipment.Count = newCount;
+					OrderItemEquipmentCountHasChanges = true;
+				}
+				depositItem = Entity.OrderItems.FirstOrDefault
+								(x => x.Nomenclature.Category == NomenclatureCategory.deposit
+								 && x.AdditionalAgreement == orderItem.AdditionalAgreement
+								 && x.FreeRentEquipment == orderItem.FreeRentEquipment);
+				if(depositItem != null) {
+					depositItem.Count = newCount;
+				}
+			}
+		}
+
+
+
 		void TreeDepositRefundItems_Selection_Changed(object sender, EventArgs e)
 		{
 			object[] items = treeDepositRefundItems.GetSelectedObjects();
@@ -421,6 +536,10 @@ namespace Vodovoz
 			if(Entity.OrderStatus == OrderStatus.NewOrder) {
 				if(!MessageDialogWorks.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
 					return false;
+			}
+
+			if(OrderItemEquipmentCountHasChanges) {
+				MessageDialogWorks.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
 			}
 
 			logger.Info("Сохраняем заказ...");

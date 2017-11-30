@@ -10,6 +10,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repository;
 using Vodovoz.Domain.Goods;
+using Gtk;
 
 namespace Vodovoz
 {
@@ -77,7 +78,8 @@ namespace Vodovoz
 			treeRentPackages.ColumnsConfig = ColumnsConfigFactory.Create<FreeRentEquipment>()
 				.AddColumn("Пакет").AddTextRenderer(x => x.PackageName)
 				.AddColumn("Оборудование").AddTextRenderer(x => x.EquipmentName)
-				.AddColumn("Серийный номер").AddTextRenderer(x => x.EquipmentSerial)
+				.AddColumn("Количество").AddNumericRenderer(x => x.Count)
+				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 				.AddColumn("Сумма залога").AddTextRenderer(x => x.DepositString)
 				.AddColumn("Минимальное количество воды").AddTextRenderer(x => x.WaterAmountString)
 				.Finish();
@@ -117,6 +119,7 @@ namespace Vodovoz
 			eq.Equipment = selectedEquipment;
 			eq.Deposit = rentPackage.Deposit;
 			eq.FreeRentPackage = rentPackage;
+			eq.Count = 1;
 			eq.WaterAmount = rentPackage.MinWaterAmount;
 			equipments.Add (eq);
 			UpdateTotalLabels ();
@@ -161,6 +164,7 @@ namespace Vodovoz
 			eq.Equipment = selectedEquipment;
 			eq.Deposit = rentPackage.Deposit;
 			eq.FreeRentPackage = rentPackage;
+			eq.Count = 1;
 			eq.WaterAmount = rentPackage.MinWaterAmount;
 			equipments.Add (eq);
 			UpdateTotalLabels ();

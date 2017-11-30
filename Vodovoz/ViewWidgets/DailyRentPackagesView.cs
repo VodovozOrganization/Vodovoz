@@ -10,6 +10,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repository;
 using Vodovoz.Domain.Goods;
+using Gtk;
 
 namespace Vodovoz
 {
@@ -27,7 +28,8 @@ namespace Vodovoz
 			treeRentPackages.ColumnsConfig = ColumnsConfigFactory.Create<PaidRentEquipment>()
 				.AddColumn("Пакет").AddTextRenderer(x => x.PackageName)
 				.AddColumn("Оборудование").AddTextRenderer(x => x.Equipment.NomenclatureName)
-				.AddColumn("Серийный номер").AddTextRenderer(x => x.Equipment != null && x.Equipment.Nomenclature.IsSerial ? x.Equipment.Serial : "-")
+				.AddColumn("Количество").AddNumericRenderer(x => x.Count)
+				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 				.AddColumn("Цена аренды (в сутки)").AddTextRenderer(x => x.PriceString)
 				.Finish();
 
@@ -113,6 +115,7 @@ namespace Vodovoz
 			eq.Equipment = selectedEquipment;
 			eq.Deposit = rentPackage.Deposit;
 			eq.PaidRentPackage = rentPackage;
+			eq.Count = 1;
 			eq.Price = rentPackage.PriceDaily;
 			equipments.Add (eq);
 			UpdateTotalLabels ();
@@ -158,6 +161,7 @@ namespace Vodovoz
 			eq.Equipment = selectedEquipment;
 			eq.Deposit = rentPackage.Deposit;
 			eq.PaidRentPackage = rentPackage;
+			eq.Count = 1;
 			eq.Price = rentPackage.PriceDaily;
 			equipments.Add (eq);
 			UpdateTotalLabels ();

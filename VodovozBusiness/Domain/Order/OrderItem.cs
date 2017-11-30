@@ -189,8 +189,34 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		public virtual bool CanEditAmount {
-			get { return AdditionalAgreement == null || AdditionalAgreement.Type == AgreementType.WaterSales; }
+			get {
+				return AdditionalAgreement == null 	|| AdditionalAgreement.Type == AgreementType.WaterSales 
+													|| AdditionalAgreement.Type == AgreementType.NonfreeRent 
+													|| AdditionalAgreement.Type == AgreementType.DailyRent;
+			}
 		}
+
+
+		//FIXME Временный обход проблемы с приведением AdditionalAgreement'а к 
+		//конкретному типу потомку, для получения доступа к свойствам доступным только этим классам
+		NonfreeRentAgreement nonFreeRentAgreement;
+		public NonfreeRentAgreement NonFreeRentAgreement
+		{
+			get {
+				if(nonFreeRentAgreement == null)
+					nonFreeRentAgreement = Order.UoW.GetById<NonfreeRentAgreement>(AdditionalAgreement.Id);
+				return nonFreeRentAgreement;
+			}
+		}
+		DailyRentAgreement dailyRentAgreement;
+		public DailyRentAgreement DailyRentAgreement {
+			get {
+				if(dailyRentAgreement == null)
+					dailyRentAgreement = Order.UoW.GetById<DailyRentAgreement>(AdditionalAgreement.Id);
+				return dailyRentAgreement;
+			}
+		}
+		//----------
 
 		public virtual string NomenclatureString {
 			get { return Nomenclature != null ? Nomenclature.Name : ""; }

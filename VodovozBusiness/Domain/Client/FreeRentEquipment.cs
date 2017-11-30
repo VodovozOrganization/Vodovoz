@@ -30,6 +30,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref equipment, value, () => Equipment); }
 		}
 
+		int count;
+
+		[Display(Name = "Количество")]
+		public virtual int Count {
+			get { return count; }
+			set { SetField(ref count, value, () => Count); }
+		}
+
 		Decimal deposit;
 
 		[Display (Name = "Залог")]

@@ -1018,14 +1018,14 @@ namespace Vodovoz.Domain.Orders
 							item => item.AdditionalAgreement == a &&
 							item.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id &&
 							item.Price == equipment.Deposit)) != null) {
-						orderItem.Count++;
+						orderItem.Count = equipment.Count;
 						orderItem.Price = equipment.Deposit;
 					} else {
 						ObservableOrderItems.Add(
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = a,
-								Count = 1,
+								Count = equipment.Count,
 								Equipment = null,
 								Nomenclature = equipment.PaidRentPackage.DepositService,
 								Price = equipment.Deposit,
@@ -1039,18 +1039,19 @@ namespace Vodovoz.Domain.Orders
 							item => item.AdditionalAgreement == a &&
 							item.Nomenclature.Id == (IsDaily ? equipment.PaidRentPackage.RentServiceDaily.Id : equipment.PaidRentPackage.RentServiceMonthly.Id) &&
 							item.Price == equipment.Price)) != null) {
-						orderItem.Count = IsDaily ? (a as DailyRentAgreement).RentDays : (a as NonfreeRentAgreement).RentMonths.Value;
-						orderItem.Price = equipment.Price /*orderItem.Nomenclature.GetPrice(orderItem.Count)*/;
+						orderItem.Count = equipment.Count;
+						orderItem.Price = orderItem.Nomenclature.GetPrice(orderItem.Count);
 						ItemId = ObservableOrderItems.IndexOf(orderItem);
 					} else {
+						Nomenclature nomenclature = IsDaily ? equipment.PaidRentPackage.RentServiceDaily : equipment.PaidRentPackage.RentServiceMonthly;
 						ItemId = ObservableOrderItems.AddWithReturn(
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = a,
-								Count = IsDaily ? (a as DailyRentAgreement).RentDays : (a as NonfreeRentAgreement).RentMonths.Value,
+								Count = equipment.Count,
 								Equipment = null,
-								Nomenclature = IsDaily ? equipment.PaidRentPackage.RentServiceDaily : equipment.PaidRentPackage.RentServiceMonthly,
-								Price = equipment.Price,
+								Nomenclature = nomenclature,
+								Price = nomenclature.GetPrice(equipment.Count),
 								PaidRentEquipment = equipment
 							}
 						);
@@ -1060,6 +1061,7 @@ namespace Vodovoz.Domain.Orders
 						new OrderEquipment {
 							Order = this,
 							Direction = Direction.Deliver,
+							Count = equipment.Count,
 							Equipment = equipment.Equipment,
 							//Nomenclature = equipment.Equipment.Nomenclature,
 							Reason = Reason.Rent,
@@ -1078,7 +1080,7 @@ namespace Vodovoz.Domain.Orders
 						new OrderItem {
 							Order = this,
 							AdditionalAgreement = agreement,
-							Count = 1,
+							Count = equipment.Count,
 							Equipment = null,
 							Nomenclature = equipment.FreeRentPackage.DepositService,
 							Price = equipment.Deposit,
@@ -1090,6 +1092,7 @@ namespace Vodovoz.Domain.Orders
 						new OrderEquipment {
 							Order = this,
 							Direction = Direction.Deliver,
+							Count = equipment.Count,
 							Equipment = equipment.Equipment,
 							Reason = Reason.Rent,
 							OrderItem = ObservableOrderItems[ItemId]
