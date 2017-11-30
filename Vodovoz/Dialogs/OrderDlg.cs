@@ -533,6 +533,11 @@ namespace Vodovoz
 				return;
 			}
 
+			if(UoWGeneric.Root.DeliveryDate == null) {
+				MessageDialogWorks.RunErrorDialog("Введите дату доставки");
+				return;
+			}
+
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
 			nomenclatureFilter.NomenCategory = NomenclatureCategory.water;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
