@@ -1577,7 +1577,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnButtonAddEquipmentRepair(object sender, EventArgs e)
+		protected void OnButtonbuttonAddEquipmentToClientClicked(object sender, EventArgs e)
 		{
 			if(UoWGeneric.Root.Client == null) {
 				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
@@ -1588,22 +1588,22 @@ namespace Vodovoz
 			nomenclatureFilter.NomenCategory = NomenclatureCategory.equipment;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Номенклатура на ремонт";
-			SelectDialog.ObjectSelected += NomenclatureForRepair;
+			SelectDialog.TabName = "Оборудование к клиенту";
+			SelectDialog.ObjectSelected += NomenclatureToClient;
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
-		void NomenclatureForRepair(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void NomenclatureToClient(object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
-			AddNomenclature1(UoWGeneric.Session.Get<Nomenclature>(e.ObjectId));
+			AddNomenclatureToClient(UoWGeneric.Session.Get<Nomenclature>(e.ObjectId));
 		}
 
-		void AddNomenclature1(Nomenclature nomenclature)
+		void AddNomenclatureToClient(Nomenclature nomenclature)
 		{
-			UoWGeneric.Root.AddEquipmentNomenclatureForRepair(nomenclature, UoWGeneric);
+			UoWGeneric.Root.AddEquipmentNomenclatureToClient(nomenclature, UoWGeneric);
 		}
 
-		protected void OnButtonAddEquipmentFromClient(object sender, EventArgs e)
+		protected void OnButtonAddEquipmentFromClientClicked(object sender, EventArgs e)
 		{
 			if(UoWGeneric.Root.Client == null) {
 				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
@@ -1614,19 +1614,19 @@ namespace Vodovoz
 			nomenclatureFilter.NomenCategory = NomenclatureCategory.equipment;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Номенклатура на ремонт";
-			SelectDialog.ObjectSelected += NomenclatureForRepairFromClient;
+			SelectDialog.TabName = "Оборудование от клиенту";
+			SelectDialog.ObjectSelected += NomenclatureFromClient;
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
-		void NomenclatureForRepairFromClient(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void NomenclatureFromClient(object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
 			AddNomenclatureFromClient(UoWGeneric.Session.Get<Nomenclature>(e.ObjectId));
 		}
 
 		void AddNomenclatureFromClient(Nomenclature nomenclature)
 		{
-			UoWGeneric.Root.AddEquipmentNomenclatureForRepairFromClient(nomenclature, UoWGeneric);
+			UoWGeneric.Root.AddEquipmentNomenclatureFromClient(nomenclature, UoWGeneric);
 		}
 
 		protected void OnButtonDeleteEquipmentClicked(object sender, EventArgs e)

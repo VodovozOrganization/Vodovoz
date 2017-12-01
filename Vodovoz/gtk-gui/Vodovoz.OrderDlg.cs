@@ -170,9 +170,9 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox17;
 
-		private global::Gtk.Button buttonAddEquipmentRepair;
+		private global::Gtk.Button buttonAddEquipmentToClient;
 
-		private global::Gtk.Button buttonAddEquipmentRepair1;
+		private global::Gtk.Button buttonAddEquipmentFromClient;
 
 		private global::Gtk.Button buttonDeleteEquipment;
 
@@ -1143,24 +1143,24 @@ namespace Vodovoz
 			this.hbox17.Name = "hbox17";
 			this.hbox17.Spacing = 6;
 			// Container child hbox17.Gtk.Box+BoxChild
-			this.buttonAddEquipmentRepair = new global::Gtk.Button();
-			this.buttonAddEquipmentRepair.CanFocus = true;
-			this.buttonAddEquipmentRepair.Name = "buttonAddEquipmentRepair";
-			this.buttonAddEquipmentRepair.UseUnderline = true;
-			this.buttonAddEquipmentRepair.Label = global::Mono.Unix.Catalog.GetString("Оборудование к клиенту");
-			this.hbox17.Add(this.buttonAddEquipmentRepair);
-			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.buttonAddEquipmentRepair]));
+			this.buttonAddEquipmentToClient = new global::Gtk.Button();
+			this.buttonAddEquipmentToClient.CanFocus = true;
+			this.buttonAddEquipmentToClient.Name = "buttonAddEquipmentToClient";
+			this.buttonAddEquipmentToClient.UseUnderline = true;
+			this.buttonAddEquipmentToClient.Label = global::Mono.Unix.Catalog.GetString("Оборудование к клиенту");
+			this.hbox17.Add(this.buttonAddEquipmentToClient);
+			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.buttonAddEquipmentToClient]));
 			w78.Position = 0;
 			w78.Expand = false;
 			w78.Fill = false;
 			// Container child hbox17.Gtk.Box+BoxChild
-			this.buttonAddEquipmentRepair1 = new global::Gtk.Button();
-			this.buttonAddEquipmentRepair1.CanFocus = true;
-			this.buttonAddEquipmentRepair1.Name = "buttonAddEquipmentRepair1";
-			this.buttonAddEquipmentRepair1.UseUnderline = true;
-			this.buttonAddEquipmentRepair1.Label = global::Mono.Unix.Catalog.GetString("Оборудование от клиента");
-			this.hbox17.Add(this.buttonAddEquipmentRepair1);
-			global::Gtk.Box.BoxChild w79 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.buttonAddEquipmentRepair1]));
+			this.buttonAddEquipmentFromClient = new global::Gtk.Button();
+			this.buttonAddEquipmentFromClient.CanFocus = true;
+			this.buttonAddEquipmentFromClient.Name = "buttonAddEquipmentFromClient";
+			this.buttonAddEquipmentFromClient.UseUnderline = true;
+			this.buttonAddEquipmentFromClient.Label = global::Mono.Unix.Catalog.GetString("Оборудование от клиента");
+			this.hbox17.Add(this.buttonAddEquipmentFromClient);
+			global::Gtk.Box.BoxChild w79 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.buttonAddEquipmentFromClient]));
 			w79.Position = 1;
 			w79.Expand = false;
 			w79.Fill = false;
@@ -1777,8 +1777,8 @@ namespace Vodovoz
 			this.enumPaymentType.ChangedByUser += new global::System.EventHandler(this.OnEnumPaymentTypeChangedByUser);
 			this.enumDiverCallType.Changed += new global::System.EventHandler(this.OnEnumDiverCallTypeChanged);
 			this.enumareRasonType.Changed += new global::System.EventHandler(this.OnEnumDiverCallTypeChanged);
-			this.buttonAddEquipmentRepair.Clicked += new global::System.EventHandler(this.OnButtonAddEquipmentRepair);
-			this.buttonAddEquipmentRepair1.Clicked += new global::System.EventHandler(this.OnButtonAddEquipmentFromClient);
+			this.buttonAddEquipmentToClient.Clicked += new global::System.EventHandler(this.OnButtonbuttonAddEquipmentToClientClicked);
+			this.buttonAddEquipmentFromClient.Clicked += new global::System.EventHandler(this.OnButtonAddEquipmentFromClientClicked);
 			this.buttonDeleteEquipment.Clicked += new global::System.EventHandler(this.OnButtonDeleteEquipmentClicked);
 			this.spinSumDifference.ValueChanged += new global::System.EventHandler(this.OnSpinSumDifferenceValueChanged);
 			this.entryTrifle.Changed += new global::System.EventHandler(this.OnEntryTrifleChanged);

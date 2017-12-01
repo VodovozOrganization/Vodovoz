@@ -742,10 +742,8 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void AddEquipmentNomenclatureForRepair(Nomenclature nomenclature, IUnitOfWork UoW)
+		public virtual void AddEquipmentNomenclatureToClient(Nomenclature nomenclature, IUnitOfWork UoW)
 		{
-			if(nomenclature.Category != NomenclatureCategory.equipment)
-				return;
 			if(!nomenclature.IsSerial) {
 				ObservableOrderEquipments.Add(new OrderEquipment {
 
@@ -761,10 +759,8 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void AddEquipmentNomenclatureForRepairFromClient(Nomenclature nomenclature, IUnitOfWork UoW)
+		public virtual void AddEquipmentNomenclatureFromClient(Nomenclature nomenclature, IUnitOfWork UoW)
 		{
-			if(nomenclature.Category != NomenclatureCategory.equipment)
-				return;
 			if(!nomenclature.IsSerial) {
 				ObservableOrderEquipments.Add(new OrderEquipment {
 
@@ -1058,7 +1054,10 @@ namespace Vodovoz.Domain.Orders
 						);
 					}
 					//Добавляем оборудование
-					OrderEquipment orderEquip = ObservableOrderEquipments.FirstOrDefault(x => x.Equipment == equipment.Equipment);
+					OrderEquipment orderEquip = ObservableOrderEquipments.FirstOrDefault(
+						x => x.Equipment == equipment.Equipment 
+						&& x.OrderItem == orderItem
+					);
 					if(orderEquip != null) {
 						orderEquip.Count = equipment.Count;
 					}else {

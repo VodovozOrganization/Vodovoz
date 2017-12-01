@@ -27475,13 +27475,13 @@
                                 <property name="MemberName" />
                                 <property name="Spacing">6</property>
                                 <child>
-                                  <widget class="Gtk.Button" id="buttonAddEquipmentRepair">
+                                  <widget class="Gtk.Button" id="buttonAddEquipmentToClient">
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
                                     <property name="Type">TextOnly</property>
                                     <property name="Label" translatable="yes">Оборудование к клиенту</property>
                                     <property name="UseUnderline">True</property>
-                                    <signal name="Clicked" handler="OnButtonAddEquipmentRepair" />
+                                    <signal name="Clicked" handler="OnButtonbuttonAddEquipmentToClientClicked" />
                                   </widget>
                                   <packing>
                                     <property name="Position">0</property>
@@ -27491,13 +27491,13 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="Gtk.Button" id="buttonAddEquipmentRepair1">
+                                  <widget class="Gtk.Button" id="buttonAddEquipmentFromClient">
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
                                     <property name="Type">TextOnly</property>
                                     <property name="Label" translatable="yes">Оборудование от клиента</property>
                                     <property name="UseUnderline">True</property>
-                                    <signal name="Clicked" handler="OnButtonAddEquipmentFromClient" />
+                                    <signal name="Clicked" handler="OnButtonAddEquipmentFromClientClicked" />
                                   </widget>
                                   <packing>
                                     <property name="Position">1</property>
