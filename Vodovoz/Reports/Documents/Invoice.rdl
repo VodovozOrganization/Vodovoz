@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -37,6 +37,7 @@
     delivery_points.street AS street,
     delivery_points.building AS building,
     delivery_points.room AS room,
+    orders.daily_number_1c AS daily_number,
     CONCAT_WS('',
             CONCAT(employees.last_name, ' '),
             IF(employees.name = '',
@@ -54,7 +55,7 @@ FROM
     organizations ON organizations.id = 12
         LEFT JOIN
     counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
-        AND counterparty_contract.organization_id = organizations.id
+ AND orders.counterparty_contract_id = counterparty_contract.id
         LEFT JOIN
     delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
         LEFT JOIN
@@ -71,7 +72,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -159,6 +160,38 @@ WHERE
         <Field Name="trifle">
           <DataField>trifle</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="daily_number">
+          <DataField>daily_number</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Equipments">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+order_equipment.id,
+GROUP_CONCAT(nomenclature.name SEPARATOR ', ') AS equipment_name
+FROM
+    order_equipment
+        INNER JOIN
+    equipment ON order_equipment.equipment_id = equipment.id
+        INNER JOIN
+    nomenclature ON equipment.nomenclature_id = nomenclature.id        
+WHERE
+    order_equipment.order_id = @order_id
+AND order_equipment.direction = 'Deliver';</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="equipment_name">
+          <DataField>equipment_name</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -292,19 +325,19 @@ GROUP BY responsible_person_name</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>685.5pt</Height>
+    <Height>838.8pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List1">
         <Height>168.81pt</Height>
         <Width>562.59pt</Width>
-        <Left>35.00pt</Left>
-        <Top>0.00pt</Top>
+        <Left>35.0pt</Left>
+        <Top>0.8pt</Top>
         <ReportItems>
           <Textbox Name="Textbox1">
             <Height>17.25pt</Height>
             <Width>320.29pt</Width>
-            <Value>='Накладная № ' + {order_id} + ' от ' + {order_date} + ' Нал'</Value>
+            <Value>='Товарный чек № ' + {order_id} + ' от ' + {order_date} + ' Нал'</Value>
             <ZIndex>1</ZIndex>
             <Left>86.30pt</Left>
             <Top>35.50pt</Top>
@@ -321,7 +354,7 @@ GROUP BY responsible_person_name</CommandText>
             <Width>154.33pt</Width>
             <Value>= "Исполнитель: " + {author}</Value>
             <ZIndex>1</ZIndex>
-            <Left>359.3pt</Left>
+            <Left>192.1pt</Left>
             <Top>16.6pt</Top>
             <Style>
               <BorderStyle />
@@ -378,7 +411,7 @@ GROUP BY responsible_person_name</CommandText>
             <Value>Телефон:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>140pt</Top>
+            <Top>152.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -437,7 +470,7 @@ GROUP BY responsible_person_name</CommandText>
             <Value>={phone}</Value>
             <ZIndex>1</ZIndex>
             <Left>85.0pt</Left>
-            <Top>140.0pt</Top>
+            <Top>152.0pt</Top>
             <Style>
               <FontWeight>Bold</FontWeight>
               <BorderStyle />
@@ -451,8 +484,8 @@ GROUP BY responsible_person_name</CommandText>
             <Width>1in</Width>
             <Value>={delivery_schedule}</Value>
             <ZIndex>1</ZIndex>
-            <Left>263.0pt</Left>
-            <Top>146.4pt</Top>
+            <Left>262.2pt</Left>
+            <Top>152.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -466,8 +499,8 @@ GROUP BY responsible_person_name</CommandText>
             <Width>186.27pt</Width>
             <Value>='Договор: ' + {contract_number} + ' от ' + {contract_date}</Value>
             <ZIndex>1</ZIndex>
-            <Left>367.7pt</Left>
-            <Top>148.0pt</Top>
+            <Left>366.9pt</Left>
+            <Top>153.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -515,7 +548,7 @@ GROUP BY responsible_person_name</CommandText>
               </CustomProperty>
             </CustomProperties>
             <Left>391.5pt</Left>
-            <Top>29.0pt</Top>
+            <Top>41.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -527,13 +560,43 @@ GROUP BY responsible_person_name</CommandText>
             <Width>65.51pt</Width>
             <Value>Время дост.:</Value>
             <ZIndex>1</ZIndex>
-            <Left>208.8pt</Left>
-            <Top>147.7pt</Top>
+            <Left>208.0pt</Left>
+            <Top>153.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox59" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>15.00pt</Height>
+            <Width>92.59pt</Width>
+            <Value>={daily_number}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>416.9pt</Left>
+            <Top>17.1pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+            </Style>
+            <CanGrow>true</CanGrow>
+          </Textbox>
+          <Textbox Name="Textbox58">
+            <Height>12pt</Height>
+            <Width>1in</Width>
+            <Value>={trifle}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>85.2pt</Left>
+            <Top>138.5pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+              <TextAlign>Left</TextAlign>
             </Style>
           </Textbox>
         </ReportItems>
@@ -783,10 +846,10 @@ GROUP BY responsible_person_name</CommandText>
         <Top>173.4pt</Top>
       </Table>
       <List Name="List2">
-        <Height>399.35pt</Height>
+        <Height>388.10pt</Height>
         <Width>545.11pt</Width>
-        <Left>36.60pt</Left>
-        <Top>284.50pt</Top>
+        <Left>36.6pt</Left>
+        <Top>274.9pt</Top>
         <ReportItems>
           <Textbox Name="Textbox32">
             <Height>12.00pt</Height>
@@ -1130,7 +1193,7 @@ GROUP BY responsible_person_name</CommandText>
             <Value>* Поля обязательные к заполнению</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>365.6pt</Top>
+            <Top>348.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1213,29 +1276,14 @@ GROUP BY responsible_person_name</CommandText>
             <Width>536.74pt</Width>
             <Value>={order_comment}</Value>
             <ZIndex>1</ZIndex>
-            <Left>1.50pt</Left>
-            <Top>377.70pt</Top>
+            <Left>1.5pt</Left>
+            <Top>365.7pt</Top>
             <CanGrow>true</CanGrow>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox58" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>145.77pt</Width>
-            <Value>='Сдача с: ' + {trifle}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>353.9pt</Left>
-            <Top>39.7pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>11pt</FontSize>
             </Style>
           </Textbox>
         </ReportItems>
@@ -1276,24 +1324,6 @@ GROUP BY responsible_person_name</CommandText>
         <Value>logo</Value>
         <Sizing>FitProportional</Sizing>
       </Image>
-      <Subreport Name="Subreport1">
-        <Height>11.26pt</Height>
-        <Width>598.34pt</Width>
-        <Left>4.0pt</Left>
-        <Top>246.5pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <ReportName>InvoiceDepositRefundTable</ReportName>
-        <MergeTransactions>true</MergeTransactions>
-        <Parameters>
-          <Parameter Name="order_id">
-            <Value>=Parameters!order_id</Value>
-          </Parameter>
-        </Parameters>
-      </Subreport>
       <Table Name="Table2">
         <DataSetName>ResponsiblePerson</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -1410,6 +1440,143 @@ GROUP BY responsible_person_name</CommandText>
         <Left>30.0pt</Left>
         <Top>220.5pt</Top>
       </Table>
+      <Textbox Name="Textbox60" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15pt</Height>
+        <Width>80pt</Width>
+        <Value>Сдача:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>35.3pt</Left>
+        <Top>138.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Rectangle Name="Rectangle1">
+        <Height>73.72pt</Height>
+        <Width>541.29pt</Width>
+        <Left>30.8pt</Left>
+        <Top>674.8pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor>
+            <Default>Black</Default>
+            <Left>Black</Left>
+            <Right>Black</Right>
+            <Top>Black</Top>
+            <Bottom>Black</Bottom>
+          </BorderColor>
+          <BorderWidth>
+            <Default>2pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>2pt</Top>
+            <Bottom>2pt</Bottom>
+          </BorderWidth>
+        </Style>
+        <ReportItems>
+          <Textbox Name="Textbox61">
+            <Height>13.20pt</Height>
+            <Width>524.52pt</Width>
+            <Value>Теперь для наших любимых клиентов мы предлагаем три вида воды:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>7.7pt</Left>
+            <Top>2.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+              <FontSize>12pt</FontSize>
+              <FontWeight>Bold</FontWeight>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox62">
+            <Height>13.20pt</Height>
+            <Width>524.52pt</Width>
+            <Value>1. Веселый водовоз PREMIUM "СЕМИОЗЕРЬЕ" - с синей пробкой!</Value>
+            <ZIndex>1</ZIndex>
+            <Left>4.0pt</Left>
+            <Top>21.1pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Left</TextAlign>
+              <FontSize>10pt</FontSize>
+              <FontWeight>Bold</FontWeight>
+              <PaddingLeft>0pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox63">
+            <Height>14.70pt</Height>
+            <Width>546.34pt</Width>
+            <Value>2. Веселый водовоз PREMIUM "Кислородная" - с синей пробкой и желтым защитным термоколпачком!</Value>
+            <ZIndex>1</ZIndex>
+            <Left>4.0pt</Left>
+            <Top>37.7pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Left</TextAlign>
+              <FontSize>10pt</FontSize>
+              <FontWeight>Bold</FontWeight>
+              <PaddingLeft>0pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox64">
+            <Height>13.95pt</Height>
+            <Width>531.28pt</Width>
+            <Value>3. Веселый водовоз PREMIUM "Снятогорская" - с белой пробкой и защитным термоколпачком!</Value>
+            <ZIndex>1</ZIndex>
+            <Left>4.0pt</Left>
+            <Top>54.5pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Left</TextAlign>
+              <FontSize>10pt</FontSize>
+              <FontWeight>Bold</FontWeight>
+              <PaddingLeft>0pt</PaddingLeft>
+            </Style>
+          </Textbox>
+        </ReportItems>
+      </Rectangle>
+      <List Name="List3">
+        <Height>39.97pt</Height>
+        <Width>540.51pt</Width>
+        <Left>31.2pt</Left>
+        <Top>755.9pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox65">
+            <Height>14.26pt</Height>
+            <Width>117.45pt</Width>
+            <Value>Оборудование клиенту: </Value>
+            <ZIndex>1</ZIndex>
+            <Left>1.7pt</Left>
+            <Top>0.7pt</Top>
+          </Textbox>
+          <Textbox Name="Textbox66">
+            <Height>33.02pt</Height>
+            <Width>415.10pt</Width>
+            <Value>={equipment_name}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>124.7pt</Left>
+            <Top>2.0pt</Top>
+          </Textbox>
+        </ReportItems>
+        <DataSetName>Equipments</DataSetName>
+      </List>
     </ReportItems>
   </Body>
   <PageFooter>
