@@ -39,6 +39,7 @@
     delivery_points.room AS room,
     delivery_points.latitude,
     delivery_points.longitude,
+    orders.daily_number_1c AS daily_number,
     CONCAT_WS('',
             CONCAT(employees.last_name, ' '),
             IF(employees.name = '',
@@ -47,7 +48,7 @@
             IF(employees.patronymic = '',
                 '',
                 CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
-    orders.trifle AS trifle
+    orders.trifle AS trifle    
 FROM
     orders
         LEFT JOIN
@@ -169,6 +170,38 @@ WHERE
           <DataField>trifle</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="daily_number">
+          <DataField>daily_number</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="EquipmentFromClient">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+order_equipment.id,
+GROUP_CONCAT(nomenclature.name SEPARATOR ', ') AS equipment_name_from
+FROM
+    order_equipment
+        INNER JOIN
+    equipment ON order_equipment.equipment_id = equipment.id
+        INNER JOIN
+    nomenclature ON equipment.nomenclature_id = nomenclature.id        
+WHERE
+    order_equipment.order_id = @order_id
+AND order_equipment.direction = 'PickUp';</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="equipment_name_from">
+          <DataField>equipment_name_from</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
@@ -182,7 +215,8 @@ WHERE
     measurement_units.name AS mu_name,
     order_items.count AS count,
     order_items.price * (1 - order_items.discount/100) AS item_price,
-    order_items.price * order_items.count * (1 - order_items.discount/100) AS total 
+    order_items.price * order_items.count * (1 - order_items.discount/100) AS total,
+    order_items.include_nds AS include_nds
 FROM order_items
 LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
 LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
@@ -220,6 +254,10 @@ WHERE order_items.order_id = @order_id;</CommandText>
         </Field>
         <Field Name="total">
           <DataField>total</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="include_nds">
+          <DataField>include_nds</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
@@ -300,6 +338,33 @@ GROUP BY responsible_person_name</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="EquipmentToClient">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+GROUP_CONCAT(nomenclature.name SEPARATOR ', ') AS equipment_name_to
+FROM
+    order_equipment
+        INNER JOIN
+    equipment ON order_equipment.equipment_id = equipment.id
+        INNER JOIN
+    nomenclature ON equipment.nomenclature_id = nomenclature.id        
+WHERE
+    order_equipment.order_id = @order_id
+AND order_equipment.direction = 'Deliver';</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="equipment_name_to">
+          <DataField>equipment_name_to</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -336,7 +401,7 @@ GROUP BY responsible_person_name</CommandText>
             <Width>154.33pt</Width>
             <Value>= "Исполнитель: " + {author}</Value>
             <ZIndex>1</ZIndex>
-            <Left>359.3pt</Left>
+            <Left>180.9pt</Left>
             <Top>16.6pt</Top>
             <Style>
               <BorderStyle />
@@ -529,8 +594,8 @@ GROUP BY responsible_person_name</CommandText>
                 <Value>={order_id}</Value>
               </CustomProperty>
             </CustomProperties>
-            <Left>391.5pt</Left>
-            <Top>29.0pt</Top>
+            <Left>394.7pt</Left>
+            <Top>43.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -578,6 +643,21 @@ GROUP BY responsible_person_name</CommandText>
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
             </Style>
+          </Textbox>
+          <Textbox Name="Textbox36" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>15.00pt</Height>
+            <Width>92.59pt</Width>
+            <Value>={daily_number}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>405.9pt</Left>
+            <Top>16.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+            </Style>
+            <CanGrow>true</CanGrow>
           </Textbox>
         </ReportItems>
         <Style>
@@ -826,18 +906,18 @@ GROUP BY responsible_person_name</CommandText>
         <Top>189.4pt</Top>
       </Table>
       <List Name="List2">
-        <Height>120.65pt</Height>
-        <Width>539.07pt</Width>
+        <Height>78.49pt</Height>
+        <Width>542.82pt</Width>
         <Left>32.6pt</Left>
-        <Top>311.5pt</Top>
+        <Top>384.3pt</Top>
         <ReportItems>
           <Textbox Name="Textbox42">
             <Height>13.50pt</Height>
             <Width>533.24pt</Width>
             <Value>='Предполагаемое количеcтво возвратной тары: ' + {bottles_return} + ' бутылей'</Value>
             <ZIndex>1</ZIndex>
-            <Left>1.50pt</Left>
-            <Top>50.40pt</Top>
+            <Left>1.5pt</Left>
+            <Top>25.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -851,8 +931,8 @@ GROUP BY responsible_person_name</CommandText>
             <Width>145.77pt</Width>
             <Value>='Всего: ' + {total}</Value>
             <ZIndex>1</ZIndex>
-            <Left>354.30pt</Left>
-            <Top>26.40pt</Top>
+            <Left>354.3pt</Left>
+            <Top>5.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -867,25 +947,12 @@ GROUP BY responsible_person_name</CommandText>
             <Value>=Code.SummaString_Val(Convert.ToString({total}))</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>26.4pt</Top>
+            <Top>5.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox11">
-            <Height>12.00pt</Height>
-            <Width>360.27pt</Width>
-            <Value>='Предварительно согласованная корректировка суммы: ' + ({total} - Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'))</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>2.7pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
             </Style>
           </Textbox>
           <Textbox Name="Textbox30">
@@ -894,23 +961,8 @@ GROUP BY responsible_person_name</CommandText>
             <Value>={order_comment}</Value>
             <ZIndex>1</ZIndex>
             <Left>1.7pt</Left>
-            <Top>73.0pt</Top>
+            <Top>48.2pt</Top>
             <CanGrow>true</CanGrow>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>12pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>13.50pt</Height>
-            <Width>533.24pt</Width>
-            <Value>='Сдача: ' + {trifle}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.8pt</Left>
-            <Top>97.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -947,7 +999,7 @@ GROUP BY responsible_person_name</CommandText>
         <Height>11.26pt</Height>
         <Width>598.34pt</Width>
         <Left>0.0pt</Left>
-        <Top>273.5pt</Top>
+        <Top>370.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1081,8 +1133,100 @@ GROUP BY responsible_person_name</CommandText>
           </TableRows>
         </Details>
         <Left>53.8pt</Left>
-        <Top>234.5pt</Top>
+        <Top>245.7pt</Top>
       </Table>
+      <Textbox Name="Textbox38" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>142.02pt</Width>
+        <Value>='В том числе НДС: ' + Format(Sum({include_nds}, 'Goods'), "N2")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>400.0pt</Left>
+        <Top>229.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Normal</FontWeight>
+          <Format># ##0.00</Format>
+        </Style>
+        <CanGrow>true</CanGrow>
+      </Textbox>
+      <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.25pt</Height>
+        <Width>117.86pt</Width>
+        <Value>Оборудование клиенту:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>44.2pt</Left>
+        <Top>284.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox43" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>25.57pt</Height>
+        <Width>91.30pt</Width>
+        <Value>Оборудование от клиента</Value>
+        <ZIndex>1</ZIndex>
+        <Left>70.76pt</Left>
+        <Top>322.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <List Name="List3">
+        <Height>40.63pt</Height>
+        <Width>380.92pt</Width>
+        <Left>166.40pt</Left>
+        <Top>284.30pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>37.58pt</Height>
+            <Width>379.43pt</Width>
+            <Value>={equipment_name_from}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>1.4pt</Left>
+            <Top>1.3pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Normal</FontWeight>
+            </Style>
+            <CanGrow>true</CanGrow>
+          </Textbox>
+        </ReportItems>
+        <DataSetName>EquipmentFromClient</DataSetName>
+      </List>
+      <List Name="List4">
+        <Height>41.40pt</Height>
+        <Width>380.98pt</Width>
+        <Left>166.9pt</Left>
+        <Top>324.2pt</Top>
+        <DataSetName>EquipmentToClient</DataSetName>
+        <ReportItems>
+          <Textbox Name="Textbox40">
+            <Height>38.35pt</Height>
+            <Width>377.19pt</Width>
+            <Value>={equipment_name_to}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>2.40pt</Left>
+            <Top>2.10pt</Top>
+            <CanGrow>true</CanGrow>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Normal</FontWeight>
+            </Style>
+          </Textbox>
+        </ReportItems>
+      </List>
     </ReportItems>
   </Body>
   <PageFooter>
