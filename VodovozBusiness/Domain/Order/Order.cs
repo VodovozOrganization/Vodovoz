@@ -1017,9 +1017,8 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем номенклатуру залога
 					OrderItem orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
-							item => item.AdditionalAgreement == a &&
-							item.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id &&
-							item.Price == equipment.Deposit)) != null) {
+							item => item.AdditionalAgreement.Id == a.Id &&
+							item.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id)) != null) {
 						orderItem.Count = equipment.Count;
 						orderItem.Price = equipment.Deposit;
 					} else {
@@ -1038,9 +1037,9 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем услугу аренды
 					orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
-							item => item.AdditionalAgreement == a &&
-							item.Nomenclature.Id == (IsDaily ? equipment.PaidRentPackage.RentServiceDaily.Id : equipment.PaidRentPackage.RentServiceMonthly.Id) &&
-							item.Price == equipment.Price)) != null) {
+							item => item.AdditionalAgreement.Id == a.Id &&
+						item.Nomenclature.Id == (IsDaily ? equipment.PaidRentPackage.RentServiceDaily.Id : equipment.PaidRentPackage.RentServiceMonthly.Id)
+							)) != null) {
 						orderItem.Count = equipment.Count;
 						orderItem.Price = orderItem.Nomenclature.GetPrice(orderItem.Count);
 						ItemId = ObservableOrderItems.IndexOf(orderItem);
@@ -1059,7 +1058,11 @@ namespace Vodovoz.Domain.Orders
 						);
 					}
 					//Добавляем оборудование
-					ObservableOrderEquipments.Add(
+					OrderEquipment orderEquip = ObservableOrderEquipments.FirstOrDefault(x => x.Equipment == equipment.Equipment);
+					if(orderEquip != null) {
+						orderEquip.Count = equipment.Count;
+					}else {
+						ObservableOrderEquipments.Add(
 						new OrderEquipment {
 							Order = this,
 							Direction = Direction.Deliver,
@@ -1069,7 +1072,9 @@ namespace Vodovoz.Domain.Orders
 							Reason = Reason.Rent,
 							OrderItem = ObservableOrderItems[ItemId]
 						}
-					);
+						);
+					}
+
 					OnPropertyChanged(nameof(TotalSum));
 					OnPropertyChanged(nameof(SumToReceive));
 				}

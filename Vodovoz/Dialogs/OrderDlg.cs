@@ -478,7 +478,9 @@ namespace Vodovoz
  			orderItem.Count = newCount;
 
 			OrderEquipment orderEquip = Entity.OrderEquipments.FirstOrDefault(x => x.OrderItem == orderItem);
-			orderEquip.Count = newCount;
+			if(orderEquip != null) {
+				orderEquip.Count = newCount;
+			}
 
 			OrderItem depositItem;
 			if(orderItem.PaidRentEquipment != null) {
@@ -773,10 +775,14 @@ namespace Vodovoz
 		void AgreementSaved(object sender, AgreementSavedEventArgs e)
 		{
 			var agreement = UoWGeneric.Session.Merge(e.Agreement);
-			UoWGeneric.Root.ObservableOrderDocuments.Add(new OrderAgreement {
-				Order = UoWGeneric.Root,
-				AdditionalAgreement = agreement
-			});
+			var orderAgreement = UoWGeneric.Root.ObservableOrderDocuments.OfType<OrderAgreement>()
+			          .FirstOrDefault(x => x.AdditionalAgreement == agreement);
+			if(orderAgreement == null) {
+				UoWGeneric.Root.ObservableOrderDocuments.Add(new OrderAgreement {
+					Order = UoWGeneric.Root,
+					AdditionalAgreement = agreement
+				});
+			}
 			UoWGeneric.Root.FillItemsFromAgreement(agreement);
 			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType).AdditionalAgreements.Add(agreement);
 		}
@@ -794,9 +800,13 @@ namespace Vodovoz
 				if(treeDocuments.GetSelectedObjects()[0] is OrderAgreement) {
 					var agreement = (treeDocuments.GetSelectedObjects()[0] as OrderAgreement).AdditionalAgreement;
 					var type = NHibernateProxyHelper.GuessClass(agreement);
+					var dialog = OrmMain.CreateObjectDialog(type, agreement.Id);
+					if(dialog is IAgreementSaved) {
+						(dialog as IAgreementSaved).AgreementSaved += AgreementSaved;
+					}
 					TabParent.OpenTab(
 						OrmMain.GenerateDialogHashName(type, agreement.Id),
-						() => OrmMain.CreateObjectDialog(type, agreement.Id)
+						() => dialog
 					);
 				} else if(treeDocuments.GetSelectedObjects()[0] is OrderContract) {
 					var contract = (treeDocuments.GetSelectedObjects()[0] as OrderContract).Contract;
