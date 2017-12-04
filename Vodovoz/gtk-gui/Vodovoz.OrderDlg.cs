@@ -1760,6 +1760,7 @@ namespace Vodovoz
 			this.labelProxyInfo.Hide();
 			this.yentryAddress1cDeliveryPoint.Hide();
 			this.Hide();
+			this.Shown += new global::System.EventHandler(this.OnShown);
 			this.toggleInformation.Toggled += new global::System.EventHandler(this.OnToggleInformationToggled);
 			this.toggleGoods.Toggled += new global::System.EventHandler(this.OnToggleGoodsToggled);
 			this.toggleEquipment.Toggled += new global::System.EventHandler(this.OnToggleEquipmentToggled);

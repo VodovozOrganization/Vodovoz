@@ -25937,6 +25937,7 @@
   <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="1092 650">
     <property name="MemberName" />
     <property name="Visible">False</property>
+    <signal name="Shown" handler="OnShown" />
     <child>
       <widget class="Gtk.VBox" id="vbox2">
         <property name="MemberName" />
