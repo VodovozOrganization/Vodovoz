@@ -15,6 +15,15 @@ namespace Vodovoz.Domain.Client
 	)]
 	public class AdditionalAgreement : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		/// <summary>
+		/// Используется для возможности приведения общего типа к конкретному, если
+		/// напрямую привести не удается. 
+		/// AdditionalAgreement a = entity.self;
+		/// (a as WaterSalesAgreement).IsFixedPrice
+		/// где IsFixedPrice доступно только для WaterSalesAgreement
+		/// </summary> 
+		public virtual AdditionalAgreement Self { get { return this; } }
+
 		public virtual int Id { get; set; }
 
 		int agreementNumber;
