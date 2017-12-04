@@ -25,6 +25,7 @@ using QSDocTemplates;
 using Vodovoz.JournalFilters;
 using Vodovoz.Domain.Operations;
 using System.Data.Bindings.Collections.Generic;
+using Gamma.GtkWidgets.Cells;
 
 namespace Vodovoz
 {
@@ -262,8 +263,19 @@ namespace Vodovoz
 				.AddColumn("Сроки аренды").AddTextRenderer(node => GetRentsCount(node))
 				.AddColumn("Цена").AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
-				.AddSetter((c, node) => c.ForegroundGdk = node.HasUserSpecifiedPrice() && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category) ? colorBlue : colorBlack)
 				.AddSetter((c, node) => c.Editable = Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
+				.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) => {
+					AdditionalAgreement aa = node.AdditionalAgreement.Self;
+					if(aa is WaterSalesAgreement &&
+					  (aa as WaterSalesAgreement).IsFixedPrice) {
+						c.ForegroundGdk = colorGreen;
+					} else if(node.HasUserSpecifiedPrice() &&
+					  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
+						c.ForegroundGdk = colorBlue;
+					} else {
+						c.ForegroundGdk = colorBlack;
+					}
+				})
 				.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("В т.ч. НДС").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS))
 				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
@@ -271,10 +283,6 @@ namespace Vodovoz
 				.Adjustment(new Adjustment(0, 0, 100, 1, 100, 1)).Editing(true)
 				.AddColumn("Доп. соглашение").SetDataProperty(node => node.AgreementString)
 				.RowCells()
-				.AddSetter<CellRenderer>((cell, node) => {
-					var color = fixedPrices.Count > 0 && fixedPrices.Contains(node.Nomenclature) ? colorGreen : colorWhite;
-					cell.CellBackgroundGdk = color;
-				})
 				.Finish();
 
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
