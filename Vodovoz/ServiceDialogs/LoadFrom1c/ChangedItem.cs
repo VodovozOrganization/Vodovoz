@@ -131,20 +131,6 @@ namespace ServiceDialogs.LoadFrom1c
 			//	oldOrder.Address1c = newOrder.Address1c;
 			//}
 
-			if (oldOrder.ToClientText != newOrder.ToClientText)
-			{
-				result.Add(new FieldChange("Изменена строка \"К клиенту\"",
-					oldOrder.ToClientText ?? noValue,
-					newOrder.ToClientText ?? noValue));
-				oldOrder.ToClientText = newOrder.ToClientText;
-			}
-			if (oldOrder.FromClientText != newOrder.FromClientText)
-			{
-				result.Add(new FieldChange("Изменена строка \"От клиента\"",
-					oldOrder.FromClientText ?? noValue,
-					newOrder.FromClientText ?? noValue));
-				oldOrder.FromClientText = newOrder.FromClientText;
-			}
 
 			if(oldOrder.ClientPhone != newOrder.ClientPhone) {
 				result.Add(new FieldChange("Изменен телефон", oldOrder.ClientPhone ?? noValue, newOrder.ClientPhone ?? noValue));

@@ -232,18 +232,14 @@ namespace Vodovoz
 					//	.AddSetter ((cell, node) => cell.Editable = node.WithForwarder && node.IsDelivered())
 					//	.AddSetter ((cell, node) => cell.Sensitive = node.WithForwarder)
 					//	.Adjustment (new Adjustment (0, -100000, 100000, 100, 100, 1))
-				.AddColumn("Доп. оборудование\n     клиенту").HeaderAlignment(0.5f)
+
+				.AddColumn("Оборудование\n     клиенту").HeaderAlignment(0.5f)
 					.AddTextRenderer()
-						.AddSetter((cell,node)=>cell.Markup=ToClientString(node))
-#if SHORT
-						.AddTextRenderer(node => node.ToClientText).Editable()
-#endif
-				.AddColumn("Доп. оборуд.\n от клиента").HeaderAlignment(0.5f)
+						.AddSetter((cell,node)=>cell.Markup=node.Order.ToClientText)
+				.AddColumn("Оборудование\n от клиента").HeaderAlignment(0.5f)
 					.AddTextRenderer()
-						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
-#if SHORT
-						.AddTextRenderer(node => node.FromClientText).Editable()
-#endif
+						.AddSetter((cell, node) => cell.Markup = node.Order.FromClientText)
+
 			   .AddColumn("Вод. телефон").HeaderAlignment(0.5f)
 					.AddTextRenderer()
 						.AddTextRenderer(node => node.Order.DriverCallType.ToString())
@@ -341,31 +337,6 @@ namespace Vodovoz
 				? "<b>{0}</b>({1})" 
 				: "<b>{0}</b>";
 			return String.Format(formatString, actual, planned-actual);
-		}
-
-		public string ToClientString(RouteListItem item)
-		{
-			var stringParts = new List<string>();
-
-			foreach(var orderItem in item.Order.OrderEquipments) {
-				if(orderItem.Direction == Domain.Orders.Direction.Deliver) {
-					stringParts.Add(string.Format("{0}:{1} ", orderItem.NameString, orderItem.Count));
-				}
-			}
-			return String.Join(",", stringParts);
-		}	
-
-		public string FromClientString(RouteListItem item)
-		{
-			var stringParts = new List<string>();
-
-			foreach(var orderItem in item.Order.OrderEquipments) {
-				if(orderItem.Direction == Domain.Orders.Direction.PickUp)
-				 {
-					stringParts.Add(string.Format("{0}:{1} ", orderItem.NameString, orderItem.Count));
-				 }
-			}
-			return String.Join(",", stringParts);
 		}
 
 		public RouteListClosingItemsView ()

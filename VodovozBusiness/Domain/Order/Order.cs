@@ -290,20 +290,36 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref address1cCode, value, () => Address1cCode); }
 		}
 
-		private string fromClientText;
-
 		[Display(Name = "Колонка МЛ от клиента")]
 		public virtual string FromClientText {
-			get { return fromClientText; }
-			set { SetField(ref fromClientText, value, () => FromClientText); }
+			get {
+				string result = "";
+				List<OrderEquipment> equipments = OrderEquipments.Where(x => x.Direction == Direction.PickUp).ToList();
+				foreach(var equip in equipments) {
+					result += equip.NameString;
+					result += " " + equip.Count.ToString() + "шт.";
+					if(equip != equipments.Last()) {
+						result += ", ";
+					}
+				}
+				return result;
+			}
 		}
-
-		private string toClientText;
 
 		[Display(Name = "Колонка МЛ к клиенту")]
 		public virtual string ToClientText {
-			get { return toClientText; }
-			set { SetField(ref toClientText, value, () => ToClientText); }
+			get{
+				string result = "";
+				List<OrderEquipment> equipments = OrderEquipments.Where(x => x.Direction == Direction.Deliver).ToList();
+				foreach(var equip in equipments) {
+					result += equip.NameString;
+					result += " " + equip.Count.ToString() + "шт.";
+					if(equip != equipments.Last()) {
+						result += ", ";
+					}
+				}
+				return result;
+			}
 		}
 
 		private int? dailyNumber;
