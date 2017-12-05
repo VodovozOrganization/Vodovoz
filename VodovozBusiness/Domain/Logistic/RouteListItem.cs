@@ -347,7 +347,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver).Where(item => item.Equipment != null)
 					.Where(item => item.Confirmed)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
 			}
@@ -357,7 +357,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver).Where(item => item.Equipment != null)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
 			}
 		}
@@ -366,7 +366,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver).Where(item => item.Equipment != null)
 					.Where(item => item.Confirmed)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
 			}
@@ -376,7 +376,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver).Where(item => item.Equipment != null)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
 			}
 		}
@@ -385,7 +385,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver).Where(item => item.Equipment != null)
 					.Where(item => item.Confirmed)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.WithoutCard);
 			}
@@ -395,7 +395,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver).Where(item => item.Equipment != null)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.WithoutCard);
 			}
 		}
@@ -404,8 +404,8 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
-					.Where(item => item.Confirmed).Where(item => item.Equipment != null)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp).Where(item => item.Equipment != null)
+					.Where(item => item.Confirmed)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
 			}
 		}
@@ -414,8 +414,8 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
-					.Where(item => item.Confirmed).Where(item => item.Equipment != null)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp).Where(item => item.Equipment != null)
+					.Where(item => item.Confirmed)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
 			}
 		}
