@@ -46,7 +46,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Найдено адресов без расстояний:");
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Загружено точек доставки:");
 			this.table1.Add(this.label1);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -142,7 +142,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.buttonLoad.CanFocus = true;
 			this.buttonLoad.Name = "buttonLoad";
 			this.buttonLoad.UseUnderline = true;
-			this.buttonLoad.Label = global::Mono.Unix.Catalog.GetString("Проверить");
+			this.buttonLoad.Label = global::Mono.Unix.Catalog.GetString("Загрузить");
 			this.hbox1.Add(this.buttonLoad);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonLoad]));
 			w10.PackType = ((global::Gtk.PackType)(1));

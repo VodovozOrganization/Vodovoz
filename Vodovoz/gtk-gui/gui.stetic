@@ -45282,7 +45282,7 @@
             <child>
               <widget class="Gtk.Label" id="label1">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">Найдено адресов без расстояний:</property>
+                <property name="LabelProp" translatable="yes">Загружено точек доставки:</property>
               </widget>
               <packing>
                 <property name="AutoSize">True</property>
@@ -45443,7 +45443,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextOnly</property>
-                <property name="Label" translatable="yes">Проверить</property>
+                <property name="Label" translatable="yes">Загрузить</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonLoadClicked" />
               </widget>
