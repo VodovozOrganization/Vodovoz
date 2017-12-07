@@ -26,7 +26,7 @@ namespace Vodovoz.ServiceDialogs.Database
 		{
 			logger.Info("Загружаем точки доставки без расстояний...");
 			points = uow.Session.QueryOver<DeliveryPoint>()
-			            .Where(x => x.DistanceFromCenterMeters == null && x.Latitude != null && x.Longitude != null)
+			            .Where(x => x.DistanceFromBaseMeters == null && x.Latitude != null && x.Longitude != null)
 			            .Fetch(x => x.DeliverySchedule).Lazy
 						.List();
 
