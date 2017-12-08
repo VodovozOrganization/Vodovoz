@@ -248,7 +248,10 @@ namespace Vodovoz
 #if SHORT
 						.AddTextRenderer(node => node.FromClientText).Editable()
 #endif
-			   
+
+			   .AddColumn("Вод. телефон").HeaderAlignment(0.5f)
+					.AddTextRenderer()
+						.AddTextRenderer(node => node.Order.DriverCallType.ToString())
 
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
@@ -260,7 +263,7 @@ namespace Vodovoz
 					else
 					{
 						var itemChanged = node.Order.OrderItems
-							.Where(item => !item.Nomenclature.Serial)
+							.Where(item => !item.Nomenclature.IsSerial)
 							.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 							.Any(item => item.Count != item.ActualCount);
 						var equipmentChanged = node.Order.OrderEquipments
@@ -351,74 +354,24 @@ namespace Vodovoz
 		public string ToClientString(RouteListItem item)
 		{
 			var stringParts = new List<string>();
-			if (item.PlannedCoolersToClient > 0)
-			{				
-				var formatString = item.CoolersToClient < item.PlannedCoolersToClient
-						? "Кулеры:<b>{0}</b>({1})" 
-						: "Кулеры:<b>{0}</b>";
-				var coolerString = String.Format(formatString, item.CoolersToClient, item.PlannedCoolersToClient-item.CoolersToClient);
-				stringParts.Add(coolerString);
-			}
-			if (item.PlannedPumpsToClient > 0)
-			{
-				var formatString = item.PumpsToClient < item.PlannedPumpsToClient
-						? "Помпы:<b>{0}</b>({1})" 
-						: "Помпы:<b>{0}</b>";
-				var coolerString = String.Format(formatString,
-					item.PumpsToClient,
-					item.PlannedPumpsToClient-item.PumpsToClient
-				);						
-				stringParts.Add(coolerString);
-			}
-			if (item.UncategorisedEquipmentToClient > 0)
-			{					
-				var formatString = item.UncategorisedEquipmentToClient < item.PlannedUncategorisedEquipmentToClient
-						? "Другое:<b>{0}</b>({1})" 
-						: "Другое:<b>{0}</b>";
-				var coolerString = String.Format(formatString,
-					item.UncategorisedEquipmentToClient,
-					item.PlannedUncategorisedEquipmentToClient-item.UncategorisedEquipmentToClient
-				);
-				stringParts.Add(coolerString);
-			}
 
-			foreach (var orderItem in item.Order.OrderItems) {
-				if(orderItem.Nomenclature.Category == NomenclatureCategory.additional)
-				{
-					stringParts.Add(orderItem.IsDelivered
-					                ? string.Format("{0}:<b>{1}</b>", orderItem.Nomenclature.Name, orderItem.ActualCount)
-					                : string.Format ("{0}:{1}({2:-0})", orderItem.Nomenclature.Name, orderItem.ActualCount, orderItem.Count - orderItem.ActualCount));
+			foreach(var orderItem in item.Order.OrderEquipments) {
+				if(orderItem.Direction == Domain.Orders.Direction.Deliver) {
+					stringParts.Add(string.Format("{0}:{1} ", orderItem.NameString, orderItem.Count));
 				}
-
 			}
-
 			return String.Join(",", stringParts);
 		}	
 
 		public string FromClientString(RouteListItem item)
 		{
 			var stringParts = new List<string>();
-			if (item.PlannedCoolersFromClient > 0)
-			{
-				var formatString = item.CoolersFromClient < item.PlannedCoolersFromClient 
-						? "Кулеры:<b>{0}</b>({1})" 
-						: "Кулеры:<b>{0}</b>";
-				var coolerString = String.Format(formatString,
-					item.CoolersFromClient,
-					item.PlannedCoolersFromClient-item.CoolersFromClient
-				);
-				stringParts.Add(coolerString);
-			}
-			if (item.PlannedPumpsFromClient > 0)
-			{
-				var formatString = item.PumpsFromClient < item.PlannedPumpsFromClient 
-						? "Помпы:<b>{0}</b>({1})" 
-						: "Помпы:<b>{0}</b>";
-				var pumpString = String.Format(formatString,
-					item.PumpsFromClient,
-					item.PlannedPumpsFromClient-item.PumpsFromClient
-				);
-				stringParts.Add(pumpString);
+
+			foreach(var orderItem in item.Order.OrderEquipments) {
+				if(orderItem.Direction == Domain.Orders.Direction.PickUp)
+				 {
+					stringParts.Add(string.Format("{0}:{1} ", orderItem.NameString, orderItem.Count));
+				 }
 			}
 			return String.Join(",", stringParts);
 		}

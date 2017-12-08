@@ -37,9 +37,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			
 			Bootles = order.OrderItems.Where(x => x.Nomenclature.Category == Domain.Goods.NomenclatureCategory.water)
 							 .Sum(x => x.Count);
-			Weight = order.OrderItems.Sum(x => x.Nomenclature.Weight * x.Count);
+			Weight = order.OrderItems.Sum(x => x.Nomenclature.Weight * x.Count)
+			              + order.OrderEquipments.Where(x => x.Direction == Direction.Deliver).Sum(x => x.Nomenclature.Weight * x.Count);
 
-			Volume = order.OrderItems.Sum(x => x.Nomenclature.Volume * x.Count);
+			Volume = order.OrderItems.Sum(x => x.Nomenclature.Volume * x.Count)
+			              + order.OrderEquipments.Where(x => x.Direction == Direction.Deliver).Sum(x => x.Nomenclature.Volume * x.Count);
 		}
 	}
 }

@@ -24,9 +24,9 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		protected void OnButtonLoadClicked(object sender, EventArgs e)
 		{
-			logger.Info("Загружаем точки доставки без расстояний...");
+			logger.Info("Загружаем все точки доставки...");
 			points = uow.Session.QueryOver<DeliveryPoint>()
-			            .Where(x => x.DistanceFromCenterMeters == null && x.Latitude != null && x.Longitude != null)
+			            //.Where(x => x.DistanceFromBaseMeters == null && x.Latitude != null && x.Longitude != null)
 			            .Fetch(x => x.DeliverySchedule).Lazy
 						.List();
 
@@ -43,7 +43,7 @@ namespace Vodovoz.ServiceDialogs.Database
 		{
 			progressbar1.Adjustment.Value = 0;
 			progressbar1.Adjustment.Upper = points.Count;
-			logger.Info("Рассчитываем расстояния от центра...");
+			logger.Info("Рассчитываем расстояния от склада...");
 			int notSaved = 0;
 			int calculated = 0;
 			int saved = 0;

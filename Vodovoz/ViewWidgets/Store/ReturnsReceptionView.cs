@@ -119,7 +119,7 @@ namespace Vodovoz
 				.JoinAlias (rli => rli.Order, () => orderAlias)
 				.JoinAlias (() => orderAlias.OrderItems, () => orderItemsAlias)
 				.JoinAlias (() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
-				.Where (() => !nomenclatureAlias.Serial)	
+				.Where (() => !nomenclatureAlias.IsSerial)	
 				.Where (Restrictions.Or (
 					Restrictions.On (() => nomenclatureAlias.Warehouse).IsNull,
 					Restrictions.Eq (Projections.Property (() => nomenclatureAlias.Warehouse), Warehouse)
@@ -151,7 +151,7 @@ namespace Vodovoz
 					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)				
 					.Select (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
 					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
-					.Select (() => nomenclatureAlias.Serial).WithAlias (() => resultAlias.Trackable)
+					.Select (() => nomenclatureAlias.IsSerial).WithAlias (() => resultAlias.Trackable)
 					.Select (() => nomenclatureAlias.Category).WithAlias (() => resultAlias.NomenclatureCategory)
 				)
 				.TransformUsing (Transformers.AliasToBean<ReceptionItemNode> ())

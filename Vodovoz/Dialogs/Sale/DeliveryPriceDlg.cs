@@ -147,7 +147,7 @@ namespace Vodovoz.Dialogs.Sale
 			}
 
 			var route = new List<PointOnEarth>(2);
-			route.Add(new PointOnEarth(Constants.CenterOfCityLatitude, Constants.CenterOfCityLongitude));
+			route.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
 			route.Add(new PointOnEarth(Latitude.Value, Longitude.Value));
 
 			var result = OsrmMain.GetRoute(route, false, GeometryOverview.False);

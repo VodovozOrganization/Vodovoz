@@ -341,12 +341,12 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref coordsLastChangeUser, value, () => СoordsLastChangeUser); }
 		}
 
-		private int? distanceFromCenterMeters;
+		private int? distanceFromBaseMeters;
 
-		[Display(Name = "Расстояние от центра в метрах")]
-		public virtual int? DistanceFromCenterMeters {
-			get { return distanceFromCenterMeters; }
-			set { SetField(ref distanceFromCenterMeters, value, () => DistanceFromCenterMeters); }
+		[Display(Name = "Расстояние от базы в метрах")]
+		public virtual int? DistanceFromBaseMeters {
+			get { return distanceFromBaseMeters; }
+			set { SetField(ref distanceFromBaseMeters, value, () => DistanceFromBaseMeters); }
 		}
 
 		#endregion
@@ -424,7 +424,7 @@ namespace Vodovoz.Domain.Client
 				return true;
 
 			var route = new List<PointOnEarth>(2);
-			route.Add(new PointOnEarth(Constants.CenterOfCityLatitude, Constants.CenterOfCityLongitude));
+			route.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
 			route.Add(new PointOnEarth(Latitude.Value, Longitude.Value));
 
 			var result = OsrmMain.GetRoute(route, false, GeometryOverview.False);
@@ -432,7 +432,7 @@ namespace Vodovoz.Domain.Client
 				logger.Error("Сервер расчета расстояний вернул следующее сообщение:\n" + result.StatusMessageRus);
 				return false;
 			}
-			DistanceFromCenterMeters = result.Routes[0].TotalDistance;
+			DistanceFromBaseMeters = result.Routes[0].TotalDistance;
 			return true;
 		}
 

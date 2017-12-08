@@ -66,7 +66,7 @@ namespace Vodovoz.ViewModel
 			var items = UoW.Session.QueryOver<Nomenclature>(()=>nomenclatureAlias)
 			    .Where(Restrictions.In(Projections.Property(()=>nomenclatureAlias.Category),Nomenclature.GetCategoriesForSale()))
 			               .Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category),(Filter.AllSelected? Enum.GetValues(typeof(NomenclatureCategory)) : filteredCat)))
-				.JoinAlias(()=>nomenclatureAlias.Unit,()=>unitAlias).Where(()=>!nomenclatureAlias.Serial)
+				.JoinAlias(()=>nomenclatureAlias.Unit,()=>unitAlias).Where(()=>!nomenclatureAlias.IsSerial)
 				.SelectList(list=>list
 					.SelectGroup(()=>nomenclatureAlias.Id).WithAlias(()=>resultAlias.Id)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)

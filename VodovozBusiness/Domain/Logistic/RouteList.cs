@@ -608,7 +608,7 @@ namespace Vodovoz.Domain.Logistic
 				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
 				//				var nomenclatures = routeListItem.Order.OrderItems
 				//					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				//					.Where(item => !item.Nomenclature.Serial).ToList();
+				//					.Where(item => !item.Nomenclature.IsSerial).ToList();
 
 				logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
 				routeListItem.FirstFillClosing(UoW);
@@ -657,12 +657,13 @@ namespace Vodovoz.Domain.Logistic
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
 			foreach(var orderItem in addresesDelivered.SelectMany(item => item.Order.OrderItems)
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				.Where(item => !item.Nomenclature.Serial)) {
+				.Where(item => !item.Nomenclature.IsSerial)) {
 				var operation = orderItem.UpdateCounterpartyOperation(UoW);
 				if(operation != null)
 					result.Add(operation);
 			}
 
+			//FIXME запуск оборудования - временный фикс
 			//FIXME Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
 			if(addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
 				throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");

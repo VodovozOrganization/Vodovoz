@@ -704,6 +704,8 @@ namespace Vodovoz
 			var clientPhone	 		  = node.SelectSingleNode("Свойство[@Имя='НомерТелефона']/Значение");
 			var goodsNodes 		 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
 			var servicesNodes 	 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
+			var equipmentsToNodes = node.SelectNodes("ТабличнаяЧасть[@Имя='ОборудованияКлиента']/Запись");
+			var equipmentsFromNodes = node.SelectNodes("ТабличнаяЧасть[@Имя='ОборудованияОтКлиента']/Запись");
 			var returnedTare		  = node.SelectSingleNode("Свойство[@Имя='ВозвратнаяТара']/Значение");
 			var informationOnTara	  = node.SelectSingleNode("Свойство[@Имя='ИнформацияПоТаре']/Значение");
 
@@ -795,6 +797,16 @@ namespace Vodovoz
 
 			order.OrderItems = orderItems;
 
+			var equipments = order.OrderEquipments;
+
+			logger.Debug($"Парсим оборудование для заказа {code1cNode?.InnerText}");
+			foreach(var item in equipmentsFromNodes) {
+				equipments.Add(ParseEquipmentFromItem(item as XmlNode, order));
+			}
+			foreach(var item in equipmentsToNodes) {
+				equipments.Add(ParseEquipmentToItem(item as XmlNode, order));
+			}
+
 			if(order.OrderItems.Count == 1
 				&& string.IsNullOrWhiteSpace(order.ToClientText)
 			//				&& string.IsNullOrWhiteSpace(order.FromClientText)
@@ -872,6 +884,46 @@ namespace Vodovoz
 				Order 		 = order
 			};
 		}
+
+		private OrderEquipment ParseEquipmentToItem(XmlNode node, Order order)
+		{
+			var nCode1c = node.SelectSingleNode("Свойство[@Имя='Номенклатура']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var nCount 	= node.SelectSingleNode("Свойство[@Имя='КолвоКлиента']/Значение");
+			int count = 0;
+
+			if(!Int32.TryParse(nCount?.InnerText, out count))
+				logger.Error("В заказе {0} <КолвоКлиента> со значение '{1}' не распознано как число.", order.Code1c, nCount?.InnerText);
+
+			return new OrderEquipment
+			{
+				Nomenclature = NomenclaturesList.FirstOrDefault(n => n.Code1c == nCode1c?.InnerText),
+				Count 		 = count,
+				Direction = Domain.Orders.Direction.Deliver,
+				Reason = Reason.Unknown,
+				Order 		 = order
+			};
+		}
+
+		private OrderEquipment ParseEquipmentFromItem(XmlNode node, Order order)
+		{
+			var nCode1c = node.SelectSingleNode("Свойство[@Имя='Номенклатура']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var nCount 	= node.SelectSingleNode("Свойство[@Имя='КолвоОтКлиента']/Значение");
+			int count = 0;
+
+			if(!Int32.TryParse(nCount?.InnerText, out count))
+				logger.Error("В заказе {0} <КолвоКлиента> со значение '{1}' не распознано как число.", order.Code1c, nCount?.InnerText);
+
+			return new OrderEquipment
+			{
+				Nomenclature = NomenclaturesList.FirstOrDefault(n => n.Code1c == nCode1c?.InnerText),
+				Count 		 = count,
+				Direction = Domain.Orders.Direction.PickUp,
+				Reason = Reason.Unknown,
+				Order 		 = order
+			};
+		}
+
+
 		#endregion
 
 		protected void OnFilechooserXMLSelectionChanged (object sender, EventArgs e)
@@ -1038,6 +1090,13 @@ namespace Vodovoz
 					var existNom = ExistNomenclatures.FirstOrDefault(n => n.Code1c == item.Nomenclature.Code1c);
 					if (existNom != null)
 					{
+						item.Nomenclature = existNom;
+					}
+				}
+
+				foreach(var item in loaded.OrderEquipments) {
+					var existNom = ExistNomenclatures.FirstOrDefault(n => n.Code1c == item.Nomenclature.Code1c);
+					if(existNom != null) {
 						item.Nomenclature = existNom;
 					}
 				}

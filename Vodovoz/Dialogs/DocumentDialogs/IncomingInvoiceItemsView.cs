@@ -96,7 +96,7 @@ namespace Vodovoz
 
 		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			if ((e.Subject as Nomenclature).Serial) {
+			if ((e.Subject as Nomenclature).IsSerial) {
 				ITdiTab mytab = TdiHelper.FindMyTab (this);
 				if (mytab == null) {
 					logger.Warn ("Родительская вкладка не найдена.");

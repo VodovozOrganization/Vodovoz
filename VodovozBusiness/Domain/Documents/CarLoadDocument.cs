@@ -97,7 +97,9 @@ namespace Vodovoz.Domain.Documents
 				if(item.Amount > item.AmountInStock)
 					yield return new ValidationResult (String.Format("На складе недостаточное количество <{0}>", item.Nomenclature.Name),
 						new[] { this.GetPropertyName (o => o.Items) });
-				if(item.Equipment != null && !(item.Amount == 0 || item.Amount == 1))
+				if(item.Equipment != null && !(item.Amount == 0 || item.Amount == 1)
+				   && item.Equipment.Nomenclature.IsSerial // I-407
+				  )
 					yield return new ValidationResult (String.Format("Оборудование <{0}> сн: {1} нельзя отгружать в количестве отличном от 0 или 1", item.Nomenclature.Name, item.Equipment.Serial),
 						new[] { this.GetPropertyName (o => o.Items) });
 				if(item.Amount + item.AmountLoaded > item.AmountInRouteList)
@@ -152,9 +154,9 @@ namespace Vodovoz.Domain.Documents
 				ObservableItems.Add(new CarLoadDocumentItem(){
 					Document = this,
 					Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
-					Equipment = equipments.First(x => x.Id == inRoute.EquipmentId),
-					AmountInRouteList = 1,
-					Amount = 1
+					Equipment = equipments.FirstOrDefault(x => x.Id == inRoute.EquipmentId),
+					AmountInRouteList = inRoute.Amount,
+					Amount = inRoute.Amount
 				});
 			}
 		}
