@@ -342,14 +342,16 @@ namespace Vodovoz.Domain.Logistic
 				return String.Format("Адрес в МЛ {0}", Order.DeliveryPoint.CompiledAddress);
 			}
 		}
-
+		//FIXME запуск оборудования - временный фикс
 		public virtual int CoolersToClient
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver).Where(item => item.Equipment != null)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
 					.Where(item => item.Confirmed)
-					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
+					        .Count(item =>item.Equipment != null ? item.Equipment.Nomenclature.Category == NomenclatureCategory.equipment 
+					               : (item.Nomenclature.Category == NomenclatureCategory.equipment));
+					//.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
 			}
 		}
 
@@ -399,14 +401,15 @@ namespace Vodovoz.Domain.Logistic
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.WithoutCard);
 			}
 		}
-
+		//FIXME запуск оборудования - временный фикс
 		public virtual int CoolersFromClient
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp).Where(item => item.Equipment != null)
-					.Where(item => item.Confirmed)
-					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
+					.Where(item => item.Confirmed).Where(item => item.Equipment != null)
+					        .Count(item => item.Equipment.Nomenclature.Category == NomenclatureCategory.equipment);
+					//.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
 			}
 		}
 
@@ -437,6 +440,28 @@ namespace Vodovoz.Domain.Logistic
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
 					.Where(item => item.Equipment != null)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
+			}
+		}
+
+		public virtual string EquipmentsToClientText
+		{
+			get{
+				return String.Join("\n",  
+				                   Order.OrderEquipments
+										.Where(x => x.Direction == Direction.Deliver)
+				                   .Select(x => $"{x.NameString}: {x.Count}")
+				                  );
+			}
+		}
+
+		public virtual string EquipmentsFromClientText
+		{
+			get{
+				return String.Join("\n",  
+				                   Order.OrderEquipments
+				                   		.Where(x => x.Direction == Direction.PickUp)
+				                   .Select(x => $"{x.NameString}: {x.Count}")
+				                  );
 			}
 		}
 

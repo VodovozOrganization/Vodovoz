@@ -710,7 +710,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if (nomenclature.Category != NomenclatureCategory.equipment)
 				return;
-			if (!nomenclature.Serial) {
+			if(!nomenclature.IsSerial) {
 				ObservableOrderItems.Add(new OrderItem {
 					Order = this,
 					AdditionalAgreement = null,
@@ -719,7 +719,8 @@ namespace Vodovoz.Domain.Orders
 					Nomenclature = nomenclature,
 					Price = nomenclature.GetPrice(1)
 				});
-			} else {
+			} 
+			else {
 				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, nomenclature);
 				ObservableOrderItems.AddWithReturn(new OrderItem {
 					Order = this,
@@ -730,6 +731,50 @@ namespace Vodovoz.Domain.Orders
 					Price = nomenclature.GetPrice(1)
 				});
 			}
+			UpdateDocuments();
+		}
+
+		public virtual void AddEquipmentNomenclatureForRepair(Nomenclature nomenclature, IUnitOfWork UoW)
+		{
+			if(nomenclature.Category != NomenclatureCategory.equipment)
+				return;
+			if(!nomenclature.IsSerial) {
+				ObservableOrderEquipments.Add(new OrderEquipment {
+					
+					Order = this,
+					Direction = Direction.Deliver,
+				    Equipment = null,
+					OrderItem = null,
+					Reason = Reason.Service,
+					Confirmed = true,
+					Nomenclature = nomenclature
+				});
+			 } 
+			UpdateDocuments();
+		}
+
+		public virtual void AddEquipmentNomenclatureForRepairFromClient(Nomenclature nomenclature, IUnitOfWork UoW)
+		{
+			if(nomenclature.Category != NomenclatureCategory.equipment)
+				return;
+			if(!nomenclature.IsSerial) {
+				ObservableOrderEquipments.Add(new OrderEquipment {
+
+					Order = this,
+					Direction = Direction.PickUp,
+					Equipment = null,
+					OrderItem = null,
+					Reason = Reason.Service,
+					Confirmed = true,
+					Nomenclature = nomenclature
+				});
+			}
+			UpdateDocuments();
+		}
+
+		public virtual void DeleteEquipment( OrderEquipment item)
+		{
+			ObservableOrderEquipments.Remove(item);
 			UpdateDocuments();
 		}
 
@@ -772,6 +817,93 @@ namespace Vodovoz.Domain.Orders
 			});
 			UpdateDocuments();
 		}
+
+		#region test_methods_for_sidebar
+
+		/// <summary>
+		/// Добавить оборудование из выбранного предыдущего заказа.
+		/// </summary>
+		/// <param name="orderItem">Элемент заказа.</param>
+		/// <param name="UoW">IUnitOfWork</param>
+		public virtual void AddEquipmentNomenclatureForSaleFromPreviousOrder(OrderItem orderItem, IUnitOfWork UoW)
+		{
+			if(orderItem.Nomenclature.Category != NomenclatureCategory.equipment)
+				return;
+			if(!orderItem.Nomenclature.IsSerial) {
+				ObservableOrderItems.Add(new OrderItem {
+					Order = this,
+					AdditionalAgreement = orderItem.AdditionalAgreement,
+					Count = orderItem.Count,
+					Equipment = orderItem.Equipment,
+					Nomenclature = orderItem.Nomenclature,
+					Price = orderItem.Price
+				});
+			} else {
+				ObservableOrderItems.AddWithReturn(new OrderItem {
+					Order = this,
+					AdditionalAgreement = orderItem.AdditionalAgreement,
+					Count = orderItem.Count,
+					Equipment = orderItem.Equipment,
+					Nomenclature = orderItem.Nomenclature,
+					Price = orderItem.Price
+				});
+			}
+			UpdateDocuments();
+		}
+
+		/// <summary>
+		/// Добавить номенклатуру (не вода и не оборудование из выбранного предыдущего заказа).
+		/// </summary>
+		/// <param name="orderItem">Элемент заказа.</param>
+		public virtual void AddAnyGoodsNomenclatureForSaleFromPreviousOrder(OrderItem orderItem)
+		{
+			if(orderItem.Nomenclature.Category != NomenclatureCategory.additional && orderItem.Nomenclature.Category != NomenclatureCategory.bottle &&
+				orderItem.Nomenclature.Category != NomenclatureCategory.service && orderItem.Nomenclature.Category != NomenclatureCategory.disposableBottleWater)
+				return;
+			ObservableOrderItems.Add(new OrderItem {
+				Order = this,
+				AdditionalAgreement = orderItem.AdditionalAgreement,
+				Count = orderItem.Nomenclature.Category == NomenclatureCategory.service ? 1 : 0,
+				Equipment = orderItem.Equipment,
+				Nomenclature = orderItem.Nomenclature,
+				Price = orderItem.Price
+			});
+			UpdateDocuments();
+		}
+
+		/// <summary>
+		/// Добавить воду из выбранного прерыдущего заказа.
+		/// </summary>
+		/// <param name="orderItem">Элемент заказа.</param>
+		/// <param name="wsa">Договор о продаже воды.</param>
+		public virtual void AddWaterForSaleFromPreviousOrder(OrderItem orderItem, WaterSalesAgreement wsa)
+		{
+			if(orderItem.Nomenclature.Category != NomenclatureCategory.water)
+				return;
+			decimal price;
+			if(wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == orderItem.Nomenclature.Id))
+				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == orderItem.Nomenclature.Id).Price;
+			else
+				price = orderItem.Price;
+
+			ObservableOrderItems.Add(new OrderItem {
+				Order = this,
+				AdditionalAgreement = wsa,
+				Count = orderItem.Count,
+				Equipment = null,
+				Nomenclature = orderItem.Nomenclature,
+				Price = price
+			});
+			UpdateDocuments();
+		}
+
+		public virtual void ClearOrderItemsList()
+		{
+			ObservableOrderItems.Clear();
+			UpdateDocuments();
+		}
+
+		#endregion
 
 		public virtual void RecalcBottlesDeposits(IUnitOfWork uow)
 		{
@@ -921,6 +1053,7 @@ namespace Vodovoz.Domain.Orders
 							Order = this,
 							Direction = Direction.Deliver,
 							Equipment = equipment.Equipment,
+							Nomenclature = equipment.Equipment.Nomenclature,
 							Reason = Reason.Rent,
 							OrderItem = ObservableOrderItems[ItemId]
 						}
@@ -975,7 +1108,7 @@ namespace Vodovoz.Domain.Orders
 						Order = this,
 						Direction = Direction.PickUp,
 						Equipment = service.Equipment,
-						NewEquipmentNomenclature = service.Equipment == null ? service.Nomenclature : null,
+						Nomenclature = service.Equipment == null ? service.Nomenclature : null,
 						OrderItem = null,
 						Reason = Reason.Service,
 						ServiceClaim = service
@@ -986,7 +1119,7 @@ namespace Vodovoz.Domain.Orders
 						Order = this,
 						Direction = Direction.Deliver,
 						Equipment = service.ReplacementEquipment,
-						NewEquipmentNomenclature = null,
+						Nomenclature = null,
 						OrderItem = null,
 						Reason = Reason.Service
 					});
@@ -1030,11 +1163,11 @@ namespace Vodovoz.Domain.Orders
 		public virtual void FillNewEquipment(Equipment registeredEquipment)
 		{
 			var newEquipment = ObservableOrderEquipments
-				.Where(orderEq => orderEq.NewEquipmentNomenclature != null)
-				.FirstOrDefault(orderEq => orderEq.NewEquipmentNomenclature.Id == registeredEquipment.Nomenclature.Id);
+				.Where(orderEq => orderEq.Nomenclature != null)
+				.FirstOrDefault(orderEq => orderEq.Nomenclature.Id == registeredEquipment.Nomenclature.Id);
 			if (newEquipment != null) {
 				newEquipment.Equipment = registeredEquipment;
-				newEquipment.NewEquipmentNomenclature = null;
+				newEquipment.Nomenclature = null;
 			}
 		}
 

@@ -37,7 +37,7 @@ namespace Vodovoz
 			itemsToClient = new List<OrderItemReturnsNode>();
 			var nomenclatures = routeListItem.Order.OrderItems
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				.Where(item => !item.Nomenclature.Serial).ToList();
+				.Where(item => !item.Nomenclature.IsSerial).ToList();
 			foreach(var item in nomenclatures)
 			{
 				itemsToClient.Add(new OrderItemReturnsNode(item));
@@ -99,7 +99,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Кол-во по факту")
 					.AddToggleRenderer(node => node.IsDelivered, false)
-						.AddSetter((cell, node) => cell.Visible = node.Nomenclature.Serial || node.Nomenclature.Category == NomenclatureCategory.rent)
+						.AddSetter((cell, node) => cell.Visible = node.Nomenclature.IsSerial || node.Nomenclature.Category == NomenclatureCategory.rent)
 					.AddNumericRenderer(node => node.ActualCount, false)
 						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
 						.AddSetter((cell,node)=>cell.Adjustment= new Gtk.Adjustment(0,0,node.Count,1,1,0))
@@ -218,7 +218,7 @@ namespace Vodovoz
 			get{
 				if (IsEquipment)
 				{
-					return orderEquipment.Equipment != null ? orderEquipment.Equipment.Nomenclature : orderEquipment.NewEquipmentNomenclature;
+					return orderEquipment.Equipment != null ? orderEquipment.Equipment.Nomenclature : orderEquipment.Nomenclature;
 				}
 				else
 				{

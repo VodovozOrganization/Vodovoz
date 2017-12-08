@@ -46,20 +46,20 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref equipment, value, () => Equipment); }
 		}
 
-		Nomenclature newEquipmentNomenclature;
+		Nomenclature nomenclature;
 
 		[Display (Name = "Номенклатура незарегистрированного оборудования")]
-		public virtual Nomenclature NewEquipmentNomenclature {
-			get { return newEquipmentNomenclature; }
+		public virtual Nomenclature Nomenclature {
+			get { return nomenclature; }
 			set { if (Equipment != null && value != null)
 					throw new InvalidOperationException (String.Format ("Если указано конкретное оборудование в {0}, {1} не надо заполнять, так как это поле только для незарегистрированного оборудования.",
 						this.GetPropertyName (e => e.Equipment),
-						this.GetPropertyName (e => e.NewEquipmentNomenclature)
+						this.GetPropertyName (e => e.Nomenclature)
 					));
-				SetField (ref newEquipmentNomenclature, value, () => NewEquipmentNomenclature); }
+				SetField (ref nomenclature, value, () => Nomenclature); }
 		}
 
-		Reason reason;
+		Reason reason = Reason.Unknown;
 
 		[Display (Name = "Причина")]
 		public virtual Reason Reason {
@@ -100,10 +100,10 @@ namespace Vodovoz.Domain.Orders
 			get { 
 				if (Equipment != null)
 					return Equipment.Title;
-				else if (NewEquipmentNomenclature != null)
-					return String.Format ("{0} (не зарегистрированный)", NewEquipmentNomenclature.Name);
-				else
-					return "Неизвестное оборудование";
+				if (Nomenclature != null)
+					return Nomenclature.ShortOrFullName;
+				
+				return "Неизвестное оборудование";
 			}
 		}
 
@@ -121,6 +121,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual string ReasonString { get { return Reason.GetEnumTitle (); } }
 
 		//TODO Номер заявки на обслуживание
+
+		//FIXME запуск оборудования - временный фикс
+		int count;
+		public virtual int Count {
+			get { return count; }
+			set { SetField(ref count, value, () => Count); }
+		}
 
 		#region Функции
 
@@ -142,7 +149,7 @@ namespace Vodovoz.Domain.Orders
 
 			CounterpartyMovementOperation.OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 			CounterpartyMovementOperation.Amount = amount;
-			CounterpartyMovementOperation.Nomenclature = Equipment.Nomenclature;
+			CounterpartyMovementOperation.Nomenclature = nomenclature;
 			CounterpartyMovementOperation.Equipment = Equipment;
 			CounterpartyMovementOperation.ForRent = (Reason != Reason.Sale);
 			if (Direction == Direction.Deliver)
@@ -191,6 +198,7 @@ namespace Vodovoz.Domain.Orders
 
 	public enum Reason
 	{
+		[Display(Name = "Неизвестна")] Unknown,
 		[Display (Name= "Сервис")]Service,
 		[Display (Name= "Аренда")]Rent,
 		[Display (Name= "Расторжение")]Cancellation,

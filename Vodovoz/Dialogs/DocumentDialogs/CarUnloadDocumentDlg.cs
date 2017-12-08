@@ -177,36 +177,36 @@ namespace Vodovoz
 					continue;
 				}
 
-				if (item.MovementOperation.Equipment != null)
-				{
-					var equipment = equipmentreceptionview1.Items.FirstOrDefault(x => x.EquipmentId == item.MovementOperation.Equipment.Id);
-					if (equipment != null)
-					{
-						equipment.Amount = (int)item.MovementOperation.Amount;
+				if(item.MovementOperation.Equipment != null) {
+					var equipmentBySerial = equipmentreceptionview1.Items.FirstOrDefault(x => x.EquipmentId == item.MovementOperation.Equipment.Id);
+					if(equipmentBySerial != null) {
+						equipmentBySerial.Amount = (int)item.MovementOperation.Amount;
 						continue;
 					}
-					else
-					{
-						equipmentreceptionview1.Items.Add(new ReceptionEquipmentItemNode
-							{
-								Amount = (int)item.MovementOperation.Amount,
-								EquipmentId = item.MovementOperation.Equipment.Id,
-								Returned = true,
-								ServiceClaim = item.ServiceClaim,
-								Name = item.MovementOperation.Nomenclature.Name
-							});
-					}
+
+					equipmentreceptionview1.Items.Add(new ReceptionEquipmentItemNode {
+						Amount = (int)item.MovementOperation.Amount,
+						EquipmentId = item.MovementOperation.Equipment.Id,
+						Returned = true,
+						ServiceClaim = item.ServiceClaim,
+						Name = item.MovementOperation.Nomenclature.Name
+					});
+					continue;
 				}
-				else
+
+				var equipmentByNomenclature = equipmentreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+				if(equipmentByNomenclature != null) {
+					equipmentByNomenclature.Amount = (int)item.MovementOperation.Amount;
+					continue;
+				}
+
+				logger.Warn ("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.MovementOperation.Nomenclature);
+				var newItem = new ReceptionItemNode (item.MovementOperation.Nomenclature, (int)item.MovementOperation.Amount);
+				if (item.MovementOperation.Equipment != null)
 				{
-					logger.Warn ("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.MovementOperation.Nomenclature);
-					var newItem = new ReceptionItemNode (item.MovementOperation.Nomenclature, (int)item.MovementOperation.Amount);
-					if (item.MovementOperation.Equipment != null)
-					{
-						newItem.EquipmentId = item.MovementOperation.Equipment.Id;
-					}			
-					returnsreceptionview1.AddItem (newItem);
-				}
+					newItem.EquipmentId = item.MovementOperation.Equipment.Id;
+				}			
+				returnsreceptionview1.AddItem (newItem);
 			}
 
 			foreach(var item in bottlereceptionview1.Items)
@@ -214,13 +214,6 @@ namespace Vodovoz
 				var returned = Entity.Items.FirstOrDefault(x => x.MovementOperation.Nomenclature.Id == item.NomenclatureId);
 				item.Amount = returned != null ? (int)returned.MovementOperation.Amount : 0;
 			}
-
-			foreach(var item in equipmentreceptionview1.Items)
-			{
-				var returned = Entity.Items.FirstOrDefault(x => x.MovementOperation.Equipment?.Id == item.EquipmentId);
-				item.Amount = returned != null ? (int)returned.MovementOperation.Amount : 0;
-			}
-
 		}
 
 		void UpdateReceivedItemsOnEntity()
