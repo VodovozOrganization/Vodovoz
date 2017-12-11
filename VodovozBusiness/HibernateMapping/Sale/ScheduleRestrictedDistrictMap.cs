@@ -1,6 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 using NHibernate.Spatial.Type;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.HibernateMapping
 {

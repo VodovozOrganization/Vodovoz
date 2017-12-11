@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
+using Vodovoz.Domain.Logistic;
 
-namespace Vodovoz.Domain.Logistic
+namespace Vodovoz.Domain.Sale
 {
 	public class ScheduleRestriction : PropertyChangedBase, IDomainObject
 	{

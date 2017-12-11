@@ -4,7 +4,7 @@ using System.Data.Bindings.Collections.Generic;
 using GeoAPI.Geometries;
 using QSOrmProject;
 
-namespace Vodovoz.Domain.Logistic
+namespace Vodovoz.Domain.Sale
 {
 	public class ScheduleRestrictedDistrict : PropertyChangedBase, IDomainObject
 	{
