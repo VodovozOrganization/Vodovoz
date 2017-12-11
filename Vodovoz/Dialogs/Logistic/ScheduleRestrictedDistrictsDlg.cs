@@ -14,6 +14,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Dialogs.Logistic
 {
