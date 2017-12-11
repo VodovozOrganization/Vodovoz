@@ -411,6 +411,7 @@
     <Compile Include="Domain\Sale\ScheduleRestriction.cs" />
     <Compile Include="HibernateMapping\Sale\ScheduleRestrictedDistrictMap.cs" />
     <Compile Include="HibernateMapping\Sale\ScheduleRestrictionMap.cs" />
+    <Compile Include="Repositories\Sale\ScheduleRestrictionRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Gamma.Utilities;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -12,7 +13,8 @@ using QSOsm;
 using QSOsm.DTO;
 using QSOsm.Osrm;
 using QSProjectsLib;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Repositories.Sale;
 using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Dialogs.Sale
@@ -24,7 +26,7 @@ namespace Vodovoz.Dialogs.Sale
 		readonly GMapOverlay addressOverlay = new GMapOverlay();
 		GMapMarker addressMarker;
 		//RouteGeometryCalculator routeCal = new Tools.Logistic.RouteGeometryCalculator(Tools.Logistic.DistanceProvider.Osrm);
-		IList<LogisticsArea> districts;
+		IList<ScheduleRestrictedDistrict> districts;
 		double fuelCost;
 
 		decimal? Latitude;
@@ -79,7 +81,7 @@ namespace Vodovoz.Dialogs.Sale
 				return;
 			}
 			fuelCost = (double)fuel.Cost;
-			districts = LogisticAreaRepository.AreaWithGeometry(uow);
+			districts = ScheduleRestrictionRepository.AreaWithGeometry(uow);
 		}
 
 		void EntryBuilding_Changed(object sender, EventArgs e)
@@ -165,19 +167,28 @@ namespace Vodovoz.Dialogs.Sale
 				labelPrice.LabelProp = "Не рассчитана";
 				return;
 			}
+			string price = null;
 
 			var point = new Point((double)Latitude, (double)Longitude);
-			if(districts.Where(x => x.IsCity).Any(x => x.Geometry.Contains(point))) {
-				labelPrice.LabelProp = "Это город! Расчет по прайсу";
-				return;
+			var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
+			if(district == null || district.PriceType == DistrictWaterPrice.ByDistance) {
+				//((а * 2/100)*20*б)/в+110
+				//а - расстояние от границы города минус
+				//б - стоимость литра топлива(есть в справочниках)
+				//в - кол-во бут
+				price = (((Distance.Value * 2 / 100) * 20 * fuelCost) / yspinBottles.Value + 120).ToString("C2");
 			}
+			else if(district.PriceType == DistrictWaterPrice.FixForDistrict)
+				price = district.WaterPrice.ToString("C2");
+			else if(district.PriceType == DistrictWaterPrice.Standart)
+				price = "прайс";
 
-			//((а * 2/100)*20*б)/в+110
-			//а - расстояние от границы города минус
-			//б - стоимость литра топлива(есть в справочниках)
-			//в - кол-во бут
-			var price = ((Distance.Value * 2 / 100) * 20 * fuelCost) / yspinBottles.Value + 120;
-			labelPrice.LabelProp = price.ToString("N2");
+			labelPrice.LabelProp = price;
+			labelMinBottles.LabelProp = district?.MinBottles.ToString();
+
+			labelSchedule.LabelProp = district != null && district.ScheduleRestrictions.Count > 0
+				? String.Join(", ", district.ScheduleRestrictions.Select(x => x.WeekDay.GetEnumTitle()))
+				: "любой день";
 		}
 
 		protected void OnYspinBottlesValueChanged(object sender, EventArgs e)
