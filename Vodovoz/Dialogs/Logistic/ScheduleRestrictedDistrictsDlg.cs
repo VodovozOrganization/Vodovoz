@@ -18,8 +18,7 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Dialogs.Logistic
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ScheduleRestrictedDistrictsDlg : Gtk.Bin, ITdiTab
+	public partial class ScheduleRestrictedDistrictsDlg : TdiTabBase
 	{
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -36,19 +35,6 @@ namespace Vodovoz.Dialogs.Logistic
 
 		GeometryFactory gf = new GeometryFactory(new PrecisionModel(), 3857);
 
-		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
-		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
-
-		public HandleSwitchIn HandleSwitchIn { get; set; }
-
-		public HandleSwitchOut HandleSwitchOut { get; set; }
-
-		public string TabName { get { return "Районы с графиками доставки"; } set { return; } }
-
-		public ITdiTabParent TabParent { get; set; }
-
-		public bool FailInitialize { get; set; }
-
 		public ScheduleRestrictedDistrictsDlg()
 		{
 			this.Build();
@@ -57,6 +43,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		void Configure()
 		{
+			TabName = "Районы с графиками доставки";
 			currentDistrict.ObservableScheduleRestrictions.ElementAdded += OnObservableRestrictions_ElementAdded;
 			currentDistrict.ObservableScheduleRestrictions.ElementRemoved += OnObservableRestrictions_ElementRemoved;
 
@@ -178,11 +165,6 @@ namespace Vodovoz.Dialogs.Logistic
 		void OnObservableRestrictions_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			ytreeSchedules.SetItemsSource((ytreeDistricts.GetSelectedObject() as ScheduleRestrictedDistrict).ObservableScheduleRestrictions);
-		}
-
-		public bool CompareHashName(string hashName)
-		{
-			throw new NotImplementedException();
 		}
 
 		void ButtonsSensitivity()
