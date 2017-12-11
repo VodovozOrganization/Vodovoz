@@ -248,11 +248,6 @@ namespace Vodovoz
 #if SHORT
 						.AddTextRenderer(node => node.FromClientText).Editable()
 #endif
-
-			   .AddColumn("Вод. телефон").HeaderAlignment(0.5f)
-					.AddTextRenderer()
-						.AddTextRenderer(node => node.Order.DriverCallType.ToString())
-
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
