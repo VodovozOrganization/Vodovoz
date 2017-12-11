@@ -407,6 +407,10 @@
     <Compile Include="HibernateMapping\Logistic\DeliveryDayScheduleMap.cs" />
     <Compile Include="Domain\Logistic\IDistrictPriority.cs" />
     <Compile Include="Repositories\Logistics\FuelTypeRepository.cs" />
+    <Compile Include="Domain\Logistic\ScheduleRestrictedDistrict.cs" />
+    <Compile Include="Domain\Logistic\ScheduleRestriction.cs" />
+    <Compile Include="HibernateMapping\Logistic\ScheduleRestrictedDistrictMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\ScheduleRestrictionMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
