@@ -15,6 +15,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.DistrictName).Column("district_name");
 			Map(x => x.MinBottles).Column("min_bottles");
 			Map(x => x.DistrictBorder).Column("district_border").CustomType<GeometryType>();
+			Map(x => x.WaterPrice).Column("water_price");
+			Map(x => x.PriceType).Column("price_type").CustomType<DistrictWaterPriceStringType>();
 
 			HasMany(x => x.ScheduleRestrictions).Cascade.AllDeleteOrphan().KeyColumn("district_id").Inverse();
 		}

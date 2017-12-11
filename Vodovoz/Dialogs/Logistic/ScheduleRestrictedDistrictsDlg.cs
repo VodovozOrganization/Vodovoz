@@ -63,6 +63,10 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Название").AddTextRenderer(x => x.DistrictName).Editable()
 				.AddColumn("Мин. бутылей").AddNumericRenderer(x => x.MinBottles)
 				.Adjustment(new Adjustment(1, 0, 1000, 1, 100, 1)).Editing()
+				.AddColumn("Ценообразование").AddEnumRenderer(x => x.PriceType).Editing()
+				.AddColumn("Цена воды").AddNumericRenderer(x => x.WaterPrice).Digits(2)
+				.Adjustment(new Adjustment(0, 0, 100000, 1, 100, 1))
+				.AddSetter((c, row) => c.Editable = row.PriceType == DistrictWaterPrice.FixForDistrict)
 				.Finish();
 			ytreeDistricts.SetItemsSource(ObservableRestrictedDistricts);
 			ytreeDistricts.Selection.Changed += OnYTreeDistricts_SelectionChanged;
