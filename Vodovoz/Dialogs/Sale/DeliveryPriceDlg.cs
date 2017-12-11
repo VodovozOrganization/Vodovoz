@@ -38,6 +38,15 @@ namespace Vodovoz.Dialogs.Sale
 			set{ 
 				distance = value;
 				ylabelDistance.LabelProp = distance.HasValue ? distance.Value.ToString("N1") + " км." : "Нет";
+
+				if(distance != null)
+					ytreeviewPrices.SetItemsSource(Enumerable.Range(1, 100).Select(x => new PriceRow {
+						Amount = x,
+						Price = priceByDistance(x).ToString("C2")
+					}).ToList());
+				else
+					ytreeviewPrices.ItemsDataSource = null;
+
 				CalculatePrice();
 			}}
 
@@ -82,6 +91,11 @@ namespace Vodovoz.Dialogs.Sale
 			}
 			fuelCost = (double)fuel.Cost;
 			districts = ScheduleRestrictionRepository.AreaWithGeometry(uow);
+
+			ytreeviewPrices.CreateFluentColumnsConfig<PriceRow>()
+						   .AddColumn("Количество").AddNumericRenderer(x => x.Amount)
+						   .AddColumn("Цена за бутыль").AddTextRenderer(x => x.Price)
+						   .Finish();
 		}
 
 		void EntryBuilding_Changed(object sender, EventArgs e)
@@ -161,6 +175,11 @@ namespace Vodovoz.Dialogs.Sale
 			Distance = result.Routes[0].TotalDistance / 1000d;
 		}
 
+		double priceByDistance(int bootles)
+		{
+			return ((Distance.Value * 2 / 100) * 20 * fuelCost) / bootles + 120;
+		}
+
 		void CalculatePrice()
 		{
 			if(Distance == null) {
@@ -168,6 +187,7 @@ namespace Vodovoz.Dialogs.Sale
 				return;
 			}
 			string price = null;
+			bool byDistance = false;
 
 			var point = new Point((double)Latitude, (double)Longitude);
 			var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
@@ -176,12 +196,15 @@ namespace Vodovoz.Dialogs.Sale
 				//а - расстояние от границы города минус
 				//б - стоимость литра топлива(есть в справочниках)
 				//в - кол-во бут
-				price = (((Distance.Value * 2 / 100) * 20 * fuelCost) / yspinBottles.Value + 120).ToString("C2");
+				price = priceByDistance(yspinBottles.ValueAsInt).ToString("C2");
+				byDistance = true;
 			}
 			else if(district.PriceType == DistrictWaterPrice.FixForDistrict)
 				price = district.WaterPrice.ToString("C2");
 			else if(district.PriceType == DistrictWaterPrice.Standart)
 				price = "прайс";
+
+			ytreeviewPrices.Visible = byDistance;
 
 			labelPrice.LabelProp = price;
 			labelMinBottles.LabelProp = district?.MinBottles.ToString();
@@ -194,6 +217,12 @@ namespace Vodovoz.Dialogs.Sale
 		protected void OnYspinBottlesValueChanged(object sender, EventArgs e)
 		{
 			CalculatePrice();
+		}
+
+		class PriceRow
+		{
+			public int Amount { get; set; }
+			public string Price { get; set; }
 		}
 	}
 }
