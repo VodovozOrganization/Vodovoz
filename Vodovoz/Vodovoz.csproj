@@ -698,6 +698,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SuburbWaterPriceReport.cs" />
     <Compile Include="ServiceDialogs\Database\CalculateDistanceToPointsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.CalculateDistanceToPointsDlg.cs" />
+    <Compile Include="ReportsParameters\OrderIncorrectPrices.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrderIncorrectPrices.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1096,6 +1098,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Sales\SuburbWaterPrice.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\OrdersIncorrectPrices.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

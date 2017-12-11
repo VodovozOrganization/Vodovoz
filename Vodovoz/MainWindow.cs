@@ -786,6 +786,16 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
+
+	protected void OnActionOrderIncorrectPricesReportActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.OrderIncorrectPrices();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+
 	protected void OnActionAddressDuplicetesActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
