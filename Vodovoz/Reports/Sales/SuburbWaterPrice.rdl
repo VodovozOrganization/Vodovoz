@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.code1c,
@@ -31,8 +31,11 @@
     orders.address_1c,
     delivery_points.distance_from_center_meters,
     SUM(order_items.count) AS water_count,
+    schedule_restricted_districts.min_bottles,
     SUM(order_items.count * order_items.price) / SUM(order_items.count) AS avg_price,
-    (((delivery_points.distance_from_center_meters / 1000 * 2 / 100) * 20 * fuel.cost) / SUM(order_items.count) + 120) AS min_price
+    IF(schedule_restricted_districts.price_type = 'FixForDistrict',
+       schedule_restricted_districts.water_price,
+    (((delivery_points.distance_from_center_meters / 1000 * 2 / 100) * 20 * fuel.cost) / SUM(order_items.count) + 120)) AS min_price
 FROM
     (SELECT 
         fuel_types.cost
@@ -50,18 +53,18 @@ FROM
         LEFT JOIN
     nomenclature ON order_items.nomenclature_id = nomenclature.id
         LEFT JOIN
-    logistics_area ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(',
+    schedule_restricted_districts ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(',
                             delivery_points.latitude,
                             ' ',
                             delivery_points.longitude,
                             ')')),
-            logistics_area.logistics_district)
+            schedule_restricted_districts.district_border)
 WHERE
     orders.delivery_date = @report_date
         AND nomenclature.category = 'water'
-        AND logistics_area.is_city = FALSE
+        AND (schedule_restricted_districts.id IS NULL OR schedule_restricted_districts.price_type &lt;&gt; 'Standart')
 GROUP BY orders.id
-HAVING avg_price &lt; min_price
+HAVING avg_price &lt; min_price OR (min_bottles IS NOT NULL AND water_count &lt; min_bottles) 
 ORDER BY orders.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="report_date">
@@ -69,7 +72,7 @@ ORDER BY orders.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="code1c">
           <DataField>code1c</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -97,6 +100,10 @@ ORDER BY orders.id;</CommandText>
         <Field Name="water_count">
           <DataField>water_count</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="min_bottles">
+          <DataField>min_bottles</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
         </Field>
         <Field Name="avg_price">
           <DataField>avg_price</DataField>

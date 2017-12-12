@@ -48,6 +48,7 @@ public partial class MainWindow : Window
 	Action ActionEmployeeWorkChart;
 	Action ActionRouteListAddressesTransferring;
 	Action ActionTransferOperationJournal;
+	Action ActionScheduleRestrictedDistricts;
 
 	public void BuildToolbarActions ()
 	{
@@ -94,6 +95,7 @@ public partial class MainWindow : Window
 		//Кадры
 		ActionEmployeeWorkChart = new Action("ActionEmployeeWorkChart", "График работы сотрудников", null, "table");
 		ActionFinesJournal = new Action("ActionFinesJournal", "Штрафы", null, "table");
+		ActionScheduleRestrictedDistricts = new Action("ActionScheduleRestrictedDistricts", "Районы с графиками доставки", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup("ToolbarActions");
@@ -135,6 +137,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionEmployeeWorkChart, null);
 		w1.Add(ActionRouteListAddressesTransferring, null);
 		w1.Add(ActionTransferOperationJournal, null);
+		w1.Add(ActionScheduleRestrictedDistricts, null);
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
 		#region Creating events
@@ -176,6 +179,7 @@ public partial class MainWindow : Window
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
 		ActionTransferOperationJournal.Activated += ActionTransferOperationJournal_Activated;
+		ActionScheduleRestrictedDistricts.Activated += ActionScheduleRestrictedDistricts_Activated;
 		#endregion
 	}
 
@@ -458,4 +462,9 @@ public partial class MainWindow : Window
 		);
 	}
 
+	void ActionScheduleRestrictedDistricts_Activated (object sender, System.EventArgs e)
+	{
+		var tab = new ScheduleRestrictedDistrictsDlg();
+		tdiMain.AddTab(tab);
+	}
 }

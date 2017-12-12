@@ -407,6 +407,11 @@
     <Compile Include="HibernateMapping\Logistic\DeliveryDayScheduleMap.cs" />
     <Compile Include="Domain\Logistic\IDistrictPriority.cs" />
     <Compile Include="Repositories\Logistics\FuelTypeRepository.cs" />
+    <Compile Include="Domain\Sale\ScheduleRestrictedDistrict.cs" />
+    <Compile Include="Domain\Sale\ScheduleRestriction.cs" />
+    <Compile Include="HibernateMapping\Sale\ScheduleRestrictedDistrictMap.cs" />
+    <Compile Include="HibernateMapping\Sale\ScheduleRestrictionMap.cs" />
+    <Compile Include="Repositories\Sale\ScheduleRestrictionRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -421,6 +426,9 @@
     <Folder Include="Repositories\Client\" />
     <Folder Include="Tools\" />
     <Folder Include="Tools\Logistic\" />
+    <Folder Include="Repositories\Sale\" />
+    <Folder Include="Domain\Sale\" />
+    <Folder Include="HibernateMapping\Sale\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
