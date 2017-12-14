@@ -210,7 +210,7 @@ namespace Vodovoz.Dialogs.Sale
 			labelMinBottles.LabelProp = district?.MinBottles.ToString();
 
 			labelSchedule.LabelProp = district != null && district.ScheduleRestrictions.Count > 0
-				? String.Join(", ", district.ScheduleRestrictions.Select(x => x.WeekDay.GetEnumTitle()))
+				? String.Join(", ", district.ScheduleRestrictions.Select(x => $"{x.WeekDay.GetEnumTitle()} {x.Schedule?.Name}"))
 				: "любой день";
 		}
 
