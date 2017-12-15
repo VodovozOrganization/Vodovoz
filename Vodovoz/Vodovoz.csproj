@@ -702,6 +702,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrderIncorrectPrices.cs" />
 	<Compile Include="Dialogs\Logistic\ScheduleRestrictedDistrictsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.ScheduleRestrictedDistrictsDlg.cs" />
+    <Compile Include="ServiceDialogs\Database\OrdersWithoutBottlesOperationDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.OrdersWithoutBottlesOperationDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

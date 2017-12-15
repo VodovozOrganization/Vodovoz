@@ -13,6 +13,8 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repository;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Documents;
+using QSProjectsLib;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -1264,11 +1266,30 @@ namespace Vodovoz.Domain.Orders
 			);
 		}
 
-		public virtual void Close(IUnitOfWork uow)
+		public virtual void Close(IUnitOfWork uow, SelfDeliveryDocument closingDocument)
 		{
 			//FIXME Правильно закрывать заказ
-			CreateBottlesMovementOperation(uow);
-			OrderStatus = OrderStatus.Closed;
+
+			// Закрывает заказ и создает операцию движения бутылей если все товары в заказе отгружены
+			var unloadedItems = Repository.Store.SelfDeliveryRepository.OrderItemUnloaded(uow, this, closingDocument);
+			bool canCloseOrder = true;
+			foreach(var item in OrderItems) {
+				decimal totalCount = default(decimal);
+				var deliveryItem = closingDocument.Items.FirstOrDefault(x => x.OrderItem.Id == item.Id);
+				if(deliveryItem != null) {
+					totalCount += deliveryItem.Amount;
+				}
+				if(unloadedItems.ContainsKey(item.Id)) {
+					totalCount += unloadedItems[item.Id];
+				}
+				if((int)totalCount != item.Count) {
+					canCloseOrder = false;
+				}
+			}
+			if(canCloseOrder) {
+				CreateBottlesMovementOperation(uow);
+				OrderStatus = OrderStatus.Closed;
+			}
 		}
 
 		public virtual void CreateBottlesMovementOperation(IUnitOfWork uow)
@@ -1282,16 +1303,23 @@ namespace Vodovoz.Domain.Orders
 					.Sum(item => item.ActualCount);
 			
 			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
-				var bottlesOperation = new BottlesMovementOperation {
-					OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-					Order = this,
-					Delivered = amountDelivered,
-					Returned = ReturnedTare.GetValueOrDefault(),
-					Counterparty = Client,
-					DeliveryPoint = DeliveryPoint
-				};
-				uow.Save(bottlesOperation);
-				BottlesMovementOperation = bottlesOperation;
+				if(BottlesMovementOperation == null) {
+					var bottlesOperation = new BottlesMovementOperation {
+						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+						Order = this,
+						Delivered = amountDelivered,
+						Returned = ReturnedTare.GetValueOrDefault(),
+						Counterparty = Client,
+						DeliveryPoint = DeliveryPoint
+					};
+					uow.Save(bottlesOperation);
+					BottlesMovementOperation = bottlesOperation;
+				} else {
+					BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
+					BottlesMovementOperation.Delivered = amountDelivered;
+					BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
+					uow.Save(BottlesMovementOperation);
+				}
 			}
 		}
 

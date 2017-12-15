@@ -226,7 +226,7 @@ namespace Vodovoz.Domain.Documents
 		{
 			bool closed = Items.All(x => (x.OrderItem != null ? x.OrderItem.Count : 1) == x.Amount + x.AmountUnloaded);
 			if(closed) {
-				Order.Close(uow);
+				Order.Close(uow, this);
 			}
 			return closed;
 		}

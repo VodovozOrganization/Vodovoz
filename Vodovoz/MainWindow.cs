@@ -909,4 +909,12 @@ public partial class MainWindow : Gtk.Window
 			() => new CalculateDistanceToPointsDlg()
 		);
 	}
+
+	protected void OnActionOrdersWithoutBottlesOperationActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<OrdersWithoutBottlesOperationDlg>(),
+			() => new OrdersWithoutBottlesOperationDlg()
+		);
+	}
 }
