@@ -1037,8 +1037,14 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void UpdateFuelOperation()
 		{
 			//Необхомо для того что бы случайно не пересчитать операцию расхода топлива. После массовой смены расхода.
-			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6))
+			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6)) {
 				return;
+			}
+
+			//Необходимо для того, чтобы расход топлива не пересчитывался после подтверждения логистами
+			if(Status == RouteListStatus.Closed){
+				return;
+			}
 
 			if(ActualDistance == 0) {
 				if(FuelOutlayedOperation != null) {
