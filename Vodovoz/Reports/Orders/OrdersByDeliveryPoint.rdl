@@ -55,13 +55,16 @@
             <Width>79.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>168.5pt</Width>
+            <Width>153.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>180.2pt</Width>
+            <Width>164.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>124.8pt</Width>
+            <Width>96.1pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>77.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -121,6 +124,22 @@
                   <ReportItems>
                     <Textbox Name="Textbox6">
                       <Value>Телефон</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Долг бутылей</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -207,6 +226,21 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>=Fields!bottle_debt.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -243,11 +277,15 @@
     delivery_date, 
     counterparty.name AS counterparty,
     address_1c, 
-    phone_from_1c
+    phone_from_1c,
+    debts.bottle_debt
 FROM
     orders
         LEFT JOIN
     counterparty ON orders.client_id = counterparty.id
+        LEFT JOIN
+    (SELECT delivery_point_id, (SUM(delivered) - SUM(returned)) as bottle_debt from bottles_movement_operations GROUP BY delivery_point_id) as debts ON debts.delivery_point_id = orders.delivery_point_id
+
 WHERE
     delivery_date = DATE(@date)
         AND order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled')
@@ -259,7 +297,7 @@ WHERE
             t2.delivery_point_id = orders.delivery_point_id
                 AND t2.delivery_date &gt; DATE(@date)
                 AND t2.order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled'))
-GROUP BY delivery_point_id</CommandText>
+GROUP BY orders.delivery_point_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -282,6 +320,10 @@ GROUP BY delivery_point_id</CommandText>
         <Field Name="phone_from_1c">
           <DataField>phone_from_1c</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bottle_debt">
+          <DataField>bottle_debt</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
