@@ -44,8 +44,8 @@ namespace Vodovoz.ReportsParameters
 			string dateFrom = "";
 			string dateTo = "";
 			if(dateperiodpicker.Sensitive) {
-				dateFrom = dateperiodpicker.StartDate.ToShortDateString();
-				dateTo = dateperiodpicker.EndDate.ToShortDateString();
+				dateFrom = String.Format("{0:yyyy-MM-dd}", dateperiodpicker.StartDate);
+				dateTo = String.Format("{0:yyyy-MM-dd}", dateperiodpicker.EndDate);
 			}
 			var parameters = new Dictionary<string, object>();
 			parameters.Add("dateFrom", dateFrom);

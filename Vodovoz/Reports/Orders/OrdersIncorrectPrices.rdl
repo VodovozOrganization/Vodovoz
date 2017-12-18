@@ -410,7 +410,7 @@ WHERE
 	AND MainOrderItems.price &gt; 0
 	AND MainOrderItems.category = 'water'
 	AND MainOrders.order_status = 'Closed'
-    AND (@DateFrom IS NULL OR MainOrders.delivery_date &gt;= @DateFrom) AND ( @DateTo IS NULL OR MainOrders.delivery_date &lt;= @DateTo)
+    AND (@DateFrom = '' OR MainOrders.delivery_date &gt;= @DateFrom) AND (@DateTo = '' OR MainOrders.delivery_date &lt;= @DateTo)
     
     #Нахождение только последнего по дате заказа
     AND NOT EXISTS (
@@ -450,10 +450,10 @@ WHERE
 GROUP BY delivery_point_id ORDER BY DeliveryDate DESC, MainOrderItems.price
 </CommandText>
         <QueryParameters>
-          <QueryParameter Name="dateFrom">
-            <Value>=Iif({?dateFrom}="", NULL, {?dateFrom})</Value>
+          <QueryParameter Name="DateFrom">
+            <Value>=Parameters!dateFrom</Value>
           </QueryParameter>
-          <QueryParameter Name="dateTo">
+          <QueryParameter Name="DateTo">
             <Value>=Parameters!dateTo</Value>
           </QueryParameter>
         </QueryParameters>
@@ -504,7 +504,7 @@ GROUP BY delivery_point_id ORDER BY DeliveryDate DESC, MainOrderItems.price
   <ReportParameters>
     <ReportParameter Name="dateFrom">
       <DataType>System.String</DataType>
-      <Nullable>false</Nullable>
+      <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
@@ -512,7 +512,7 @@ GROUP BY delivery_point_id ORDER BY DeliveryDate DESC, MainOrderItems.price
     </ReportParameter>
     <ReportParameter Name="dateTo">
       <DataType>System.String</DataType>
-      <Nullable>false</Nullable>
+      <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
