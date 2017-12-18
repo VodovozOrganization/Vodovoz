@@ -29,14 +29,21 @@
         WHEN 'MileageCheck' THEN 'Проверка километража'
         WHEN 'Closed' THEN 'Закрыт'
     END AS status,
-    CONCAT_WS(' ',
+    CONCAT_WS(
+            ' ',
             employees.last_name,
             IF(employees.name = '',
                 NULL,
                 employees.name),
             IF(employees.patronymic = '',
                 NULL,
-                employees.patronymic)) AS driver_name,
+                employees.patronymic),
+
+            /* Автомобили в МЛ, в случае если их несколько, перечисление через запятую */ 
+            ' (',
+            TRIM(BOTH '\n' FROM GROUP_CONCAT(DISTINCT route_list_cars.car SEPARATOR ', ')),
+            ')'
+            ) AS driver_name,
     forwarders.last_name AS forwarder_name,
     COUNT(route_list_addresses.id) AS address_count,
     SUM((SELECT 
@@ -85,6 +92,9 @@ FROM
 	LEFT JOIN
     logistics_area 
     ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), logistics_district)
+    LEFT JOIN
+    (SELECT id, CONCAT_WS(' - ', model, reg_number) as car FROM cars) as route_list_cars
+    ON route_list_cars.id = route_lists.car_id
 WHERE
     route_lists.`date` BETWEEN @start_date AND @end_date
 GROUP BY route_lists.id
