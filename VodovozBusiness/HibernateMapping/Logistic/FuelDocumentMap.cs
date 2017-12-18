@@ -21,7 +21,6 @@ namespace Vodovoz
 			References (x => x.Car)				.Column ("car_id");
 			References (x => x.Fuel)			.Column ("fuel_type_id");
 			References (x => x.Driver)			.Column ("driver_id");
-			References (x => x.RouteList)		.Column ("route_list_id");
 			References (x => x.Operation)		.Column ("fuel_operation_id").Cascade.All();
 			References (x => x.FuelCashExpense)	.Column ("fuel_cash_expense_id").Cascade.All();
 			References (x => x.Author)			.Column ("author_id");

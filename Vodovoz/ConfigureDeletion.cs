@@ -401,9 +401,9 @@ namespace Vodovoz
 				.AddDeleteDependence<CarLoadDocument>(x => x.RouteList)
 				.AddDeleteDependence<CarUnloadDocument>(x => x.RouteList)
 				.AddDeleteDependence<Track>(x => x.RouteList)
-			    .AddDeleteDependence<FuelDocument>(x => x.RouteList)
 				.AddClearDependence<Fine>(x => x.RouteList)
 				.AddDeleteCascadeDependence(x => x.FuelOutlayedOperation) 
+			    .AddDeleteCascadeDependence(x => x.FuelGivedDocument)
 				.AddDeleteCascadeDependence(x => x.DriverWageOperation)
 				.AddDeleteCascadeDependence(x => x.ForwarderWageOperation);
 
@@ -714,8 +714,8 @@ namespace Vodovoz
 				.AddClearDependence<Counterparty> (item => item.DefaultExpenseCategory);
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelDocument>()
-						.AddDeleteCascadeDependence(x => x.Operation);
-			    //.AddClearDependence<RouteList>(x => x.FuelDocuments);
+				.AddDeleteCascadeDependence(x => x.Operation)
+				.AddClearDependence<RouteList>(x => x.FuelGivedDocument);
 
 			DeleteConfig.AddHibernateDeleteInfo<FineNomenclature>();
 

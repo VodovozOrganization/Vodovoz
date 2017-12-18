@@ -39,14 +39,6 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref car, value, () => Car); }
 		}
 
-		private RouteList routeList;
-
-		[Display(Name = "Маршрутный лист")]
-		public virtual RouteList RouteList {
-			get { return routeList; }
-			set { SetField(ref routeList, value, () => RouteList); }
-		}
-
 		private FuelOperation operation;
 
 		[Display (Name = "Операции выдачи")]

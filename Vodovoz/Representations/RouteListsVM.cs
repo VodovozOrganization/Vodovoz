@@ -323,10 +323,18 @@ namespace Vodovoz.ViewModel
 		{
 			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
 			var RouteList = UoW.GetById<RouteList>(routeListIds[0]);
-			MainClass.MainWin.TdiMain.OpenTab(
+
+			if(RouteList.FuelGivedDocument == null){
+				MainClass.MainWin.TdiMain.OpenTab(
 					OrmMain.GenerateDialogHashName<RouteList>(routeListIds[0]),
 					() => new FuelDocumentDlg(UoW.GetById<RouteList>(routeListIds[0]))
 				);
+			}else{
+				MainClass.MainWin.TdiMain.OpenTab(
+					OrmMain.GenerateDialogHashName<RouteList>(routeListIds[0]),
+					() => new FuelDocumentDlg(UoW.GetById<RouteList>(routeListIds[0]), RouteList.FuelGivedDocument.Id)
+				);
+			}
 		}
 	}
 
