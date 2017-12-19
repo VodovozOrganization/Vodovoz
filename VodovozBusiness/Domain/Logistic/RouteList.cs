@@ -187,13 +187,13 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref fuelOutlayedOperation, value, () => FuelOutlayedOperation); }
 		}
 
-		private FuelDocument fuelGivedDocument;
+		//private FuelDocument fuelGivedDocument;
 
-		[Display(Name = "Документ выдачи топлива")]
-		public virtual FuelDocument FuelGivedDocument {
-			get { return fuelGivedDocument; }
-			set { SetField(ref fuelGivedDocument, value, () => FuelGivedDocument); }
-		}
+		//[Display(Name = "Документ выдачи топлива")]
+		//public virtual FuelDocument FuelGivedDocument {
+		//	get { return fuelGivedDocument; }
+		//	set { SetField(ref fuelGivedDocument, value, () => FuelGivedDocument); }
+		//}
 
 		private bool differencesConfirmed;
 
@@ -243,6 +243,25 @@ namespace Vodovoz.Domain.Logistic
 					observableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
 				}
 				return observableAddresses;
+			}
+		}
+
+		IList<FuelDocument> fuelDocuments = new List<FuelDocument>();
+
+		[Display(Name = "Документы выдачи топлива")]
+		public virtual IList<FuelDocument> FuelDocuments {
+			get { return fuelDocuments; }
+			set { SetField(ref fuelDocuments, value, () => FuelDocuments); }
+		}
+
+		GenericObservableList<FuelDocument> observableFuelDocuments;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<FuelDocument> ObservableFuelDocuments {
+			get {
+				if(observableFuelDocuments == null) {
+					observableFuelDocuments = new GenericObservableList<FuelDocument>(fuelDocuments);
+				}
+				return observableFuelDocuments;
 			}
 		}
 
@@ -353,11 +372,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal MoneyToReturn {
 			get {
-				decimal payedForFuel = 0;
-				if(FuelGivedDocument != null && FuelGivedDocument.PayedForFuel.HasValue)
-					payedForFuel = FuelGivedDocument.PayedForFuel.Value;
+				decimal AllPayedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue).Select(x => x.PayedForFuel.Value).Sum();
 
-				return Total - payedForFuel;
+				return Total - AllPayedForFuel;
 			}
 		}
 
@@ -442,6 +459,20 @@ namespace Vodovoz.Domain.Logistic
 
 				if(Addresses[i].IndexInRoute != i)
 					Addresses[i].IndexInRoute = i;
+			}
+		}
+
+		public virtual void CheckFuelDocumentOrder()
+		{
+			for(int i = 0; i < FuelDocuments.Count; i++) {
+				if(FuelDocuments[i] == null) {
+					FuelDocuments.RemoveAt(i);
+					i--;
+					continue;
+				}
+
+				if(FuelDocuments[i].RouteList.Id != i)
+					FuelDocuments[i].RouteList.Id = i;
 			}
 		}
 
@@ -663,13 +694,12 @@ namespace Vodovoz.Domain.Logistic
 					result.Add(operation);
 			}
 
-			//FIXME запуск оборудования - временный фикс
-			//FIXME Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
-			if(addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
-				throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
+			////FIXME Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
+			//if(addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
+				//throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
 
-			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments)
-				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Equipment.Nomenclature.Category))) {
+			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Where(x => x.Equipment != null)
+			        .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Equipment.Nomenclature.Category))) {
 				var operation = orderEquipment.UpdateCounterpartyOperation();
 				if(operation != null)
 					result.Add(operation);

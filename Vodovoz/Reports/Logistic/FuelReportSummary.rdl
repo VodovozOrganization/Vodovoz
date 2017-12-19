@@ -1728,7 +1728,7 @@
 FROM 
 	fuel_documents
 LEFT JOIN
- 	route_lists ON fuel_documents.id = route_lists.fuel_gived_document_id
+ 	route_lists ON route_lists.id = fuel_documents.route_list_id
 LEFT JOIN
  	fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
 LEFT JOIN 
@@ -1824,7 +1824,7 @@ WHERE
 FROM 
 	fuel_documents
 LEFT JOIN
- 	route_lists ON fuel_documents.id = route_lists.fuel_gived_document_id
+ 	route_lists ON route_lists.id = fuel_documents.route_list_id
 LEFT JOIN
  	fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
 LEFT JOIN 
@@ -1919,7 +1919,7 @@ WHERE
 FROM 
 	fuel_documents
 LEFT JOIN
- 	route_lists ON fuel_documents.id = route_lists.fuel_gived_document_id
+ 	route_lists ON route_lists.id = fuel_documents.route_list_id
 LEFT JOIN
  	fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
 LEFT JOIN 
