@@ -1266,10 +1266,11 @@ namespace Vodovoz.Domain.Orders
 			);
 		}
 
-		public virtual void Close(IUnitOfWork uow, SelfDeliveryDocument closingDocument)
+		/// <summary>
+		/// Закрывает заказ с самовывозом если по всем документам самовывоза со склада все отгружено
+		/// </summary>
+		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument)
 		{
-			//FIXME Правильно закрывать заказ
-
 			// Закрывает заказ и создает операцию движения бутылей если все товары в заказе отгружены
 			var unloadedItems = Repository.Store.SelfDeliveryRepository.OrderItemUnloaded(uow, this, closingDocument);
 			bool canCloseOrder = true;
@@ -1290,6 +1291,7 @@ namespace Vodovoz.Domain.Orders
 				CreateBottlesMovementOperation(uow);
 				OrderStatus = OrderStatus.Closed;
 			}
+			return canCloseOrder;
 		}
 
 		public virtual void CreateBottlesMovementOperation(IUnitOfWork uow)
