@@ -3310,7 +3310,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="681 373">
+  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="769 373">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -3357,6 +3357,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3431,9 +3432,6 @@
                   <placeholder />
                 </child>
                 <child>
-                  <placeholder />
-                </child>
-                <child>
                   <widget class="Gamma.GtkWidgets.yCheckButton" id="checkIsArchive">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
@@ -3474,6 +3472,32 @@
                     <property name="LeftAttach">3</property>
                     <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gamma.GtkWidgets.yCheckButton" id="checkIsRaskat">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Label" translatable="yes">Раскат</property>
+                    <property name="DrawIndicator">True</property>
+                    <property name="HasLabel">True</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Toggled" handler="OnCheckIsRakatToggled" />
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">6</property>
+                    <property name="BottomAttach">7</property>
+                    <property name="LeftAttach">2</property>
+                    <property name="RightAttach">3</property>
+                    <property name="AutoSize">False</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
                     <property name="XExpand">False</property>

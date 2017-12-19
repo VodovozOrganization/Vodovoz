@@ -59,6 +59,7 @@ namespace Vodovoz
 			photoviewCar.GetSaveFileName = () => String.Format("{0}({1})", Entity.Model, Entity.RegistrationNumber);
 
 			checkIsCompanyHavings.Binding.AddBinding(Entity, e => e.IsCompanyHavings, w => w.Active).InitializeFromSource();
+			checkIsRaskat.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Active).InitializeFromSource();
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
@@ -123,9 +124,28 @@ namespace Vodovoz
 			dataentryreferenceDriver.Sensitive = !Entity.IsCompanyHavings;
 
 			comboTypeOfUse.Sensitive = Entity.IsCompanyHavings;
+			checkIsRaskat.Sensitive = !Entity.IsCompanyHavings;
 
-			if (Entity.IsCompanyHavings)
+			if(Entity.IsCompanyHavings) {
 				Entity.Driver = null;
+				checkIsRaskat.Active = false;
+				Entity.IsRaskat = false;
+			}
+		}
+
+		protected void OnCheckIsRakatToggled(object sender, EventArgs e)
+		{
+			Entity.IsRaskat = checkIsRaskat.Active;
+
+			dataentryreferenceDriver.Sensitive = Entity.IsRaskat;
+
+			checkIsCompanyHavings.Sensitive = !Entity.IsRaskat;
+
+			if(Entity.IsRaskat) {
+				checkIsCompanyHavings.Active = false;
+				Entity.IsCompanyHavings = false;
+				Entity.TypeOfUse = null;
+			}
 		}
 	}
 }
