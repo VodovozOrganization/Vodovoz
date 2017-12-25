@@ -831,7 +831,8 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -869,7 +870,7 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox14">
+                    <Textbox Name="Textbox15">
                       <Value>=Iif( {?showbalance}= 1, "Баланс:", "")</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -984,7 +985,7 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox15">
+                    <Textbox Name="Textbox42">
                       <Value>Дата</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -1000,7 +1001,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox42">
+                    <Textbox Name="Textbox44">
                       <Value>Сумма</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -1016,7 +1017,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox44">
+                    <Textbox Name="Textbox46">
                       <Value>Статья </Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -1032,7 +1033,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox46">
+                    <Textbox Name="Textbox47">
                       <Value>Основание</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -1058,7 +1059,7 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox47">
+                    <Textbox Name="Textbox48">
                       <Value>=Format(Fields!uaDate.Value, "dd/MM/yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -1074,7 +1075,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox48">
+                    <Textbox Name="Textbox49">
                       <Value>=Fields!uaCashUnclosed.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -1087,7 +1088,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox49">
+                    <Textbox Name="Textbox50">
                       <Value>=Fields!uaName.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -1100,7 +1101,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox50">
+                    <Textbox Name="Textbox51">
                       <Value>=Fields!uaDescription.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -1118,7 +1119,7 @@
         <Left>0.0pt</Left>
         <Top>249.6pt</Top>
       </Table>
-      <Textbox Name="Textbox51">
+      <Textbox Name="Textbox52">
         <Height>13.49pt</Height>
         <Width>128.72pt</Width>
         <Value>Незакрытые авансы:</Value>
@@ -1131,7 +1132,7 @@
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox52">
+      <Textbox Name="Textbox53">
         <Height>13.50pt</Height>
         <Width>167.86pt</Width>
         <Value>Незакрытые маршрутные листы</Value>
@@ -1170,7 +1171,7 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox53">
+                    <Textbox Name="Textbox54">
                       <Value>Номер</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -1186,7 +1187,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox54">
+                    <Textbox Name="Textbox55">
                       <Value>Дата</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -1202,7 +1203,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox55">
+                    <Textbox Name="Textbox56">
                       <Value>Статус</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -1228,7 +1229,7 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox56">
+                    <Textbox Name="Textbox57">
                       <Value>=Fields!id.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -1241,7 +1242,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox57">
+                    <Textbox Name="Textbox58">
                       <Value>=Format(Fields!date.Value, "dd/MM/yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -1256,7 +1257,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox58">
+                    <Textbox Name="Textbox59">
                       <Value>=Switch( Fields!status.Value = 'New', "Новый", Fields!status.Value = 'InLoading', "На погрузке", Fields!status.Value = 'EnRoute', "В пути", Fields!status.Value = 'OnClosing', "На закрытии", Fields!status.Value = 'NotDelivered', "Не доставлен")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -1347,24 +1348,38 @@
         <CommandText>SELECT 
     route_lists.date AS date,
     route_lists.id AS route_list_number,
-    SUM(bottles_movement_operations.returned) AS empty_bottles,
-    SUM(bottles_movement_operations.delivered) AS full_bottles,
-    SUM(route_list_addresses.driver_wage) + SUM(route_list_addresses.driver_wage_surcharge) AS wage,
-    COUNT(IF(route_list_addresses.status = 'Overdue'
-	OR route_list_addresses.status = 'Canceled', NULL, route_list_addresses.id)) AS addresses_count
+    IFNULL(SUM(bottles_movement_operations.returned),0) AS empty_bottles,
+    IFNULL(SUM(bottles_movement_operations.delivered),0) AS full_bottles,
+    IFNULL(SUM(Adresses.driver_wage) + SUM(Adresses.driver_wage_surcharge),0) AS wage,
+    IFNULL(COUNT(IF(Adresses.status = 'Overdue'
+	OR Adresses.status = 'Canceled', NULL, Adresses.id)),0) AS addresses_count
 FROM
     route_lists
+		LEFT JOIN
+			#Для сравнения водителя из МЛ из которого был перенесен адрес
+			(SELECT 
+				internal_adresses.*,
+                trans_internal_adresses.id as trans_address_id,
+				trans_internal_adresses.route_list_id as trans_address_rl_id,
+                trans_internal_adresses.status as trans_status,
+				internal_trans_route_lists.id as trans_rl_id,
+				internal_trans_route_lists.driver_id as trans_rl_driver
+			FROM 
+				route_list_addresses as internal_adresses
+				LEFT JOIN route_list_addresses as trans_internal_adresses ON internal_adresses.transfered_to_id = trans_internal_adresses.id
+				LEFT JOIN route_lists as internal_trans_route_lists ON trans_internal_adresses.route_list_id = internal_trans_route_lists.id
+			) as Adresses 
+		ON 	Adresses.route_list_id = route_lists.id AND (Adresses.trans_rl_driver = route_lists.driver_id OR Adresses.trans_rl_driver IS NULL)
         LEFT JOIN
-    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-        LEFT JOIN
-    bottles_movement_operations ON bottles_movement_operations.order_id = route_list_addresses.order_id
+    bottles_movement_operations ON bottles_movement_operations.order_id = Adresses.order_id
+		
 WHERE
     route_lists.driver_id = @driver_id
-        AND date &gt;= @start_date
-        AND date &lt;= @end_date
-        AND (route_lists.status = 'NotDelivered'
-        OR route_lists.status = 'MileageCheck'
-        OR route_lists.status = 'Closed')
+	AND date &gt;= @start_date
+	AND date &lt;= @end_date
+	AND (route_lists.status = 'NotDelivered'
+	OR route_lists.status = 'MileageCheck'
+	OR route_lists.status = 'Closed')
 GROUP BY route_lists.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="driver_id">
@@ -1655,7 +1670,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="DriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	(SUM(liters_gived) - SUM(liters_outlayed)) as fuelBalance
@@ -1675,7 +1690,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="fuelBalance">
           <DataField>fuelBalance</DataField>
           <TypeName>System.Decimal</TypeName>
