@@ -291,6 +291,7 @@
                           <Default>Solid</Default>
                           <Left>None</Left>
                           <Bottom>None</Bottom>
+                          <Right >None</Right>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -302,17 +303,21 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox23">
-                      <Style>
+                    <Textbox Name="Textbox23" >
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
                       </Style>
-                      <Value>Всего:</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -322,12 +327,16 @@
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <Value>=Sum(Fields!addresses_count.Value)</Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -337,12 +346,15 @@
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Left >None</Left>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <Value>=Sum(Fields!full_bottles.Value)</Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -355,9 +367,11 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight >Bold</FontWeight>
+                        <VerticalAlign >Top</VerticalAlign>
                       </Style>
-                      <Value>=Sum(Fields!empty_bottles.Value)</Value>
+                      <Value>Всего:</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
