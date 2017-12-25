@@ -63,7 +63,7 @@
           <TableColumn>
             <Width>96.1pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>77.9pt</Width>
           </TableColumn>
         </TableColumns>
@@ -136,7 +136,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
                       <Value>Долг бутылей</Value>
@@ -226,7 +226,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>=Fields!bottle_debt.Value</Value>
@@ -278,17 +278,35 @@
     counterparty.name AS counterparty,
     address_1c, 
     phone_from_1c,
-    debts.bottle_debt
+    (debts.bottle_debt - IFNULL(forfeits.forfeitCount,0)) as bottle_debt
 FROM
     orders
         LEFT JOIN
     counterparty ON orders.client_id = counterparty.id
         LEFT JOIN
-    (SELECT delivery_point_id, (SUM(delivered) - SUM(returned)) as bottle_debt from bottles_movement_operations GROUP BY delivery_point_id) as debts ON debts.delivery_point_id = orders.delivery_point_id
-
+    (SELECT delivery_point_id, (SUM(delivered) - SUM(returned)) as bottle_debt 
+			FROM bottles_movement_operations GROUP BY delivery_point_id) as debts ON debts.delivery_point_id = orders.delivery_point_id
+		LEFT JOIN
+	(SELECT
+		orders.delivery_point_id as delivery_point,
+		sum(order_items.actual_count) as forfeitCount
+	FROM
+		order_items
+		LEFT JOIN orders ON order_items.order_id = orders.id            
+	WHERE
+		order_items.nomenclature_id IN 
+			(SELECT
+				str_value
+			FROM
+				base_parameters
+			WHERE
+				base_parameters.name = 'forfeit_nomenclature_id'
+				OR  base_parameters.name = 'forfeit1с_nomenclature_id')
+	GROUP BY orders.delivery_point_id
+    ) as forfeits ON forfeits.delivery_point = orders.delivery_point_id 	
 WHERE
     delivery_date = DATE(@date)
-        AND order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled')
+        AND NOT order_status IN ('Canceled', 'DeliveryCanceled')
         AND NOT EXISTS( SELECT 
             *
         FROM
@@ -296,7 +314,7 @@ WHERE
         WHERE
             t2.delivery_point_id = orders.delivery_point_id
                 AND t2.delivery_date &gt; DATE(@date)
-                AND t2.order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled'))
+                AND NOT t2.order_status IN ('Canceled', 'DeliveryCanceled'))
 GROUP BY orders.delivery_point_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
