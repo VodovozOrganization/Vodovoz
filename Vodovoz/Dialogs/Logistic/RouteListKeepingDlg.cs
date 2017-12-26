@@ -69,6 +69,10 @@ namespace Vodovoz
 		List<RouteListKeepingItemNode> items;
 
 		public void ConfigureDlg(){
+			Entity.ObservableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
+			Entity.ObservableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
+			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;;
+
 			referenceCar.SubjectType = typeof (Car);
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = logisticanEditing;
@@ -167,7 +171,46 @@ namespace Vodovoz
 				phones = "Нет телефонов";
 			labelPhonesInfo.Markup = phones;
 
+			//Заполняем информацию о бутылях
+			UpdateBottlesSummaryInfo();
+
+
 			UpdateNodes();
+		}
+
+		/// <summary>
+		/// Обновляет и выводит в диалог информацию о бутылях в маршрутном листе
+		/// </summary>
+		private void UpdateBottlesSummaryInfo()
+		{
+			string bottles = null;
+			int completedBottles = Entity.Addresses.Where(x => x.Status == RouteListItemStatus.Completed).Sum(x => x.Order.TotalWaterBottles);
+			int canceledBottles = Entity.Addresses.Where(
+				  x => x.Status == RouteListItemStatus.Canceled
+					|| x.Status == RouteListItemStatus.Overdue
+					|| x.Status == RouteListItemStatus.Transfered
+				).Sum(x => x.Order.TotalWaterBottles);
+			int enrouteBottles = Entity.Addresses.Where(x => x.Status == RouteListItemStatus.EnRoute).Sum(x => x.Order.TotalWaterBottles);
+			bottles = String.Format("<b>Всего 19л. бутылей в МЛ:</b>\n");
+			bottles += String.Format("Выполнено: <b>{0}</b>\n", completedBottles);
+			bottles += String.Format(" Отменено: <b>{0}</b>\n", canceledBottles);
+			bottles += String.Format(" Осталось: <b>{0}</b>\n", enrouteBottles);
+			labelBottleInfo.Markup = bottles;
+		}
+
+		void ObservableAddresses_ElementAdded(object aList, int[] aIdx)
+		{
+			UpdateBottlesSummaryInfo();
+		}
+
+		void ObservableAddresses_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			UpdateBottlesSummaryInfo();
+		}
+
+		void ObservableAddresses_ElementChanged(object aList, int[] aIdx)
+		{
+			UpdateBottlesSummaryInfo();
 		}
 
 		public string GetLastCallTime(DateTime? lastCall)

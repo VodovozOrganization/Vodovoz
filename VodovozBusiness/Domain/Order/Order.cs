@@ -704,6 +704,16 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		/// <summary>
+		/// Количество 19л бутылей в заказе
+		/// </summary>
+		public virtual int TotalWaterBottles
+		{
+			get {
+				return orderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
+			}
+		}
+
 		#endregion
 
 		#region Функции
