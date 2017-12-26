@@ -254,6 +254,7 @@ namespace Vodovoz
 				RouteListItem newItem = new RouteListItem(routeListTo, item.Order, item.Status);
 				newItem.WasTransfered = true;
 				newItem.NeedToReload = row.LeftNeedToReload;
+				newItem.WithForwarder = routeListTo.Forwarder != null;
 				routeListTo.ObservableAddresses.Add(newItem);
 
 				item.TransferedTo = newItem;
