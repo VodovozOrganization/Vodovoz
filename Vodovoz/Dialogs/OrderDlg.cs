@@ -265,6 +265,10 @@ namespace Vodovoz
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 				.AddSetter((c, node) => c.Editable = Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
 				.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) => {
+					c.ForegroundGdk = colorBlack;
+					if(node.AdditionalAgreement == null) {
+						return;
+					}
 					AdditionalAgreement aa = node.AdditionalAgreement.Self;
 					if(aa is WaterSalesAgreement &&
 					  (aa as WaterSalesAgreement).IsFixedPrice) {
@@ -272,8 +276,6 @@ namespace Vodovoz
 					} else if(node.HasUserSpecifiedPrice() &&
 					  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 						c.ForegroundGdk = colorBlue;
-					} else {
-						c.ForegroundGdk = colorBlack;
 					}
 				})
 				.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
@@ -347,6 +349,9 @@ namespace Vodovoz
 
 		string GetRentsCount(OrderItem orderItem)
 		{
+			if(orderItem == null || orderItem.AdditionalAgreement == null) {
+				return "";
+			}
 			switch(orderItem.AdditionalAgreement.Type) {
 				case AgreementType.NonfreeRent:
 					if(orderItem.NonFreeRentAgreement.RentMonths.HasValue){
