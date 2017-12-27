@@ -187,14 +187,6 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref fuelOutlayedOperation, value, () => FuelOutlayedOperation); }
 		}
 
-		//private FuelDocument fuelGivedDocument;
-
-		//[Display(Name = "Документ выдачи топлива")]
-		//public virtual FuelDocument FuelGivedDocument {
-		//	get { return fuelGivedDocument; }
-		//	set { SetField(ref fuelGivedDocument, value, () => FuelGivedDocument); }
-		//}
-
 		private bool differencesConfirmed;
 
 		[Display(Name = "Расхождения подтверждены")]

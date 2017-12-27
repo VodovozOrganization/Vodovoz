@@ -715,7 +715,6 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelDocument>()
 						.AddDeleteCascadeDependence(x => x.Operation);
-			    //.AddClearDependence<RouteList>(x => x.FuelDocuments);
 
 			DeleteConfig.AddHibernateDeleteInfo<FineNomenclature>();
 

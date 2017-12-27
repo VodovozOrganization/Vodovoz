@@ -51,7 +51,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			).Distinct().ToList();
 
 			ytreeviewOrders.SetItemsSource(orders);
-			labelOrdersCount.Text = String.Format("Найдено заказов: {0}", orders.Count.ToString());
+			labelOrdersCount.Text = String.Format("Найдено заказов: {0}", orders.Count);
 		}
 
 		protected void OnButtonCreateBottleOperationsClicked(object sender, EventArgs e)

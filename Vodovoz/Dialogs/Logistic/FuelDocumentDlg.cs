@@ -180,12 +180,6 @@ namespace Vodovoz
 			var valid = new QSValidator<FuelDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-			/*
-			var routeList = UoW.GetById<RouteList>(RouteListClosing.Id);
-			if(routeList.FuelGivedDocument == null) {
-				routeList.FuelGivedDocument = UoWGeneric.Root;
-				RouteListClosing.FuelGivedDocument = UoWGeneric.Root;
-			}*/
 
 			logger.Info ("Сохраняем топливный документ...");
 			UoWGeneric.Save();

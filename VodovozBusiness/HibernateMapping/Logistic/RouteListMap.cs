@@ -40,7 +40,6 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.BottleFine).Column("bottles_fine_id");
 			References (x => x.Cashier).Column("cashier_id");
 			References (x => x.FuelOutlayedOperation).Column("fuel_outlayed_operation_id").Cascade.All();
-			//References (x => x.FuelGivedDocument).Column("fuel_gived_document_id");
 			References (x => x.DriverWageOperation).Column("driver_wages_movement_operations_id");
 			References (x => x.ForwarderWageOperation).Column("forwarder_wages_movement_operations_id");
 
