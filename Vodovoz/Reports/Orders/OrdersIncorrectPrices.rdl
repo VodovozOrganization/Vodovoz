@@ -51,6 +51,9 @@
           <BorderWidth />
         </Style>
         <TableColumns>
+          <TableColumn >
+            <Width>35.9pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>103.5pt</Width>
           </TableColumn>
@@ -70,7 +73,7 @@
             <Width>52.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>364.1pt</Width>
+            <Width>316.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -78,6 +81,22 @@
             <TableRow>
               <Height>25.6pt</Height>
               <TableCells>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>№ п/п</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
@@ -202,6 +221,21 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
@@ -342,56 +376,28 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	MainOrders.id,
 	counterparty.name as CounterpartyName,
     delivery_points.compiled_address_short as AddressShort,
 	MainOrders.delivery_date as DeliveryDate,
-    (
-		SELECT SUM(count) 
-        FROM order_items as SumOrderItems
-			LEFT JOIN nomenclature as Nom2 ON SumOrderItems.nomenclature_id = Nom2.id
-        WHERE SumOrderItems.order_id = MainOrders.id AND Nom2.category = 'water'
-	) as BottleCount,
-    MainOrderItems.Price as Price,
-	MainOrderItems.minPrice as PricePerOne,
+    BottlesTable.bottle_count as BottleCount,
+    BottlesTable.smallest_price as Price,
+    BottlesTable.minPrice as PricePerOne,
     counterparty.comment as comment
 FROM
 	orders as MainOrders
-	LEFT JOIN 
+    #Подсчет кол-ва всех бутылей и наименьшей цены в заказе 
+    LEFT JOIN 
 		(
-			SELECT 
-            order_items.id,
-            order_id,
-            nomenclature_id,
-            price,
-            (
-				# Нахождение минимальной цены по количеству
-				SELECT 
-					nomenclature_price.price
-				FROM
-					nomenclature_price
-				WHERE 
-					nomenclature_price.nomenclature_id = 1 /* Цены выбираются по номенклатуре Семиозерье 19л (Id = 1) */ 
-					AND nomenclature_price.min_count &lt;= order_items.count
-				ORDER BY nomenclature_price.price ASC LIMIT 1 
-             ) as minPrice,
-            count,
-            nomenclature.category
-            FROM order_items
-				LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-        ) as MainOrderItems 
-        ON MainOrderItems.order_id = MainOrders.id
-    LEFT JOIN counterparty ON MainOrders.client_id = counterparty.id
-    LEFT JOIN delivery_points ON MainOrders.delivery_point_id = delivery_points.id
-WHERE
-	#Находит только те записи у которых цена ниже чем задана по прайсу
-	MainOrderItems.price &lt; 
-		(
-			SELECT         
-				(
+			SELECT
+				order_id,
+                Nom2.category,
+				SUM(count) as bottle_count,
+                MIN(price) as smallest_price,
+                (
 					# Нахождение минимальной цены по количеству
 					SELECT 
 						nomenclature_price.price
@@ -399,16 +405,21 @@ WHERE
 						nomenclature_price
 					WHERE 
 						nomenclature_price.nomenclature_id = 1 /* Цены выбираются по номенклатуре Семиозерье 19л (Id = 1) */ 
-						AND nomenclature_price.min_count &lt;= oItems3.count
+						AND nomenclature_price.min_count &lt;= SUM(count)
 					ORDER BY nomenclature_price.price ASC LIMIT 1 
 				) as minPrice
-			FROM order_items as oItems3
-				LEFT JOIN nomenclature as Nom3 ON oItems3.nomenclature_id = Nom3.id
-			WHERE oItems3.order_id = MainOrders.id AND Nom3.category = 'water'
-			ORDER BY minPrice ASC LIMIT 1
-		)
-	AND MainOrderItems.price &gt; 0
-	AND MainOrderItems.category = 'water'
+			FROM order_items as SumOrderItems
+				LEFT JOIN nomenclature as Nom2 ON SumOrderItems.nomenclature_id = Nom2.id
+			WHERE Nom2.category = 'water'
+            GROUP BY SumOrderItems.order_id
+        ) as BottlesTable ON BottlesTable.order_id = MainOrders.id
+    LEFT JOIN counterparty ON MainOrders.client_id = counterparty.id
+    LEFT JOIN delivery_points ON MainOrders.delivery_point_id = delivery_points.id
+WHERE
+	#Находит только те записи у которых цена ниже чем задана по прайсу
+	BottlesTable.smallest_price &lt; BottlesTable.minPrice
+	AND BottlesTable.smallest_price &gt; 0
+	AND BottlesTable.category = 'water'
 	AND MainOrders.order_status = 'Closed'
     AND (@DateFrom = '' OR MainOrders.delivery_date &gt;= @DateFrom) AND (@DateTo = '' OR MainOrders.delivery_date &lt;= @DateTo)
     
@@ -417,16 +428,14 @@ WHERE
 		SELECT 
 			*
         FROM 
-			orders as SubOrders
-			LEFT JOIN order_items as oItems1 ON oItems1.order_id = SubOrders.id
-			LEFT JOIN nomenclature as Nom1 ON oItems1.nomenclature_id = Nom1.id
-        WHERE 
-			MainOrders.delivery_point_id = SubOrders.delivery_point_id
-			AND SubOrders.delivery_date &gt; MainOrders.delivery_date
-            #Находит только те записи у которых цена ниже чем задана по прайсу
-            AND oItems1.price &lt; 
+			orders as SubOrders            
+            LEFT JOIN 
 				(
-					SELECT         
+					SELECT
+						order_id,
+						Nom2.category,
+						SUM(count) as bottle_count,
+						MIN(price) as smallest_price,
 						(
 							# Нахождение минимальной цены по количеству
 							SELECT 
@@ -435,20 +444,24 @@ WHERE
 								nomenclature_price
 							WHERE 
 								nomenclature_price.nomenclature_id = 1 /* Цены выбираются по номенклатуре Семиозерье 19л (Id = 1) */ 
-								AND nomenclature_price.min_count &lt;= oItems3.count
+								AND nomenclature_price.min_count &lt;= SUM(count)
 							ORDER BY nomenclature_price.price ASC LIMIT 1 
-						 ) as minPrice
-					FROM order_items as oItems3
-						LEFT JOIN nomenclature as Nom3 ON oItems3.nomenclature_id = Nom3.id
-					WHERE oItems3.order_id = MainOrders.id AND Nom3.category = 'water'
-					ORDER BY minPrice ASC LIMIT 1
-				)
-			AND oItems1.price &gt; 0
-			AND Nom1.category = 'water'
+						) as minPrice
+					FROM order_items as SumOrderItems
+						LEFT JOIN nomenclature as Nom2 ON SumOrderItems.nomenclature_id = Nom2.id
+					WHERE Nom2.category = 'water'
+					GROUP BY SumOrderItems.order_id
+				) as SubBottlesTable ON SubBottlesTable.order_id = SubOrders.id
+        WHERE 
+			MainOrders.delivery_point_id = SubOrders.delivery_point_id
+			AND SubOrders.delivery_date &gt; MainOrders.delivery_date
+            #Находит только те записи у которых цена ниже чем задана по прайсу
+            AND SubBottlesTable.smallest_price &lt; SubBottlesTable.minPrice
+			AND SubBottlesTable.smallest_price &gt; 0
+			AND SubBottlesTable.category = 'water'
 			AND SubOrders.order_status = 'Closed'
     )
-GROUP BY delivery_point_id ORDER BY DeliveryDate DESC, MainOrderItems.price
-</CommandText>
+GROUP BY delivery_point_id ORDER BY DeliveryDate DESC, BottlesTable.smallest_price</CommandText>
         <QueryParameters>
           <QueryParameter Name="DateFrom">
             <Value>=Parameters!dateFrom</Value>
@@ -458,7 +471,7 @@ GROUP BY delivery_point_id ORDER BY DeliveryDate DESC, MainOrderItems.price
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="CounterpartyName">
           <DataField>CounterpartyName</DataField>
           <TypeName>System.String</TypeName>

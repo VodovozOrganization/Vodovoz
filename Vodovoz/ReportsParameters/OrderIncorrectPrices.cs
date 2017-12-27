@@ -11,7 +11,7 @@ namespace Vodovoz.ReportsParameters
 		public OrderIncorrectPrices()
 		{
 			this.Build();
-			dateperiodpicker.StartDate = new DateTime(DateTime.Now.Year, 01, 01);
+			dateperiodpicker.StartDate = DateTime.Now.Date;
 			dateperiodpicker.EndDate = DateTime.Now.Date;
 		}
 
