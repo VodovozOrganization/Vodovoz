@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>297mm</PageHeight>
-  <PageWidth>210mm</PageWidth>
+  <PageHeight>209.804mm</PageHeight>
+  <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>5mm</TopMargin>
   <LeftMargin>5mm</LeftMargin>
@@ -49,22 +49,25 @@
             <Width>38.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>102.8pt</Width>
+            <Width>129.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>139.7pt</Width>
+            <Width>126.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>97.9pt</Width>
+            <Width>94.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>81.9pt</Width>
+            <Width>78.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.0pt</Width>
+            <Width>48.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.2pt</Width>
+            <Width>72.3pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>223.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -185,6 +188,22 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>Номенклатуры</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -246,8 +265,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -295,6 +314,20 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>=Fields!nomenclatures.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -303,6 +336,7 @@
         <Top>3.1pt</Top>
       </Table>
     </ReportItems>
+    <Columns >1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -322,22 +356,6 @@
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <ReportParameters>
-    <ReportParameter Name="start_date">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt />
-    </ReportParameter>
-    <ReportParameter Name="end_date">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt />
-    </ReportParameter>
-  </ReportParameters>
   <DataSets>
     <DataSet Name="Orders">
       <Query >
@@ -351,7 +369,8 @@
         ) AS to_client,
     orders.from_client_text AS from_client,
     orders.order_status AS status,
-    orders.daily_number_1c AS dailynum
+    orders.daily_number_1c AS dailynum,
+    IF(nomenclature.category != 'water', GROUP_CONCAT( CONCAT_WS(' ', nomenclature.name, '-', order_items.count, 'шт.') SEPARATOR ',\n'), '') as nomenclatures
 FROM
     orders
         LEFT JOIN
@@ -411,10 +430,14 @@ GROUP BY orders.id</CommandText>
           <DataField>dailynum</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
+        <Field Name="nomenclatures">
+          <DataField>nomenclatures</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
@@ -423,4 +446,24 @@ GROUP BY orders.id</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
+  <DataElementName >Report</DataElementName>
+  <DataElementStyle >AttributeNormal</DataElementStyle>
+  <ReportParameters >
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
 </Report>

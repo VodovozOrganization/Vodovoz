@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -650,7 +650,7 @@
         <property name="ShortLabel" translatable="yes">Зарплаты сотрудников</property>
         <signal name="Activated" handler="OnActionWagesOperationsActivated" />
       </action>
-      <action id="ActionEquipmentReport">
+      <action id="Action40">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчет по оборудованию</property>
         <property name="ShortLabel" translatable="yes">Отчет по оборудованию</property>
@@ -662,7 +662,7 @@
         <property name="ShortLabel" translatable="yes">Зарплаты экспедиторов</property>
         <signal name="Activated" handler="OnActionForwarderWageReportActivated" />
       </action>
-      <action id="ActionCashierComments">
+      <action id="Action39">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчет по комментариям кассиров</property>
         <property name="ShortLabel" translatable="yes">Отчет по комментариям кассиров</property>
@@ -795,12 +795,12 @@
         <property name="ShortLabel" translatable="yes">Отчёт по движению бутылей</property>
         <signal name="Activated" handler="OnActionBottlesMovementReportActivated" />
       </action>
-      <action id="ActionServiceCenter">
+      <action id="Action33">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Сервисный центр</property>
         <property name="ShortLabel" translatable="yes">Сервисный центр</property>
       </action>
-      <action id="ActionMastersVisitReport">
+      <action id="Action35">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчёт по выездам мастеров</property>
         <property name="ShortLabel" translatable="yes">Отчёт по выездам мастеров</property>
@@ -812,7 +812,7 @@
         <property name="ShortLabel" translatable="yes">Отчёт по километражу</property>
         <signal name="Activated" handler="OnActionMileageReportActivated" />
       </action>
-      <action id="ActionMastersReport">
+      <action id="Action42">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчёт по мастерам</property>
         <property name="ShortLabel" translatable="yes">Отчёт по мастерам</property>
@@ -830,7 +830,7 @@
         <property name="ShortLabel" translatable="yes">Рассчет расстояний до точек</property>
         <signal name="Activated" handler="OnActionDistanceFromCenterActivated" />
       </action>
-      <action id="Action32">
+      <action id="Action38">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчет по некорректным ценам</property>
         <property name="ShortLabel" translatable="yes">Отчет по некорректным ценам</property>
@@ -841,6 +841,12 @@
         <property name="Label" translatable="yes">Заказы без операций движения бутылей</property>
         <property name="ShortLabel" translatable="yes">Заказы без операций движения бутылей</property>
         <signal name="Activated" handler="OnActionOrdersWithoutBottlesOperationActivated" />
+      </action>
+      <action id="Action41">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчёт по оборудованию</property>
+        <property name="ShortLabel" translatable="yes">Отчёт по оборудованию</property>
+        <signal name="Activated" handler="OnActionEquipmentReportActivated" />
       </action>
     </action-group>
     <property name="MemberName" />
@@ -981,19 +987,19 @@
                     </node>
                     <node type="Menu" action="Action26">
                       <node type="Menuitem" action="ActionShortfallBattles" />
-                      <node type="Menuitem" action="ActionEquipmentReport" />
-                      <node type="Menuitem" action="ActionCashierComments" />
+                      <node type="Menuitem" action="Action39" />
                       <node type="Menuitem" action="Action1cComments" />
                       <node type="Menuitem" action="ActionOrdersByDistrict" />
                       <node type="Menuitem" action="Action30" />
-                      <node type="Menuitem" action="Action32" />
+                      <node type="Menuitem" action="Action38" />
                       <node type="Menuitem" action="ActionOrdersWithMinPriceLessThan" />
                       <node type="Menuitem" action="actionSelfDeliveryReport" />
                       <node type="Menuitem" action="ActionSuburbWaterPrice" />
                     </node>
-                    <node type="Menu" action="ActionServiceCenter">
-                      <node type="Menuitem" action="ActionMastersVisitReport" />
-                      <node type="Menuitem" action="ActionMastersReport" />
+                    <node type="Menu" action="Action33">
+                      <node type="Menuitem" action="Action35" />
+                      <node type="Menuitem" action="Action42" />
+                      <node type="Menuitem" action="Action41" />
                     </node>
                   </node>
                   <node type="Menu" action="ActionAbout">
