@@ -255,11 +255,10 @@ namespace Vodovoz
 		{
 			var newForwarder = Entity.Forwarder;
 
-			if (Entity.Status == RouteListStatus.OnClosing 
-			    && ((previousForwarder == null && newForwarder != null)
-			        || (previousForwarder != null && newForwarder == null)))
-				foreach (var item in Entity.Addresses)
-					item.RecalculateWages ();
+			if(Entity.Status == RouteListStatus.OnClosing
+				&& ((previousForwarder == null && newForwarder != null)
+					|| (previousForwarder != null && newForwarder == null)))
+				Entity.RecalculateAllWages();
 
 			previousForwarder = Entity.Forwarder;
 		}

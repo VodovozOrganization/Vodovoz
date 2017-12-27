@@ -569,7 +569,7 @@ namespace Vodovoz.Domain.Logistic
 				return this.Order.TotalSum * RouteList.Driver.WageCalcRate / 100;
 
 			bool withForwarder = RouteList.Forwarder != null;
-			bool ich = RouteList.Car.IsCompanyHavings;
+			bool ich = RouteList.Car.IsCompanyHavings && !RouteList.NormalWage;
 			var rates = ich ? Wages.GetDriverRatesWithOurCar(RouteList.Date) : Wages.GetDriverRates(RouteList.Date, withForwarder);
 
 			return CalculateWage(rates);

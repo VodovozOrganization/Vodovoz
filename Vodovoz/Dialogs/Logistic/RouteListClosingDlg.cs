@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,8 +7,6 @@ using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QSOrmProject;
-using QSOsm;
-using QSOsm.Osrm;
 using QSProjectsLib;
 using QSSupportLib;
 using QSValidation;
@@ -133,6 +131,12 @@ namespace Vodovoz
 			advanceSpinbutton.Value = 0;
 			advanceSpinbutton.Visible = false;
 
+			ycheckNormalWage.Binding.AddSource(Entity)
+			                .AddFuncBinding(x => x.Driver.WageCalcType == WageCalculationType.normal && x.Car.IsCompanyHavings, w => w.Visible)
+							.AddBinding(x => x.NormalWage, w => w.Active)
+			                .InitializeFromSource();
+			ycheckNormalWage.Sensitive = editing && QSMain.User.Permissions["change_driver_wage"];
+
 			PerformanceHelper.AddTimePoint("Создан диалог");
 
 			//Предварительная загрузка объектов для ускорения.
@@ -220,11 +224,18 @@ namespace Vodovoz
 
 			ylabelRecalculatedMileage.Binding.AddFuncBinding(Entity, e => e.RecalculatedDistance.HasValue ? $" {e.RecalculatedDistance} км" : "", w => w.LabelProp).InitializeFromSource();		
 			checkSendToMileageCheck.Binding.AddBinding(Entity, x => x.MileageCheck, w => w.Active).InitializeFromSource();
+			Entity.PropertyChanged += Entity_PropertyChanged;
 		}
 
 		void ObservableFuelDocuments_ListChanged(object aList)
 		{
 			UpdateFuelDocumentsColumns();
+		}
+
+		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.NormalWage))
+				Entity.RecalculateAllWages();
 		}
 
 		private void UpdateFuelDocumentsColumns()
@@ -262,8 +273,7 @@ namespace Vodovoz
 
 			if((previousForwarder == null && newForwarder != null)
 			 || (previousForwarder != null && newForwarder == null))
-				foreach(var item in Entity.Addresses)
-					item.RecalculateWages();
+				Entity.RecalculateAllWages();
 
 			previousForwarder = Entity.Forwarder;
 		}

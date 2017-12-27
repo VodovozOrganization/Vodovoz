@@ -257,6 +257,16 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		private bool normalWage;
+
+		/// <summary>
+		/// Расчет ЗП по нормальной ставке, вне зависимости от того какой тип ЗП стоит у водителя.
+		/// </summary>
+		public virtual bool NormalWage {
+			get { return normalWage; }
+			set { SetField(ref normalWage, value, () => NormalWage); }
+		}
+
 		private WagesMovementOperations driverWageOperation;
 
 		[Display(Name = "Операция начисления зарплаты водителю")]
@@ -579,6 +589,11 @@ namespace Vodovoz.Domain.Logistic
 					Status = newStatus;
 				}
 			}
+		}
+
+		public virtual void RecalculateAllWages()
+		{
+			Addresses.ToList().ForEach(x => x.RecalculateWages());
 		}
 
 		#endregion
