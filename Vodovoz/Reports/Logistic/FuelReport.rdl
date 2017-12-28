@@ -773,7 +773,7 @@ FROM
 						OR (@car_id &lt;&gt; -1 AND fuel_operations.car_id = @car_id))
 			)
 			#Конец выбора полученного топлива
-		UNION
+		UNION ALL
 			#Выбираем потраченное топливо
 			(SELECT 
 				DATE(fuel_operations.date) 	AS date,
