@@ -22,6 +22,7 @@
     ifnull(docs.delivery_point_id, '0') AS delivery_point_id,
     docs.delivery_point_address,
     docs.doc_name,
+    docs.doc_status,
     case
 #sum if it's residue
 		when docs.doc_name = 'Ввод остатков' then
@@ -48,8 +49,14 @@
 	if(docs.doc_name = 'Заказ',
 		forfeits.forfeitCount,
         null) as forfeitCount,
-    ifnull(bottles_movement_operations.delivered, 0) AS delivered,
-    ifnull(bottles_movement_operations.returned, 0) AS returned,
+	if(docs.doc_name = 'Заказ',
+		ifnull(bottles_movement_operations.delivered, if(docs.doc_status = 'Closed',0,null)),
+		ifnull(bottles_movement_operations.delivered, 0)
+    ) AS delivered,
+    if(docs.doc_name = 'Заказ',
+		ifnull(bottles_movement_operations.returned, if(docs.doc_status = 'Closed',0,null)),
+		ifnull(bottles_movement_operations.returned, 0)
+    ) AS returned,
     case
 #bottles deposit if it's residue
 		when docs.doc_name = 'Ввод остатков' then
@@ -67,14 +74,14 @@
 				deposit_operations
 			where
 				deposit_operations.order_id = docs.doc_id
-				and deposit_operations.deposit_type = 'Bottles'),0) +
+				and deposit_operations.deposit_type = 'Bottles'), if(docs.doc_status = 'Closed',0,null)) +
 			ifnull((select
 				sum(order_items.price * order_items.actual_count)
 			from
 				order_items
 			where
 				order_items.order_id = docs.doc_id
-				AND order_items.nomenclature_id = 157),0))
+				AND order_items.nomenclature_id = 157), if(docs.doc_status = 'Closed',0,null)))
 #bottles deposit if it's transfer
 		else
 			(select
@@ -170,6 +177,7 @@ from
 		delivery_points.id as delivery_point_id,
 		delivery_points.compiled_address as delivery_point_address,
 		'Заказ' as doc_name,
+        orders.order_status as doc_status,
         orders.client_id as doc_client_id
 	from
 		orders
@@ -188,6 +196,7 @@ from
 		doc_residue.delivery_point_id as delivery_point_id,
 		delivery_points.compiled_address as delivery_point_address,
 		'Ввод остатков' as doc_name,
+        '' as doc_status, 
         doc_residue.client_id as doc_client_id
 	from
 		doc_residue
@@ -206,6 +215,7 @@ from
             inc_counterparty.name,
             ' по адресу ',
             inc_delivery_point.compiled_address) as doc_name,
+		'' as doc_status, 
 		transfer_operations.from_client_id as doc_client_id
 	from
 		transfer_operations
@@ -228,6 +238,7 @@ from
             out_counterparty.name,
             ' с адреса ',
             out_delivery_point.compiled_address) as doc_name,
+		'' as doc_status, 
 		transfer_operations.to_client_id as doc_client_id
 	from
 		transfer_operations
@@ -1249,8 +1260,8 @@ WHERE
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1279,8 +1290,8 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1835,7 +1846,7 @@ ____________(                        )
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

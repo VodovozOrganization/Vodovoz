@@ -1186,6 +1186,31 @@ namespace Vodovoz.Domain.Orders
 		public virtual void ChangeStatus(OrderStatus newStatus)
 		{
 			OrderStatus = newStatus;
+			if(newStatus == OrderStatus.Closed) {
+				OnClosedOrder();
+			}
+		}
+
+		/// <summary>
+		/// Действия при закрытии заказа
+		/// </summary>
+		public virtual void OnClosedOrder()
+		{
+			SetDepositsActualCounts();
+		}
+
+		/// <summary>
+		/// Устанавливает количество для каждого залога как actualCount, 
+		/// если заказ был создан только для залога.
+		/// Для отображения этих данных в отчете "Акт по бутылям и залогам"
+		/// </summary>
+		public virtual void SetDepositsActualCounts()
+		{
+			if(OrderItems.All(x => x.Nomenclature.Id == 157)) {
+				foreach(var oi in orderItems) {
+					oi.ActualCount = oi.Count;
+				}
+			}
 		}
 
 		public virtual void UpdateDocuments()
@@ -1299,7 +1324,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			if(canCloseOrder) {
 				CreateBottlesMovementOperation(uow);
-				OrderStatus = OrderStatus.Closed;
+				ChangeStatus(OrderStatus.Closed);
 			}
 			return canCloseOrder;
 		}
