@@ -288,7 +288,7 @@ namespace Vodovoz
 				.Finish();
 
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
-				.AddColumn("Наименование").SetDataProperty(node => node.NameString)
+				.AddColumn("Наименование").SetDataProperty(node => node.FullNameString)
 				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
 				.AddColumn("Кол-во").AddNumericRenderer(node => node.Count)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)

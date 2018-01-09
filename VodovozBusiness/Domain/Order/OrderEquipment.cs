@@ -109,6 +109,19 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual string FullNameString {
+			get {
+				if(Equipment != null)
+					return Equipment.Title;
+				else if(Nomenclature != null)
+					//FIXME запуск оборудования - временный фикс
+					return Nomenclature.Name;
+				//return String.Format ("{0} (не зарегистрированный)", NewEquipmentNomenclature.Name);
+				else
+					return "Неизвестное оборудование";
+			}
+		}
+
 		private ServiceClaim serviceClaim;
 
 		[Display(Name = "Номер заявки на обслуживание")]
