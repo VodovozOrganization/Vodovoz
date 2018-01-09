@@ -65,7 +65,8 @@ namespace Vodovoz
 			datePickerDate.Sensitive = editing;
 
 			yspinConfirmedDistance.Binding.AddBinding(Entity, rl => rl.ConfirmedDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
-			yspinConfirmedDistance.Sensitive = editing;
+			yspinConfirmedDistance.Sensitive = editing && Entity.Status != RouteListStatus.Closed;
+			buttonConfirm.Sensitive = editing && Entity.Status != RouteListStatus.Closed;
 
 			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
 				.AddColumn("Заказ")
@@ -97,7 +98,7 @@ namespace Vodovoz
 			ytreeviewAddresses.ItemsDataSource = items;
 			entryMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Text).InitializeFromSource();
 
-			buttonConfirm.Sensitive = editing;
+
 
 			if(Entity.Status == RouteListStatus.MileageCheck){
 				buttonCloseRouteList.Sensitive = editing;
