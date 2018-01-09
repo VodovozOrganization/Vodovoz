@@ -185,6 +185,65 @@ namespace Vodovoz.Repository.Logistics
 			return result;
 		}
 
+		/// <summary>
+		/// Возвращает список товаров возвращенного на склад только по 1 номенклатуре
+		/// </summary>
+		public static List<ReturnsNode> GetReturnsToWarehouse(IUnitOfWork uow, int routeListId, int nomenclatureId)
+		{
+			List<ReturnsNode> result = new List<ReturnsNode>();
+			Nomenclature nomenclatureAlias = null;
+			ReturnsNode resultAlias = null;
+			Equipment equipmentAlias = null;
+			CarUnloadDocumentItem carUnloadItemsAlias = null;
+			WarehouseMovementOperation movementOperationAlias = null;
+
+			var returnableQuery = uow.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
+				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
+				.JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
+				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
+				.JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => !nomenclatureAlias.IsSerial)
+			    .Where(() => nomenclatureAlias.Id == nomenclatureId);
+			
+
+			var returnableItems =
+				returnableQuery.SelectList(list => list
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(() => false).WithAlias(() => resultAlias.Trackable)
+					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
+					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+								  )
+				.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
+				.List<ReturnsNode>();
+
+			var returnableQueryEquipment = uow.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
+				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
+				.JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
+				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
+				.JoinAlias(() => movementOperationAlias.Equipment, () => equipmentAlias)
+				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Id == nomenclatureId);
+
+			var returnableEquipment =
+				returnableQueryEquipment.SelectList(list => list
+					.Select(() => equipmentAlias.Id).WithAlias(() => resultAlias.Id)
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(() => nomenclatureAlias.IsSerial).WithAlias(() => resultAlias.Trackable)
+					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
+					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => nomenclatureAlias.Type).WithAlias(() => resultAlias.EquipmentType)
+									  )
+				.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
+				.List<ReturnsNode>();
+
+			result.AddRange(returnableItems);
+			result.AddRange(returnableEquipment);
+			return result;
+		}
+
+
 		#region DTO
 
 		public class ReturnsNode

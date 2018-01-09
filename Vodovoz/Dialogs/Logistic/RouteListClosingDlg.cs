@@ -782,8 +782,8 @@ namespace Vodovoz
 		private void ReloadReturnedToWarehouse()
 		{
 			allReturnsToWarehouse = RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
-			var refuse = Int32.Parse(MainSupport.BaseParameters.All["refuse_nomenclature_id"]);
-			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, new[] { NomenclatureCategory.bottle }, new[] { refuse })
+			int BottleNomenclature = 38; //Бутыль 19.2л
+			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, BottleNomenclature)
 				.Sum(item => item.Amount);
 		}
 
