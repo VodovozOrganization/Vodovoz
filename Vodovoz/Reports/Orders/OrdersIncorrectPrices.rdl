@@ -51,7 +51,7 @@
           <BorderWidth />
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>35.9pt</Width>
           </TableColumn>
           <TableColumn>
@@ -81,7 +81,7 @@
             <TableRow>
               <Height>25.6pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
                       <Value>№ п/п</Value>
@@ -221,7 +221,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
                       <Value>=RowNumber()</Value>
@@ -420,7 +420,7 @@ WHERE
 	BottlesTable.smallest_price &lt; BottlesTable.minPrice
 	AND BottlesTable.smallest_price &gt; 0
 	AND BottlesTable.category = 'water'
-	AND MainOrders.order_status = 'Closed'
+	AND (MainOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
     AND (@DateFrom = '' OR MainOrders.delivery_date &gt;= @DateFrom) AND (@DateTo = '' OR MainOrders.delivery_date &lt;= @DateTo)
     
     #Нахождение только последнего по дате заказа
@@ -459,7 +459,7 @@ WHERE
             AND SubBottlesTable.smallest_price &lt; SubBottlesTable.minPrice
 			AND SubBottlesTable.smallest_price &gt; 0
 			AND SubBottlesTable.category = 'water'
-			AND SubOrders.order_status = 'Closed'
+			AND (SubOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
     )
 GROUP BY delivery_point_id ORDER BY DeliveryDate DESC, BottlesTable.smallest_price</CommandText>
         <QueryParameters>
