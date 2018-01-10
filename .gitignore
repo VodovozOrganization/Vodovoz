@@ -7,6 +7,8 @@
 bin/
 obj/
 packages/*
+.vs/
+
 #Workbench Backup Files
 Base/Factory.mwb.bak
 *.DS_Store
