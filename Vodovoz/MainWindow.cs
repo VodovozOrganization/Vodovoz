@@ -917,4 +917,12 @@ public partial class MainWindow : Gtk.Window
 			() => new OrdersWithoutBottlesOperationDlg()
 		);
 	}
+
+	protected void OnActionHistoryLogActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<QSHistoryLog.HistoryView>(),
+			() => new QSHistoryLog.HistoryView()
+		);
+	}
 }

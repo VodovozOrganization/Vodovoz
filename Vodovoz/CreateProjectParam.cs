@@ -7,6 +7,7 @@ using NHibernate.Cfg;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
 using QSContacts;
+using QSHistoryLog;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
@@ -95,7 +96,7 @@ namespace Vodovoz
 					.DefaultTableView().SearchColumn("Фамилия", x => x.Surname).SearchColumn("Имя", x => x.Name).SearchColumn("Отчество", x => x.Patronymic).End(),
 				OrmObjectMapping<Car>.Create().Dialog<CarsDlg>()
 					.DefaultTableView().SearchColumn("Модель а/м", x => x.Model).SearchColumn("Гос. номер", x => x.RegistrationNumber).SearchColumn("Водитель", x => x.Driver != null ? x.Driver.FullName : String.Empty).End(),
-				OrmObjectMapping<Order>.Create().Dialog <OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
+				OrmObjectMapping<Order>.Create().Trace().Dialog <OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
 					OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<DeliverySchedule>.Create().Dialog<DeliveryScheduleDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Время доставки", x => x.DeliveryTime).End(),
 				OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
@@ -158,6 +159,8 @@ namespace Vodovoz
 			};
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
 			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
+
+			HistoryMain.ConfigureFromOrmMain();
 
 			//Настройка ParentReference
 			ParentReferenceConfig.AddActions (new ParentReferenceActions<Organization, QSBanks.Account> {

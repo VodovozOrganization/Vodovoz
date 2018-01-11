@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -87,6 +87,11 @@
     <icon-set id="employees">
       <source>
         <property name="Image">resource:Vodovoz.icons.toolbar.employees.png</property>
+      </source>
+    </icon-set>
+    <icon-set id="logs">
+      <source>
+        <property name="Image">resource:Vodovoz.icons.menu.logs.png</property>
       </source>
     </icon-set>
   </icon-factory>
@@ -848,6 +853,13 @@
         <property name="ShortLabel" translatable="yes">Отчёт по оборудованию</property>
         <signal name="Activated" handler="OnActionEquipmentReportActivated" />
       </action>
+      <action id="ActionHistoryLog">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Журнал изменений</property>
+        <property name="ShortLabel" translatable="yes">Журнал изменений</property>
+        <property name="StockId">logs</property>
+        <signal name="Activated" handler="OnActionHistoryLogActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -871,6 +883,7 @@
                     <node type="Separator" />
                     <node type="Menuitem" action="ActionParameters" />
                     <node type="Menuitem" action="propertiesAction" />
+                    <node type="Menuitem" action="ActionHistoryLog" />
                     <node type="Menu" action="Action27">
                       <node type="Menuitem" action="ActionAddressDuplicetes" />
                       <node type="Menuitem" action="ActionDistanceFromCenter" />

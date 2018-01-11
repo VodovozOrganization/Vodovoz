@@ -36,6 +36,8 @@ namespace Stetic
 				w1.Add("view-filter", w12);
 				global::Gtk.IconSet w13 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.toolbar.employees.png"));
 				w1.Add("employees", w13);
+				global::Gtk.IconSet w14 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.menu.logs.png"));
+				w1.Add("logs", w14);
 				w1.AddDefault();
 			}
 		}

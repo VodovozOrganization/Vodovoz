@@ -252,6 +252,7 @@
     <EmbeddedResource Include="icons\buttons\sort-ascending.png" />
     <EmbeddedResource Include="icons\toolbar\employees.png" />
     <EmbeddedResource Include="icons\map\points\white_large.png" />
+    <EmbeddedResource Include="icons\menu\logs.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -1126,10 +1127,7 @@
     <MonoDevelop>
       <Properties>
         <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild">
-            <inheritsSet />
-            <inheritsScope />
-          </DotNetNamingPolicy>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild" />
         </Policies>
         <Deployment.LinuxDeployData generateScript="False" />
       </Properties>
