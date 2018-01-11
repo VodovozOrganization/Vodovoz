@@ -49,7 +49,7 @@ namespace Vodovoz
 			UoWGeneric.Root.Driver 	  = RouteListClosing.Driver;
 			UoWGeneric.Root.Fuel 	  = RouteListClosing.Car.FuelType;
 			UoWGeneric.Root.LiterCost = RouteListClosing.Car.FuelType.Cost;
-
+			UoWGeneric.Root.RouteList = RouteListClosing;
 			ConfigureDlg();
 		}
 
@@ -128,6 +128,15 @@ namespace Vodovoz
 			text.Add(string.Format("Израсходовано топлива: {0:f2} л. ({1:f2} л/100км)",
 			                       FuelOutlayed, fc));
 
+			if(RouteListClosing.ConfirmedDistance != 0 && RouteListClosing.ConfirmedDistance != RouteListClosing.ActualDistance) {
+
+				decimal spentFuelConfirmed = (decimal)RouteListClosing.Car.FuelConsumption
+																	  / 100 * RouteListClosing.ConfirmedDistance;
+
+				text.Add(string.Format("Топливо подтвержденное логистами: {0:F2} л.", spentFuelConfirmed));
+			}
+
+
 			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
 		}
 
@@ -136,8 +145,14 @@ namespace Vodovoz
 			decimal litersGived = Entity.Operation?.LitersGived ?? default(decimal);
 			decimal spentFuel = (decimal)RouteListClosing.Car.FuelConsumption
 								 / 100 * RouteListClosing.ActualDistance;
-			
+
 			var text = new List<string>();
+
+			if(RouteListClosing.ConfirmedDistance != 0 && RouteListClosing.ConfirmedDistance != RouteListClosing.ActualDistance) {
+				decimal spentFuelConfirmed = (decimal)RouteListClosing.Car.FuelConsumption / 100 * RouteListClosing.ConfirmedDistance;
+				spentFuel = spentFuelConfirmed;
+			}
+
 			text.Add(string.Format("Итого выдано {0:N2} литров", litersGived));
 			text.Add(string.Format("Баланс после выдачи {0:N2}", FuelBalance + litersGived - spentFuel));
 
@@ -146,17 +161,15 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			if (cashier == null)
-			{
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, Вы не можете выдавать денежные средства, так как некого указывать в качестве кассира.");
-				return false;
-			}
+			Employee cashier;
+			if(!GetCashier(out cashier)) return false;
 
 			if(Entity.Author == null) {
 				Entity.Author = cashier;
 			}
+
 			Entity.LastEditor = cashier;
+
 			Entity.LastEditDate = DateTime.Now;
 
 			if (Entity.FuelCashExpense != null)
@@ -168,14 +181,19 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			var routeList = UoW.GetById<RouteList>(RouteListClosing.Id);
-			if(routeList.FuelGivedDocument == null) {
-				routeList.FuelGivedDocument = UoWGeneric.Root;
-				RouteListClosing.FuelGivedDocument = UoWGeneric.Root;
-			}
-
 			logger.Info ("Сохраняем топливный документ...");
 			UoWGeneric.Save();
+			return true;
+		}
+
+		private bool GetCashier(out Employee cashier)
+		{
+			cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(cashier == null) {
+				MessageDialogWorks.RunErrorDialog(
+					"Ваш пользователь не привязан к действующему сотруднику, Вы не можете выдавать денежные средства, так как некого указывать в качестве кассира.");
+				return false;
+			}
 			return true;
 		}
 
@@ -186,8 +204,15 @@ namespace Vodovoz
 
 		private void OnFuelUpdated()
 		{
+			Employee cashier;
+			if(RouteListClosing.Cashier != null)
+				cashier = RouteListClosing.Cashier;
+			else {
+				GetCashier(out cashier);
+			}
+
 			Entity.UpdateOperation();
-			Entity.UpdateFuelCashExpense(UoW, RouteListClosing.Cashier, RouteListClosing.Id);
+			Entity.UpdateFuelCashExpense(UoW, cashier, RouteListClosing.Id);
 			UpdateResutlInfo();
 			UpdateFuelCashExpenseInfo();
 		}

@@ -18,13 +18,14 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.IsArchive)			.Column ("is_archive");
 			Map(x => x.Photo)				.Column ("photo").CustomSqlType ("BinaryBlob").LazyLoad ();
 			Map(x => x.IsCompanyHavings)	.Column ("is_company_havings");
-			Map(x => x.TypeOfUse)			.Column("type_of_use").CustomType<CarTypeOfUseStringType>();	
-			Map(x => x.MaxVolume)			.Column("max_volume");
-			Map(x => x.MaxWeight)			.Column("max_weight");
-			Map(x => x.MinBottles)			.Column("min_bottles");
-			Map(x => x.MaxBottles)			.Column("max_bottles");
-			Map(x => x.MinRouteAddresses)	.Column("min_route_addresses");
-			Map(x => x.MaxRouteAddresses)	.Column("max_route_addresses");
+			Map(x => x.TypeOfUse)			.Column ("type_of_use").CustomType<CarTypeOfUseStringType>();	
+			Map(x => x.MaxVolume)			.Column ("max_volume");
+			Map(x => x.MaxWeight)			.Column ("max_weight");
+			Map(x => x.MinBottles)			.Column ("min_bottles");
+			Map(x => x.MaxBottles)			.Column ("max_bottles");
+			Map(x => x.MinRouteAddresses)	.Column ("min_route_addresses");
+			Map(x => x.MaxRouteAddresses)	.Column ("max_route_addresses");
+			Map(x => x.IsRaskat)			.Column ("is_raskat");
 
 			References(x => x.Driver)			.Column ("driver_id");
 			References(x => x.FuelType)			.Column ("fuel_type_id");

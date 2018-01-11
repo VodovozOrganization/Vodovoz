@@ -43,7 +43,7 @@ namespace Vodovoz.Additions.Logistic
 					continue;
 				if(point.Latitude.HasValue && point.Longitude.HasValue) {
 					GMapMarker addressMarker = new NumericPointMarker(new PointLatLng((double)point.Latitude, (double)point.Longitude),
-					                                                  NumericPointMarkerType.green_large, orderItem.IndexInRoute + 1);
+					                                                  NumericPointMarkerType.white_large, orderItem.IndexInRoute + 1);
 					var text = point.ShortAddress;
 					addressMarker.ToolTipText = text;
 					overlay.Markers.Add(addressMarker);

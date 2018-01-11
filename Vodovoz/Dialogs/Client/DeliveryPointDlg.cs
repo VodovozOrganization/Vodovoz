@@ -15,6 +15,7 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -70,7 +71,6 @@ namespace Vodovoz
 			ytreeviewResponsiblePersons.ItemsDataSource = Entity.ObservableContacts;
 			ytreeviewResponsiblePersons.Selection.Changed += YtreeviewResponsiblePersons_Selection_Changed;
 
-			commentsview4.UoW = UoW;
 
 			entryPhone.ValidationMode = QSWidgetLib.ValidationType.phone;
 			entryPhone.Binding.AddBinding(Entity, e => e.Phone, w => w.Text).InitializeFromSource();
@@ -107,6 +107,10 @@ namespace Vodovoz
 				: "<span foreground='red'>Не найден на карте.</span>",
 				widget => widget.LabelProp)
 				.InitializeFromSource ();
+			ylabelChangedUser.Binding.AddFuncBinding(Entity,
+				entity => entity.СoordsLastChangeUser != null ? String.Format("Изменено: {0}", entity.СoordsLastChangeUser.Name) : "Никем не изменялись",
+				widget => widget.LabelProp)
+				.InitializeFromSource();
 			ycheckOsmFixed.Binding.AddBinding(Entity, e => e.IsFixedInOsm, w => w.Active).InitializeFromSource();
 			ycheckOsmFixed.Visible = QSMain.User.Admin;
 
@@ -196,8 +200,7 @@ namespace Vodovoz
 				}
 
 				Entity.ManualCoordinates = true;
-				Entity.Latitude = (decimal)newPoint.Lat;
-				Entity.Longitude = (decimal)newPoint.Lng;
+				WriteCoordinates((decimal)newPoint.Lat, (decimal)newPoint.Lng);
 			}
 		}
 
@@ -271,8 +274,7 @@ namespace Vodovoz
 
 				if (!Entity.ManualCoordinates || (Entity.ManualCoordinates && MessageDialogWorks.RunQuestionDialog("Координаты были установлены вручную, заменить их на коордитаты адреса?")))
 				{
-					Entity.Latitude = latitude;
-					Entity.Longitude = longitude;
+					WriteCoordinates(latitude, longitude);
 					Entity.ManualCoordinates = false;
 				}
 			}
@@ -416,8 +418,7 @@ namespace Vodovoz
 
 				if (goodLat && goodLon)
 				{
-					Entity.Latitude  = latitude;
-					Entity.Longitude = longitude;
+					WriteCoordinates(latitude, longitude);
 					error = false;
 					Entity.ManualCoordinates = true;
 				}
@@ -425,6 +426,31 @@ namespace Vodovoz
 			if (error)
 				MessageDialogWorks.RunErrorDialog(
 					"Буфер обмена не содержит координат или содержит неправильные координаты");
+		}
+
+		private void WriteCoordinates(decimal? latitude, decimal? longitude)
+		{
+			if(EqualCoords(Entity.Latitude, latitude)
+			&& EqualCoords(Entity.Longitude, longitude)) {
+				return;
+			}
+
+			Entity.SetСoordinates(latitude, longitude);
+			Entity.СoordsLastChangeUser = UserRepository.GetCurrentUser(UnitOfWorkFactory.CreateWithoutRoot());
+		}
+
+		/// <summary>
+		/// Сравнивает координаты с точностью 6 знаков после запятой
+		/// </summary>
+		/// <returns><c>true</c>, Если координаты равны, <c>false</c> иначе.</returns>
+		private bool EqualCoords(decimal? coord1, decimal? coord2)
+		{
+			if(coord1.HasValue && coord2.HasValue) {
+				decimal CoordDiff = Math.Abs(coord1.Value - coord2.Value);
+				return Math.Round(CoordDiff, 6) == decimal.Zero;
+			}
+
+			return false;
 		}
 	}
 }

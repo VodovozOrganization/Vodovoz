@@ -430,7 +430,7 @@ namespace Vodovoz
 				string color;
 				if(rli.PlanTimeStart == null || rli.PlanTimeEnd == null)
 					color = "grey";
-				else if(rli.PlanTimeEnd.Value + TimeSpan.FromMinutes(rli.TimeOnPoint) > rli.Order.DeliverySchedule.To)
+				else if(rli.PlanTimeEnd.Value + TimeSpan.FromSeconds(rli.TimeOnPoint) > rli.Order.DeliverySchedule.To)
 					color = "red";
 				else if(rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From)
 					color = "blue";
@@ -442,7 +442,7 @@ namespace Vodovoz
 					color = "dark green";
 						
 				return String.Format("<span foreground=\"{2}\">{0:hh\\:mm}-{1:hh\\:mm}</span> ({3} мин.)",
-				                     rli.PlanTimeStart, rli.PlanTimeEnd, color, rli.TimeOnPoint);
+				                     rli.PlanTimeStart, rli.PlanTimeEnd, color, rli.TimeOnPoint/60);
 			}
 
 			return null;
@@ -627,6 +627,11 @@ namespace Vodovoz
 			                         .Where(x => x.DeliverySchedule.To <= ytimeToDelivery.Time)
 			                         .Where(x => x.DeliveryPoint != null)
 			                         .ToList ();
+
+			var outLogisticAreas = ordersAtDay.Where(x => !logisticanDistricts.Any(a => a.Geometry.Contains(x.DeliveryPoint.NetTopologyPoint))).ToList();
+			if(outLogisticAreas.Count > 0)
+				MessageDialogWorks.RunWarningDialog("Обратите внимания координаты точек доставки для следущие заказов, не попадают не в один логистический район: "
+				                                    + String.Join(", ", outLogisticAreas.Select(x => x.Id.ToString())));
 
 			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
 			MainClass.MainWin.ProgressAdd();
@@ -1047,11 +1052,9 @@ namespace Vodovoz
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			logisticanDistricts = uow.GetAll<LogisticsArea>().ToList();
+			logisticanDistricts = LogisticAreaRepository.AreaWithGeometry(uow);
 			foreach(var district in logisticanDistricts)
 			{
-				if(district.Geometry == null)
-					continue;
 				var poligon = new GMapPolygon(
 					district.Geometry.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList()
 					, district.Name);

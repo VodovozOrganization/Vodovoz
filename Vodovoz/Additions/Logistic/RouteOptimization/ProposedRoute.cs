@@ -6,6 +6,9 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
+	/// <summary>
+	/// Предложенный системой оптимизации маршрут.
+	/// </summary>
 	public class ProposedRoute
 	{
 		public List<ProposedRoutePoint> Orders = new List<ProposedRoutePoint>();
@@ -13,6 +16,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public RouteList RealRoute;
 
+		/// <summary>
+		/// Балы полученные при построении этого маршрута.
+		/// </summary>
 		public long RouteCost;
 
 		public ProposedRoute(PossibleTrip trip)
@@ -21,7 +27,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		}
 
 		/// <summary>
-		/// Метод берет последовательность доставки из построенного маршрута и переносит его в маршрутный лист.
+		/// Метод берет последовательность доставки из предложенного маршрута и переносит его в маршрутный лист.
 		/// Переносится только последовательность адресов. Никакие адреса не добавляются и не удаляются.
 		/// Метод нужен для перестройки с учетов времени уже имеющегося МЛ.
 		/// </summary>
@@ -48,6 +54,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		}
 	}
 
+	/// <summary>
+	/// Адреса доставки в имеющемся маршруте. Помимо непосредственно заказа, 
+	/// возвращают еще и рассчетное время приезда на адрес.
+	/// </summary>
 	public class ProposedRoutePoint
 	{
 		public TimeSpan ProposedTimeStart;

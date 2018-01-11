@@ -3,6 +3,10 @@ using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
+
+	/// <summary>
+	/// Класс обратного вызова, для рассчета расстояние без штрафов используется в построении одного маршрута.
+	/// </summary>
 	public class CallbackDistance : NodeEvaluator2
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

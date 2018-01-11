@@ -63,7 +63,10 @@ namespace Vodovoz.Domain.Goods
 
 		double volume;
 
-		[DisplayAttribute (Name = "Объём")]
+		/// <summary>
+		/// Объем измеряемый в квадратных метрах
+		/// </summary>
+		[Display (Name = "Объём")]
 		public virtual double Volume {
 			get { return volume; }
 			set { SetField (ref volume, value, () => Volume);}
@@ -206,7 +209,19 @@ namespace Vodovoz.Domain.Goods
 			get { return noDelivey; }
 			set { SetField(ref noDelivey, value, () => NoDelivey); }
 		}
-			
+
+		#endregion
+
+		#region Рассчетные
+
+		public virtual string CategoryString { get { return Category.GetEnumTitle (); } }
+
+		public virtual string ShortOrFullName{
+			get{
+				return String.IsNullOrWhiteSpace(ShortName) ? Name : ShortName;
+			}
+		}
+
 		#endregion
 
 		public override string ToString()
@@ -217,12 +232,9 @@ namespace Vodovoz.Domain.Goods
 
 		public Nomenclature ()
 		{
-			Name = String.Empty;
-			Model = String.Empty;
 			Category = NomenclatureCategory.water;
 		}
 
-		public virtual string CategoryString { get { return Category.GetEnumTitle (); } }
 
 		public virtual decimal GetPrice (int? itemsCount)
 		{
@@ -286,8 +298,7 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.bottle, NomenclatureCategory.additional, 
 				NomenclatureCategory.equipment, NomenclatureCategory.material, 
 				NomenclatureCategory.spare_parts, NomenclatureCategory.water,
-				NomenclatureCategory.disposableBottleWater, NomenclatureCategory.service,
-				NomenclatureCategory.deposit, NomenclatureCategory.rent
+				NomenclatureCategory.disposableBottleWater, NomenclatureCategory.service
 			};
 		}
 		#endregion

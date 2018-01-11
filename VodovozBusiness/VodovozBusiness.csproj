@@ -58,9 +58,6 @@
     <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <Reference Include="Mono.Posix" />
-    <Reference Include="NLog">
-      <HintPath>..\..\QSProjects\packages\NLog.4.4.7\lib\net40\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="DataAnnotationsExtensions">
       <HintPath>..\..\QSProjects\packages\DataAnnotationsExtensions.5.0.1.20\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
     </Reference>
@@ -109,6 +106,9 @@
     </Reference>
     <Reference Include="Polylines">
       <HintPath>..\packages\Polylines.1.0.0\lib\Polylines.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\..\QSProjects\packages\NLog.4.4.11\lib\net45\NLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -409,11 +409,13 @@
     <Compile Include="Domain\Client\Comments.cs" />
     <Compile Include="Domain\Client\CommentsGroups.cs" />
     <Compile Include="Domain\Client\CommentsTemplates.cs" />
-	<Compile Include="Domain\Logistic\ScheduleRestrictedDistrict.cs" />
-    <Compile Include="Domain\Logistic\ScheduleRestriction.cs" />
-    <Compile Include="HibernateMapping\Logistic\ScheduleRestrictedDistrictMap.cs" />
-    <Compile Include="HibernateMapping\Logistic\ScheduleRestrictionMap.cs" />
-   </ItemGroup>
+    <Compile Include="Repositories\Logistics\FuelTypeRepository.cs" />
+    <Compile Include="Domain\Sale\ScheduleRestrictedDistrict.cs" />
+    <Compile Include="Domain\Sale\ScheduleRestriction.cs" />
+    <Compile Include="HibernateMapping\Sale\ScheduleRestrictedDistrictMap.cs" />
+    <Compile Include="HibernateMapping\Sale\ScheduleRestrictionMap.cs" />
+    <Compile Include="Repositories\Sale\ScheduleRestrictionRepository.cs" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Domain\" />
@@ -427,6 +429,9 @@
     <Folder Include="Repositories\Client\" />
     <Folder Include="Tools\" />
     <Folder Include="Tools\Logistic\" />
+    <Folder Include="Repositories\Sale\" />
+    <Folder Include="Domain\Sale\" />
+    <Folder Include="HibernateMapping\Sale\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

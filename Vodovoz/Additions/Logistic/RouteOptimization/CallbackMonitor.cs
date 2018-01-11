@@ -5,6 +5,9 @@ using QSProjectsLib;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
+	/// <summary>
+	/// Класс позволяющий мониторить состояние процесс оптимизации
+	/// </summary>
 	public class CallbackMonitor : SearchMonitor
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -15,7 +18,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public CallbackMonitor(Solver s, ProgressBar bar, TextBuffer buf, SolutionCollector best) : base(s)
 		{
 			progress = bar;
-			//solver = s;
 			buffer = buf;
 			bestSol = best;
 		}
@@ -27,6 +29,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			return val;
 		}
 
+		/// <summary>
+		/// Нужен только для отображения текущего состояния поиска решений.
+		/// </summary>
 		public override void PeriodicCheck()
 		{
 			if(buffer != null) {
@@ -49,6 +54,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			base.EnterSearch();
 		}
 
+		/// <summary>
+		/// Логируем стоимость нового решения.
+		/// </summary>
 		public override bool AcceptSolution()
 		{
 			var val = base.AcceptSolution();

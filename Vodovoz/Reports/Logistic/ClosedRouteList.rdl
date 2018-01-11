@@ -46,6 +46,22 @@
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="TextboxPrintDate">
+        <Top>7.4pt</Top>
+        <Left>0pt</Left>
+        <Height>12.00pt</Height>
+        <Width>162.06pt</Width>
+        <Value>={?Print_date}</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Left</TextAlign>
+        </Style>
+        <ZIndex >1</ZIndex>
+      </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
@@ -83,32 +99,32 @@
             <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>159.2pt</Width>
+            <Width>128.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>0.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>39.4pt</Width>
+            <Width>37.0pt</Width>
           </TableColumn>
           <!--table_column-->
           <TableColumn>
-            <Width>111.2pt</Width>
+            <Width>97.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>105.9pt</Width>
+            <Width>90.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.8pt</Width>
+            <Width>48.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>39.1pt</Width>
+            <Width>35.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>41.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.9pt</Width>
+            <Width>43.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1356,8 +1372,8 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>1.6pt</Left>
-        <Top>33.7pt</Top>
+        <Left>0.0pt</Left>
+        <Top>32.9pt</Top>
       </Table>
       <Textbox Name="Textbox5">
         <Height>25.53pt</Height>
@@ -1573,7 +1589,9 @@ NULL AS Comment,
 route_list_addresses.status AS Status,
  #orders.bottles_return AS EmptyBottles,
  route_list_addresses.bottles_returned AS EmptyBottles,
- route_list_addresses.total_cash AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
+ route_list_addresses.total_cash AS Total,
+CONCAT_WS(' ', IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address), 
+	IF(route_list_addresses.status = 'Transfered',CONCAT_WS('','(Перенесен в МЛ №',TransferedAddresses.route_list_id,')'),'')) AS Address,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ' - ', eq_qry.cnt, 'шт')), IF((orders.to_client_text IS NOT NULL) AND (eq_qry.name IS NOT NULL), "; ", ""), orders.to_client_text) AS ToClient,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ' - ', pickup_eq_qry.cnt, 'шт')), orders.from_client_text) AS FromClient,
 #IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit
@@ -1585,6 +1603,12 @@ FROM route_list_addresses
 LEFT JOIN orders ON orders.id = route_list_addresses.order_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
 LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+LEFT JOIN 
+	(SELECT
+    route_list_addresses.id,
+    route_list_addresses.route_list_id    
+    FROM route_list_addresses) as TransferedAddresses
+ON TransferedAddresses.id = route_list_addresses.transfered_to_id
 
 LEFT JOIN ( 
 SELECT order_id, (count * deposit_sum * IF(payment_type = 'ToClient', -1, 1)) AS deposit 
@@ -1760,6 +1784,11 @@ WHERE
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Print_date">
+      <DataType>String</DataType>
+      <Nullable>False</Nullable>
+      <AllowBlank>False</AllowBlank>
     </ReportParameter>
   </ReportParameters>
   <DataSources>

@@ -46,6 +46,22 @@
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="TextboxPrintDate">
+        <Top>7.4pt</Top>
+        <Left>0pt</Left>
+        <Height>12.00pt</Height>
+        <Width>162.06pt</Width>
+        <Value>={?Print_date}</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Left</TextAlign>
+        </Style>
+        <ZIndex >1</ZIndex>
+      </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
@@ -87,7 +103,7 @@
             <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>193.4pt</Width>
+            <Width>142.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.0pt</Width>
@@ -97,7 +113,7 @@
           </TableColumn>
           <!--table_column-->
           <TableColumn>
-            <Width>135.2pt</Width>
+            <Width>118.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>51.8pt</Width>
@@ -109,7 +125,7 @@
             <Width>43pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.4pt</Width>
+            <Width>40.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1400,7 +1416,7 @@
           <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox72" >
+      <Textbox Name="Textbox72">
         <Height>26.31pt</Height>
         <Width>145.14pt</Width>
         <Value>="Планируемое растояние\n" + Format(First({plan_distance}, 'RouteList'), "N2") + " км."</Value>
@@ -1425,7 +1441,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="RouteList">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 driver.name AS DriverName, driver.last_name AS DriverLastname, driver_phone.number AS DriverPhone, 
@@ -1451,7 +1467,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="DriverName">
           <DataField>DriverName</DataField>
           <TypeName>System.String</TypeName>
@@ -1527,7 +1543,8 @@ route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId,
 orders.daily_number_1c, route_list_addresses.need_to_reload AS Reloaded,
 CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
 CONCAT(DATE_FORMAT(route_list_addresses.plan_time_start, '%H:%i'),'-', DATE_FORMAT(route_list_addresses.plan_time_end, '%H:%i')) AS PlanTime,
-orders.bottles_return AS EmptyBottles, IF(orders.payment_type = 'cash', orders.sum_to_receive, 0) AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
+orders.bottles_return AS EmptyBottles, IF(orders.payment_type = 'cash', orders.sum_to_receive, 0) AS Total, 
+CONCAT_WS(' ', IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address),IF(route_list_addresses.status = 'Transfered',CONCAT_WS('','(Перенесен в МЛ №',TransferedAddresses.route_list_id,')'),'')) AS Address,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ':', eq_qry.cnt)), IF((orders.to_client_text IS NOT NULL) AND (eq_qry.name IS NOT NULL), "; ", ""), orders.to_client_text) AS ToClient,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ':', pickup_eq_qry.cnt)), orders.from_client_text) AS FromClient,
 #IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit,
@@ -1540,6 +1557,12 @@ FROM route_list_addresses
 LEFT JOIN orders ON orders.id = route_list_addresses.order_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
 LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+LEFT JOIN 
+	(SELECT
+    route_list_addresses.id,
+    route_list_addresses.route_list_id    
+    FROM route_list_addresses) as TransferedAddresses
+ON TransferedAddresses.id = route_list_addresses.transfered_to_id
 
 LEFT JOIN ( 
 SELECT order_id, (count * deposit_sum * IF(payment_type = 'ToClient', -1, 1)) AS deposit 
@@ -1660,6 +1683,11 @@ ORDER BY order_in_route;
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Print_date">
+      <DataType>String</DataType>
+      <Nullable>False</Nullable>
+      <AllowBlank>False</AllowBlank>
     </ReportParameter>
   </ReportParameters>
   <DataSources>

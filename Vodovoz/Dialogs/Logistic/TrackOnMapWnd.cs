@@ -497,7 +497,7 @@ namespace Dialogs.Logistic
 					}
 				}
 
-				var recalculatedTrackResponse = OsrmMain.GetRoute(pointsToRecalculate, false, true);
+				var recalculatedTrackResponse = OsrmMain.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
 				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
 				var decodedPoints = Polyline.DecodePolyline(recalculatedTrack.RouteGeometry);
 				var pointsRecalculated = decodedPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
@@ -520,7 +520,7 @@ namespace Dialogs.Logistic
 			pointsToBase.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
 			pointsToBase.Add(pointsToRecalculate.First());
 
-			var recalculatedToBaseResponse = OsrmMain.GetRoute(pointsToBase, false, true);
+			var recalculatedToBaseResponse = OsrmMain.GetRoute(pointsToBase, false, GeometryOverview.Full);
 			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
 			var decodedToBase = Polyline.DecodePolyline(recalculatedToBase.RouteGeometry);
 			var pointsRecalculatedToBase = decodedToBase.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();

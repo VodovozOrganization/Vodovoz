@@ -123,8 +123,7 @@ FROM
     cars ON route_lists.car_id = cars.id
 WHERE
     (route_lists.`date` BETWEEN @start_date AND @end_date)
-        AND cars.is_company_havings = 1
-        AND cars.type_of_use = 'Largus' 
+        AND ((cars.is_company_havings = 1 AND cars.type_of_use = 'Largus') OR cars.is_raskat = 1)
 GROUP BY route_lists.id
 ORDER BY driver_name</CommandText>
         <QueryParameters>

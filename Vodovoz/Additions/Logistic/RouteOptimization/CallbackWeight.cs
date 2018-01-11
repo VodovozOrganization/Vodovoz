@@ -3,6 +3,9 @@ using Google.OrTools.ConstraintSolver;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
+	/// <summary>
+	/// Класс обратного вызова, возвращает вес груза в заказе в килограммах
+	/// </summary>
 	public class CallbackWeight : NodeEvaluator2
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

@@ -187,14 +187,6 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref fuelOutlayedOperation, value, () => FuelOutlayedOperation); }
 		}
 
-		private FuelDocument fuelGivedDocument;
-
-		[Display(Name = "Документ выдачи топлива")]
-		public virtual FuelDocument FuelGivedDocument {
-			get { return fuelGivedDocument; }
-			set { SetField(ref fuelGivedDocument, value, () => FuelGivedDocument); }
-		}
-
 		private bool differencesConfirmed;
 
 		[Display(Name = "Расхождения подтверждены")]
@@ -244,6 +236,35 @@ namespace Vodovoz.Domain.Logistic
 				}
 				return observableAddresses;
 			}
+		}
+
+		IList<FuelDocument> fuelDocuments = new List<FuelDocument>();
+
+		[Display(Name = "Документы выдачи топлива")]
+		public virtual IList<FuelDocument> FuelDocuments {
+			get { return fuelDocuments; }
+			set { SetField(ref fuelDocuments, value, () => FuelDocuments); }
+		}
+
+		GenericObservableList<FuelDocument> observableFuelDocuments;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<FuelDocument> ObservableFuelDocuments {
+			get {
+				if(observableFuelDocuments == null) {
+					observableFuelDocuments = new GenericObservableList<FuelDocument>(fuelDocuments);
+				}
+				return observableFuelDocuments;
+			}
+		}
+
+		private bool normalWage;
+
+		/// <summary>
+		/// Расчет ЗП по нормальной ставке, вне зависимости от того какой тип ЗП стоит у водителя.
+		/// </summary>
+		public virtual bool NormalWage {
+			get { return normalWage; }
+			set { SetField(ref normalWage, value, () => NormalWage); }
 		}
 
 		private WagesMovementOperations driverWageOperation;
@@ -308,6 +329,24 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref printed, value, () => Printed); }
 		}
 
+		string mileageComment;
+
+		[Display(Name = "Комментарий к километражу")]
+		public virtual string MileageComment
+		{
+			get { return mileageComment; }
+			set { SetField(ref mileageComment, value, () => MileageComment);}
+		}
+
+		bool mileageCheck;
+
+		[Display(Name = "Проверка километража")]
+		public virtual bool MileageCheck
+		{
+			get { return mileageCheck; }
+			set { SetField(ref mileageCheck, value, () => MileageCheck);}
+		}
+
 		#endregion
 
 		#region readonly Свойства
@@ -335,11 +374,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal MoneyToReturn {
 			get {
-				decimal payedForFuel = 0;
-				if(FuelGivedDocument != null && FuelGivedDocument.PayedForFuel.HasValue)
-					payedForFuel = FuelGivedDocument.PayedForFuel.Value;
+				decimal AllPayedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue).Select(x => x.PayedForFuel.Value).Sum();
 
-				return Total - payedForFuel;
+				return Total - AllPayedForFuel;
 			}
 		}
 
@@ -427,6 +464,20 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual void CheckFuelDocumentOrder()
+		{
+			for(int i = 0; i < FuelDocuments.Count; i++) {
+				if(FuelDocuments[i] == null) {
+					FuelDocuments.RemoveAt(i);
+					i--;
+					continue;
+				}
+
+				if(FuelDocuments[i].RouteList.Id != i)
+					FuelDocuments[i].RouteList.Id = i;
+			}
+		}
+
 		private void SetNullToObservableAddresses()
 		{
 			if(observableAddresses == null)
@@ -498,10 +549,11 @@ namespace Vodovoz.Domain.Logistic
 			return closed;
 		}
 
-		public virtual void ConfirmMileage()
+		public virtual void ConfirmMileage(IUnitOfWork uow)
 		{
 			Status = RouteListStatus.Closed;
 			ClosingDate = DateTime.Now;
+			Cashier = EmployeeRepository.GetEmployeeForCurrentUser(uow);
 		}
 
 		public virtual void ChangeStatus(RouteListStatus newStatus)
@@ -532,7 +584,16 @@ namespace Vodovoz.Domain.Logistic
 					Status = RouteListStatus.New;
 				else
 					throw new NotImplementedException();
+			} else if(newStatus == RouteListStatus.OnClosing) {
+				if(Status == RouteListStatus.Closed) {
+					Status = newStatus;
+				}
 			}
+		}
+
+		public virtual void RecalculateAllWages()
+		{
+			Addresses.ToList().ForEach(x => x.RecalculateWages());
 		}
 
 		#endregion
@@ -640,13 +701,12 @@ namespace Vodovoz.Domain.Logistic
 					result.Add(operation);
 			}
 
-			//FIXME запуск оборудования - временный фикс
-			//FIXME Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
-			if(addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
-				throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
+			////FIXME Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
+			//if(addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
+				//throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
 
-			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments)
-				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Equipment.Nomenclature.Category))) {
+			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Where(x => x.Equipment != null)
+			        .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Equipment.Nomenclature.Category))) {
 				var operation = orderEquipment.UpdateCounterpartyOperation();
 				if(operation != null)
 					result.Add(operation);
@@ -890,94 +950,37 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string[] UpdateCashOperations(ref Income cashIncome, ref Expense cashExpense)
 		{
 			var messages = new List<string>();
-			cashIncome = Repository.Cash.CashRepository.GetIncomeByRouteList(UoW, this.Id);
-			cashExpense = Repository.Cash.CashRepository.GetExpenseByRouteListId(UoW, this.Id);
-			var oldCashOrder = Repository.Cash.CashRepository.CurrentRouteListCash(UoW, this.Id);
-			var isManual = this.IsManualAccounting;
-			var totalSum = Total - oldCashOrder;
-			if(isManual) {
-				if(totalSum > 0) {
-					cashIncome = new Income {
+			var currentRouteListCash = Repository.Cash.CashRepository.CurrentRouteListCash(UoW, this.Id);
+			var different = Total - currentRouteListCash;
+			if(different == 0M) {
+				return messages.ToArray();
+			}
+			if(different > 0) {
+				cashIncome = new Income {
 						IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(UoW),
 						TypeOperation = IncomeType.DriverReport,
 						Date = DateTime.Now,
 						Casher = cashier,
 						Employee = Driver,
 						Description = $"Закрытие МЛ №{Id} от {Date:d}",
-						Money = Math.Round(totalSum, 0, MidpointRounding.AwayFromZero),
+						Money = Math.Round(different, 0, MidpointRounding.AwayFromZero),
 						RouteListClosing = this
 					};
-					messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
-				} else {
-					cashExpense = new Expense {
+				messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
+			}else {
+				cashExpense = new Expense {
 						ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(UoW),
 						TypeOperation = ExpenseType.Expense,
 						Date = DateTime.Now,
 						Casher = cashier,
 						Employee = Driver,
 						Description = $"Закрытие МЛ #{Id} от {Date:d}",
-						Money = Math.Round(-totalSum, 0, MidpointRounding.AwayFromZero),
+						Money = Math.Round(-different, 0, MidpointRounding.AwayFromZero),
 						RouteListClosing = this
 					};
-					messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
-				}
-			} else {
-				if(Total > 0) {
-					if(cashIncome == null) {
-						cashIncome = new Income {
-							IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(UoW),
-							TypeOperation = IncomeType.DriverReport,
-							Date = DateTime.Now,
-							Casher = cashier,
-							Employee = Driver,
-							Description = $"Закрытие МЛ №{Id} от {Date:d}",
-							Money = Math.Round(Total, 0, MidpointRounding.AwayFromZero)
-						};
-						messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
-					} else {
-						var newSum = Math.Round(Total, 0, MidpointRounding.AwayFromZero);
-						if(cashIncome.Money != newSum) {
-							cashIncome.Casher = cashier;
-							messages.Add(String.Format("В приходном ордере №{0} изменилась сумма на {1:C0}({2::+#;-#})",
-														 cashIncome.Id, newSum, newSum - cashIncome.Money));
-							cashIncome.Money = newSum;
-						}
-					}
-					cashIncome.RouteListClosing = this;
-					if(cashExpense != null) {
-						messages.Add(String.Format("Расходный ордер №{0} на сумму {1:C0} был удалён.", cashExpense.Id, cashExpense.Money));
-						UoW.Delete(cashExpense);
-					}
-				} else {
-					if(cashExpense == null) {
-						cashExpense = new Expense {
-							ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(UoW),
-							TypeOperation = ExpenseType.Expense,
-							Date = DateTime.Now,
-							Casher = cashier,
-							Employee = Driver,
-							Description = $"Закрытие МЛ #{Id} от {Date:d}",
-							Money = Math.Round(-Total, 0, MidpointRounding.AwayFromZero)
-						};
-						messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
-					} else {
-						var newSum = Math.Round(-Total, 0, MidpointRounding.AwayFromZero);
-						if(cashExpense.Money != newSum) {
-							cashExpense.Casher = cashier;
-							messages.Add(String.Format("В расходном ордере №{0} изменилась сумма на {1:C0}({2::+#;-#})",
-								 cashExpense.Id, newSum, newSum - cashExpense.Money));
-							cashExpense.Money = newSum;
-						}
-					}
-					cashExpense.RouteListClosing = this;
-					if(cashIncome != null) {
-						messages.Add(String.Format("Приходный ордер №{0} на сумму {1:C0} был удалён.", cashIncome.Id, cashIncome.Money));
-						UoW.Delete(cashIncome);
-					}
-				}
+				messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
 			}
 			return messages.ToArray();
-
 		}
 
 		public virtual string[] ManualCashOperations(ref Income cashIncome, ref Expense cashExpense, decimal casheInput)
@@ -1071,8 +1074,14 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void UpdateFuelOperation()
 		{
 			//Необхомо для того что бы случайно не пересчитать операцию расхода топлива. После массовой смены расхода.
-			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6))
+			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6)) {
 				return;
+			}
+
+			//Необходимо для того, чтобы расход топлива не пересчитывался после подтверждения логистами
+			if(Status == RouteListStatus.Closed){
+				return;
+			}
 
 			if(ActualDistance == 0) {
 				if(FuelOutlayedOperation != null) {
@@ -1225,15 +1234,15 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Для логистических расчетов
 
-		public virtual TimeSpan FirstAddressTime {
+		public virtual TimeSpan? FirstAddressTime {
 			get {
-				return Addresses.First().Order.DeliverySchedule.From;
+				return Addresses.FirstOrDefault()?.Order.DeliverySchedule.From;
 			}
 		}
 
 		public virtual void RecalculatePlanTime(RouteGeometryCalculator sputnikCache)
 		{
-			TimeSpan minTime;
+			TimeSpan minTime = new TimeSpan();;
 			//Расчет минимального времени к которому нужно\можно подъехать.
 			for(int ix = 0; ix < Addresses.Count; ix++) {
 
@@ -1249,10 +1258,10 @@ namespace Vodovoz.Domain.Logistic
 
 				Addresses[ix].PlanTimeStart = minTime > Addresses[ix].Order.DeliverySchedule.From ? minTime : Addresses[ix].Order.DeliverySchedule.From;
 
-				minTime += TimeSpan.FromMinutes(Addresses[ix].TimeOnPoint);
+				minTime += TimeSpan.FromSeconds(Addresses[ix].TimeOnPoint);
 			}
 			//Расчет максимального времени до которого нужно подъехать.
-			TimeSpan maxTime;
+			TimeSpan maxTime = new TimeSpan();
 			for(int ix = Addresses.Count - 1; ix >= 0; ix--) {
 
 				if(ix == Addresses.Count - 1) {
@@ -1267,14 +1276,14 @@ namespace Vodovoz.Domain.Logistic
 				if(maxTime > Addresses[ix].Order.DeliverySchedule.To)
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
 
-				maxTime -= TimeSpan.FromMinutes(Addresses[ix].TimeOnPoint);
+				maxTime -= TimeSpan.FromSeconds(Addresses[ix].TimeOnPoint);
 
 				if(maxTime < Addresses[ix].PlanTimeStart) { //Расписание испорчено, успеть нельзя. Пытаемся его более менее адекватно отобразить.
 					TimeSpan beforeMin = new TimeSpan(1, 0, 0, 0);
 					if(ix > 0)
 						beforeMin = Addresses[ix - 1].PlanTimeStart.Value
 													 + TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint))
-													 + TimeSpan.FromMinutes(Addresses[ix - 1].TimeOnPoint);
+						                             + TimeSpan.FromSeconds(Addresses[ix - 1].TimeOnPoint);
 					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From) {
 						Addresses[ix].PlanTimeStart = beforeMin < maxTime ? maxTime : beforeMin;
 					}
@@ -1296,7 +1305,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
 								   .Select(x => new Tuple<TimeSpan, RouteList>(
-									   x.FirstAddressTime - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.Addresses.First().Order.DeliveryPoint)),
+				                       x.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.Addresses.First().Order.DeliveryPoint)),
 												 x
 									  ))
 								   .OrderByDescending(x => x.Item1);

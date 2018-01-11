@@ -23,6 +23,14 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref name, value, () => Name); }
 		}
 
+		private bool isCity;
+
+		[Display(Name = "Черта города")]
+		public virtual bool IsCity {
+			get { return isCity; }
+			set { SetField(ref isCity, value, () => IsCity); }
+		}
+
 		private IGeometry geometry;
 
 		[Display(Name = "Полигон района")]

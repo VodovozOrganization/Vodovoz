@@ -126,6 +126,7 @@ namespace Vodovoz
 			this.entrySearch.Changed += new global::System.EventHandler(this.OnEntrySearchChanged);
 			this.buttonClean.Clicked += new global::System.EventHandler(this.OnButtonCleanClicked);
 			this.treeRouteLists.RowActivated += new global::Gtk.RowActivatedHandler(this.OnRouteListActivated);
+			this.treeRouteLists.ButtonReleaseEvent += new global::Gtk.ButtonReleaseEventHandler(this.OnTreeRouteListsButtonReleaseEvent);
 			this.buttonCloseRouteList.Clicked += new global::System.EventHandler(this.OnButtonCloseRouteListClicked);
 		}
 	}

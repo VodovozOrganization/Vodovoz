@@ -112,8 +112,8 @@ namespace Vodovoz.Domain.Documents
 			get { return Nomenclature != null ? Nomenclature.Name : ""; }
 		}
 
-		public virtual string EquipmentString { 
-			get { return Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "-"; } 
+		public virtual string EquipmentString {
+			get { return Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "-"; }
 		}
 
 		public virtual string CullingCategoryString {

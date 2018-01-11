@@ -67,24 +67,12 @@
     <Reference Include="System" />
     <Reference Include="Mono.Posix" />
     <Reference Include="System.Data" />
-    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <Package>gtk-sharp-2.0</Package>
-    </Reference>
-    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <Package>gtk-sharp-2.0</Package>
-    </Reference>
-    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <Package>glib-sharp-2.0</Package>
-    </Reference>
-    <Reference Include="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <Package>glade-sharp-2.0</Package>
-    </Reference>
-    <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <Package>gtk-sharp-2.0</Package>
-    </Reference>
-    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <Package>gtk-sharp-2.0</Package>
-    </Reference>
+    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Xml" />
     <Reference Include="FluentNHibernate">
@@ -104,7 +92,7 @@
       <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.dll</HintPath>
     </Reference>
     <Reference Condition=" '$(TargetOS)' == 'Win' " Include="Google.OrTools">
-      <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.x86.dll</HintPath>
+      <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
       <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.Protobuf.dll</HintPath>
@@ -263,6 +251,7 @@
     <EmbeddedResource Include="icons\buttons\car.png" />
     <EmbeddedResource Include="icons\buttons\sort-ascending.png" />
     <EmbeddedResource Include="icons\toolbar\employees.png" />
+    <EmbeddedResource Include="icons\map\points\white_large.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -708,10 +697,24 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CommentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.NuanceDlg.cs" />
     <Compile Include="Representations\CommentsTemplatesVM.cs" />
+    <Compile Include="ReportsParameters\MastersReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersReport.cs" />
+    <Compile Include="Dialogs\Logistic\LogisticsAreaDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.LogisticsAreaDlg.cs" />
+    <Compile Include="Dialogs\Sale\DeliveryPriceDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.DeliveryPriceDlg.cs" />
+    <Compile Include="ReportsParameters\Sales\SuburbWaterPriceReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SuburbWaterPriceReport.cs" />
+    <Compile Include="ServiceDialogs\Database\CalculateDistanceToPointsDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.CalculateDistanceToPointsDlg.cs" />
+    <Compile Include="ReportsParameters\OrderIncorrectPrices.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrderIncorrectPrices.cs" />
 	<Compile Include="Dialogs\Logistic\ScheduleRestrictedDistrictsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.ScheduleRestrictedDistrictsDlg.cs" />
     <Compile Include="ViewWidgets\CounterpartyDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.CounterpartyDocumentsView.cs" />
+    <Compile Include="ServiceDialogs\Database\OrdersWithoutBottlesOperationDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.OrdersWithoutBottlesOperationDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -859,6 +862,8 @@
     <Folder Include="ServiceDialogs\Database\" />
     <Folder Include="Additions\Logistic\RouteOptimization\" />
     <Folder Include="Reports\ServiceCenter\" />
+    <Folder Include="Dialogs\Sale\" />
+    <Folder Include="ReportsParameters\Sales\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -999,9 +1004,6 @@
     <None Include="Reports\Employees\WagesOperations.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Orders\EquipmentReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Reports\Employees\ForwarderWage.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -1107,12 +1109,27 @@
     <None Include="Reports\Logistic\MileageReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\ServiceCenter\MastersReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\SuburbWaterPrice.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\OrdersIncorrectPrices.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\ServiceCenter\EquipmentReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
         <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild" />
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild">
+            <inheritsSet />
+            <inheritsScope />
+          </DotNetNamingPolicy>
         </Policies>
         <Deployment.LinuxDeployData generateScript="False" />
       </Properties>

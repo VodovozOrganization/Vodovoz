@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
+  <PageHeader>
+    <Height>33.4pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+    <ReportItems>
+      <Textbox Name="Textbox2">
+        <Height>19.57pt</Height>
+        <Width>560.84pt</Width>
+        <Value>Отчет по некорректным ценам</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>13.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+          <PaddingTop>0mm</PaddingTop>
+          <PaddingLeft>0mm</PaddingLeft>
+          <PaddingBottom>0mm</PaddingBottom>
+          <PaddingRight>0mm</PaddingRight>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+  </PageHeader>
+  <Body>
+    <Height>67.8pt</Height>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>Orders</DataSetName>
+        <NoRows>Нет расхождений</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>35.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>103.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>141.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>58.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>51.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>48.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>52.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>316.1pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>25.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>№ п/п</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Клиент</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Адрес</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Дата</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Кол-во 
+бутылей</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Цена</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>Цена за
+1 шт.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Комментарий</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>=Fields!CounterpartyName.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>=Fields!AddressShort.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>=Format(Convert.ToDateTime({DeliveryDate}), "dd/MM/yyyy")</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>=Fields!BottleCount.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>=Fields!Price.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>=Fields!PricePerOne.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>=Fields!comment.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>13.0pt</Top>
+      </Table>
+    </ReportItems>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataSets>
+    <DataSet Name="Orders">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	MainOrders.id,
+	counterparty.name as CounterpartyName,
+    delivery_points.compiled_address_short as AddressShort,
+	MainOrders.delivery_date as DeliveryDate,
+    BottlesTable.bottle_count as BottleCount,
+    BottlesTable.smallest_price as Price,
+    BottlesTable.minPrice as PricePerOne,
+    counterparty.comment as comment
+FROM
+	orders as MainOrders
+    #Подсчет кол-ва всех бутылей и наименьшей цены в заказе 
+    LEFT JOIN 
+		(
+			SELECT
+				order_id,
+                Nom2.category,
+				SUM(count) as bottle_count,
+                MIN(price) as smallest_price,
+                (
+					# Нахождение минимальной цены по количеству
+					SELECT 
+						nomenclature_price.price
+					FROM
+						nomenclature_price
+					WHERE 
+						nomenclature_price.nomenclature_id = 1 /* Цены выбираются по номенклатуре Семиозерье 19л (Id = 1) */ 
+						AND nomenclature_price.min_count &lt;= SUM(count)
+					ORDER BY nomenclature_price.price ASC LIMIT 1 
+				) as minPrice
+			FROM order_items as SumOrderItems
+				LEFT JOIN nomenclature as Nom2 ON SumOrderItems.nomenclature_id = Nom2.id
+			WHERE Nom2.category = 'water'
+            GROUP BY SumOrderItems.order_id
+        ) as BottlesTable ON BottlesTable.order_id = MainOrders.id
+    LEFT JOIN counterparty ON MainOrders.client_id = counterparty.id
+    LEFT JOIN delivery_points ON MainOrders.delivery_point_id = delivery_points.id
+WHERE
+	#Находит только те записи у которых цена ниже чем задана по прайсу
+	BottlesTable.smallest_price &lt; BottlesTable.minPrice
+	AND BottlesTable.smallest_price &gt; 0
+	AND BottlesTable.category = 'water'
+	AND (MainOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
+    AND (@DateFrom = '' OR MainOrders.delivery_date &gt;= @DateFrom) AND (@DateTo = '' OR MainOrders.delivery_date &lt;= @DateTo)
+    
+    #Нахождение только последнего по дате заказа
+    AND NOT EXISTS (
+		SELECT 
+			*
+        FROM 
+			orders as SubOrders            
+            LEFT JOIN 
+				(
+					SELECT
+						order_id,
+						Nom2.category,
+						SUM(count) as bottle_count,
+						MIN(price) as smallest_price,
+						(
+							# Нахождение минимальной цены по количеству
+							SELECT 
+								nomenclature_price.price
+							FROM
+								nomenclature_price
+							WHERE 
+								nomenclature_price.nomenclature_id = 1 /* Цены выбираются по номенклатуре Семиозерье 19л (Id = 1) */ 
+								AND nomenclature_price.min_count &lt;= SUM(count)
+							ORDER BY nomenclature_price.price ASC LIMIT 1 
+						) as minPrice
+					FROM order_items as SumOrderItems
+						LEFT JOIN nomenclature as Nom2 ON SumOrderItems.nomenclature_id = Nom2.id
+					WHERE Nom2.category = 'water'
+					GROUP BY SumOrderItems.order_id
+				) as SubBottlesTable ON SubBottlesTable.order_id = SubOrders.id
+        WHERE 
+			MainOrders.delivery_point_id = SubOrders.delivery_point_id
+			AND SubOrders.delivery_date &gt; MainOrders.delivery_date
+            #Находит только те записи у которых цена ниже чем задана по прайсу
+            AND SubBottlesTable.smallest_price &lt; SubBottlesTable.minPrice
+			AND SubBottlesTable.smallest_price &gt; 0
+			AND SubBottlesTable.category = 'water'
+			AND (SubOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
+    )
+GROUP BY delivery_point_id ORDER BY DeliveryDate DESC, BottlesTable.smallest_price</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="DateFrom">
+            <Value>=Parameters!dateFrom</Value>
+          </QueryParameter>
+          <QueryParameter Name="DateTo">
+            <Value>=Parameters!dateTo</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="CounterpartyName">
+          <DataField>CounterpartyName</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="AddressShort">
+          <DataField>AddressShort</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="DeliveryDate">
+          <DataField>DeliveryDate</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="BottleCount">
+          <DataField>BottleCount</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="Price">
+          <DataField>Price</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="PricePerOne">
+          <DataField>PricePerOne</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="dateFrom">
+      <DataType>System.String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="dateTo">
+      <DataType>System.String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

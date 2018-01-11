@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.ColumnConfig;
 using Gtk;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSProjectsLib;
@@ -12,7 +11,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repository;
-using NHibernate.Criterion;
 
 namespace Vodovoz
 {
@@ -42,9 +40,11 @@ namespace Vodovoz
 			ytreeEquipment.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<ReceptionEquipmentItemNode> ()
 				.AddColumn ("Номенклатура").AddTextRenderer (node => node.Name)
 				.AddColumn ("Серийный номер").AddTextRenderer (node => node.Serial)
-				.AddColumn ("Кол-во")
-				.AddToggleRenderer (node => node.Returned, false)						
+				.AddColumn("Забирали").AddNumericRenderer(node => node.NeedReceptionCount)
+				.AddColumn ("Получено ")
+				.AddToggleRenderer (node => node.Returned, false)
 				.AddNumericRenderer (node => node.Amount, false)
+				.Editing(new Adjustment(0, 0, 10000, 1, 10, 10))
 				.AddColumn("Номер заявки на сервис")
 				.AddTextRenderer(
 					node => node.ServiceClaim != null
@@ -126,6 +126,7 @@ namespace Vodovoz
 						Projections.Constant(false)
 					)).WithAlias (() => resultAlias.IsNew)
 					.Select(() => orderEquipmentAlias.ServiceClaim).WithAlias(() => resultAlias.ServiceClaim)
+			        .Select(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.NeedReceptionCount)
 				)
 				.TransformUsing (Transformers.AliasToBean<ReceptionEquipmentItemNode> ())
 				.List<ReceptionEquipmentItemNode> ();
@@ -222,6 +223,8 @@ namespace Vodovoz
 		public int NomenclatureId{ get; set; }
 		public string Name{get;set;}
 
+		public int NeedReceptionCount { get; set; }
+
 		int amount;
 
 		public virtual int Amount {
@@ -266,7 +269,7 @@ namespace Vodovoz
 				return Amount > 0;
 			}
 			set {
-				Amount = value ? 1 : 0;
+				Amount = value ? NeedReceptionCount : 0;
 			}
 		}
 	}

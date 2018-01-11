@@ -364,7 +364,7 @@ WHERE
     @wage_balance:=@wage_balance + IF(wages_movement_operations.money IS NULL,
         0,
         wages_movement_operations.money) AS balance,
-    wages_movement_operations.operation_time AS date,
+   IF(cash_expense.id IS NOT NULL, cash_expense.date, wages_movement_operations.operation_time) AS date,
     wages_movement_operations.operation_type AS type,
     wages_movement_operations.money AS money,
     CASE

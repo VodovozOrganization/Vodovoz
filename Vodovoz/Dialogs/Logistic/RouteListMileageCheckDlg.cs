@@ -17,6 +17,7 @@ namespace Vodovoz
 		#region Поля
 
 		private bool editing = true;
+		private bool editingAdmin = true;
 
 		List<RouteListKeepingItemNode> items;
 
@@ -26,6 +27,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			editing = QSMain.User.Permissions ["logistican"];
+			editingAdmin = QSMain.User.Permissions["logistic_admin"];
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = String.Format("Контроль за километражом маршрутного листа №{0}",Entity.Id);
 			ConfigureDlg ();
@@ -52,7 +54,7 @@ namespace Vodovoz
 			referenceLogistican.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 			referenceLogistican.Sensitive = editing;
 
-			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);
+			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoWGeneric);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
 			speccomboShift.Sensitive = editing;
 
@@ -63,7 +65,8 @@ namespace Vodovoz
 			datePickerDate.Sensitive = editing;
 
 			yspinConfirmedDistance.Binding.AddBinding(Entity, rl => rl.ConfirmedDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
-			yspinConfirmedDistance.Sensitive = editing;
+			yspinConfirmedDistance.Sensitive = editing && Entity.Status != RouteListStatus.Closed;
+			buttonConfirm.Sensitive = editing && Entity.Status != RouteListStatus.Closed;
 
 			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
 				.AddColumn("Заказ")
@@ -93,8 +96,17 @@ namespace Vodovoz
 			} );
 
 			ytreeviewAddresses.ItemsDataSource = items;
+			entryMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Text).InitializeFromSource();
 
-			buttonConfirm.Sensitive = buttonCloseRouteList.Sensitive = editing;
+
+
+			if(Entity.Status == RouteListStatus.MileageCheck){
+				buttonCloseRouteList.Sensitive = editing;
+			}else if(editingAdmin){
+				buttonCloseRouteList.Sensitive = true;
+			}
+			else
+				buttonCloseRouteList.Sensitive = false;
 		}
 
 		#endregion
@@ -131,12 +143,11 @@ namespace Vodovoz
 				string fineReason = "Перевыплата топлива";
 				var fine = new Fine();
 				fine.Fill(redundantPayForFuel, Entity, fineReason, DateTime.Today, Entity.Driver);
-				fine.UpdateWageOperations(UoW );
-				UoW.Save(fine);
+				fine.UpdateWageOperations(UoWGeneric);
+				UoWGeneric.Save(fine);
 			}
-			else if (Entity.ConfirmedDistance > Entity.ActualDistance)
+			else if(Entity.ConfirmedDistance > Entity.ActualDistance)
 			{
-				if (MessageDialogWorks.RunQuestionDialog ("Вы указали больший километраж, чем при сдаче в кассе. Пересчитать баланс водителя по топливу?"))
 					Entity.RecalculateFuelOutlay();
 			}
 
@@ -144,7 +155,7 @@ namespace Vodovoz
 			buttonConfirm.Sensitive = false;
 			buttonCloseRouteList.Sensitive = false;
 
-			Entity.ConfirmMileage();
+			Entity.ConfirmMileage(UoWGeneric);
 		}
 
 		protected void OnButtonOpenMapClicked (object sender, EventArgs e)

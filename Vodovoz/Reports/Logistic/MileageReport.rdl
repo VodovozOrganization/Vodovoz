@@ -15,14 +15,14 @@
     <Height>43.0pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
-    <ReportItems >
+    <ReportItems>
       <Textbox Name="Textbox24">
         <Height>31.55pt</Height>
         <Width>755.19pt</Width>
         <Value>="Отчёт по километражу"
 + Iif(
-	({?start_date} = {?end_date}), (" за " + {?start_date}),
-	(Iif({?start_date} = -1, "", " с " + {?start_date}) + Iif({?end_date} = -1, "", " до " + {?end_date}))
+	({?start_date} = {?end_date}), (" за " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy")),
+	(Iif({?start_date} = -1, "", " с " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy")) + Iif({?end_date} = -1, "", " до " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy")))
 )</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
@@ -41,8 +41,8 @@
   </PageHeader>
   <Body>
     <Height>79.5pt</Height>
-    <Columns >1</Columns>
-    <ReportItems >
+    <Columns>1</Columns>
+    <ReportItems>
       <Table Name="Table1">
         <DataSetName>data</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -62,28 +62,37 @@
             <Width>57.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>57.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65.3pt</Width>
+            <Width>59.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.7pt</Width>
+            <Width>48.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>77.7pt</Width>
+            <Width>44.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>87.1pt</Width>
+            <Width>37.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>42.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>46.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>77.0pt</Width>
+            <Width>39.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>49.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>46.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>130.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -141,6 +150,22 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>Водитель</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox5">
                       <Value>Закрыл</Value>
                       <Style>
@@ -174,7 +199,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>Кол-во выполненных адресов</Value>
+                      <Value>Кол-во выпол- ненных адресов</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -191,7 +216,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>Планируемый километраж</Value>
+                      <Value>Плани- руемый кило- метраж</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -200,6 +225,24 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>Про- верка километ- ража</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -207,7 +250,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>Пересчитанный километраж</Value>
+                      <Value>Пересчи- танный кило- метраж</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -216,6 +259,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -223,7 +267,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>Километраж по треку</Value>
+                      <Value>Кило- метраж по треку</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -232,6 +276,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -239,7 +284,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>Километраж по кассе</Value>
+                      <Value>Кило- метраж по кассе</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -255,8 +300,25 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>Подтверждённый километраж</Value>
+                      <Value>Подтверж- дённый кило- метраж</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>Комментарий к километражу</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -320,6 +382,20 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>={driver}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox16">
                       <Value>=Fields!cashier.Value</Value>
                       <CanGrow>true</CanGrow>
@@ -366,6 +442,20 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>=Iif({mileage_check} = true, "V", "")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -422,11 +512,25 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>={mileage_comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
+        <Left>0.8pt</Left>
         <Top>15.2pt</Top>
       </Table>
     </ReportItems>
@@ -449,17 +553,18 @@
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
-  <DataSets >
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSets>
     <DataSet Name="data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
 	route_lists.id,
 	route_lists.date,
 	route_lists.closing_date,
-	employees.last_name as cashier,
+    drivers.last_name as driver,
+	cashiers.last_name as cashier,
 	(select
 		count(id)
 	from
@@ -474,22 +579,30 @@
 		route_list_addresses.route_list_id = route_lists.id
 	and route_list_addresses.status = 'Completed') as addresses_completed,
 	route_lists.plan_distance,
+    route_lists.mileage_check,
 	route_lists.recalculated_distance,
 	truncate((tracks.distance + tracks.distance_to_base),2) as tracked_distance,
 	route_lists.actual_distance,
-	route_lists.confirmed_distance
+	route_lists.confirmed_distance,
+    route_lists.mileage_comment
 from
 	route_lists
 left join
-	employees on employees.id = route_lists.cashier_id
+	employees as cashiers on cashiers.id = route_lists.cashier_id
+left join
+	employees as drivers on drivers.id = route_lists.driver_id
 left join
 	tracks on tracks.route_list_id = route_lists.id
+left join
+	cars on cars.id = route_lists.car_id
 where
 	route_lists.status = 'Closed'
+	and (cars.type_of_use is null or cars.type_of_use &lt;&gt; 'Truck')
+	and drivers.visiting_master = false
 	and (@start_date = -1 or route_lists.closing_date &gt;= @start_date)
 	and (@end_date = -1 or route_lists.closing_date &lt; date_add(@end_date, interval 1 day))
 order by
-	route_lists.closing_date</CommandText>
+	route_lists.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -499,7 +612,7 @@ order by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -511,6 +624,10 @@ order by
         <Field Name="closing_date">
           <DataField>closing_date</DataField>
           <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="driver">
+          <DataField>driver</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="cashier">
           <DataField>cashier</DataField>
@@ -528,6 +645,10 @@ order by
           <DataField>plan_distance</DataField>
           <TypeName>System.Double</TypeName>
         </Field>
+        <Field Name="mileage_check">
+          <DataField>mileage_check</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
         <Field Name="recalculated_distance">
           <DataField>recalculated_distance</DataField>
           <TypeName>System.Double</TypeName>
@@ -544,10 +665,14 @@ order by
           <DataField>confirmed_distance</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="mileage_comment">
+          <DataField>mileage_comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -575,7 +700,7 @@ order by
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

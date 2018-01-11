@@ -186,12 +186,15 @@ namespace Vodovoz.Additions.Logistic
 			#if DEBUG
 			Console.WriteLine(RdlText);
 			#endif
+			var date = DateTime.Now;
+			string printDatestr = String.Format($"Дата печати: {date.Day}.{date.Month}.{date.Year} {date.Hour}:{date.Minute}");
 
 			return new ReportInfo {
 				Title = String.Format ("Маршрутный лист № {0}", routeList.Id),
 				Path = TempFile,
 				Parameters = new Dictionary<string, object> {
-					{ "RouteListId", routeList.Id }
+					{ "RouteListId", routeList.Id },
+					{ "Print_date", printDatestr}
 				}
 			};
 		}

@@ -5,7 +5,6 @@ using QSReport;
 
 namespace Vodovoz.ReportsParameters
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class LastOrderByDeliveryPointReport : Gtk.Bin, IOrmDialog, IParametersWidget
 	{
 		public LastOrderByDeliveryPointReport()

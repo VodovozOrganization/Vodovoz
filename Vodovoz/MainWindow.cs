@@ -78,10 +78,10 @@ public partial class MainWindow : Gtk.Window
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
 			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions["logistican"];
-		ActionStock.Sensitive = QSMain.User.Permissions["store_manage"] 
-			|| QSMain.User.Permissions["store_worker"] 
-			|| QSMain.User.Permissions["store_production"] 
-			|| QSMain.User.Permissions["store_office"] 
+		ActionStock.Sensitive = QSMain.User.Permissions["store_manage"]
+			|| QSMain.User.Permissions["store_worker"]
+			|| QSMain.User.Permissions["store_production"]
+			|| QSMain.User.Permissions["store_office"]
 			|| QSMain.User.Permissions["store_equipment"]
 			|| QSMain.User.Permissions["store_vartemyagi"];
 		if(QSMain.User.Permissions["store_production"] || QSMain.User.Permissions["store_vartemyagi"]) // TODO: Вот поэтому группы доступа стоило бы создавать и настраивать в каком-нибудь диалоге, а не хардкодить. @Дима
@@ -786,6 +786,16 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
+
+	protected void OnActionOrderIncorrectPricesReportActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.OrderIncorrectPrices();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+
 	protected void OnActionAddressDuplicetesActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -871,6 +881,40 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+
+	protected void OnActionMastersReportActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.MastersReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+
+	protected void OnActionSuburbWaterPriceActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.Sales.SuburbWaterPriceReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+
+	protected void OnActionDistanceFromCenterActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<CalculateDistanceToPointsDlg>(),
+			() => new CalculateDistanceToPointsDlg()
+		);
+	}
+
+	protected void OnActionOrdersWithoutBottlesOperationActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<OrdersWithoutBottlesOperationDlg>(),
+			() => new OrdersWithoutBottlesOperationDlg()
 		);
 	}
 }

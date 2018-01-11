@@ -30,14 +30,6 @@ namespace Vodovoz
 			LoginDialog.SetDefaultNames ("Vodovoz");
 			LoginDialog.DefaultLogin = "user";
 			LoginDialog.DefaultServer = "vod-srv.qsolution.ru";
-			LoginDialog.DemoServer = "demo.qsolution.ru";
-			LoginDialog.DemoMessage = "Для подключения к демострационному серверу используйте следующие настройки:\n" +
-			"\n" +
-			"<b>Сервер:</b> demo.qsolution.ru\n" +
-			"<b>Пользователь:</b> demo\n" +
-			"<b>Пароль:</b> demo\n" +
-			"\n" +
-			"Для установки собственного сервера обратитесь к документации.";
 			LoginDialog.UpdateFromGConf ();
 
 			ResponseType LoginResult;

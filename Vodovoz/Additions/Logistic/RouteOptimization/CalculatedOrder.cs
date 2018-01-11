@@ -5,9 +5,19 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
+
+	/// <summary>
+	/// Класс используется для указания адресов маршрута и хранения рассчитанных
+	/// на первоначальном этапе оптимизации итоговых значений заказа. Таких как 
+	/// количество бутылей, вес, объем.
+	/// </summary>
 	public class CalculatedOrder
 	{
 		public Order Order;
+
+		/// <summary>
+		/// Ссылка на существующий маршрутный лист, для механизма достраивания маршрутов. См. README.md
+		/// </summary>
 		public RouteList ExistRoute;
 
 		public int Bootles;
@@ -27,9 +37,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			
 			Bootles = order.OrderItems.Where(x => x.Nomenclature.Category == Domain.Goods.NomenclatureCategory.water)
 							 .Sum(x => x.Count);
-			Weight = order.OrderItems.Sum(x => x.Nomenclature.Weight * x.Count);
+			Weight = order.OrderItems.Sum(x => x.Nomenclature.Weight * x.Count)
+			              + order.OrderEquipments.Where(x => x.Direction == Direction.Deliver).Sum(x => x.Nomenclature.Weight * x.Count);
 
-			Volume = order.OrderItems.Sum(x => x.Nomenclature.Volume * x.Count);
+			Volume = order.OrderItems.Sum(x => x.Nomenclature.Volume * x.Count)
+			              + order.OrderEquipments.Where(x => x.Direction == Direction.Deliver).Sum(x => x.Nomenclature.Volume * x.Count);
 		}
 	}
 }

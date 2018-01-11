@@ -12,6 +12,7 @@ using QSTDI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 
 namespace Vodovoz
@@ -219,6 +220,10 @@ namespace Vodovoz
 						.Adjustment(new Adjustment(0, -100000, 100000, 100, 100, 1))
 				.AddColumn ("Комментарий\nкассира")
 				.AddTextRenderer (node => node.CashierComment).EditedEvent (CommentCellEdited).Editable()
+				.AddColumn("Вод. телефон").HeaderAlignment(0.5f)
+					.AddTextRenderer()
+						.AddSetter((cell, node) => cell.Markup = FromClientString(node))
+						.AddTextRenderer(node => node.Order.CommentManager)
 				.AddColumn("  З/П\nводителя").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.DriverWage)						
 				.AddColumn (" доплата\nводителя").HeaderAlignment (0.5f)
@@ -232,18 +237,12 @@ namespace Vodovoz
 					//	.AddSetter ((cell, node) => cell.Editable = node.WithForwarder && node.IsDelivered())
 					//	.AddSetter ((cell, node) => cell.Sensitive = node.WithForwarder)
 					//	.Adjustment (new Adjustment (0, -100000, 100000, 100, 100, 1))
-
-				.AddColumn("Оборудование\n     клиенту").HeaderAlignment(0.5f)
+				.AddColumn("Доп. оборудование\n     клиенту").HeaderAlignment(0.5f)
 					.AddTextRenderer()
-						.AddSetter((cell,node)=>cell.Markup=node.Order.ToClientText)
-				.AddColumn("Оборудование\n от клиента").HeaderAlignment(0.5f)
+						.AddSetter((cell,node)=>cell.Markup=ToClientString(node))
+				.AddColumn("Доп. оборуд.\n от клиента").HeaderAlignment(0.5f)
 					.AddTextRenderer()
-						.AddSetter((cell, node) => cell.Markup = node.Order.FromClientText)
-
-			   .AddColumn("Вод. телефон").HeaderAlignment(0.5f)
-					.AddTextRenderer()
-						.AddTextRenderer(node => node.Order.DriverCallType.ToString())
-
+						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
@@ -318,6 +317,9 @@ namespace Vodovoz
 
 		private void EmptyBottleCellSetter(Gamma.GtkWidgets.Cells.NodeCellRendererSpin<RouteListItem> cell, RouteListItem node)
 		{
+			if(!ytreeviewItems.Sensitive) {
+				cell.Weight = 700; 
+			}
 			if(node.DriverBottlesReturned.HasValue)
 			{
 				if(node.BottlesReturned == node.DriverBottlesReturned)
@@ -337,6 +339,93 @@ namespace Vodovoz
 				? "<b>{0}</b>({1})" 
 				: "<b>{0}</b>";
 			return String.Format(formatString, actual, planned-actual);
+		}
+
+		public string ToClientString(RouteListItem item)
+		{
+			var stringParts = new List<string>();
+			if(item.PlannedCoolersToClient > 0) {
+				var formatString = item.CoolersToClient < item.PlannedCoolersToClient
+						? "Кулеры:<b>{0}</b>({1})"
+						: "Кулеры:<b>{0}</b>";
+				var coolerString = String.Format(formatString, item.CoolersToClient, item.PlannedCoolersToClient - item.CoolersToClient);
+				stringParts.Add(coolerString);
+			}
+			if(item.PlannedPumpsToClient > 0) {
+				var formatString = item.PumpsToClient < item.PlannedPumpsToClient
+						? "Помпы:<b>{0}</b>({1})"
+						: "Помпы:<b>{0}</b>";
+				var coolerString = String.Format(formatString,
+					item.PumpsToClient,
+					item.PlannedPumpsToClient - item.PumpsToClient
+				);
+				stringParts.Add(coolerString);
+			}
+			if(item.UncategorisedEquipmentToClient > 0) {
+				var formatString = item.UncategorisedEquipmentToClient < item.PlannedUncategorisedEquipmentToClient
+						? "Другое:<b>{0}</b>({1})"
+						: "Другое:<b>{0}</b>";
+				var coolerString = String.Format(formatString,
+					item.UncategorisedEquipmentToClient,
+					item.PlannedUncategorisedEquipmentToClient - item.UncategorisedEquipmentToClient
+				);
+				stringParts.Add(coolerString);
+			}
+
+			foreach(var orderItem in item.Order.OrderItems) {
+				if(orderItem.Nomenclature.Category == NomenclatureCategory.additional) {
+					stringParts.Add(orderItem.IsDelivered
+									? string.Format("{0}:<b>{1}</b>", orderItem.Nomenclature.Name, orderItem.ActualCount)
+									: string.Format("{0}:{1}({2:-0})", orderItem.Nomenclature.Name, orderItem.ActualCount, orderItem.Count - orderItem.ActualCount));
+				}
+
+			}
+
+			//Оборудование не из товаров
+			var equipList = item.Order.OrderEquipments
+					.Where(x => x.OrderItem == null
+			               && x.Nomenclature.Category != NomenclatureCategory.water
+			               && x.Direction == Domain.Orders.Direction.Deliver);
+			foreach(OrderEquipment orderEquip in equipList) {
+				stringParts.Add(string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.Count));
+			}
+			return String.Join(",", stringParts);
+		}	
+
+		public string FromClientString(RouteListItem item)
+		{
+			var stringParts = new List<string>();
+
+			if(item.PlannedCoolersFromClient > 0) {
+				var formatString = item.CoolersFromClient < item.PlannedCoolersFromClient
+						? "Кулеры:<b>{0}</b>({1})"
+						: "Кулеры:<b>{0}</b>";
+				var coolerString = String.Format(formatString,
+					item.CoolersFromClient,
+					item.PlannedCoolersFromClient - item.CoolersFromClient
+				);
+				stringParts.Add(coolerString);
+			}
+			if(item.PlannedPumpsFromClient > 0) {
+				var formatString = item.PumpsFromClient < item.PlannedPumpsFromClient
+						? "Помпы:<b>{0}</b>({1})"
+						: "Помпы:<b>{0}</b>";
+				var pumpString = String.Format(formatString,
+					item.PumpsFromClient,
+					item.PlannedPumpsFromClient - item.PumpsFromClient
+				);
+				stringParts.Add(pumpString);
+			}
+
+			//Оборудование не из товаров
+			var equipList = item.Order.OrderEquipments
+			                    .Where(x => x.OrderItem == null
+			                           && x.Nomenclature.Category != NomenclatureCategory.water
+			                           && x.Direction == Domain.Orders.Direction.PickUp);
+			foreach(var orderEquip in equipList) {
+				stringParts.Add(string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.Count));
+			}
+			return String.Join(",", stringParts);
 		}
 
 		public RouteListClosingItemsView ()

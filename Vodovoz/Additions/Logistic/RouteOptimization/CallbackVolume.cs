@@ -3,6 +3,9 @@ using Google.OrTools.ConstraintSolver;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
+	/// <summary>
+	/// Класс обратного вызова, возвращает объем груза в заказе в кубических децеметрах
+	/// </summary>
 	public class CallbackVolume : NodeEvaluator2
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

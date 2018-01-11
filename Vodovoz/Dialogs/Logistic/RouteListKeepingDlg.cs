@@ -69,6 +69,10 @@ namespace Vodovoz
 		List<RouteListKeepingItemNode> items;
 
 		public void ConfigureDlg(){
+			Entity.ObservableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
+			Entity.ObservableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
+			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;;
+
 			referenceCar.SubjectType = typeof (Car);
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = logisticanEditing;
@@ -139,6 +143,8 @@ namespace Vodovoz
 				.AddColumn("Комментарий")
 					.AddTextRenderer(node => node.Comment)
 					.Editable(allEditing)
+				.AddColumn("Переносы")
+					.AddTextRenderer(node => node.Transferred)
 				.RowCells ()
 					.AddSetter<CellRenderer> ((cell, node) => cell.CellBackgroundGdk = node.RowColor)
 				.Finish();
@@ -165,7 +171,46 @@ namespace Vodovoz
 				phones = "Нет телефонов";
 			labelPhonesInfo.Markup = phones;
 
+			//Заполняем информацию о бутылях
+			UpdateBottlesSummaryInfo();
+
+
 			UpdateNodes();
+		}
+
+		/// <summary>
+		/// Обновляет и выводит в диалог информацию о бутылях в маршрутном листе
+		/// </summary>
+		private void UpdateBottlesSummaryInfo()
+		{
+			string bottles = null;
+			int completedBottles = Entity.Addresses.Where(x => x.Status == RouteListItemStatus.Completed).Sum(x => x.Order.TotalWaterBottles);
+			int canceledBottles = Entity.Addresses.Where(
+				  x => x.Status == RouteListItemStatus.Canceled
+					|| x.Status == RouteListItemStatus.Overdue
+					|| x.Status == RouteListItemStatus.Transfered
+				).Sum(x => x.Order.TotalWaterBottles);
+			int enrouteBottles = Entity.Addresses.Where(x => x.Status == RouteListItemStatus.EnRoute).Sum(x => x.Order.TotalWaterBottles);
+			bottles = String.Format("<b>Всего 19л. бутылей в МЛ:</b>\n");
+			bottles += String.Format("Выполнено: <b>{0}</b>\n", completedBottles);
+			bottles += String.Format(" Отменено: <b>{0}</b>\n", canceledBottles);
+			bottles += String.Format(" Осталось: <b>{0}</b>\n", enrouteBottles);
+			labelBottleInfo.Markup = bottles;
+		}
+
+		void ObservableAddresses_ElementAdded(object aList, int[] aIdx)
+		{
+			UpdateBottlesSummaryInfo();
+		}
+
+		void ObservableAddresses_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			UpdateBottlesSummaryInfo();
+		}
+
+		void ObservableAddresses_ElementChanged(object aList, int[] aIdx)
+		{
+			UpdateBottlesSummaryInfo();
 		}
 
 		public string GetLastCallTime(DateTime? lastCall)
@@ -203,18 +248,17 @@ namespace Vodovoz
 
 		public void OnSelectionChanged(object sender, EventArgs args){
 			buttonSetStatusComplete	.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() > 0;
-			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1;
+			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1 && QSMain.User.Permissions["logistic_changedeliverytime"];
 		}
 
 		void ReferenceForwarder_Changed (object sender, EventArgs e)
 		{
 			var newForwarder = Entity.Forwarder;
 
-			if (Entity.Status == RouteListStatus.OnClosing 
-			    && ((previousForwarder == null && newForwarder != null)
-			        || (previousForwarder != null && newForwarder == null)))
-				foreach (var item in Entity.Addresses)
-					item.RecalculateWages ();
+			if(Entity.Status == RouteListStatus.OnClosing
+				&& ((previousForwarder == null && newForwarder != null)
+					|| (previousForwarder != null && newForwarder == null)))
+				Entity.RecalculateAllWages();
 
 			previousForwarder = Entity.Forwarder;
 		}
@@ -293,6 +337,9 @@ namespace Vodovoz
 
 		protected void OnButtonChangeDeliveryTimeClicked (object sender, EventArgs e)
 		{
+			if(!QSMain.User.Permissions["logistic_changedeliverytime"]) {
+				return;
+			}
 			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
 			if (selectedObjects.Count() != 1)
 				return;
@@ -338,22 +385,6 @@ namespace Vodovoz
 		protected void OnButtonMadeCallClicked (object sender, EventArgs e)
 		{
 			Entity.LastCallTime = DateTime.Now;
-		}
-
-		protected void OnYtreeviewAddressesRowActivated(object o, RowActivatedArgs args) 	// Метод вызывает по даблклику на статус адреса окно с сообщением, от кого и кому передан. @Дима
-		{
-			var checkedItems = ytreeviewAddresses.GetSelectedObjects();
-			if(checkedItems.Count() != 1) 													// Проверка на всякий случай, чтоб не даблкликнули по нескольким объектам. @Дима
-			{
-				return;
-			}
-			var node = checkedItems.Cast<RouteListKeepingItemNode>().First();
-			if(args.Column.Title == "Статус" &&
-				   node.Status == RouteListItemStatus.Transfered) {
-				MessageDialogWorks.RunInfoDialog(node.RouteListItem.GetTransferText(node.RouteListItem));
-				return;
-			}
-			//		OnClosingItemActivated(o, args);
 		}
 
 		protected void OnButtonRetriveEnRouteClicked(object sender, EventArgs e)
@@ -421,7 +452,11 @@ namespace Vodovoz
 			}
 		}
 
-
+		public string Transferred {
+			get{
+				return RouteListItem.GetTransferText(RouteListItem);
+			}
+		}
 
 		RouteListItem routeListItem;
 

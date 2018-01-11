@@ -13,11 +13,26 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Tools.Logistic
 {
+	/// <summary>
+	/// Класс для массового расчета расстояний между точками.
+	/// В конструктор класса можно передать список точек доставки, класс автоматически в фоновом
+	/// режим начнет рассчитывать матрицу расстояний между каждой точкой.
+	/// </summary>
 	public class ExtDistanceCalculator : IDistanceCalculator
 	{
 		#region Настройки
+		/// <summary>
+		/// Это расстояние вернется если произошла ошибка получения реального расстояния.
+		/// Не возвращаем 0, потому что спутник часто возвращал ошибки. И маршруты строились к этим точкам очень плохие.
+		/// </summary>
 		public static int DistanceFalsePenality = 100000;
+		/// <summary>
+		/// Сохраняем кеш в базу данных при накоплении указанного количетва подсчитанных расстояний.
+		/// </summary>
 		public static int SaveBy = 500;
+		/// <summary>
+		/// Количество потоков получеления расстояний от внешней службы.
+		/// </summary>
 		public static int ThreadCount = 5;
 		#endregion
 
@@ -32,13 +47,14 @@ namespace Vodovoz.Tools.Logistic
 		long totalMeters, totalSec;
 
 		//Для работы с потоками
+		//FIXME рекомендую переписать работу с потоками на использование специализированных коллекций(очередей). Узанал о существовании после реализации.
+		// Поэтому код относящийся к потоку сильно не задокументирован. Его лучше переписать на более простой.
 		long[] hashes;
 		Dictionary<long, int> hashPos;
 		Thread[] Threads;
 		List<WayHash> inWorkWays = new List<WayHash>();
 		WayHash? waitDistance;
 		NextPos NextTheadsPos = new NextPos();
-
 
 		int unsavedItems = 0;
 
@@ -53,6 +69,10 @@ namespace Vodovoz.Tools.Logistic
 
 		public List<WayHash> ErrorWays = new List<WayHash>();
 
+		/// <param name="provider">Используемый провайдер данных</param>
+		/// <param name="points">Точки для первоначального заполенения из базы.</param>
+		/// <param name="buffer">Буфер для отображения статистики</param>
+		/// <param name="multiThreadLoad">Если <c>true</c> включается моногопоточная загрузка.</param>
 		public ExtDistanceCalculator(DistanceProvider provider, DeliveryPoint[] points, Gtk.TextBuffer buffer, bool multiThreadLoad = true)
 		{
 			UoW.Session.SetBatchSize(SaveBy);
@@ -102,6 +122,9 @@ namespace Vodovoz.Tools.Logistic
 				MultiThreadLoad = false;
 		}
 
+		/// <summary>
+		/// Метод запускает многопоточное скачивание.
+		/// </summary>
 		private void RunPreCalculation()
 		{
 			startLoadTime = DateTime.Now;
@@ -113,13 +136,25 @@ namespace Vodovoz.Tools.Logistic
 			}
 		}
 
+		/// <summary>
+		/// Метод содержащий работу одного многопоточного воркера.
+		/// </summary>
+		/// <remarks>
+		/// В методе есть некоторое усложение. Воркеры по мимо того что они перебирают матрицу по порядку
+		/// еще должны иметь возможность выполнить одни из запросов вне очереди. Это именно та позиция которую
+		/// сейчас ожидает основной поток. Чтобы основной поток не останавливался, на долго, если ему понадобилась позиция
+		/// в конце матрицы.
+		/// </remarks>
 		private void DoBackground()
 		{
-			while(waitDistance != null || NextTheadsPos.FromIx < hashes.Length)
+			while(true)
 			{
 				long fromHash, toHash;
 
 				lock(NextTheadsPos) {
+					if(NextTheadsPos.FromIx >= hashes.Length && waitDistance == null)
+						break;
+
 					if(waitDistance != null) {
 						fromHash = waitDistance.Value.FromHash;
 						toHash = waitDistance.Value.ToHash;
@@ -128,7 +163,6 @@ namespace Vodovoz.Tools.Logistic
 					}
 					else
 					{
-						//exist = matrix[NextTheadsPos.FromIx, NextTheadsPos.ToIx] != null;
 						fromHash = hashes[NextTheadsPos.FromIx];
 						toHash = hashes[NextTheadsPos.ToIx];
 						if(NextTheadsPos.ToIx >= hashes.Length - 1) {
@@ -155,12 +189,18 @@ namespace Vodovoz.Tools.Logistic
 			});
 		}
 
+		/// <summary>
+		/// Метод отключающий режим многопоточного скачивания, при завершении работы всех потоков.
+		/// </summary>
 		private void CheckAndDisableThreads()
 		{
 			if(Threads.All(x => !x.IsAlive))
 				MultiThreadLoad = false;
 		}
 
+		/// <summary>
+		/// Метод добавляющий заначения в словари.
+		/// </summary>
 		private void AddNewCacheDistance(CachedDistance distance)
 		{
 			if(!cache.ContainsKey(distance.FromGeoHash))
@@ -171,6 +211,9 @@ namespace Vodovoz.Tools.Logistic
 			totalSec += distance.TravelTimeSec;
 		}
 
+		/// <summary>
+		/// Почучаем расстояния в метрах между точками
+		/// </summary>
 		public int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
@@ -178,18 +221,27 @@ namespace Vodovoz.Tools.Logistic
 			return DistanceMeter(fromHash, toHash);
 		}
 
+		/// <summary>
+		/// Расстояние в метрах от базы до точки.
+		/// </summary>
 		public int DistanceFromBaseMeter(DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
 			return DistanceMeter(CachedDistance.BaseHash, toHash);
 		}
 
+		/// <summary>
+		/// Расстояние в метрах от точки до базы.
+		/// </summary>
 		public int DistanceToBaseMeter(DeliveryPoint fromDP)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
 			return DistanceMeter(fromHash, CachedDistance.BaseHash);
 		}
 
+		/// <summary>
+		/// Всемя пути в секундах между точками
+		/// </summary>
 		public int TimeSec(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
@@ -197,12 +249,18 @@ namespace Vodovoz.Tools.Logistic
 			return TimeSec(fromHash, toHash);
 		}
 
+		/// <summary>
+		/// Время пути в секундах от базы до точки
+		/// </summary>
 		public int TimeFromBaseSec(DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
 			return TimeSec(CachedDistance.BaseHash, toHash);
 		}
 
+		/// <summary>
+		/// Время пути в секундах от точки до базы.
+		/// </summary>
 		public int TimeToBaseSec(DeliveryPoint fromDP)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
@@ -274,7 +332,7 @@ namespace Vodovoz.Tools.Logistic
 			bool ok = false;
 			CachedDistance cachedValue = null;
 			if(Provider == DistanceProvider.Osrm) {
-				var result = OsrmMain.GetRoute(points, false, false);
+				var result = OsrmMain.GetRoute(points, false, GeometryOverview.False);
 				ok = result?.Code == "Ok";
 				if(ok && result.Routes.Any()) {
 					cachedValue = new CachedDistance {
@@ -316,6 +374,9 @@ namespace Vodovoz.Tools.Logistic
 			return null;
 		}
 
+		/// <summary>
+		/// Сохраняем накопленные рассчитанные значения в базу.
+		/// </summary>
 		public void FlushCache()
 		{
 			if(unsavedItems <= 0)
@@ -349,6 +410,9 @@ namespace Vodovoz.Tools.Logistic
 		}
 	}
 
+	/// <summary>
+	/// Структура храняшая 2 хеша кординат точки отправления и точки прибытия.
+	/// </summary>
 	public struct WayHash
 	{
 		public long FromHash;

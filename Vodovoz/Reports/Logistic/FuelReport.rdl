@@ -43,9 +43,6 @@
             <Width>163.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>61.2pt</Width>
-          </TableColumn>
-          <TableColumn>
             <Width>48.6pt</Width>
           </TableColumn>
           <TableColumn>
@@ -142,25 +139,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value>Смена</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>Расст.</Value>
+                      <Value>Подтв. км.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -357,22 +337,6 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox14">
-                      <Value>=Fields!shift.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox15">
                       <Value>=Fields!distance.Value</Value>
                       <CanGrow>true</CanGrow>
@@ -548,21 +512,6 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox41">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>
-                      </Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox42">
                       <Style>
                         <BorderStyle>
@@ -678,7 +627,7 @@
       <Textbox Name="Textbox20">
         <Height>22.59pt</Height>
         <Width>815.89pt</Width>
-        <Value>="Отчет по бензину с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " до " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") + " по машине " + First({reg_number}, "Fuel")</Value>
+        <Value>="Отчет по бензину с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " до " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") +Iif({?car_id} &lt;&gt; -1, " по машине " + First({reg_number}, "Fuel"), " по водителю" + First({driver}, "Fuel"))  </Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>12.00pt</Top>
@@ -728,44 +677,136 @@
     <DataSet Name="Fuel">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    main.*,
-    @fuel_balance:=@fuel_balance - main.liters_outlayed + main.liters_gived AS balance
-FROM
-    (SELECT 
-        DATE(fuel_operations.date) AS date,
-            route_lists.id AS route_list_id,
-            route_lists.date AS route_list_date,
-            CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
-            delivery_shift.name AS shift,
-            route_lists.confirmed_distance AS distance,
-            SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
-            SUM(fuel_operations.liters_gived) AS liters_gived,
-            SUM(fuel_documents.payed_for_fuel) AS payed_for_fuel,
-            IFNULL(fuel_operations.fuel_type_id,0) AS fuel_type,
-            SUM(IFNULL(fuel_documents.fuel_coupons, 0)) AS liters_coupons,
-            cars.reg_number AS reg_number
-    FROM
-        (SELECT 
-        SUM(@fuel_balance:=@fuel_balance + IF(internal.liters_gived IS NULL, 0, internal.liters_gived) - IF(internal.liters_outlayed IS NULL, 0, internal.liters_outlayed)) AS rows_first
-    FROM
-        fuel_operations AS internal, (SELECT @fuel_balance:=0) t
-    WHERE
-        internal.date &lt; @start_date
-            AND (IF(@driver_id = -1, internal.car_id = @car_id, internal.driver_id = @driver_id))) t1, fuel_operations
-    LEFT JOIN fuel_documents ON fuel_documents.fuel_operation_id = fuel_operations.id
-    LEFT JOIN route_lists ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-        OR route_lists.fuel_gived_document_id = fuel_documents.id
-    LEFT JOIN delivery_shift ON route_lists.delivery_shift_id = delivery_shift.id
-    LEFT JOIN employees ON route_lists.driver_id = employees.id
-    LEFT JOIN cars ON employees.id = cars.driver_id
-    WHERE
-        fuel_operations.date &gt;= @start_date
-            AND fuel_operations.date &lt;= @end_date
-	AND ((@driver_id = -1 AND fuel_operations.car_id = @car_id)
-	  OR (@driver_id &lt;&gt; -1 AND fuel_operations.driver_id = @driver_id)
-	  OR (@car_id = -1 AND @driver_id = -1))
-    GROUP BY route_list_id) AS main</CommandText>
+        <CommandText>SELECT
+	TableRows.*,
+	ROUND((@fuel_balance:=@fuel_balance - TableRows.liters_outlayed + TableRows.liters_gived),2) AS balance
+FROM 
+	#Выбирается баланс на начало выбранного периода
+	(SELECT
+		(@fuel_balance:=
+		# Выдано:
+			(SELECT
+				IFNULL(SUM(fuel_operations_in.liters_gived), 0) as balance
+			FROM
+				(    
+					SELECT 
+						fuel_operations.id,
+						fuel_operations.date,
+						fuel_operations.driver_id,
+						fuel_operations.liters_gived,
+						fuel_operations.car_id,
+						route_lists.id as route_listID,
+						route_lists.date as route_listDate,
+						route_lists.driver_id as rl_driver
+					FROM fuel_operations
+					LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
+					LEFT JOIN route_lists ON fuel_documents.route_list_id = route_lists.id        
+				) as fuel_operations_in
+			WHERE	
+				DATE(fuel_operations_in.date) &lt; @start_date	
+                AND ((fuel_operations_in.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_in.car_id = @car_id)))
+		-
+		# Потрачено
+			(SELECT
+				IFNULL(SUM(fuel_operations_out.liters_outlayed),0) as balance
+			FROM
+				(    
+					SELECT 
+						fuel_operations.id,
+						fuel_operations.date,
+						fuel_operations.driver_id,
+						fuel_operations.liters_outlayed,
+						fuel_operations.car_id,
+						route_lists.id as route_listID,
+						route_lists.date as route_listDate,
+						route_lists.driver_id as rl_driver
+					FROM fuel_operations
+					LEFT JOIN route_lists ON fuel_operations.id = route_lists.fuel_outlayed_operation_id        
+				) as fuel_operations_out
+			WHERE	
+				DATE(fuel_operations_out.date) &lt; @start_date	
+                AND ((fuel_operations_out.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_out.car_id = @car_id)))
+		) as balance
+	) as TableBalance,
+	#Конец выбора баланса   
+	#Выбираются все строки
+	(SELECT 
+		date, 
+		route_list_id,
+		route_list_date,
+		driver,
+		MAX(distance) as distance,
+		SUM(liters_outlayed) as liters_outlayed,
+		SUM(liters_gived) as liters_gived,
+		SUM(payed_for_fuel) as payed_for_fuel,
+		SUM(liters_coupons) as liters_coupons,
+		fuel_type,
+		reg_number
+	FROM 
+		(
+			#Выбираем полученное топливо
+			(SELECT 
+				DATE(fuel_operations.date) 	AS date,
+				IFNULL(route_lists.id, 'Коррек-ка') AS route_list_id,
+				route_lists.date AS route_list_date,
+				CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+				delivery_shift.name AS shift,
+                0 as distance, # Расстояние берется из таблицы с потраченным топливом
+				IFNULL(fuel_operations.liters_outlayed,0) 	AS liters_outlayed,
+				IFNULL(fuel_operations.liters_gived,0)	AS liters_gived,
+				fuel_documents.payed_for_fuel 	AS payed_for_fuel,
+				IFNULL(fuel_documents.fuel_coupons, 0) AS liters_coupons,
+				IFNULL(fuel_operations.fuel_type_id,0) 	AS fuel_type, 		
+				cars.reg_number AS reg_number
+			FROM		
+				fuel_operations
+				LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
+				LEFT JOIN route_lists ON fuel_documents.route_list_id = route_lists.id
+				LEFT JOIN delivery_shift ON route_lists.delivery_shift_id = delivery_shift.id
+				LEFT JOIN employees ON IFNULL(fuel_operations.driver_id, route_lists.driver_id) = employees.id
+				LEFT JOIN cars ON IFNULL(fuel_operations.car_id, route_lists.car_id) = cars.id 
+			WHERE
+				DATE(fuel_operations.date) &gt;= @start_date
+				AND DATE(fuel_operations.date) &lt;= @end_date
+				AND fuel_operations.liters_gived &gt; 0 AND fuel_operations.liters_outlayed = 0
+				AND ((@driver_id &lt;&gt; -1 AND fuel_operations.driver_id = @driver_id) 
+						OR (@car_id &lt;&gt; -1 AND fuel_operations.car_id = @car_id))
+			)
+			#Конец выбора полученного топлива
+		UNION ALL
+			#Выбираем потраченное топливо
+			(SELECT 
+				DATE(fuel_operations.date) 	AS date,
+				IFNULL(route_lists.id, 'Коррек-ка') AS route_list_id,
+				route_lists.date AS route_list_date,
+				CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+				delivery_shift.name AS shift,
+				IF(route_lists.confirmed_distance = 0 OR route_lists.confirmed_distance is null, route_lists.actual_distance , route_lists.confirmed_distance) AS distance,
+				IFNULL(fuel_operations.liters_outlayed,0) 	AS liters_outlayed,
+				IFNULL(fuel_operations.liters_gived,0)	AS liters_gived,
+				fuel_documents.payed_for_fuel 	AS payed_for_fuel,
+				IFNULL(fuel_documents.fuel_coupons, 0) AS liters_coupons,
+				IFNULL(fuel_operations.fuel_type_id,0) 	AS fuel_type, 		
+				cars.reg_number AS reg_number
+			 FROM		
+				fuel_operations
+				LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
+				LEFT JOIN route_lists ON fuel_operations.id = route_lists.fuel_outlayed_operation_id
+				LEFT JOIN delivery_shift ON route_lists.delivery_shift_id = delivery_shift.id
+				LEFT JOIN employees ON IFNULL(fuel_operations.driver_id, route_lists.driver_id) = employees.id
+				LEFT JOIN cars ON IFNULL(fuel_operations.car_id, route_lists.car_id) = cars.id 
+			WHERE
+				DATE(fuel_operations.date) &gt;= @start_date
+				AND DATE(fuel_operations.date) &lt;= @end_date
+				AND fuel_operations.liters_outlayed &gt; 0 AND fuel_operations.liters_gived = 0
+				AND ((@driver_id &lt;&gt; -1 AND fuel_operations.driver_id = @driver_id) 
+						OR (@car_id &lt;&gt; -1 AND fuel_operations.car_id = @car_id))
+			)
+			#Конец выбора потраченного топлива
+		) as fuelOperations
+		GROUP BY date, route_list_id ORDER BY date
+	) as TableRows        
+	#Конец выбора всех строк</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -796,10 +837,6 @@ FROM
         </Field>
         <Field Name="driver">
           <DataField>driver</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="shift">
-          <DataField>shift</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="distance">
@@ -837,19 +874,53 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="StartBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    SUM(IF(internal.liters_gived IS NULL, 0, internal.liters_gived)
-      - IF(internal.liters_outlayed IS NULL, 0, internal.liters_outlayed)
-      ) AS balance
-FROM
-    fuel_operations AS internal
-WHERE
-    internal.date &lt; @start_date
-        AND (IF(@driver_id = -1,
-        internal.car_id = @car_id,
-        internal.driver_id = @driver_id))</CommandText>
+        <CommandText>SELECT
+(
+# Выдано:
+	(SELECT
+		IFNULL(SUM(fuel_operations_in.liters_gived), 0)
+	FROM
+		(    
+			SELECT 
+				fuel_operations.id,
+				fuel_operations.date,
+				fuel_operations.driver_id,
+				fuel_operations.liters_gived,
+				fuel_operations.car_id,
+				route_lists.id as route_listID,
+				route_lists.date as route_listDate,
+				route_lists.driver_id as rl_driver
+			FROM fuel_operations
+			LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
+			LEFT JOIN route_lists ON fuel_documents.route_list_id = route_lists.id        
+		) as fuel_operations_in
+	WHERE	
+		DATE(fuel_operations_in.date) &lt; @start_date	
+		AND ((fuel_operations_in.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_in.car_id = @car_id)))
+-
+# Потрачено
+	(SELECT
+		IFNULL(SUM(fuel_operations_out.liters_outlayed),0)
+	FROM
+		(    
+			SELECT 
+				fuel_operations.id,
+				fuel_operations.date,
+				fuel_operations.driver_id,
+				fuel_operations.liters_outlayed,
+				fuel_operations.car_id,
+				route_lists.id as route_listID,
+				route_lists.date as route_listDate,
+				route_lists.driver_id as rl_driver
+			FROM fuel_operations
+			LEFT JOIN route_lists ON fuel_operations.id = route_lists.fuel_outlayed_operation_id        
+		) as fuel_operations_out
+	WHERE	
+		DATE(fuel_operations_out.date) &lt; @start_date	
+		AND ((fuel_operations_out.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_out.car_id = @car_id)))
+) as balance</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -862,7 +933,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>

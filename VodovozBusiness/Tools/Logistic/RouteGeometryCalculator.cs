@@ -13,6 +13,12 @@ using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Tools.Logistic
 {
+	/// <summary>
+	/// Класс позволяет получать расстояния между точками от внешнего провайдера и из кеша.
+	/// В отличии от класса <c>ExtDistanceCalculator</c> у него можно спрашивать сразу маршрут последовательный
+	/// маршрут, от точки А к Б потом к С, потом к Д. А так же этот класс кеширует не только время и растояния,
+	/// но и геометрию движения по дорожной сети.
+	/// </summary>
 	public class RouteGeometryCalculator : IDistanceCalculator
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -33,6 +39,9 @@ namespace Vodovoz.Tools.Logistic
 			Provider = provider;
 		}
 
+		/// <summary>
+		/// Метод добавляющий заначения в словари.
+		/// </summary>
 		private void AddNewCacheDistance(CachedDistance distance)
 		{
 			if(!cache.ContainsKey(distance.FromGeoHash))
@@ -41,6 +50,9 @@ namespace Vodovoz.Tools.Logistic
 			totalCached++;
 		}
 
+		/// <summary>
+		/// Почучаем расстояния в метрах между точками
+		/// </summary>
 		public int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
@@ -48,6 +60,9 @@ namespace Vodovoz.Tools.Logistic
 			return DistanceMeter(fromHash, toHash);
 		}
 
+		/// <summary>
+		/// Всемя пути в секундах между точками
+		/// </summary>
 		public int TimeSec(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
@@ -55,6 +70,9 @@ namespace Vodovoz.Tools.Logistic
 			return TimeSec(fromHash, toHash);
 		}
 
+		/// <summary>
+		/// Расстояние в метрах от базы до точки.
+		/// </summary>
 		public int DistanceFromBaseMeter(DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
@@ -79,6 +97,9 @@ namespace Vodovoz.Tools.Logistic
 			return TimeSec(fromHash, CachedDistance.BaseHash);
 		}
 
+		/// <summary>
+		/// Расстояние в метрах от точки до базы.
+		/// </summary>
 		public int DistanceToBaseMeter(DeliveryPoint fromDP)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
@@ -150,6 +171,9 @@ namespace Vodovoz.Tools.Logistic
 			return (int)(GetSimpleDistance(way) / 13.3); //13.3 м/с среднее время получаемое по спутнику.
 		}
 
+		/// <summary>
+		/// Метод загружает недостающие расстояния из базы, если это необходимо.
+		/// </summary>
 		public void LoadDBCacheIfNeed(List<WayHash> ways)
 		{
 			var prepared = FilterForDBCheck(ways);
@@ -182,7 +206,10 @@ namespace Vodovoz.Tools.Logistic
 				if(way?.PolylineGeometry != null)
 				{
 					var decodedPoints = Polyline.DecodePolyline(way.PolylineGeometry);
-					resultRoute.AddRange(decodedPoints.Select(p => new PointLatLng(p.Latitude * 0.1, p.Longitude * 0.1)));
+					if(Provider == DistanceProvider.Sputnik)
+						resultRoute.AddRange(decodedPoints.Select(p => new PointLatLng(p.Latitude * 0.1, p.Longitude * 0.1)));
+					else
+						resultRoute.AddRange(decodedPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)));
 				}
 				else
 				{
@@ -271,7 +298,7 @@ namespace Vodovoz.Tools.Logistic
 			points.Add(new PointOnEarth(latitude, longitude));
 			bool ok = false;
 			if(Provider == DistanceProvider.Osrm) {
-				var result = OsrmMain.GetRoute(points, false, true);
+				var result = OsrmMain.GetRoute(points, false, GeometryOverview.Full);
 				ok = result?.Code == "Ok";
 				if(ok && result.Routes.Any()) {
 					distance.Created = DateTime.Now;

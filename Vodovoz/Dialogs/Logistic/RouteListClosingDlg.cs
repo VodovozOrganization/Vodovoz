@@ -1,13 +1,12 @@
-﻿﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QSOrmProject;
-using QSOsm;
-using QSOsm.Osrm;
 using QSProjectsLib;
 using QSSupportLib;
 using QSValidation;
@@ -18,7 +17,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Repository;
+using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz
 {
@@ -84,6 +85,8 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded; 
+			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = editing;
 
@@ -117,12 +120,22 @@ namespace Vodovoz
 			ycheckConfirmDifferences.Binding.AddBinding(Entity, e => e.DifferencesConfirmed, w => w.Active).InitializeFromSource();
 			ycheckConfirmDifferences.Sensitive = editing && Entity.Status == RouteListStatus.OnClosing;
 
+			decimal unclosedAdvanceMoney = AccountableDebtsRepository.EmloyeeDebt(UoW, Entity.Driver);
+			ylabelUnclosedAdvancesMoney.LabelProp = 
+				String.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Долг: {0}</b></span>" : "", unclosedAdvanceMoney);
+
 			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
 			ytextClosingComment.Sensitive = editing;
 			labelOrderEarly.Text = "Сдано ранее:" + GetCashOrder().ToString();
 			spinCashOrder.Value = 0;
 			advanceSpinbutton.Value = 0;
 			advanceSpinbutton.Visible = false;
+
+			ycheckNormalWage.Binding.AddSource(Entity)
+			                .AddFuncBinding(x => x.Driver.WageCalcType == WageCalculationType.normal && x.Car.IsCompanyHavings, w => w.Visible)
+							.AddBinding(x => x.NormalWage, w => w.Active)
+			                .InitializeFromSource();
+			ycheckNormalWage.Sensitive = editing && QSMain.User.Permissions["change_driver_wage"];
 
 			PerformanceHelper.AddTimePoint("Создан диалог");
 
@@ -183,7 +196,12 @@ namespace Vodovoz
 			routelistdiscrepancyview.Sensitive = editing;
 			PerformanceHelper.AddTimePoint("Заполнили расхождения");
 
-			buttonAddTicket.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && editing;
+			buttonAddFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && editing;
+			buttonDeleteFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && editing;
+			ytreeviewFuelDocuments.ItemsDataSource = Entity.ObservableFuelDocuments;
+			ytreeviewFuelDocuments.Reorderable = true;
+			Entity.ObservableFuelDocuments.ListChanged += ObservableFuelDocuments_ListChanged;
+			UpdateFuelDocumentsColumns();
 
 			enummenuRLActions.ItemsEnum = typeof(RouteListActions);
 			enummenuRLActions.EnumItemClicked += EnummenuRLActions_EnumItemClicked;
@@ -204,7 +222,34 @@ namespace Vodovoz
 			enumPrint.ItemsEnum = typeof(RouteListPrintDocuments);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintDocuments)e.ItemEnum);
 
-			ylabelRecalculatedMileage.LabelProp = Entity.RecalculatedDistance.ToString() ?? "";
+			ylabelRecalculatedMileage.Binding.AddFuncBinding(Entity, e => e.RecalculatedDistance.HasValue ? $" {e.RecalculatedDistance} км" : "", w => w.LabelProp).InitializeFromSource();		
+			checkSendToMileageCheck.Binding.AddBinding(Entity, x => x.MileageCheck, w => w.Active).InitializeFromSource();
+			Entity.PropertyChanged += Entity_PropertyChanged;
+		}
+
+		void ObservableFuelDocuments_ListChanged(object aList)
+		{
+			UpdateFuelDocumentsColumns();
+		}
+
+		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.NormalWage))
+				Entity.RecalculateAllWages();
+		}
+
+		private void UpdateFuelDocumentsColumns()
+		{
+			var config = ColumnsConfigFactory.Create<FuelDocument>();
+
+			config
+				.AddColumn("Дата").AddTextRenderer(node => node.Date.ToShortDateString())
+				.AddColumn("Литры").AddNumericRenderer(node => node.Operation.LitersGived)
+						.Adjustment(new Adjustment(0, -100000, 100000, 10, 100, 10))
+				.AddColumn("").AddTextRenderer()
+				.RowCells();
+
+			ytreeviewFuelDocuments.ColumnsConfig = config.Finish();
 		}
 
 		private decimal GetCashOrder()
@@ -228,8 +273,7 @@ namespace Vodovoz
 
 			if((previousForwarder == null && newForwarder != null)
 			 || (previousForwarder != null && newForwarder == null))
-				foreach(var item in Entity.Addresses)
-					item.RecalculateWages();
+				Entity.RecalculateAllWages();
 
 			previousForwarder = Entity.Forwarder;
 		}
@@ -462,18 +506,11 @@ namespace Vodovoz
 
 			if(!isConsistentWithUnloadDocument())
 				return;
-
-			if(Decimal.TryParse(ylabelRecalculatedMileage.LabelProp, out decimal recalc))
-			{
-				Entity.RecalculatedDistance = recalc;
-			}
-
-
+					
 			if(!checkSendToMileageCheck.Active)
 			{
 				Entity.ConfirmedDistance = Entity.ActualDistance;
 			}
-
 
 			var valid = new QSValidator<RouteList>(UoWGeneric.Root,
 							new Dictionary<object, object>
@@ -600,12 +637,10 @@ namespace Vodovoz
 			track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
 
 			var fuelOtlayedOp = UoWGeneric.Root.FuelOutlayedOperation;
-			var givedOp = Entity.FuelGivedDocument?.Operation;
+			var givedOp = Entity.FuelDocuments.Select(x => x.Operation.Id);
 			//Проверяем существование операций и исключаем их.
 			var exclude = new List<int>();
-			if(givedOp != null && givedOp.Id != 0) {
-				exclude.Add(givedOp.Id);
-			}
+			exclude.AddRange(givedOp);
 			if(fuelOtlayedOp != null && fuelOtlayedOp.Id != 0) {
 				exclude.Add(fuelOtlayedOp.Id);
 			}
@@ -633,6 +668,7 @@ namespace Vodovoz
 			decimal spentFuel = (decimal)Entity.Car.FuelConsumption
 										/ 100 * Entity.ActualDistance;
 
+
 			//Проверка существования трека и заполнения дистанции
 			bool hasTrack = track?.Distance.HasValue ?? false;
 			buttonGetDistFromTrack.Sensitive = hasTrack && editing;
@@ -648,23 +684,32 @@ namespace Vodovoz
 			else
 				text.Add("Не указан вид топлива");
 
-			if(Entity.FuelGivedDocument?.Operation != null || Entity.ActualDistance > 0)
+			if(Entity.FuelDocuments.Select(x => x.Operation).Any() || Entity.ActualDistance > 0)
 				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp));
 
 			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:F2} л/100км)",
 				spentFuel, (decimal)Entity.Car.FuelConsumption));
 
-			if(Entity.FuelGivedDocument?.Operation != null) {
+			if(Entity.FuelDocuments.Select(x => x.Operation).Any()) {
 				text.Add(string.Format("Выдано {0:F2} литров",
-						Entity.FuelGivedDocument.Operation.LitersGived));
+				     Entity.FuelDocuments.Select(x => x.Operation.LitersGived).Sum()));
 			}
 
-			if(Entity.Car.FuelType != null) {
+			if(Entity.ConfirmedDistance != 0 && Entity.ConfirmedDistance != Entity.ActualDistance){
+				
+				decimal spentFuelConfirmed = (decimal)Entity.Car.FuelConsumption
+										/ 100 * Entity.ConfirmedDistance;
+				
+				text.Add(string.Format("Топливо подтвержденное логистами: {0:F2} л.",
+			 		spentFuelConfirmed));
+				
+				spentFuel = spentFuelConfirmed;
+			}
+
+			 if(Entity.Car.FuelType != null) {
 				text.Add(string.Format("Текущий остаток топлива {0:F2} л.", balanceBeforeOp
-					+ (Entity.FuelGivedDocument?.Operation.LitersGived ?? 0) - spentFuel));
+					+ Entity.FuelDocuments.Select(x => x.Operation.LitersGived).Sum() - spentFuel));
 			}
-
-			buttonDeleteTicket.Sensitive = Entity.FuelGivedDocument != null;
 
 			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
 		}
@@ -700,40 +745,14 @@ namespace Vodovoz
 			Entity.ActualDistance = (decimal)track.TotalDistance.Value;
 		}
 
-		protected void OnButtonAddTicketClicked(object sender, EventArgs e)
+		void ObservableFuelDocuments_ElementAdded(object aList, int[] aIdx)
 		{
-			var document = Entity.FuelGivedDocument;
-			FuelDocumentDlg tab;
-
-			if(document == null) {
-				tab = new FuelDocumentDlg(UoWGeneric.Root);
-			} else {
-				tab = new FuelDocumentDlg(UoWGeneric.Root, document.Id);
-			}
-			tab.EntitySaved += FuelDoc_EntitySaved;
-			TabParent.AddSlaveTab(this, tab);
-		}
-
-		void FuelDoc_EntitySaved(object sender, QSTDI.EntitySavedEventArgs e)
-		{
-			if(Entity.FuelGivedDocument == null) {
-				Entity.FuelGivedDocument = e.Entity as FuelDocument;
-			} else {
-				UoW.Session.Refresh(Entity.FuelGivedDocument);
-			}
-			Save();
 			UpdateFuelInfo();
 			CalculateTotal();
 		}
 
-		protected void OnButtonDeleteTicketClicked(object sender, EventArgs e)
+		void ObservableFuelDocuments_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
-			if(Entity.FuelGivedDocument != null) {
-				UoW.Delete(Entity.FuelGivedDocument);
-				Entity.FuelGivedDocument = null;
-				this.HasChanges = true;
-			}
-			Save();
 			UpdateFuelInfo();
 			CalculateTotal();
 		}
@@ -763,8 +782,8 @@ namespace Vodovoz
 		private void ReloadReturnedToWarehouse()
 		{
 			allReturnsToWarehouse = RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
-			var refuse = Int32.Parse(MainSupport.BaseParameters.All["refuse_nomenclature_id"]);
-			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, new[] { NomenclatureCategory.bottle }, new[] { refuse })
+			int BottleNomenclature = 38; //Бутыль 19.2л
+			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, BottleNomenclature)
 				.Sum(item => item.Amount);
 		}
 
@@ -910,22 +929,49 @@ namespace Vodovoz
 
 		protected void OnButtonRecalculateMileageClicked(object sender, EventArgs e)
 		{
-			var points = new List<PointOnEarth>();
-			points.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
+			logger.Info("Рассчет длинны маршрута...");
+			RouteGeometryCalculator routeCalculator = new RouteGeometryCalculator(DistanceProvider.Osrm);
 
+			var points = new List<long>();
+			points.Add(CachedDistance.BaseHash);
 			foreach(RouteListItem address in Entity.Addresses.OrderBy(x => x.StatusLastUpdate))
 			{
 				if(address.Status == RouteListItemStatus.Completed) {
-					points.Add(new PointOnEarth((double)address.Order.DeliveryPoint.Latitude, (double)address.Order.DeliveryPoint.Longitude));
+					points.Add(address.Order.DeliveryPoint.СoordinatesHash);
 				}
 			}
+			points.Add(CachedDistance.BaseHash);
 
-			points.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
+			var distance = (decimal)routeCalculator.GetRouteDistance(points.ToArray());
+			Entity.RecalculatedDistance = distance / 1000;
+			logger.Info("Ок.");
+		}
 
-			var recalculatedTrackResponse = OsrmMain.GetRoute(points, false, false);
-			var recalculatedTrack = recalculatedTrackResponse.Routes.First();
+		protected void OnButtonDeleteFuelDocumentClicked(object sender, EventArgs e)
+		{
+			FuelDocument fd = ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>();
+			if(fd == null) {
+				return;
+			}
+			Entity.ObservableFuelDocuments.Remove(fd);
+			UoWGeneric.Delete(fd);
+			HasChanges = true;
+			UoWGeneric.Save();
+		}
 
-			ylabelRecalculatedMileage.LabelProp = recalculatedTrack.TotalDistanceKm.ToString();
+		protected void OnButtonAddFuelDocumentClicked(object sender, EventArgs e)
+		{
+			FuelDocumentDlg tab;
+			tab = new FuelDocumentDlg(Entity);
+			tab.EntitySaved += FuelDoc_EntitySaved;
+			TabParent.AddSlaveTab(this, tab);
+		}
+
+		void FuelDoc_EntitySaved(object sender, QSTDI.EntitySavedEventArgs e)
+		{
+			Entity.ObservableFuelDocuments.Add(e.Entity as FuelDocument);
+			UoWGeneric.Save();
+			object dsds = Entity;
 		}
 
 		#endregion

@@ -13,6 +13,8 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repository;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Documents;
+using QSProjectsLib;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -149,6 +151,14 @@ namespace Vodovoz.Domain.Orders
 		public virtual string Comment {
 			get { return comment; }
 			set { SetField(ref comment, value, () => Comment); }
+		}
+
+		string commentLogist;
+
+		[Display(Name = "Комментарий логиста")]
+		public virtual string CommentLogist {
+			get { return commentLogist; }
+			set { SetField(ref commentLogist, value, () => CommentLogist); }
 		}
 
 		string clientPhone;
@@ -726,6 +736,16 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		/// <summary>
+		/// Количество 19л бутылей в заказе
+		/// </summary>
+		public virtual int TotalWaterBottles
+		{
+			get {
+				return orderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
+			}
+		}
+
 		#endregion
 
 		#region Функции
@@ -1285,6 +1305,31 @@ namespace Vodovoz.Domain.Orders
 		public virtual void ChangeStatus(OrderStatus newStatus)
 		{
 			OrderStatus = newStatus;
+			if(newStatus == OrderStatus.Closed) {
+				OnClosedOrder();
+			}
+		}
+
+		/// <summary>
+		/// Действия при закрытии заказа
+		/// </summary>
+		public virtual void OnClosedOrder()
+		{
+			SetDepositsActualCounts();
+		}
+
+		/// <summary>
+		/// Устанавливает количество для каждого залога как actualCount, 
+		/// если заказ был создан только для залога.
+		/// Для отображения этих данных в отчете "Акт по бутылям и залогам"
+		/// </summary>
+		public virtual void SetDepositsActualCounts()
+		{
+			if(OrderItems.All(x => x.Nomenclature.Id == 157)) {
+				foreach(var oi in orderItems) {
+					oi.ActualCount = oi.Count;
+				}
+			}
 		}
 
 		public virtual void UpdateDocuments()
@@ -1440,10 +1485,63 @@ namespace Vodovoz.Domain.Orders
 			);
 		}
 
-		public virtual void Close()
+		/// <summary>
+		/// Закрывает заказ с самовывозом если по всем документам самовывоза со склада все отгружено
+		/// </summary>
+		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument)
 		{
-			//FIXME Правильно закрывать заказ
-			OrderStatus = OrderStatus.Closed;
+			// Закрывает заказ и создает операцию движения бутылей если все товары в заказе отгружены
+			var unloadedItems = Repository.Store.SelfDeliveryRepository.OrderItemUnloaded(uow, this, closingDocument);
+			bool canCloseOrder = true;
+			foreach(var item in OrderItems) {
+				decimal totalCount = default(decimal);
+				var deliveryItem = closingDocument.Items.FirstOrDefault(x => x.OrderItem.Id == item.Id);
+				if(deliveryItem != null) {
+					totalCount += deliveryItem.Amount;
+				}
+				if(unloadedItems.ContainsKey(item.Id)) {
+					totalCount += unloadedItems[item.Id];
+				}
+				if((int)totalCount != item.Count) {
+					canCloseOrder = false;
+				}
+			}
+			if(canCloseOrder) {
+				CreateBottlesMovementOperation(uow);
+				ChangeStatus(OrderStatus.Closed);
+			}
+			return canCloseOrder;
+		}
+
+		public virtual void CreateBottlesMovementOperation(IUnitOfWork uow)
+		{
+			foreach(OrderItem item in OrderItems) {
+				item.ActualCount = item.Count;
+			}
+
+			int amountDelivered = OrderItems
+					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+					.Sum(item => item.ActualCount);
+			
+			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
+				if(BottlesMovementOperation == null) {
+					var bottlesOperation = new BottlesMovementOperation {
+						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+						Order = this,
+						Delivered = amountDelivered,
+						Returned = ReturnedTare.GetValueOrDefault(),
+						Counterparty = Client,
+						DeliveryPoint = DeliveryPoint
+					};
+					uow.Save(bottlesOperation);
+					BottlesMovementOperation = bottlesOperation;
+				} else {
+					BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
+					BottlesMovementOperation.Delivered = amountDelivered;
+					BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
+					uow.Save(BottlesMovementOperation);
+				}
+			}
 		}
 
 		#endregion
@@ -1465,19 +1563,19 @@ namespace Vodovoz.Domain.Orders
 		#region Для расчетов в логистике
 
 		/// <summary>
-		/// Время в минутах.
+		/// Время разгрузки в секундах.
 		/// </summary>
 		public virtual int CalculateTimeOnPoint(bool hasForwarder)
 		{
-			int byFormula = 3; //На подпись документво 3 мин.
+			int byFormula = 3 * 60; //На подпись документво 3 мин.
 			int bottels = TotalDeliveredBottles;
 			if(!hasForwarder)
-				byFormula += CalculateGoDoorCount(bottels, 2) * 5; //5 минут на 2 бутыли без экспедитора.
+				byFormula += CalculateGoDoorCount(bottels, 2) * 100; //100 секун(5/3 минуты) на 2 бутыли без экспедитора.
 			else
-				byFormula += CalculateGoDoorCount(bottels, 4) * 3; //3 минут на 4 бутыли c экспедитором.
+				byFormula += CalculateGoDoorCount(bottels, 4) * 1 * 60; //1 минута на 4 бутыли c экспедитором.
 
-			if(byFormula < 15) // минимальное время нахождения на адресе.
-				return 15;
+			if(byFormula < 5 * 60) // минимальное время нахождения на адресе.
+				return 5 * 60;
 			else
 				return byFormula;
 		}
@@ -1486,8 +1584,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			return bottles / atTime + (bottles % atTime > 0 ? 1 : 0);
 		}
-
-
 
 		#endregion
 	}

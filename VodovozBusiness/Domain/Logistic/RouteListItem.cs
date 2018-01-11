@@ -359,7 +359,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver).Where(item => item.Equipment != null)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
 			}
 		}
@@ -368,7 +368,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver).Where(item => item.Equipment != null)
 					.Where(item => item.Confirmed)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
 			}
@@ -378,7 +378,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver).Where(item => item.Equipment != null)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
 			}
 		}
@@ -387,7 +387,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver).Where(item => item.Equipment != null)
 					.Where(item => item.Confirmed)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.WithoutCard);
 			}
@@ -397,7 +397,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver).Where(item => item.Equipment != null)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.WithoutCard);
 			}
 		}
@@ -417,8 +417,8 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
-					.Where(item => item.Confirmed).Where(item => item.Equipment != null)
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp).Where(item => item.Equipment != null)
+					.Where(item => item.Confirmed)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
 			}
 		}
@@ -440,6 +440,28 @@ namespace Vodovoz.Domain.Logistic
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
 					.Where(item => item.Equipment != null)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
+			}
+		}
+
+		public virtual string EquipmentsToClientText
+		{
+			get{
+				return String.Join("\n",  
+				                   Order.OrderEquipments
+										.Where(x => x.Direction == Direction.Deliver)
+				                   .Select(x => $"{x.NameString}: {x.Count}")
+				                  );
+			}
+		}
+
+		public virtual string EquipmentsFromClientText
+		{
+			get{
+				return String.Join("\n",  
+				                   Order.OrderEquipments
+				                   		.Where(x => x.Direction == Direction.PickUp)
+				                   .Select(x => $"{x.NameString}: {x.Count}")
+				                  );
 			}
 		}
 
@@ -518,7 +540,7 @@ namespace Vodovoz.Domain.Logistic
 				return this.Order.TotalSum * RouteList.Driver.WageCalcRate / 100;
 
 			bool withForwarder = RouteList.Forwarder != null;
-			bool ich = RouteList.Car.IsCompanyHavings;
+			bool ich = RouteList.Car.IsCompanyHavings && !RouteList.NormalWage;
 			var rates = ich ? Wages.GetDriverRatesWithOurCar(RouteList.Date) : Wages.GetDriverRates(RouteList.Date, withForwarder);
 
 			return CalculateWage(rates);
@@ -754,7 +776,7 @@ namespace Vodovoz.Domain.Logistic
 		#region Для расчетов в логистике
 
 		/// <summary>
-		/// Время в минутах.
+		/// Время разгрузки на адресе в секундах.
 		/// </summary>
 		public virtual int TimeOnPoint{
 			get{
@@ -776,7 +798,7 @@ namespace Vodovoz.Domain.Logistic
 				if (address == this)
 					break;
 
-				time = time.AddMinutes(RouteList.Addresses[ix].TimeOnPoint);
+				time = time.AddSeconds(RouteList.Addresses[ix].TimeOnPoint);
 			}
 			return time.TimeOfDay;
 		}

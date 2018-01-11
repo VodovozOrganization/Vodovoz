@@ -1,4 +1,4 @@
-﻿﻿﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
@@ -134,8 +134,6 @@ namespace Vodovoz
 			Entity.ObservableOrderDocuments.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableFinalOrderService.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableInitialOrderService.ElementAdded += Entity_UpdateClientCanChange;
-			Entity.ObservableOrderItems.ElementAdded += Entity_ObservableOrderItems_ElementAdded;
-			Entity.ObservableOrderDocuments.ElementAdded += Entity_ObservableOrderDocuments_ElementAdded;
 
 			//Подписываемся на изменение товара, для обновления количества оборудования в доп. соглашении
 			Entity.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged_ChangeCount;
@@ -236,7 +234,6 @@ namespace Vodovoz
 			};
 
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
-			treeDepositRefundItems.Selection.Changed += TreeDepositRefundItems_Selection_Changed;
 			#endregion
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
 			dataSumDifferenceReason.Completion = new EntryCompletion();
@@ -1471,33 +1468,20 @@ namespace Vodovoz
 			}
 		}
 
+		/// <summary>
+		/// Ручное закрытие заказа
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">E.</param>
 		protected void OnButtonCloseOrderClicked(object sender, EventArgs e)
 		{
 			if(!MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?")) {
 				return;
 			}
 
-			foreach(OrderItem item in Entity.OrderItems) {
-				item.ActualCount = item.Count;
-			}
-
-			int amountDelivered = Entity.OrderItems
-					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
-					.Sum(item => item.ActualCount);
-
-			if(Entity.BottlesMovementOperation == null) {
-				if(amountDelivered != 0 || (Entity.ReturnedTare != 0 && Entity.ReturnedTare != null)) {
-					var bottlesMovementOperation = new BottlesMovementOperation {
-						OperationTime = Entity.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-						Order = Entity,
-						Delivered = amountDelivered,
-						Returned = Entity.ReturnedTare.GetValueOrDefault(),
-						Counterparty = Entity.Client,
-						DeliveryPoint = Entity.DeliveryPoint
-					};
-					UoW.Save(bottlesMovementOperation);
-					Entity.BottlesMovementOperation = bottlesMovementOperation;
-				}
+			if(Entity.BottlesMovementOperation == null)
+            {
+				Entity.CreateBottlesMovementOperation(UoW);
 			}
 
 			Entity.ChangeStatus(OrderStatus.Closed);

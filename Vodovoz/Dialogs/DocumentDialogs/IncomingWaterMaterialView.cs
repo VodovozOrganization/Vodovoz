@@ -36,12 +36,13 @@ namespace Vodovoz
 					.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
 					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
-					.AddColumn ("Всего")
+					.AddColumn ("Всего израсходовано")
 					.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
 					.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
 					.AddSetter ((c, i) => c.Adjustment.Upper = (double)i.AmountOnSource)
 					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
+					.AddColumn("")
 					.Finish ();
 
 				treeMaterialsList.ItemsDataSource = items;

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.Spatial.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
@@ -18,6 +16,18 @@ namespace Vodovoz.Repository.Logistics
 		public static QueryOver<LogisticsArea> ActiveAreaQuery()
 		{
 			return QueryOver.Of<LogisticsArea>();
+		}
+
+		public static QueryOver<LogisticsArea> AreaWithGeometryQuery()
+		{
+			return QueryOver.Of<LogisticsArea>().Where(x => x.Geometry != null);
+		}
+
+		public static IList<LogisticsArea> AreaWithGeometry(IUnitOfWork uow)
+		{
+			return AreaWithGeometryQuery()
+				            .GetExecutableQueryOver(uow.Session)
+				            .List();
 		}
 
 		public static IList<OrderCountResult> OrdersCountByArea(IUnitOfWork uow, DateTime date, int minBottlesInOrder)

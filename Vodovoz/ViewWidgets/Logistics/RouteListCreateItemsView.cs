@@ -116,9 +116,6 @@ namespace Vodovoz
 					config = config.AddColumn(column.Name).AddTextRenderer(a => a.GetGoodsAmountForColumn(id).ToString());
 				}
 			}
-			//					.AddColumn ("Логистический район").SetDataProperty (node => node.Order.DeliveryPoint.LogisticsArea == null ? 
-			//						"Не указан" : 
-			//						node.Order.DeliveryPoint.LogisticsArea.Name)			
 			if(RouteListUoW.Root.Forwarder != null) {
 				config
 					.AddColumn("C экспедитором")
@@ -126,8 +123,10 @@ namespace Vodovoz
 			}
 			config
 				.AddColumn("Товары").AddTextRenderer(x => ShowAdditional(x.Order.OrderItems))
-				.AddColumn("К клиенту").AddTextRenderer(x => x.Order.ToClientText).Editable(CanEditRows)
-				.AddColumn("От клиента").AddTextRenderer(x => x.Order.FromClientText).Editable(CanEditRows);
+				.AddColumn("К клиенту")
+				.AddTextRenderer(x => x.EquipmentsToClientText, expand: false)
+				.AddColumn("От клиента")
+				.AddTextRenderer(x => x.EquipmentsFromClientText, expand: false);
 			ytreeviewItems.ColumnsConfig =
 				config.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Order.RowColor)
 				.Finish();

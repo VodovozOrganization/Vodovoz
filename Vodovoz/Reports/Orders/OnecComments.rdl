@@ -131,7 +131,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>Комментарий</Value>
+                      <Value>Комментарий логиста</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -221,7 +221,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>=Fields!comment.Value</Value>
+                      <Value>=Fields!commentLogist.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -284,7 +284,7 @@
     orders.id AS ordernum,
     counterparty.full_name AS client,
     address_1c AS address,
-	orders.comment AS comment,
+    orders.comment_logist AS commentLogist,
     CASE order_status
         WHEN 'NewOrder' THEN 'Новый'
         WHEN 'Canceled' THEN 'Отменён'
@@ -307,8 +307,8 @@ FROM
     counterparty ON counterparty.id = orders.client_id
     
 WHERE
-    orders.comment IS NOT NULL
-        AND orders.comment &lt;&gt; ''
+    orders.comment_logist IS NOT NULL
+        AND orders.comment_logist &lt;&gt; ''
        AND (delivery_date BETWEEN @start_date  AND   @end_date);</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -332,8 +332,8 @@ WHERE
           <DataField>address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="comment">
-          <DataField>comment</DataField>
+        <Field Name="commentLogist">
+          <DataField>commentLogist</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="status">

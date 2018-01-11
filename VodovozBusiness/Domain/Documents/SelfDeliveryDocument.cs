@@ -222,12 +222,15 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual bool ShipIfCan()
+		public virtual bool FullyShiped(IUnitOfWork uow)
 		{
+			//Проверка текущего документа
 			bool closed = Items.All(x => (x.OrderItem != null ? x.OrderItem.Count : 1) == x.Amount + x.AmountUnloaded);
-			if (closed)
-				Order.Close();
-			return closed;
+			if(closed) {
+				return Order.TryCloseSelfDeliveryOrder(uow, this);
+			}else {
+				return false;
+			}
 		}
 
 		#endregion

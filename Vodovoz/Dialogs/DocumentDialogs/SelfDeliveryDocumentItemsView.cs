@@ -19,10 +19,11 @@ namespace Vodovoz
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInStock))
 				.AddColumn("В заказе").AddTextRenderer(x => (x.OrderItem != null || x.Equipment != null) ? x.Nomenclature.Unit.MakeAmountShortStr(x.OrderItem != null ? x.OrderItem.Count : 1) : "дайте щелбан программисту")
 				.AddColumn("Уже отгружено").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountUnloaded))
-				.AddColumn("Кол-во").AddNumericRenderer(x => x.Amount).Editing()
+				.AddColumn("Количество").AddNumericRenderer(x => x.Amount).Editing()
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
 				.AddSetter((w, x) => w.Foreground = CalculateAmountColor(x))
+				.AddColumn("")
 				.Finish();
 
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;

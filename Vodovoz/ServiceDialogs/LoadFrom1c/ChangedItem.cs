@@ -86,6 +86,12 @@ namespace ServiceDialogs.LoadFrom1c
 					newOrder.Comment ?? noValue));
 				oldOrder.Comment = newOrder.Comment;
 			}
+			if(oldOrder.CommentLogist != newOrder.CommentLogist) {
+				result.Add(new FieldChange("Изменен комментарий логиста",
+					oldOrder.CommentLogist ?? noValue,
+					newOrder.CommentLogist ?? noValue));
+				oldOrder.CommentLogist = newOrder.CommentLogist;
+			}
 			if (oldOrder.Client.Code1c != newOrder.Client.Code1c)
 			{
 				result.Add(new FieldChange("Изменен клиент", oldOrder.Client.FullName, newOrder.Client.FullName));
@@ -182,6 +188,37 @@ namespace ServiceDialogs.LoadFrom1c
 						item.Nomenclature.Name, item.Count, item.Price, item.Discount),
 					""));
 				oldOrder.OrderItems.Remove(item);
+			}
+
+			//Сравнение строк оборудования
+
+			var oldOrderEquipments = oldOrder.OrderEquipments.ToList();
+			var newOrderEquipments = newOrder.OrderEquipments.ToList();
+
+			foreach(var newItem in newOrderEquipments) {
+				var oldItem = oldOrderEquipments.FirstOrDefault(oi => oi.Nomenclature.Code1c == newItem.Nomenclature.Code1c);
+				if(oldItem == null) {
+					result.Add(new FieldChange("Добавлено оборудование", "",
+					                           string.Format("Номенклатура \"{0}\", количество {1}, {2}",
+					                                         newItem.Nomenclature.Name, newItem.Count, newItem.DirectionString)));
+					oldOrder.OrderEquipments.Add(newItem);
+					newItem.Order = oldOrder;
+					continue;
+				}
+				if(oldItem.Count != newItem.Count) {
+					result.Add(new FieldChange(
+						string.Format("Оборудование \"{0}\" на {1}. Изменено количество", oldItem.Nomenclature.Name, oldItem.DirectionString),
+						oldItem.Count.ToString(), newItem.Count.ToString()));
+					oldItem.Count = newItem.Count;
+				}
+				oldOrderEquipments.Remove(oldItem);
+			}
+			foreach(var item in oldOrderEquipments) {
+				result.Add(new FieldChange("Удалено оборудование",
+					string.Format("Номенклатура \"{0}\", количество {1}, {2}",
+				                  item.Nomenclature.Name, item.Count, item.DirectionString),
+					""));
+				oldOrder.OrderEquipments.Remove(item);
 			}
 
 			if (result.Count > 0)
