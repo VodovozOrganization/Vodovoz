@@ -140,7 +140,7 @@
           </TableRows>
         </Details>
         <Left>3.9pt</Left>
-        <Top>19.7pt</Top>
+        <Top>14.1pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -278,7 +278,7 @@
           </TableRows>
         </Details>
         <Left>4.5pt</Left>
-        <Top>75.8pt</Top>
+        <Top>66.2pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -416,7 +416,7 @@
           </TableRows>
         </Details>
         <Left>4.6pt</Left>
-        <Top>131.8pt</Top>
+        <Top>117.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -462,7 +462,7 @@
         <Value>Водители:</Value>
         <ZIndex>1</ZIndex>
         <Left>3.5pt</Left>
-        <Top>6.1pt</Top>
+        <Top>2.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -474,8 +474,8 @@
         <Width>103.13pt</Width>
         <Value>Водители Ларгусов:</Value>
         <ZIndex>1</ZIndex>
-        <Left>4.20pt</Left>
-        <Top>61.20pt</Top>
+        <Left>4.2pt</Left>
+        <Top>53.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -488,7 +488,7 @@
         <Value>Экспедиторы:</Value>
         <ZIndex>1</ZIndex>
         <Left>5.4pt</Left>
-        <Top>118.0pt</Top>
+        <Top>105.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -539,8 +539,159 @@
           </TableRows>
         </Details>
         <Left>243.7pt</Left>
-        <Top>178.3pt</Top>
+        <Top>215.9pt</Top>
       </Table>
+      <Table Name="Table5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>RaskatBalance</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>279.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>59.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Водитель</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>Баланс</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>=Fields!driver.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>=Fields!balance.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>4.7pt</Left>
+        <Top>171.7pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=sum({balance})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+      <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>181.40pt</Width>
+        <Value>Водители раскатных автомобилей:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>4.6pt</Left>
+        <Top>157.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -573,11 +724,14 @@ FROM
     wages_movement_operations
         LEFT JOIN
     employees ON employees.id = wages_movement_operations.employee_id
+		LEFT JOIN
+    cars ON employees.id = cars.driver_id
 WHERE
     wages_movement_operations.operation_time &lt;= @date
         AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
-	AND employees.largus_driver = false
+	AND employees.largus_driver = false    
+    AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
 ORDER BY driver</CommandText>
@@ -658,11 +812,14 @@ FROM
     wages_movement_operations
         LEFT JOIN
     employees ON employees.id = wages_movement_operations.employee_id
+		LEFT JOIN
+    cars ON employees.id = cars.driver_id
 WHERE
     wages_movement_operations.operation_time &lt;= @date
         AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
 	AND employees.largus_driver = true
+    AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
 ORDER BY driver</CommandText>
@@ -719,6 +876,51 @@ HAVING balance &lt;&gt; 0</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="RaskatBalance">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+    SUM(wages_movement_operations.money) AS balance,
+    employees.category
+FROM
+    wages_movement_operations
+        LEFT JOIN
+    employees ON employees.id = wages_movement_operations.employee_id
+		LEFT JOIN
+    cars ON employees.id = cars.driver_id
+WHERE
+    wages_movement_operations.operation_time &lt;= @date
+        AND wages_movement_operations.employee_id IN (@drivers)
+	AND employees.category = 'driver'  
+    AND cars.is_raskat = true
+GROUP BY wages_movement_operations.employee_id
+HAVING balance &lt;&gt; 0
+ORDER BY driver</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="drivers">
+            <Value>=Parameters!drivers</Value>
+          </QueryParameter>
+          <QueryParameter Name="date">
+            <Value>=Parameters!date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="driver">
+          <DataField>driver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="balance">
+          <DataField>balance</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="category">
+          <DataField>category</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <ReportParameters>
     <ReportParameter Name="date">
@@ -738,7 +940,7 @@ HAVING balance &lt;&gt; 0</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
