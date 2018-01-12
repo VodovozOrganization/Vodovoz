@@ -1651,11 +1651,10 @@ namespace Vodovoz
 		protected void OnShown(object sender, EventArgs e)
 		{
 			//Скрывает журнал заказов при открытии заказа, чтобы все элементы умещались на экране
-			TdiSliderTab tab = TDIMain.MainNotebook.Tabs.FirstOrDefault(x => x.TdiTab is TdiSliderTab
-														  && (x.TdiTab as TdiSliderTab).TabName == "Журнал заказов").TdiTab as TdiSliderTab;
-			if(!tab.IsHideJournal) {
-				tab.IsHideJournal = true;
-			}
+			var slider = TabParent as TdiSliderTab;
+
+			if(slider != null)
+				slider.IsHideJournal = true;
 		}
 	}
 }
