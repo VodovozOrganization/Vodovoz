@@ -573,9 +573,6 @@ namespace Vodovoz.Domain.Orders
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
 				if(newStatus == OrderStatus.Accepted) {
-					if(DeliveryDate == null || DeliveryDate == default(DateTime))
-						yield return new ValidationResult("Не указана дата доставки.",
-							new[] { this.GetPropertyName(o => o.DeliveryDate) });
 					if(!SelfDelivery && DeliverySchedule == null)
 						yield return new ValidationResult("Не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
@@ -655,6 +652,9 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
+			if(DeliveryDate == null || DeliveryDate == default(DateTime))
+				yield return new ValidationResult("Не указана дата доставки.",
+					new[] { this.GetPropertyName(o => o.DeliveryDate) });
 			if(!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult("Необходимо заполнить точку доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
