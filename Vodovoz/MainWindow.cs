@@ -917,4 +917,13 @@ public partial class MainWindow : Gtk.Window
 			() => new OrdersWithoutBottlesOperationDlg()
 		);
 	}
+
+	protected void OnAction43Activated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.IncomeBalanceReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
 }

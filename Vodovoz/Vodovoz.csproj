@@ -704,6 +704,8 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.ScheduleRestrictedDistrictsDlg.cs" />
     <Compile Include="ServiceDialogs\Database\OrdersWithoutBottlesOperationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.OrdersWithoutBottlesOperationDlg.cs" />
+    <Compile Include="ReportsParameters\IncomeBalanceReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.IncomeBalanceReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1105,6 +1107,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\ServiceCenter\EquipmentReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\IncomeBalance.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
