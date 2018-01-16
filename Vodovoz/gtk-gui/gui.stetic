@@ -18283,7 +18283,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListClosingDlg" design-size="1257 500">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListClosingDlg" design-size="1257 512">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>

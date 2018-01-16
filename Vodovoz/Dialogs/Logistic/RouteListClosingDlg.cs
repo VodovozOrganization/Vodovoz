@@ -207,6 +207,8 @@ namespace Vodovoz
 			enummenuRLActions.EnumItemClicked += EnummenuRLActions_EnumItemClicked;
 			enummenuRLActions.Sensitive = editing;
 
+			CheckWage();
+
 			LoadDataFromFine();
 			OnItemsUpdated();
 			PerformanceHelper.AddTimePoint("Загрузка штрафов");
@@ -225,6 +227,33 @@ namespace Vodovoz
 			ylabelRecalculatedMileage.Binding.AddFuncBinding(Entity, e => e.RecalculatedDistance.HasValue ? $" {e.RecalculatedDistance} км" : "", w => w.LabelProp).InitializeFromSource();		
 			checkSendToMileageCheck.Binding.AddBinding(Entity, x => x.MileageCheck, w => w.Active).InitializeFromSource();
 			Entity.PropertyChanged += Entity_PropertyChanged;
+		}
+
+		/// <summary>
+		/// Перепроверка зарплаты водителя и экспедитора
+		/// </summary>
+		private void CheckWage()
+		{
+			decimal driverCurrentWage = Entity.GetDriversTotalWage();
+			decimal forwarderCurrentWage = Entity.GetForwardersTotalWage();
+			decimal driverRecalcWage = Entity.GetRecalculatedDriverWage();
+			decimal forwarderRecalcWage = Entity.GetRecalculatedForvarderWage();
+
+			string recalcWageMessage = "Найдены расхождения после пересчета зарплаты:";
+			bool haveDiscrepancy = false;
+			if(driverRecalcWage != driverCurrentWage) {
+				recalcWageMessage += String.Format("\nВодителя: до {0}, после {1}", driverCurrentWage, driverRecalcWage);
+				haveDiscrepancy = true;
+			}
+			if(forwarderRecalcWage != forwarderCurrentWage) {
+				recalcWageMessage += String.Format("\nЭкспедитора: до {0}, после {1}", forwarderCurrentWage, forwarderRecalcWage);
+				haveDiscrepancy = true;
+			}
+			recalcWageMessage += String.Format("\nПересчитано.");
+
+			if(haveDiscrepancy && Entity.Status == RouteListStatus.Closed) {
+				MessageDialogWorks.RunInfoDialog(recalcWageMessage);
+			}	
 		}
 
 		void ObservableFuelDocuments_ListChanged(object aList)
@@ -339,13 +368,13 @@ namespace Vodovoz
 
 		void OnRouteListItemChanged(object aList, int[] aIdx)
 		{
-			if(fixedWageTrigger)
-			{
-				fixedWageTrigger = false;
+			var item = routeListAddressesView.Items[aIdx[0]];
+
+			var fix = new[] { WageCalculationType.fixedDay, WageCalculationType.fixedRoute };
+			if(fix.Contains(Entity.Driver.WageCalcType) || (Entity.Forwarder != null && fix.Contains(Entity.Forwarder.WageCalcType))){
 				return;
 			}
 
-			var item = routeListAddressesView.Items[aIdx[0]];
 			item.RecalculateWages();
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered())
@@ -390,8 +419,9 @@ namespace Vodovoz
 			decimal depositsCollectedTotal = items.Sum(item => item.DepositsCollected);
 			decimal equipmentDepositsCollectedTotal = items.Sum(item => item.EquipmentDepositsCollected);
 			decimal totalCollected = items.Sum(item => item.TotalCash);
-			decimal driverWage = GetDriversTotalWage(items);
-			decimal forwarderWage = GetForwardersTotalWage(items);
+			Entity.CalculateWages();
+			decimal driverWage = Entity.GetDriversTotalWage();
+			decimal forwarderWage = Entity.GetForwardersTotalWage();
 			labelAddressCount.Text = String.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = String.Format(
 				"Сот. связь: {0} {1}",
@@ -852,79 +882,6 @@ namespace Vodovoz
 		protected void OnAdvanceSpinbuttonChanged(object sender, EventArgs e)   // Поле изменения суммы аванса. @Дима
 		{
 			CalculateTotal();
-		}
-
-		protected decimal GetDriversTotalWage(IEnumerable<RouteListItem> items)
-		{
-			if(Entity.Driver.WageCalcType == WageCalculationType.fixedDay)
-			{
-				var wageOperation = UoW.Session.QueryOver<WagesMovementOperations>()
-									   .Where(x => x.Employee == Entity.Driver)
-									   .Where(x => x.OperationTime == Entity.Date)
-									   .List();
-				
-				if(wageOperation.Count() != 0)
-				{
-					return 0;
-				}
-
-				var item = Entity.Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
-
-				if(item != null && item.DriverWage == 0)
-				{
-					fixedWageTrigger = true;
-					item.SetDriversWage(Entity.Driver.WageCalcRate);
-				}
-			}
-
-			if(Entity.Driver.WageCalcType == WageCalculationType.fixedRoute)
-			{
-				var item = Entity.Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
-
-				if(item != null && item.DriverWage == 0) {
-					fixedWageTrigger = true;
-					item.SetDriversWage(Entity.Driver.WageCalcRate);
-				}
-			}
-
-			return items.Sum(item => item.DriverWage) + items.Sum(item => item.DriverWageSurcharge);
-		}
-
-		protected decimal GetForwardersTotalWage(IEnumerable<RouteListItem> items)
-		{
-			if(Entity.Forwarder == null)
-			{
-				return 0;
-			}
-
-			if(Entity.Forwarder.WageCalcType == WageCalculationType.fixedDay) {
-				var wageOperation = UoW.Session.QueryOver<WagesMovementOperations>()
-				                       .Where(x => x.Employee == Entity.Forwarder)
-									   .Where(x => x.OperationTime == Entity.Date)
-									   .List();
-
-				if(wageOperation.Count() != 0) {
-					return 0;
-				}
-
-				var item = Entity.Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
-
-				if(item != null && item.ForwarderWage == 0) {
-					fixedWageTrigger = true;
-					item.SetForwardersWage(Entity.Forwarder.WageCalcRate);
-				}
-			}
-
-			if(Entity.Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
-				var item = Entity.Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
-
-				if(item != null && item.ForwarderWage == 0) {
-					fixedWageTrigger = true;
-					item.SetForwardersWage(Entity.Forwarder.WageCalcRate);
-				}
-			}
-
-			return items.Sum(item => item.ForwarderWage);
 		}
 
 		protected void OnButtonRecalculateMileageClicked(object sender, EventArgs e)

@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -170,6 +170,23 @@ namespace Vodovoz.Domain.Logistic
 				SetField(ref cashier, value, () => Cashier);
 			}
 		}
+
+		decimal fixedDriverWage;
+
+		[Display(Name = "Фиксированная заработанная плата водителя")]
+		public virtual decimal FixedDriverWage {
+			get { return fixedDriverWage; }
+			set { SetField(ref fixedDriverWage, value, () => FixedDriverWage); }
+		}
+
+		decimal fixedForwarderWage;
+
+		[Display(Name = "Фиксированная заработанная плата экспедитора")]
+		public virtual decimal FixedForwarderWage {
+			get { return fixedForwarderWage; }
+			set { SetField(ref fixedForwarderWage, value, () => FixedForwarderWage); }
+		}
+
 
 		Fine bottleFine;
 
@@ -487,22 +504,6 @@ namespace Vodovoz.Domain.Logistic
 			observableAddresses = null;
 		}
 
-		public virtual void CompleteRoute()
-		{
-			Status = RouteListStatus.OnClosing;
-			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
-				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
-			}
-			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
-			if(track != null) {
-				track.CalculateDistance();
-				track.CalculateDistanceToBase();
-				UoW.Save(track);
-			}
-			FirstFillClosing();
-			UoW.Save(this);
-		}
-
 		public virtual void RollBackEnRouteStatus()
 		{
 			Status = RouteListStatus.EnRoute;
@@ -636,6 +637,118 @@ namespace Vodovoz.Domain.Logistic
 		#endregion
 
 		#region Функции относящиеся к закрытию МЛ
+
+		public virtual void CompleteRoute()
+		{
+			Status = RouteListStatus.OnClosing;
+			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
+				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
+			}
+			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
+			if(track != null) {
+				track.CalculateDistance();
+				track.CalculateDistanceToBase();
+				UoW.Save(track);
+			}
+			FirstFillClosing();
+			UoW.Save(this);
+		}
+
+		/// <summary>
+		/// Возвращает пересчитанную заного зарплату водителя (не записывает)
+		/// </summary>
+		public virtual decimal GetRecalculatedDriverWage()
+		{
+			if(Driver.WageCalcType == WageCalculationType.fixedDay || Driver.WageCalcType == WageCalculationType.fixedRoute) {
+				if(FixedDriverWage > 0) {
+					return FixedDriverWage;
+				}else {
+					// Для совместимости, так как раньше фикса хранилась в строке адреса
+					var item = Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
+					if(item != null) {
+						return item.DriverWage;
+					}
+				}
+			}
+			decimal result = 0m;
+			foreach(var address in Addresses) {
+				result += address.CalculateDriverWage() + address.DriverWageSurcharge;
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Возвращает пересчитанную заного зарплату экспедитора (не записывает)
+		/// </summary>
+		public virtual decimal GetRecalculatedForvarderWage()
+		{
+			if(Forwarder == null) {
+				return 0;
+			}
+			if(Forwarder.WageCalcType == WageCalculationType.fixedDay || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+				if(FixedForwarderWage > 0) {
+					return FixedForwarderWage;
+				} else {
+					// Для совместимости, так как раньше фикса хранилась в строке адреса
+					var item = Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
+					if(item != null) {
+						return item.ForwarderWage;
+					}
+				}
+			}
+			decimal result = 0m;
+			foreach(var address in Addresses) {
+				result += address.CalculateForwarderWage() + address.ForwarderWageSurcharge;
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Возвращает текущую зарплату водителя
+		/// </summary>
+		public virtual decimal GetDriversTotalWage()
+		{
+			if(Driver.WageCalcType == WageCalculationType.fixedDay 
+			  || Driver.WageCalcType == WageCalculationType.fixedRoute) {
+				return FixedDriverWage;
+			}
+			return Addresses.Sum(item => item.DriverWage) + Addresses.Sum(item => item.DriverWageSurcharge);
+		}
+
+		/// <summary>
+		/// Возвращает текущую зарплату экспедитора
+		/// </summary>
+		public virtual decimal GetForwardersTotalWage()
+		{
+			if(Forwarder == null) {
+				return 0;
+			}
+			if(Forwarder.WageCalcType == WageCalculationType.fixedDay
+			  || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+				return FixedDriverWage;
+			}
+			return Addresses.Sum(item => item.ForwarderWage);
+		}
+
+		/// <summary>
+		/// Расчитывает и записывает зарплату
+		/// </summary>
+		public virtual void CalculateWages()
+		{
+			if(Driver.WageCalcType == WageCalculationType.fixedDay
+				   || Driver.WageCalcType == WageCalculationType.fixedRoute) {
+				FixedDriverWage = Driver.WageCalcRate;
+			}
+
+			if(Forwarder != null) {
+				if(Forwarder.WageCalcType == WageCalculationType.fixedDay
+				   || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+					FixedForwarderWage = Forwarder.WageCalcRate;
+				}
+			}
+
+			Addresses.ToList().ForEach(x => x.RecalculateWages());
+		}
 
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
 		public virtual void FirstFillClosing()
