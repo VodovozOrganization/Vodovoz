@@ -31,7 +31,7 @@ namespace Vodovoz.ReportsParameters
 
 		public string Title {
 			get {
-				return "Отчет по некорректным ценам";
+				return "Отчет по прибыли";
 			}
 		}
 
