@@ -428,6 +428,10 @@ namespace Vodovoz.Domain.Client
 			route.Add(new PointOnEarth(Latitude.Value, Longitude.Value));
 
 			var result = OsrmMain.GetRoute(route, false, GeometryOverview.False);
+			if(result == null) {
+				logger.Error("Сервер расчета расстояний не вернул ответа.");
+				return false;
+			}
 			if(result.Code != "Ok") {
 				logger.Error("Сервер расчета расстояний вернул следующее сообщение:\n" + result.StatusMessageRus);
 				return false;
