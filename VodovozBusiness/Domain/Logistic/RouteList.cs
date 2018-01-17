@@ -660,15 +660,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal GetRecalculatedDriverWage()
 		{
 			if(Driver.WageCalcType == WageCalculationType.fixedDay || Driver.WageCalcType == WageCalculationType.fixedRoute) {
-				if(FixedDriverWage > 0) {
-					return FixedDriverWage;
-				}else {
-					// Для совместимости, так как раньше фикса хранилась в строке адреса
-					var item = Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
-					if(item != null) {
-						return item.DriverWage;
-					}
-				}
+				return FixedDriverWage;
 			}
 			decimal result = 0m;
 			foreach(var address in Addresses) {
@@ -680,21 +672,13 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Возвращает пересчитанную заного зарплату экспедитора (не записывает)
 		/// </summary>
-		public virtual decimal GetRecalculatedForvarderWage()
+		public virtual decimal GetRecalculatedForwarderWage()
 		{
 			if(Forwarder == null) {
 				return 0;
 			}
 			if(Forwarder.WageCalcType == WageCalculationType.fixedDay || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
-				if(FixedForwarderWage > 0) {
-					return FixedForwarderWage;
-				} else {
-					// Для совместимости, так как раньше фикса хранилась в строке адреса
-					var item = Addresses.Where(x => x.IsDelivered()).FirstOrDefault();
-					if(item != null) {
-						return item.ForwarderWage;
-					}
-				}
+				return FixedForwarderWage;
 			}
 			decimal result = 0m;
 			foreach(var address in Addresses) {

@@ -237,7 +237,7 @@ namespace Vodovoz
 			decimal driverCurrentWage = Entity.GetDriversTotalWage();
 			decimal forwarderCurrentWage = Entity.GetForwardersTotalWage();
 			decimal driverRecalcWage = Entity.GetRecalculatedDriverWage();
-			decimal forwarderRecalcWage = Entity.GetRecalculatedForvarderWage();
+			decimal forwarderRecalcWage = Entity.GetRecalculatedForwarderWage();
 
 			string recalcWageMessage = "Найдены расхождения после пересчета зарплаты:";
 			bool haveDiscrepancy = false;
