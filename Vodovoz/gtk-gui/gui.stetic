@@ -804,7 +804,6 @@
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчёт по выездам мастеров</property>
         <property name="ShortLabel" translatable="yes">Отчёт по выездам мастеров</property>
-        <signal name="Activated" handler="OnActionMastersVisitReportActivated" />
       </action>
       <action id="ActionMileageReport">
         <property name="Type">Action</property>
@@ -1004,7 +1003,6 @@
                       <node type="Menuitem" action="ActionSuburbWaterPrice" />
                     </node>
                     <node type="Menu" action="Action33">
-                      <node type="Menuitem" action="Action35" />
                       <node type="Menuitem" action="Action42" />
                       <node type="Menuitem" action="Action41" />
                     </node>
@@ -44646,106 +44644,6 @@
           </widget>
           <packing>
             <property name="Position">2</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
-          </packing>
-        </child>
-      </widget>
-    </child>
-  </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.MastersVisitReport" design-size="300 300">
-    <property name="MemberName" />
-    <property name="Visible">False</property>
-    <child>
-      <widget class="Gtk.VBox" id="vbox1">
-        <property name="MemberName" />
-        <property name="Spacing">6</property>
-        <child>
-          <widget class="Gtk.HBox" id="hbox1">
-            <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <child>
-              <widget class="Gtk.Label" id="label1">
-                <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">Дата:</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="QSWidgetLib.DatePeriodPicker" id="dateperiodpicker">
-                <property name="MemberName" />
-                <property name="Events">ButtonPressMask</property>
-                <property name="StartDate">0</property>
-                <property name="EndDate">0</property>
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">False</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="Position">0</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gtk.HBox" id="hbox3">
-            <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <child>
-              <widget class="Gtk.Label" id="labelEmployee">
-                <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">Сотрудник:</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryrefEmployee">
-                <property name="MemberName" />
-                <property name="Events">ButtonPressMask</property>
-                <signal name="Changed" handler="OnYentryrefEmployeeChanged" />
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">False</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="Position">1</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
-          </packing>
-        </child>
-        <child>
-          <placeholder />
-        </child>
-        <child>
-          <widget class="Gtk.Button" id="buttonCreateReport">
-            <property name="MemberName" />
-            <property name="CanFocus">True</property>
-            <property name="Type">TextOnly</property>
-            <property name="Label" translatable="yes">Сформировать отчет</property>
-            <property name="UseUnderline">True</property>
-            <signal name="Clicked" handler="OnButtonCreateReportClicked" />
-          </widget>
-          <packing>
-            <property name="Position">3</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>

@@ -709,8 +709,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <Value>=Sum(Fields!entry_wage.Value)</Value>
                     </Textbox>
@@ -735,8 +735,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <Value>=Sum(Fields!entry_advance.Value)</Value>
                     </Textbox>
@@ -744,7 +744,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>.2in</Height>
               <TableCells>
                 <TableCell>
@@ -755,13 +755,13 @@
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -769,7 +769,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>.2in</Height>
               <TableCells>
                 <TableCell>
@@ -779,15 +779,15 @@
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Right</TextAlign>
-                        <FontSize >11pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>11pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -800,14 +800,14 @@
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontSize >11pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>11pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -887,8 +887,25 @@ right join
 		order_items on order_items.order_id = orders.id
 	left join
 		nomenclature on nomenclature.id = order_items.nomenclature_id
+    left join
+		order_equipment on order_equipment.order_id = orders.id
 	where
 		nomenclature.category = 'master'
+        #Исключатся недовозы, частичные недовозы и отмены
+		AND (
+			(orders.order_status NOT IN ('NotDelivered', 'Canceled'))  
+			OR NOT (
+				# Частичные недовозы
+				route_list_addresses.status = 'Completed' 
+				AND    					
+				(
+					nomenclature.category in ('master')
+					AND nomenclature.serial = false					
+					AND order_items.count != order_items.actual_count
+				)
+				OR order_equipment.confirmed = false	
+			)
+		)
 	union select
 		cash_expense.route_list_id as rl_id,
 		cash_expense.description as entry_name,
