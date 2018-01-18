@@ -655,8 +655,12 @@ namespace Vodovoz.Domain.Logistic
 
 			wage += equpmentPaymentShort;
 
-			if (Order.ToClientText?.ToLower().Contains("раст") == true)
-				wage = 10;
+			// Расчет зарплаты если в заказе указано расторжение
+			if (Order.ToClientText?.ToLower().Contains("раст") == true 
+			    && this.routeList.Date > new DateTime(2018, 1, 10)){
+				wage = rates.PaymentWithRast;
+			}
+				
 #endif
 
 			return wage;
