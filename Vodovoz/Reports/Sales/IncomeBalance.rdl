@@ -676,6 +676,9 @@
           <TableColumn>
             <Width>76.9pt</Width>
           </TableColumn>
+          <TableColumn>
+            <Width>197.6pt</Width>
+          </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
@@ -799,6 +802,22 @@
                   <ReportItems>
                     <Textbox Name="Textbox40">
                       <Value>Переносы</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value>Фактический приход денег</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -951,6 +970,22 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Value>=Fields!CashIncomeDates.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BackgroundColor>
+                        </BackgroundColor>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -1074,6 +1109,22 @@
                   <ReportItems>
                     <Textbox Name="Textbox60">
                       <Value>=sum({TransferedSum})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1253,7 +1304,7 @@ FROM
 	#Приходные ордера
 		LEFT JOIN cash_income ON cash_income.route_list_id = route_lists.id			
 	WHERE
-		route_lists.status = 'Closed'
+		route_lists.status IN ('Closed', 'MileageCheck')
         AND route_lists.date &gt;= @StartDate AND route_lists.date &lt;= @EndDate
 	GROUP BY route_lists.id
     ) as t	</CommandText>
@@ -1326,7 +1377,6 @@ FROM
             WHEN route_lists.status = 'InLoading' THEN 'На погрузке'
             WHEN route_lists.status = 'EnRoute' THEN 'В пути'
             WHEN route_lists.status = 'OnClosing' THEN 'Сдаётся'
-            WHEN route_lists.status = 'MileageCheck' THEN 'Проверка км'
             ELSE route_lists.status
 		END
     )
@@ -1334,7 +1384,8 @@ FROM
 	SUM(Orders.TotalOrdersSum) as BasePlanedIncome,
 	SUM(Orders.TotalOrdersSum) + IFNULL(nedovoz.nedovoz_sum, 0) + IFNULL(Transfered.TotalOrdersSum, 0) as CurrenctPlanedIncome,
 	IFNULL(nedovoz.nedovoz_sum, 0) as NedovozSum,
-	IFNULL(Transfered.TotalOrdersSum, 0) as TransferedSum
+	IFNULL(Transfered.TotalOrdersSum, 0) as TransferedSum,
+    GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y' ) SEPARATOR ', ') as CashIncomeDates
 FROM
 	route_lists
 	LEFT JOIN employees ON route_lists.driver_id = employees.id
@@ -1413,8 +1464,10 @@ FROM
 				) as internal_trans
 			GROUP BY internal_trans.route_list_id HAVING TotalOrdersSum != 0
 		) as Transfered ON Transfered.route_list_id = route_lists.id
+#Приходные ордера
+	LEFT JOIN cash_income ON cash_income.route_list_id = route_lists.id	
 WHERE
-	route_lists.status != 'Closed'
+	route_lists.status NOT IN ('Closed', 'MileageCheck')
 	AND route_lists.date &gt;= @StartDate AND route_lists.date &lt;= @EndDate
 GROUP BY route_lists.id	</CommandText>
         <QueryParameters>
@@ -1457,6 +1510,10 @@ GROUP BY route_lists.id	</CommandText>
         </Field>
         <Field Name="status">
           <DataField>status</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="CashIncomeDates">
+          <DataField>CashIncomeDates</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
