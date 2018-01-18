@@ -49,40 +49,43 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>61.6pt</Width>
+            <Width>41.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>78.6pt</Width>
+            <Width>50.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>70.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.2pt</Width>
+            <Width>78.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80.8pt</Width>
+            <Width>76.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>60.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>73.0pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.9pt</Width>
+            <Width>61.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>60.7pt</Width>
+            <Width>56.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>79.7pt</Width>
+            <Width>74.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>176.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>13.9pt</Height>
+              <Height>14.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -234,6 +237,22 @@
                     <Textbox Name="Textbox4">
                       <Value>Неоп. остаток</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>Фактический приход денег</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -419,6 +438,23 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>=Fields!CashIncomeDates.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <BackgroundColor>
+                        </BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -580,6 +616,23 @@
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=sum({balance})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1082,7 +1135,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	t.*,
@@ -1103,7 +1156,8 @@ FROM
 		CAST(IFNULL(PhoneSums.Sum, 0) as DECIMAL(10,2)) as PhoneSum,
 		IFNULL(nedovoz.nedovoz_sum, 0) as NedovozSum,
 		IFNULL(Transfered.TotalOrdersSum, 0) as TransferedSum,
-		IFNULL((route_list_addresses.deposits_collected + route_list_addresses.equipment_deposits_collected), 0) as DepositsSum
+		SUM(IFNULL((route_list_addresses.deposits_collected + route_list_addresses.equipment_deposits_collected), 0)) as DepositsSum,
+        GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y' ) SEPARATOR ', ') as CashIncomeDates
 	FROM
 		route_lists
 		LEFT JOIN employees ON route_lists.driver_id = employees.id
@@ -1196,6 +1250,8 @@ FROM
 					) as internal_trans
 				GROUP BY internal_trans.route_list_id HAVING TotalOrdersSum != 0
 			) as Transfered ON Transfered.route_list_id = route_lists.id
+	#Приходные ордера
+		LEFT JOIN cash_income ON cash_income.route_list_id = route_lists.id			
 	WHERE
 		route_lists.status = 'Closed'
         AND route_lists.date &gt;= @StartDate AND route_lists.date &lt;= @EndDate
@@ -1210,7 +1266,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.Int32</TypeName>
@@ -1251,10 +1307,14 @@ FROM
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="CashIncomeDates">
+          <DataField>CashIncomeDates</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="IncomeAllStatus">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT    
 	route_lists.id as number,
@@ -1317,25 +1377,11 @@ FROM
 			WHERE
 				orders.payment_type = 'cash'
 					AND order_items.price &gt; 0
-					AND(
-						(
+					AND	(
 							#Полностью недовезенные заказы без перенесенных адресов (чтобы не засчиталось дважды)
 							orders.order_status in ('Canceled', 'NotDelivered', 'DeliveryCanceled') 
 							AND route_list_addresses.status != 'transfered'
-						)
-						OR (
-							# Частичные недовозы
-							route_list_addresses.status = 'Completed' 
-							AND(					
-								(
-									nomenclature.category in ('water', 'equipment', 'disposableBottleWater', 'additional', 'bottle')
-									AND nomenclature.serial = false					
-									AND order_items.count != order_items.actual_count
-								)
-								OR order_equipment.confirmed = false
-							)
-						)
-					)
+					)					
 			GROUP BY route_list_addresses.route_list_id
 		) as nedovoz ON nedovoz.route_list_id = route_lists.id
 #Переносы
@@ -1380,7 +1426,7 @@ GROUP BY route_lists.id	</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.Int32</TypeName>
