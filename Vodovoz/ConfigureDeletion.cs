@@ -349,6 +349,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPoint>()
 				.AddDeleteDependence<AdditionalAgreement> (item => item.DeliveryPoint)
 				.AddDeleteDependence<BottlesMovementOperation> (item => item.DeliveryPoint)
+			    .AddDeleteDependence<TransferOperationDocument>(item => item.FromDeliveryPoint)
+			    .AddDeleteDependence<TransferOperationDocument>(item => item.ToDeliveryPoint)
 				.AddDeleteDependence<DepositOperation> (item => item.DeliveryPoint)
 				.AddDeleteDependence<CounterpartyMovementOperation> (item => item.WriteoffDeliveryPoint)
 				.AddDeleteDependence<CounterpartyMovementOperation> (item => item.IncomingDeliveryPoint)
