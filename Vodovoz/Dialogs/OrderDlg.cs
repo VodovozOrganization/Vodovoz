@@ -917,7 +917,7 @@ namespace Vodovoz
 				if(contract != null) {
 					bool hasWaterAgreement = contract.GetWaterSalesAgreement(UoWGeneric.Root.DeliveryPoint, nomenclature) != null;
 					if(!hasWaterAgreement)
-						RunAdditionalAgreementWaterDialog();
+						RunAdditionalAgreementWaterDialog(nomenclature);
 				}
 			};
 			TabParent.AddSlaveTab(this, dlg);
@@ -932,10 +932,16 @@ namespace Vodovoz
 			Entity.Contract = args.Contract;
 		}
 
-		protected void RunAdditionalAgreementWaterDialog()
+		protected void RunAdditionalAgreementWaterDialog(Nomenclature nom = null)
 		{
 			ITdiDialog dlg = new WaterAgreementDlg(CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType), UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
-			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
+			(dlg as IAgreementSaved).AgreementSaved += 
+				(sender, e) => {
+					AgreementSaved(sender, e);
+					if(nom != null) {
+						AddNomenclature(nom);
+					}
+				};
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
@@ -949,6 +955,7 @@ namespace Vodovoz
 				agreement = CreateDefaultWaterAgreement(contract);
 				contract.AdditionalAgreements.Add(agreement);
 				AddAgreementDocument(agreement);
+				AddNomenclature(nomenclature);
 			}
 		}
 
