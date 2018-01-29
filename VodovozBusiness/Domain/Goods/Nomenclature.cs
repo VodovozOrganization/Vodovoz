@@ -96,6 +96,16 @@ namespace Vodovoz.Domain.Goods
 			set { SetField (ref rentPriority, value, () => RentPriority); }
 		}
 
+		bool isDuty;
+		/// <summary>
+		/// Дежурное оборудование
+		/// </summary>
+		[Display(Name = "Дежурное оборудование")]
+		public virtual bool IsDuty {
+			get { return isDuty; }
+			set { SetField(ref isDuty, value, () => IsDuty); }
+		}
+
 		bool isSerial;
 
 		[Display (Name = "Серийный номер")]

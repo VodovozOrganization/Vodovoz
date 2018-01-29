@@ -18,9 +18,9 @@ namespace Vodovoz.Domain.Client
 		IList<PaidRentEquipment> equipment = new List<PaidRentEquipment> ();
 
 		[Display (Name = "Список оборудования")]
-		public virtual IList<PaidRentEquipment> Equipment {
+		public virtual IList<PaidRentEquipment> PaidRentEquipments {
 			get { return equipment; }
-			set { SetField (ref equipment, value, () => Equipment); }
+			set { SetField (ref equipment, value, () => PaidRentEquipments); }
 		}
 
 		GenericObservableList<PaidRentEquipment> observableEquipment;
@@ -28,7 +28,7 @@ namespace Vodovoz.Domain.Client
 		public virtual GenericObservableList<PaidRentEquipment> ObservableEquipment {
 			get {
 				if (observableEquipment == null)
-					observableEquipment = new GenericObservableList<PaidRentEquipment> (Equipment);
+					observableEquipment = new GenericObservableList<PaidRentEquipment> (PaidRentEquipments);
 				return observableEquipment;
 			}
 		}
@@ -41,7 +41,7 @@ namespace Vodovoz.Domain.Client
 			if (DeliveryPoint == null)
 				yield return new ValidationResult ("Необходимо указать точку доставки.", new[] { "DeliveryPoint" });
 
-			if (Equipment.Count < 1)
+			if (PaidRentEquipments.Count < 1)
 				yield return new ValidationResult("Необходимо добавить в список оборудование.", new[] { "Equipment" });
 			
 			if(RentMonths == null)

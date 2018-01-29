@@ -30,6 +30,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref equipment, value, () => Equipment); }
 		}
 
+		Nomenclature nomenclature;
+
+		[Display(Name = "Номенклатура")]
+		public virtual Nomenclature Nomenclature {
+			get { return nomenclature; }
+			set { SetField(ref nomenclature, value, () => Nomenclature); }
+		}
+
 		int count;
 
 		[Display(Name = "Количество")]
@@ -59,6 +67,22 @@ namespace Vodovoz.Domain.Client
 		public virtual bool IsNew {
 			get { return isNew; }
 			set { SetField (ref isNew, value, () => IsNew); }
+		}
+
+		/// <summary>
+		/// Выводит имя из оборудования если посерийный учет, иначе из номенклатуры 
+		/// </summary>
+		/// <value>The name of the equipment.</value>
+		public virtual string EquipmentName {
+			get {
+				if(Equipment != null) {
+					return Equipment.NomenclatureName;
+				} else if(Nomenclature != null) {
+					return Nomenclature.Name;
+				} else {
+					return String.Empty;
+				}
+			}
 		}
 
 		public virtual string PackageName { get { return PaidRentPackage != null ? PaidRentPackage.Name : ""; } }

@@ -8,7 +8,11 @@ namespace Vodovoz.JournalFilters
 
 		private global::Gtk.Label labelType;
 
-		private global::Gamma.Widgets.yEnumComboBox enumcomboType;
+		private global::Gamma.Widgets.yEnumComboBox enumcomboCategory;
+
+		private global::Gtk.Label labelType1;
+
+		private global::QSOrmProject.EntryReference entryrefEquipmentType;
 
 		protected virtual void Build()
 		{
@@ -23,31 +27,50 @@ namespace Vodovoz.JournalFilters
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.labelType = new global::Gtk.Label();
 			this.labelType.Name = "labelType";
-			this.labelType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип");
+			this.labelType.LabelProp = global::Mono.Unix.Catalog.GetString("Категория");
 			this.hbox1.Add(this.labelType);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelType]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.enumcomboType = new global::Gamma.Widgets.yEnumComboBox();
-			this.enumcomboType.Name = "enumcomboType";
-			this.enumcomboType.ShowSpecialStateAll = true;
-			this.enumcomboType.ShowSpecialStateNot = false;
-			this.enumcomboType.UseShortTitle = false;
-			this.enumcomboType.DefaultFirst = true;
-			this.hbox1.Add(this.enumcomboType);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.enumcomboType]));
+			this.enumcomboCategory = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumcomboCategory.Name = "enumcomboCategory";
+			this.enumcomboCategory.ShowSpecialStateAll = true;
+			this.enumcomboCategory.ShowSpecialStateNot = false;
+			this.enumcomboCategory.UseShortTitle = false;
+			this.enumcomboCategory.DefaultFirst = true;
+			this.hbox1.Add(this.enumcomboCategory);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.enumcomboCategory]));
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.labelType1 = new global::Gtk.Label();
+			this.labelType1.Name = "labelType1";
+			this.labelType1.LabelProp = global::Mono.Unix.Catalog.GetString("Тип оборудования");
+			this.hbox1.Add(this.labelType1);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelType1]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.entryrefEquipmentType = new global::QSOrmProject.EntryReference();
+			this.entryrefEquipmentType.Events = ((global::Gdk.EventMask)(256));
+			this.entryrefEquipmentType.Name = "entryrefEquipmentType";
+			this.hbox1.Add(this.entryrefEquipmentType);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entryrefEquipmentType]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.enumcomboType.ChangedByUser += new global::System.EventHandler(this.OnEnumcomboTypeChangedByUser);
+			this.enumcomboCategory.ChangedByUser += new global::System.EventHandler(this.OnEnumcomboCategoryChangedByUser);
+			this.entryrefEquipmentType.ChangedByUser += new global::System.EventHandler(this.OnEntryrefEquipmentTypeChangedByUser);
 		}
 	}
 }

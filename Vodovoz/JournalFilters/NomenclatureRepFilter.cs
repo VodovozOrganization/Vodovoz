@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.JournalFilters
@@ -21,8 +22,9 @@ namespace Vodovoz.JournalFilters
 		{
 			this.Build();
 			UoW = uow;
-			enumcomboType.ItemsEnum = typeof(NomenclatureCategory);
-		//	enumcomboType.AddEnumToHideList(HideList(Nomenclature.GetCategoriesForSale()));
+			enumcomboCategory.ItemsEnum = typeof(NomenclatureCategory);
+			entryrefEquipmentType.SubjectType = typeof(EquipmentType);
+			//	enumcomboType.AddEnumToHideList(HideList(Nomenclature.GetCategoriesForSale()));
 			OnRefiltered();
 		}
 
@@ -60,7 +62,7 @@ namespace Vodovoz.JournalFilters
 			set { 
 				nomenCategory = value;
 				AllSelected = false;
-				enumcomboType.SelectedItem = value;
+				enumcomboCategory.SelectedItem = value;
 			}
 		}
 

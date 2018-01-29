@@ -8,6 +8,9 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Goods
 {
+	/// <summary>
+	/// Оборудование только для посерийного учета
+	/// </summary>
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
 		NominativePlural = "оборудование",
 		Nominative = "оборудование",
@@ -128,7 +131,7 @@ namespace Vodovoz.Domain.Goods
 					if (eq.Equipment != null)
 						IDs.Add (eq.Equipment.Id);
 			foreach (NonfreeRentAgreement nfr in nAgreements)
-				foreach (PaidRentEquipment eq in nfr.Equipment)
+				foreach (PaidRentEquipment eq in nfr.PaidRentEquipments)
 					if (eq.Equipment != null)
 						IDs.Add (eq.Equipment.Id);
 			foreach (DailyRentAgreement dr in dAgreements)

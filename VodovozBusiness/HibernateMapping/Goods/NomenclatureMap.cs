@@ -21,6 +21,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.VAT)		 .Column ("vat").CustomType<VATStringType> ();
 			Map (x => x.DoNotReserve).Column ("reserve");
 			Map (x => x.RentPriority).Column ("rent_priority");
+			Map (x => x.IsDuty)		 .Column ("is_duty");
 			Map (x => x.IsSerial)	 .Column ("serial");
 			Map (x => x.Category)	 .Column ("category").CustomType<NomenclatureCategoryStringType> ();
 			Map (x => x.Code1c)		 .Column ("code_1c");

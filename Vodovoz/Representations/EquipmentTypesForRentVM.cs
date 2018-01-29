@@ -12,6 +12,9 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModel
 {
+	/// <summary>
+	/// Модель отображения в списке количества оборудования определенного типа.
+	/// </summary>
 	public class EquipmentTypesForRentVM :RepresentationModelWithoutEntityBase<EquipmentTypesForRentVMNode>
 	{
 		#region implemented abstract members of RepresentationModelBase
@@ -45,7 +48,9 @@ namespace Vodovoz.ViewModel
 				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
 				.Where (() => nomenclatureAlias.Type.Id == equipmentTypeAlias.Id)
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
-				.Where(() => orderAlias.OrderStatus==OrderStatus.Accepted)
+				.Where(() => orderAlias.OrderStatus==OrderStatus.Accepted
+			           || orderAlias.OrderStatus == OrderStatus.InTravelList
+			           || orderAlias.OrderStatus == OrderStatus.NewOrder)
 				.Select (Projections.Count (() => orderEquipmentAlias.Id));
 
 			var equipment = UoW.Session.QueryOver<EquipmentType>(()=>equipmentTypeAlias)

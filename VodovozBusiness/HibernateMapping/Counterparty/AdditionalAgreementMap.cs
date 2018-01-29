@@ -29,7 +29,7 @@ namespace Vodovoz.HibernateMapping
 		{
 			DiscriminatorValue ("NonfreeRent");
 			Map(x => x.RentMonths).Column("rent_months");
-			HasMany (x => x.Equipment).Cascade.AllDeleteOrphan ().LazyLoad ()
+			HasMany (x => x.PaidRentEquipments).Cascade.AllDeleteOrphan ().LazyLoad ()
 				.KeyColumn ("additional_agreement_id");
 		}
 	}

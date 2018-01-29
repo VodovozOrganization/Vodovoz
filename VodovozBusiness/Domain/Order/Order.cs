@@ -1035,34 +1035,34 @@ namespace Vodovoz.Domain.Orders
 		public virtual void FillItemsFromAgreement(AdditionalAgreement a)
 		{
 			if(a.Type == AgreementType.DailyRent || a.Type == AgreementType.NonfreeRent) {
-				IList<PaidRentEquipment> EquipmentList;
+				IList<PaidRentEquipment> paidRentEquipmentList;
 				bool IsDaily = false;
 
 				if(a.Type == AgreementType.DailyRent) {
-					EquipmentList = (a as DailyRentAgreement).Equipment;
+					paidRentEquipmentList = (a as DailyRentAgreement).Equipment;
 					IsDaily = true;
 				} else
-					EquipmentList = (a as NonfreeRentAgreement).Equipment;
+					paidRentEquipmentList = (a as NonfreeRentAgreement).PaidRentEquipments;
 
-				foreach(PaidRentEquipment equipment in EquipmentList) {
+				foreach(PaidRentEquipment paidRentEquipment in paidRentEquipmentList) {
 					int ItemId;
 					//Добавляем номенклатуру залога
 					OrderItem orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
 							item => item.AdditionalAgreement.Id == a.Id &&
-							item.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id)) != null) {
-						orderItem.Count = equipment.Count;
-						orderItem.Price = equipment.Deposit;
+							item.Nomenclature.Id == paidRentEquipment.PaidRentPackage.DepositService.Id)) != null) {
+						orderItem.Count = paidRentEquipment.Count;
+						orderItem.Price = paidRentEquipment.Deposit;
 					} else {
 						ObservableOrderItems.Add(
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = a,
-								Count = equipment.Count,
+								Count = paidRentEquipment.Count,
 								Equipment = null,
-								Nomenclature = equipment.PaidRentPackage.DepositService,
-								Price = equipment.Deposit,
-								PaidRentEquipment = equipment
+								Nomenclature = paidRentEquipment.PaidRentPackage.DepositService,
+								Price = paidRentEquipment.Deposit,
+								PaidRentEquipment = paidRentEquipment
 							}
 						);
 					}
@@ -1070,39 +1070,39 @@ namespace Vodovoz.Domain.Orders
 					orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
 							item => item.AdditionalAgreement.Id == a.Id &&
-						item.Nomenclature.Id == (IsDaily ? equipment.PaidRentPackage.RentServiceDaily.Id : equipment.PaidRentPackage.RentServiceMonthly.Id)
+						item.Nomenclature.Id == (IsDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily.Id : paidRentEquipment.PaidRentPackage.RentServiceMonthly.Id)
 							)) != null) {
-						orderItem.Count = equipment.Count;
+						orderItem.Count = paidRentEquipment.Count;
 						orderItem.Price = orderItem.Nomenclature.GetPrice(orderItem.Count);
 						ItemId = ObservableOrderItems.IndexOf(orderItem);
 					} else {
-						Nomenclature nomenclature = IsDaily ? equipment.PaidRentPackage.RentServiceDaily : equipment.PaidRentPackage.RentServiceMonthly;
+						Nomenclature nomenclature = IsDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily : paidRentEquipment.PaidRentPackage.RentServiceMonthly;
 						ItemId = ObservableOrderItems.AddWithReturn(
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = a,
-								Count = equipment.Count,
+								Count = paidRentEquipment.Count,
 								Equipment = null,
 								Nomenclature = nomenclature,
-								Price = nomenclature.GetPrice(equipment.Count),
-								PaidRentEquipment = equipment
+								Price = nomenclature.GetPrice(paidRentEquipment.Count),
+								PaidRentEquipment = paidRentEquipment
 							}
 						);
 					}
 					//Добавляем оборудование
 					OrderEquipment orderEquip = ObservableOrderEquipments.FirstOrDefault(
-						x => x.Equipment == equipment.Equipment 
+						x => x.Equipment == paidRentEquipment.Equipment 
 						&& x.OrderItem == orderItem
 					);
 					if(orderEquip != null) {
-						orderEquip.Count = equipment.Count;
+						orderEquip.Count = paidRentEquipment.Count;
 					}else {
 						ObservableOrderEquipments.Add(
 						new OrderEquipment {
 							Order = this,
 							Direction = Direction.Deliver,
-							Count = equipment.Count,
-							Equipment = equipment.Equipment,
+							Count = paidRentEquipment.Count,
+							Equipment = paidRentEquipment.Equipment,
 							//Nomenclature = equipment.Equipment.Nomenclature,
 							Reason = Reason.Rent,
 							OrderItem = ObservableOrderItems[ItemId]

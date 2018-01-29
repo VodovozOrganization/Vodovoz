@@ -40,13 +40,10 @@ namespace Vodovoz
 			dataLastService.Binding.AddBinding (Entity, e => e.LastServiceDate, w => w.Date).InitializeFromSource ();
 			entrySerialNumber.Binding.AddBinding (Entity, e => e.Serial, w => w.Text).InitializeFromSource ();
 			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
-
 			referenceNomenclature.SubjectType = typeof(Nomenclature);
-			referenceNomenclature.Binding.AddBinding(Entity, e => e.Nomenclature, w => w.Subject).InitializeFromSource(); 
-			//FIXME запуск оборудования - временный фикс
-			//referenceNomenclature.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature>();
-												//.Add(Restrictions.Eq("Category", NomenclatureCategory.equipment));
-												//.Add (Restrictions.Eq ("Serial", true));
+			referenceNomenclature.Binding.AddBinding(Entity, e => e.Nomenclature, w => w.Subject).InitializeFromSource();
+			referenceNomenclature.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature>()
+				.Add(Restrictions.Eq("Category", NomenclatureCategory.equipment));
 			ydatepickerWarrantyEnd.Binding.AddBinding (UoWGeneric.Root, 
 				equipment => equipment.WarrantyEndDate, 
 				widget => widget.DateOrNull

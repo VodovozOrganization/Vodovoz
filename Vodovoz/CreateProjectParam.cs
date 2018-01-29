@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using Gamma.Binding;
 using Gamma.Utilities;
@@ -124,14 +124,14 @@ namespace Vodovoz
 					OrmObjectMapping<MovementDocument>.Create().Dialog<MovementDocumentDlg>(),
 					OrmObjectMapping<WriteoffDocument>.Create().Dialog<WriteoffDocumentDlg>(),
 					OrmObjectMapping<InventoryDocument>.Create().Dialog<InventoryDocumentDlg>(),
-					OrmObjectMapping<RegradingOfGoodsDocument>.Create().Dialog<RegradingOfGoodsDocumentDlg>(),
+					OrmObjectMapping<RegradingOfGoodsDocument>.Create().Dialog<RegradingOfGoodsDocumentDlg>(), 
 					OrmObjectMapping<SelfDeliveryDocument>.Create().Dialog<SelfDeliveryDocumentDlg>(),
 					OrmObjectMapping<CarLoadDocument>.Create().Dialog<CarLoadDocumentDlg>(),
 					OrmObjectMapping<CarUnloadDocument>.Create().Dialog<CarUnloadDocumentDlg>(),
 				//Справочники с фильтрами
 				OrmObjectMapping<Nomenclature>.Create().Dialog<NomenclatureDlg>().JournalFilter<NomenclatureFilter>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).Column("Тип", x => x.CategoryString).End(),
 				OrmObjectMapping<Equipment>.Create().Dialog<EquipmentDlg>().JournalFilter<EquipmentFilter>()
-					.DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Номенклатура", x => x.NomenclatureName).Column("Тип", x => x.Nomenclature.Type.Name).SearchColumn("Серийный номер", x => x.Serial).Column("Дата последней обработки", x => x.LastServiceDate.ToShortDateString ()).End(),
+					.DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Номенклатура", x => x.NomenclatureName).Column("Тип", x => x.Nomenclature.Type.Name).Column("Дата последней обработки", x => x.LastServiceDate.ToShortDateString ()).End(),
 				OrmObjectMapping<Employee>.Create().Dialog<EmployeeDlg>().JournalFilter<EmployeeFilter>()
 					.DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Ф.И.О.", x => x.FullName).Column("Категория", x => x.Category.GetEnumTitle()).OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic).End(),
 				//Логисткика

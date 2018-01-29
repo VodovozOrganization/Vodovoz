@@ -716,6 +716,9 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.CounterpartyDocumentsView.cs" />
     <Compile Include="ServiceDialogs\Database\OrdersWithoutBottlesOperationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.OrdersWithoutBottlesOperationDlg.cs" />
+    <Compile Include="Representations\EquipmentsNonSerialForRentVM.cs" />
+    <Compile Include="JournalFilters\NomenclatureEquipTypeFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.NomenclatureEquipTypeFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1127,7 +1130,10 @@
     <MonoDevelop>
       <Properties>
         <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild" />
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild">
+            <inheritsSet />
+            <inheritsScope />
+          </DotNetNamingPolicy>
         </Policies>
         <Deployment.LinuxDeployData generateScript="False" />
       </Properties>
