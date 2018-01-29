@@ -176,7 +176,7 @@ namespace Vodovoz.Domain.Client
 			}
 			AdditionalAgreement agreement = null;
 			if (deliveryPoint != null) {
-				agreement = AdditionalAgreements.OfType<WaterSalesAgreement>().FirstOrDefault (a => 
+				agreement = AdditionalAgreements.Select(x => x.Self).OfType<WaterSalesAgreement>().FirstOrDefault (a => 
 					a.DeliveryPoint != null &&
 					a.DeliveryPoint.Id == deliveryPoint.Id &&
 					!a.IsCancelled
@@ -198,8 +198,7 @@ namespace Vodovoz.Domain.Client
 				a.Type == AgreementType.WaterSales &&
 				!a.IsCancelled);
 			}
-			return agreement as WaterSalesAgreement;
-			//return agreement != null ? agreement as WaterSalesAgreement : null;
+			return agreement?.Self as WaterSalesAgreement;
 		}
 
 		public virtual bool RepairAgreementExists ()
