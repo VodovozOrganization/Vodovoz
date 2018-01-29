@@ -10,10 +10,6 @@ namespace Vodovoz.JournalFilters
 
 		private global::Gamma.Widgets.yEnumComboBox enumcomboCategory;
 
-		private global::Gtk.Label labelType1;
-
-		private global::QSOrmProject.EntryReference entryrefEquipmentType;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -45,32 +41,12 @@ namespace Vodovoz.JournalFilters
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.labelType1 = new global::Gtk.Label();
-			this.labelType1.Name = "labelType1";
-			this.labelType1.LabelProp = global::Mono.Unix.Catalog.GetString("Тип оборудования");
-			this.hbox1.Add(this.labelType1);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelType1]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.entryrefEquipmentType = new global::QSOrmProject.EntryReference();
-			this.entryrefEquipmentType.Events = ((global::Gdk.EventMask)(256));
-			this.entryrefEquipmentType.Name = "entryrefEquipmentType";
-			this.hbox1.Add(this.entryrefEquipmentType);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entryrefEquipmentType]));
-			w4.Position = 3;
-			w4.Expand = false;
-			w4.Fill = false;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.enumcomboCategory.ChangedByUser += new global::System.EventHandler(this.OnEnumcomboCategoryChangedByUser);
-			this.entryrefEquipmentType.ChangedByUser += new global::System.EventHandler(this.OnEntryrefEquipmentTypeChangedByUser);
 		}
 	}
 }

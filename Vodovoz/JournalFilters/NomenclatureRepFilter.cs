@@ -23,7 +23,6 @@ namespace Vodovoz.JournalFilters
 			this.Build();
 			UoW = uow;
 			enumcomboCategory.ItemsEnum = typeof(NomenclatureCategory);
-			entryrefEquipmentType.SubjectType = typeof(EquipmentType);
 			//	enumcomboType.AddEnumToHideList(HideList(Nomenclature.GetCategoriesForSale()));
 			OnRefiltered();
 		}
@@ -76,18 +75,18 @@ namespace Vodovoz.JournalFilters
 
 		protected void OnEnumcomboTypeChangedByUser(object sender, EventArgs e)
 		{
-			if (enumcomboType.SelectedItem == null)
+			if (enumcomboCategory.SelectedItem == null)
 			{
 				return;
 			}
 
-			if ((SpecialComboState)enumcomboType.SelectedItem == SpecialComboState.All)
+			if ((SpecialComboState)enumcomboCategory.SelectedItem == SpecialComboState.All)
 			{
 				AllSelected = true;
 			}
 			else
 			{
-				NomenCategory = (NomenclatureCategory)enumcomboType.SelectedItem;
+				NomenCategory = (NomenclatureCategory)enumcomboCategory.SelectedItem;
 			}
 			OnRefiltered();
 		}
