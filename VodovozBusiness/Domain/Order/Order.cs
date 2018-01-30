@@ -4,17 +4,17 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
+using QSHistoryLog;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repository;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Documents;
-using QSProjectsLib;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -44,7 +44,7 @@ namespace Vodovoz.Domain.Orders
 		Employee author;
 
 		[Display(Name = "Создатель заказа")]
-
+		[IgnoreHistoryTrace]
 		public virtual Employee Author {
 			get { return author; }
 			set { SetField(ref author, value, () => Author); }
@@ -85,6 +85,7 @@ namespace Vodovoz.Domain.Orders
 		DateTime? deliveryDate;
 
 		[Display(Name = "Дата доставки")]
+		[HistoryDateOnly]
 		public virtual DateTime? DeliveryDate {
 			get { return deliveryDate; }
 			set {
@@ -231,7 +232,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		MoneyMovementOperation moneyMovementOperation;
-
+		[IgnoreHistoryTrace]
 		public virtual MoneyMovementOperation MoneyMovementOperation {
 			get { return moneyMovementOperation; }
 			set {
@@ -240,7 +241,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		BottlesMovementOperation bottlesMovementOperation;
-
+		[IgnoreHistoryTrace]
 		public virtual BottlesMovementOperation BottlesMovementOperation {
 			get {
 				return bottlesMovementOperation;
@@ -343,7 +344,7 @@ namespace Vodovoz.Domain.Orders
 		Employee lastEditor;
 
 		[Display(Name = "Последний редактор")]
-
+		[IgnoreHistoryTrace]
 		public virtual Employee LastEditor {
 			get { return lastEditor; }
 			set { SetField(ref lastEditor, value, () => LastEditor); }
@@ -352,6 +353,7 @@ namespace Vodovoz.Domain.Orders
 		DateTime lastEditedTime;
 
 		[Display(Name = "Последние изменения")]
+		[IgnoreHistoryTrace]
 		public virtual DateTime LastEditedTime {
 			get { return lastEditedTime; }
 			set { SetField(ref lastEditedTime, value, () => LastEditedTime); }
@@ -442,6 +444,7 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<OrderDepositItem> observableOrderDepositItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<OrderDepositItem> ObservableOrderDepositItems {
 			get {
 				if(observableOrderDepositItems == null) {
@@ -452,6 +455,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		[HistoryDeepCloneItems]
 		IList<OrderDocument> orderDocuments = new List<OrderDocument>();
 
 		[Display(Name = "Документы заказа")]
@@ -462,6 +466,7 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<OrderDocument> observableOrderDocuments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments {
 			get {
 				if(observableOrderDocuments == null)
@@ -470,6 +475,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		[HistoryDeepCloneItems]
 		IList<OrderItem> orderItems = new List<OrderItem>();
 
 		[Display(Name = "Строки заказа")]
@@ -480,6 +486,7 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<OrderItem> observableOrderItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<OrderItem> ObservableOrderItems {
 			get {
 				if(observableOrderItems == null) {
@@ -491,6 +498,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		[HistoryDeepCloneItems]
 		IList<OrderEquipment> orderEquipments = new List<OrderEquipment>();
 
 		[Display(Name = "Список оборудования")]
@@ -501,6 +509,7 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<OrderEquipment> observableOrderEquipments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<OrderEquipment> ObservableOrderEquipments {
 			get {
 				if(observableOrderEquipments == null)
@@ -519,6 +528,7 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<ServiceClaim> observableInitialOrderService;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<ServiceClaim> ObservableInitialOrderService {
 			get {
 				if(observableInitialOrderService == null)
@@ -537,6 +547,7 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<ServiceClaim> observableFinalOrderService;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<ServiceClaim> ObservableFinalOrderService {
 			get {
 				if(observableFinalOrderService == null)
@@ -681,27 +692,32 @@ namespace Vodovoz.Domain.Orders
 			get { return String.Format("Заказ №{0}", Id); }
 		}
 
+		[IgnoreHistoryTrace]
 		public virtual int TotalDeliveredBottles {
 			get {
 				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
 			}
 		}
 
+		[IgnoreHistoryTrace]
 		public virtual int TotalDeliveredBottlesSix {
 			get {
 				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.disposableBottleWater).Sum(x => x.Count);
 			}
 		}
 
+		[IgnoreHistoryTrace]
 		public virtual int TotalWeight {
 			get {
 				return (int)OrderItems.Sum(x => x.Count * x.Nomenclature.Weight);
 			}
 		}
 
+		[IgnoreHistoryTrace]
 		public virtual string RowColor { get { return PreviousOrder == null ? "black" : "red"; } }
 
 		[PropertyChangedAlso(nameof(SumToReceive))]
+		[IgnoreHistoryTrace]
 		public virtual decimal TotalSum {
 			get {
 				Decimal sum = 0;
@@ -716,6 +732,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		[IgnoreHistoryTrace]
 		public virtual decimal ActualTotalSum {
 			get {
 				Decimal sum = 0;
@@ -730,6 +747,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		[IgnoreHistoryTrace]
 		public virtual decimal ActualGoodsTotalSum {
 			get {
 				return OrderItems.Sum(item => item.Price * item.ActualCount);
@@ -739,6 +757,7 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Количество 19л бутылей в заказе
 		/// </summary>
+		[IgnoreHistoryTrace]
 		public virtual int TotalWaterBottles
 		{
 			get {

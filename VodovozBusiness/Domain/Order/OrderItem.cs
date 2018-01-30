@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using System.Linq;
+using QSHistoryLog;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -168,6 +169,7 @@ namespace Vodovoz.Domain.Orders
 
 		Decimal defaultPrice=-1;
 
+		[IgnoreHistoryTrace]
 		public virtual Decimal DefaultPrice {
 			get { 
 				if (defaultPrice == -1) {
@@ -224,6 +226,12 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string AgreementString {
 			get { return AdditionalAgreement == null ? String.Empty : String.Format ("{0} №{1}", AdditionalAgreement.AgreementTypeTitle, AdditionalAgreement.AgreementNumber); }
+		}
+
+		public virtual string Title{
+			get{
+				return $"{Nomenclature.Name} - {Count}*{Price}={Sum}";
+			}
 		}
 
 		#endregion

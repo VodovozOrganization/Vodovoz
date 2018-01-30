@@ -486,6 +486,10 @@
       <Project>{D0C39D9D-BED0-418B-9A5E-713176CAF40C}</Project>
       <Name>GMap.NET.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSHistoryLog\QSHistoryLog.csproj">
+      <Project>{1C3B49FC-372C-46F7-995F-EEB44474E2DE}</Project>
+      <Name>QSHistoryLog</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
+using QSHistoryLog;
 using QSOrmProject;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Operations
 {
+	[IgnoreHistoryClone]
 	public class OperationBase: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
