@@ -64,8 +64,9 @@ namespace Vodovoz.ViewModel
 				.Select (Projections.Sum (() => orderItemsAlias.Count));
 
 			var items = UoW.Session.QueryOver<Nomenclature>(()=>nomenclatureAlias)
+			    .Where(() => !nomenclatureAlias.IsArchive)
 			    .Where(Restrictions.In(Projections.Property(()=>nomenclatureAlias.Category),Nomenclature.GetCategoriesForSale()))
-			               .Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category),(Filter.AllSelected? Enum.GetValues(typeof(NomenclatureCategory)) : filteredCat)))
+			    .Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category),(Filter.AllSelected? Enum.GetValues(typeof(NomenclatureCategory)) : filteredCat)))
 				.JoinAlias(()=>nomenclatureAlias.Unit,()=>unitAlias).Where(()=>!nomenclatureAlias.IsSerial)
 				.SelectList(list=>list
 					.SelectGroup(()=>nomenclatureAlias.Id).WithAlias(()=>resultAlias.Id)

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.JournalFilters
@@ -23,7 +21,6 @@ namespace Vodovoz.JournalFilters
 			this.Build();
 			UoW = uow;
 			enumcomboCategory.ItemsEnum = typeof(NomenclatureCategory);
-			//	enumcomboType.AddEnumToHideList(HideList(Nomenclature.GetCategoriesForSale()));
 			OnRefiltered();
 		}
 

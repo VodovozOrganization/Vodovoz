@@ -13,6 +13,7 @@ namespace Vodovoz.HibernateMapping
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 
+			Map(x => x.IsArchive).Column("is_archive");
 			Map (x => x.Name)		 .Column ("name");
 			Map (x => x.OfficialName).Column ("official_name");
 			Map (x => x.Model)		 .Column ("model");

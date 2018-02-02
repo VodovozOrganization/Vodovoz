@@ -38,6 +38,14 @@ namespace Vodovoz.Domain.Goods
 			set { SetField (ref officialName, value, () => OfficialName); }
 		}
 
+		bool isArchive;
+
+		[Display(Name = "Архивная")]
+		public virtual bool IsArchive {
+			get { return isArchive; }
+			set { SetField(ref isArchive, value, () => IsArchive); }
+		}
+
 		string code1c;
 		[Display (Name = "Код 1с")]
 		public virtual string Code1c {

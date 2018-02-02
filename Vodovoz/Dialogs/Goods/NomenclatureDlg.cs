@@ -2,6 +2,7 @@
 using NLog;
 using QSBusinessCommon.Domain;
 using QSOrmProject;
+using QSProjectsLib;
 using QSValidation;
 using QSWidgetLib;
 using Vodovoz.Domain;
@@ -78,6 +79,9 @@ namespace Vodovoz
 
 			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text, new NullToEmptyStringConverter()).InitializeFromSource();
 			yentryShortName.MaxLength = 20;
+
+			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
+			checkIsArchive.Sensitive = QSMain.User.Permissions["can_set_archive"];
 
 			ConfigureInputs (Entity.Category);
 

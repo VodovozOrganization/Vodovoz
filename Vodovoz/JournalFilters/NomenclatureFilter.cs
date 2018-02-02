@@ -52,6 +52,13 @@ namespace Vodovoz
 			if (BaseCriteria == null)
 				return;
 			FiltredCriteria = (ICriteria)BaseCriteria.Clone ();
+
+			if(!checkShowArchive.Active)
+			{
+				FiltredCriteria.Add(Restrictions.Eq(Projections.Property<Nomenclature>(x => x.IsArchive), false));
+				IsFiltred = true;
+			}
+
 			if (enumcomboType.SelectedItem is NomenclatureCategory) {
 				FiltredCriteria.Add (Restrictions.Eq ("Category", enumcomboType.SelectedItem));
 				IsFiltred = true;
@@ -63,6 +70,11 @@ namespace Vodovoz
 		protected void OnEnumcomboTypeChanged (object sender, EventArgs e)
 		{
 			UpdateCreteria ();
+		}
+
+		protected void OnCheckShowArchiveToggled(object sender, EventArgs e)
+		{
+			UpdateCreteria();
 		}
 	}
 }

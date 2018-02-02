@@ -4,11 +4,11 @@ namespace Vodovoz.JournalFilters
 {
 	public partial class NomenclatureRepFilter
 	{
-		private global::Gtk.HBox hbox1;
-
-		private global::Gtk.Label labelType;
+		private global::Gtk.Table table1;
 
 		private global::Gamma.Widgets.yEnumComboBox enumcomboCategory;
+
+		private global::Gtk.Label labelType;
 
 		protected virtual void Build()
 		{
@@ -17,31 +17,32 @@ namespace Vodovoz.JournalFilters
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.JournalFilters.NomenclatureRepFilter";
 			// Container child Vodovoz.JournalFilters.NomenclatureRepFilter.Gtk.Container+ContainerChild
-			this.hbox1 = new global::Gtk.HBox();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.labelType = new global::Gtk.Label();
-			this.labelType.Name = "labelType";
-			this.labelType.LabelProp = global::Mono.Unix.Catalog.GetString("Категория");
-			this.hbox1.Add(this.labelType);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelType]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(3)), false);
+			this.table1.Name = "table1";
+			this.table1.RowSpacing = ((uint)(6));
+			this.table1.ColumnSpacing = ((uint)(6));
+			// Container child table1.Gtk.Table+TableChild
 			this.enumcomboCategory = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumcomboCategory.Name = "enumcomboCategory";
 			this.enumcomboCategory.ShowSpecialStateAll = true;
 			this.enumcomboCategory.ShowSpecialStateNot = false;
 			this.enumcomboCategory.UseShortTitle = false;
 			this.enumcomboCategory.DefaultFirst = true;
-			this.hbox1.Add(this.enumcomboCategory);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.enumcomboCategory]));
-			w2.Position = 1;
-			w2.Expand = false;
-			w2.Fill = false;
-			this.Add(this.hbox1);
+			this.table1.Add(this.enumcomboCategory);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboCategory]));
+			w1.LeftAttach = ((uint)(1));
+			w1.RightAttach = ((uint)(2));
+			w1.XOptions = ((global::Gtk.AttachOptions)(4));
+			w1.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelType = new global::Gtk.Label();
+			this.labelType.Name = "labelType";
+			this.labelType.LabelProp = global::Mono.Unix.Catalog.GetString("Категория");
+			this.table1.Add(this.labelType);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType]));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.Add(this.table1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

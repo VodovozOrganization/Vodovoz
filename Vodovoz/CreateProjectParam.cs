@@ -51,6 +51,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add ("can_close_orders", new UserPermission("can_close_orders", "Закрытие заказов", "Пользователь может закрывать заказы вручную.") );
 			QSMain.ProjectPermission.Add ("can_edit_wage", new UserPermission("can_edit_wage", "Установка заработной платы ", "Пользователь может устанавливать тип заработной платы и ставку."));
 			QSMain.ProjectPermission.Add("change_driver_wage", new UserPermission("change_driver_wage", "Изменение типа расчета ЗП в МЛ", "Пользователь может устанавливать для МЛ другой расчет заработной платы."));
+			QSMain.ProjectPermission.Add("can_set_archive", new UserPermission("can_set_archive", "Установка галочки 'Архив'", "Пользователь может устанавливать галочку архивный."));
 		}
 
 		static void CreateBaseConfig()

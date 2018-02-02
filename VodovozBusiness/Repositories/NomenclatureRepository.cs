@@ -12,13 +12,15 @@ namespace Vodovoz.Repository
 		public static QueryOver<Nomenclature> NomenclatureForProductMaterialsQuery ()
 		{
 			return QueryOver.Of<Nomenclature> ()
-				.Where (n => n.Category.IsIn (Nomenclature.GetCategoriesForProductMaterial ()));
+				.Where (n => n.Category.IsIn (Nomenclature.GetCategoriesForProductMaterial ()))
+				            .Where(n => !n.IsArchive);
 		}
 
 		public static QueryOver<Nomenclature> NomenclatureForSaleQuery ()
 		{
 			return QueryOver.Of<Nomenclature> ()
-				.Where (n => n.Category.IsIn (Nomenclature.GetCategoriesForSale ()));
+				.Where (n => n.Category.IsIn (Nomenclature.GetCategoriesForSale ()))
+				            .Where(n => !n.IsArchive);
 		}
 
 		/// <summary>
@@ -27,13 +29,15 @@ namespace Vodovoz.Repository
 		public static QueryOver<Nomenclature> NomenclatureOfGoodsOnlyQuery ()
 		{
 			return QueryOver.Of<Nomenclature> ()
-				.Where (n => n.Category.IsIn (Nomenclature.GetCategoriesForGoods ()));
+				.Where (n => n.Category.IsIn (Nomenclature.GetCategoriesForGoods ()))
+				            .Where(n => !n.IsArchive);
 		}
 
 		public static QueryOver<Nomenclature> NomenclatureWaterOnlyQuery ()
 		{
 			return QueryOver.Of<Nomenclature> ()
-				.Where (n => n.Category == NomenclatureCategory.water);
+				.Where (n => n.Category == NomenclatureCategory.water)
+				            .Where(n => !n.IsArchive);
 		}
 
 		public static Nomenclature GetBottleDeposit (IUnitOfWork uow)
@@ -55,19 +59,22 @@ namespace Vodovoz.Repository
 		public static QueryOver<Nomenclature> NomenclatureOfItemsForService ()
 		{
 			return QueryOver.Of<Nomenclature> ()
-				.Where (n => n.Category == NomenclatureCategory.equipment);
+				.Where (n => n.Category == NomenclatureCategory.equipment)
+				            .Where(n => !n.IsArchive);
 		}
 
 		public static QueryOver<Nomenclature> NomenclatureOfPartsForService ()
 		{
 			return QueryOver.Of<Nomenclature> ()
-				.Where (n => n.Category == NomenclatureCategory.spare_parts);
+				.Where (n => n.Category == NomenclatureCategory.spare_parts)
+				            .Where(n => !n.IsArchive);
 		}
 
 		public static QueryOver<Nomenclature> NomenclatureOfServices ()
 		{
 			return QueryOver.Of<Nomenclature> ()
-				.Where (n => n.Category == NomenclatureCategory.service);
+				.Where (n => n.Category == NomenclatureCategory.service)
+				            .Where(n => !n.IsArchive);
 		}
 	}
 }
