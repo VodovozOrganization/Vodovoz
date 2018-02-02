@@ -704,6 +704,8 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.OrdersWithoutBottlesOperationDlg.cs" />
     <Compile Include="ReportsParameters\IncomeBalanceReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.IncomeBalanceReport.cs" />
+    <Compile Include="ServiceDialogs\Database\ReplaceEntityLinksDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.ReplaceEntityLinksDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1112,10 +1114,7 @@
     <MonoDevelop>
       <Properties>
         <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild">
-            <inheritsSet />
-            <inheritsScope />
-          </DotNetNamingPolicy>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild" />
         </Policies>
         <Deployment.LinuxDeployData generateScript="False" />
       </Properties>

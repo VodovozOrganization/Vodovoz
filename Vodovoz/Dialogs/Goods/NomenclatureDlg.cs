@@ -7,6 +7,7 @@ using QSWidgetLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.ServiceDialogs.Database;
 
 namespace Vodovoz
 {
@@ -82,6 +83,21 @@ namespace Vodovoz
 			ConfigureInputs (Entity.Category);
 
 			pricesView.UoWGeneric = UoWGeneric;
+
+			//make actions menu
+			var menu = new Gtk.Menu();
+			var menuItem = new Gtk.MenuItem("Заменить все ссылки на номенклатуру...");
+			menuItem.Activated += MenuItem_ReplaceLinks_Activated;;
+			menu.Add(menuItem);
+			menuActions.Menu = menu;
+			menu.ShowAll();
+			menuActions.Sensitive = !UoWGeneric.IsNew;
+		}
+
+		void MenuItem_ReplaceLinks_Activated(object sender, EventArgs e)
+		{
+			var replaceDlg = new ReplaceEntityLinksDlg(Entity);
+			OpenTab(replaceDlg);
 		}
 
 		string GenerateOfficialName (object arg)

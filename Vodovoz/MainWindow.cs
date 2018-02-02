@@ -917,4 +917,12 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
+
+	protected void OnAction45Activated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<ReplaceEntityLinksDlg>(),
+			() => new ReplaceEntityLinksDlg()
+		);
+	}
 }
