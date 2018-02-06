@@ -408,7 +408,24 @@ namespace Vodovoz
 		}
 
 		private bool buttonFineEditState = false;
+
+		/// <summary>
+		/// Не использовать это поле напрямую, используйте свойство DefaultBottle
+		/// </summary>
 		Nomenclature defaultBottle;
+		Nomenclature DefaultBottle 
+		{
+			get{
+				if(defaultBottle == null) {
+					var db = Repository.NomenclatureRepository.GetDefaultBottle(UoW);
+					if(db == null) {
+						throw new Exception("Не найдена номенклатура бутыли по умолчанию, указанная в параметрах приложения: default_bottle_nomenclature");
+					}
+					defaultBottle = db;
+				}
+				return defaultBottle;
+			}
+		}
 
 		void CalculateTotal()
 		{
@@ -460,22 +477,20 @@ namespace Vodovoz
 				bottlesReturnedToWarehouse,
 				bottlesReturnedTotal
 			);
-			if(defaultBottle == null)
-				defaultBottle = Repository.NomenclatureRepository.GetDefaultBottle(UoW);
 
 			var bottleDifference = bottlesReturnedToWarehouse - bottlesReturnedTotal;
 			var differenceAttributes = bottlesReturnedToWarehouse - bottlesReturnedTotal > 0 ? "background=\"#ff5555\"" : "";
 			var bottleDifferenceFormat = "<span {1}><b>{0}</b><sub>(осталось)</sub></span>";
 			checkUseBottleFine.Visible = bottleDifference < 0;
 			if(bottleDifference != 0) {
-				checkUseBottleFine.Label = String.Format("({0:C})", defaultBottle.SumOfDamage * (-bottleDifference));
+				checkUseBottleFine.Label = String.Format("({0:C})", DefaultBottle.SumOfDamage * (-bottleDifference));
 			}
 			labelBottleDifference.Markup = String.Format(bottleDifferenceFormat, bottleDifference, differenceAttributes);
 
 			//Штрафы
 			decimal totalSumOfDamage = 0;
 			if(checkUseBottleFine.Active)
-				totalSumOfDamage += defaultBottle.SumOfDamage * (-bottleDifference);
+				totalSumOfDamage += DefaultBottle.SumOfDamage * (-bottleDifference);
 			totalSumOfDamage += routelistdiscrepancyview.Items.Where(x => x.UseFine).Sum(x => x.SumOfDamage);
 
 			StringBuilder fineText = new StringBuilder();
@@ -614,12 +629,12 @@ namespace Vodovoz
 		{
 			string fineReason = "Недосдача";
 			var bottleDifference = bottlesReturnedTotal - bottlesReturnedToWarehouse;
-			var summ = defaultBottle.SumOfDamage * (bottleDifference > 0 ? bottleDifference : (decimal)0);
+			var summ = DefaultBottle.SumOfDamage * (bottleDifference > 0 ? bottleDifference : (decimal)0);
 			summ += routelistdiscrepancyview.Items.Where(x => x.UseFine).Sum(x => x.SumOfDamage);
 			var nomenclatures = routelistdiscrepancyview.Items.Where(x => x.UseFine)
 				.ToDictionary(x => x.Nomenclature, x => -x.Remainder);
 			if(checkUseBottleFine.Active)
-				nomenclatures.Add(defaultBottle, bottleDifference);
+				nomenclatures.Add(DefaultBottle, bottleDifference);
 
 			FineDlg fineDlg;
 			if(Entity.BottleFine != null) {
@@ -749,11 +764,8 @@ namespace Vodovoz
 			if(Entity.BottleFine == null)
 				return;
 
-			if(defaultBottle == null)
-				defaultBottle = NomenclatureRepository.GetDefaultBottle(UoW);
-
 			foreach(var nom in Entity.BottleFine.Nomenclatures) {
-				if(nom.Nomenclature.Id == defaultBottle.Id) {
+				if(nom.Nomenclature.Id == DefaultBottle.Id) {
 					checkUseBottleFine.Active = true;
 					continue;
 				}
