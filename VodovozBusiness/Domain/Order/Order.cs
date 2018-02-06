@@ -604,8 +604,39 @@ namespace Vodovoz.Domain.Orders
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
 						yield return new ValidationResult("Должно быть указано количество во всех позициях товара и оборудования");
-					
- #if !SHORT
+
+					// Проверка соответствия цен в заказе ценам в номенклатуре
+					var itemsWithRequestPrice = ObservableOrderItems.Where(x => x.Nomenclature.NomenclaturePrice.Count() > 0);
+					if(itemsWithRequestPrice.Count() > 0) {
+						string priceResult = "Неверно указаны цены на следующие товары:\n";
+						var incorrectPriceItems = itemsWithRequestPrice
+							.Where(x =>
+							       //цена в заказе
+							       x.Price 
+							       <
+							       //соответствующая количеству цена в номенклатуре
+							       x.Nomenclature.NomenclaturePrice 
+							       .Where(n => n.MinCount <= x.Count) 
+							       .OrderByDescending(o => o.MinCount) 
+							       .FirstOrDefault() 
+							       .Price);
+						foreach(var item in incorrectPriceItems) {
+							priceResult += String.Format("{0} - цена: {1}, должна быть: {2}\n", 
+							                             item.NomenclatureString,
+							                             item.Price,
+							                             item.Nomenclature.NomenclaturePrice 
+								                             .Where(n => n.MinCount <= item.Count)
+								                             .OrderByDescending(o => o.MinCount)
+								                             .FirstOrDefault()
+								                             .Price);
+						}
+						if(incorrectPriceItems.Count() > 0) {
+							yield return new ValidationResult(priceResult);
+						}
+					}
+					// Конец проверки цен
+
+#if !SHORT
 					//Проверка товаров
 					var itemsWithBlankWarehouse = OrderItems
 						.Where(orderItem => Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category))
