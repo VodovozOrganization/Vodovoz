@@ -26,6 +26,7 @@ using Vodovoz.JournalFilters;
 using Vodovoz.Domain.Operations;
 using System.Data.Bindings.Collections.Generic;
 using Gamma.GtkWidgets.Cells;
+using Vodovoz.Dialogs;
 
 namespace Vodovoz
 {
@@ -249,6 +250,7 @@ namespace Vodovoz
 			var colorBlue = new Gdk.Color(0, 0, 0xff);
 			var colorGreen = new Gdk.Color(0, 0xff, 0);
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
+			var colorLightYellow = new Gdk.Color(0xe1, 0xd6, 0x70);
 
 			treeItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderItem>()
 				.AddColumn("Номенклатура").SetDataProperty(node => node.NomenclatureString)
@@ -295,6 +297,14 @@ namespace Vodovoz
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument>()
 				.AddColumn("Документ").SetDataProperty(node => node.Name)
 				.AddColumn("Дата").SetDataProperty(node => node.DocumentDate)
+				.AddColumn("Заказ").AddTextRenderer(node => node.Order.Id != node.AttachedToOrder.Id ? node.Order.Id.ToString() : "")
+				.RowCells().AddSetter<CellRenderer>((c, n) => {
+					if(n.Order.Id != n.AttachedToOrder.Id) {
+						c.CellBackgroundGdk = colorLightYellow;
+					}else {
+						c.CellBackgroundGdk = colorWhite;
+					}
+				})
 				.Finish();
 
 			treeDepositRefundItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderDepositItem>()
@@ -790,6 +800,7 @@ namespace Vodovoz
 			if(orderAgreement == null) {
 				UoWGeneric.Root.ObservableOrderDocuments.Add(new OrderAgreement {
 					Order = UoWGeneric.Root,
+					AttachedToOrder = UoWGeneric.Root,
 					AdditionalAgreement = agreement
 				});
 			}
@@ -927,6 +938,7 @@ namespace Vodovoz
 		{
 			UoWGeneric.Root.ObservableOrderDocuments.Add(new OrderContract {
 				Order = UoWGeneric.Root,
+				AttachedToOrder = UoWGeneric.Root,
 				Contract = args.Contract
 			});
 			Entity.Contract = args.Contract;
@@ -999,6 +1011,7 @@ namespace Vodovoz
 			var orderDocuments = UoWGeneric.Root.ObservableOrderDocuments;
 			orderDocuments.Add(new OrderContract {
 				Order = order,
+				AttachedToOrder = order,
 				Contract = contract
 			});
 		}
@@ -1009,6 +1022,7 @@ namespace Vodovoz
 			var orderDocuments = UoWGeneric.Root.ObservableOrderDocuments;
 			orderDocuments.Add(new OrderAgreement {
 				Order = order,
+				AttachedToOrder = order,
 				AdditionalAgreement = agreement
 			});
 		}
@@ -1271,6 +1285,7 @@ namespace Vodovoz
 				(dlg as IAgreementSaved).AgreementSaved += (sender, e) => UoWGeneric.Root.ObservableOrderDocuments.Add(
 					new OrderAgreement {
 						Order = UoWGeneric.Root,
+						AttachedToOrder = UoWGeneric.Root,
 						AdditionalAgreement = e.Agreement
 					});
 				TabParent.AddSlaveTab(this, dlg);
@@ -1662,6 +1677,19 @@ namespace Vodovoz
 
 			if(slider != null)
 				slider.IsHideJournal = true;
+		}
+
+		protected void OnButtonAddExistingDocumentClicked(object sender, EventArgs e)
+		{
+			if(UoWGeneric.Root.Client == null) {
+				MessageDialogWorks.RunWarningDialog("Для добавления дополнительных документов должен быть выбран клиент.");
+				return;
+			}
+
+			TabParent.OpenTab(
+			TdiTabBase.GenerateHashName<AddExistingDocumentsDlg>(),
+				() => new AddExistingDocumentsDlg(UoWGeneric, UoWGeneric.Root.Client)
+		);
 		}
 	}
 }

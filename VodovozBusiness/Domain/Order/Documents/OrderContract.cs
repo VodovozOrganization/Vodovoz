@@ -7,11 +7,18 @@ namespace Vodovoz.Domain.Orders.Documents
 {
 	public class OrderContract : OrderDocument, ITemplatePrntDoc
 	{
+		/// <summary>
+		/// Тип документа используемый для маппинга для DiscriminatorValue
+		/// а также для определния типа в нумераторе типов документов.
+		/// Создано для определения этого значения только в одном месте.
+		/// </summary>
+		public static new string OrderDocumentTypeValue { get => "order_contract"; }
+
 		#region implemented abstract members of OrderDocument
-					
+
 		public override OrderDocumentType Type {
 			get {
-				return OrderDocumentType.Contract;
+				return OrderDocumentTypeValues[OrderDocumentTypeValue];
 			}
 		}
 			

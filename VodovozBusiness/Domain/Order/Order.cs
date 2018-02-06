@@ -962,6 +962,190 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
+		/// <summary>
+		/// Добавляет дополнительные документы выбранные пользователем в диалоге,
+		/// с проверкой их наличия в текущем заказе
+		/// </summary>
+		public virtual void AddAdditionalDocuments(List<OrderDocument> documentsList)
+		{
+			foreach(var item in documentsList) {
+				switch(item.Type) {
+					case OrderDocumentType.Contract:
+						OrderContract oc = (item as OrderContract);
+						if(observableOrderDocuments
+						   .OfType<OrderContract>()
+						   .FirstOrDefault(x => x.Contract == oc.Contract
+										   && x.Order == oc.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new OrderContract {
+								Order = item.Order,
+								AttachedToOrder = this,
+								Contract = oc.Contract
+							});
+						}
+						break;
+					case OrderDocumentType.AdditionalAgreement:
+						OrderAgreement oa = (item as OrderAgreement);
+						if(observableOrderDocuments
+						   .OfType<OrderAgreement>()
+						   .FirstOrDefault(x => x.AdditionalAgreement == oa.AdditionalAgreement
+										   && x.Order == oa.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new OrderAgreement {
+								Order = item.Order,
+								AttachedToOrder = this,
+								AdditionalAgreement = oa.AdditionalAgreement
+							});
+						}
+						break;
+					case OrderDocumentType.CoolerWarranty:
+						CoolerWarrantyDocument cwd = (item as CoolerWarrantyDocument);
+						if(observableOrderDocuments
+						   .OfType<CoolerWarrantyDocument>()
+						   .FirstOrDefault(x => x.AdditionalAgreement == cwd.AdditionalAgreement
+										   && x.Contract == cwd.Contract
+										   && x.WarrantyNumber == cwd.WarrantyNumber
+										   && x.Order == cwd.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new CoolerWarrantyDocument {
+								Order = item.Order,
+								AttachedToOrder = this,
+								AdditionalAgreement = cwd.AdditionalAgreement,
+								Contract = cwd.Contract,
+								WarrantyNumber = cwd.WarrantyNumber
+							});
+						}
+						break;
+					case OrderDocumentType.PumpWarranty:
+						PumpWarrantyDocument pwd = (item as PumpWarrantyDocument);
+						if(observableOrderDocuments
+						   .OfType<PumpWarrantyDocument>()
+						   .FirstOrDefault(x => x.AdditionalAgreement == pwd.AdditionalAgreement
+										   && x.Contract == pwd.Contract
+										   && x.WarrantyNumber == pwd.WarrantyNumber
+										   && x.Order == pwd.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new PumpWarrantyDocument {
+								Order = item.Order,
+								AttachedToOrder = this,
+								AdditionalAgreement = pwd.AdditionalAgreement,
+								Contract = pwd.Contract,
+								WarrantyNumber = pwd.WarrantyNumber
+							});
+						}
+						break;
+					case OrderDocumentType.Bill:
+					case OrderDocumentType.BillWithoutSignature:
+						if(observableOrderDocuments
+						   .OfType<BillDocument>()
+						   .FirstOrDefault(x => x.Order == item.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new BillDocument {
+								Order = item.Order,
+								AttachedToOrder = this
+							});
+						}
+						break;
+					case OrderDocumentType.DoneWorkReport:
+						DoneWorkDocument dwd = (item as DoneWorkDocument);
+						if(observableOrderDocuments
+						   .OfType<DoneWorkDocument>()
+						   .FirstOrDefault(x => x.ServiceClaim == dwd.ServiceClaim
+										   && x.Order == dwd.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new DoneWorkDocument {
+								Order = item.Order,
+								AttachedToOrder = this,
+								ServiceClaim = dwd.ServiceClaim
+							});
+						}
+						break;
+					case OrderDocumentType.EquipmentTransfer:
+						EquipmentTransferDocument etd = (item as EquipmentTransferDocument);
+						if(observableOrderDocuments
+						   .OfType<EquipmentTransferDocument>()
+						   .FirstOrDefault(x => x.ServiceClaim == etd.ServiceClaim
+										   && x.Order == etd.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new EquipmentTransferDocument {
+								Order = item.Order,
+								AttachedToOrder = this,
+								ServiceClaim = etd.ServiceClaim
+							});
+						}
+						break;
+					case OrderDocumentType.Invoice:
+						if(observableOrderDocuments
+						   .OfType<InvoiceDocument>()
+						   .FirstOrDefault(x => x.Order == item.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new InvoiceDocument {
+								Order = item.Order,
+								AttachedToOrder = this
+							});
+						}
+						break;
+					case OrderDocumentType.InvoiceBarter:
+						if(observableOrderDocuments
+						   .OfType<InvoiceDocument>()
+						   .FirstOrDefault(x => x.Order == item.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new InvoiceDocument {
+								Order = item.Order,
+								AttachedToOrder = this
+							});
+						}
+						break;
+					case OrderDocumentType.UPD:
+						if(observableOrderDocuments
+						   .OfType<UPDDocument>()
+						   .FirstOrDefault(x => x.Order == item.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new UPDDocument {
+								Order = item.Order,
+								AttachedToOrder = this
+							});
+						}
+						break;
+					case OrderDocumentType.DriverTicket:
+						if(observableOrderDocuments
+						   .OfType<DriverTicketDocument>()
+						   .FirstOrDefault(x => x.Order == item.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new DriverTicketDocument {
+								Order = item.Order,
+								AttachedToOrder = this
+							});
+						}
+						break;
+					case OrderDocumentType.Torg12:
+						if(observableOrderDocuments
+						   .OfType<Torg12Document>()
+						   .FirstOrDefault(x => x.Order == item.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new Torg12Document {
+								Order = item.Order,
+								AttachedToOrder = this
+							});
+						}
+						break;
+					case OrderDocumentType.ShetFactura:
+						if(observableOrderDocuments
+						   .OfType<ShetFacturaDocument>()
+						   .FirstOrDefault(x => x.Order == item.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new ShetFacturaDocument {
+								Order = item.Order,
+								AttachedToOrder = this
+							});
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		}
+
 		#endregion
 
 		public virtual void RecalcBottlesDeposits(IUnitOfWork uow)
@@ -1280,6 +1464,7 @@ namespace Vodovoz.Domain.Orders
 					.FirstOrDefault(doc => doc.ServiceClaim.Id == service.Id) == null) {
 					ObservableOrderDocuments.Add(new EquipmentTransferDocument {
 						Order = this,
+						AttachedToOrder = this,
 						ServiceClaim = service
 					});
 				}
@@ -1302,6 +1487,7 @@ namespace Vodovoz.Domain.Orders
 					.FirstOrDefault(doc => doc.ServiceClaim.Id == service.Id) == null) {
 					ObservableOrderDocuments.Add(new DoneWorkDocument {
 						Order = this,
+						AttachedToOrder = this,
 						ServiceClaim = service
 					});
 				}
@@ -1355,7 +1541,8 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(ObservableOrderItems.Count > 0 && PaymentType == PaymentType.cashless) {
 				AddDocumentIfNotExist(new BillDocument {
-					Order = this
+					Order = this,
+					AttachedToOrder = this
 				});
 			} else
 				RemoveDocumentByType(OrderDocumentType.Bill);
@@ -1366,29 +1553,35 @@ namespace Vodovoz.Domain.Orders
 						RemoveDocumentByType(OrderDocumentType.Torg12);
 						RemoveDocumentByType(OrderDocumentType.ShetFactura);
 						AddDocumentIfNotExist(new UPDDocument {
-							Order = this
+							Order = this,
+							AttachedToOrder = this
 						});
 					} else if(this.DocumentType == DefaultDocumentType.torg12) {
 						RemoveDocumentByType(OrderDocumentType.UPD);
 						AddDocumentIfNotExist(new Torg12Document {
-							Order = this
+							Order = this,
+							AttachedToOrder = this
 						});
 						AddDocumentIfNotExist(new ShetFacturaDocument {
-							Order = this
+							Order = this,
+							AttachedToOrder = this
 						});
 					}
 					AddDocumentIfNotExist(new DriverTicketDocument {
-						Order = this
+						Order = this,
+						AttachedToOrder = this
 					});
 				}
 				if(paymentType == PaymentType.cash) {
 					AddDocumentIfNotExist(new InvoiceDocument {
-						Order = this
+						Order = this,
+						AttachedToOrder = this
 					});
 				}
 				if(paymentType == PaymentType.barter) {
 					AddDocumentIfNotExist(new InvoiceBarterDocument {
-						Order = this
+						Order = this,
+						AttachedToOrder = this
 					});
 				}
 			} else {
@@ -1417,6 +1610,7 @@ namespace Vodovoz.Domain.Orders
 				AddWarrantyDocumentIfNotExist(new CoolerWarrantyDocument {
 					WarrantyNumber = CoolerWarrantyDocument.GetNumber(this),
 					Order = this,
+					AttachedToOrder = this,
 					Contract = this.Contract,
 					AdditionalAgreement = null
 				});
@@ -1430,6 +1624,7 @@ namespace Vodovoz.Domain.Orders
 					AddWarrantyDocumentIfNotExist(new CoolerWarrantyDocument {
 						WarrantyNumber = CoolerWarrantyDocument.GetNumber(this, oItem),
 						Order = this,
+						AttachedToOrder = this,
 						Contract = this.Contract,
 						AdditionalAgreement = oItem
 					});
@@ -1446,6 +1641,7 @@ namespace Vodovoz.Domain.Orders
 				AddWarrantyDocumentIfNotExist(new PumpWarrantyDocument {
 					WarrantyNumber = PumpWarrantyDocument.GetNumber(this),
 					Order = this,
+					AttachedToOrder = this,
 					Contract = this.Contract,
 					AdditionalAgreement = null
 				});
@@ -1459,6 +1655,7 @@ namespace Vodovoz.Domain.Orders
 					AddWarrantyDocumentIfNotExist(new PumpWarrantyDocument {
 						WarrantyNumber = PumpWarrantyDocument.GetNumber(this, oItem),
 						Order = this,
+						AttachedToOrder = this,
 						Contract = this.Contract,
 						AdditionalAgreement = oItem
 					});

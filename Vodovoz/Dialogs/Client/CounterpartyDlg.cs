@@ -117,7 +117,7 @@ namespace Vodovoz
 			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account> (UoWGeneric, c => c.Accounts);
 			deliveryPointView.DeliveryPointUoW = UoWGeneric;
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
-			counterpartydocumentsview.CounterpartyUoW = UoWGeneric;
+			counterpartydocumentsview.Config(UoWGeneric, Entity);
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceSignificance.Binding.AddBinding(Entity, e => e.Significance, w => w.Subject).InitializeFromSource();
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);

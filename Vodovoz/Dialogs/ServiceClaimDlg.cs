@@ -312,6 +312,7 @@ namespace Vodovoz
 					if (UoWGeneric.Root.InitialOrder != null)
 						UoWGeneric.Root.InitialOrder.ObservableOrderDocuments.Add (new OrderContract { 
 							Order = UoWGeneric.Root.InitialOrder,
+							AttachedToOrder = UoWGeneric.Root.InitialOrder,
 							Contract = e.Contract
 						});
 				};
@@ -343,6 +344,7 @@ namespace Vodovoz
 					if (UoWGeneric.Root.InitialOrder != null)
 						UoWGeneric.Root.InitialOrder.ObservableOrderDocuments.Add (new OrderAgreement { 
 							Order = UoWGeneric.Root.InitialOrder,
+							AttachedToOrder = UoWGeneric.Root.InitialOrder,
 							AdditionalAgreement = e.Agreement
 						});
 				};

@@ -719,6 +719,10 @@
     <Compile Include="Representations\EquipmentsNonSerialForRentVM.cs" />
     <Compile Include="JournalFilters\NomenclatureEquipTypeFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.NomenclatureEquipTypeFilter.cs" />
+    <Compile Include="Dialogs\AddExistingDocumentsDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.AddExistingDocumentsDlg.cs" />
+    <Compile Include="JournalViewers\OrderSelectedView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.OrderSelectedView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

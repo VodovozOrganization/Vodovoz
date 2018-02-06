@@ -248,7 +248,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 2;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.datatable1 = new global::Gtk.Table(((uint)(9)), ((uint)(4)), false);
 			this.datatable1.Name = "datatable1";
@@ -890,7 +890,7 @@ namespace Vodovoz
 			this.referenceEquipment.Changed += new global::System.EventHandler(this.OnReferenceEquipmentChanged);
 			this.referenceDeliveryPoint.Changed += new global::System.EventHandler(this.OnReferenceDeliveryPointChanged);
 			this.referenceCounterparty.Changed += new global::System.EventHandler(this.OnReferenceCounterpartyChanged);
-			this.enumcomboWithSerial.EnumItemSelected += new global::System.EventHandler< Gamma.Widgets.ItemSelectedEventArgs > (this.OnEnumcomboWithSerialEnumItemSelected);
+			this.enumcomboWithSerial.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumcomboWithSerialEnumItemSelected);
 			this.buttonAddService.Clicked += new global::System.EventHandler(this.OnButtonAddServiceClicked);
 			this.buttonAddPart.Clicked += new global::System.EventHandler(this.OnButtonAddPartClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);

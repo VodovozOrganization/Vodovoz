@@ -19,147 +19,135 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CounterpartyDocumentsView : Gtk.Bin
 	{
-		private IUnitOfWorkGeneric<Counterparty> counterpartyUoW;
+		public IUnitOfWork UoW { get; set; }
+		public Counterparty Counterparty { get; set; }
+		public List<CounterpartyDocumentNode> CounterpartyDocs { get; private set; } = new List<CounterpartyDocumentNode>();
 
-		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
-			get {
-				return counterpartyUoW;
-			}
-			set {
-				if(counterpartyUoW == value)
-					return;
-				counterpartyUoW = value;
-
-				Counterparty counterparty = CounterpartyUoW.Root;
-
-				OrderDocument orderDocumentAlias = null;
-				CounterpartyContract contractAlias = null;
-				Order orderAlias = null;
-				AdditionalAgreement agreementAlias = null;
-
-				//получаем список документов
-				var orderDocuments = UnitOfWorkFactory
-					.CreateWithoutRoot()
-					.Session.QueryOver<OrderDocument>(() => orderDocumentAlias)
-					.JoinAlias(x => x.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.InnerJoin)
-					.JoinAlias(() => orderAlias.Contract, () => contractAlias, NHibernate.SqlCommand.JoinType.InnerJoin)
-					.Where(() => orderAlias.Id == orderDocumentAlias.Order.Id && contractAlias.Id == orderAlias.Contract.Id)
-					.Where(() => contractAlias.Counterparty.Id == counterparty.Id)
-					.List();
-
-				//получаем список доп. соглашений
-				var agreements = UnitOfWorkFactory
-					.CreateWithoutRoot()
-					.Session.QueryOver<AdditionalAgreement>(() => agreementAlias)
-					.JoinAlias(x => x.Contract, () => contractAlias, NHibernate.SqlCommand.JoinType.InnerJoin)
-					.Where(() => agreementAlias.Contract.Id == contractAlias.Id && contractAlias.Counterparty.Id == counterparty.Id)
-					.List();
-
-				//получаем список контрактов
-				var contracts = UnitOfWorkFactory
-					.CreateWithoutRoot()
-					.Session.QueryOver<CounterpartyContract>(() => contractAlias)
-					.Where(() => contractAlias.Counterparty.Id == counterparty.Id)
-					.List();
-
-				List<CounterpartyDocumentNode> CounterpartyDocs = new List<CounterpartyDocumentNode>();
-				foreach(var contract in contracts) {
-					CounterpartyDocumentNode contractNode = new CounterpartyDocumentNode();
-					contractNode.Document = contract;
-					contractNode.Documents = new List<CounterpartyDocumentNode>();
-
-					//добавление доп. соглашений к документам договора
-					var contractAgreements = agreements.Where(x => x.Contract.Id == contract.Id).ToList();
-					foreach(var agreement in contractAgreements) {
-						CounterpartyDocumentNode agreementNode = new CounterpartyDocumentNode();
-						agreementNode.Document = agreement;
-						agreementNode.Parent = contractNode;
-						agreementNode.Documents = new List<CounterpartyDocumentNode>();
-
-						//добавление гарантийных листов к документам доп. соглашения
-						List<OrderDocument> agreementWarranties = new List<OrderDocument>();
-						var agreementCoolers = orderDocuments
-									.OfType<CoolerWarrantyDocument>()
-									.Where(x => x.Contract != null && x.AdditionalAgreement != null)
-									.Where(x => x.Contract.Id == contract.Id)
-									.Where(x => x.AdditionalAgreement.Id == agreement.Id)
-									.Cast<OrderDocument>()
-									.ToList();
-						var agreementPumps = orderDocuments
-									.OfType<PumpWarrantyDocument>()
-									.Where(x => x.Contract != null && x.AdditionalAgreement != null)
-									.Where(x => x.Order.Contract.Id == contract.Id)
-									.Where(x => x.AdditionalAgreement.Id == agreement.Id)
-									.Cast<OrderDocument>()
-									.ToList();
-						agreementWarranties.AddRange(agreementCoolers);
-						agreementWarranties.AddRange(agreementPumps);
-						foreach(var warranty in agreementWarranties) {
-							CounterpartyDocumentNode warrantyNode = new CounterpartyDocumentNode();
-							warrantyNode.Document = warranty;
-							warrantyNode.Parent = agreementNode;
-							agreementNode.Documents.Add(warrantyNode);
-						}
-
-						contractNode.Documents.Add(agreementNode);
-					}
-
-					//добавление гарантийных листов к документам договора
-					List<OrderDocument> contractWarranties = new List<OrderDocument>();
-					var contractCoolers = orderDocuments
-							.OfType<CoolerWarrantyDocument>()
-							.Where(x => x.Contract != null)
-							.Where(x => x.Order.Contract.Id == contract.Id)
-							.Where(x => x.AdditionalAgreement == null)
-							.Cast<OrderDocument>()
-							.ToList();
-					var contractPumps = orderDocuments
-							.OfType<PumpWarrantyDocument>()
-							.Where(x => x.Contract != null)
-							.Where(x => x.Order.Contract.Id == contract.Id)
-							.Where(x => x.AdditionalAgreement == null)
-							.Cast<OrderDocument>()
-							.ToList();
-					contractWarranties.AddRange(contractCoolers);
-					contractWarranties.AddRange(contractPumps);
-					foreach(var warranty in contractWarranties) {
-						CounterpartyDocumentNode warrantyNode = new CounterpartyDocumentNode();
-						warrantyNode.Document = warranty;
-						warrantyNode.Parent = contractNode;
-						contractNode.Documents.Add(warrantyNode);
-					}
-
-					CounterpartyDocs.Add(contractNode);
-				}
-
-				ytreeDocuments.YTreeModel = new RecursiveTreeModel<CounterpartyDocumentNode>(CounterpartyDocs, x => x.Parent, x => x.Documents);
-			}
-		}
 
 		public CounterpartyDocumentsView()
 		{
 			this.Build();
+		}
+
+		public void Config(IUnitOfWork uow, Counterparty counterparty, bool selectable = false)
+		{
+			UoW = uow;
+			Counterparty = counterparty;
 			ytreeDocuments.Selection.Mode = Gtk.SelectionMode.Single;
-			ytreeDocuments.Selection.Changed += OnSelectionChanged;
 			ytreeDocuments.RowActivated += (o, args) => buttonViewDocument.Click();
 
-			ytreeDocuments.ColumnsConfig = FluentColumnsConfig<CounterpartyDocumentNode>.Create()
+			var columnConfig = FluentColumnsConfig<CounterpartyDocumentNode>.Create();
+
+			if(selectable) {
+				columnConfig.AddColumn("Выбрать").SetDataProperty(x => x.Selected);
+			}
+
+			ytreeDocuments.ColumnsConfig = columnConfig
 				.AddColumn("Документ").AddTextRenderer(x => x.Title)
 				.AddColumn("Номер").AddTextRenderer(x => x.Number)
 				.AddColumn("Дата").AddTextRenderer(x => x.Date)
 				.AddColumn("Количество кулеров/помп").AddTextRenderer(x => x.EquipmentCount)
 				.Finish();
+
+			LoadData();
 		}
 
-		void OnSelectionChanged(object sender, EventArgs e)
+		private void LoadData()
 		{
-			
-		}
+			OrderDocument orderDocumentAlias = null;
+			CounterpartyContract contractAlias = null;
+			Order orderAlias = null;
+			AdditionalAgreement agreementAlias = null;
 
+			//получаем список документов
+			var orderDocuments = UoW.Session.QueryOver<OrderDocument>(() => orderDocumentAlias)
+				.JoinAlias(x => x.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.InnerJoin)
+				.JoinAlias(() => orderAlias.Contract, () => contractAlias, NHibernate.SqlCommand.JoinType.InnerJoin)
+				.Where(() => orderAlias.Id == orderDocumentAlias.Order.Id && contractAlias.Id == orderAlias.Contract.Id)
+				.Where(() => contractAlias.Counterparty.Id == Counterparty.Id)
+				.List();
 
-		protected void OnTreeCounterpartyContractsRowActivated(object o, Gtk.RowActivatedArgs args)
-		{
-			
+			//получаем список доп. соглашений
+			var agreements = UoW.Session.QueryOver<AdditionalAgreement>(() => agreementAlias)
+				.JoinAlias(x => x.Contract, () => contractAlias, NHibernate.SqlCommand.JoinType.InnerJoin)
+				.Where(() => agreementAlias.Contract.Id == contractAlias.Id && contractAlias.Counterparty.Id == Counterparty.Id)
+				.List();
+
+			//получаем список контрактов
+			var contracts = UoW.Session.QueryOver<CounterpartyContract>(() => contractAlias)
+				.Where(() => contractAlias.Counterparty.Id == Counterparty.Id)
+				.List();
+
+			foreach(var contract in contracts) {
+				CounterpartyDocumentNode contractNode = new CounterpartyDocumentNode();
+				contractNode.Document = contract;
+				contractNode.Documents = new List<CounterpartyDocumentNode>();
+
+				//добавление доп. соглашений к документам договора
+				var contractAgreements = agreements.Where(x => x.Contract.Id == contract.Id).ToList();
+				foreach(var agreement in contractAgreements) {
+					CounterpartyDocumentNode agreementNode = new CounterpartyDocumentNode();
+					agreementNode.Document = agreement;
+					agreementNode.Parent = contractNode;
+					agreementNode.Documents = new List<CounterpartyDocumentNode>();
+
+					//добавление гарантийных листов к документам доп. соглашения
+					List<OrderDocument> agreementWarranties = new List<OrderDocument>();
+					var agreementCoolers = orderDocuments
+								.OfType<CoolerWarrantyDocument>()
+								.Where(x => x.Contract != null && x.AdditionalAgreement != null)
+								.Where(x => x.Contract.Id == contract.Id)
+								.Where(x => x.AdditionalAgreement.Id == agreement.Id)
+								.Cast<OrderDocument>()
+								.ToList();
+					var agreementPumps = orderDocuments
+								.OfType<PumpWarrantyDocument>()
+								.Where(x => x.Contract != null && x.AdditionalAgreement != null)
+								.Where(x => x.Order.Contract.Id == contract.Id)
+								.Where(x => x.AdditionalAgreement.Id == agreement.Id)
+								.Cast<OrderDocument>()
+								.ToList();
+					agreementWarranties.AddRange(agreementCoolers);
+					agreementWarranties.AddRange(agreementPumps);
+					foreach(var warranty in agreementWarranties) {
+						CounterpartyDocumentNode warrantyNode = new CounterpartyDocumentNode();
+						warrantyNode.Document = warranty;
+						warrantyNode.Parent = agreementNode;
+						agreementNode.Documents.Add(warrantyNode);
+					}
+
+					contractNode.Documents.Add(agreementNode);
+				}
+
+				//добавление гарантийных листов к документам договора
+				List<OrderDocument> contractWarranties = new List<OrderDocument>();
+				var contractCoolers = orderDocuments
+						.OfType<CoolerWarrantyDocument>()
+						.Where(x => x.Contract != null)
+						.Where(x => x.Order.Contract.Id == contract.Id)
+						.Where(x => x.AdditionalAgreement == null)
+						.Cast<OrderDocument>()
+						.ToList();
+				var contractPumps = orderDocuments
+						.OfType<PumpWarrantyDocument>()
+						.Where(x => x.Contract != null)
+						.Where(x => x.Order.Contract.Id == contract.Id)
+						.Where(x => x.AdditionalAgreement == null)
+						.Cast<OrderDocument>()
+						.ToList();
+				contractWarranties.AddRange(contractCoolers);
+				contractWarranties.AddRange(contractPumps);
+				foreach(var warranty in contractWarranties) {
+					CounterpartyDocumentNode warrantyNode = new CounterpartyDocumentNode();
+					warrantyNode.Document = warranty;
+					warrantyNode.Parent = contractNode;
+					contractNode.Documents.Add(warrantyNode);
+				}
+
+				CounterpartyDocs.Add(contractNode);
+			}
+
+			ytreeDocuments.YTreeModel = new RecursiveTreeModel<CounterpartyDocumentNode>(CounterpartyDocs, x => x.Parent, x => x.Documents);
 		}
 
 		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
@@ -189,10 +177,20 @@ namespace Vodovoz.ViewWidgets
 				}
 			}
 		}
+
+		public List<CounterpartyDocumentNode> GetSelectedDocuments() {
+			var result = new List<CounterpartyDocumentNode>();
+			foreach(var item in CounterpartyDocs) {
+				result.AddRange(item.GetSelectedDocuments());
+			}
+			return result;
+		}
 	}
 
 	public class CounterpartyDocumentNode
 	{
+		public bool Selected { get; set; }
+
 		public string Title {
 			get{
 				if(Document is CounterpartyContract) {
@@ -292,12 +290,18 @@ namespace Vodovoz.ViewWidgets
 
 		public List<CounterpartyDocumentNode> Documents { get; set; }
 
-	}
-
-	public enum CounterpartyDocumentsTypes
-	{
-		Contract,
-		AdditionalAgreement,
-		Warranty
+		public List<CounterpartyDocumentNode> GetSelectedDocuments()
+		{
+			List<CounterpartyDocumentNode> result = new List<CounterpartyDocumentNode>();
+			if(Selected) {
+				result.Add(this);
+			}
+			if(Documents != null && Documents.Count > 0) {
+				foreach(var item in Documents) {
+					result.AddRange(item.GetSelectedDocuments().Where(x => x.Selected));
+				}
+			}
+			return result;
+		}
 	}
 }
