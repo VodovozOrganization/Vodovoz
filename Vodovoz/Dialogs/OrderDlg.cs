@@ -1157,7 +1157,7 @@ namespace Vodovoz
 				return;
 			DBWorks.SQLHelper text = new DBWorks.SQLHelper("");
 			if(Entity.Client != null && Entity.DeliveryDate.HasValue) {
-				var proxies = Entity.Client.Proxies.Where(p => p.IsActiveProxy(Entity.DeliveryDate.Value) && (p.DeliveryPoints == null || p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, Entity.DeliveryPoint))));
+				var proxies = Entity.Client.Proxies.Where(p => p.IsActiveProxy(Entity.DeliveryDate.Value) && (p.DeliveryPoints == null || p.DeliveryPoints.Count() == 0 || p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, Entity.DeliveryPoint))));
 				foreach(var proxy in proxies) {
 					if(!String.IsNullOrWhiteSpace(text.Text))
 						text.Add("\n");
