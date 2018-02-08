@@ -14,6 +14,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.Date).Column ("date");
 			Map (x => x.TotalMoney).Column ("total_money");
 			Map (x => x.FineReasonString).Column("fine_reason_string");
+			Map (x => x.FineType).Column("fine_type").CustomType<FineTypeStringType>();
 
 			References (x => x.RouteList).Column("route_list_id");
 

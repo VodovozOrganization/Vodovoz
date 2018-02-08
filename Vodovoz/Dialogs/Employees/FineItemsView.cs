@@ -15,18 +15,45 @@ namespace Vodovoz
 		{
 			this.Build();
 
+			UpdateControlsState();
+			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+		}
+		bool isFuelOverspending;
+
+		public bool IsFuelOverspending {
+			get {
+				return isFuelOverspending;
+			}
+
+			set {
+				if(value != isFuelOverspending) {
+					isFuelOverspending = value;
+					UpdateControlsState();
+				}
+			}
+		}
+
+		void UpdateControlsState()
+		{
+			if(IsFuelOverspending) {
+				buttonAdd.Sensitive = false;
+				buttonRemove.Sensitive = false;
+			}else {
+				buttonAdd.Sensitive = true;
+				buttonRemove.Sensitive = true;
+			}
+
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<FineItem>()
 				.AddColumn("Сотрудник").AddTextRenderer(x => x.Employee.FullName)
-				.AddColumn("Штраф").AddNumericRenderer(x => x.Money).Editing().Digits(2)
+				.AddColumn("Штраф").AddNumericRenderer(x => x.Money).Editing(!IsFuelOverspending).Digits(2)
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddColumn("Причина штрафа").AddTextRenderer(x => x.Fine.FineReasonString)
 				.Finish();
-			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
 		}
 
 		void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
 		{
-			buttonRemove.Sensitive = ytreeviewItems.Selection.CountSelectedRows() > 0;
+			UpdateControlsState();
 		}
 
 		private IUnitOfWorkGeneric<Fine> fineUoW;

@@ -35,6 +35,23 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
+		decimal litersOverspending;
+
+		[Display(Name = "Перерасходовано литров")]
+		public virtual decimal LitersOverspending {
+			get { return litersOverspending; }
+			set { SetField(ref litersOverspending, value, () => LitersOverspending); }
+		}
+
+		private FuelOperation fuelOutlayedOperation;
+
+		[Display(Name = "Операции расхода топлива")]
+		public virtual FuelOperation FuelOutlayedOperation {
+			get { return fuelOutlayedOperation; }
+			set { SetField(ref fuelOutlayedOperation, value, () => FuelOutlayedOperation); }
+		}
+
+
 		private WagesMovementOperations wageOperation;
 
 		[Display(Name = "Операция по удержанию штрафа")]

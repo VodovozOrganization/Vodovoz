@@ -237,7 +237,8 @@ namespace Vodovoz
 				.AddClearDependence<RouteList>(x => x.BottleFine);
 
 			DeleteConfig.AddHibernateDeleteInfo<FineItem>()
-				.AddDeleteCascadeDependence(item => item.WageOperation);
+				.AddDeleteCascadeDependence(item => item.WageOperation)
+			    .AddDeleteCascadeDependence(item => item.FuelOutlayedOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<Subdivision>()
 				.AddClearDependence<Employee>(item => item.Subdivision);
