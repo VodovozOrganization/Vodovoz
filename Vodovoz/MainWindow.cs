@@ -15,6 +15,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Panel;
 using Vodovoz.ServiceDialogs.Database;
@@ -315,6 +316,12 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionUnitsActivated(object sender, EventArgs e)
 	{
 		OrmReference refWin = new OrmReference(typeof(MeasurementUnits));
+		tdiMain.AddTab(refWin);
+	}
+
+	protected void OnActionDiscountReasonsActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(DiscountReason));
 		tdiMain.AddTab(refWin);
 	}
 

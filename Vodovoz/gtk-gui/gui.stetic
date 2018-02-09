@@ -861,6 +861,12 @@
         <property name="StockId">logs</property>
         <signal name="Activated" handler="OnActionHistoryLogActivated" />
       </action>
+      <action id="Action43">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Основания для скидок</property>
+        <property name="ShortLabel" translatable="yes">Основания для скидок</property>
+        <signal name="Activated" handler="OnActionDiscountReasonsActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -921,6 +927,7 @@
                       <node type="Menuitem" action="ActionNomenclature" />
                       <node type="Menuitem" action="ActionUnits" />
                       <node type="Menuitem" action="ActionEquipment" />
+                      <node type="Menuitem" action="Action43" />
                       <node type="Separator" />
                       <node type="Menuitem" action="ActionEquipmentTypes" />
                       <node type="Menuitem" action="ActionManufacturers" />
@@ -4260,7 +4267,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Цены</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -12860,7 +12866,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.StockBalanceFilter" design-size="81 34">
+  <widget class="Gtk.Bin" id="Vodovoz.StockBalanceFilter" design-size="82 34">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -13562,8 +13568,9 @@
             <property name="LeftAttach">2</property>
             <property name="RightAttach">3</property>
             <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">True</property>
+            <property name="XExpand">False</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -26383,7 +26390,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">6</property>
+            <property name="CurrentPage">3</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -28011,9 +28018,28 @@
                             <property name="Numeric">True</property>
                             <property name="ValueAsDecimal">0</property>
                             <property name="ValueAsInt">0</property>
+                            <signal name="ValueChanged" handler="OnYspinDiscountOrderValueChanged" />
                           </widget>
                           <packing>
                             <property name="Position">3</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gamma.Widgets.ySpecComboBox" id="ycomboboxReason">
+                            <property name="MemberName" />
+                            <property name="Sensitive">False</property>
+                            <property name="IsTextCombo">False</property>
+                            <property name="Items" translatable="yes" />
+                            <property name="AddIfNotExist">False</property>
+                            <property name="DefaultFirst">False</property>
+                            <property name="ShowSpecialStateAll">False</property>
+                            <property name="ShowSpecialStateNot">False</property>
+                          </widget>
+                          <packing>
+                            <property name="Position">4</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
@@ -28029,7 +28055,7 @@
                             <signal name="Clicked" handler="OnButtonSetDiscountClicked" />
                           </widget>
                           <packing>
-                            <property name="Position">4</property>
+                            <property name="Position">5</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>

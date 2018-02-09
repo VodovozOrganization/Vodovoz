@@ -108,7 +108,21 @@ namespace Vodovoz.Domain.Orders
 		public virtual int Discount
 		{
 			get { return discount; }
-			set { SetField(ref discount, value, () => Discount); }
+			set 
+			{
+				if(value != discount && value == 0) {
+					DiscountReason = null;
+				}
+				SetField(ref discount, value, () => Discount); 
+			}
+		}
+
+		private DiscountReason discountReason;
+
+		[Display(Name = "Основание скидки на товар")]
+		public virtual DiscountReason DiscountReason {
+			get { return discountReason; }
+			set { SetField(ref discountReason, value, () => DiscountReason); }
 		}
 
 		CounterpartyMovementOperation counterpartyMovementOperation;

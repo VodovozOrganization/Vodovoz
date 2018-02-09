@@ -282,6 +282,10 @@ namespace Vodovoz
 				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 				.AddColumn("Скидка %").AddNumericRenderer(node => node.Discount)
 				.Adjustment(new Adjustment(0, 0, 100, 1, 100, 1)).Editing(true)
+				.AddColumn("Основание скидки").AddComboRenderer(node => node.DiscountReason)
+					.SetDisplayFunc(x => x.Name)
+					.FillItems(UoW.GetAll<DiscountReason>()
+				               .ToList()).AddSetter((c, n) => c.Editable = n.Discount > 0)
 				.AddColumn("Доп. соглашение").SetDataProperty(node => node.AgreementString)
 				.RowCells()
 				.Finish();
@@ -352,6 +356,9 @@ namespace Vodovoz
 			OrderItemEquipmentCountHasChanges = false;
 
 			ButtonCloseOrderSensitivity();
+
+			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
+			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
 		}
 
 		string GetRentsCount(OrderItem orderItem)
@@ -1385,9 +1392,24 @@ namespace Vodovoz
 
 		protected void OnButtonSetDiscountClicked(object sender, EventArgs e)
 		{
+			DiscountReason reason = (ycomboboxReason.SelectedItem as DiscountReason);
 			int discount = (int)yspinDiscountOrder.Value;
+			if(reason  == null && discount > 0) {
+				MessageDialogWorks.RunErrorDialog("Необходимо выбрать основание для скидки");
+				return;
+			}
 			foreach(OrderItem item in UoWGeneric.Root.ObservableOrderItems) {
 				item.Discount = discount;
+				item.DiscountReason = reason;
+			}
+		}
+
+		protected void OnYspinDiscountOrderValueChanged(object sender, EventArgs e)
+		{
+			bool haveDiscount = (int)yspinDiscountOrder.Value != 0;
+			ycomboboxReason.Sensitive = haveDiscount;
+			if(!haveDiscount) {
+				ycomboboxReason.SelectedItem = null;
 			}
 		}
 

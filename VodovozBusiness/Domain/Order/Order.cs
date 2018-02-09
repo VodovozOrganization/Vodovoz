@@ -636,6 +636,8 @@ namespace Vodovoz.Domain.Orders
 					}
 					// Конец проверки цен
 
+					if(ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
+						yield return new ValidationResult("Если указана скидка на товар, обязательно должно быть заполнено основание");
 #if !SHORT
 					//Проверка товаров
 					var itemsWithBlankWarehouse = OrderItems
