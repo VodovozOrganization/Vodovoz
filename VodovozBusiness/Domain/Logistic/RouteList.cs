@@ -1176,7 +1176,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			//Необходимо для того, чтобы расход топлива не пересчитывался после подтверждения логистами
-			if(Status == RouteListStatus.Closed){
+			if(Status == RouteListStatus.Closed && MileageCheck){
 				return;
 			}
 
