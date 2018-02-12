@@ -15,6 +15,7 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS1</DataSourceName>
+		<Timeout>60</Timeout>
         <CommandText>select
 	docs.doc_id,
     docs.doc_date,
