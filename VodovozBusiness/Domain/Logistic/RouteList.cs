@@ -517,12 +517,12 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool ShipIfCan(IUnitOfWork uow)
 		{
 			var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(uow, this);
-			var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(uow, this);
+			var goodsAndEquips = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(uow, this);
 
 			bool closed = true;
-			foreach(var good in goods) {
-				var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);
-				if(loaded == null || loaded.Amount < good.Amount) {
+			foreach(var rlItems in goodsAndEquips) {
+				var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == rlItems.NomenclatureId);
+				if(loaded == null || loaded.Amount < rlItems.Amount) {
 					closed = false;
 					break;
 				}

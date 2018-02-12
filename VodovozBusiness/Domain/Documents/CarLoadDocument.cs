@@ -130,31 +130,15 @@ namespace Vodovoz.Domain.Documents
 			if (RouteList == null || (Warehouse == null && warehouseOnly))
 				return;
 
-			var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(uow, 
-				            RouteList, warehouseOnly ? Warehouse : null);
-			var nomenclatures = uow.GetById<Nomenclature>(goods.Select(x => x.NomenclatureId).ToArray());
+			var goodsAndEquips = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(uow,
+							RouteList, warehouseOnly ? Warehouse : null);
+			var nomenclatures = uow.GetById<Nomenclature>(goodsAndEquips.Select(x => x.NomenclatureId).ToArray());
 
-			foreach(var inRoute in goods)
+			foreach(var inRoute in goodsAndEquips)
 			{
 				ObservableItems.Add(new CarLoadDocumentItem(){
 					Document = this,
 					Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
-					AmountInRouteList = inRoute.Amount,
-					Amount = inRoute.Amount
-				});
-			}
-
-			var equipmentsInRoute = Repository.Logistics.RouteListRepository.GetEquipmentsInRL(uow, 
-				RouteList, warehouseOnly ? Warehouse : null);
-			nomenclatures = uow.GetById<Nomenclature>(equipmentsInRoute.Select(x => x.NomenclatureId).ToArray());
-			var equipments = uow.GetById<Equipment>(equipmentsInRoute.Select(x => x.EquipmentId).ToArray());
-
-			foreach(var inRoute in equipmentsInRoute)
-			{
-				ObservableItems.Add(new CarLoadDocumentItem(){
-					Document = this,
-					Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
-					Equipment = equipments.FirstOrDefault(x => x.Id == inRoute.EquipmentId),
 					AmountInRouteList = inRoute.Amount,
 					Amount = inRoute.Amount
 				});
@@ -165,23 +149,14 @@ namespace Vodovoz.Domain.Documents
 		{
 			if (RouteList == null)
 				return;
-
-			var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(uow, 
-				RouteList, null);
-
-			var equipmentsInRoute = Repository.Logistics.RouteListRepository.GetEquipmentsInRL(uow, 
-				RouteList, null);
+			var goodsAndEquips = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(
+				uow, RouteList, null);
 			
 			foreach(var item in Items)
 			{
-				var aGoods = goods.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
-				if (aGoods != null)
+				var aGoods = goodsAndEquips.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
+				if(aGoods != null) {
 					item.AmountInRouteList = aGoods.Amount;
-				else
-				{
-					var equipment = equipmentsInRoute.FirstOrDefault(x => x.EquipmentId == item.Equipment.Id);
-					if (equipment != null)
-						item.AmountInRouteList = equipment.Amount;
 				}
 			}
 		}
@@ -210,10 +185,7 @@ namespace Vodovoz.Domain.Documents
 			foreach(var item in Items)
 			{
 				Repository.Logistics.RouteListRepository.GoodsLoadedListResult found;
-				if (item.Equipment == null)
-					found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
-				else
-					found = inLoaded.FirstOrDefault(x => x.EquipmentId == item.Equipment.Id);
+				found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
 				if(found != null)
 					item.AmountLoaded = found.Amount;
 			}

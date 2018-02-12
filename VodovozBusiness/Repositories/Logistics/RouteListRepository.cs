@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
@@ -33,6 +34,16 @@ namespace Vodovoz.Repository.Logistics
 				.Where (x => x.Date == date);
 		}
 
+		public static IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
+		{
+			List<GoodsInRouteListResult> result = new List<GoodsInRouteListResult>();
+
+			result.AddRange(GetGoodsInRLWithoutEquipments(uow, routeList, warehouse).ToList());
+			result.AddRange(GetEquipmentsInRL(uow, routeList, warehouse).ToList());
+
+			return result;
+		}
+
 		public static IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments (IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
 		{
 			GoodsInRouteListResult resultAlias = null;
@@ -48,11 +59,11 @@ namespace Vodovoz.Repository.Logistics
 				.Select (r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select (o => o.Id);
 
-			var orderitemsQuery = uow.Session.QueryOver<OrderItem> (() => orderItemsAlias)
-				.WithSubquery.WhereProperty (i => i.Order.Id).In (ordersQuery)
-				.JoinAlias (() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
-				.Where (() => !OrderItemNomenclatureAlias.IsSerial)
-				.Where (() => OrderItemNomenclatureAlias.Category.IsIn (Nomenclature.GetCategoriesForShipment ()));
+			var orderitemsQuery = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
+				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
+				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
+				.Where(() => OrderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()))
+				.Where(() => OrderItemNomenclatureAlias.Category != NomenclatureCategory.equipment);
 			if (warehouse != null)
 				orderitemsQuery.Where (() => OrderItemNomenclatureAlias.Warehouse == warehouse);
 
@@ -68,29 +79,19 @@ namespace Vodovoz.Repository.Logistics
 		{
 			GoodsInRouteListResult resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
-			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
-			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null;
-			Equipment equipmentAlias = null;
+			Nomenclature OrderEquipmentNomenclatureAlias = null;
 
+			//Выбирается список Id заказов находящихся в МЛ
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias);
-
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem> ()
 				.Where (r => r.RouteList.Id == routeList.Id)
 				.Select (r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select (o => o.Id);
 
-			var orderitemsQuery = uow.Session.QueryOver<OrderItem> (() => orderItemsAlias)
-				.WithSubquery.WhereProperty (i => i.Order.Id).In (ordersQuery)
-				.JoinAlias (() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
-				.Where (() => !OrderItemNomenclatureAlias.IsSerial);
-			if (warehouse != null)
-				orderitemsQuery.Where (() => OrderItemNomenclatureAlias.Warehouse == warehouse);
-
 			var orderEquipmentsQuery = uow.Session.QueryOver<OrderEquipment> (() => orderEquipmentAlias)
 				.WithSubquery.WhereProperty (i => i.Order.Id).In (ordersQuery)
-			    .JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where (() => orderEquipmentAlias.Direction == Direction.Deliver)
+			    .Where (() => orderEquipmentAlias.Direction == Direction.Deliver)
 			    .JoinAlias (() => orderEquipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias);
 			if (warehouse != null)
 				orderEquipmentsQuery.Where (() => OrderEquipmentNomenclatureAlias.Warehouse == warehouse);
@@ -98,7 +99,6 @@ namespace Vodovoz.Repository.Logistics
 			return orderEquipmentsQuery
 				.SelectList (list => list
 					.SelectGroup (() => OrderEquipmentNomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
-					.SelectGroup (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)
 				             .SelectSum (() => orderEquipmentAlias.Count).WithAlias (() => resultAlias.Amount)
 				)
 				.TransformUsing (Transformers.AliasToBean<GoodsInRouteListResult> ())
@@ -120,7 +120,6 @@ namespace Vodovoz.Repository.Logistics
 				.JoinAlias (d => d.Items, () => docItemsAlias)
 				.SelectList (list => list
 					.SelectGroup (() => docItemsAlias.Nomenclature.Id).WithAlias (() => inCarLoads.NomenclatureId)
-					.SelectGroup (() => docItemsAlias.Equipment.Id).WithAlias (() => inCarLoads.EquipmentId)
 					.SelectSum (() => docItemsAlias.Amount).WithAlias (() => inCarLoads.Amount)
 				).TransformUsing (Transformers.AliasToBean<GoodsLoadedListResult> ())
 				.List<GoodsLoadedListResult> ();
@@ -276,14 +275,12 @@ namespace Vodovoz.Repository.Logistics
 		public class GoodsInRouteListResult
 		{
 			public int NomenclatureId { get; set; }
-			public int EquipmentId { get; set; }
 			public int Amount { get; set; }
 		}
 
 		public class GoodsLoadedListResult
 		{
 			public int NomenclatureId { get; set; }
-			public int EquipmentId { get; set; }
 			public decimal Amount { get; set; }
 		}
 

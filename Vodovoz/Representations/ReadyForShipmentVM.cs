@@ -102,31 +102,20 @@ namespace Vodovoz.ViewModel
 				{
 					var route = routes.First(x => x.Id == dirty.Id);
 					var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(UoW, route);
-					var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(UoW, route, Filter.RestrictWarehouse);
+
+					var goodsAndEquips = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(UoW, route, Filter.RestrictWarehouse);
 
 					bool closed = true;
-					foreach(var good in goods)
+					foreach(var rlItem in goodsAndEquips)
 					{
-						var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);
-						if(loaded == null || loaded.Amount < good.Amount)
+						var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == rlItem.NomenclatureId);
+						if(loaded == null || loaded.Amount < rlItem.Amount)
 						{
 							closed = false;
 							break;
 						}
 					}
-					if(closed == true)
-					{
-						var equipmentsInRoute = Repository.Logistics.RouteListRepository.GetEquipmentsInRL(UoW, route, Filter.RestrictWarehouse);
-						foreach(var equipment in equipmentsInRoute)
-						{
-							var loaded = inLoaded.FirstOrDefault(x => x.EquipmentId == equipment.EquipmentId);
-							if(loaded == null || loaded.Amount < equipment.Amount)
-							{
-								closed = false;
-								break;
-							}
-						}
-					}
+
 					if (!closed)
 						resultList.Add(dirty);
 				}
