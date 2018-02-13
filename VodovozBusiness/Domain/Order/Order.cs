@@ -425,14 +425,7 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		public virtual bool CanChangeContractor()
-		{
-			if((NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) && OrderDocuments.Count > 0) ||
-				(NHibernate.NHibernateUtil.IsInitialized(InitialOrderService) && InitialOrderService.Count > 0) ||
-				(NHibernate.NHibernateUtil.IsInitialized(FinalOrderService) && FinalOrderService.Count > 0))
-				return false;
-			return true;
-		}
+		#region Вложенные коллекции
 
 		IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem>();
 
@@ -555,6 +548,8 @@ namespace Vodovoz.Domain.Orders
 				return observableFinalOrderService;
 			}
 		}
+
+		#endregion
 
 		public Order()
 		{
@@ -801,6 +796,15 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Функции
+
+		public virtual bool CanChangeContractor()
+		{
+			if((NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) && OrderDocuments.Count > 0) ||
+				(NHibernate.NHibernateUtil.IsInitialized(InitialOrderService) && InitialOrderService.Count > 0) ||
+				(NHibernate.NHibernateUtil.IsInitialized(FinalOrderService) && FinalOrderService.Count > 0))
+				return false;
+			return true;
+		}
 
 		public virtual void AddEquipmentNomenclatureForSale(Nomenclature nomenclature, IUnitOfWork UoW)
 		{
