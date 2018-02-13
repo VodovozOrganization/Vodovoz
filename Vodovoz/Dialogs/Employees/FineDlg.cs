@@ -173,7 +173,7 @@ namespace Vodovoz
 			}
 			if(yentryreferenceRouteList.Subject != null) {
 				decimal fuelCost = (yentryreferenceRouteList.Subject as RouteList).Car.FuelType.Cost;
-				Entity.TotalMoney = Entity.LitersOverspending * fuelCost;
+				Entity.TotalMoney = Math.Round(Entity.LitersOverspending * fuelCost, 0, MidpointRounding.ToEven);
 				var item = Entity.ObservableItems.FirstOrDefault();
 				if(item != null) {
 					item.Money = Entity.TotalMoney;
