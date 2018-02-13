@@ -364,6 +364,14 @@ namespace Vodovoz
 				.AddRemoveFromDependence<Contact>(x => x.DeliveryPoints)
 				.AddClearDependence<ServiceClaim>(x => x.DeliveryPoint);
 
+			DeleteConfig.AddHibernateDeleteInfo<TransferOperationDocument>()
+				.AddDeleteCascadeDependence(item => item.IncBottlesOperation)
+				.AddDeleteCascadeDependence(item => item.OutBottlesOperation)
+				.AddDeleteCascadeDependence(item => item.IncBottlesDepositOperation)
+				.AddDeleteCascadeDependence(item => item.OutBottlesDepositOperation)
+				.AddDeleteCascadeDependence(item => item.IncEquipmentDepositOperation)
+				.AddDeleteCascadeDependence(item => item.OutEquipmentDepositOperation);
+
 			DeleteConfig.AddHibernateDeleteInfo<WaterSalesAgreementFixedPrice>();
 
 			#endregion
