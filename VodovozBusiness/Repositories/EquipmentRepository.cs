@@ -54,7 +54,7 @@ namespace Vodovoz.Repository
 				.Where(() => localOrderEquipmentAlias.Direction == Direction.Deliver)
 											.Where(() => localOrderAlias.OrderStatus == OrderStatus.Accepted
 												   || localOrderAlias.OrderStatus == OrderStatus.InTravelList
-												   || localOrderAlias.OrderStatus == OrderStatus.NewOrder)
+												   || localOrderAlias.OrderStatus == OrderStatus.OnLoading)
 				.Select(Projections.Sum(() => localOrderEquipmentAlias.Count));
 
 			NomenclatureForRentVMNode resultAlias = null;
@@ -277,7 +277,7 @@ namespace Vodovoz.Repository
 			var subqueryAllReservedEquipment = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
 				   || orderAlias.OrderStatus == OrderStatus.InTravelList
-				   || orderAlias.OrderStatus == OrderStatus.NewOrder) // чтобы не добавить в доп соглашение оборудование добавленное в уже созданный заказ.
+				   || orderAlias.OrderStatus == OrderStatus.OnLoading) // чтобы не добавить в доп соглашение оборудование добавленное в уже созданный заказ.
 				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.Select(Projections.Property(() => orderEquipmentAlias.Equipment.Id));

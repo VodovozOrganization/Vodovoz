@@ -60,7 +60,9 @@ namespace Vodovoz.ViewModel
 				.JoinAlias (() => orderAlias.OrderItems, () => orderItemsAlias)
 				.Where (()=>orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.Where(() => nomenclatureAlias.DoNotReserve == false)
-				.Where(()=>orderAlias.OrderStatus==OrderStatus.Accepted)
+				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
+					   || orderAlias.OrderStatus == OrderStatus.InTravelList
+					   || orderAlias.OrderStatus == OrderStatus.OnLoading)
 				.Select (Projections.Sum (() => orderItemsAlias.Count));
 
 			var items = UoW.Session.QueryOver<Nomenclature>(()=>nomenclatureAlias)

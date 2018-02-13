@@ -48,9 +48,9 @@ namespace Vodovoz.ViewModel
 				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
 				.Where (() => nomenclatureAlias.Type.Id == equipmentTypeAlias.Id)
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
-				.Where(() => orderAlias.OrderStatus==OrderStatus.Accepted
+				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
 			           || orderAlias.OrderStatus == OrderStatus.InTravelList
-			           || orderAlias.OrderStatus == OrderStatus.NewOrder)
+			           || orderAlias.OrderStatus == OrderStatus.OnLoading)
 				.Select (Projections.Count (() => orderEquipmentAlias.Id));
 
 			var equipment = UoW.Session.QueryOver<EquipmentType>(()=>equipmentTypeAlias)
