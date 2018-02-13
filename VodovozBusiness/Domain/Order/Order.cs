@@ -423,6 +423,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref trifle, value, () => Trifle); }
 		}
 
+		private int? onlineOrder;
+
+		[Display(Name = "Номер онлайн заказа")]
+		public virtual int? OnlineOrder {
+			get { return onlineOrder; }
+			set { SetField(ref onlineOrder, value, () => OnlineOrder); }
+		}
+
 		#endregion
 
 		#region Вложенные коллекции
