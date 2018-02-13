@@ -80,7 +80,9 @@ namespace Vodovoz.Domain.Documents
 			get { return String.Format ("Документ производства №{0} от {1:d}", Id, TimeStamp); }
 		}
 
-		WarehouseMovementOperation produceOperation = new WarehouseMovementOperation ();
+		WarehouseMovementOperation produceOperation = new WarehouseMovementOperation() {
+			OperationTime = DateTime.Now
+		};
 
 		public virtual WarehouseMovementOperation ProduceOperation {
 			get { return produceOperation; }
