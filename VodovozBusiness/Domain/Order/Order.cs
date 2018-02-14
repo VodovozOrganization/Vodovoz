@@ -1622,7 +1622,7 @@ namespace Vodovoz.Domain.Orders
 						AttachedToOrder = this
 					});
 				}
-				if(paymentType == PaymentType.cash) {
+				if(paymentType == PaymentType.cash || PaymentType == PaymentType.ByCard || PaymentType == PaymentType.Internal) {
 					AddDocumentIfNotExist(new InvoiceDocument {
 						Order = this,
 						AttachedToOrder = this
