@@ -1,16 +1,20 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gtk;
 using NHibernate.Proxy;
 using NLog;
+using QSDocTemplates;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using QSTDI;
 using QSValidation;
+using Vodovoz.Dialogs;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -19,14 +23,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
+using Vodovoz.JournalFilters;
 using Vodovoz.Panel;
 using Vodovoz.Repository;
-using QSDocTemplates;
-using Vodovoz.JournalFilters;
-using Vodovoz.Domain.Operations;
-using System.Data.Bindings.Collections.Generic;
-using Gamma.GtkWidgets.Cells;
-using Vodovoz.Dialogs;
 
 namespace Vodovoz
 {
@@ -168,6 +167,9 @@ namespace Vodovoz
 
 			yentryAddress1cDeliveryPoint.Binding.AddBinding(Entity, e => e.Address1c, w => w.Text).InitializeFromSource();
 			yentryAddress1cDeliveryPoint.Binding.AddBinding(Entity, e => e.Address1c, w => w.TooltipText).InitializeFromSource();
+
+			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			entryOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.RestrictIncludeCustomer = true;
@@ -1304,6 +1306,8 @@ namespace Vodovoz
 			enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible =
 				enumDocumentType.Visible = labelDocumentType.Visible =
 				(Entity.PaymentType == PaymentType.cashless);
+
+			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (Entity.PaymentType == PaymentType.ByCard);
 
 			treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType != PaymentType.cash;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =

@@ -708,6 +708,11 @@ namespace Vodovoz.Domain.Orders
 			if(Client == null)
 				yield return new ValidationResult("Необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
+
+			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
+				yield return new ValidationResult("Если выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
+				                                  new[] { this.GetPropertyName(o => o.OnlineOrder) });
+	
 #if !SHORT
 			if (ObservableOrderItems.Any (item => item.Count < 1))
 				yield return new ValidationResult ("В заказе присутствуют позиции с нулевым количеством.", 

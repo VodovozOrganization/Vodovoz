@@ -19,9 +19,9 @@ namespace Vodovoz.Repository
 				organizationParameter = CashOrganization;
 				break;
 			case PaymentType.cashless:
-				organizationParameter = CashlessOrganization;
-				break;
 			case PaymentType.barter:
+			case PaymentType.ByCard:
+			case PaymentType.Internal:
 				organizationParameter = CashlessOrganization;
 				break;
 			}
