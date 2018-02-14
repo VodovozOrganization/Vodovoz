@@ -305,8 +305,8 @@ namespace Vodovoz
 
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument>()
 				.AddColumn("Документ").SetDataProperty(node => node.Name)
-				.AddColumn("Дата").SetDataProperty(node => node.DocumentDate)
-				.AddColumn("Заказ").AddTextRenderer(node => node.Order.Id != node.AttachedToOrder.Id ? node.Order.Id.ToString() : "")
+				.AddColumn("Дата документа").AddTextRenderer(node => node.DocumentDateText)
+				.AddColumn("Заказ №").AddTextRenderer(node => node.Order.Id != node.AttachedToOrder.Id ? node.Order.Id.ToString() : "")
 				.RowCells().AddSetter<CellRenderer>((c, n) => {
 					if(n.Order.Id != n.AttachedToOrder.Id) {
 						c.CellBackgroundGdk = colorLightYellow;

@@ -36,6 +36,10 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override string Name { get { return String.Format ("Накладная №{0} (бартер)",Order.Id); }  }
 
+		public override DateTime? DocumentDate {
+			get { return Order?.DeliveryDate; }
+		}
+
 		public override PrinterType PrintType {
 			get {
 				return PrinterType.RDL;

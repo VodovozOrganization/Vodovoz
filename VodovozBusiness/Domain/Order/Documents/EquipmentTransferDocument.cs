@@ -49,8 +49,8 @@ namespace Vodovoz.Domain.Orders.Documents
 			get { return String.Format ("Акт приема-передачи оборудования №{0}", serviceClaim.Id); }
 		}
 
-		public override string DocumentDate {
-			get { return String.Format ("от {0}", serviceClaim.ServiceStartDate ); }
+		public override DateTime? DocumentDate {
+			get { return serviceClaim?.ServiceStartDate; }
 		}
 
 		public override PrinterType PrintType {

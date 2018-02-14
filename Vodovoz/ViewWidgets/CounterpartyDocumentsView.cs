@@ -246,12 +246,8 @@ namespace Vodovoz.ViewWidgets
 					return (Document as AdditionalAgreement).StartDate.ToShortDateString();
 				}
 
-				if(Document is CoolerWarrantyDocument) {
-					return (Document as CoolerWarrantyDocument).Date;
-				}
-
-				if(Document is PumpWarrantyDocument) {
-					return (Document as PumpWarrantyDocument).Date;
+				if(Document is OrderDocument) {
+					return (Document as OrderDocument).DocumentDateText;
 				}
 
 				return "";

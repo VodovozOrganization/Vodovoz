@@ -40,19 +40,13 @@ namespace Vodovoz.Domain.Orders.Documents
 			};
 		}
 
-		public override string DocumentDate {
-			get { return String.Format("от {0:d}", Order.DeliveryDate); }
+		public override DateTime? DocumentDate {
+			get { return Order?.DeliveryDate; }
 		}
 
 		#endregion
 
 		public override string Name { get { return String.Format ("Гарантийный талон на помпы №{0}", WarrantyFullNumber); } }
-
-
-
-		public virtual string Date {
-			get { return String.Format("{0:d}", Order.DeliveryDate); }
-		}
 
 		public override PrinterType PrintType {
 			get {

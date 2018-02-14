@@ -45,7 +45,9 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual string Name { get { return "Не указан"; } }
 
-		public virtual string DocumentDate { get { return "Не указано"; } }
+		public abstract DateTime? DocumentDate { get; }
+
+		public virtual string DocumentDateText { get { return DocumentDate?.ToShortDateString() ?? "не указана"; } }
 
 		#region IPrintableDocument implementation
 		public virtual QSReport.ReportInfo GetReportInfo (){

@@ -36,8 +36,8 @@ namespace Vodovoz.Domain.Orders.Documents
 			get { return String.Format ("Договор №{0}", contract.Number); }
 		}
 
-		public override string DocumentDate {
-			get { return String.Format ("от {0}", Contract.IssueDate.ToShortDateString ()); }
+		public override DateTime? DocumentDate {
+			get { return Contract?.IssueDate; }
 		}
 			
 		public virtual IDocTemplate GetTemplate()

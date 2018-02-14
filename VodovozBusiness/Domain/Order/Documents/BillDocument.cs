@@ -55,8 +55,8 @@ namespace Vodovoz.Domain.Orders.Documents
 			get { return String.Format ("Счет №{0}", Order.Id); }
 		}			
 
-		public override string DocumentDate {
-			get { return String.Format ("от {0:d}", Order.DeliveryDate); }
+		public override DateTime? DocumentDate {
+			get { return Order?.DeliveryDate; }
 		}
 			
 		public override PrinterType PrintType {

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Client;
-using QSReport;
 using QSDocTemplates;
 using QSOrmProject;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -42,8 +41,8 @@ namespace Vodovoz.Domain.Orders.Documents
 			}
 		}
 
-		public override string DocumentDate {
-			get { return AdditionalAgreement.DocumentDate; }
+		public override DateTime? DocumentDate {
+			get { return AdditionalAgreement?.IssueDate;}
 		}
 
 		public virtual void PrepareTemplate(IUnitOfWork uow)

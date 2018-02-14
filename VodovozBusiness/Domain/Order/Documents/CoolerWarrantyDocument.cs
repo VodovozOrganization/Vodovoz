@@ -40,8 +40,8 @@ namespace Vodovoz.Domain.Orders.Documents
 			}
 		}	
 
-		public override string DocumentDate {
-			get { return String.Format ("от {0:d}", Order.DeliveryDate); }
+		public override DateTime? DocumentDate {
+			get { return Order?.DeliveryDate; }
 		}
 
 		#endregion
@@ -52,10 +52,6 @@ namespace Vodovoz.Domain.Orders.Documents
 			get {
 				return PrinterType.RDL;
 			}
-		}
-
-		public virtual string Date {
-			get { return String.Format("{0:d}", Order.DeliveryDate); }
 		}
 
 		CounterpartyContract contract;

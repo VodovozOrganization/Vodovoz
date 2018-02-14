@@ -92,8 +92,6 @@ namespace Vodovoz.Domain.Client
 
 		public virtual string AgreementTypeTitle { get { return Type.GetEnumTitle (); } }
 
-		public virtual string DocumentDate { get { return String.Format ("От {0}", StartDate.ToShortDateString ()); } }
-
 		public virtual string Title { get { return String.Format ("Доп. соглашение №{0} от {1}", FullNumberText, StartDate.ToShortDateString ()); } }
 
 		public virtual string FullNumberText {
