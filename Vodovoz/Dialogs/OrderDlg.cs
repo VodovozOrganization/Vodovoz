@@ -168,6 +168,9 @@ namespace Vodovoz
 			yentryAddress1cDeliveryPoint.Binding.AddBinding(Entity, e => e.Address1c, w => w.Text).InitializeFromSource();
 			yentryAddress1cDeliveryPoint.Binding.AddBinding(Entity, e => e.Address1c, w => w.TooltipText).InitializeFromSource();
 
+			//Не удаляем полностью а только скрываем, чтобы можно было увидеть адрес в старых заказах, загруженных из 1с.
+			labelAddress1c.Visible = yentryAddress1cDeliveryPoint.Visible = buttonCreateDeliveryPoint.Visible = !String.IsNullOrWhiteSpace(Entity.Address1c);
+
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
