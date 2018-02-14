@@ -915,7 +915,7 @@ namespace Vodovoz
 				MessageType.Question,
 				ButtonsType.YesNo,
 				"Отсутствует договор с клиентом для " +
-				(UoWGeneric.Root.PaymentType == PaymentType.cash ? "наличной" : "безналичной") +
+			                                     (Entity.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.ByCard ? "наличной" : "безналичной") +
 				" формы оплаты. Создать?");
 			md.SetPosition(WindowPosition.Center);
 			md.AddButton("Автоматически", ResponseType.Accept);
@@ -1290,7 +1290,7 @@ namespace Vodovoz
 		{
 			ITdiTab dlg;
 			string question = "Отсутствует доп. соглашение сервиса с клиентом в договоре для " +
-							  (UoWGeneric.Root.PaymentType == PaymentType.cash ? "наличной" : "безналичной") +
+				(UoWGeneric.Root.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.ByCard ? "наличной" : "безналичной") +
 							  " формы оплаты. Создать?";
 			if(MessageDialogWorks.RunQuestionDialog(question)) {
 				dlg = new RepairAgreementDlg(contract);
@@ -1312,7 +1312,7 @@ namespace Vodovoz
 
 			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (Entity.PaymentType == PaymentType.ByCard);
 
-			treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType != PaymentType.cash;
+			treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
 				dataSumDifferenceReason.Visible = Entity.PaymentType == PaymentType.cash;
 		}
