@@ -355,6 +355,7 @@ namespace Vodovoz.Domain.Goods
 		[Code1c("0790070")]
 		disposableBottleWater,
 		[Display (Name= "Выезд мастера")]
+		[Code1c("")]
 		master
 	}
 

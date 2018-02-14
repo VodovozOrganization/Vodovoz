@@ -72,11 +72,12 @@ namespace Vodovoz.Repository
 				.List();
 		}
 
-		public static IList<VodovozOrder> GetCompleteOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)
+		public static IList<VodovozOrder> GetCompleteOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate, PaymentType payment)
 		{
 			VodovozOrder orderAlias = null;
 			return UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
+				.Where(o => o.PaymentType == payment)
 				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate).List();
 		}
 

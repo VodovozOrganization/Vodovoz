@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Xml.Serialization;
 using System.Xml;
-using System.Collections.Generic;
-using System.Collections;
-using Vodovoz.Domain;
-using QSBusinessCommon.Domain;
-using Vodovoz.Domain.Store;
-using Vodovoz.Repository;
 using QSOrmProject;
-using Vodovoz.ExportTo1c;
+using Vodovoz.Repository;
 
 namespace Vodovoz.ExportTo1c
 {
@@ -32,7 +25,7 @@ namespace Vodovoz.ExportTo1c
 		public static ExportData GetSalesFor(DateTime dateStart, DateTime dateEnd)
 		{
 			var UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var orders = OrderRepository.GetCompleteOrdersBetweenDates(UoW, dateStart, dateEnd);
+			var orders = OrderRepository.GetCompleteOrdersBetweenDates(UoW, dateStart, dateEnd, Domain.Client.PaymentType.cashless);
 			var exportData = new ExportData(UoW,dateStart,dateEnd);
 
 			foreach (var order in orders)

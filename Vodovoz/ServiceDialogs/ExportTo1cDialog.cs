@@ -11,11 +11,9 @@ using Vodovoz.ExportTo1c;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ExportTo1cDialog : TdiTabBase
 	{
 		private IUnitOfWork UoW;
-		private IList<Order> orders;
 		private bool exportInProgress;
 
 		public ExportTo1cDialog()
