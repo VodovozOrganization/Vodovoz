@@ -16,12 +16,14 @@ namespace Vodovoz.Repository
 			string organizationParameter="";
 			switch (paymentType) {
 			case PaymentType.cash:
+					//FIXME Должен быть отдельные договор!!!!
+			case PaymentType.barter:
+			case PaymentType.ByCard:
+					//FIXME Должно выбираться разное.
+			case PaymentType.Internal:
 				organizationParameter = CashOrganization;
 				break;
 			case PaymentType.cashless:
-			case PaymentType.barter:
-			case PaymentType.ByCard:
-			case PaymentType.Internal:
 				organizationParameter = CashlessOrganization;
 				break;
 			}
