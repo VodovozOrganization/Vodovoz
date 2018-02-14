@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -21,6 +21,7 @@
     orders.bottles_return AS bottles_return,
     orders.sum_to_receive AS total,
     orders.comment AS order_comment,
+    orders.online_order AS order_online_number,
     delivery_schedule.name AS delivery_schedule,
     counterparty_contract.id AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,
@@ -72,7 +73,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -163,6 +164,10 @@ WHERE
         </Field>
         <Field Name="daily_number">
           <DataField>daily_number</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="order_online_number">
+          <DataField>order_online_number</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
@@ -1274,10 +1279,10 @@ GROUP BY responsible_person_name</CommandText>
           <Textbox Name="Textbox30">
             <Height>16.53pt</Height>
             <Width>536.74pt</Width>
-            <Value>={order_comment}</Value>
+            <Value>=Iif(Fields!order_online_number.IsMissing, '', 'Заказ #' + {order_online_number}+' - онлайн оплата. ') + {order_comment}</Value>
             <ZIndex>1</ZIndex>
-            <Left>1.5pt</Left>
-            <Top>365.7pt</Top>
+            <Left>1.50pt</Left>
+            <Top>365.70pt</Top>
             <CanGrow>true</CanGrow>
             <Style>
               <BorderStyle />
