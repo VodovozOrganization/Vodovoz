@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -31,7 +31,6 @@
     delivery_points.comment AS delivery_point_comment,
     CONCAT('+7 ', delivery_points.phone) AS phone,
     delivery_points.city AS city,
-    delivery_points.region AS region,
     delivery_points.street AS street,
     delivery_points.building AS building,
     delivery_points.room AS room,
@@ -67,7 +66,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -122,10 +121,6 @@ WHERE
         </Field>
         <Field Name="city">
           <DataField>city</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="region">
-          <DataField>region</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="street">
