@@ -36,6 +36,9 @@ namespace Vodovoz
 			ycheckbuttonCanReceiveEquipment.Binding
 				.AddBinding (UoWGeneric.Root, (warehouse) => warehouse.CanReceiveEquipment, (widget) => widget.Active)
 				.InitializeFromSource ();
+
+			comboTypeOfUse.ItemsEnum = typeof(WarehouseUsing);
+			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItem).InitializeFromSource();
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase

@@ -1,10 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
-using System.Collections.Generic;
-using Vodovoz.Domain.Operations;
-using NHibernate.Criterion;
-using NHibernate.Transform;
 
 namespace Vodovoz.Domain.Store
 {
@@ -38,11 +34,32 @@ namespace Vodovoz.Domain.Store
 			set{ SetField (ref canReceiveEquipment, value, () => CanReceiveEquipment); }
 		}
 
+		private WarehouseUsing typeOfUse;
+
+		[Display(Name = "notset")]
+		public virtual WarehouseUsing TypeOfUse {
+			get { return typeOfUse; }
+			set { SetField(ref typeOfUse, value, () => TypeOfUse); }
+		}
+
 		#endregion
 
 		public Warehouse ()
 		{
-			Name = String.Empty;
+		}
+	}
+
+	public enum WarehouseUsing{
+		[Display(Name = "Отгрузка")]
+		Shipment,
+		[Display(Name = "Производство")]
+		Production,
+	}
+
+	public class WarehouseUsingStringType : NHibernate.Type.EnumStringType
+	{
+		public WarehouseUsingStringType() : base(typeof(WarehouseUsing))
+		{
 		}
 	}
 }

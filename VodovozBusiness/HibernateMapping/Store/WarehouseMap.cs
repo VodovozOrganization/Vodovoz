@@ -13,6 +13,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.Name).Column ("name");
 			Map (x => x.CanReceiveBottles).Column ("can_receive_bottles");
 			Map (x => x.CanReceiveEquipment).Column ("can_receive_equipment");
+			Map(x => x.TypeOfUse).Column("type_of_use").CustomType<WarehouseUsingStringType>();
 		}
 	}
 }
