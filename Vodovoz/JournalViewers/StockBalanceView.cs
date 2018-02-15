@@ -35,6 +35,11 @@ namespace Vodovoz
 			datatreeviewBalance.SearchHighlightText = searchentity1.Text;
 			datatreeviewBalance.RepresentationModel.SearchString = searchentity1.Text;
 		}
+
+		protected void OnButtonRefreshClicked(object sender, System.EventArgs e)
+		{
+			datatreeviewBalance.RepresentationModel?.UpdateNodes();
+		}
 	}
 }
 

@@ -10,6 +10,8 @@ namespace Vodovoz
 
 		private global::Vodovoz.StockBalanceFilter stockbalancefilter1;
 
+		private global::Gtk.Button buttonRefresh;
+
 		private global::QSWidgetLib.SearchEntity searchentity1;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
@@ -36,23 +38,37 @@ namespace Vodovoz
 			this.stockbalancefilter1.Name = "stockbalancefilter1";
 			this.hbox2.Add(this.stockbalancefilter1);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.stockbalancefilter1]));
-			w1.Position = 1;
+			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.buttonRefresh = new global::Gtk.Button();
+			this.buttonRefresh.CanFocus = true;
+			this.buttonRefresh.Name = "buttonRefresh";
+			this.buttonRefresh.UseUnderline = true;
+			this.buttonRefresh.Label = global::Mono.Unix.Catalog.GetString("Обновить");
+			global::Gtk.Image w2 = new global::Gtk.Image();
+			w2.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Menu);
+			this.buttonRefresh.Image = w2;
+			this.hbox2.Add(this.buttonRefresh);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonRefresh]));
+			w3.Position = 1;
+			w3.Expand = false;
+			w3.Fill = false;
 			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-			w2.Position = 0;
-			w2.Expand = false;
-			w2.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.searchentity1 = new global::QSWidgetLib.SearchEntity();
 			this.searchentity1.Events = ((global::Gdk.EventMask)(256));
 			this.searchentity1.Name = "searchentity1";
 			this.vbox1.Add(this.searchentity1);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchentity1]));
-			w3.Position = 1;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchentity1]));
+			w5.Position = 1;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -63,14 +79,15 @@ namespace Vodovoz
 			this.datatreeviewBalance.Name = "datatreeviewBalance";
 			this.GtkScrolledWindow.Add(this.datatreeviewBalance);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w5.Position = 2;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w7.Position = 2;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.buttonRefresh.Clicked += new global::System.EventHandler(this.OnButtonRefreshClicked);
 			this.searchentity1.TextChanged += new global::System.EventHandler(this.OnSearchentity1TextChanged);
 		}
 	}
