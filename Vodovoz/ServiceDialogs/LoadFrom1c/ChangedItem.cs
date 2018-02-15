@@ -157,6 +157,11 @@ namespace ServiceDialogs.LoadFrom1c
 				oldOrder.ClientPhone = newOrder.ClientPhone;
 			}
 
+			if(oldOrder.IsService != newOrder.IsService) {
+				result.Add(new FieldChange("Изменено поле 'Сервисное обслуживание'", oldOrder.IsService ? "Да" : "Нет", newOrder.IsService ? "Да" : "Нет"));
+				oldOrder.IsService = newOrder.IsService;
+			}
+
 			List<OrderItem> oldOrderItems = oldOrder.OrderItems.ToList();
 			List<OrderItem> newOrderItems = newOrder.OrderItems.ToList();
 
