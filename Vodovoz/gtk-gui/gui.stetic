@@ -34554,7 +34554,6 @@
           <widget class="Gamma.Widgets.yEntryReference" id="yentryrefWarehouse">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
-            <signal name="ChangedByUser" handler="OnYentryrefWarehouseChangedByUser" />
           </widget>
           <packing>
             <property name="TopAttach">1</property>

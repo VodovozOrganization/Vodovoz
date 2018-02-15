@@ -1,7 +1,7 @@
 ﻿using System;
-using QSReport;
 using System.Collections.Generic;
 using QSOrmProject;
+using QSReport;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Reports
@@ -48,28 +48,26 @@ namespace Vodovoz.Reports
 		}
 
 		private ReportInfo GetReportInfo()
-		{			
-			var wagons = Repository.Store.WagonRepository.UsedWagonsByPeriod(uow,
-				             dateperiodpicker1.StartDate,
-				             dateperiodpicker1.EndDate,
-				             yentryrefWarehouse.Subject as Warehouse
-			             );
-			int wagon1 = wagons.Count > 0 ? wagons[0].Id : -1;
-			int wagon2 = wagons.Count > 1 ? wagons[1].Id : -1;
-			int wagon3 = wagons.Count > 2 ? wagons[2].Id : -1;
-			int wagon4 = wagons.Count > 3 ? wagons[3].Id : -1;
+		{
+			string reportId;
+			var warehouse = yentryrefWarehouse.Subject as Warehouse;
+			if(warehouse == null)
+				reportId = "Store.StockSummaryMovements";
+			else if(warehouse.TypeOfUse == WarehouseUsing.Shipment)
+				reportId = "Store.StockShipmentMovements";
+			else if(warehouse.TypeOfUse == WarehouseUsing.Production)
+				reportId = "Store.StockProductionMovements";
+			else
+				throw new NotImplementedException("Неизвестный тип использования склада.");
+
 			return new ReportInfo
 			{
-				Identifier = "Store.SummaryMovements",
+				Identifier = reportId,
 				Parameters = new Dictionary<string, object>
 				{
 					{ "startDate", dateperiodpicker1.StartDateOrNull.Value },
 					{ "endDate", dateperiodpicker1.EndDateOrNull.Value },
-					{ "warehouse_id", (yentryrefWarehouse.Subject as Warehouse).Id},
-					{ "wagon1_id", wagon1},
-					{ "wagon2_id", wagon2},
-					{ "wagon3_id", wagon3},
-					{ "wagon4_id", wagon4},
+					{ "warehouse_id", warehouse?.Id ?? -1},
 				}
 			};
 		}			
@@ -82,13 +80,7 @@ namespace Vodovoz.Reports
 		private void ValidateParameters()
 		{
 			var datePeriodSelected = dateperiodpicker1.EndDateOrNull != null && dateperiodpicker1.StartDateOrNull != null;
-			var warehouse = yentryrefWarehouse.Subject != null;
-			buttonRun.Sensitive = datePeriodSelected && warehouse;
-		}
-
-		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
-		{
-			ValidateParameters();
+			buttonRun.Sensitive = datePeriodSelected;
 		}
 	}
 }
