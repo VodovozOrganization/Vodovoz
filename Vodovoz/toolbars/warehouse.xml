@@ -4,6 +4,7 @@
 		<toolitem name='ActionReadyForShipment' action='ActionReadyForShipment'/>
 		<toolitem name='ActionReadyForReception' action='ActionReadyForReception'/>
 		<toolitem name='ActionWarehouseStock' action='ActionWarehouseStock'/>
+        <toolitem name='ActionStockMovements' action='ActionStockMovements'/>
 		<toolitem name='ActionClientBalance' action='ActionClientBalance'/>
 	</toolbar>
 </ui>
