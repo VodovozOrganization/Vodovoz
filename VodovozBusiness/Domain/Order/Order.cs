@@ -1085,7 +1085,7 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.Bill:
-					case OrderDocumentType.BillWithoutSignature:
+					//case OrderDocumentType.BillWithoutSignature:
 						if(observableOrderDocuments
 						   .OfType<BillDocument>()
 						   .FirstOrDefault(x => x.Order == item.Order)
@@ -1573,6 +1573,7 @@ namespace Vodovoz.Domain.Orders
 			SetDepositsActualCounts();
 		}
 
+
 		/// <summary>
 		/// Устанавливает количество для каждого залога как actualCount, 
 		/// если заказ был создан только для залога.
@@ -1587,60 +1588,36 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		#region Работа с документами
+
 		public virtual void UpdateDocuments()
 		{
-			if(ObservableOrderItems.Count > 0 && PaymentType == PaymentType.cashless) {
-				AddDocumentIfNotExist(new BillDocument {
-					Order = this,
-					AttachedToOrder = this
-				});
-			} else
-				RemoveDocumentByType(OrderDocumentType.Bill);
-
-			if(ObservableOrderItems.Count > 0 && OrderStatus == OrderStatus.Accepted) {
-				if(paymentType == PaymentType.cashless) {
-					if(this.DocumentType == DefaultDocumentType.upd) {
-						RemoveDocumentByType(OrderDocumentType.Torg12);
-						RemoveDocumentByType(OrderDocumentType.ShetFactura);
-						AddDocumentIfNotExist(new UPDDocument {
-							Order = this,
-							AttachedToOrder = this
-						});
-					} else if(this.DocumentType == DefaultDocumentType.torg12) {
-						RemoveDocumentByType(OrderDocumentType.UPD);
-						AddDocumentIfNotExist(new Torg12Document {
-							Order = this,
-							AttachedToOrder = this
-						});
-						AddDocumentIfNotExist(new ShetFacturaDocument {
-							Order = this,
-							AttachedToOrder = this
-						});
+			if(ObservableOrderItems.Count > 0)
+			{
+				if(OrderStatus >= OrderStatus.Accepted)
+				{
+					if(paymentType == PaymentType.cashless) {
+						if(this.DocumentType == DefaultDocumentType.upd) {
+							CheckAndCreateDocuments(OrderDocumentType.Bill, OrderDocumentType.UPD, OrderDocumentType.DriverTicket);
+						} else if(this.DocumentType == DefaultDocumentType.torg12) {
+							CheckAndCreateDocuments(OrderDocumentType.Bill, OrderDocumentType.Torg12, OrderDocumentType.ShetFactura, OrderDocumentType.DriverTicket);
+						}
 					}
-					AddDocumentIfNotExist(new DriverTicketDocument {
-						Order = this,
-						AttachedToOrder = this
-					});
+					else if(paymentType == PaymentType.cash || PaymentType == PaymentType.ByCard || PaymentType == PaymentType.Internal) {
+						CheckAndCreateDocuments(OrderDocumentType.Invoice);
+					}
+					else if(paymentType == PaymentType.barter) {
+						CheckAndCreateDocuments(OrderDocumentType.InvoiceBarter);
+					}
 				}
-				if(paymentType == PaymentType.cash || PaymentType == PaymentType.ByCard || PaymentType == PaymentType.Internal) {
-					AddDocumentIfNotExist(new InvoiceDocument {
-						Order = this,
-						AttachedToOrder = this
-					});
-				}
-				if(paymentType == PaymentType.barter) {
-					AddDocumentIfNotExist(new InvoiceBarterDocument {
-						Order = this,
-						AttachedToOrder = this
-					});
-				}
-			} else {
-				RemoveDocumentByType(OrderDocumentType.Invoice);
-				RemoveDocumentByType(OrderDocumentType.InvoiceBarter);
-				RemoveDocumentByType(OrderDocumentType.UPD);
-				RemoveDocumentByType(OrderDocumentType.Torg12);
-				RemoveDocumentByType(OrderDocumentType.ShetFactura);
+				else if(PaymentType == PaymentType.cashless)
+					CheckAndCreateDocuments(OrderDocumentType.Bill);
+				
+				else
+					CheckAndCreateDocuments();
 			}
+			else
+				CheckAndCreateDocuments();
 
 			CreateWarrantyDocuments();
 		}
@@ -1736,20 +1713,65 @@ namespace Vodovoz.Domain.Orders
 
 		}
 
-		protected virtual void AddDocumentIfNotExist(OrderDocument document)
+		private void CheckAndCreateDocuments(params OrderDocumentType[] needed)
 		{
-			var currentOrderDocuments = ObservableOrderDocuments.Where(doc => doc.Order.Id == Id);
-			if(!currentOrderDocuments.Any(doc => doc.Type == document.Type))
-				ObservableOrderDocuments.Add(document);
+			var docsOfOrder = typeof(OrderDocumentType).GetFields()
+													   .Where(x => x.GetCustomAttributes(typeof(DocumentOfOrderAttribute), false).Any())
+			                                           .Select(x => (OrderDocumentType)x.GetValue(null))
+			                                           .ToArray();
+			
+			if(needed.Any(x => !docsOfOrder.Contains(x)))
+				throw new ArgumentException($"В метод можно передавать только типы документов помеченные атрибутом {nameof(DocumentOfOrderAttribute)}", nameof(needed));
+
+			var needCreate = needed.ToList();
+			foreach(var doc in OrderDocuments.Where(d => d.Order?.Id == Id && docsOfOrder.Contains(d.Type)).ToList())
+			{
+				if(needed.Contains(doc.Type))
+					needCreate.Remove(doc.Type);
+				else
+					ObservableOrderDocuments.Remove(doc);
+			}
+			//Создаем отсутствующие
+			foreach(var type in needCreate)
+			{
+				ObservableOrderDocuments.Add(CreateDocumentOfOrder(type));
+			}
 		}
 
-		protected virtual void RemoveDocumentByType(OrderDocumentType type)
+		private OrderDocument CreateDocumentOfOrder(OrderDocumentType type)
 		{
-			var currentOrderDocuments = ObservableOrderDocuments.Where(doc => doc.Order.Id == Id);
-			ObservableOrderDocuments.Remove(
-				currentOrderDocuments.FirstOrDefault(doc => doc.Type == type)
-			);
+			OrderDocument newDoc;
+			switch(type)
+			{
+				case OrderDocumentType.Bill:
+					newDoc = new BillDocument();
+					break;
+				case OrderDocumentType.UPD:
+					newDoc = new UPDDocument();
+					break;
+				case OrderDocumentType.Invoice:
+					newDoc = new InvoiceDocument();
+					break;
+				case OrderDocumentType.InvoiceBarter:
+					newDoc = new InvoiceBarterDocument();
+					break;
+				case OrderDocumentType.Torg12:
+					newDoc = new Torg12Document();
+					break;
+				case OrderDocumentType.ShetFactura:
+					newDoc = new ShetFacturaDocument();
+					break;
+				case OrderDocumentType.DriverTicket:
+					newDoc = new DriverTicketDocument();
+					break;
+				default:
+					throw new NotImplementedException();
+			}
+			newDoc.Order = newDoc.AttachedToOrder = this;
+			return newDoc;
 		}
+
+#endregion
 
 		/// <summary>
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со склада все отгружено

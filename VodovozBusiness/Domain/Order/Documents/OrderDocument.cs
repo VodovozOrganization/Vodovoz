@@ -101,28 +101,36 @@ namespace Vodovoz.Domain.Orders.Documents
 		AdditionalAgreement,
 		[Display (Name = "Договор для заказа")]
 		Contract,
+		[DocumentOfOrder]
 		[Display (Name = "Счет")]
 		Bill,
-		[Display (Name = "Счет (Без печати и подписи)")]
-		BillWithoutSignature,
+//		[DocumentOfOrder]
+//		[Display (Name = "Счет (Без печати и подписи)")]
+//		BillWithoutSignature,
 		[Display (Name = "Акт выполненных работ")]
 		DoneWorkReport,
 		[Display (Name = "Акт приема-передачи оборудования")]
 		EquipmentTransfer,
+		[DocumentOfOrder]
 		[Display (Name = "Накладная (нал.)")]
 		Invoice,
+		[DocumentOfOrder]
 		[Display (Name = "Накладная (безденежно)")]
 		InvoiceBarter,
+		[DocumentOfOrder]
 		[Display (Name = "УПД")]
 		UPD,
 		[Display(Name="Гарантийный талон для кулеров")]
 		CoolerWarranty,
 		[Display(Name="Гарантийный талон для помп")]
 		PumpWarranty,
+		[DocumentOfOrder]
 		[Display(Name="Талон водителю")]
 		DriverTicket,
+		[DocumentOfOrder]
 		[Display(Name="ТОРГ-12")]
 		Torg12,
+		[DocumentOfOrder]
 		[Display(Name="Счет-Фактура")]
 		ShetFactura
 	}
@@ -130,6 +138,12 @@ namespace Vodovoz.Domain.Orders.Documents
 	public interface ITemplateOdtDocument
 	{
 		void PrepareTemplate(IUnitOfWork uow);
+	}
+
+	[AttributeUsage(AttributeTargets.Field)]
+	public class DocumentOfOrderAttribute : Attribute
+	{
+
 	}
 }
 
