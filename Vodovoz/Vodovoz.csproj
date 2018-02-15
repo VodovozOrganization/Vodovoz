@@ -539,7 +539,6 @@
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsTemplateDlg.cs" />
     <Compile Include="ReportsParameters\EmployeesFines.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.EmployeesFines.cs" />
-    <Compile Include="ReportsParameters\StockMovements.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.StockMovements.cs" />
     <Compile Include="Dialogs\DocumentDialogs\SelfDeliveryDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.SelfDeliveryDocumentDlg.cs" />
@@ -706,6 +705,7 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.IncomeBalanceReport.cs" />
     <Compile Include="ServiceDialogs\Database\ReplaceEntityLinksDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.ReplaceEntityLinksDlg.cs" />
+    <Compile Include="ReportsParameters\Store\StockMovements.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -855,6 +855,7 @@
     <Folder Include="Reports\ServiceCenter\" />
     <Folder Include="Dialogs\Sale\" />
     <Folder Include="ReportsParameters\Sales\" />
+    <Folder Include="ReportsParameters\Store\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
