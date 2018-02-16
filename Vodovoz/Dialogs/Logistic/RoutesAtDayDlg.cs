@@ -520,7 +520,7 @@ namespace Vodovoz
 		{
 			var rli = row as RouteListItem;
 			if (rli != null) {
-				return rli.Order.FromClientText;
+				return rli.Order.EquipmentsFromClient;
 			}
 			return null;
 		}
@@ -535,7 +535,7 @@ namespace Vodovoz
 						nomenclatureName += " " + orderItem.Nomenclature.Name;
 					}
 				}
-				return rli.Order.ToClientText + nomenclatureName;
+				return rli.Order.EquipmentsToClient + nomenclatureName;
 			}
 			return null;
 		}

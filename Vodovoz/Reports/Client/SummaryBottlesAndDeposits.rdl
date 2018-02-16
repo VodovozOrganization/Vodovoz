@@ -140,58 +140,71 @@
 	end as equipment_deposit,
 
 		if(docs.doc_name = 'Заказ',
-		(select 
-			group_concat(
-				concat(
-					nomenclature.name, ' ',
-                    case
-						when order_equipment.own_type = 'Rent' then '(Аренда)'
-                        when order_equipment.own_type = 'Client' then '(Собст. клиента)'
-                        when order_equipment.own_type = 'Duty' then '(Дежурный)'
-                        else ''
-                    end, ' - ',
-					ROUND(amount),
-                    'шт')
-				separator ',\n')
-		from
-			counterparty_movement_operations
-		left join
-			order_equipment on order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
-		left join
-			nomenclature on nomenclature.id = order_equipment.new_eq_nomenclature_id
-		where
-			order_equipment.order_id = docs.doc_id
-            and order_equipment.direction = 'Deliver'
-			and nomenclature.category = 'equipment'
-        ),
-        null) as equipment_to_client,
+			#Если в заказе оборудование записано в старом виде (строки) то выводим только его
+			if(docs.to_client_text IS NOT NULL,
+					#IF TRUE #старое поле со списком оборудования в виде строки
+					docs.to_client_text,
+					#IF FALSE #новый список оборудования
+					(select 
+						group_concat(
+							concat(
+								nomenclature.name, ' ',
+								case
+									when order_equipment.own_type = 'Rent' then '(Аренда)'
+									when order_equipment.own_type = 'Client' then '(Собст. клиента)'
+									when order_equipment.own_type = 'Duty' then '(Дежурный)'
+									else ''
+								end, ' - ',
+								ROUND(amount),
+								'шт')
+							separator ',\n')
+					from
+						counterparty_movement_operations
+					left join
+						order_equipment on order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
+					left join
+						nomenclature on nomenclature.id = order_equipment.new_eq_nomenclature_id
+					where
+						order_equipment.order_id = docs.doc_id
+						and order_equipment.direction = 'Deliver'
+						and nomenclature.category = 'equipment'
+					)
+			),
+			null
+        ) as equipment_to_client,
         
         if(docs.doc_name = 'Заказ',
-		(select 
-			group_concat(
-				concat(
-					nomenclature.name, ' ',
-                    case
-						when order_equipment.own_type = 'Rent' then '(Аренда)'
-                        when order_equipment.own_type = 'Client' then '(Собст. клиента)'
-                        when order_equipment.own_type = 'Duty' then '(Дежурный)'
-                        else ''
-                    end, ' - ',
-					ROUND(amount),
-                    'шт')
-				separator ',\n')
-		from
-			counterparty_movement_operations
-		left join
-			order_equipment on order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
-		left join
-			nomenclature on nomenclature.id = order_equipment.new_eq_nomenclature_id
-		where
-			order_equipment.order_id = docs.doc_id
-            and order_equipment.direction = 'PickUp'
-			and nomenclature.category = 'equipment'
-        ),
-        null) as equipment_from_client
+			#Если в заказе оборудование записано в старом виде (строки) то выводим только его
+			if(docs.from_client_text IS NOT NULL,
+				#IF TRUE #старое поле со списком оборудования в виде строки
+				docs.from_client_text,
+				#IF FALSE #новый список оборудования
+				(select 
+					group_concat(
+						concat(
+							nomenclature.name, ' ',
+							case
+								when order_equipment.own_type = 'Rent' then '(Аренда)'
+								when order_equipment.own_type = 'Client' then '(Собст. клиента)'
+								when order_equipment.own_type = 'Duty' then '(Дежурный)'
+								else ''
+							end, ' - ',
+							ROUND(amount),
+							'шт')
+						separator ',\n')
+				from
+					counterparty_movement_operations
+				left join
+					order_equipment on order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
+				left join
+					nomenclature on nomenclature.id = order_equipment.new_eq_nomenclature_id
+				where
+					order_equipment.order_id = docs.doc_id
+					and order_equipment.direction = 'PickUp'
+					and nomenclature.category = 'equipment')
+            ),
+			null
+        ) as equipment_from_client
 from
 #subselect orders
 	(select 
@@ -203,7 +216,9 @@ from
 		delivery_points.compiled_address as delivery_point_address,
 		'Заказ' as doc_name,
         orders.order_status as doc_status,
-        orders.client_id as doc_client_id
+        orders.client_id as doc_client_id,
+        orders.to_client_text as to_client_text,
+        orders.from_client_text as from_client_text
 	from
 		orders
 	left join
@@ -222,7 +237,9 @@ from
 		delivery_points.compiled_address as delivery_point_address,
 		'Ввод остатков' as doc_name,
         '' as doc_status, 
-        doc_residue.client_id as doc_client_id
+        doc_residue.client_id as doc_client_id,
+        '' as to_client_text,
+        '' as from_client_text
 	from
 		doc_residue
 	left join
@@ -241,7 +258,9 @@ from
             ' по адресу ',
             inc_delivery_point.compiled_address) as doc_name,
 		'' as doc_status, 
-		transfer_operations.from_client_id as doc_client_id
+		transfer_operations.from_client_id as doc_client_id,
+        '' as to_client_text,
+        '' as from_client_text
 	from
 		transfer_operations
 	left join
@@ -264,7 +283,9 @@ from
             ' с адреса ',
             out_delivery_point.compiled_address) as doc_name,
 		'' as doc_status, 
-		transfer_operations.to_client_id as doc_client_id
+		transfer_operations.to_client_id as doc_client_id,
+        '' as to_client_text,
+        '' as from_client_text
 	from
 		transfer_operations
 	left join

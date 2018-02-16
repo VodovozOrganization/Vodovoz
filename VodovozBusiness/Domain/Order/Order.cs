@@ -301,8 +301,25 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref address1cCode, value, () => Address1cCode); }
 		}
 
-		[Display(Name = "Колонка МЛ от клиента")]
+		private string toClientText;
+
+		[Display(Name = "Оборудование к клиенту")]
+		public virtual string ToClientText {
+			get { return toClientText; }
+			set { SetField(ref toClientText, value, () => ToClientText); }
+		}
+
+		private string fromClientText;
+
+		[Display(Name = "Оборудование от клиента")]
 		public virtual string FromClientText {
+			get { return fromClientText; }
+			set { SetField(ref fromClientText, value, () => FromClientText); }
+		}
+
+
+		[Display(Name = "Колонка МЛ от клиента")]
+		public virtual string EquipmentsFromClient {
 			get {
 				string result = "";
 				List<OrderEquipment> equipments = OrderEquipments.Where(x => x.Direction == Direction.PickUp).ToList();
@@ -318,7 +335,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Колонка МЛ к клиенту")]
-		public virtual string ToClientText {
+		public virtual string EquipmentsToClient {
 			get{
 				string result = "";
 				List<OrderEquipment> equipments = OrderEquipments.Where(x => x.Direction == Direction.Deliver).ToList();

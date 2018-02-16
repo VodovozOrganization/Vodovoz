@@ -389,6 +389,12 @@ namespace Vodovoz
 			foreach(OrderEquipment orderEquip in equipList) {
 				stringParts.Add(string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.Count));
 			}
+
+			//Если это старый заказ со старой записью оборудования в виде строки, то выводим только его
+			if(!String.IsNullOrWhiteSpace(item.Order.ToClientText)) {
+				return item.Order.ToClientText;
+			}
+
 			return String.Join(",", stringParts);
 		}	
 
@@ -425,6 +431,12 @@ namespace Vodovoz
 			foreach(var orderEquip in equipList) {
 				stringParts.Add(string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.Count));
 			}
+
+			//Если это старый заказ со старой записью оборудования в виде строки, то выводим только его
+			if(!String.IsNullOrWhiteSpace(item.Order.FromClientText)) {
+				return item.Order.FromClientText;
+			}
+
 			return String.Join(",", stringParts);
 		}
 

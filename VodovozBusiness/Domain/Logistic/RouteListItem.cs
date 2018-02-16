@@ -446,6 +446,10 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string EquipmentsToClientText
 		{
 			get{
+				//Если это старый заказ со старой записью оборудования в виде строки, то выводим только его
+				if(!String.IsNullOrWhiteSpace(Order.ToClientText)) {
+					return Order.ToClientText;
+				}
 				return String.Join("\n",  
 				                   Order.OrderEquipments
 										.Where(x => x.Direction == Direction.Deliver)
@@ -457,6 +461,10 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string EquipmentsFromClientText
 		{
 			get{
+				//Если это старый заказ со старой записью оборудования в виде строки, то выводим только его
+				if(!String.IsNullOrWhiteSpace(Order.FromClientText)) {
+					return Order.FromClientText;
+				}
 				return String.Join("\n",  
 				                   Order.OrderEquipments
 				                   		.Where(x => x.Direction == Direction.PickUp)
@@ -618,7 +626,7 @@ namespace Vodovoz.Domain.Logistic
 #if SHORT
 
 			var payForEquipmentShort = fullBottleCount == 0
-				&& (!string.IsNullOrWhiteSpace(Order.ToClientText)
+				&& (!string.IsNullOrWhiteSpace(Order.EquipmentsToClient)
 					|| bottleCollectionOrder
 					|| Order.OrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.additional)
 					.FirstOrDefault(i => i.ActualCount > 0) != null);
@@ -626,7 +634,7 @@ namespace Vodovoz.Domain.Logistic
 
 			wage += equpmentPaymentShort;
 
-			if (Order.ToClientText?.ToLower().Contains("раст") == true)
+			if (Order.EquipmentsToClient?.ToLower().Contains("раст") == true)
 				wage = 10;
 #endif
 
