@@ -99,11 +99,9 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Кол-во по факту")
 					.AddToggleRenderer(node => node.IsDelivered, false)
-						.AddSetter((cell, node) => cell.Visible = node.Nomenclature.IsSerial || node.Nomenclature.Category == NomenclatureCategory.rent)
-					.AddNumericRenderer(node => node.ActualCount, false)
+						.AddSetter((cell, node) => cell.Visible = node.IsSerialEquipment)
+					.AddNumericRenderer(node => node.ActualCount, false).Editing()
 						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
-						.AddSetter((cell,node)=>cell.Adjustment= new Gtk.Adjustment(0,0,node.Count,1,1,0))
-						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
 					.AddNumericRenderer(node=>node.Price)
@@ -188,19 +186,33 @@ namespace Vodovoz
 			}
 		}
 
+		public bool IsSerialEquipment{
+			get	{
+				return 
+					IsEquipment 
+					&& orderEquipment.Equipment != null
+					&& orderEquipment.Equipment.Nomenclature.IsSerial;
+			}
+		}
+
 		public bool IsDelivered{
 			get{
 				return ActualCount > 0;
 			}
-			set{				
-				ActualCount = value ? 1 : 0;
+			set{
+				if(IsEquipment && IsSerialEquipment) {
+					ActualCount = value ? 1 : 0;
+				}
 			}
 		}
 		public int ActualCount{
 			get{
 				if (IsEquipment)
 				{
-					return orderEquipment.Confirmed ? 1 : 0;
+					if(IsSerialEquipment) {
+						return orderEquipment.Confirmed ? 1 : 0;
+					}
+					return orderEquipment.ActualCount;
 				}
 				else
 				{
@@ -208,17 +220,26 @@ namespace Vodovoz
 				}
 			}
 			set{
-				if (!IsEquipment)
+				if (IsEquipment){
+					if(IsSerialEquipment) {
+						orderEquipment.ActualCount = value > 0 ? 1 : 0;
+					}
+					orderEquipment.ActualCount = value;
+				}
+				else{
 					orderItem.ActualCount = value;
-				else
-					orderEquipment.Confirmed = value > 0;
+				}
+
 			}
 		}
 		public Nomenclature Nomenclature{
 			get{
 				if (IsEquipment)
 				{
-					return orderEquipment.Equipment != null ? orderEquipment.Equipment.Nomenclature : orderEquipment.Nomenclature;
+					if(IsSerialEquipment) {
+						return orderEquipment.Equipment.Nomenclature;
+					}
+					return orderEquipment.Nomenclature;
 				}
 				else
 				{
@@ -228,7 +249,10 @@ namespace Vodovoz
 		}
 		public int Count{ 
 			get{
-				return IsEquipment ? 1 : orderItem.Count;
+				if(IsEquipment) {
+					return orderEquipment.Count;
+				}
+				return orderItem.Count;
 			}
 		}
 

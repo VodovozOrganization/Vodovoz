@@ -433,8 +433,6 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		#region Вложенные коллекции
-
 		IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem>();
 
 		[Display(Name = "Залоги заказа")]
@@ -557,7 +555,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		#endregion
 
 		public Order()
 		{
@@ -689,7 +686,7 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				if(newStatus == OrderStatus.Closed) {
-					foreach(var equipment in OrderEquipments) {
+					foreach(var equipment in OrderEquipments.Where(x => x.Direction == Direction.PickUp)) {
 						if(!equipment.Confirmed && String.IsNullOrWhiteSpace(equipment.ConfirmedComment))
 							yield return new ValidationResult(
 								String.Format("Забор оборудования {0} по заказу {1} не произведен, а в комментарии не указана причина.",
@@ -713,6 +710,10 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Если выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 				                                  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 	
+			if(observableOrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
+			   .Any(x => x.OwnType == OwnTypes.None))
+				yield return new ValidationResult("У оборудования обязательно должна быть выбрана принадлежность.");
+
 #if !SHORT
 			if (ObservableOrderItems.Any (item => item.Count < 1))
 				yield return new ValidationResult ("В заказе присутствуют позиции с нулевым количеством.", 
@@ -1302,7 +1303,7 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем номенклатуру залога
 					OrderItem orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
-							item => item.AdditionalAgreement.Id == a.Id &&
+							item => item.AdditionalAgreement?.Id == a.Id &&
 							item.Nomenclature.Id == paidRentEquipment.PaidRentPackage.DepositService.Id)) != null) {
 						orderItem.Count = paidRentEquipment.Count;
 						orderItem.Price = paidRentEquipment.Deposit;
@@ -1322,7 +1323,7 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем услугу аренды
 					orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
-							item => item.AdditionalAgreement.Id == a.Id &&
+							item => item.AdditionalAgreement?.Id == a.Id &&
 						item.Nomenclature.Id == (IsDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily.Id : paidRentEquipment.PaidRentPackage.RentServiceMonthly.Id)
 							)) != null) {
 						orderItem.Count = paidRentEquipment.Count;
@@ -1344,7 +1345,8 @@ namespace Vodovoz.Domain.Orders
 					}
 					//Добавляем оборудование
 					OrderEquipment orderEquip = ObservableOrderEquipments.FirstOrDefault(
-						x => x.Equipment == paidRentEquipment.Equipment 
+						x => x.Equipment == paidRentEquipment.Equipment
+						&& x.OrderItem != null
 						&& x.OrderItem == orderItem
 					);
 					if(orderEquip != null) {
@@ -1356,9 +1358,10 @@ namespace Vodovoz.Domain.Orders
 							Direction = Direction.Deliver,
 							Count = paidRentEquipment.Count,
 							Equipment = paidRentEquipment.Equipment,
-							//Nomenclature = equipment.Equipment.Nomenclature,
+							Nomenclature = paidRentEquipment.Nomenclature,
 							Reason = Reason.Rent,
-							OrderItem = ObservableOrderItems[ItemId]
+							OrderItem = ObservableOrderItems[ItemId],
+							OwnType = OwnTypes.Rent
 						}
 						);
 					}
@@ -1389,8 +1392,10 @@ namespace Vodovoz.Domain.Orders
 							Direction = Direction.Deliver,
 							Count = equipment.Count,
 							Equipment = equipment.Equipment,
+							Nomenclature = equipment.Nomenclature,
 							Reason = Reason.Rent,
-							OrderItem = ObservableOrderItems[ItemId]
+							OrderItem = ObservableOrderItems[ItemId],
+							OwnType = OwnTypes.Rent
 						}
 					);
 				}

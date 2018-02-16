@@ -26,6 +26,8 @@ using Vodovoz.Domain.Service;
 using Vodovoz.JournalFilters;
 using Vodovoz.Panel;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Operations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
@@ -256,6 +258,7 @@ namespace Vodovoz
 			var colorGreen = new Gdk.Color(0, 0xff, 0);
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 			var colorLightYellow = new Gdk.Color(0xe1, 0xd6, 0x70);
+			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
 			treeItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderItem>()
 				.AddColumn("Номенклатура").SetDataProperty(node => node.NomenclatureString)
@@ -300,6 +303,18 @@ namespace Vodovoz
 				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
 				.AddColumn("Кол-во").AddNumericRenderer(node => node.Count)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
+				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
+				.AddSetter((c, n) => {
+					c.Editable = false;
+					c.Editable = n.Nomenclature?.Category == NomenclatureCategory.equipment;
+				})
+				.AddSetter((c, n) => {
+					c.BackgroundGdk = colorWhite;
+					if(n.Nomenclature?.Category == NomenclatureCategory.equipment
+				      && n.OwnType == OwnTypes.None) {
+						c.BackgroundGdk = colorLightRed;
+					}
+				})
 				.AddColumn("")
 				.Finish();
 
@@ -1633,7 +1648,6 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.NomenCategory = NomenclatureCategory.equipment;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование к клиенту";
@@ -1659,7 +1673,6 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.NomenCategory = NomenclatureCategory.equipment;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование от клиенту";

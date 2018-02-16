@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>8.27in</PageHeight>
+  <PageWidth>11.69in</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -138,35 +138,60 @@
 				(out_ed_op.deposit_type = 'Equipment' or inc_ed_op.deposit_type = 'Equipment')
                 and transfer_operations.id = docs.doc_id)
 	end as equipment_deposit,
-    if(docs.doc_name = 'Заказ',
+
+		if(docs.doc_name = 'Заказ',
 		(select 
 			group_concat(
 				concat(
-					case
-						when writeoff_counterparty_id is null then '&gt;&gt; '
-						when incoming_counterparty_id is null then '&lt;&lt; '
-						else '&lt;&lt;&gt;&gt; '
-					end,
-					nomenclature.name,
-					' - ',
-					amount)
-				separator ', ')
+					nomenclature.name, ' ',
+                    case
+						when order_equipment.own_type = 'Rent' then '(Аренда)'
+                        when order_equipment.own_type = 'Client' then '(Собст. клиента)'
+                        when order_equipment.own_type = 'Duty' then '(Дежурный)'
+                        else ''
+                    end, ' - ',
+					ROUND(amount),
+                    'шт')
+				separator ',\n')
 		from
-			operations_counterparty_movement_docs
+			counterparty_movement_operations
 		left join
-			nomenclature on nomenclature.id = nomenclature_id
+			order_equipment on order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
+		left join
+			nomenclature on nomenclature.id = order_equipment.new_eq_nomenclature_id
 		where
-			operations_counterparty_movement_docs.order_id = docs.doc_id
+			order_equipment.order_id = docs.doc_id
+            and order_equipment.direction = 'Deliver'
 			and nomenclature.category = 'equipment'
-			and ((incoming_counterparty_id = docs.doc_client_id
-				and (@delivery_point_id = - 1
-					or incoming_delivery_point_id = @delivery_point_id)
-			)
-			or (writeoff_counterparty_id = docs.doc_client_id
-				and (@delivery_point_id = - 1
-					or writeoff_delivery_point_id = @delivery_point_id)
-		))),
-        null) as equipment_moving
+        ),
+        null) as equipment_to_client,
+        
+        if(docs.doc_name = 'Заказ',
+		(select 
+			group_concat(
+				concat(
+					nomenclature.name, ' ',
+                    case
+						when order_equipment.own_type = 'Rent' then '(Аренда)'
+                        when order_equipment.own_type = 'Client' then '(Собст. клиента)'
+                        when order_equipment.own_type = 'Duty' then '(Дежурный)'
+                        else ''
+                    end, ' - ',
+					ROUND(amount),
+                    'шт')
+				separator ',\n')
+		from
+			counterparty_movement_operations
+		left join
+			order_equipment on order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
+		left join
+			nomenclature on nomenclature.id = order_equipment.new_eq_nomenclature_id
+		where
+			order_equipment.order_id = docs.doc_id
+            and order_equipment.direction = 'PickUp'
+			and nomenclature.category = 'equipment'
+        ),
+        null) as equipment_from_client
 from
 #subselect orders
 	(select 
@@ -345,8 +370,12 @@ order by docs.doc_date;</CommandText>
           <DataField>equipment_deposit</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
-        <Field Name="equipment_moving">
-          <DataField>equipment_moving</DataField>
+        <Field Name="equipment_to_client">
+          <DataField>equipment_to_client</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="equipment_from_client">
+          <DataField>equipment_from_client</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -541,6 +570,106 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="StoredEquipments" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	GROUP_CONCAT(IF(client_amount_pickedup &gt; 0, CONCAT(name, ': ', client_amount_pickedup, 'шт'), NULL) SEPARATOR ', ') as we_have_clients_equip,
+    GROUP_CONCAT(IF(duty_and_rent_amount_delivered &gt; 0, CONCAT(name, ': ', duty_and_rent_amount_delivered, 'шт'), NULL) SEPARATOR ', ') as client_have_ours_equip
+FROM 
+	(SELECT DISTINCT
+		nomenclature.id,
+		nomenclature.name,
+		IF(clientEquipPickedUp.client_amount_pickedup &gt; 0, clientEquipPickedUp.client_amount_pickedup, 0) as client_amount_pickedup,
+		IF(OurDutyEquipDelivered.duty_amount_delivered &gt; 0, OurDutyEquipDelivered.duty_amount_delivered, 0)
+		+ IF(OurRentEquipDelivered.rent_amount_delivered &gt; 0, OurRentEquipDelivered.rent_amount_delivered, 0) as duty_and_rent_amount_delivered
+	FROM
+		orders
+		LEFT JOIN
+		order_equipment ON orders.id = order_equipment.order_id
+		LEFT JOIN 
+		nomenclature ON nomenclature.id = order_equipment.new_eq_nomenclature_id
+	#Оборудование в собственности клиента
+		LEFT JOIN
+		(
+			SELECT
+				nom_id,
+				ROUND(SUM(client_amount_pickedup) - SUM(client_amount_delivered)) as client_amount_pickedup
+			FROM
+				(SELECT
+					inner_order_equipments.new_eq_nomenclature_id as nom_id,
+					IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
+					IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
+				FROM
+					counterparty_movement_operations
+					LEFT JOIN
+					order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
+				WHERE
+					inner_order_equipments.own_type = 'Client') as t
+			GROUP BY nom_id
+		) as clientEquipPickedUp ON clientEquipPickedUp.nom_id = nomenclature.id
+	#Дежурное оборудование
+		LEFT JOIN
+		(
+			SELECT
+				nom_id,
+				ROUND(SUM(client_amount_delivered) - SUM(client_amount_pickedup)) as duty_amount_delivered
+			FROM
+				(SELECT
+					inner_order_equipments.new_eq_nomenclature_id as nom_id,
+					IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
+					IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
+				FROM
+					counterparty_movement_operations
+					LEFT JOIN
+					order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
+				WHERE
+					inner_order_equipments.own_type = 'Duty') as t
+			GROUP BY nom_id
+		) as OurDutyEquipDelivered ON OurDutyEquipDelivered.nom_id = nomenclature.id
+	#Оборудование в аренду
+		LEFT JOIN
+		(
+			SELECT
+				nom_id,
+				ROUND(SUM(client_amount_delivered) - SUM(client_amount_pickedup)) as rent_amount_delivered
+			FROM
+				(SELECT
+					inner_order_equipments.new_eq_nomenclature_id as nom_id,
+					IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
+					IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
+				FROM
+					counterparty_movement_operations
+					LEFT JOIN
+					order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
+				WHERE
+					inner_order_equipments.own_type = 'Rent') as t
+			GROUP BY nom_id
+		) as OurRentEquipDelivered ON OurRentEquipDelivered.nom_id = nomenclature.id
+	WHERE
+			orders.client_id = @client_id
+		and	order_equipment.new_eq_nomenclature_id IS NOT NULL
+	) as main
+WHERE 
+		client_amount_pickedup &gt; 0 
+    or 	duty_and_rent_amount_delivered &gt; 0</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="client_id">
+            <Value>=Parameters!client_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="we_have_clients_equip">
+          <DataField>we_have_clients_equip</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_have_ours_equip">
+          <DataField>client_have_ours_equip</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>26.6pt</Height>
@@ -578,13 +707,13 @@ WHERE
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>13.9pt</Width>
+            <Width>25.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.8pt</Width>
+            <Width>65.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>96.3pt</Width>
+            <Width>119.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>44.1pt</Width>
@@ -605,7 +734,10 @@ WHERE
             <Width>53.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.0pt</Width>
+            <Width>124.6pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>130.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>52.5pt</Width>
@@ -763,7 +895,25 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>Оборудование</Value>
+                      <Value>Оборудование
+клиенту</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Value>Оборудование
+от клиента</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -805,7 +955,7 @@ WHERE
                   <Height>12pt</Height>
                   <TableCells>
                     <TableCell>
-                      <ColSpan>11</ColSpan>
+                      <ColSpan>12</ColSpan>
                       <ReportItems>
                         <Textbox Name="Textbox11">
                           <Value>=Fields!delivery_point_address.Value</Value>
@@ -978,6 +1128,21 @@ WHERE
                         </Textbox>
                       </ReportItems>
                     </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox55">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Right</TextAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="gf_equipment_deposit">
@@ -1136,6 +1301,21 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox50">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Right</TextAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox56">
                           <Value>
                           </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1332,7 +1512,24 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>=Fields!equipment_moving.Value</Value>
+                      <Value>=Fields!equipment_to_client.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Left</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Value>=Fields!equipment_from_client.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1519,6 +1716,21 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="tf_equipment_deposit">
@@ -1581,7 +1793,7 @@ ____________(                        )
 м.п.</Value>
         <ZIndex>1</ZIndex>
         <Left>24.0pt</Left>
-        <Top>209.6pt</Top>
+        <Top>312.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1596,7 +1808,7 @@ ____________(                        )
 м.п.</Value>
         <ZIndex>1</ZIndex>
         <Left>312.9pt</Left>
-        <Top>230.8pt</Top>
+        <Top>334.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1610,7 +1822,7 @@ ____________(                        )
         <Value>=First({full_name}, "Client")</Value>
         <ZIndex>1</ZIndex>
         <Left>309.1pt</Left>
-        <Top>207.8pt</Top>
+        <Top>311.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1669,8 +1881,8 @@ ____________(                        )
         <Width>130.88pt</Width>
         <Value>=Sum({bottles_deposit}, 'Data')</Value>
         <ZIndex>1</ZIndex>
-        <Left>222.10pt</Left>
-        <Top>172.80pt</Top>
+        <Left>222.1pt</Left>
+        <Top>173.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1725,18 +1937,18 @@ ____________(                        )
         </Style>
       </Textbox>
       <List Name="List1">
-        <Height>15.10pt</Height>
-        <Width>351.50pt</Width>
-        <Left>225.10pt</Left>
-        <Top>135.60pt</Top>
+        <Height>11.35pt</Height>
+        <Width>356.00pt</Width>
+        <Left>222.80pt</Left>
+        <Top>162.00pt</Top>
         <ReportItems>
           <Textbox Name="Textbox36">
-            <Height>12.00pt</Height>
+            <Height>9.75pt</Height>
             <Width>41.47pt</Width>
             <Value>={amount}</Value>
             <ZIndex>1</ZIndex>
             <Left>0.8pt</Left>
-            <Top>20.9pt</Top>
+            <Top>0.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1745,12 +1957,12 @@ ____________(                        )
             </Style>
           </Textbox>
           <Textbox Name="Textbox37">
-            <Height>12.76pt</Height>
+            <Height>9.76pt</Height>
             <Width>310.23pt</Width>
             <Value>=" - " + Fields!name.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>38.2pt</Left>
-            <Top>21.0pt</Top>
+            <Left>38.20pt</Left>
+            <Top>0.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1765,8 +1977,72 @@ ____________(                        )
           <BorderWidth />
         </Style>
       </List>
+      <Textbox Name="Textbox57" >
+        <Height>14.30pt</Height>
+        <Width>220.04pt</Width>
+        <Value>Оборудование клиента у нас:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>217.7pt</Top>
+        <Style>
+          <TextAlign>Right</TextAlign>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox58" >
+        <Height>14.30pt</Height>
+        <Width>220.04pt</Width>
+        <Value>Наше оборудование у клиента:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>240.4pt</Top>
+        <Style>
+          <TextAlign>Right</TextAlign>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox59" >
+        <Height>21.17pt</Height>
+        <Width>484.24pt</Width>
+        <Value>=First({we_have_clients_equip}, 'StoredEquipments')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>220.70pt</Left>
+        <Top>217.70pt</Top>
+        <Style>
+          <TextAlign>Left</TextAlign>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Normal</FontWeight>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <CanShrink>false</CanShrink>
+      </Textbox>
+      <Textbox Name="Textbox60" >
+        <Height>24.92pt</Height>
+        <Width>484.24pt</Width>
+        <Value>=First({client_have_ours_equip}, 'StoredEquipments')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>220.70pt</Left>
+        <Top>240.40pt</Top>
+        <Style>
+          <TextAlign>Left</TextAlign>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Normal</FontWeight>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <CanShrink>false</CanShrink>
+      </Textbox>
     </ReportItems>
-    <Height>247.7pt</Height>
+    <Height>452.0pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -1792,7 +2068,17 @@ ____________(                        )
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>
+        </ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
     <ReportParameter Name="client_id">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -1846,14 +2132,4 @@ ____________(                        )
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

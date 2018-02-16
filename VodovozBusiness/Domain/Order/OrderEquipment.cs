@@ -46,6 +46,15 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref equipment, value, () => Equipment); }
 		}
 
+		OwnTypes ownType;
+
+		[Display(Name = "Принадлежность")]
+		public virtual OwnTypes OwnType {
+			get { return ownType; }
+			set { SetField(ref ownType, value, () => OwnType); }
+		}
+
+
 		Nomenclature nomenclature;
 
 		[Display (Name = "Номенклатура незарегистрированного оборудования")]
@@ -135,22 +144,30 @@ namespace Vodovoz.Domain.Orders
 
 		//TODO Номер заявки на обслуживание
 
-		//FIXME запуск оборудования - временный фикс
 		int count;
+		/// <summary>
+		/// Количество оборудования, которое изначально должен был привезти/забрать водитель
+		/// </summary>
 		public virtual int Count {
 			get { return count; }
 			set { SetField(ref count, value, () => Count); }
+		}
+
+		int actualCount;
+		/// <summary>
+		/// Количество оборудования, которое фактически привез/забрал водитель
+		/// </summary>
+		public virtual int ActualCount {
+			get { return actualCount; }
+			set { SetField(ref actualCount, value, () => ActualCount); }
 		}
 
 		#region Функции
 
 		public virtual CounterpartyMovementOperation UpdateCounterpartyOperation()
 		{
-			var amount = Confirmed ? 1 : 0;
-
-			if(amount == 0)
+			if(ActualCount == 0)
 			{
-				//FIXME Проверить может нужно удалять.
 				CounterpartyMovementOperation = null;
 				return null;
 			}
@@ -161,9 +178,8 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			CounterpartyMovementOperation.OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-			CounterpartyMovementOperation.Amount = amount;
+			CounterpartyMovementOperation.Amount = ActualCount;
 			CounterpartyMovementOperation.Nomenclature = nomenclature;
-			CounterpartyMovementOperation.Equipment = Equipment;
 			CounterpartyMovementOperation.ForRent = (Reason != Reason.Sale);
 			if (Direction == Direction.Deliver)
 			{
@@ -221,6 +237,21 @@ namespace Vodovoz.Domain.Orders
 	public class ReasonStringType : NHibernate.Type.EnumStringType
 	{
 		public ReasonStringType () : base (typeof(Reason))
+		{
+		}
+	}
+
+	public enum OwnTypes
+	{
+		[Display(Name = "")] None,
+		[Display(Name = "Собственность клиента")] Client,
+		[Display(Name = "Дежурный")] Duty,
+		[Display(Name = "Аренда")] Rent
+	}
+
+	public class OwnTypesStringType : NHibernate.Type.EnumStringType
+	{
+		public OwnTypesStringType() : base(typeof(OwnTypes))
 		{
 		}
 	}

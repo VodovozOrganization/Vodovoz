@@ -680,6 +680,9 @@ namespace Vodovoz.Domain.Logistic
 			{
 				item.ActualCount = IsDelivered() ? item.Count : 0;
 			}
+			foreach(var equip in Order.OrderEquipments) {
+				equip.ActualCount = equip.Count;
+			}
 			PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
 			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
 			TotalCash = IsDelivered() &&

@@ -70,24 +70,6 @@ namespace Vodovoz.JournalFilters
 			set { allSelected = value; }
 		}
 
-		protected void OnEnumcomboTypeChangedByUser(object sender, EventArgs e)
-		{
-			if (enumcomboCategory.SelectedItem == null)
-			{
-				return;
-			}
-
-			if ((SpecialComboState)enumcomboCategory.SelectedItem == SpecialComboState.All)
-			{
-				AllSelected = true;
-			}
-			else
-			{
-				NomenCategory = (NomenclatureCategory)enumcomboCategory.SelectedItem;
-			}
-			OnRefiltered();
-		}
-
 		private object[] HideList(NomenclatureCategory[] nomCat)
 		{
 			ArrayList ncList = new ArrayList(), objList = new ArrayList();
@@ -103,5 +85,18 @@ namespace Vodovoz.JournalFilters
 			return objList.Cast<object>().ToArray();
 		}
 
+		protected void OnEnumcomboCategoryChangedByUser(object sender, EventArgs e)
+		{
+			if(enumcomboCategory.SelectedItem == null) {
+				return;
+			}
+
+			if((SpecialComboState)enumcomboCategory.SelectedItem == SpecialComboState.All) {
+				AllSelected = true;
+			} else {
+				NomenCategory = (NomenclatureCategory)enumcomboCategory.SelectedItem;
+			}
+			OnRefiltered();
+		}
 	}
 }
