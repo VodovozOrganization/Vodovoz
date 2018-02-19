@@ -372,12 +372,20 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal UniqueAddressCount {
 			get {
-				return Addresses.Where(item => item.IsDelivered()).Select(item => item.Order.DeliveryPoint.Id).Distinct().Count();
+				return Addresses
+						.Where(item => item.IsDelivered())
+						.Select(item => item.Order.DeliveryPoint.Id)
+						.Distinct().Count();
 			}
 		}
 
 		public virtual decimal PhoneSum {
-			get {
+			get
+			{
+                var count = Addresses.Where(item => item.RouteList.car.TypeOfUse == CarTypeOfUse.Truck || item.Order.IsService == true)
+                                     .Select(item => item).Count();
+				if (count > 0)
+					return 0;
 
 				return Wages.GetDriverRates(Date).PhoneServiceCompensationRate * UniqueAddressCount;
 			}
