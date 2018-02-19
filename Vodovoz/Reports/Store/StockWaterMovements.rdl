@@ -1,0 +1,692 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <ReportParameters>
+    <ReportParameter Name="endDate">
+      <DataType>String</DataType>
+      <Nullable>False</Nullable>
+      <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="warehouse1_id">
+      <DataType>Integer</DataType>
+      <Nullable>False</Nullable>
+      <DefaultValue>
+        <Values>
+          <Value>1</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="warehouse2_id">
+      <DataType>Integer</DataType>
+      <Nullable>False</Nullable>
+      <DefaultValue>
+        <Values>
+          <Value>3</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="warehouse3_id">
+      <DataType>Integer</DataType>
+      <Nullable>False</Nullable>
+      <DefaultValue>
+        <Values>
+          <Value>6</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="warehouse4_id">
+      <DataType>Integer</DataType>
+      <Nullable>False</Nullable>
+      <DefaultValue>
+        <Values>
+          <Value>5</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+  </ReportParameters>
+  <DataSets>
+    <DataSet Name="Data">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    nomenclature.name AS nomenclature,
+    nomenclature.category as category,
+    measurement_units.digits,
+    (IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                WHERE
+                    warehouse_movement_operations.incoming_warehouse_id = @warehouse1_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                       AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0)
+            -
+            IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                WHERE
+                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse1_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                    AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0)
+            ) AS warehouse_1,
+            (IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                WHERE
+                    warehouse_movement_operations.incoming_warehouse_id = @warehouse2_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                       AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0)
+            -
+            IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                WHERE
+                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse2_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                    AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0)
+            ) AS warehouse_2,
+            (IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                WHERE
+                    warehouse_movement_operations.incoming_warehouse_id = @warehouse3_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                       AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0)
+            -
+            IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                WHERE
+                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse3_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                    AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0)
+            ) AS warehouse_3,
+            (IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                WHERE
+                    warehouse_movement_operations.incoming_warehouse_id = @warehouse4_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                       AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0)
+            -
+            IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                WHERE
+                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse4_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                    AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0)
+            ) AS warehouse_4,
+                        IFNULL((SELECT 
+                    SUM(warehouse_movement_operations.amount)
+                FROM
+                    warehouse_movement_operations
+                                 INNER JOIN store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id AND store_movement_document_items.delivery_movement_operation_id IS NULL
+                WHERE
+                        warehouse_movement_operations.nomenclature_id = nomenclature.id
+                       AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+                       0) AS wagons
+FROM
+    nomenclature 
+        LEFT JOIN
+    measurement_units ON measurement_units.id = nomenclature.unit_id
+    WHERE (nomenclature.category = 'water' OR nomenclature.category = 'bottle') AND nomenclature.is_archive = 0
+    ORDER BY nomenclature.category, nomenclature.name</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!endDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="warehouse1_id">
+            <Value>=Parameters!warehouse1_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="warehouse2_id">
+            <Value>=Parameters!warehouse2_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="warehouse3_id">
+            <Value>=Parameters!warehouse3_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="warehouse4_id">
+            <Value>=Parameters!warehouse4_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="nomenclature">
+          <DataField>nomenclature</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="category">
+          <DataField>category</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="warehouse_1">
+          <DataField>warehouse_1</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="warehouse_2">
+          <DataField>warehouse_2</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="warehouse_3">
+          <DataField>warehouse_3</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="warehouse_4">
+          <DataField>warehouse_4</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="wagons">
+          <DataField>wagons</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Warehouses">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    (SELECT 
+            name
+        FROM
+            warehouses
+        WHERE
+            id = @warehouse1_id) AS warehouse1,
+    (SELECT 
+            name
+        FROM
+            warehouses
+        WHERE
+            id = @warehouse2_id) AS warehouse2,
+    (SELECT 
+            name
+        FROM
+            warehouses
+        WHERE
+            id = @warehouse3_id) AS warehouse3,
+    (SELECT 
+            name
+        FROM
+            warehouses
+        WHERE
+            id = @warehouse4_id) AS warehouse4</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="warehouse1_id">
+            <Value>={?warehouse1_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="warehouse2_id">
+            <Value>={?warehouse2_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="warehouse3_id">
+            <Value>={?warehouse3_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="warehouse4_id">
+            <Value>={?warehouse4_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="warehouse1">
+          <DataField>warehouse1</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="warehouse2">
+          <DataField>warehouse2</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="warehouse3">
+          <DataField>warehouse3</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="warehouse4">
+          <DataField>warehouse4</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>.5in</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>7.23pt</Top>
+        <Left>7.23pt</Left>
+        <Width>795.70pt</Width>
+        <Height>23.43pt</Height>
+        <Value>= 'Общий по воде на ' + Format(CDate({?endDate}), "d")</Value>
+        <Style>
+          <FontSize>15pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>Data</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>216.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1.375in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1.375in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1.375in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1.375in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>99.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>87.1pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>Количество</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>6</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Номенклатура</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>=First({warehouse1}, 'Warehouses')</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>=First({warehouse2}, 'Warehouses')</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>=First({warehouse3}, 'Warehouses')</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>=First({warehouse4}, 'Warehouses')</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Фуры</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>Всего</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="nomenclature">
+                      <Value>=Fields!nomenclature.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>2pt</Left>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="warehouse_1">
+                      <Value>=Fields!warehouse_1.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="warehouse_2">
+                      <Value>=Fields!warehouse_2.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="warehouse_3">
+                      <Value>=Fields!warehouse_3.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="warehouse_4">
+                      <Value>=Fields!warehouse_4.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagons">
+                      <Value>=Fields!wagons.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>={warehouse_1}+{warehouse_2}+{warehouse_3}+{warehouse_4}+{wagons}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Right>2pt</Right>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>0.8pt</Top>
+      </Table>
+    </ReportItems>
+    <Height>46.7pt</Height>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox9">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_temp;user=andrey;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+</Report>

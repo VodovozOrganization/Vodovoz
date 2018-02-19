@@ -1116,6 +1116,9 @@
     <None Include="Reports\Store\StockWagonMovements.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\Store\StockWaterMovements.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

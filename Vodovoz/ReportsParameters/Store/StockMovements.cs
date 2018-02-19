@@ -52,7 +52,7 @@ namespace Vodovoz.Reports
 			string reportId;
 			var warehouse = yentryrefWarehouse.Subject as Warehouse;
 			if(warehouse == null)
-				reportId = "Store.StockSummaryMovements";
+				reportId = "Store.StockWaterMovements";
 			else if(warehouse.TypeOfUse == WarehouseUsing.Shipment)
 				reportId = "Store.StockShipmentMovements";
 			else if(warehouse.TypeOfUse == WarehouseUsing.Production)
