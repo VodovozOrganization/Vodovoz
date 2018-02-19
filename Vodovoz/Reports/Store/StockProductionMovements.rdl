@@ -62,63 +62,6 @@
                 FROM
                     warehouse_movement_operations
                         LEFT JOIN
-                    store_car_unload_document_items ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-                WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-                        AND store_car_unload_document_items.id IS NOT NULL),
-            0) AS drivers_added,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        LEFT JOIN
-                    store_car_unload_document_items ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-                        LEFT JOIN
-                    store_car_load_document_items ON store_car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-                        LEFT JOIN
-                    store_car_load_documents ON store_car_load_documents.id = store_car_load_document_items.car_load_document_id
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-                        AND (store_car_unload_document_items.id IS NOT NULL
-                        OR store_car_load_documents.route_list_id IS NOT NULL)),
-            0) AS drivers_removed,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        LEFT JOIN
-                    store_self_delivery_document_returned ON store_self_delivery_document_returned.warehouse_movement_operation_id = warehouse_movement_operations.id
-                WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-                        AND store_self_delivery_document_returned.id IS NOT NULL),
-            0) AS selfdelivery_added,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        LEFT JOIN
-                    store_self_delivery_document_item ON store_self_delivery_document_item.warehouse_movement_operation_id = warehouse_movement_operations.id
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-                        AND store_self_delivery_document_item.id IS NOT NULL),
-            0) AS selfdelivery_removed,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        LEFT JOIN
                     store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
                         OR store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
                         LEFT JOIN
@@ -272,22 +215,6 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
           <DataField>all_removed</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
-        <Field Name="drivers_added">
-          <DataField>drivers_added</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="drivers_removed">
-          <DataField>drivers_removed</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="selfdelivery_added">
-          <DataField>selfdelivery_added</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="selfdelivery_removed">
-          <DataField>selfdelivery_removed</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
         <Field Name="wagons_added">
           <DataField>wagons_added</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
@@ -329,9 +256,9 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
       <Textbox Name="Textbox1">
         <Top>7.23pt</Top>
         <Left>7.23pt</Left>
-        <Width>794.97pt</Width>
-        <Height>18.07pt</Height>
-        <Value>= "Отчет по складу отгрузки с " + Format(CDate({?startDate}), "d") + " по " + Format(CDate({?endDate}), "d")</Value>
+        <Width>791.22pt</Width>
+        <Height>18.04pt</Height>
+        <Value>= "Отчет по складу производства с " + Format(CDate({?startDate}), "d") + " по " + Format(CDate({?endDate}), "d")</Value>
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
@@ -353,58 +280,48 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
             <Width>203.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.4pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>32.7pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>32.6pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>36.2pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>31.7pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>40.4pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>36.5pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>36.4pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.5pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.7pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.3pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.4pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>37.4pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>34.6pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>37.2pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>46.8pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -447,41 +364,6 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox20">
-                      <Value>Водители</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>2</ColSpan>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox22">
-                      <Value>Самовывоз</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -626,70 +508,6 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>9pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox4">
-                      <Value>+</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value>-</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox6">
-                      <Value>+</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Value>-</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -930,94 +748,6 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="before_removed">
-                      <Value>=Fields!drivers_added.Value</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
-                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
-                        </BorderWidth>
-                        <FontSize>9pt</FontSize>
-                        <Format>='N' + {digits}</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="all_added">
-                      <Value>=Fields!drivers_removed.Value</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
-                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
-                        </BorderWidth>
-                        <FontSize>9pt</FontSize>
-                        <Format>='N' + {digits}</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="all_removed">
-                      <Value>=Fields!selfdelivery_added.Value</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
-                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
-                        </BorderWidth>
-                        <FontSize>9pt</FontSize>
-                        <Format>='N' + {digits}</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="drivers_added">
-                      <Value>=Fields!selfdelivery_removed.Value</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
-                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
-                        </BorderWidth>
-                        <FontSize>9pt</FontSize>
-                        <Format>='N' + {digits}</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="drivers_removed">
                       <Value>=Fields!wagons_added.Value</Value>
                       <CanGrow>false</CanGrow>
@@ -1194,7 +924,7 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="wagon4_removed">
-                      <Value>={all_added}-{drivers_added}-{selfdelivery_added}-{wagons_added}-{warehouse_added}-{regrading_added}-{inventory_added}</Value>
+                      <Value>={all_added}-{wagons_added}-{warehouse_added}-{regrading_added}-{inventory_added}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1216,7 +946,7 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>={all_removed}-{drivers_removed}-{selfdelivery_removed}-{wagons_removed}-{warehouse_removed}-{regrading_removed}-{inventory_removed}</Value>
+                      <Value>={all_removed}-{wagons_removed}-{warehouse_removed}-{regrading_removed}-{inventory_removed}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1264,12 +994,12 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
         <Top>7.2pt</Top>
       </Table>
       <Textbox Name="Textbox21">
-        <Height>18.05pt</Height>
-        <Width>563.10pt</Width>
+        <Height>15.80pt</Height>
+        <Width>599.91pt</Width>
         <Value>Фуры</Value>
         <ZIndex>1</ZIndex>
-        <Left>10.4pt</Left>
-        <Top>54.0pt</Top>
+        <Left>8.8pt</Left>
+        <Top>52.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />

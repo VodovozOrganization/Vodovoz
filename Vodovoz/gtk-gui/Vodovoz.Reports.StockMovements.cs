@@ -90,7 +90,6 @@ namespace Vodovoz.Reports
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.yentryrefWarehouse.ChangedByUser += new global::System.EventHandler(this.OnYentryrefWarehouseChangedByUser);
 			this.dateperiodpicker1.PeriodChanged += new global::System.EventHandler(this.OnDateperiodpicker1PeriodChanged);
 			this.buttonRun.Clicked += new global::System.EventHandler(this.OnButtonRunClicked);
 		}
