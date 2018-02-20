@@ -72,7 +72,7 @@
 			LEFT JOIN store_car_unload_documents ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
             LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
 		WHERE
-				nomenclature.category = 'water'
+				nomenclature.category = 'bottle'
             AND	store_car_unload_documents.route_list_id = routeListId
 	) as returned_bottles,
 	closing_comment
