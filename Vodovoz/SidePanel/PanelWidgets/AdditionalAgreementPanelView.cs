@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.GtkWidgets;
+using NHibernate.Proxy;
+using QSHistoryLog;
+using QSOrmProject;
 using QSProjectsLib;
+using QSTDI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repository;
@@ -93,8 +98,13 @@ namespace Vodovoz.Panel
 				fixedPricesString += String.Format("{0}: {1:C}\n", fixedPrice.Nomenclature.Name, fixedPrice.Price);
 			}
 
-			labelFixedPrices.Text = fixedPricesString;
+			ytreeviewFixedPrices.ColumnsConfig = ColumnsConfigFactory.Create<WaterSalesAgreementFixedPrice>()
+				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
+				.AddColumn("Цена")
+				.AddTextRenderer(x => String.Format("{0}р.", x.Price))
+				.Finish();
 
+			ytreeviewFixedPrices.SetItemsSource(fixedPricesList);
 		}
 
 		public bool VisibleOnPanel
@@ -118,6 +128,17 @@ namespace Vodovoz.Panel
 		{
 			get;
 			set;
+		}
+
+		protected void OnYtreeviewFixedPricesRowActivated(object o, Gtk.RowActivatedArgs args)
+		{
+			var selectedPrice = ytreeviewFixedPrices.GetSelectedObject() as WaterSalesAgreementFixedPrice;
+			var type = NHibernateProxyHelper.GuessClass(selectedPrice.AdditionalAgreement);
+			var dialog = OrmMain.CreateObjectDialog(type, selectedPrice.AdditionalAgreement.Id);
+			TDIMain.MainNotebook.OpenTab(
+				OrmMain.GenerateDialogHashName(type, selectedPrice.AdditionalAgreement.Id),
+				() => dialog
+			);
 		}
 
 		#endregion

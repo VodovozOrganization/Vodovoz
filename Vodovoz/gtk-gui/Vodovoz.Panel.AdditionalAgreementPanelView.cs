@@ -32,7 +32,7 @@ namespace Vodovoz.Panel
 
 		private global::Gtk.Label label6;
 
-		private global::Vodovoz.WrapLabel labelFixedPrices;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewFixedPrices;
 
 		protected virtual void Build()
 		{
@@ -177,13 +177,11 @@ namespace Vodovoz.Panel
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child vboxFixedPrices.Gtk.Box+BoxChild
-			this.labelFixedPrices = new global::Vodovoz.WrapLabel();
-			this.labelFixedPrices.Name = "labelFixedPrices";
-			this.labelFixedPrices.LabelProp = global::Mono.Unix.Catalog.GetString("labelFixedPrices");
-			this.labelFixedPrices.Wrap = true;
-			this.labelFixedPrices.Selectable = true;
-			this.vboxFixedPrices.Add(this.labelFixedPrices);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxFixedPrices[this.labelFixedPrices]));
+			this.ytreeviewFixedPrices = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewFixedPrices.CanFocus = true;
+			this.ytreeviewFixedPrices.Name = "ytreeviewFixedPrices";
+			this.vboxFixedPrices.Add(this.ytreeviewFixedPrices);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxFixedPrices[this.ytreeviewFixedPrices]));
 			w13.Position = 1;
 			w13.Expand = false;
 			w13.Fill = false;
@@ -196,6 +194,7 @@ namespace Vodovoz.Panel
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.ytreeviewFixedPrices.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewFixedPricesRowActivated);
 		}
 	}
 }

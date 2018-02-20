@@ -31910,11 +31910,10 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Vodovoz.WrapLabel" id="labelFixedPrices">
+              <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewFixedPrices">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">labelFixedPrices</property>
-                <property name="Wrap">True</property>
-                <property name="Selectable">True</property>
+                <property name="CanFocus">True</property>
+                <signal name="RowActivated" handler="OnYtreeviewFixedPricesRowActivated" />
               </widget>
               <packing>
                 <property name="Position">1</property>
