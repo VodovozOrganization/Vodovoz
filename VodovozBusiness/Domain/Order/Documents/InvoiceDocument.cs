@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using QSReport;
 
 namespace Vodovoz.Domain.Orders.Documents
@@ -21,20 +22,21 @@ namespace Vodovoz.Domain.Orders.Documents
 			}
 		}
 
-		public override QSReport.ReportInfo GetReportInfo ()
+		public override QSReport.ReportInfo GetReportInfo()
 		{
 			return new QSReport.ReportInfo {
-				Title = String.Format ("Накладная №{0} от {1:d}", Order.Id, Order.DeliveryDate),
+				Title = String.Format("Накладная №{0} от {1:d}", Order.Id, Order.DeliveryDate),
 				Identifier = "Documents.Invoice",
 				Parameters = new Dictionary<string, object> {
-					{ "order_id",  Order.Id }
+					{ "order_id",  Order.Id },
+					{ "without_advertising",  WithoutAdvertising },
 				}
 			};
 		}
 
 		#endregion
 
-		public override string Name { get { return String.Format ("Накладная №{0}",Order.Id); } }
+		public override string Name { get { return String.Format("Накладная №{0}", Order.Id); } }
 
 		public override DateTime? DocumentDate {
 			get { return Order?.DeliveryDate; }
@@ -46,6 +48,17 @@ namespace Vodovoz.Domain.Orders.Documents
 			}
 		}
 
+		#region Свои свойства
+
+		private bool withoutAdvertising;
+
+		[Display(Name = "Без рекламы")]
+		public virtual bool WithoutAdvertising {
+			get { return withoutAdvertising; }
+			set { SetField(ref withoutAdvertising, value, () => WithoutAdvertising); }
+		}
+
+		#endregion
 	}
 }
 

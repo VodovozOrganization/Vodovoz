@@ -85,6 +85,8 @@ namespace Vodovoz.HibernateMapping
 		public InvoiceDocumentMap()
 		{
 			DiscriminatorValue (InvoiceDocument.OrderDocumentTypeValue);
+
+			Map(x => x.WithoutAdvertising).Column("without_advertising");
 		}
 	}
 
