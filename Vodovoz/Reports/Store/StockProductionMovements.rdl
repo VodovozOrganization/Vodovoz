@@ -173,6 +173,7 @@ FROM
     nomenclature ON nomenclature.id = moved_nom.nomenclature_id
         LEFT JOIN
     measurement_units ON measurement_units.id = nomenclature.unit_id
+HAVING  before_added - before_removed &lt;&gt; 0 OR  all_added - all_removed &lt;&gt; 0
 ORDER BY nomenclature.category , nomenclature.name</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">

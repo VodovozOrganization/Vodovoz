@@ -160,6 +160,7 @@ FROM
         LEFT JOIN
     measurement_units ON measurement_units.id = nomenclature.unit_id
     WHERE (nomenclature.category = 'water' OR nomenclature.category = 'bottle') AND nomenclature.is_archive = 0
+HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 0 OR warehouse_4 &lt;&gt; 0 OR wagons &lt;&gt; 0 
     ORDER BY nomenclature.category, nomenclature.name</CommandText>
         <QueryParameters>
           <QueryParameter Name="endDate">
@@ -302,11 +303,13 @@ FROM
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Data</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>При указанных условиях нет данных.</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
