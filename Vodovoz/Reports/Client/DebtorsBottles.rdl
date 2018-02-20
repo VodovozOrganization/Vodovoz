@@ -15,6 +15,7 @@
     <DataSet Name="BottleDebt">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT DISTINCT
 	bottles_movement_operations.delivery_point_id AS pointid,
 	bottles_movement_operations.counterparty_id AS clientid,
