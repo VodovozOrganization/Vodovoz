@@ -60,7 +60,6 @@ namespace Vodovoz.HibernateMapping
 		public WaterSalesAgreementMap()
 		{
 			DiscriminatorValue ("WaterSales");
-			Map(x => x.IsFixedPrice).Column("water_is_fixed_price");
 			HasMany(x => x.FixedPrices).KeyColumn("agreement_id").Inverse().Cascade.AllDeleteOrphan().LazyLoad();
 		}
 	}

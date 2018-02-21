@@ -13,9 +13,6 @@ namespace Vodovoz.Domain.Client
 		Nominative = "доп. соглашение продажи воды")]
 	public class WaterSalesAgreement : AdditionalAgreement
 	{
-		public virtual bool IsFixedPrice { get; set; }
-
-
 		IList<WaterSalesAgreementFixedPrice> fixedPrices = new List<WaterSalesAgreementFixedPrice> ();
 
 		[Display (Name = "Фиксированные цены")]
@@ -48,6 +45,16 @@ namespace Vodovoz.Domain.Client
 					"Пожалуйста, закройте действующее соглашение для создания нового.", new[] { "DeliveryPoint" });
 			}
 		}
+
+		#region Расчетные
+
+		public virtual bool IsFixedPrice {
+			get {
+				return FixedPrices != null || FixedPrices.Count > 0;
+			}
+		}
+
+		#endregion
 
 		public virtual void  AddFixedPrice(Nomenclature nomenclature, decimal price)
 		{

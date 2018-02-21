@@ -1,17 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
 using QSHistoryLog;
+using QSHistoryLog.Domain;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using System.ComponentModel.DataAnnotations;
-using Gamma.Utilities;
-using QSHistoryLog.Domain;
-using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -29,8 +28,7 @@ namespace Vodovoz
 			set {
 				isEditable = value;
 				buttonSave.Sensitive = 
-					referenceDeliveryPoint.Sensitive = dateIssue.Sensitive = dateStart.Sensitive = 
-						checkIsFixedPrice.Sensitive = value; //spinFixedPrice.Sensitive = 
+					referenceDeliveryPoint.Sensitive = dateIssue.Sensitive = dateStart.Sensitive = value;
 			} 
 		}
 
@@ -70,7 +68,6 @@ namespace Vodovoz
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Contract.Counterparty);
 			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
-			checkIsFixedPrice.Binding.AddBinding (Entity, e => e.IsFixedPrice, w => w.Active).InitializeFromSource ();
 
 			dateIssue.Binding.AddBinding (Entity, e => e.IssueDate, w => w.Date).InitializeFromSource ();
 			dateStart.Binding.AddBinding (Entity, e => e.StartDate, w => w.Date).InitializeFromSource ();
@@ -160,12 +157,6 @@ namespace Vodovoz
 			return true;
 		}
 
-		protected void OnCheckIsFixedPriceToggled (object sender, EventArgs e)
-		{
-			GtkScrolledWindowFixedPrice.Visible = buttonAdd.Visible = buttonDel.Visible = checkIsFixedPrice.Active;
-
-		}
-
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
 			var addNewNomenclature = new OrmReference(Repository.NomenclatureRepository.NomenclatureWaterOnlyQuery());
@@ -173,7 +164,6 @@ namespace Vodovoz
 			addNewNomenclature.TabName = "Выберите номенклатуру";
 			addNewNomenclature.ObjectSelected += AddNewNomenclature_ObjectSelected;;
 			TabParent.AddSlaveTab(this, addNewNomenclature);
-
 		}
 
 		void AddNewNomenclature_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
