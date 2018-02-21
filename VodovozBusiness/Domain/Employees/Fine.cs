@@ -76,6 +76,15 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref routeList, value, () => RouteList); }
 		}
 
+        private Employee author;
+
+        [Display(Name = "Автор штрафа")]
+        public virtual Employee Author
+        {
+            get { return author; }
+            set { SetField(ref author, value, () => Author); }
+        }
+
 		IList<FineItem> items = new List<FineItem> ();
 
 		[Display (Name = "Строки")]

@@ -5,6 +5,8 @@ using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain;
 using Gamma.Utilities;
+using Vodovoz.Repository;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -74,8 +76,10 @@ namespace Vodovoz
 			yentryreferenceRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 
 			Entity.ObservableItems.ListChanged += ObservableItems_ListChanged;
-
-			UpdateControlsState();
+            yentryAuthor.SubjectType = typeof(Employee);
+            yentryAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.Subject).InitializeFromSource();
+			
+            UpdateControlsState();
 			ShowLiters();
 		}
 
@@ -86,6 +90,13 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
+            Employee author;
+            if (!GetAuthor(out author)) return false;
+
+            if (Entity.Author == null)
+            {
+                Entity.Author = author;
+            }
 			var valid = new QSValidation.QSValidator<Fine> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -205,7 +216,6 @@ namespace Vodovoz
 			}
 		}
 
-
 		protected void OnYentryreferenceRouteListChangedByUser(object sender, EventArgs e)
 		{
 			if(Entity.FineType == FineTypes.FuelOverspending && Entity.RouteList != null) {
@@ -213,5 +223,17 @@ namespace Vodovoz
 				CalculateMoneyFromLiters();
 			}
 		}
+
+        private bool GetAuthor(out Employee cashier)
+        {
+            cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+            if (cashier == null)
+            {
+                MessageDialogWorks.RunErrorDialog(
+                    "Ваш пользователь не привязан к действующему сотруднику.");
+                return false;
+            }
+            return true;
+        }
 	}
 }
