@@ -4,16 +4,16 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>202.615mm</PageHeight>
-  <PageWidth>286.405mm</PageWidth>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
   <Width>286.405mm</Width>
   <TopMargin>5mm</TopMargin>
-  <LeftMargin>2mm</LeftMargin>
+  <LeftMargin>5mm</LeftMargin>
   <RightMargin>5mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -44,7 +44,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -88,19 +88,42 @@ WHERE
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SET lc_time_names = 'ru_RU';
 SELECT 
-orders.id AS order_id, orders.delivery_date AS order_date,
-counterparty_contract.id AS contract_number, DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
-counterparty.full_name AS client_name, counterparty.jur_address AS client_address, counterparty.inn AS client_inn, counterparty.kpp AS client_kpp, organizations.full_name AS org_name, organizations.jur_address as org_address, organizations.INN AS org_inn, organizations.KPP AS org_kpp,
-buhgalter.last_name AS buh_last_name, LEFT(buhgalter.name, 1) AS buh_name, LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
-leader.last_name AS leader_last_name, LEFT(leader.name, 1) AS leader_name, LEFT(leader.patronymic, 1) AS leader_patronymic
-FROM orders 
-LEFT JOIN counterparty ON orders.client_id = counterparty.id
-LEFT JOIN organizations ON organizations.id = (SELECT IF(orders.payment_type = 'cash', 12, 11)  FROM orders WHERE id = @order_id)
-LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id AND counterparty_contract.organization_id = organizations.id
-LEFT JOIN employees leader ON leader.id = organizations.leader_id 
-LEFT JOIN employees buhgalter ON buhgalter.id = organizations.buhgalter_id 
-WHERE orders.id = @order_id;
-</CommandText>
+    orders.id AS order_id,
+    orders.delivery_date AS order_date,
+    author.last_name AS author,
+    counterparty_contract.id AS contract_number,
+    DATE_FORMAT(counterparty_contract.issue_date,
+            '%d.%m.%y') AS contract_date,
+    counterparty.full_name AS client_name,
+    counterparty.jur_address AS client_address,
+    counterparty.inn AS client_inn,
+    counterparty.kpp AS client_kpp,
+    organizations.full_name AS org_name,
+    organizations.jur_address AS org_address,
+    organizations.INN AS org_inn,
+    organizations.KPP AS org_kpp,
+    buhgalter.last_name AS buh_last_name,
+    LEFT(buhgalter.name, 1) AS buh_name,
+    LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
+    leader.last_name AS leader_last_name,
+    LEFT(leader.name, 1) AS leader_name,
+    LEFT(leader.patronymic, 1) AS leader_patronymic
+FROM
+    orders
+        LEFT JOIN
+    counterparty ON orders.client_id = counterparty.id
+        LEFT JOIN
+    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+        LEFT JOIN
+    organizations ON organizations.id = counterparty_contract.organization_id
+        LEFT JOIN
+    employees leader ON leader.id = organizations.leader_id
+        LEFT JOIN
+    employees buhgalter ON buhgalter.id = organizations.buhgalter_id
+        LEFT JOIN
+    employees author ON author.id = orders.author_employee_id
+WHERE
+    orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -116,9 +139,13 @@ WHERE orders.id = @order_id;
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
+        <Field Name="author">
+          <DataField>author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
         <Field Name="contract_number">
           <DataField>contract_number</DataField>
-          <TypeName>System.String</TypeName>
+          <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="contract_date">
           <DataField>contract_date</DataField>
@@ -194,8 +221,8 @@ WHERE orders.id = @order_id;
     <ReportItems>
       <List Name="List2">
         <Height>164.41pt</Height>
-        <Width>646.05pt</Width>
-        <Left>137.80pt</Left>
+        <Width>700.05pt</Width>
+        <Left>100.20pt</Left>
         <Top>2.00pt</Top>
         <ReportItems>
           <Textbox Name="Textbox5">
@@ -411,7 +438,8 @@ WHERE orders.id = @order_id;
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <Format>dd MMMM yyyy г.</Format>
+              <Format>d</Format>
+              <TextAlign>Center</TextAlign>
             </Style>
           </Textbox>
           <Textbox Name="Textbox40">
@@ -524,10 +552,10 @@ WHERE orders.id = @order_id;
           <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>440.00pt</Width>
-            <Value>=Fields!org_kpp.Value + '/' + Fields!org_kpp.Value</Value>
+            <Value>=Fields!org_kpp.Value + '\\' + Fields!org_kpp.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>180.3pt</Left>
-            <Top>61.4pt</Top>
+            <Left>180.30pt</Left>
+            <Top>61.40pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -621,7 +649,7 @@ WHERE orders.id = @order_id;
           <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>440.00pt</Width>
-            <Value>=Fields!client_inn.Value + '/' + Fields!client_kpp.Value</Value>
+            <Value>=Fields!client_inn.Value + '\\' + Fields!client_kpp.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>180.3pt</Left>
             <Top>137.4pt</Top>
@@ -655,7 +683,7 @@ WHERE orders.id = @order_id;
             <Width>21.27pt</Width>
             <Value>(2)</Value>
             <ZIndex>1</ZIndex>
-            <Left>622.5pt</Left>
+            <Left>668.9pt</Left>
             <Top>38.2pt</Top>
             <Style>
               <BorderStyle />
@@ -669,7 +697,7 @@ WHERE orders.id = @order_id;
             <Width>23.52pt</Width>
             <Value>(2а)</Value>
             <ZIndex>1</ZIndex>
-            <Left>622.5pt</Left>
+            <Left>668.9pt</Left>
             <Top>50.6pt</Top>
             <Style>
               <BorderStyle />
@@ -683,7 +711,7 @@ WHERE orders.id = @order_id;
             <Width>23.52pt</Width>
             <Value>(2б)</Value>
             <ZIndex>1</ZIndex>
-            <Left>622.5pt</Left>
+            <Left>668.9pt</Left>
             <Top>62.2pt</Top>
             <Style>
               <BorderStyle />
@@ -697,7 +725,7 @@ WHERE orders.id = @order_id;
             <Width>23.52pt</Width>
             <Value>(3)</Value>
             <ZIndex>1</ZIndex>
-            <Left>622.5pt</Left>
+            <Left>668.9pt</Left>
             <Top>75.4pt</Top>
             <Style>
               <BorderStyle />
@@ -711,7 +739,7 @@ WHERE orders.id = @order_id;
             <Width>23.52pt</Width>
             <Value>(4)</Value>
             <ZIndex>1</ZIndex>
-            <Left>622.5pt</Left>
+            <Left>668.9pt</Left>
             <Top>87.0pt</Top>
             <Style>
               <BorderStyle />
@@ -725,7 +753,7 @@ WHERE orders.id = @order_id;
             <Width>23.52pt</Width>
             <Value>(5)</Value>
             <ZIndex>1</ZIndex>
-            <Left>622.5pt</Left>
+            <Left>668.9pt</Left>
             <Top>100.2pt</Top>
             <Style>
               <BorderStyle />
@@ -739,7 +767,7 @@ WHERE orders.id = @order_id;
             <Width>23.52pt</Width>
             <Value>(6)</Value>
             <ZIndex>1</ZIndex>
-            <Left>622.5pt</Left>
+            <Left>668.9pt</Left>
             <Top>112.6pt</Top>
             <Style>
               <BorderStyle />
@@ -753,7 +781,7 @@ WHERE orders.id = @order_id;
             <Width>23.52pt</Width>
             <Value>(6а)</Value>
             <ZIndex>1</ZIndex>
-            <Left>622.5pt</Left>
+            <Left>668.9pt</Left>
             <Top>125.8pt</Top>
             <Style>
               <BorderStyle />
@@ -767,7 +795,7 @@ WHERE orders.id = @order_id;
             <Width>23.52pt</Width>
             <Value>(6б)</Value>
             <ZIndex>1</ZIndex>
-            <Left>622.5pt</Left>
+            <Left>668.9pt</Left>
             <Top>138.2pt</Top>
             <Style>
               <BorderStyle />
@@ -781,7 +809,7 @@ WHERE orders.id = @order_id;
             <Width>23.52pt</Width>
             <Value>(7)</Value>
             <ZIndex>1</ZIndex>
-            <Left>622.5pt</Left>
+            <Left>668.9pt</Left>
             <Top>149.8pt</Top>
             <Style>
               <BorderStyle />
@@ -792,16 +820,16 @@ WHERE orders.id = @order_id;
           </Textbox>
           <CustomReportItem Name="CustomReportItem1">
             <Type>BarCode39</Type>
-            <Height>33.91pt</Height>
-            <Width>124.51pt</Width>
+            <Height>100.13pt</Height>
+            <Width>154.45pt</Width>
             <CustomProperties>
-              <CustomProperty>
+              <CustomProperty >
                 <Name>Code</Name>
                 <Value>=Format({order_date}, "ddMMyy")+ "-"+ {order_id}</Value>
               </CustomProperty>
             </CustomProperties>
-            <Left>325.5pt</Left>
-            <Top>0.8pt</Top>
+            <Left>513.0pt</Left>
+            <Top>34.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -809,6 +837,19 @@ WHERE orders.id = @order_id;
             </Style>
             <ZIndex>2</ZIndex>
           </CustomReportItem>
+          <Textbox Name="Textbox177">
+            <Height>11.25pt</Height>
+            <Width>150.51pt</Width>
+            <Value>="Исполнитель: " + {author}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>349.20pt</Left>
+            <Top>5.30pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
         </ReportItems>
         <Style>
           <BorderStyle>
@@ -830,8 +871,8 @@ WHERE orders.id = @order_id;
 к постановлению Правительства Российской Федерации
 от 26 декабря 2011 г. № 1137</Value>
         <ZIndex>1</ZIndex>
-        <Left>589.45pt</Left>
-        <Top>7.40pt</Top>
+        <Left>595.8pt</Left>
+        <Top>7.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3296,7 +3337,7 @@ WHERE orders.id = @order_id;
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=vad;password=123;port=3306;server=192.168.1.5</ConnectString>
+        <ConnectString>database=Vodovoz_temp;user=andrey;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -3306,7 +3347,7 @@ WHERE orders.id = @order_id;
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>7</Value>
+          <Value>95964</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
