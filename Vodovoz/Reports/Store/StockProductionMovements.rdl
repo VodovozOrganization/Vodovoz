@@ -57,6 +57,30 @@
                         AND warehouse_movement_operations.operation_time &gt;= @startDate
                         AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
             0) AS all_removed,
+                IFNULL((SELECT 
+                    SUM(warehouse_movement_operations.amount)
+                FROM
+                    warehouse_movement_operations
+                        INNER JOIN
+                    store_incoming_water ON store_incoming_water.produce_operation_id = warehouse_movement_operations.id
+                WHERE
+                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                        AND warehouse_movement_operations.operation_time &gt;= @startDate
+                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0) AS prodution_added,
+    IFNULL((SELECT 
+                    SUM(warehouse_movement_operations.amount)
+                FROM
+                    warehouse_movement_operations
+                        INNER JOIN
+                    store_incoming_water_material ON store_incoming_water_material.consumption_material_id = warehouse_movement_operations.id
+                WHERE
+                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                        AND warehouse_movement_operations.operation_time &gt;= @startDate
+                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0) AS prodution_removed,
     IFNULL((SELECT 
                     SUM(warehouse_movement_operations.amount)
                 FROM
@@ -216,6 +240,14 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
           <DataField>all_removed</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
+        <Field Name="prodution_added">
+          <DataField>prodution_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="prodution_removed">
+          <DataField>prodution_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
         <Field Name="wagons_added">
           <DataField>wagons_added</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
@@ -293,34 +325,40 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
             <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50pt</Width>
+            <Width>42pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50pt</Width>
+            <Width>42pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50pt</Width>
+            <Width>42pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50pt</Width>
+            <Width>42pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50pt</Width>
+            <Width>42pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50pt</Width>
+            <Width>42pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50pt</Width>
+            <Width>42pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50pt</Width>
+            <Width>42pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50pt</Width>
+            <Width>42pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50pt</Width>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50pt</Width>
@@ -366,6 +404,25 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
                       </Style>
                     </Textbox>
                   </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Производство</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -501,6 +558,42 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
                     <Textbox Name="Textbox3">
                       <Value>начало</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>+</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>-</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -750,6 +843,48 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>=Fields!prodution_added.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <FontSize>9pt</FontSize>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>=Fields!prodution_removed.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <FontSize>9pt</FontSize>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="drivers_removed">
                       <Value>=Fields!wagons_added.Value</Value>
                       <CanGrow>false</CanGrow>
@@ -926,7 +1061,7 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="wagon4_removed">
-                      <Value>={all_added}-{wagons_added}-{warehouse_added}-{regrading_added}-{inventory_added}</Value>
+                      <Value>={all_added}-{prodution_added}-{wagons_added}-{warehouse_added}-{regrading_added}-{inventory_added}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -948,7 +1083,7 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>={all_removed}-{wagons_removed}-{warehouse_removed}-{regrading_removed}-{inventory_removed}</Value>
+                      <Value>={all_removed}-{prodution_removed}-{wagons_removed}-{warehouse_removed}-{regrading_removed}-{inventory_removed}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -993,7 +1128,7 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>40.8pt</Top>
+        <Top>41.6pt</Top>
       </Table>
       <Textbox Name="Textbox21">
         <Height>15.80pt</Height>
