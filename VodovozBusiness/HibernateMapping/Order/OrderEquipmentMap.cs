@@ -15,14 +15,13 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.Reason).Column ("reason").CustomType<ReasonStringType> ();
 			Map (x => x.Confirmed).Column("confirmed");
 			Map (x => x.ConfirmedComment).Column("confirmed_comments");
-			//FIXME запуск оборудования
-			Map (x => x.Count)				.Column("count"); // временное поле для запуска оборудования
+			Map (x => x.Count)				.Column("count");
 
 			References (x => x.ServiceClaim).Column("service_claim_id");
 			References (x => x.Order).Column ("order_id");
 			References (x => x.Equipment).Column ("equipment_id");
 			References (x => x.OrderItem).Column ("order_item_id");
-			References (x => x.Nomenclature).Column ("new_eq_nomenclature_id");
+			References (x => x.Nomenclature).Column ("nomenclature_id");
 			References (x => x.CounterpartyMovementOperation).Column ("counterparty_movement_operation_id").Cascade.All();
 		}
 	}
