@@ -250,25 +250,26 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="warehouse_name">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT name FROM warehouses WHERE id = @id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id">
+            <Value>={?warehouse_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>32.2pt</Height>
-    <ReportItems>
-      <Textbox Name="Textbox1">
-        <Top>7.23pt</Top>
-        <Left>7.23pt</Left>
-        <Width>791.22pt</Width>
-        <Height>18.04pt</Height>
-        <Value>= "Отчет по складу производства с " + Format(CDate({?startDate}), "d") + " по " + Format(CDate({?endDate}), "d")</Value>
-        <Style>
-          <FontSize>15pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-    </ReportItems>
+    <Height>0.0pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
@@ -992,7 +993,7 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>7.2pt</Top>
+        <Top>40.8pt</Top>
       </Table>
       <Textbox Name="Textbox21">
         <Height>15.80pt</Height>
@@ -1000,7 +1001,7 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
         <Value>Фуры</Value>
         <ZIndex>1</ZIndex>
         <Left>8.8pt</Left>
-        <Top>52.9pt</Top>
+        <Top>86.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1012,7 +1013,7 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
         <Height>22.57pt</Height>
         <Width>755.77pt</Width>
         <Left>0.0pt</Left>
-        <Top>72.2pt</Top>
+        <Top>105.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1033,8 +1034,22 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
           </Parameter>
         </Parameters>
       </Subreport>
+      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Top>11.2pt</Top>
+        <Left>6.5pt</Left>
+        <Width>791.22pt</Width>
+        <Height>18.04pt</Height>
+        <Value>= "Отчет по складу производства '" + First({name}, 'warehouse_name') + "' с " + Format(CDate({?startDate}), "d") + " по " + Format(CDate({?endDate}), "d")</Value>
+        <Style>
+          <FontSize>15pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
-    <Height>100.3pt</Height>
+    <Height>136.4pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
