@@ -26211,6 +26211,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -27585,12 +27586,85 @@
                               </packing>
                             </child>
                             <child>
+                              <widget class="Gtk.HBox" id="hbox12">
+                                <property name="MemberName" />
+                                <property name="Spacing">6</property>
+                                <child>
+                                  <widget class="Gtk.Button" id="buttonAddForSale">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Type">TextAndIcon</property>
+                                    <property name="Icon">stock:gtk-add Menu</property>
+                                    <property name="Label" translatable="yes">На продажу</property>
+                                    <signal name="Clicked" handler="OnButtonAddForSaleClicked" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">0</property>
+                                    <property name="AutoSize">True</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="QSOrmProject.EnumMenuButton" id="enumAddRentButton">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Type">TextAndIcon</property>
+                                    <property name="Icon">stock:gtk-add Menu</property>
+                                    <property name="Label" translatable="yes">В аренду</property>
+                                    <property name="UseUnderline">True</property>
+                                    <property name="UseMarkup">False</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">1</property>
+                                    <property name="AutoSize">False</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gtk.VSeparator" id="vseparator2">
+                                    <property name="MemberName" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">2</property>
+                                    <property name="AutoSize">True</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gtk.Button" id="buttonDelete1">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Type">TextAndIcon</property>
+                                    <property name="Icon">stock:gtk-delete Menu</property>
+                                    <property name="Label" translatable="yes">Удалить</property>
+                                    <property name="UseUnderline">True</property>
+                                    <signal name="Clicked" handler="OnButtonDelete1Clicked" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">3</property>
+                                    <property name="AutoSize">False</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="Position">2</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
                               <widget class="Gtk.Label" id="label20">
                                 <property name="MemberName" />
                                 <property name="LabelProp" translatable="yes">Оборудование</property>
                               </widget>
                               <packing>
-                                <property name="Position">2</property>
+                                <property name="Position">3</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -27602,7 +27676,7 @@
                                 <property name="CanFocus">True</property>
                               </widget>
                               <packing>
-                                <property name="Position">3</property>
+                                <property name="Position">4</property>
                                 <property name="AutoSize">False</property>
                               </packing>
                             </child>
@@ -27660,7 +27734,7 @@
                                 </child>
                               </widget>
                               <packing>
-                                <property name="Position">4</property>
+                                <property name="Position">5</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -27672,7 +27746,7 @@
                                 <property name="LabelProp" translatable="yes">Возврат залогов</property>
                               </widget>
                               <packing>
-                                <property name="Position">5</property>
+                                <property name="Position">6</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -27685,7 +27759,7 @@
                                 <property name="CanFocus">True</property>
                               </widget>
                               <packing>
-                                <property name="Position">6</property>
+                                <property name="Position">7</property>
                                 <property name="AutoSize">False</property>
                               </packing>
                             </child>
@@ -28161,80 +28235,6 @@
                   </widget>
                   <packing>
                     <property name="Position">1</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.HBox" id="hbox12">
-                    <property name="MemberName" />
-                    <property name="Spacing">6</property>
-                    <child>
-                      <widget class="Gtk.Button" id="buttonAddForSale">
-                        <property name="MemberName" />
-                        <property name="CanFocus">True</property>
-                        <property name="Type">TextAndIcon</property>
-                        <property name="Icon">stock:gtk-add Menu</property>
-                        <property name="Label" translatable="yes">На продажу</property>
-                        <property name="UseUnderline">True</property>
-                        <signal name="Clicked" handler="OnButtonAddForSaleClicked" />
-                      </widget>
-                      <packing>
-                        <property name="Position">0</property>
-                        <property name="AutoSize">True</property>
-                        <property name="Expand">False</property>
-                        <property name="Fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="QSOrmProject.EnumMenuButton" id="enumAddRentButton">
-                        <property name="MemberName" />
-                        <property name="CanFocus">True</property>
-                        <property name="Type">TextAndIcon</property>
-                        <property name="Icon">stock:gtk-add Menu</property>
-                        <property name="Label" translatable="yes">В аренду</property>
-                        <property name="UseUnderline">True</property>
-                        <property name="UseMarkup">False</property>
-                      </widget>
-                      <packing>
-                        <property name="Position">1</property>
-                        <property name="AutoSize">False</property>
-                        <property name="Expand">False</property>
-                        <property name="Fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="Gtk.VSeparator" id="vseparator2">
-                        <property name="MemberName" />
-                      </widget>
-                      <packing>
-                        <property name="Position">2</property>
-                        <property name="AutoSize">True</property>
-                        <property name="Expand">False</property>
-                        <property name="Fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="Gtk.Button" id="buttonDelete1">
-                        <property name="MemberName" />
-                        <property name="CanFocus">True</property>
-                        <property name="Type">TextAndIcon</property>
-                        <property name="Icon">stock:gtk-delete Menu</property>
-                        <property name="Label" translatable="yes">Удалить</property>
-                        <property name="UseUnderline">True</property>
-                        <signal name="Clicked" handler="OnButtonDelete1Clicked" />
-                      </widget>
-                      <packing>
-                        <property name="Position">3</property>
-                        <property name="AutoSize">False</property>
-                        <property name="Expand">False</property>
-                        <property name="Fill">False</property>
-                      </packing>
-                    </child>
-                  </widget>
-                  <packing>
-                    <property name="Position">2</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
