@@ -121,9 +121,7 @@ namespace Vodovoz.Domain.Orders
 				if(Equipment != null)
 					return Equipment.Title;
 				else if(Nomenclature != null)
-					//FIXME запуск оборудования - временный фикс
-					return Nomenclature.Name;
-				//return String.Format ("{0} (не зарегистрированный)", NewEquipmentNomenclature.Name);
+					return Nomenclature.OfficialName;
 				else
 					return "Неизвестное оборудование";
 			}
