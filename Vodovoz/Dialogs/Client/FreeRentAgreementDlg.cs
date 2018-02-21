@@ -4,6 +4,7 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.DocTemplates;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -24,6 +25,8 @@ namespace Vodovoz
 			} 
 		}
 
+		private FreeRentPackage FreeRentPackage { get; set; }
+
 		public FreeRentAgreementDlg (CounterpartyContract contract)
 		{
 			this.Build ();
@@ -39,6 +42,19 @@ namespace Vodovoz
 			if(IssueDate.HasValue)
 				UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate.Value;
 			ConfigureDlg();
+		}
+
+		public FreeRentAgreementDlg(CounterpartyContract contract, DeliveryPoint point, DateTime? IssueDate, FreeRentPackage freeRentPackage)
+		{
+			this.Build();
+			UoWGeneric = FreeRentAgreement.Create(contract);
+			UoWGeneric.Root.DeliveryPoint = point;
+			if(IssueDate.HasValue)
+				UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate.Value;
+			ConfigureDlg();
+			FreeRentPackage = freeRentPackage;
+			freerentpackagesview1.FreeRentPackage = FreeRentPackage;
+			freerentpackagesview1.AddEquipment(FreeRentPackage);
 		}
 
 		public FreeRentAgreementDlg (FreeRentAgreement sub) : this (sub.Id)

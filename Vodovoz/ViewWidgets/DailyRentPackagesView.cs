@@ -49,6 +49,8 @@ namespace Vodovoz
 			} 
 		}
 
+		public PaidRentPackage PaidRentPackage { get; set; }
+
 		private IUnitOfWorkGeneric<DailyRentAgreement> agreementUoW;
 
 		public IUnitOfWorkGeneric<DailyRentAgreement> AgreementUoW {
@@ -94,8 +96,21 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			NomenclatureEquipTypeFilter nomenclatureFilter = new NomenclatureEquipTypeFilter(AgreementUoW);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new EquipmentsNonSerialForRentVM(nomenclatureFilter));
+			if(PaidRentPackage == null) {
+				OrmReference refWin = new OrmReference(typeof(PaidRentPackage));
+				refWin.Mode = OrmReferenceMode.Select;
+				refWin.ObjectSelected += (innerSender, ee) => {
+					AddEquipmentManually((ee.Subject as PaidRentPackage));
+				};
+				MyTab.TabParent.AddSlaveTab(MyTab, refWin);
+			} else {
+				AddEquipmentManually(PaidRentPackage);
+			}
+		}
+
+		void AddEquipmentManually(PaidRentPackage paidRentPackage)
+		{
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new EquipmentsNonSerialForRentVM(AgreementUoW, paidRentPackage.EquipmentType));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование для аренды";
 			SelectDialog.ObjectSelected += EquipmentSelected;
@@ -151,13 +166,17 @@ namespace Vodovoz
 			var equipmentType = AgreementUoW.GetById<EquipmentType>(args.ObjectId);
 
 			var rentPackage = Repository.RentPackageRepository.GetPaidRentPackage(AgreementUoW, equipmentType);
-			if (rentPackage == null)
-			{
+			if(rentPackage == null) {
 				MessageDialogWorks.RunErrorDialog("Для выбранного типа оборудования нет условий платной аренды.");
 				return;
 			}
 
-			var anyNomenclature = EquipmentRepository.GetFirstAnyNomenclatureForRent(AgreementUoW, equipmentType);
+			AddEquipmentByRentPackage(rentPackage);
+		}
+
+		private void AddEquipmentByRentPackage(PaidRentPackage paidRentPackage)
+		{
+			var anyNomenclature = EquipmentRepository.GetFirstAnyNomenclatureForRent(AgreementUoW, paidRentPackage.EquipmentType);
 			if(anyNomenclature == null) {
 				MessageDialogWorks.RunErrorDialog("Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
 				return;
@@ -165,7 +184,7 @@ namespace Vodovoz
 
 			var excludeNomenclatures = dailyRentEquipments.Select(e => e.Nomenclature.Id).ToArray();
 
-			var selectedNomenclature = EquipmentRepository.GetAvailableNonSerialEquipmentForRent(AgreementUoW, equipmentType, excludeNomenclatures);
+			var selectedNomenclature = EquipmentRepository.GetAvailableNonSerialEquipmentForRent(AgreementUoW, paidRentPackage.EquipmentType, excludeNomenclatures);
 			if(selectedNomenclature == null) {
 				if(!MessageDialogWorks.RunQuestionDialog("Не найдено свободного оборудования выбранного типа!\nДобавить принудительно?")) {
 					return;
@@ -174,14 +193,21 @@ namespace Vodovoz
 				}
 			}
 
-			PaidRentEquipment eq = new PaidRentEquipment ();
+			PaidRentEquipment eq = new PaidRentEquipment();
 			eq.Nomenclature = selectedNomenclature;
-			eq.Deposit = rentPackage.Deposit;
-			eq.PaidRentPackage = rentPackage;
+			eq.Deposit = paidRentPackage.Deposit;
+			eq.PaidRentPackage = paidRentPackage;
 			eq.Count = 1;
-			eq.Price = rentPackage.PriceDaily;
-			dailyRentEquipments.Add (eq);
-			UpdateTotalLabels ();
+			eq.Price = paidRentPackage.PriceDaily;
+			dailyRentEquipments.Add(eq);
+			UpdateTotalLabels();
+		}
+
+		public void AddEquipment(PaidRentPackage paidRentPackage)
+		{
+			if(MessageDialogWorks.RunQuestionDialog("Подобрать оборудование автоматически по типу?")) {
+				AddEquipmentByRentPackage(paidRentPackage);
+			}
 		}
 
 	}

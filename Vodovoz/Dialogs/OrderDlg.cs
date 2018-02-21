@@ -785,7 +785,7 @@ namespace Vodovoz
 
 		private void AddRentAgreement(OrderAgreementType type)
 		{
-			ITdiDialog dlg;
+			ITdiDialog dlg = null;
 
 			if(UoWGeneric.Root.Client == null || UoWGeneric.Root.DeliveryPoint == null) {
 				MessageDialogWorks.RunWarningDialog("Для добавления оборудования должна быть выбрана точка доставки.");
@@ -807,17 +807,40 @@ namespace Vodovoz
 				RunContractCreateDialog();
 				return;
 			}
+			OrmReference refWin;
 			switch(type) {
 				case OrderAgreementType.NonfreeRent:
-					dlg = new NonFreeRentAgreementDlg(contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
+					refWin = new OrmReference(typeof(PaidRentPackage));
+					refWin.Mode = OrmReferenceMode.Select;
+					refWin.ObjectSelected += (sender, e) => {
+						dlg = new NonFreeRentAgreementDlg(contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate, (e.Subject as PaidRentPackage));
+						RunAgreementDialog(dlg);
+					};
+					TabParent.AddTab(refWin, this);
 					break;
 				case OrderAgreementType.DailyRent:
-					dlg = new DailyRentAgreementDlg(contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
+					refWin = new OrmReference(typeof(PaidRentPackage));
+					refWin.Mode = OrmReferenceMode.Select;
+					refWin.ObjectSelected += (sender, e) => {
+						dlg = new DailyRentAgreementDlg(contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate, (e.Subject as PaidRentPackage));
+						RunAgreementDialog(dlg);
+					};
+					TabParent.AddTab(refWin, this);
 					break;
-				default:
-					dlg = new FreeRentAgreementDlg(contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
+				case OrderAgreementType.FreeRent:
+					refWin = new OrmReference(typeof(FreeRentPackage));
+					refWin.Mode = OrmReferenceMode.Select;
+					refWin.ObjectSelected += (sender, e) => {
+						dlg = new FreeRentAgreementDlg(contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate, (e.Subject as FreeRentPackage));
+						RunAgreementDialog(dlg);
+					};
+					TabParent.AddTab(refWin, this);
 					break;
 			}
+		}
+
+		void RunAgreementDialog(ITdiDialog dlg)
+		{
 			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 			TabParent.AddSlaveTab(this, dlg);
 		}

@@ -4,6 +4,7 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.DocTemplates;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -25,6 +26,8 @@ namespace Vodovoz
 			} 
 		}
 
+		private PaidRentPackage PaidRentPackage { get; set; }
+
 		public DailyRentAgreementDlg (CounterpartyContract contract)
 		{
 			this.Build ();
@@ -40,6 +43,19 @@ namespace Vodovoz
 			if(IssueDate.HasValue)
 				UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate.Value;
 			ConfigureDlg();
+		}
+
+		public DailyRentAgreementDlg(CounterpartyContract contract, DeliveryPoint point, DateTime? IssueDate, PaidRentPackage paidRentPackage)// : this (contract)
+		{
+			this.Build();
+			UoWGeneric = DailyRentAgreement.Create(contract);
+			UoWGeneric.Root.DeliveryPoint = point;
+			if(IssueDate.HasValue)
+				UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate.Value;
+			ConfigureDlg();
+			PaidRentPackage = paidRentPackage;
+			dailyrentpackagesview1.PaidRentPackage = PaidRentPackage;
+			dailyrentpackagesview1.AddEquipment(PaidRentPackage);
 		}
 
 		public DailyRentAgreementDlg (DailyRentAgreement sub) : this (sub.Id)

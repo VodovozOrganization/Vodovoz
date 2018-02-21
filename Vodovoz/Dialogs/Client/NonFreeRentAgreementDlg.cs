@@ -25,6 +25,8 @@ namespace Vodovoz
 			} 
 		}
 
+		private PaidRentPackage PaidRentPackage { get; set; }
+
 		public NonFreeRentAgreementDlg (CounterpartyContract contract)
 		{
 			this.Build ();
@@ -40,6 +42,22 @@ namespace Vodovoz
 			if(IssueDate.HasValue)
 				UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate.Value;
 			ConfigureDlg();
+		}
+
+		/// <summary>
+		/// Создание диалога долгосрочной аренды, с заранее выбранной услугой платной аренды.
+		/// </summary>
+		public NonFreeRentAgreementDlg(CounterpartyContract contract, DeliveryPoint point, DateTime? IssueDate, PaidRentPackage paidRentPackage)// : this (contract)
+		{
+			this.Build();
+			UoWGeneric = NonfreeRentAgreement.Create(contract);
+			UoWGeneric.Root.DeliveryPoint = point;
+			if(IssueDate.HasValue)
+				UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate.Value;
+			ConfigureDlg();
+			PaidRentPackage = paidRentPackage;
+			paidrentpackagesview1.PaidRentPackage = PaidRentPackage;
+			paidrentpackagesview1.AddEquipment(PaidRentPackage);
 		}
 
 		public NonFreeRentAgreementDlg (NonfreeRentAgreement sub) : this (sub.Id)

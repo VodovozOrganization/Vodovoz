@@ -31,14 +31,18 @@ namespace Vodovoz.Representations
 			}
 		}
 
+		public EquipmentType EquipmentType { get; set; }
+
 		#region implemented abstract members of RepresentationModelBase
 
 		public override void UpdateNodes()
 		{
 			IList<NomenclatureForRentVMNode> items;
-			if(Filter.NomenEquipmentType != null) {
+			if(Filter != null) {
 				items = EquipmentRepository.GetAllNonSerialEquipmentForRent(UoW, Filter.NomenEquipmentType);
-			}else {
+			} else if(EquipmentType != null) {
+				items = EquipmentRepository.GetAllNonSerialEquipmentForRent(UoW, EquipmentType);
+			} else {
 				items = EquipmentRepository.GetAllNonSerialEquipmentForRent(UoW);
 			}
 
@@ -74,6 +78,12 @@ namespace Vodovoz.Representations
 		public EquipmentsNonSerialForRentVM(NomenclatureEquipTypeFilter filter) : this(filter.UoW)
 		{
 			Filter = filter;
+		}
+
+		public EquipmentsNonSerialForRentVM(IUnitOfWork uow, EquipmentType equipType) : this(uow)
+		{
+			Filter = null;
+			EquipmentType = equipType;
 		}
 
 		public EquipmentsNonSerialForRentVM(IUnitOfWork uow)
