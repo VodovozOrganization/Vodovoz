@@ -1,7 +1,6 @@
-﻿using System;
-using QSOrmProject;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
+using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Service;
 
@@ -57,15 +56,10 @@ namespace Vodovoz.Domain.Orders
 
 		Nomenclature nomenclature;
 
-		[Display (Name = "Номенклатура незарегистрированного оборудования")]
+		[Display (Name = "Номенклатура оборудования")]
 		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
-			set { if (Equipment != null && value != null)
-					throw new InvalidOperationException (String.Format ("Если указано конкретное оборудование в {0}, {1} не надо заполнять, так как это поле только для незарегистрированного оборудования.",
-						this.GetPropertyName (e => e.Equipment),
-						this.GetPropertyName (e => e.Nomenclature)
-					));
-				SetField (ref nomenclature, value, () => Nomenclature); }
+			get { return Equipment?.Nomenclature ?? nomenclature; }
+			set { SetField (ref nomenclature, value, () => Nomenclature); }
 		}
 
 		Reason reason = Reason.Unknown;
@@ -143,9 +137,11 @@ namespace Vodovoz.Domain.Orders
 		//TODO Номер заявки на обслуживание
 
 		int count;
+
 		/// <summary>
 		/// Количество оборудования, которое изначально должен был привезти/забрать водитель
 		/// </summary>
+		[Display(Name = "Количество")]
 		public virtual int Count {
 			get { return count; }
 			set { SetField(ref count, value, () => Count); }
