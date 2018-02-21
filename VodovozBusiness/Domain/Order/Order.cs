@@ -1644,6 +1644,18 @@ namespace Vodovoz.Domain.Orders
 			CreateWarrantyDocuments();
 		}
 
+		public virtual void CreateOrderAgreementDocument(AdditionalAgreement agreement)
+		{
+			if(ObservableOrderDocuments.OfType<OrderAgreement>().Any(x => x.AdditionalAgreement == agreement)) {
+				return;
+			}
+			ObservableOrderDocuments.Add(new OrderAgreement {
+				Order = this,
+				AttachedToOrder = this,
+				AdditionalAgreement = agreement
+			});
+		}
+
 		/// <summary>
 		/// Создает необходимые гарантийные талоны
 		/// </summary>

@@ -848,17 +848,11 @@ namespace Vodovoz
 		void AgreementSaved(object sender, AgreementSavedEventArgs e)
 		{
 			var agreement = UoWGeneric.Session.Merge(e.Agreement);
-			var orderAgreement = UoWGeneric.Root.ObservableOrderDocuments.OfType<OrderAgreement>()
-			          .FirstOrDefault(x => x.AdditionalAgreement == agreement);
-			if(orderAgreement == null) {
-				UoWGeneric.Root.ObservableOrderDocuments.Add(new OrderAgreement {
-					Order = UoWGeneric.Root,
-					AttachedToOrder = UoWGeneric.Root,
-					AdditionalAgreement = agreement
-				});
-			}
+			UoWGeneric.Root.CreateOrderAgreementDocument(agreement);
 			UoWGeneric.Root.FillItemsFromAgreement(agreement);
-			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType).AdditionalAgreements.Add(agreement);
+			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType)
+			                              .AdditionalAgreements
+			                              .Add(agreement);
 		}
 
 		void UpdateVisibleOfWingets()
@@ -1019,7 +1013,7 @@ namespace Vodovoz
 			if(agreement == null) {
 				agreement = CreateDefaultWaterAgreement(contract);
 				contract.AdditionalAgreements.Add(agreement);
-				AddAgreementDocument(agreement);
+				UoWGeneric.Root.CreateOrderAgreementDocument(agreement);
 				AddNomenclature(nomenclature);
 			}
 		}
@@ -1069,22 +1063,8 @@ namespace Vodovoz
 			});
 		}
 
-		protected void AddAgreementDocument(AdditionalAgreement agreement)
-		{
-			Order order = UoWGeneric.Root;
-			var orderDocuments = UoWGeneric.Root.ObservableOrderDocuments;
-			orderDocuments.Add(new OrderAgreement {
-				Order = order,
-				AttachedToOrder = order,
-				AdditionalAgreement = agreement
-			});
-		}
-
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-
-
-
 			if(UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder) {
 				var valid = new QSValidator<Order>(UoWGeneric.Root,
 								new Dictionary<object, object> {
@@ -1335,12 +1315,8 @@ namespace Vodovoz
 							  " формы оплаты. Создать?";
 			if(MessageDialogWorks.RunQuestionDialog(question)) {
 				dlg = new RepairAgreementDlg(contract);
-				(dlg as IAgreementSaved).AgreementSaved += (sender, e) => UoWGeneric.Root.ObservableOrderDocuments.Add(
-					new OrderAgreement {
-						Order = UoWGeneric.Root,
-						AttachedToOrder = UoWGeneric.Root,
-						AdditionalAgreement = e.Agreement
-					});
+				(dlg as IAgreementSaved).AgreementSaved += (sender, e) =>
+					UoWGeneric.Root.CreateOrderAgreementDocument(e.Agreement);
 				TabParent.AddSlaveTab(this, dlg);
 			}
 		}

@@ -341,12 +341,7 @@ namespace Vodovoz
 			if (MessageDialogWorks.RunQuestionDialog (question)) {
 				dlg = new RepairAgreementDlg (contract);
 				(dlg as IAgreementSaved).AgreementSaved += (sender, e) => {
-					if (UoWGeneric.Root.InitialOrder != null)
-						UoWGeneric.Root.InitialOrder.ObservableOrderDocuments.Add (new OrderAgreement { 
-							Order = UoWGeneric.Root.InitialOrder,
-							AttachedToOrder = UoWGeneric.Root.InitialOrder,
-							AdditionalAgreement = e.Agreement
-						});
+					UoWGeneric.Root.InitialOrder?.CreateOrderAgreementDocument(e.Agreement);
 				};
 				TabParent.AddSlaveTab (this, dlg);
 			}
