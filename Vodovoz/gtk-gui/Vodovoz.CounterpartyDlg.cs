@@ -400,7 +400,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 1;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -1080,6 +1080,7 @@ namespace Vodovoz
 			this.validatedINN.CanFocus = true;
 			this.validatedINN.Name = "validatedINN";
 			this.validatedINN.IsEditable = true;
+			this.validatedINN.MaxLength = 12;
 			this.validatedINN.InvisibleChar = '●';
 			this.datatable4.Add(this.validatedINN);
 			global::Gtk.Table.TableChild w79 = ((global::Gtk.Table.TableChild)(this.datatable4[this.validatedINN]));
@@ -1091,6 +1092,7 @@ namespace Vodovoz
 			this.validatedKPP.CanFocus = true;
 			this.validatedKPP.Name = "validatedKPP";
 			this.validatedKPP.IsEditable = true;
+			this.validatedKPP.MaxLength = 9;
 			this.validatedKPP.InvisibleChar = '●';
 			this.datatable4.Add(this.validatedKPP);
 			global::Gtk.Table.TableChild w80 = ((global::Gtk.Table.TableChild)(this.datatable4[this.validatedKPP]));
@@ -1334,6 +1336,8 @@ namespace Vodovoz
 			this.radioDocuments.Toggled += new global::System.EventHandler(this.OnRadioDocumentsToggled);
 			this.radioDeliveryPoint.Toggled += new global::System.EventHandler(this.OnRadioDeliveryPointToggled);
 			this.checkSupplier.Toggled += new global::System.EventHandler(this.OnCheckSupplierToggled);
+			this.referencePreviousCounterparty.ChangedByUser += new global::System.EventHandler(this.OnReferencePreviousCounterpartyChangedByUser);
+			this.referenceMainCounterparty.ChangedByUser += new global::System.EventHandler(this.OnReferenceMainCounterpartyChangedByUser);
 			this.enumPersonType.Changed += new global::System.EventHandler(this.OnEnumPersonTypeChanged);
 			this.enumPayment.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumPaymentEnumItemSelected);
 			this.yentrySignPost.FocusInEvent += new global::Gtk.FocusInEventHandler(this.OnYentrySignPostFocusInEvent);
