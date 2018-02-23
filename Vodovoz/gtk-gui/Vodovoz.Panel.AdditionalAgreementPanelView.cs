@@ -193,6 +193,10 @@ namespace Vodovoz.Panel
 			{
 				this.Child.ShowAll();
 			}
+			this.label4.Hide();
+			this.table1.Hide();
+			this.label1.Hide();
+			this.labelRent.Hide();
 			this.Hide();
 			this.ytreeviewFixedPrices.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewFixedPricesRowActivated);
 		}

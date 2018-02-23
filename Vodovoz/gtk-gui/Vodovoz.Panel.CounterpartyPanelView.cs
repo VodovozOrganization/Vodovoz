@@ -220,9 +220,18 @@ namespace Vodovoz.Panel
 			w17.PackType = ((global::Gtk.PackType)(1));
 			w17.Position = 6;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
+			this.label2.Hide();
+			this.ytreeCurrentOrders.Hide();
+			this.GtkScrolledWindow1.Hide();
+			this.label6.Hide();
+			this.labelLatestOrderDate.Hide();
+			this.label4.Hide();
+			this.labelDebt.Hide();
+			this.ylabelDebtInfo.Hide();
 			this.Hide();
 		}
 	}

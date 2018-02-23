@@ -31113,6 +31113,7 @@
             <child>
               <widget class="Gtk.Label" id="label2">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="LabelProp" translatable="yes">&lt;b&gt;Оформленные заказы:&lt;/b&gt;</property>
                 <property name="UseMarkup">True</property>
               </widget>
@@ -31126,12 +31127,14 @@
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="VscrollbarPolicy">Never</property>
                 <property name="HscrollbarPolicy">Never</property>
                 <property name="ShadowType">In</property>
                 <child>
                   <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeCurrentOrders">
                     <property name="MemberName" />
+                    <property name="Visible">False</property>
                     <property name="CanFocus">True</property>
                     <property name="ShowScrollbars">True</property>
                   </widget>
@@ -31156,6 +31159,7 @@
             <child>
               <widget class="Gtk.Label" id="label6">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="LabelProp" translatable="yes">Дата:</property>
               </widget>
               <packing>
@@ -31168,6 +31172,7 @@
             <child>
               <widget class="Gtk.Label" id="labelLatestOrderDate">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="LabelProp" translatable="yes">label2</property>
                 <property name="Selectable">True</property>
               </widget>
@@ -31193,6 +31198,7 @@
         <child>
           <widget class="Gtk.Label" id="label4">
             <property name="MemberName" />
+            <property name="Visible">False</property>
             <property name="LabelProp" translatable="yes">&lt;b&gt;Последний заказ:&lt;/b&gt;</property>
             <property name="UseMarkup">True</property>
             <property name="Wrap">True</property>
@@ -31235,6 +31241,7 @@
             <child>
               <widget class="Vodovoz.WrapLabel" id="labelDebt">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="Xalign">0</property>
                 <property name="Yalign">0</property>
                 <property name="LabelProp" translatable="yes">wraplabel3</property>
@@ -31281,6 +31288,7 @@
             <child>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelDebtInfo">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="LabelProp" translatable="yes">Баланс:</property>
               </widget>
               <packing>
@@ -31501,6 +31509,7 @@
             <child>
               <widget class="Gtk.Label" id="labelLastOrders">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="LabelProp" translatable="yes">&lt;b&gt;Последние заказы:&lt;/b&gt;</property>
                 <property name="UseMarkup">True</property>
               </widget>
@@ -31514,6 +31523,7 @@
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="VscrollbarPolicy">Never</property>
                 <property name="ShadowType">In</property>
                 <child>
@@ -31590,6 +31600,7 @@ not tooltip</property>
         <child>
           <widget class="Gtk.Label" id="label4">
             <property name="MemberName" />
+            <property name="Visible">False</property>
             <property name="LabelProp" translatable="yes">&lt;b&gt;&lt;u&gt;Допсоглашения&lt;/u&gt;&lt;/b&gt;</property>
             <property name="UseMarkup">True</property>
           </widget>
@@ -31606,6 +31617,7 @@ not tooltip</property>
         <child>
           <widget class="Gtk.Table" id="table1">
             <property name="MemberName" />
+            <property name="Visible">False</property>
             <property name="NRows">3</property>
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
@@ -31755,6 +31767,7 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="label1">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="LabelProp" translatable="yes">&lt;b&gt;Посуточная аренда:&lt;/b&gt;</property>
                 <property name="UseMarkup">True</property>
               </widget>
@@ -31768,6 +31781,7 @@ not tooltip</property>
             <child>
               <widget class="Vodovoz.WrapLabel" id="labelRent">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="LabelProp" translatable="yes">wraplabel1</property>
                 <property name="Wrap">True</property>
                 <property name="Selectable">True</property>

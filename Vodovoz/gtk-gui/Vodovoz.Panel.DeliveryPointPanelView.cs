@@ -198,6 +198,8 @@ namespace Vodovoz.Panel
 			{
 				this.Child.ShowAll();
 			}
+			this.labelLastOrders.Hide();
+			this.GtkScrolledWindow1.Hide();
 			this.Hide();
 		}
 	}

@@ -62,9 +62,9 @@ namespace Vodovoz
 			get
 			{
 				return new[]{
+					PanelViewType.AdditionalAgreementPanelView,
 					PanelViewType.CounterpartyView, 
-					PanelViewType.DeliveryPointView, 
-					PanelViewType.AdditionalAgreementPanelView 
+					PanelViewType.DeliveryPointView
 				};
 			}
 		}
