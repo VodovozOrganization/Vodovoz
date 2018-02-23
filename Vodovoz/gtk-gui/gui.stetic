@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -5569,6 +5569,7 @@
             <child>
               <widget class="Gtk.RadioButton" id="radioContactPersons">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Контактные лица</property>
                 <property name="DrawIndicator">False</property>
@@ -6510,11 +6511,30 @@
             <child>
               <widget class="Gtk.Table" id="datatable2">
                 <property name="MemberName" />
-                <property name="NRows">4</property>
+                <property name="NRows">5</property>
                 <property name="NColumns">2</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
                 <property name="BorderWidth">6</property>
+                <child>
+                  <widget class="Vodovoz.ContactsView" id="contactsview1">
+                    <property name="MemberName" />
+                    <property name="Events">ButtonPressMask</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">4</property>
+                    <property name="BottomAttach">5</property>
+                    <property name="RightAttach">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">True</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
                 <child>
                   <widget class="Gamma.Widgets.yEntryReferenceVM" id="dataentryFinancialContact">
                     <property name="MemberName" />
@@ -7133,13 +7153,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Vodovoz.ContactsView" id="contactsview1">
-                <property name="MemberName" />
-                <property name="Events">ButtonPressMask</property>
-              </widget>
-              <packing>
-                <property name="Position">5</property>
-              </packing>
+              <placeholder />
             </child>
             <child>
               <widget class="Gtk.Label" id="label24">
@@ -7196,7 +7210,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="label33">
+              <widget class="Gtk.Label" id="label35">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Документы</property>
               </widget>
@@ -7205,7 +7219,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.VBox" id="vbox10">
+              <widget class="Gtk.VBox" id="vbox11">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <property name="BorderWidth">6</property>
