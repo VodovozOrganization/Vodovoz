@@ -864,63 +864,82 @@
 from
 	route_lists
 right join
-	(select
-		route_list_addresses.route_list_id as rl_id,
-		counterparty.name as entry_name,
-		delivery_points.compiled_address as entry_address,
-		order_items.price as entry_price,
-		order_items.count as entry_count,
-		orders.payment_type as entry_payment_type,
-		order_items.price * order_items.count as entry_sum,
-		route_list_addresses.driver_wage as entry_wage,
-		order_items.price * order_items.count - route_list_addresses.driver_wage as entry_profit,
-		0 as entry_advance
-	from
-		route_list_addresses
-	left join
-		orders on orders.id = route_list_addresses.order_id
-	left join
-		counterparty on counterparty.id = orders.client_id
-	left join
-		delivery_points on delivery_points.id = orders.delivery_point_id
-	left join
-		order_items on order_items.order_id = orders.id
-	left join
-		nomenclature on nomenclature.id = order_items.nomenclature_id
-    left join
-		order_equipment on order_equipment.order_id = orders.id
-	where
-		nomenclature.category = 'master'
-        #Исключатся недовозы, частичные недовозы и отмены
-		AND (
-			(orders.order_status NOT IN ('NotDelivered', 'Canceled'))  
-			OR NOT (
-				# Частичные недовозы
-				route_list_addresses.status = 'Completed' 
-				AND    					
-				(
-					nomenclature.category in ('master')
-					AND nomenclature.serial = false					
-					AND order_items.count != order_items.actual_count
-				)
-				OR order_equipment.confirmed = false	
-			)
-		)
-	union select
-		cash_expense.route_list_id as rl_id,
-		cash_expense.description as entry_name,
-		'' as entry_address,
-		0 as entry_price,
-		0 as entry_count,
-		0 as entry_payment_type,
-		0 as entry_sum,
-		0 as entry_wage,
-		0 as entry_profit,
-		cash_expense.money as entry_advance
-	from
-		cash_expense
-	where
-		cash_expense.money &lt;&gt; 0) as entries on entries.rl_id = route_lists.id
+	(select * from 
+ (
+     select 
+        innerTab.rl_id,
+        innerTab.entry_name,
+        innerTab.entry_address,
+        innerTab.entry_price,
+        innerTab.entry_count,
+        innerTab.entry_payment_type,
+        innerTab.entry_sum,
+        innerTab.entry_wage,
+        innerTab.entry_profit,
+        innerTab.entry_advance
+       from
+        (select
+                delivery_points.id,
+                route_list_addresses.route_list_id as rl_id,
+                counterparty.name as entry_name,
+                delivery_points.compiled_address as entry_address,
+                order_items.price as entry_price,
+                  order_items.count as entry_count,
+                  orders.payment_type as entry_payment_type,
+                  sum(order_items.price * order_items.count) as entry_sum,
+                  route_list_addresses.driver_wage as entry_wage,
+                 sum(order_items.price * order_items.count - route_list_addresses.driver_wage) as entry_profit
+                 , 0 as entry_advance
+            from
+                route_list_addresses
+            left join
+                orders on orders.id = route_list_addresses.order_id
+            left join
+                counterparty on counterparty.id = orders.client_id
+            left join
+                delivery_points on delivery_points.id = orders.delivery_point_id
+            left join
+                order_items on order_items.order_id = orders.id
+            left join
+                nomenclature on nomenclature.id = order_items.nomenclature_id
+            left join
+                order_equipment on order_equipment.order_id = orders.id
+            where
+                nomenclature.category in ('master', 'service')
+                #Исключатся недовозы, частичные недовозы и отмены
+                AND (
+                    (orders.order_status NOT IN ('NotDelivered', 'Canceled'))  
+                    OR NOT (
+                        # Частичные недовозы
+                        route_list_addresses.status = 'Completed' 
+                        AND                     
+                        (
+                            nomenclature.category in ('master', 'service')
+                            AND nomenclature.serial = false                 
+                            AND order_items.count != order_items.actual_count
+                        )
+                        OR order_equipment.confirmed = false    
+                    )
+                )
+           group by delivery_points.id, route_list_addresses.route_list_id
+                ) innerTab
+     union all
+        select
+         cash_expense.route_list_id as rl_id,
+            cash_expense.description as entry_name,
+            '' as entry_address,
+            0 as entry_price,
+            0 as entry_count,
+            0 as entry_payment_type,
+            0 as entry_sum,
+            0 as entry_wage,
+            0 as entry_profit,
+            cash_expense.money as entry_advance
+        from
+            cash_expense
+        where
+            cash_expense.money  &lt;&gt; 0 
+    ) innerExpense ) as entries on entries.rl_id = route_lists.id
 left join
 	employees on employees.id = route_lists.driver_id
 where
@@ -994,9 +1013,23 @@ order by route_lists.date, route_lists.id</CommandText>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_honeybee;user=admey;password=41142;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-02-07</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1005,6 +1038,11 @@ order by route_lists.date, route_lists.id</CommandText>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-02-07</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1013,6 +1051,11 @@ order by route_lists.date, route_lists.id</CommandText>
     </ReportParameter>
     <ReportParameter Name="driver_id">
       <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>194</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1020,14 +1063,4 @@ order by route_lists.date, route_lists.id</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>
