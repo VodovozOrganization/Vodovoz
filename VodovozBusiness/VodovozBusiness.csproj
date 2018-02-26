@@ -412,6 +412,7 @@
     <Compile Include="HibernateMapping\Sale\ScheduleRestrictedDistrictMap.cs" />
     <Compile Include="HibernateMapping\Sale\ScheduleRestrictionMap.cs" />
     <Compile Include="Repositories\Sale\ScheduleRestrictionRepository.cs" />
+    <Compile Include="Tools\Permissions\WarehousePermissions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -429,6 +430,7 @@
     <Folder Include="Repositories\Sale\" />
     <Folder Include="Domain\Sale\" />
     <Folder Include="HibernateMapping\Sale\" />
+    <Folder Include="Tools\Permissions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
