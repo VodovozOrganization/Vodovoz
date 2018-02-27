@@ -122,7 +122,7 @@ namespace Vodovoz
 				string str = "";
 				foreach(var nomenclarure in DocumentUoW.Root.Items.Where(i => i.Nomenclature.Warehouse == null))
 					str = string.Join("\n", nomenclarure.Nomenclature.Name);
-				MessageDialogWorks.RunErrorDialog("В МЛ есть номенклатура не привязанная к складу.", str);
+				MessageDialogWorks.RunErrorWithSecondaryTextDialog("В МЛ есть номенклатура не привязанная к складу.", str);
 			}
 
 			DocumentUoW.Root.FillFromRouteList(DocumentUoW, true);
