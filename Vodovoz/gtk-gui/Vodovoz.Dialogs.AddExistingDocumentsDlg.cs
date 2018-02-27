@@ -6,15 +6,15 @@ namespace Vodovoz.Dialogs
 	{
 		private global::Gtk.VBox vboxMain;
 
-		private global::Gtk.HBox hbox3;
-
-		private global::Gtk.Button buttonAddSelectedDocuments;
-
 		private global::Vodovoz.ViewWidgets.CounterpartyDocumentsView counterpartydocumentsview1;
 
 		private global::Gtk.VBox vboxOrdersDocuments;
 
 		private global::Vodovoz.JournalViewers.OrderSelectedView orderselectedview1;
+
+		private global::Gtk.HBox hbox3;
+
+		private global::Gtk.Button buttonAddSelectedDocuments;
 
 		protected virtual void Build()
 		{
@@ -27,35 +27,12 @@ namespace Vodovoz.Dialogs
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonAddSelectedDocuments = new global::Gtk.Button();
-			this.buttonAddSelectedDocuments.CanFocus = true;
-			this.buttonAddSelectedDocuments.Name = "buttonAddSelectedDocuments";
-			this.buttonAddSelectedDocuments.UseUnderline = true;
-			this.buttonAddSelectedDocuments.Label = global::Mono.Unix.Catalog.GetString("Добавить выбранные документы");
-			global::Gtk.Image w1 = new global::Gtk.Image();
-			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.buttonAddSelectedDocuments.Image = w1;
-			this.hbox3.Add(this.buttonAddSelectedDocuments);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonAddSelectedDocuments]));
-			w2.Position = 0;
-			w2.Expand = false;
-			w2.Fill = false;
-			this.vboxMain.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox3]));
-			w3.Position = 0;
-			w3.Expand = false;
-			w3.Fill = false;
-			// Container child vboxMain.Gtk.Box+BoxChild
 			this.counterpartydocumentsview1 = new global::Vodovoz.ViewWidgets.CounterpartyDocumentsView();
 			this.counterpartydocumentsview1.Events = ((global::Gdk.EventMask)(256));
 			this.counterpartydocumentsview1.Name = "counterpartydocumentsview1";
 			this.vboxMain.Add(this.counterpartydocumentsview1);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.counterpartydocumentsview1]));
-			w4.Position = 1;
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.counterpartydocumentsview1]));
+			w1.Position = 0;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.vboxOrdersDocuments = new global::Gtk.VBox();
 			this.vboxOrdersDocuments.Name = "vboxOrdersDocuments";
@@ -65,11 +42,34 @@ namespace Vodovoz.Dialogs
 			this.orderselectedview1.Events = ((global::Gdk.EventMask)(256));
 			this.orderselectedview1.Name = "orderselectedview1";
 			this.vboxOrdersDocuments.Add(this.orderselectedview1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxOrdersDocuments[this.orderselectedview1]));
-			w5.Position = 0;
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vboxOrdersDocuments[this.orderselectedview1]));
+			w2.Position = 0;
 			this.vboxMain.Add(this.vboxOrdersDocuments);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.vboxOrdersDocuments]));
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.vboxOrdersDocuments]));
+			w3.Position = 1;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.hbox3 = new global::Gtk.HBox();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.buttonAddSelectedDocuments = new global::Gtk.Button();
+			this.buttonAddSelectedDocuments.CanFocus = true;
+			this.buttonAddSelectedDocuments.Name = "buttonAddSelectedDocuments";
+			this.buttonAddSelectedDocuments.UseUnderline = true;
+			this.buttonAddSelectedDocuments.Label = global::Mono.Unix.Catalog.GetString("Добавить выбранные документы");
+			global::Gtk.Image w4 = new global::Gtk.Image();
+			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAddSelectedDocuments.Image = w4;
+			this.hbox3.Add(this.buttonAddSelectedDocuments);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonAddSelectedDocuments]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			this.vboxMain.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox3]));
 			w6.Position = 2;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.Add(this.vboxMain);
 			if((this.Child != null)) {
 				this.Child.ShowAll();

@@ -321,15 +321,15 @@ namespace Vodovoz
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument>()
 				.AddColumn("Документ").SetDataProperty(node => node.Name)
 				.AddColumn("Дата документа").AddTextRenderer(node => node.DocumentDateText)
+				.AddColumn("Заказ №").AddTextRenderer(node => node.Order.Id != node.AttachedToOrder.Id ? node.Order.Id.ToString() : "")
 				.AddColumn("Без рекламы").AddToggleRenderer(x => x is InvoiceDocument ? (x as InvoiceDocument).WithoutAdvertising : false)
 				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<InvoiceDocument>(x => x.WithoutAdvertising))
 				.AddSetter((c, n) => c.Visible = n.Type == OrderDocumentType.Invoice)
-				.AddColumn("Заказ №").AddTextRenderer(node => node.Order.Id != node.AttachedToOrder.Id ? node.Order.Id.ToString() : "")
+				.AddColumn("")
 				.RowCells().AddSetter<CellRenderer>((c, n) => {
-					if(n.Order.Id != n.AttachedToOrder.Id) {
+					c.CellBackgroundGdk = colorWhite;
+					if(n.Order.Id != n.AttachedToOrder.Id && !(c is CellRendererToggle)) {
 						c.CellBackgroundGdk = colorLightYellow;
-					}else {
-						c.CellBackgroundGdk = colorWhite;
 					}
 				})
 				.Finish();
