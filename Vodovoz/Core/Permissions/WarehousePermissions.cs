@@ -5,6 +5,8 @@ namespace Vodovoz.Core.Permissions
 {
 	public enum WarehousePermissions
 	{
+		[Display(Name = "Просмотр склада")]
+		WarehouseView,
 		[Display(Name = "Изменение талона погрузки")]
 		CarLoadEdit,
 		[Display(Name = "Изменение талона разгрузки")]

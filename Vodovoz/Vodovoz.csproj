@@ -708,6 +708,7 @@
     <Compile Include="Core\Permissions\WarehousePermissions.cs" />
     <Compile Include="Core\CurrentUserSettings.cs" />
     <Compile Include="Core\CurrentPermissions.cs" />
+    <Compile Include="Additions\Store\StoreDocumentHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -859,6 +860,7 @@
     <Folder Include="ReportsParameters\Sales\" />
     <Folder Include="ReportsParameters\Store\" />
     <Folder Include="Core\" />
+    <Folder Include="Additions\Store\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

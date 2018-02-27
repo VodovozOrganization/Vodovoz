@@ -2,48 +2,38 @@
 using System.Linq;
 using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Additions.Store;
+using Vodovoz.Core;
+using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
 	public partial class CarLoadDocumentDlg : OrmGtkDialogBase<CarLoadDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		bool isEditingStore = false;
 		bool editing = false;
 		public CarLoadDocumentDlg()
 		{
 			this.Build();
 
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarLoadDocument> ();
-			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
-			if(Entity.Author == null)
-			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
-				FailInitialize = true;
-				return;
-			}
-			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
-			{
-				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-			}else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
-				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+			ConfigureNewDoc();
 			ConfigureDlg();
 		}
 
-		public CarLoadDocumentDlg (int routeListId, int? warehouseId) : this()
+		public CarLoadDocumentDlg (int routeListId, int? warehouseId)
 		{
+			this.Build();
+			ConfigureNewDoc();
+
 			if (warehouseId.HasValue)
 			{
 				Entity.Warehouse = UoW.GetById<Warehouse>(warehouseId.Value);
-				editing |= UoW.GetById<Warehouse>(warehouseId.Value) == WarehouseRepository.WarehouseByPermission(UoWGeneric);	
+
 			}
 			Entity.RouteList = UoW.GetById<RouteList>(routeListId);
-			UpdateRouteListInfo();
-			carloaddocumentview1.FillItemsByWarehouse();
 			ConfigureDlg();
 		}
 
@@ -58,16 +48,38 @@ namespace Vodovoz
 		{
 		}
 
+		void ConfigureNewDoc()
+		{
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarLoadDocument>();
+			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(Entity.Author == null) {
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				FailInitialize = true;
+				return;
+			}
+
+			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.CarLoadEdit);
+		}
 
 		void ConfigureDlg ()
 		{
-			if(QSMain.User.Permissions["store_manage"] || QSMain.User.Permissions["store_worker"])
-				editing = isEditingStore = true;
+			if(UoW.IsNew && StoreDocumentHelper.CheckCreateDocument(Entity.Warehouse, WarehousePermissions.CarLoadEdit)) {
+				FailInitialize = true;
+				return;
+			}
+
+			if(StoreDocumentHelper.CheckViewWarehouse(Entity.Warehouse, WarehousePermissions.CarLoadEdit))
+			{
+				FailInitialize = true;
+				return;
+			}
+
+			editing = StoreDocumentHelper.CanEditDocument(Entity.Warehouse, WarehousePermissions.CarLoadEdit);
+			yentryrefRouteList.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
 			
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
-			yentryrefWarehouse.Sensitive = isEditingStore;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new RouteListsFilter(UoW);
 			filter.RestrictStatus = RouteListStatus.InLoading;
@@ -79,7 +91,9 @@ namespace Vodovoz
 			Entity.UpdateAlreadyLoaded(UoW);
 			Entity.UpdateInRouteListAmount(UoW);
 			carloaddocumentview1.DocumentUoW = UoWGeneric;
-			carloaddocumentview1.SetButtonEditing(editing) ;
+			carloaddocumentview1.SetButtonEditing(editing);
+			if(UoW.IsNew && Entity.Warehouse != null)
+				carloaddocumentview1.FillItemsByWarehouse();
 		}
 
 		public override bool Save ()
