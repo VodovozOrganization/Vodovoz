@@ -336,7 +336,7 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Колонка МЛ к клиенту")]
 		public virtual string EquipmentsToClient {
-			get{
+			get {
 				string result = "";
 				List<OrderEquipment> equipments = OrderEquipments.Where(x => x.Direction == Direction.Deliver).ToList();
 				foreach(var equip in equipments) {
@@ -605,13 +605,13 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("Не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
 
-					if (PaymentType == PaymentType.cashless && !SignatureType.HasValue)
-						yield return new ValidationResult ("Не указано как будут подписаны документы.",
-							new[] { this.GetPropertyName (o => o.SignatureType) });
+					if(PaymentType == PaymentType.cashless && !SignatureType.HasValue)
+						yield return new ValidationResult("Не указано как будут подписаны документы.",
+							new[] { this.GetPropertyName(o => o.SignatureType) });
 
-					if (Contract == null)
-						yield return new ValidationResult ("Не указан договор.",
-							new[] { this.GetPropertyName (o => o.Contract) });
+					if(Contract == null)
+						yield return new ValidationResult("Не указан договор.",
+							new[] { this.GetPropertyName(o => o.Contract) });
 
 					if(bottlesReturn == null)
 						yield return new ValidationResult("Не указано бутылей на возврат.",
@@ -623,33 +623,28 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("Должно быть указано количество во всех позициях товара и оборудования");
 
 					// Проверка соответствия цен в заказе ценам в номенклатуре
-					var itemsWithRequestPrice = ObservableOrderItems.Where(x => x.Nomenclature.NomenclaturePrice.Count() > 0);
-					if(itemsWithRequestPrice.Count() > 0) {
-						string priceResult = "Неверно указаны цены на следующие товары:\n";
-						var incorrectPriceItems = itemsWithRequestPrice
-							.Where(x =>
-							       //цена в заказе
-							       x.Price 
-							       <
-							       //соответствующая количеству цена в номенклатуре
-							       x.Nomenclature.NomenclaturePrice 
-							       .Where(n => n.MinCount <= x.Count) 
-							       .OrderByDescending(o => o.MinCount) 
-							       .FirstOrDefault() 
-							       .Price);
-						foreach(var item in incorrectPriceItems) {
-							priceResult += String.Format("{0} - цена: {1}, должна быть: {2}\n", 
-							                             item.NomenclatureString,
-							                             item.Price,
-							                             item.Nomenclature.NomenclaturePrice 
-								                             .Where(n => n.MinCount <= item.Count)
-								                             .OrderByDescending(o => o.MinCount)
-								                             .FirstOrDefault()
-								                             .Price);
+					string priceResult = "Неверно указаны цены на следующие товары:\n";
+					List<string> incorrectPriceItems = new List<string>();
+					foreach(OrderItem item in ObservableOrderItems) {
+						decimal fixedPrice = GetFixedPrice(item);
+						decimal nomenclaturePrice = GetNomenclaturePrice(item);
+						if(fixedPrice > default(decimal)) {
+							incorrectPriceItems.Add(String.Format("{0} - цена: {1}, должна быть: {2}\n",
+																  item.NomenclatureString,
+																  item.Price,
+																  fixedPrice));
+						} else if(nomenclaturePrice > default(decimal)) {
+							incorrectPriceItems.Add(String.Format("{0} - цена: {1}, должна быть: {2}\n",
+																  item.NomenclatureString,
+																  item.Price,
+																  nomenclaturePrice));
 						}
-						if(incorrectPriceItems.Count() > 0) {
-							yield return new ValidationResult(priceResult);
+					}
+					if(incorrectPriceItems.Any()) {
+						foreach(string item in incorrectPriceItems) {
+							priceResult += item;
 						}
+						yield return new ValidationResult(priceResult);
 					}
 					// Конец проверки цен
 
@@ -725,8 +720,8 @@ namespace Vodovoz.Domain.Orders
 
 			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
 				yield return new ValidationResult("Если выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
-				                                  new[] { this.GetPropertyName(o => o.OnlineOrder) });
-	
+												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
+
 			if(observableOrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
 			   .Any(x => x.OwnType == OwnTypes.None))
 				yield return new ValidationResult("У оборудования обязательно должна быть выбрана принадлежность.");
@@ -817,8 +812,7 @@ namespace Vodovoz.Domain.Orders
 		/// Количество 19л бутылей в заказе
 		/// </summary>
 		[IgnoreHistoryTrace]
-		public virtual int TotalWaterBottles
-		{
+		public virtual int TotalWaterBottles {
 			get {
 				return orderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
 			}
@@ -850,8 +844,7 @@ namespace Vodovoz.Domain.Orders
 					Nomenclature = nomenclature,
 					Price = nomenclature.GetPrice(1)
 				});
-			} 
-			else {
+			} else {
 				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, nomenclature);
 				ObservableOrderItems.AddWithReturn(new OrderItem {
 					Order = this,
@@ -1103,7 +1096,7 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.Bill:
-					//case OrderDocumentType.BillWithoutSignature:
+						//case OrderDocumentType.BillWithoutSignature:
 						if(observableOrderDocuments
 						   .OfType<BillDocument>()
 						   .FirstOrDefault(x => x.Order == item.Order)
@@ -1298,9 +1291,9 @@ namespace Vodovoz.Domain.Orders
 
 			var waterItemsCount = ObservableOrderItems.Select(item => item)
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
-			    .Sum(item => item.Count);
+				.Sum(item => item.Count);
 
-			return waterItemsCount - BottlesReturn ?? 0 ;
+			return waterItemsCount - BottlesReturn ?? 0;
 		}
 
 		public virtual void FillItemsFromAgreement(AdditionalAgreement a)
@@ -1368,7 +1361,7 @@ namespace Vodovoz.Domain.Orders
 					);
 					if(orderEquip != null) {
 						orderEquip.Count = paidRentEquipment.Count;
-					}else {
+					} else {
 						ObservableOrderEquipments.Add(
 						new OrderEquipment {
 							Order = this,
@@ -1474,7 +1467,7 @@ namespace Vodovoz.Domain.Orders
 		/// Удаляет оборудование в заказе связанное с товаром в заказе
 		/// </summary>
 		/// <param name="orderItem">Товар в заказе по которому будет удалятся оборудование</param>
-		private	void DeleteOrderEquipmentOnOrderItem(OrderItem orderItem)
+		private void DeleteOrderEquipmentOnOrderItem(OrderItem orderItem)
 		{
 			var orderEquipments = ObservableOrderEquipments
 				.Where(x => x.OrderItem == orderItem)
@@ -1614,31 +1607,25 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateDocuments()
 		{
-			if(ObservableOrderItems.Count > 0)
-			{
-				if(OrderStatus >= OrderStatus.Accepted)
-				{
+			if(ObservableOrderItems.Count > 0) {
+				if(OrderStatus >= OrderStatus.Accepted) {
 					if(paymentType == PaymentType.cashless) {
 						if(this.DocumentType == DefaultDocumentType.upd) {
 							CheckAndCreateDocuments(OrderDocumentType.Bill, OrderDocumentType.UPD, OrderDocumentType.DriverTicket);
 						} else if(this.DocumentType == DefaultDocumentType.torg12) {
 							CheckAndCreateDocuments(OrderDocumentType.Bill, OrderDocumentType.Torg12, OrderDocumentType.ShetFactura, OrderDocumentType.DriverTicket);
 						}
-					}
-					else if(paymentType == PaymentType.cash || PaymentType == PaymentType.ByCard || PaymentType == PaymentType.Internal) {
+					} else if(paymentType == PaymentType.cash || PaymentType == PaymentType.ByCard || PaymentType == PaymentType.Internal) {
 						CheckAndCreateDocuments(OrderDocumentType.Invoice);
-					}
-					else if(paymentType == PaymentType.barter) {
+					} else if(paymentType == PaymentType.barter) {
 						CheckAndCreateDocuments(OrderDocumentType.InvoiceBarter);
 					}
-				}
-				else if(PaymentType == PaymentType.cashless)
+				} else if(PaymentType == PaymentType.cashless)
 					CheckAndCreateDocuments(OrderDocumentType.Bill);
-				
+
 				else
 					CheckAndCreateDocuments();
-			}
-			else
+			} else
 				CheckAndCreateDocuments();
 
 			CreateWarrantyDocuments();
@@ -1751,23 +1738,21 @@ namespace Vodovoz.Domain.Orders
 		{
 			var docsOfOrder = typeof(OrderDocumentType).GetFields()
 													   .Where(x => x.GetCustomAttributes(typeof(DocumentOfOrderAttribute), false).Any())
-			                                           .Select(x => (OrderDocumentType)x.GetValue(null))
-			                                           .ToArray();
-			
+													   .Select(x => (OrderDocumentType)x.GetValue(null))
+													   .ToArray();
+
 			if(needed.Any(x => !docsOfOrder.Contains(x)))
 				throw new ArgumentException($"В метод можно передавать только типы документов помеченные атрибутом {nameof(DocumentOfOrderAttribute)}", nameof(needed));
 
 			var needCreate = needed.ToList();
-			foreach(var doc in OrderDocuments.Where(d => d.Order?.Id == Id && docsOfOrder.Contains(d.Type)).ToList())
-			{
+			foreach(var doc in OrderDocuments.Where(d => d.Order?.Id == Id && docsOfOrder.Contains(d.Type)).ToList()) {
 				if(needed.Contains(doc.Type))
 					needCreate.Remove(doc.Type);
 				else
 					ObservableOrderDocuments.Remove(doc);
 			}
 			//Создаем отсутствующие
-			foreach(var type in needCreate)
-			{
+			foreach(var type in needCreate) {
 				ObservableOrderDocuments.Add(CreateDocumentOfOrder(type));
 			}
 		}
@@ -1775,8 +1760,7 @@ namespace Vodovoz.Domain.Orders
 		private OrderDocument CreateDocumentOfOrder(OrderDocumentType type)
 		{
 			OrderDocument newDoc;
-			switch(type)
-			{
+			switch(type) {
 				case OrderDocumentType.Bill:
 					newDoc = new BillDocument();
 					break;
@@ -1805,7 +1789,7 @@ namespace Vodovoz.Domain.Orders
 			return newDoc;
 		}
 
-#endregion
+		#endregion
 
 		/// <summary>
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со склада все отгружено
@@ -1844,7 +1828,7 @@ namespace Vodovoz.Domain.Orders
 			int amountDelivered = OrderItems
 					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 					.Sum(item => item.ActualCount);
-			
+
 			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
 				if(BottlesMovementOperation == null) {
 					var bottlesOperation = new BottlesMovementOperation {
@@ -1869,6 +1853,30 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region	Внутренние функции
+
+		decimal GetFixedPrice(OrderItem item)
+		{
+			if(item.AdditionalAgreement != null && item.AdditionalAgreement is WaterSalesAgreement) {
+				WaterSalesAgreement agreement = (item.AdditionalAgreement as WaterSalesAgreement);
+				if(agreement.FixedPrices.Any(x => x.Nomenclature == item.Nomenclature)) {
+					return agreement.FixedPrices.Where(x => x.Nomenclature == item.Nomenclature).Select(x => x.Price).FirstOrDefault();
+				}
+			}
+			return default(decimal);
+		}
+
+		decimal GetNomenclaturePrice(OrderItem item)
+		{
+			var nomenclaturePrice = item.Nomenclature.NomenclaturePrice
+										.Where(n => n.MinCount <= item.Count)
+										.OrderByDescending(o => o.MinCount)
+										.FirstOrDefault();
+			if(nomenclaturePrice != null) {
+				return nomenclaturePrice.Price;
+			}
+
+			return default(decimal);
+		}
 
 		void ObservableOrderDepositItems_ListContentChanged(object sender, EventArgs e)
 		{
