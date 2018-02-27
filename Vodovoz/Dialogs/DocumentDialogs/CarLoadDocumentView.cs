@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace Vodovoz
 {
+	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CarLoadDocumentView : WidgetOnDialogBase
 	{
 		public CarLoadDocumentView()
@@ -179,4 +180,3 @@ namespace Vodovoz
 
 	}
 }
-
