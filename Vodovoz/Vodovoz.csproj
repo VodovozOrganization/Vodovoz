@@ -499,7 +499,6 @@
     <Compile Include="Dialogs\Client\CounterpartyDlg.cs" />
     <Compile Include="Dialogs\Client\ContactDlg.cs" />
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
-    <Compile Include="Commons\CurrentUserSettings.cs" />
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
     <Compile Include="Representations\EquipmentTypesForRentVM.cs" />
     <Compile Include="Dialogs\Client\DailyRentAgreementDlg.cs" />
@@ -706,6 +705,9 @@
     <Compile Include="ServiceDialogs\Database\ReplaceEntityLinksDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.ReplaceEntityLinksDlg.cs" />
     <Compile Include="ReportsParameters\Store\StockMovements.cs" />
+    <Compile Include="Core\Permissions\WarehousePermissions.cs" />
+    <Compile Include="Core\CurrentUserSettings.cs" />
+    <Compile Include="Core\CurrentPermissions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -856,6 +858,7 @@
     <Folder Include="Dialogs\Sale\" />
     <Folder Include="ReportsParameters\Sales\" />
     <Folder Include="ReportsParameters\Store\" />
+    <Folder Include="Core\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

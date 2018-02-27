@@ -12,6 +12,7 @@ using QSOrmProject.DomainMapping;
 using QSOrmProject.Permissions;
 using QSProjectsLib;
 using QSSupportLib;
+using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain;
@@ -25,7 +26,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using Vodovoz.Tools.Permissions;
 
 namespace Vodovoz
 {
@@ -54,7 +54,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("change_driver_wage", new UserPermission("change_driver_wage", "Изменение типа расчета ЗП в МЛ", "Пользователь может устанавливать для МЛ другой расчет заработной платы."));
 
 			UserProperty.PermissionViewsCreator = delegate {
-				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix <WarehousePermissions, Warehouse>("Доступ к складам", "warehouse_access")) };
+				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix <WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
 			};
 		}
 
