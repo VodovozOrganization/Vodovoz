@@ -2,17 +2,17 @@
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Additions.Store;
+using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Repository.Store;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
 	public partial class IncomingWaterDlg : OrmGtkDialogBase<IncomingWater>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		bool isEditingStore = false;
 
 		public IncomingWaterDlg()
 		{
@@ -24,11 +24,10 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
-			{
-				Entity.IncomingWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-				Entity.WriteOffWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-			}
+
+			Entity.IncomingWarehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.IncomingWaterEdit);
+			Entity.WriteOffWarehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.IncomingWaterEdit);
+
 			ConfigureDlg();
 		}
 
@@ -45,8 +44,16 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
-			if (QSMain.User.Permissions["store_manage"] || QSMain.User.Permissions["store_worker"])
-				isEditingStore = true;
+			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.IncomingWaterEdit, Entity.IncomingWarehouse, Entity.WriteOffWarehouse)) {
+				FailInitialize = true;
+				return;
+			}
+
+			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.IncomingWaterEdit, Entity.IncomingWarehouse, Entity.WriteOffWarehouse);
+			buttonFill.Sensitive = referenceProduct.IsEditable = spinAmount.Sensitive
+				= referenceSrcWarehouse.IsEditable = referenceDstWarehouse.IsEditable = editing;
+			incomingwatermaterialview1.Sensitive = editing;
+
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 			spinAmount.Binding.AddBinding(Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource();
 
@@ -54,12 +61,8 @@ namespace Vodovoz
 			referenceProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
 			referenceSrcWarehouse.SubjectType = typeof(Warehouse);
 			referenceSrcWarehouse.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();
-			referenceSrcWarehouse.Sensitive = isEditingStore;
 			referenceDstWarehouse.SubjectType = typeof(Warehouse);
 			referenceDstWarehouse.Binding.AddBinding(Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource();
-
-			referenceSrcWarehouse.Sensitive = referenceDstWarehouse.Sensitive = isEditingStore;
-
 
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
 		}

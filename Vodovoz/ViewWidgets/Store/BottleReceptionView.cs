@@ -24,6 +24,12 @@ namespace Vodovoz
 			}
 		}
 
+		public bool Sensitive {
+			set {
+				ytreeBottles.Sensitive = value;
+			}
+		}
+
 		BottleReceptionVM viewModel;
 
 		public BottleReceptionView ()

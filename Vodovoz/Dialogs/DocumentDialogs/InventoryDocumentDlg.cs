@@ -1,36 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Additions.Store;
+using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
 	public partial class InventoryDocumentDlg : OrmGtkDialogBase<InventoryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		bool isEditingPermission = false;
 
 		public InventoryDocumentDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<InventoryDocument> ();
 			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
-
 			if(Entity.Author == null)
 			{
 				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
-			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
-				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
-				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.InventoryEdit);
 
 			ConfigureDlg ();
 		}
@@ -48,14 +43,18 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			if (QSMain.User.Permissions["store_manage"])
-				isEditingPermission = true;
-			
-			buttonSave.Sensitive = isEditingPermission;
+			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.InventoryEdit, Entity.Warehouse)) {
+				FailInitialize = true;
+				return;
+			}
+
+			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.InventoryEdit, Entity.Warehouse);
+			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
+			inventoryitemsview.Sensitive = editing;
+
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
-			yentryrefWarehouse.Sensitive = isEditingPermission;
 
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 

@@ -22,8 +22,8 @@ namespace Vodovoz
 		GenericObservableList<ReceptionEquipmentItemNode> ReceptionEquipmentList = new GenericObservableList<ReceptionEquipmentItemNode>();
 
 		public IList<ReceptionEquipmentItemNode> Items
-		{
-			get{
+        {
+			get {
 				return ReceptionEquipmentList;
 			}
 		}
@@ -37,13 +37,13 @@ namespace Vodovoz
 		{
 			this.Build();
 
-			ytreeEquipment.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<ReceptionEquipmentItemNode> ()
-				.AddColumn ("Номенклатура").AddTextRenderer (node => node.Name)
-				.AddColumn ("Серийный номер").AddTextRenderer (node => node.Serial)
+			ytreeEquipment.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<ReceptionEquipmentItemNode>()
+				.AddColumn("Номенклатура").AddTextRenderer(node => node.Name)
+				.AddColumn("Серийный номер").AddTextRenderer(node => node.Serial)
 				.AddColumn("Забирали").AddNumericRenderer(node => node.NeedReceptionCount)
-				.AddColumn ("Получено ")
-				.AddToggleRenderer (node => node.Returned, false)
-				.AddNumericRenderer (node => node.Amount, false)
+				.AddColumn("Получено ")
+				.AddToggleRenderer(node => node.Returned, false)
+				.AddNumericRenderer(node => node.Amount, false)
 				.Editing(new Adjustment(0, 0, 10000, 1, 10, 10))
 				.AddColumn("Номер заявки на сервис")
 				.AddTextRenderer(
@@ -51,7 +51,7 @@ namespace Vodovoz
 					? node.ServiceClaim.Id.ToString()
 					: "")
 				.AddColumn("")
-				.Finish ();
+				.Finish();
 
 			ytreeEquipment.Selection.Changed += YtreeEquipment_Selection_Changed;
 			ytreeEquipment.ItemsDataSource = ReceptionEquipmentList;
@@ -73,71 +73,74 @@ namespace Vodovoz
 
 		RouteList routeList;
 		public RouteList RouteList
-		{
-			get
-			{
+        {
+			get {
 				return routeList;
 			}
-			set
-			{
+			set {
 				if (routeList == value)
 					return;
 				routeList = value;
 				if (routeList != null)
-				{
+                {
 					FillListEquipmentFromRoute();
-				}	
-				else
-				{
+				} else {
 					serviceClaims = new List<ServiceClaim>();
 					ReceptionEquipmentList.Clear();
 				}
-					
+
 			}
 		}
 
-		void FillListEquipmentFromRoute(){
+		public new bool Sensitive {
+			set {
+				ytreeEquipment.Sensitive = buttonAddEquipment.Sensitive = buttonSelectSerial.Sensitive = value;
+			}
+		}
+
+		void FillListEquipmentFromRoute()
+		{
 			ReceptionEquipmentList.Clear();
 			ReceptionEquipmentItemNode resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			Equipment equipmentAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature equipNomenclatureAlias = null, newEqupNomenclatureAlias = null;
-			var equipmentItems = MyOrmDialog.UoW.Session.QueryOver<RouteListItem> ().Where (r => r.RouteList.Id == RouteList.Id)
-				.JoinAlias (rli => rli.Order, () => orderAlias)
-				.JoinAlias (() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
-				.Where(()=>orderEquipmentAlias.Direction==Domain.Orders.Direction.PickUp)
-				.JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(()=>equipmentAlias.Nomenclature,()=> equipNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(()=> orderEquipmentAlias.Nomenclature, ()=> newEqupNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.SelectList (list => list
-					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)
-					.Select (Projections.Conditional(
-						Restrictions.Where(() => equipNomenclatureAlias.Id == null),
-						Projections.Property(() => newEqupNomenclatureAlias.Id),
-						Projections.Property(() => equipNomenclatureAlias.Id))).WithAlias (() => resultAlias.NomenclatureId)
-					.Select (Projections.Conditional(
-						Restrictions.Where(() => equipNomenclatureAlias.Name == null),
-						Projections.Property(() => newEqupNomenclatureAlias.Name),
-						Projections.Property(() => equipNomenclatureAlias.Name))).WithAlias (() => resultAlias.Name)
-					.Select (Projections.Conditional(
-						Restrictions.Where(() => equipNomenclatureAlias.Name == null),
-						Projections.Constant(true),
-						Projections.Constant(false)
-					)).WithAlias (() => resultAlias.IsNew)
-					.Select(() => orderEquipmentAlias.ServiceClaim).WithAlias(() => resultAlias.ServiceClaim)
-			        .Select(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.NeedReceptionCount)
+			var equipmentItems = MyOrmDialog.UoW.Session.QueryOver<RouteListItem>().Where(r => r.RouteList.Id == RouteList.Id)
+				.JoinAlias(rli => rli.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+				.Where(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.PickUp)
+				.JoinAlias(() => orderEquipmentAlias.Equipment, () => equipmentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(() => equipmentAlias.Nomenclature, () => equipNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => newEqupNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.SelectList(list => list
+				   .Select(() => equipmentAlias.Id).WithAlias(() => resultAlias.EquipmentId)
+				   .Select(Projections.Conditional(
+					   Restrictions.Where(() => equipNomenclatureAlias.Id == null),
+					   Projections.Property(() => newEqupNomenclatureAlias.Id),
+					   Projections.Property(() => equipNomenclatureAlias.Id))).WithAlias(() => resultAlias.NomenclatureId)
+				   .Select(Projections.Conditional(
+					   Restrictions.Where(() => equipNomenclatureAlias.Name == null),
+					   Projections.Property(() => newEqupNomenclatureAlias.Name),
+					   Projections.Property(() => equipNomenclatureAlias.Name))).WithAlias(() => resultAlias.Name)
+				   .Select(Projections.Conditional(
+					   Restrictions.Where(() => equipNomenclatureAlias.Name == null),
+					   Projections.Constant(true),
+					   Projections.Constant(false)
+				   )).WithAlias(() => resultAlias.IsNew)
+				   .Select(() => orderEquipmentAlias.ServiceClaim).WithAlias(() => resultAlias.ServiceClaim)
+				   .Select(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.NeedReceptionCount)
 				)
-				.TransformUsing (Transformers.AliasToBean<ReceptionEquipmentItemNode> ())
-				.List<ReceptionEquipmentItemNode> ();
+				.TransformUsing(Transformers.AliasToBean<ReceptionEquipmentItemNode>())
+				.List<ReceptionEquipmentItemNode>();
 
 			foreach (var equipment in equipmentItems)
-				ReceptionEquipmentList.Add (equipment);		
+				ReceptionEquipmentList.Add(equipment);
 		}
 
-		void YtreeEquipment_Selection_Changed (object sender, EventArgs e)
+		void YtreeEquipment_Selection_Changed(object sender, EventArgs e)
 		{
-			buttonSelectSerial.Sensitive 
+			buttonSelectSerial.Sensitive
 			= ytreeEquipment.Selection.CountSelectedRows() > 0;
 
 			var item = ytreeEquipment.GetSelectedObject<ReceptionEquipmentItemNode>();
@@ -148,7 +151,7 @@ namespace Vodovoz
 				menuitemRegisterSerial.Sensitive = item.IsNew;
 		}
 
-		void MenuitemSelectFromUnused_Activated (object sender, EventArgs e)
+		void MenuitemSelectFromUnused_Activated(object sender, EventArgs e)
 		{
 			equipmentToSetSerial = ytreeEquipment.GetSelectedObject<ReceptionEquipmentItemNode>();
 			var nomenclature = MyOrmDialog.UoW.GetById<Nomenclature>(equipmentToSetSerial.NomenclatureId);
@@ -158,20 +161,20 @@ namespace Vodovoz
 			MyTab.TabParent.AddSlaveTab(MyTab, selectUnusedEquipment);
 		}
 
-		void MenuitemSelectFromClient_Activated (object sender, EventArgs e)
+		void MenuitemSelectFromClient_Activated(object sender, EventArgs e)
 		{
 			equipmentToSetSerial = ytreeEquipment.GetSelectedObject<ReceptionEquipmentItemNode>();
 			var filter = new ClientBalanceFilter(UnitOfWorkFactory.CreateWithoutRoot());
 			filter.RestrictCounterparty = equipmentToSetSerial.ServiceClaim.Counterparty;
 			filter.RestrictNomenclature = filter.UoW.GetById<Nomenclature>(equipmentToSetSerial.NomenclatureId);
 			var selectFromClientDlg = new ReferenceRepresentation(new Vodovoz.ViewModel.ClientEquipmentBalanceVM(filter));
-			selectFromClientDlg.TabName = String.Format("Оборудование у {0}", 
+			selectFromClientDlg.TabName = String.Format("Оборудование у {0}",
 				StringWorks.EllipsizeEnd(equipmentToSetSerial.ServiceClaim.Counterparty.Name, 50));
 			selectFromClientDlg.ObjectSelected += SelectFromClientDlg_ObjectSelected;
 			MyTab.TabParent.AddSlaveTab(MyTab, selectFromClientDlg);
 		}
 
-		void SelectUnusedEquipment_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		void SelectUnusedEquipment_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			var equipment = MyOrmDialog.UoW.GetById<Equipment>((e.Subject as Equipment).Id);
 			equipmentToSetSerial.NewEquipment = equipment;
@@ -180,7 +183,7 @@ namespace Vodovoz
 			//OnEquipmentListChanged();
 		}
 
-		void SelectFromClientDlg_ObjectSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
+		void SelectFromClientDlg_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
 			var equipment = MyOrmDialog.UoW.GetById<Equipment>(e.ObjectId);
 			equipmentToSetSerial.NewEquipment = equipment;
@@ -189,25 +192,26 @@ namespace Vodovoz
 			//OnEquipmentListChanged();
 		}
 
-		void MenuitemRegisterSerial_Activated (object sender, EventArgs e)
+		void MenuitemRegisterSerial_Activated(object sender, EventArgs e)
 		{
 			RegisterSerial();
 		}
 
 		private void RegisterSerial()
 		{
-			var itemNode = ytreeEquipment.GetSelectedObject () as ReceptionEquipmentItemNode;
-			if (itemNode.IsNew && itemNode.EquipmentId==0) {
-				var dlg = EquipmentGenerator.CreateOne (itemNode.NomenclatureId);
+			var itemNode = ytreeEquipment.GetSelectedObject() as ReceptionEquipmentItemNode;
+			if (itemNode.IsNew && itemNode.EquipmentId == 0) {
+				var dlg = EquipmentGenerator.CreateOne(itemNode.NomenclatureId);
 				dlg.EquipmentCreated += OnEquipmentRegistered;
-				if (!MyTab.TabParent.CheckClosingSlaveTabs (MyTab)) {					
+				if (!MyTab.TabParent.CheckClosingSlaveTabs(MyTab)) {
 					equipmentToSetSerial = itemNode;
-					MyTab.TabParent.AddSlaveTab (MyTab, dlg);
+					MyTab.TabParent.AddSlaveTab(MyTab, dlg);
 				}
 			}
 		}
 
-		protected void OnEquipmentRegistered(object o, EquipmentCreatedEventArgs args){
+		protected void OnEquipmentRegistered(object o, EquipmentCreatedEventArgs args)
+		{
 			var equipment = MyOrmDialog.UoW.GetById<Equipment>(args.Equipment[0].Id);
 			equipmentToSetSerial.NewEquipment = equipment;
 			equipmentToSetSerial.EquipmentId = equipment.Id;
@@ -217,53 +221,53 @@ namespace Vodovoz
 
 	}
 
-	public class ReceptionEquipmentItemNode : PropertyChangedBase{
+	public class ReceptionEquipmentItemNode : PropertyChangedBase
+	{
 
-		public NomenclatureCategory NomenclatureCategory{ get; set; }
-		public int NomenclatureId{ get; set; }
-		public string Name{get;set;}
+		public NomenclatureCategory NomenclatureCategory { get; set; }
+		public int NomenclatureId { get; set; }
+		public string Name { get; set; }
 
 		public int NeedReceptionCount { get; set; }
 
 		int amount;
 
 		public virtual int Amount {
-			get{ return amount;}
-			set{
-				SetField(ref amount, value, ()=>Amount);
+			get { return amount; }
+			set {
+				SetField(ref amount, value, () => Amount);
 			}
 		}
 
 		int equipmentId;
-		[PropertyChangedAlso ("Serial")]
+		[PropertyChangedAlso("Serial")]
 		public int EquipmentId
-		{
-			get
-			{
+        {
+			get {
 				return equipmentId;
 			}
-			set
-			{
-				SetField (ref equipmentId, value, () => EquipmentId);
+			set {
+				SetField(ref equipmentId, value, () => EquipmentId);
 			}
 		}
 
-		public string Serial{ get { 			
-				return EquipmentId > 0 ? EquipmentId.ToString () : "(не определен)";
+		public string Serial {
+			get {
+				return EquipmentId > 0 ? EquipmentId.ToString() : "(не определен)";
 			}
 		}
 
 		ServiceClaim serviceClaim;
 
 		public virtual ServiceClaim ServiceClaim {
-			get{ return serviceClaim;}
-			set{
-				SetField(ref serviceClaim, value, ()=>ServiceClaim);
+			get { return serviceClaim; }
+			set {
+				SetField(ref serviceClaim, value, () => ServiceClaim);
 			}
 		}
 
-		public bool IsNew{ get; set; }
-		public Equipment NewEquipment{get;set;}
+		public bool IsNew { get; set; }
+		public Equipment NewEquipment { get; set; }
 		public bool Returned {
 			get {
 				return Amount > 0;

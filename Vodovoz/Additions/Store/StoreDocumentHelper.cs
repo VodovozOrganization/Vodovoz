@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Core;
@@ -27,49 +28,62 @@ namespace Vodovoz.Additions.Store
 		/// Проверка прав на просмотр документа
 		/// </summary>
 		/// <returns>Если <c>true</c> нет прав на просмотр.</returns>
-		public static bool CheckViewWarehouse(Warehouse warehouse, WarehousePermissions edit)
+		public static bool CheckViewWarehouse(WarehousePermissions edit, params Warehouse[] warehouses)
 		{
 			//Внимание!!! Склад пустой обычно у новых документов. Возможность создания должна проверятся другими условиями. Тут пропускаем.
-			if(warehouse == null)
+			if(warehouses.Where(x => x != null).Any(x => CurrentPermissions.Warehouse[WarehousePermissions.WarehouseView, x] || CurrentPermissions.Warehouse[edit, x]))
 				return false;
 
-			if(!CurrentPermissions.Warehouse[WarehousePermissions.WarehouseView, warehouse] && !CurrentPermissions.Warehouse[edit, warehouse])
-			{
-				MessageDialogWorks.RunErrorDialog("У вас нет прав на просмотр документов склада '{0}'.", warehouse.Name);
-				return true;
-			}
-			return false;
+			MessageDialogWorks.RunErrorDialog("У вас нет прав на просмотр документов склада '{0}'.", String.Join(";", warehouses.Distinct().Select(x => x.Name)));
+			return true;
 		}
 
 		/// <summary>
 		/// Проверка прав на создание документа
 		/// </summary>
-		/// <returns>Если <c>true</c> нет прав на просмотр.</returns>
-		public static bool CheckCreateDocument(Warehouse warehouse, WarehousePermissions edit)
+		/// <returns>Если <c>true</c> нет прав на создание.</returns>
+		public static bool CheckCreateDocument(WarehousePermissions edit, params Warehouse[] warehouses)
 		{
-			if(warehouse != null)
+			warehouses = warehouses.Where(x => x != null).ToArray();
+			if(warehouses.Any())
 			{
-				if(!CurrentPermissions.Warehouse[edit, warehouse]) {
-					MessageDialogWorks.RunErrorDialog("У вас нет прав на создание этого документа для склада '{0}'.", warehouse.Name);
-					return true;
-				}
+				if(warehouses.Any(x => CurrentPermissions.Warehouse[edit, x])) 
+					return false;
+				
+				MessageDialogWorks.RunErrorDialog("У вас нет прав на создание этого документа для склада '{0}'.", String.Join(";", warehouses.Distinct().Select(x => x.Name)));
 			}
 			else
 			{
-				if(!CurrentPermissions.Warehouse.Allowed(edit).Any()) {
-					MessageDialogWorks.RunErrorDialog("У вас нет прав на создание этого документа.");
-					return true;
-				}
+				if(CurrentPermissions.Warehouse.Allowed(edit).Any())
+					return false;
+				
+				MessageDialogWorks.RunErrorDialog("У вас нет прав на создание этого документа.");
 			}
+			return true;
+		}
+
+		/// <summary>
+		/// Проверка всех прав диалога. 
+		/// </summary>
+		/// <returns>Если <c>true</c> нет прав на просмотр.</returns>
+		public static bool CheckAllPermissions(bool isNew, WarehousePermissions edit, params Warehouse[] warehouses)
+		{
+			if(isNew && CheckCreateDocument(edit, warehouses)) 
+				return true;
+
+			if(CheckViewWarehouse(edit, warehouses))
+				return true;
+
 			return false;
 		}
 
-		public static bool CanEditDocument(Warehouse warehouse, WarehousePermissions edit)
+		public static bool CanEditDocument(WarehousePermissions edit, params Warehouse[] warehouses)
 		{
-			if(warehouse == null)
-				return CurrentPermissions.Warehouse.Allowed(edit).Any();
+			warehouses = warehouses.Where(x => x != null).ToArray();
+			if(warehouses.Any())
+				return warehouses.Any(x => CurrentPermissions.Warehouse[edit, x]);
 			else
-				return CurrentPermissions.Warehouse[edit, warehouse];
+				return CurrentPermissions.Warehouse.Allowed(edit).Any();
 		}
 	}
 }

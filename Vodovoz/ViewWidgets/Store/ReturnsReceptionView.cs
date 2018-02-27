@@ -100,6 +100,12 @@ namespace Vodovoz
 			}
 		}
 
+		public bool Sensitive{
+			set{
+				ytreeReturns.Sensitive = buttonAddNomenclature.Sensitive = value;
+			}
+		}
+
 		public IList<Equipment> AlreadyUnloadedEquipment;
 
 		void FillListReturnsFromRoute(){

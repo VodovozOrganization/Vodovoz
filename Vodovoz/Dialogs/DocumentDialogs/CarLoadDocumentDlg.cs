@@ -63,18 +63,12 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			if(UoW.IsNew && StoreDocumentHelper.CheckCreateDocument(Entity.Warehouse, WarehousePermissions.CarLoadEdit)) {
+			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.CarLoadEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
 
-			if(StoreDocumentHelper.CheckViewWarehouse(Entity.Warehouse, WarehousePermissions.CarLoadEdit))
-			{
-				FailInitialize = true;
-				return;
-			}
-
-			editing = StoreDocumentHelper.CanEditDocument(Entity.Warehouse, WarehousePermissions.CarLoadEdit);
+			editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarLoadEdit, Entity.Warehouse);
 			yentryrefRouteList.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
 			
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
