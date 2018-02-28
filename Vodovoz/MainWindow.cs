@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Gtk;
 using NLog;
 using QSBanks;
@@ -9,6 +10,7 @@ using QSProjectsLib;
 using QSSupportLib;
 using QSTDI;
 using Vodovoz;
+using Vodovoz.Core;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -78,24 +80,7 @@ public partial class MainWindow : Gtk.Window
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
 			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions["logistican"];
-		ActionStock.Sensitive = QSMain.User.Permissions["store_manage"]
-			|| QSMain.User.Permissions["store_worker"]
-			|| QSMain.User.Permissions["store_production"]
-			|| QSMain.User.Permissions["store_office"]
-			|| QSMain.User.Permissions["store_equipment"]
-			|| QSMain.User.Permissions["store_vartemyagi"];
-		if(QSMain.User.Permissions["store_production"] || QSMain.User.Permissions["store_vartemyagi"]) // TODO: Вот поэтому группы доступа стоило бы создавать и настраивать в каком-нибудь диалоге, а не хардкодить. @Дима
-		{
-			ActionReadyForShipment.Sensitive =
-				ActionReadyForReception.Sensitive =
-				ActionOrders.Sensitive =
-				ActionServices.Sensitive =
-				ActionLogistics.Sensitive =
-				ActionReports.Sensitive =
-				ActionArchive.Sensitive =
-				ActionClientBalance.Sensitive =
-				ActionStaff.Sensitive = false;
-		}
+		ActionStock.Sensitive = CurrentPermissions.Warehouse.Allowed().Any();
 
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
