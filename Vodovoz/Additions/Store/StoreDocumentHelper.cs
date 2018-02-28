@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using NHibernate.Criterion;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Core;
@@ -31,7 +32,11 @@ namespace Vodovoz.Additions.Store
 		public static bool CheckViewWarehouse(WarehousePermissions edit, params Warehouse[] warehouses)
 		{
 			//Внимание!!! Склад пустой обычно у новых документов. Возможность создания должна проверятся другими условиями. Тут пропускаем.
-			if(warehouses.Where(x => x != null).Any(x => CurrentPermissions.Warehouse[WarehousePermissions.WarehouseView, x] || CurrentPermissions.Warehouse[edit, x]))
+			warehouses = warehouses.Where(x => x != null).ToArray();
+			if(warehouses.Length == 0)
+				return false;
+
+			if(warehouses.Any(x => CurrentPermissions.Warehouse[WarehousePermissions.WarehouseView, x] || CurrentPermissions.Warehouse[edit, x]))
 				return false;
 
 			MessageDialogWorks.RunErrorDialog("У вас нет прав на просмотр документов склада '{0}'.", String.Join(";", warehouses.Distinct().Select(x => x.Name)));
@@ -84,6 +89,13 @@ namespace Vodovoz.Additions.Store
 				return warehouses.Any(x => CurrentPermissions.Warehouse[edit, x]);
 			else
 				return CurrentPermissions.Warehouse.Allowed(edit).Any();
+		}
+
+		public static QueryOver<Warehouse> GetRestrictedWarehouseQuery(WarehousePermissions permission)
+		{
+			return QueryOver.Of<Warehouse>()
+				            .Where(w => w.Id.IsIn(CurrentPermissions.Warehouse.Allowed(permission)
+				                                  .Select(x => x.Id).ToArray()));
 		}
 	}
 }

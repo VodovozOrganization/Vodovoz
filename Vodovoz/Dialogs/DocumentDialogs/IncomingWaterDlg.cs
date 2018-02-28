@@ -59,9 +59,9 @@ namespace Vodovoz
 
 			referenceProduct.SubjectType = typeof(Nomenclature);
 			referenceProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
-			referenceSrcWarehouse.SubjectType = typeof(Warehouse);
+			referenceSrcWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.IncomingWaterEdit);
 			referenceSrcWarehouse.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();
-			referenceDstWarehouse.SubjectType = typeof(Warehouse);
+			referenceDstWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.IncomingWaterEdit);
 			referenceDstWarehouse.Binding.AddBinding(Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource();
 
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;

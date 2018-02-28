@@ -68,7 +68,7 @@ namespace Vodovoz
 			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceCounterparty.Binding.AddBinding(Entity, e => e.Client, w => w.Subject).InitializeFromSource();
 
-			referenceWarehouse.SubjectType = typeof(Warehouse);
+			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.WriteoffEdit);
 			referenceWarehouse.Binding.AddBinding (Entity, e => e.WriteoffWarehouse, w => w.Subject).InitializeFromSource ();
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPoint.CanEditReference = false;
