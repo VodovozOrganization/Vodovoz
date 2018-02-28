@@ -23,6 +23,13 @@ namespace Vodovoz.Repository
 				            .Where(n => !n.IsArchive);
 		}
 
+		public static QueryOver<Nomenclature> NomenclatureByCategory(NomenclatureCategory category)
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category == category)
+							.Where(n => !n.IsArchive);
+		}
+
 		/// <summary>
 		/// Запрос номенклатур которые можно использовать на складе
 		/// </summary>

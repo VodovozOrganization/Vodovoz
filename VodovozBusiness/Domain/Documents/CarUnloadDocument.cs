@@ -99,17 +99,6 @@ namespace Vodovoz.Domain.Documents
 			
 			foreach(var item in Items)
 			{
-				if(item.MovementOperation.Nomenclature.Category == NomenclatureCategory.equipment)
-				{
-					if(item.MovementOperation.Equipment == null)
-					yield return new ValidationResult (String.Format("Для оборудования {0}, не указан серийный номер.", item.MovementOperation.Nomenclature.Name),
-						new[] { this.GetPropertyName (o => o.Items)});
-
-					if(item.ReciveType == ReciveTypes.Equipment && item.ServiceClaim == null)
-						yield return new ValidationResult (String.Format("Для оборудования {0}, не указана заявка на обслуживание.", item.MovementOperation.Nomenclature.Name),
-							new[] { this.GetPropertyName (o => o.Items)});
-				}
-
 				if (item.MovementOperation.Nomenclature.Category == NomenclatureCategory.bottle)
 				{
 					if (item.MovementOperation.Amount < 0)

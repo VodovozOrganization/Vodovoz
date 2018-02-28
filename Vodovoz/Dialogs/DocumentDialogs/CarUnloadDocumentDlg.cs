@@ -9,6 +9,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repository.Store;
+using Vodovoz.ViewWidgets.Store;
 
 namespace Vodovoz
 {
@@ -147,14 +148,14 @@ namespace Vodovoz
 			{
 				UpdateAlreadyUnloaded();
 			}
-			equipmentreceptionview1.RouteList = Entity.RouteList;
+			nonserialequipmentreceptionview1.RouteList = Entity.RouteList;
 			returnsreceptionview1.RouteList = Entity.RouteList;
 		}
 
 		private void UpdateWidgetsVisible()
 		{
 			bottlereceptionview1.Visible = Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;
-			equipmentreceptionview1.Visible = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
+			nonserialequipmentreceptionview1.Visible = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
 		}
 
 		void LoadReception()
@@ -177,27 +178,20 @@ namespace Vodovoz
 					continue;
 				}
 
-				if(item.MovementOperation.Equipment != null) {
-					var equipmentBySerial = equipmentreceptionview1.Items.FirstOrDefault(x => x.EquipmentId == item.MovementOperation.Equipment.Id);
-					if(equipmentBySerial != null) {
-						equipmentBySerial.Amount = (int)item.MovementOperation.Amount;
+				if(item.ReciveType == ReciveTypes.Equipment) {
+					var equipmentByNomenclature = nonserialequipmentreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+					if(equipmentByNomenclature != null) {
+						equipmentByNomenclature.Amount = (int)item.MovementOperation.Amount;
+						continue;
+					} else {
+						nonserialequipmentreceptionview1.Items.Add(new ReceptionNonSerialEquipmentItemNode {
+							NomenclatureCategory = NomenclatureCategory.equipment,
+							NomenclatureId = item.MovementOperation.Nomenclature.Id,
+							Amount = (int)item.MovementOperation.Amount,
+							Name = item.MovementOperation.Nomenclature.Name
+						});
 						continue;
 					}
-
-					equipmentreceptionview1.Items.Add(new ReceptionEquipmentItemNode {
-						Amount = (int)item.MovementOperation.Amount,
-						EquipmentId = item.MovementOperation.Equipment.Id,
-						Returned = true,
-						ServiceClaim = item.ServiceClaim,
-						Name = item.MovementOperation.Nomenclature.Name
-					});
-					continue;
-				}
-
-				var equipmentByNomenclature = equipmentreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
-				if(equipmentByNomenclature != null) {
-					equipmentByNomenclature.Amount = (int)item.MovementOperation.Amount;
-					continue;
 				}
 
 				logger.Warn ("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.MovementOperation.Nomenclature);
@@ -242,82 +236,47 @@ namespace Vodovoz
 				var	item = new InternalItem {
 					ReciveType = ReciveTypes.Returnes,
 						NomenclatureId = node.NomenclatureId,
-						EquipmentId = node.EquipmentId,
 						Amount = node.Amount
 					};
 					tempItemList.Add(item);
 			}
 
-			foreach (var node in equipmentreceptionview1.Items) 
+			foreach (var node in nonserialequipmentreceptionview1.Items) 
 			{
 				if (node.Amount == 0)
 					continue;
 
 				var	item = new InternalItem {
-					ReciveType = ReciveTypes.Equipment,
+						ReciveType = ReciveTypes.Equipment,
 						NomenclatureId = node.NomenclatureId,
-						EquipmentId = node.EquipmentId,
-						Amount = node.Amount,
-						ServiceClaim = node.ServiceClaim
+						Amount = node.Amount
 					};
 					tempItemList.Add(item);
-
-				if (node.ServiceClaim == null)
-					continue;
-
-				node.ServiceClaim.UoW = UoW;
-				if (node.IsNew)
-				{
-					node.NewEquipment.AssignedToClient = node.ServiceClaim.Counterparty;
-					UoW.Save(node.NewEquipment);
-					node.ServiceClaim.FillNewEquipment(node.NewEquipment);
-				}
-				//FIXME предположительно нужно возвращать статус заявки если поступление удаляется.
-				if(node.ServiceClaim.Status == ServiceClaimStatus.PickUp)
-				{
-					node.ServiceClaim.AddHistoryRecord(ServiceClaimStatus.DeliveredToWarehouse,
-						String.Format("Поступил на склад '{0}', по талону разгрузки №{1} для МЛ №{2}", 
-							Entity.Warehouse.Name,
-							Entity.Id,
-							Entity.RouteList.Id
-						)
-					);
-				}
-				UoW.Save(node.ServiceClaim);
 			}
 
 			//Обновляем Entity
 			var nomenclatures = UoW.GetById<Nomenclature>(tempItemList.Select(x => x.NomenclatureId).ToArray());
-			var equipments = UoW.GetById<Equipment>(tempItemList.Select(x => x.EquipmentId).ToArray());
 			foreach (var tempItem in tempItemList) {
-				var item = tempItem.EquipmentId > 0
-					? Entity.Items.FirstOrDefault(x => x.MovementOperation.Equipment?.Id == tempItem.EquipmentId)
-					: Entity.Items.FirstOrDefault(x => x.MovementOperation.Nomenclature.Id == tempItem.NomenclatureId);
+				var item = Entity.Items.FirstOrDefault(x => x.MovementOperation.Nomenclature.Id == tempItem.NomenclatureId);
 				if (item == null) {
-					var nom = nomenclatures.First(x => x.Id == tempItem.NomenclatureId);
-					var equ = equipments.FirstOrDefault(x => x.Id == tempItem.EquipmentId);
+					var nomenclature = nomenclatures.First(x => x.Id == tempItem.NomenclatureId);
 					Entity.AddItem(
 						tempItem.ReciveType,
-						nom,
-						equ,
+						nomenclature,
+						null,
 						tempItem.Amount,
-						tempItem.ServiceClaim
+						null
 					);
 				}
 				else
 				{
-					if(item.MovementOperation.Amount != tempItem.Amount)
-						item.MovementOperation.Amount = tempItem.Amount;
-					if (item.ServiceClaim != tempItem.ServiceClaim)
-						item.ServiceClaim = tempItem.ServiceClaim;
+					item.MovementOperation.Amount = tempItem.Amount;
 				}
 			}
 
-			foreach(var item in Entity.Items.ToList())
+			foreach(var item in Entity.Items)
 			{
-				var exist = item.MovementOperation.Equipment != null
-					? tempItemList.Any(x => x.EquipmentId == item.MovementOperation.Equipment.Id)
-					: tempItemList.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+				var exist = tempItemList.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature?.Id);
 				
 				if(!exist)
 				{
@@ -365,9 +324,7 @@ namespace Vodovoz
 		class InternalItem{
 			
 			public ReciveTypes ReciveType;
-			public ServiceClaim ServiceClaim;
 			public int NomenclatureId;
-			public int EquipmentId;
 
 			public decimal Amount;
 		}
