@@ -5,18 +5,18 @@ using NHibernate.Criterion;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Additions.Store;
+using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
 	public partial class WriteoffDocumentDlg : OrmGtkDialogBase<WriteoffDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		bool isEditingPermission = true;
 
 		public WriteoffDocumentDlg ()
 		{
@@ -29,13 +29,8 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
-			{
-				Entity.WriteoffWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-				isEditingPermission = false;
-			}
-			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
-				Entity.WriteoffWarehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+
+			Entity.WriteoffWarehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.WriteoffEdit);
 			
 			ConfigureDlg ();
 		}
@@ -44,7 +39,6 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<WriteoffDocument> (id);
-			isEditingPermission = false;
 			ConfigureDlg ();
 		}
 
@@ -54,6 +48,16 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
+			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.WriteoffEdit, Entity.WriteoffWarehouse)) {
+				FailInitialize = true;
+				return;
+			}
+
+			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.WriteoffEdit, Entity.WriteoffWarehouse);
+			comboType.Sensitive = referenceEmployee.IsEditable = referenceWarehouse.IsEditable = referenceCounterparty.IsEditable
+				= referenceDeliveryPoint.IsEditable = textComment.Editable = editing;
+			writeoffdocumentitemsview1.Sensitive = editing;
+
 			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
 			labelTimeStamp.Binding.AddBinding (Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource ();
 
@@ -64,14 +68,13 @@ namespace Vodovoz
 			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceCounterparty.Binding.AddBinding(Entity, e => e.Client, w => w.Subject).InitializeFromSource();
 
-			referenceWarehouse.SubjectType = typeof(Warehouse);
+			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.WriteoffEdit);
 			referenceWarehouse.Binding.AddBinding (Entity, e => e.WriteoffWarehouse, w => w.Subject).InitializeFromSource ();
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPoint.CanEditReference = false;
 			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
 			referenceEmployee.SubjectType = typeof(Employee);
 			referenceEmployee.Binding.AddBinding (Entity, e => e.ResponsibleEmployee, w => w.Subject).InitializeFromSource ();
-			comboType.Sensitive = true;
 			comboType.ItemsEnum = typeof(WriteoffType);
 			referenceWarehouse.Sensitive = (UoWGeneric.Root.WriteoffWarehouse != null);
 			referenceDeliveryPoint.Sensitive = referenceCounterparty.Sensitive = (UoWGeneric.Root.Client != null);
@@ -82,15 +85,6 @@ namespace Vodovoz
 			comboType.Active = UoWGeneric.Root.Client != null ?
 				(int)WriteoffType.counterparty :
 				(int)WriteoffType.warehouse;
-
-			referenceWarehouse.Sensitive = isEditingPermission;
-
-			if(QSMain.User.Permissions["store_manage"])
-				isEditingPermission = true;
-			else
-				isEditingPermission = false;
-			buttonSave.Sensitive = isEditingPermission;
-		 
 
 			writeoffdocumentitemsview1.DocumentUoW = UoWGeneric;
 		}

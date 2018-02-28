@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Additions.Store;
+using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Service;
-using Vodovoz.Repository.Store;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
 	public partial class CarUnloadDocumentDlg : OrmGtkDialogBase<CarUnloadDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		bool isEditingStore = false;
 
 		IList<Equipment> alreadyUnloadedEquipment;
 
@@ -29,28 +29,20 @@ namespace Vodovoz
 		public CarUnloadDocumentDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarUnloadDocument> ();
-			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
-			if(Entity.Author == null)
-			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
-				FailInitialize = true;
-				return;
-			}
-			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
-				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
-				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+			ConfigureNewDoc();
 			ConfigureDlg();
 		}
  
 
-		public CarUnloadDocumentDlg (int routeListId, int? warehouseId) : this()
+		public CarUnloadDocumentDlg (int routeListId, int? warehouseId)
 		{
+			this.Build();
+			ConfigureNewDoc();
+
 			if(warehouseId.HasValue)
 				Entity.Warehouse = UoW.GetById<Warehouse>(warehouseId.Value);
 			Entity.RouteList = UoW.GetById<RouteList>(routeListId);
-			UpdateRouteListInfo();
+			ConfigureDlg();
 		}
 
 		public CarUnloadDocumentDlg (int id)
@@ -67,24 +59,40 @@ namespace Vodovoz
 
 		#region Методы
 
+		void ConfigureNewDoc()
+		{
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarUnloadDocument>();
+			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(Entity.Author == null) {
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				FailInitialize = true;
+				return;
+			}
+			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.CarUnloadEdit);
+		}
+
 		void ConfigureDlg ()
 		{
-			if (QSMain.User.Permissions["store_manage"] || QSMain.User.Permissions["store_worker"])
-			 	isEditingStore = true;
+			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.CarUnloadEdit, Entity.Warehouse)) {
+				FailInitialize = true;
+				return;
+			}
+
+			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarUnloadEdit, Entity.Warehouse);
+			yentryrefRouteList.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
+			returnsreceptionview1.Sensitive = bottlereceptionview1.Sensitive = equipmentreceptionview1.Sensitive = editing;
 			
 			bottlereceptionview1.UoW = UoW;
 			returnsreceptionview1.UoW = UoW;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			yentryrefWarehouse.SubjectType = typeof(Warehouse);
+			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.CarUnloadEdit);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
-			yentryrefWarehouse.Sensitive = isEditingStore;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new RouteListsFilter(UoW);
 			filter.RestrictStatus = RouteListStatus.EnRoute;
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
-
 
 			returnsreceptionview1.Warehouse = Entity.Warehouse;
 

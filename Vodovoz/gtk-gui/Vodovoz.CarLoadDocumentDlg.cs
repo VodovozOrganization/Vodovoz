@@ -118,6 +118,7 @@ namespace Vodovoz
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.ytextviewCommnet = new global::Gamma.GtkWidgets.yTextView();
+			this.ytextviewCommnet.WidthRequest = 250;
 			this.ytextviewCommnet.CanFocus = true;
 			this.ytextviewCommnet.Name = "ytextviewCommnet";
 			this.GtkScrolledWindow.Add(this.ytextviewCommnet);

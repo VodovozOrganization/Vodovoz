@@ -6,6 +6,7 @@ namespace Vodovoz.Domain.Employees
 {
 	public class User: QSOrmProject.Domain.User
 	{
+		public virtual string WarehouseAccess { get; set; }
 	}
 }
 

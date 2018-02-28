@@ -168,7 +168,7 @@ namespace Vodovoz.Dialogs.Sale
 
 			var result = OsrmMain.GetRoute(route, false, GeometryOverview.False);
 			if(result.Code != "Ok") {
-				MessageDialogWorks.RunErrorDialog("Сервер расчета расстояний вернул следующее сообщение:\n" + result.StatusMessageRus);
+				MessageDialogWorks.RunErrorWithSecondaryTextDialog("Сервер расчета расстояний вернул следующее сообщение:", result.StatusMessageRus);
 				return;
 			}
 
