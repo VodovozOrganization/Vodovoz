@@ -13,9 +13,9 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-		<Timeout>60</Timeout>
+        <Timeout>60</Timeout>
         <CommandText>select
 	docs.doc_id,
     docs.doc_date,
@@ -293,7 +293,7 @@ order by docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="doc_id">
           <DataField>doc_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -375,37 +375,32 @@ FROM counterparty WHERE id = @client_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Bottles">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    SUM(CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) - IFNULL((SELECT 
-                    SUM(order_items.actual_count)
-                FROM
-                    order_items
-                        LEFT JOIN
-                    orders ON orders.id = order_items.order_id
-                WHERE
-                    orders.client_id = @client_id
-                    AND(order_items.nomenclature_id = (SELECT 
-                               str_value
-                           FROM
-                               base_parameters
-                           WHERE
-                               base_parameters.name = 'forfeit_nomenclature_id')
-	      OR order_items.nomenclature_id = (SELECT 
-                 	     str_value
-                	   FROM
-                   	     base_parameters
-              	 	   WHERE
-                   	  base_parameters.name = 'forfeit1с_nomenclature_id'))
-	  GROUP BY client_id),
-            0) AS bottle_balance                    
-FROM
-    bottles_movement_operations
-WHERE
-    counterparty_id = @client_id
-        AND (@delivery_point_id = - 1
-        OR delivery_point_id = @delivery_point_id)</CommandText>
+        <CommandText>select
+    docs.doc_id
+    ,docs.delivery_point_id
+    ,sum(ifnull(bottles_movement_operations.delivered,0) - ifnull(bottles_movement_operations.returned,0) - ifnull(forfeits.forfeitCount,0)) bottle_balance
+  from  (select 
+	orders.id as doc_id,
+	orders.bottles_movement_operation_id,
+	orders.delivery_date as doc_date,
+	delivery_points.id as delivery_point_id,
+	orders.client_id as doc_client_id
+	from orders
+	left join delivery_points on delivery_points.id = orders.delivery_point_id
+	where not (orders.order_status = 'Canceled'  or orders.order_status = 'DeliveryCanceled' or orders.order_status = 'NorDelivered')
+	) as docs
+ left join bottles_movement_operations on docs.bottles_movement_operation_id = bottles_movement_operations.id
+ left join (select 
+	 order_items.order_id as order_id,
+	 sum(order_items.actual_count) as forfeitCount
+	 from order_items
+	 where order_items.nomenclature_id in  (select str_value from base_parameters where base_parameters.name = 'forfeit_nomenclature_id' OR  base_parameters.name = 'forfeit1с_nomenclature_id')
+	 group by order_items.order_id)   as forfeits on forfeits.order_id = docs.doc_id
+where
+	docs.doc_client_id = @client_id
+	and (@delivery_point_id = -1 or docs.delivery_point_id = @delivery_point_id)</CommandText>
         <QueryParameters>
           <QueryParameter Name="client_id">
             <Value>={?client_id}</Value>
@@ -415,7 +410,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="bottle_balance">
           <DataField>bottle_balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1670,8 +1665,8 @@ ____________(                        )
         <Width>130.88pt</Width>
         <Value>=Sum({bottles_deposit}, 'Data')</Value>
         <ZIndex>1</ZIndex>
-        <Left>222.10pt</Left>
-        <Top>172.80pt</Top>
+        <Left>222.9pt</Left>
+        <Top>172.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1798,7 +1793,7 @@ ____________(                        )
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>7015</Value>
+          <Value>16293</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1837,7 +1832,7 @@ ____________(                        )
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017-08-24</Value>
+          <Value>2018-03-24</Value>
         </Values>
       </DefaultValue>
       <Nullable>true</Nullable>
@@ -1851,8 +1846,7 @@ ____________(                        )
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString>database=Vodovoz_honeybee;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
