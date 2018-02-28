@@ -1622,7 +1622,7 @@ UNION ALL
 		IFNULL(nomenclature.short_name, nomenclature.name) as name, 
         SUM(order_equipment.count) AS cnt 
 	FROM order_equipment
-		LEFT JOIN nomenclature ON nomenclature.id = order_equipment.new_eq_nomenclature_id
+		LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
     WHERE 
 		order_equipment.direction = 'Deliver' AND nomenclature.hide = 0
 	GROUP BY order_id, nomenclature_id
@@ -1635,7 +1635,7 @@ LEFT JOIN (
 		IFNULL(nomenclature.short_name, nomenclature.name) as name, 
         SUM(order_equipment.count) AS cnt 
     FROM order_equipment 
-		LEFT JOIN nomenclature ON nomenclature.id = order_equipment.new_eq_nomenclature_id
+		LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
 	WHERE order_equipment.direction = 'PickUp' AND nomenclature.hide = 0
 	GROUP BY order_id, nomenclature_id
 ) AS pickup_eq_qry ON pickup_eq_qry.order_id = orders.id

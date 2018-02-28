@@ -163,7 +163,7 @@
 					left join
 						order_equipment on order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
 					left join
-						nomenclature on nomenclature.id = order_equipment.new_eq_nomenclature_id
+						nomenclature on nomenclature.id = order_equipment.nomenclature_id
 					where
 						order_equipment.order_id = docs.doc_id
 						and order_equipment.direction = 'Deliver'
@@ -197,7 +197,7 @@
 				left join
 					order_equipment on order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
 				left join
-					nomenclature on nomenclature.id = order_equipment.new_eq_nomenclature_id
+					nomenclature on nomenclature.id = order_equipment.nomenclature_id
 				where
 					order_equipment.order_id = docs.doc_id
 					and order_equipment.direction = 'PickUp'
@@ -609,7 +609,7 @@ FROM
 		LEFT JOIN
 		order_equipment ON orders.id = order_equipment.order_id
 		LEFT JOIN 
-		nomenclature ON nomenclature.id = order_equipment.new_eq_nomenclature_id
+		nomenclature ON nomenclature.id = order_equipment.nomenclature_id
 	#Оборудование в собственности клиента
 		LEFT JOIN
 		(
@@ -618,7 +618,7 @@ FROM
 				ROUND(SUM(client_amount_pickedup) - SUM(client_amount_delivered)) as client_amount_pickedup
 			FROM
 				(SELECT
-					inner_order_equipments.new_eq_nomenclature_id as nom_id,
+					inner_order_equipments.nomenclature_id as nom_id,
 					IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
 					IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
 				FROM
@@ -637,7 +637,7 @@ FROM
 				ROUND(SUM(client_amount_delivered) - SUM(client_amount_pickedup)) as duty_amount_delivered
 			FROM
 				(SELECT
-					inner_order_equipments.new_eq_nomenclature_id as nom_id,
+					inner_order_equipments.nomenclature_id as nom_id,
 					IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
 					IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
 				FROM
@@ -656,7 +656,7 @@ FROM
 				ROUND(SUM(client_amount_delivered) - SUM(client_amount_pickedup)) as rent_amount_delivered
 			FROM
 				(SELECT
-					inner_order_equipments.new_eq_nomenclature_id as nom_id,
+					inner_order_equipments.nomenclature_id as nom_id,
 					IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
 					IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
 				FROM
@@ -669,7 +669,7 @@ FROM
 		) as OurRentEquipDelivered ON OurRentEquipDelivered.nom_id = nomenclature.id
 	WHERE
 			orders.client_id = @client_id
-		and	order_equipment.new_eq_nomenclature_id IS NOT NULL
+		and	order_equipment.nomenclature_id IS NOT NULL
 	) as main
 WHERE 
 		client_amount_pickedup &gt; 0 
