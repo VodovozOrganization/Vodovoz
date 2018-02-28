@@ -97,5 +97,16 @@ namespace Vodovoz.Additions.Store
 				            .Where(w => w.Id.IsIn(CurrentPermissions.Warehouse.Allowed(permission)
 				                                  .Select(x => x.Id).ToArray()));
 		}
+
+		/// <summary>
+		/// Запрос на возврат всех скадов для которых есть хотя бы одно из разрешений.
+		/// </summary>
+		public static QueryOver<Warehouse> GetRestrictedWarehouseQuery()
+		{
+			return QueryOver.Of<Warehouse>()
+				            .Where(w => w.Id.IsIn(CurrentPermissions.Warehouse.AnyPermissions()
+				                                  .Select(x => x.Id).ToArray()));
+		}
+
 	}
 }

@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Linq;
+using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
-using QSProjectsLib;
 using QSTDI;
+using Vodovoz.Core;
+using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModel;
 
@@ -27,9 +30,14 @@ namespace Vodovoz
 			uow = tableDocuments.RepresentationModel.UoW;
 			tableDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
-			buttonAdd.ItemsEnum = typeof(Domain.Documents.DocumentType);
-			if(QSMain.User.Permissions["store_production"] || QSMain.User.Permissions["store_vartemyagi"])
-				IfUserTypeProduction();
+			buttonAdd.ItemsEnum = typeof(DocumentType);
+
+			foreach(DocumentType doctype in Enum.GetValues(typeof(DocumentType))) {
+				var allPermissions = CurrentPermissions.Warehouse.AnyEntities();
+				if(allPermissions.Any(x => x.GetAttributes<DocumentTypeAttribute>().Any(at => at.Type.Equals(doctype))))
+					continue;
+				buttonAdd.SetSensitive(doctype, false);
+			}
 		}
 
 		void OnRefObjectUpdated (object sender, OrmObjectUpdatedEventArgs e)
@@ -144,17 +152,6 @@ namespace Vodovoz
 		protected void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
 			tableDocuments.RepresentationModel.UpdateNodes ();
-		}
-
-		protected void IfUserTypeProduction()
-		{
-			foreach(DocumentType doctype in Enum.GetValues(typeof(DocumentType)))
-			{
-				if(doctype == DocumentType.SelfDeliveryDocument ||
-				   doctype == DocumentType.CarLoadDocument || 
-				   doctype == DocumentType.CarUnloadDocument)
-					buttonAdd.SetSensitive(doctype, false);
-			}
 		}
 	}
 }

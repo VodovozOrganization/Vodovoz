@@ -41,12 +41,6 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add ("logistic_changedeliverytime", new UserPermission("logistic_changedeliverytime", "Логистика. Изменение времени доставки при ведении МЛ", "Пользователь может изменять время доставки в диалоге ведения маршрутного листа"));
 			QSMain.ProjectPermission.Add ("money_manage", new UserPermission ("money_manage", "Управление деньгами", "Пользователь имеет доступ к денежным операциям(касса и т.п.)."));
 			QSMain.ProjectPermission.Add ("routelist_unclosing", new UserPermission ("routelist_unclosing", "Касса. Отмена закрытия маршрутных листов", "Пользователь может переводить маршрутные листы из статуса Закрыт в статус Сдается"));
-			QSMain.ProjectPermission.Add ("store_manage", new UserPermission("store_manage", "Управление складом", "Пользователь имеет полный доступ к складу."));
-			QSMain.ProjectPermission.Add ("store_worker", new UserPermission("store_worker", "Работник склада", "Пользователь имеет доступ к складу."));
-			QSMain.ProjectPermission.Add ("store_production", new UserPermission("store_production", "Управление складом производство", ""));
-			QSMain.ProjectPermission.Add ("store_vartemyagi", new UserPermission("store_vartemyagi", "Управление складом производство Вартемяги", ""));
-			QSMain.ProjectPermission.Add ("store_office", new UserPermission("store_office", "Управление складом офис", ""));
-			QSMain.ProjectPermission.Add ("store_equipment", new UserPermission("store_equipment", "Управление складом оборудование", ""));
 			QSMain.ProjectPermission.Add ("can_delete", new UserPermission("can_delete", "Удаление заказов и маршрутных листов", "Пользователь может удалять заказы и маршрутные листы в журналах."));
 			QSMain.ProjectPermission.Add ("can_delete_fines", new UserPermission("can_delete_fines", "Удаление штрафов", "Пользователь может удалять штрафы."));
 			QSMain.ProjectPermission.Add ("can_close_orders", new UserPermission("can_close_orders", "Закрытие заказов", "Пользователь может закрывать заказы вручную.") );
@@ -159,8 +153,8 @@ namespace Vodovoz
 				OrmObjectMapping<AccountIncome>.Create (),
 				OrmObjectMapping<AccountExpense>.Create (),
 				//Склад
-				OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().EditPermision("store_manage").DefaultTableView().Column("Название", w=>w.Name).End(),
-				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().EditPermision("store_manage").DefaultTableView().Column("Название", w=>w.Name).End()
+				OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w=>w.Name).End(),
+				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().DefaultTableView().Column("Название", w=>w.Name).End()
 			};
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
 			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
