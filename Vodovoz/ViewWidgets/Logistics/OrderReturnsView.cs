@@ -18,7 +18,17 @@ namespace Vodovoz
 		List<OrderItemReturnsNode> equipmentFromClient;
 		List<OrderItemReturnsNode> itemsToClient;
 
-		public IUnitOfWork UoW { get; set;}
+		IUnitOfWork uow;
+
+		public IUnitOfWork UoW {
+			get {
+				return uow;
+			}
+			set {
+				uow = value;
+				depositrefunditemsview1.Configure(uow, routeListItem.Order, true);
+			}
+		}
 
 		RouteListItem routeListItem;
 
@@ -126,8 +136,6 @@ namespace Vodovoz
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboOrderPayment.Changed += YenumcomboOrderPayment_Changed;
-
-			depositrefunditemsview1.Configure(UoW, routeListItem.Order, true);
 		}
 
 		void YenumcomboOrderPayment_Changed (object sender, EventArgs e)
