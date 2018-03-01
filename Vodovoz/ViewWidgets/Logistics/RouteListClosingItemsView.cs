@@ -201,17 +201,8 @@ namespace Vodovoz
 						.AddSetter(EmptyBottleCellSetter)
 				.AddColumn("Залоги за\n бутыли").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.DepositsCollected)
-						.Adjustment(new Adjustment(0, -100000, 100000, (double)bottleDepositPrice, (double)bottleDepositPrice, 1))
-						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
-						.AddSetter((cell, node) => {
-					var expectedDeposits = (node.GetFullBottlesDeliveredCount()-node.BottlesReturned)*bottleDepositPrice;
-					cell.ForegroundGdk = expectedDeposits!=node.DepositsCollected ? colorBlue : colorBlack;
-				})
 				.AddColumn("Залоги за\n оборудование").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.EquipmentDepositsCollected)
-						.Adjustment(new Adjustment(0, -100000, 100000, (double)equipmentDepositPrice, (double)equipmentDepositPrice, 1))
-						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
-						 
 				.AddColumn("Итого\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.TotalCash)
 						.AddSetter((cell, node) => cell.Editable = node.Order.PaymentType == PaymentType.cash && 

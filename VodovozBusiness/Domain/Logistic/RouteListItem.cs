@@ -210,11 +210,11 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return depositsCollected;
-			}
-			set
-			{
-				SetField(ref depositsCollected, value, () => DepositsCollected);
+				if(depositsCollected != 0m) {
+					return depositsCollected;
+				}else {
+					return Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Bottles).Sum(x => x.Total);
+				}
 			}
 		}
 
@@ -224,11 +224,11 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
-				return equipmentDepositsCollected;
-			}
-			set
-			{
-				SetField(ref equipmentDepositsCollected, value, () => EquipmentDepositsCollected);
+				if(equipmentDepositsCollected != 0m) {
+					return equipmentDepositsCollected;
+				} else {
+					return Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);
+				}
 			}
 		}
 
@@ -697,8 +697,6 @@ namespace Vodovoz.Domain.Logistic
 				Order.PaymentType == Client.PaymentType.cash
 				? Order.SumToReceive : 0;
 			var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(uow).GetPrice(Order.BottlesReturn);
-			DepositsCollected = IsDelivered()
-								? Order.GetExpectedBottlesDepositsCount() * bottleDepositPrice : 0;
 			PerformanceHelper.AddTimePoint("Получили прайс");
 			RecalculateWages();
 			PerformanceHelper.AddTimePoint("Пересчет");

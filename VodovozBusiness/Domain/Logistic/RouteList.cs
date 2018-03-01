@@ -873,43 +873,34 @@ namespace Vodovoz.Domain.Logistic
 #else
 			var result = new List<DepositOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
+
 			foreach(RouteListItem item in addresesDelivered) {
 				if(item.DepositsCollected != 0) {
-					DepositOperation bottlesOperation;
+					foreach(var depositItem in item.Order.OrderDepositItems.ToList()) {
+						DepositOperation depositOperation;
+						if(depositItem.DepositOperation != null) {
+							if(depositItem.PaymentDirection == PaymentDirection.ToClient) {
+								depositItem.DepositOperation.RefundDeposit = depositItem.Total;
+							}else {
+								depositItem.DepositOperation.ReceivedDeposit = depositItem.Total;
+							}
+							depositOperation = depositItem.DepositOperation;
+						}else {
+							depositOperation = new DepositOperation();
+							depositOperation.Order = item.Order;
+							depositOperation.OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
+							depositOperation.Counterparty = item.Order.Client;
+							depositOperation.DeliveryPoint = item.Order.DeliveryPoint;
 
-					if(item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Bottles).ToList().Count >= 1) {
-						bottlesOperation = item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Bottles).FirstOrDefault();
-						bottlesOperation.ReceivedDeposit = item.DepositsCollected;
-					} else {
-						bottlesOperation = new DepositOperation {
-							Order = item.Order,
-							OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-							DepositType = DepositType.Bottles,
-							Counterparty = item.Order.Client,
-							DeliveryPoint = item.Order.DeliveryPoint,
-							ReceivedDeposit = item.DepositsCollected
-						};
+							if(depositItem.PaymentDirection == PaymentDirection.ToClient) {
+								depositOperation.RefundDeposit = depositItem.Total;
+							}else {
+								depositOperation.ReceivedDeposit = depositItem.Total;
+							}
+							depositOperation.DepositType = depositItem.DepositType;
+						}
+						result.Add(depositOperation);
 					}
-					result.Add(bottlesOperation);
-				}
-
-				if(item.EquipmentDepositsCollected != 0) {
-					DepositOperation equipmentOperation;
-
-					if(item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Equipment).ToList().Count >= 1) {
-						equipmentOperation = item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Equipment).FirstOrDefault();
-						equipmentOperation.ReceivedDeposit = item.EquipmentDepositsCollected;
-					} else {
-						equipmentOperation = new DepositOperation {
-							Order = item.Order,
-							OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-							DepositType = DepositType.Equipment,
-							Counterparty = item.Order.Client,
-							DeliveryPoint = item.Order.DeliveryPoint,
-							ReceivedDeposit = item.EquipmentDepositsCollected
-						};
-					}
-					result.Add(equipmentOperation);
 				}
 			}
 #endif
