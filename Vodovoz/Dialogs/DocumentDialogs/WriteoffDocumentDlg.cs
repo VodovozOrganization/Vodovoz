@@ -10,7 +10,6 @@ using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
@@ -39,6 +38,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<WriteoffDocument> (id);
+			comboType.Sensitive = false;
 			ConfigureDlg ();
 		}
 
@@ -54,8 +54,7 @@ namespace Vodovoz
 			}
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.WriteoffEdit, Entity.WriteoffWarehouse);
-			comboType.Sensitive = referenceEmployee.IsEditable = referenceWarehouse.IsEditable = referenceCounterparty.IsEditable
-				= referenceDeliveryPoint.IsEditable = textComment.Editable = editing;
+			referenceEmployee.IsEditable = referenceWarehouse.IsEditable = textComment.Editable = editing;
 			writeoffdocumentitemsview1.Sensitive = editing;
 
 			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
@@ -76,15 +75,17 @@ namespace Vodovoz
 			referenceEmployee.SubjectType = typeof(Employee);
 			referenceEmployee.Binding.AddBinding (Entity, e => e.ResponsibleEmployee, w => w.Subject).InitializeFromSource ();
 			comboType.ItemsEnum = typeof(WriteoffType);
-			referenceWarehouse.Sensitive = (UoWGeneric.Root.WriteoffWarehouse != null);
 			referenceDeliveryPoint.Sensitive = referenceCounterparty.Sensitive = (UoWGeneric.Root.Client != null);
 			comboType.EnumItemSelected += (object sender, Gamma.Widgets.ItemSelectedEventArgs e) => {
-				referenceDeliveryPoint.Sensitive = (comboType.Active == (int)WriteoffType.counterparty && UoWGeneric.Root.Client != null);
-				referenceCounterparty.Sensitive = (comboType.Active == (int)WriteoffType.counterparty);
+				referenceWarehouse.Sensitive = WriteoffType.warehouse.Equals(comboType.SelectedItem);
+				referenceDeliveryPoint.Sensitive = WriteoffType.counterparty.Equals(comboType.SelectedItem) && UoWGeneric.Root.Client != null;
+				referenceCounterparty.Sensitive = WriteoffType.counterparty.Equals(comboType.SelectedItem);
 			};
-			comboType.Active = UoWGeneric.Root.Client != null ?
-				(int)WriteoffType.counterparty :
-				(int)WriteoffType.warehouse;
+			//FIXME Списание с контрагента не реализовано. Поэтому блокирует выбор типа списания.
+			comboType.Sensitive = false;
+			comboType.SelectedItem = UoWGeneric.Root.Client != null ?
+				WriteoffType.counterparty :
+				WriteoffType.warehouse;
 
 			writeoffdocumentitemsview1.DocumentUoW = UoWGeneric;
 		}
