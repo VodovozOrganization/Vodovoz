@@ -28,6 +28,7 @@ using Vodovoz.Panel;
 using Vodovoz.Repository;
 using Vodovoz.Domain.Operations;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Representations;
 
 namespace Vodovoz
 {
@@ -57,64 +58,58 @@ namespace Vodovoz
 			FreeRentAgreement,
 		}
 
-		public PanelViewType[] InfoWidgets
-		{
-			get
-			{
+		public PanelViewType[] InfoWidgets {
+			get {
 				return new[]{
 					PanelViewType.AdditionalAgreementPanelView,
-					PanelViewType.CounterpartyView, 
+					PanelViewType.CounterpartyView,
 					PanelViewType.DeliveryPointView
 				};
 			}
 		}
 
-		public Counterparty Counterparty
-		{
-			get
-			{
+		public Counterparty Counterparty {
+			get {
 				return referenceClient.Subject as Counterparty;
 			}
 		}
 
-		public DeliveryPoint DeliveryPoint
-		{
-			get
-			{
+		public DeliveryPoint DeliveryPoint {
+			get {
 				return referenceDeliveryPoint.Subject as DeliveryPoint;
 			}
 		}
 
-		public OrderDlg ()
+		public OrderDlg()
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order> ();
-			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
-			if (Entity.Author == null) {
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать создавать заказы, так как некого указывать в качестве автора документа.");
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
+			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(Entity.Author == null) {
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать создавать заказы, так как некого указывать в качестве автора документа.");
 				FailInitialize = true;
 				return;
 			}
 			UoWGeneric.Root.OrderStatus = OrderStatus.NewOrder;
 			TabName = "Новый заказ";
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
-		public OrderDlg (int id)
+		public OrderDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order> (id);
-			ConfigureDlg ();
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
+			ConfigureDlg();
 		}
 
-		public OrderDlg (Order sub) : this (sub.Id)
+		public OrderDlg(Order sub) : this(sub.Id)
 		{
 		}
 
 		public void ConfigureDlg ()
 		{
-			treeDocuments.Selection.Mode=SelectionMode.Multiple;
-			if (UoWGeneric.Root.PreviousOrder != null) {
+			treeDocuments.Selection.Mode = SelectionMode.Multiple;
+			if(UoWGeneric.Root.PreviousOrder != null) {
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
 //TODO Make it clickable.
 			} else
@@ -128,7 +123,6 @@ namespace Vodovoz
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
 			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
 			//treeEquipmentFromClient.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
-			treeDepositRefundItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderDepositItems;
 			treeServiceClaim.ItemsDataSource = UoWGeneric.Root.ObservableInitialOrderService;
 			//TODO FIXME Добавить в таблицу закрывающие заказы.
 
@@ -334,14 +328,6 @@ namespace Vodovoz
 				})
 				.Finish();
 
-			treeDepositRefundItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderDepositItem>()
-				.AddColumn("Тип").SetDataProperty(node => node.DepositTypeString)
-				.AddColumn("Количество").AddNumericRenderer(node => node.Count).Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1)).Editing(true)
-				.AddColumn("Цена").AddNumericRenderer(node => node.Deposit).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
-				.AddColumn("Сумма").AddNumericRenderer(node => node.Total)
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Visible = n.PaymentDirection == PaymentDirection.ToClient)
-				.Finish();
-
 			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim>()
 				.AddColumn("Статус заявки").SetDataProperty(node => node.Status.GetEnumTitle())
 				.AddColumn("Номенклатура оборудования").SetDataProperty(node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
@@ -379,7 +365,7 @@ namespace Vodovoz
 			OrderItemEquipmentCountHasChanges = false;
 
 			ButtonCloseOrderSensitivity();
-
+			depositrefunditemsview.Configure(UoWGeneric, UoWGeneric.Root);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
 		}
@@ -456,10 +442,6 @@ namespace Vodovoz
 
 			if(items.Length == 0) {
 				return;
-			}
-
-			if(treeDepositRefundItems.GetSelectedObjects().Length > 0) {
-				treeDepositRefundItems.Selection.UnselectAll();
 			}
 
 			buttonDelete1.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null || (items[0] as OrderItem).Nomenclature.Category == NomenclatureCategory.water
@@ -561,23 +543,6 @@ namespace Vodovoz
 			}
 		}
 
-
-
-		void TreeDepositRefundItems_Selection_Changed(object sender, EventArgs e)
-		{
-			object[] items = treeDepositRefundItems.GetSelectedObjects();
-
-			if(items.Length == 0) {
-				return;
-			}
-
-			if(treeItems.GetSelectedObjects().Length > 0) {
-				treeItems.Selection.UnselectAll();
-			}
-
-			buttonDelete1.Sensitive = items.Length > 0;
-		}
-
 		public override bool Save()
 		{
 
@@ -598,16 +563,15 @@ namespace Vodovoz
 			SaveChanges();
 			UoWGeneric.Save();
 
-			if (Entity.OrderDocuments.Count() > 0)
-				{
-					string whatToPrint = "Распечатать " +
-											Entity.OrderDocuments.Count() +
-												  (Entity.OrderDocuments.Count() > 1 ? " документов?" : " документ?");
-					if (MessageDialogWorks.RunQuestionDialog(whatToPrint))
-					{
-						PrintDocuments(Entity.OrderDocuments);
-					}
-				} 
+			if(Entity.OrderDocuments.Count() > 0){
+				string whatToPrint = "Распечатать " +
+					Entity.OrderDocuments.Count() + (Entity.OrderDocuments.Count() > 1
+						? " документов?"
+						: " документ?");
+				if (MessageDialogWorks.RunQuestionDialog(whatToPrint)){
+					PrintDocuments(Entity.OrderDocuments);
+				}
+			} 
 
 			logger.Info("Ok.");
 			ButtonCloseOrderSensitivity();
@@ -857,8 +821,8 @@ namespace Vodovoz
 
 		void UpdateVisibleOfWingets()
 		{
-			bool visibleDeposit = Entity.OrderDepositItems.Count > 0;
-			treeDepositRefundItems.Visible = labelDeposit.Visible = visibleDeposit;
+			//bool visibleDeposit = Entity.OrderDepositItems.Count > 0;
+			//treeDepositRefundItems.Visible = labelDeposit.Visible = visibleDeposit;
 		}
 
 		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
@@ -1115,7 +1079,6 @@ namespace Vodovoz
 
 				treeItems.Selection.UnselectAll();
 				treeEquipment.Selection.UnselectAll();
-				treeDepositRefundItems.Selection.UnselectAll();
 				UpdateButtonState();
 				buttonSave.Click();
 				return;
@@ -1347,7 +1310,7 @@ namespace Vodovoz
 				&& Entity.OrderStatus == OrderStatus.NewOrder && !Entity.SelfDelivery
 				&& Entity.Client.DeliveryPoints.Count == 1) {
 				Entity.DeliveryPoint = Entity.Client.DeliveryPoints[0];
-			}else {
+			} else {
 				Entity.DeliveryPoint = null;
 			}
 			//Устанавливаем тип документа
@@ -1360,7 +1323,7 @@ namespace Vodovoz
 			//Выбираем конракт, если он один у контрагента
 			if(Entity.Client.CounterpartyContracts.Count == 1) {
 				Entity.Contract = Entity.Client.CounterpartyContracts.FirstOrDefault();
-			}else {
+			} else {
 				Entity.Contract = null;
 			}
 
@@ -1418,7 +1381,7 @@ namespace Vodovoz
 		{
 			DiscountReason reason = (ycomboboxReason.SelectedItem as DiscountReason);
 			int discount = (int)yspinDiscountOrder.Value;
-			if(reason  == null && discount > 0) {
+			if(reason == null && discount > 0) {
 				MessageDialogWorks.RunErrorDialog("Необходимо выбрать основание для скидки");
 				return;
 			}
@@ -1475,10 +1438,10 @@ namespace Vodovoz
 		{
 			var listDriverCallType = UoW.Session.QueryOver<Order>()
 										.Where(x => x.Id == Entity.Id)
-			                            .Select(x => x.DriverCallType).List<DriverCallType>().FirstOrDefault();
+										.Select(x => x.DriverCallType).List<DriverCallType>().FirstOrDefault();
 
 			//if(listDriverCallType.Count() == 0)
-				//return;
+			//return;
 
 			if(listDriverCallType != (DriverCallType)enumDiverCallType.SelectedItem) {
 				var max = UoW.Session.QueryOver<Order>().Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DriverCallId)).SingleOrDefault<int>();
@@ -1700,7 +1663,7 @@ namespace Vodovoz
 		protected void OnEntryBottlesReturnChanged(object sender, EventArgs e)
 		{
 			int result = 0;
-			if(Int32.TryParse(entryBottlesReturn.Text,out result)) {
+			if(Int32.TryParse(entryBottlesReturn.Text, out result)) {
 				Entity.BottlesReturn = result;
 				UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
 			}
@@ -1731,9 +1694,15 @@ namespace Vodovoz
 			}
 
 			TabParent.OpenTab(
-			TdiTabBase.GenerateHashName<AddExistingDocumentsDlg>(),
+				TdiTabBase.GenerateHashName<AddExistingDocumentsDlg>(),
 				() => new AddExistingDocumentsDlg(UoWGeneric, UoWGeneric.Root.Client)
-		);
+			);
+		}
+
+		protected void OnButtonDepositsClicked(object sender, EventArgs e)
+		{
+			depositrefunditemsview.Visible = !depositrefunditemsview.Visible;
+			labelDeposit1.Visible = !labelDeposit1.Visible;
 		}
 	}
 }

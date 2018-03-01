@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Orders
@@ -61,6 +62,14 @@ namespace Vodovoz.Domain.Orders
 		public virtual FreeRentEquipment FreeRentItem {
 			get { return freeRentItem; }
 			set { SetField (ref freeRentItem, value, () => FreeRentItem); }
+		}
+
+		Nomenclature equipmentNomenclature;
+
+		[Display(Name = "Номенклатура оборудования")]
+		public virtual Nomenclature EquipmentNomenclature {
+			get { return equipmentNomenclature; }
+			set { SetField (ref equipmentNomenclature, value, () => EquipmentNomenclature); }
 		}
 
 		DepositType depositType;

@@ -1261,7 +1261,7 @@ namespace Vodovoz.Domain.Orders
 					ObservableOrderItems.Remove(depositPaymentItem);
 				//Проверяем, сколько надо отдать клиенту залог за бутыли
 				decimal clientDeposit = default(decimal);
-				decimal deposit = NomenclatureRepository.GetBottleDeposit(uow).GetPrice(-expectedBottleDepositsCount);
+				decimal deposit = bottleDeposit.GetPrice(-expectedBottleDepositsCount);
 				int count = -expectedBottleDepositsCount;
 				if(Client != null)
 					clientDeposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, Client, DepositType.Bottles);
@@ -1284,6 +1284,9 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		/// <summary>
+		/// Ожидаемое количество залогов за бутыли
+		/// </summary>
 		public virtual int GetExpectedBottlesDepositsCount()
 		{
 			if(Client == null || Client.PersonType == PersonType.legal)

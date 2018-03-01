@@ -56,14 +56,12 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.MoneyMovementOperation).Column("money_movement_operation_id");
 			References(x => x.LastEditor).Column("editor_employee_id");
 
-			HasMany(x => x.OrderDocuments).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("attached_to_order_id");
-#if !SHORT
-			HasMany (x => x.OrderDepositItems)	.Cascade.AllDeleteOrphan ().LazyLoad ().Inverse ().KeyColumn ("order_id");
-#endif
+			HasMany (x => x.OrderDocuments)		.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("attached_to_order_id");
+			HasMany (x => x.OrderDepositItems)	.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");
 			HasMany (x => x.OrderItems)			.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");
 			HasMany (x => x.OrderEquipments)	.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");
-			HasMany (x => x.InitialOrderService).Cascade.None ().LazyLoad ().Inverse ().KeyColumn ("initial_order_id");
-			HasMany (x => x.FinalOrderService)	.Cascade.None ().LazyLoad ().Inverse ().KeyColumn ("final_order_id");
+			HasMany (x => x.InitialOrderService).Cascade.None 			  ().Inverse ().LazyLoad ().KeyColumn ("initial_order_id");
+			HasMany (x => x.FinalOrderService)	.Cascade.None  			  ().Inverse ().LazyLoad ().KeyColumn ("final_order_id");
 			HasMany (x => x.DepositOperations)  .Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");
 		}
 	}

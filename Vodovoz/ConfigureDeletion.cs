@@ -340,11 +340,9 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<DailyRentAgreement>()
 				.AddDeleteDependenceFromBag(x => x.Equipment);
 
-			DeleteConfig.AddHibernateDeleteInfo<FreeRentEquipment>()
-				.AddClearDependence<OrderDepositItem>(x => x.FreeRentItem);
+			DeleteConfig.AddHibernateDeleteInfo<FreeRentEquipment>();
 
-			DeleteConfig.AddHibernateDeleteInfo<PaidRentEquipment>()
-				.AddClearDependence<OrderDepositItem>(x => x.PaidRentItem);
+			DeleteConfig.AddHibernateDeleteInfo<PaidRentEquipment>();
 				
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPoint>()
 				.AddDeleteDependence<AdditionalAgreement> (item => item.DeliveryPoint)

@@ -16,6 +16,13 @@ namespace Vodovoz.Repository
 				            .Where(n => !n.IsArchive);
 		}
 
+		public static QueryOver<Nomenclature> NomenclatureEquipmentsQuery()
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category == NomenclatureCategory.equipment)
+							.Where(n => !n.IsArchive);
+		}
+
 		public static QueryOver<Nomenclature> NomenclatureForSaleQuery ()
 		{
 			return QueryOver.Of<Nomenclature> ()

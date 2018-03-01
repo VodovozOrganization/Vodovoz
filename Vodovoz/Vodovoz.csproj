@@ -725,6 +725,8 @@
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.OrderSelectedView.cs" />
     <Compile Include="ViewWidgets\Store\NonSerialEquipmentReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Store.NonSerialEquipmentReceptionView.cs" />
+    <Compile Include="ViewWidgets\DepositRefundItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.DepositRefundItemsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

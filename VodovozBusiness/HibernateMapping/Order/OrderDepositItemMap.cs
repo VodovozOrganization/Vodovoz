@@ -18,6 +18,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.DepositType).Column ("deposit_type").CustomType<DepositTypeStringType> ();
 			Map (x => x.PaymentDirection).Column ("payment_type").CustomType<PaymentDirectionStringType> ();
 
+			References (x => x.EquipmentNomenclature).Column("equip_nomenclature_id");
 			References (x => x.Order).Column ("order_id");
 			References (x => x.DepositOperation).Column ("deposit_operation_id");
 			References (x => x.PaidRentItem).Column ("paid_rent_equipment_id");

@@ -10,6 +10,8 @@ namespace Vodovoz.JournalFilters
 
 		private global::QSOrmProject.EntryReference entryrefEquipmentType;
 
+		private global::Gtk.Button buttonClear;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -38,6 +40,19 @@ namespace Vodovoz.JournalFilters
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonClear = new global::Gtk.Button();
+			this.buttonClear.CanFocus = true;
+			this.buttonClear.Name = "buttonClear";
+			this.buttonClear.UseUnderline = true;
+			global::Gtk.Image w3 = new global::Gtk.Image();
+			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-clear", global::Gtk.IconSize.Menu);
+			this.buttonClear.Image = w3;
+			this.hbox1.Add(this.buttonClear);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonClear]));
+			w4.Position = 2;
+			w4.Expand = false;
+			w4.Fill = false;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
@@ -45,6 +60,7 @@ namespace Vodovoz.JournalFilters
 			}
 			this.Hide();
 			this.entryrefEquipmentType.ChangedByUser += new global::System.EventHandler(this.OnEntryrefEquipmentTypeChangedByUser);
+			this.buttonClear.Clicked += new global::System.EventHandler(this.OnButtonClearClicked);
 		}
 	}
 }

@@ -126,6 +126,8 @@ namespace Vodovoz
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboOrderPayment.Changed += YenumcomboOrderPayment_Changed;
+
+			depositrefunditemsview1.Configure(UoW, routeListItem.Order, true);
 		}
 
 		void YenumcomboOrderPayment_Changed (object sender, EventArgs e)

@@ -4,6 +4,8 @@ using System;
 using System.Collections;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using NHibernate;
+using NHibernate.Criterion;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
@@ -12,7 +14,7 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.JournalFilters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class NomenclatureEquipTypeFilter : Gtk.Bin, IRepresentationFilter
+	public partial class NomenclatureEquipTypeFilter : Gtk.Bin, IRepresentationFilter, IReferenceFilter
 	{
 
 		public NomenclatureEquipTypeFilter(IUnitOfWork uow) : this()
@@ -61,6 +63,35 @@ namespace Vodovoz.JournalFilters
 			}
 		}
 
+		public ICriteria BaseCriteria { get; set; }
+
+		ICriteria filtredCriteria;
+
+		public ICriteria FiltredCriteria {
+			private set { filtredCriteria = value; }
+			get {
+				UpdateCreteria();
+				return filtredCriteria;
+			}
+		}
+
+		void UpdateCreteria()
+		{
+			IsFiltred = false;
+			if(BaseCriteria == null) {
+				filtredCriteria = null;
+				return;
+			}
+			filtredCriteria = (ICriteria)BaseCriteria.Clone();
+			if(entryrefEquipmentType.Subject is EquipmentType) {
+				filtredCriteria.Add(Restrictions.Eq("Type", entryrefEquipmentType.Subject));
+			}
+			IsFiltred = true;
+			OnRefiltered();
+		}
+
+		public bool IsFiltred { get; private set; }
+
 		protected void OnEntryrefEquipmentTypeChangedByUser(object sender, EventArgs e)
 		{
 			if(entryrefEquipmentType.Subject == null) {
@@ -71,5 +102,11 @@ namespace Vodovoz.JournalFilters
 			}
 		}
 
+		protected void OnButtonClearClicked(object sender, EventArgs e)
+		{
+			NomenEquipmentType = null;
+			FiltredCriteria = null;
+			OnRefiltered();
+		}
 	}
 }

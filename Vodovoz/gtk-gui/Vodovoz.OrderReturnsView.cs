@@ -52,6 +52,16 @@ namespace Vodovoz
 
 		private global::Gtk.Label GtkLabel8;
 
+		private global::Gtk.Frame frame3;
+
+		private global::Gtk.Alignment GtkAlignment;
+
+		private global::Gtk.VBox vbox2;
+
+		private global::Vodovoz.ViewWidgets.DepositRefundItemsView depositrefunditemsview1;
+
+		private global::Gtk.Label GtkLabel5;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -254,8 +264,38 @@ namespace Vodovoz
 			this.vbox1.Add(this.hbox3);
 			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
 			w21.Position = 1;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.frame3 = new global::Gtk.Frame();
+			this.frame3.Name = "frame3";
+			this.frame3.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child frame3.Gtk.Container+ContainerChild
+			this.GtkAlignment = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment.Name = "GtkAlignment";
+			this.GtkAlignment.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment.Gtk.Container+ContainerChild
+			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.depositrefunditemsview1 = new global::Vodovoz.ViewWidgets.DepositRefundItemsView();
+			this.depositrefunditemsview1.Events = ((global::Gdk.EventMask)(256));
+			this.depositrefunditemsview1.Name = "depositrefunditemsview1";
+			this.vbox2.Add(this.depositrefunditemsview1);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.depositrefunditemsview1]));
+			w22.Position = 0;
+			this.GtkAlignment.Add(this.vbox2);
+			this.frame3.Add(this.GtkAlignment);
+			this.GtkLabel5 = new global::Gtk.Label();
+			this.GtkLabel5.Name = "GtkLabel5";
+			this.GtkLabel5.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Возврат залогов</b>");
+			this.GtkLabel5.UseMarkup = true;
+			this.frame3.LabelWidget = this.GtkLabel5;
+			this.vbox1.Add(this.frame3);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame3]));
+			w25.Position = 2;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
