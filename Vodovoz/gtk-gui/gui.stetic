@@ -577,7 +577,7 @@
         <property name="Label" translatable="yes">Отчеты</property>
         <property name="ShortLabel" translatable="yes">Отчеты</property>
       </action>
-      <action id="Action20">
+      <action id="ActionReportEmployees">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Сотрудники</property>
         <property name="ShortLabel" translatable="yes">Сотрудники</property>
@@ -588,7 +588,7 @@
         <property name="ShortLabel" translatable="yes">Штрафы сотрудников</property>
         <signal name="Activated" handler="OnActionEmployeeFinesActivated" />
       </action>
-      <action id="Action23">
+      <action id="ActionReportsStock">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Склад</property>
         <property name="ShortLabel" translatable="yes">Склад</property>
@@ -605,7 +605,7 @@
         <property name="ShortLabel" translatable="yes">Подразделения</property>
         <signal name="Activated" handler="OnSubdivisionsActivated" />
       </action>
-      <action id="Action24">
+      <action id="ActionReportsSales">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Продажи</property>
         <property name="ShortLabel" translatable="yes">Продажи</property>
@@ -616,7 +616,7 @@
         <property name="ShortLabel" translatable="yes">Отчет по продажам</property>
         <signal name="Activated" handler="OnActionSalesReportActivated" />
       </action>
-      <action id="Action25">
+      <action id="ActionReportsDrivers">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Водители</property>
         <property name="ShortLabel" translatable="yes">Водители</property>
@@ -633,7 +633,7 @@
         <property name="ShortLabel" translatable="yes">Отчет по выдаче бензина</property>
         <signal name="Activated" handler="OnActionFuelReportActivated" />
       </action>
-      <action id="Action26">
+      <action id="ActionReportOrders">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Заказы</property>
         <property name="ShortLabel" translatable="yes">Заказы</property>
@@ -791,11 +791,11 @@
       </action>
       <action id="ActionBottlesMovementReport">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Отчёт по движению бутылей</property>
+        <property name="Label" translatable="yes">Отчет по движению бутылям (по МЛ)</property>
         <property name="ShortLabel" translatable="yes">Отчёт по движению бутылей</property>
         <signal name="Activated" handler="OnActionBottlesMovementReportActivated" />
       </action>
-      <action id="Action33">
+      <action id="ActionReportService">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Сервисный центр</property>
         <property name="ShortLabel" translatable="yes">Сервисный центр</property>
@@ -858,6 +858,11 @@
         <property name="Label" translatable="yes">Замена ссылок</property>
         <property name="ShortLabel" translatable="yes">Замена ссылок</property>
         <signal name="Activated" handler="OnAction45Activated" />
+      </action>
+      <action id="ActionReportsBottles">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Бутыли</property>
+        <property name="ShortLabel" translatable="yes">Бутыли</property>
       </action>
     </action-group>
     <property name="MemberName" />
@@ -971,19 +976,35 @@
                     </node>
                   </node>
                   <node type="Menu" action="Action31">
-                    <node type="Menu" action="Action20">
+                    <node type="Menu" action="ActionReportOrders">
+                      <node type="Menuitem" action="Action39" />
+                      <node type="Menuitem" action="Action1cComments" />
+                      <node type="Menuitem" action="ActionOrdersByDistrict" />
+                      <node type="Menuitem" action="Action30" />
+                      <node type="Menuitem" action="Action38" />
+                      <node type="Menuitem" action="ActionOrdersWithMinPriceLessThan" />
+                      <node type="Menuitem" action="actionSelfDeliveryReport" />
+                      <node type="Menuitem" action="ActionSuburbWaterPrice" />
+                    </node>
+                    <node type="Menu" action="ActionReportsSales">
+                      <node type="Menuitem" action="ActionSalesReport" />
+                      <node type="Menuitem" action="Action43" />
+                    </node>
+                    <node type="Separator" />
+                    <node type="Menu" action="ActionReportsStock">
+                      <node type="Menuitem" action="ActionStockMovements" />
+                    </node>
+                    <node type="Menu" action="ActionReportsBottles">
+                      <node type="Menuitem" action="ActionBottlesMovementReport" />
+                      <node type="Menuitem" action="ActionShortfallBattles" />
+                    </node>
+                    <node type="Separator" />
+                    <node type="Menu" action="ActionReportEmployees">
                       <node type="Menuitem" action="ActionEmployeeFines" />
                       <node type="Menuitem" action="ActionWagesOperations" />
                       <node type="Menuitem" action="ActionForwarderWageReport" />
                     </node>
-                    <node type="Menu" action="Action23">
-                      <node type="Menuitem" action="ActionStockMovements" />
-                    </node>
-                    <node type="Menu" action="Action24">
-                      <node type="Menuitem" action="ActionSalesReport" />
-                      <node type="Menuitem" action="Action43" />
-                    </node>
-                    <node type="Menu" action="Action25">
+                    <node type="Menu" action="ActionReportsDrivers">
                       <node type="Menuitem" action="ActionDriverWages" />
                       <node type="Menuitem" action="ActionFuelReport" />
                       <node type="Menuitem" action="ActionDriversWageBalance" />
@@ -995,21 +1016,10 @@
                       <node type="Menuitem" action="ActionDeliveryTimeReport" />
                       <node type="Menuitem" action="ActionCompanyTrucks" />
                       <node type="Menuitem" action="ActionShipmentReport" />
-                      <node type="Menuitem" action="ActionBottlesMovementReport" />
                       <node type="Menuitem" action="ActionMileageReport" />
                     </node>
-                    <node type="Menu" action="Action26">
-                      <node type="Menuitem" action="ActionShortfallBattles" />
-                      <node type="Menuitem" action="Action39" />
-                      <node type="Menuitem" action="Action1cComments" />
-                      <node type="Menuitem" action="ActionOrdersByDistrict" />
-                      <node type="Menuitem" action="Action30" />
-                      <node type="Menuitem" action="Action38" />
-                      <node type="Menuitem" action="ActionOrdersWithMinPriceLessThan" />
-                      <node type="Menuitem" action="actionSelfDeliveryReport" />
-                      <node type="Menuitem" action="ActionSuburbWaterPrice" />
-                    </node>
-                    <node type="Menu" action="Action33">
+                    <node type="Separator" />
+                    <node type="Menu" action="ActionReportService">
                       <node type="Menuitem" action="Action42" />
                       <node type="Menuitem" action="Action41" />
                     </node>
@@ -1050,7 +1060,7 @@
                   </widget>
                   <packing>
                     <property name="Position">0</property>
-                    <property name="AutoSize">True</property>
+                    <property name="AutoSize">False</property>
                   </packing>
                 </child>
                 <child>
