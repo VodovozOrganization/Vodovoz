@@ -70,6 +70,7 @@ namespace Vodovoz
 
 			editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarLoadEdit, Entity.Warehouse);
 			yentryrefRouteList.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
+			carloaddocumentview1.Sensitive = editing;
 			
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.CarLoadEdit);
