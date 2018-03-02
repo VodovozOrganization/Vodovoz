@@ -219,7 +219,7 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionShipmentReport;
 
-	private global::Gtk.Action ActionBottlesMovementReport;
+	private global::Gtk.Action ActionBottlesMovementRLReport;
 
 	private global::Gtk.Action ActionReportService;
 
@@ -244,6 +244,8 @@ public partial class MainWindow
 	private global::Gtk.Action Action45;
 
 	private global::Gtk.Action ActionReportsBottles;
+
+	private global::Gtk.Action ActionBottlesMovementSummaryReport;
 
 	private global::Gtk.HBox hbox1;
 
@@ -613,9 +615,9 @@ public partial class MainWindow
 		this.ActionShipmentReport = new global::Gtk.Action("ActionShipmentReport", global::Mono.Unix.Catalog.GetString("Отчёт по отгрузке автомобилей"), null, null);
 		this.ActionShipmentReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчёт по отгрузке");
 		w1.Add(this.ActionShipmentReport, null);
-		this.ActionBottlesMovementReport = new global::Gtk.Action("ActionBottlesMovementReport", global::Mono.Unix.Catalog.GetString("Отчет по движению бутылям (по МЛ)"), null, null);
-		this.ActionBottlesMovementReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчёт по движению бутылей");
-		w1.Add(this.ActionBottlesMovementReport, null);
+		this.ActionBottlesMovementRLReport = new global::Gtk.Action("ActionBottlesMovementRLReport", global::Mono.Unix.Catalog.GetString("Отчет по движению бутылей (по МЛ)"), null, null);
+		this.ActionBottlesMovementRLReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчёт по движению бутылей");
+		w1.Add(this.ActionBottlesMovementRLReport, null);
 		this.ActionReportService = new global::Gtk.Action("ActionReportService", global::Mono.Unix.Catalog.GetString("Сервисный центр"), null, null);
 		this.ActionReportService.ShortLabel = global::Mono.Unix.Catalog.GetString("Сервисный центр");
 		w1.Add(this.ActionReportService, null);
@@ -652,6 +654,9 @@ public partial class MainWindow
 		this.ActionReportsBottles = new global::Gtk.Action("ActionReportsBottles", global::Mono.Unix.Catalog.GetString("Бутыли"), null, null);
 		this.ActionReportsBottles.ShortLabel = global::Mono.Unix.Catalog.GetString("Бутыли");
 		w1.Add(this.ActionReportsBottles, null);
+		this.ActionBottlesMovementSummaryReport = new global::Gtk.Action("ActionBottlesMovementSummaryReport", global::Mono.Unix.Catalog.GetString("Отчет по движению бутылей"), null, null);
+		this.ActionBottlesMovementSummaryReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по движению бутылей");
+		w1.Add(this.ActionBottlesMovementSummaryReport, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -734,26 +739,27 @@ public partial class MainWindow
 				"ator/><menu name=\'ActionReportsStock\' action=\'ActionReportsStock\'><menuitem name" +
 				"=\'ActionStockMovements\' action=\'ActionStockMovements\'/></menu><menu name=\'Action" +
 				"ReportsBottles\' action=\'ActionReportsBottles\'><menuitem name=\'ActionBottlesMovem" +
-				"entReport\' action=\'ActionBottlesMovementReport\'/><menuitem name=\'ActionShortfall" +
-				"Battles\' action=\'ActionShortfallBattles\'/></menu><separator/><menu name=\'ActionR" +
-				"eportEmployees\' action=\'ActionReportEmployees\'><menuitem name=\'ActionEmployeeFin" +
-				"es\' action=\'ActionEmployeeFines\'/><menuitem name=\'ActionWagesOperations\' action=" +
-				"\'ActionWagesOperations\'/><menuitem name=\'ActionForwarderWageReport\' action=\'Acti" +
-				"onForwarderWageReport\'/></menu><menu name=\'ActionReportsDrivers\' action=\'ActionR" +
-				"eportsDrivers\'><menuitem name=\'ActionDriverWages\' action=\'ActionDriverWages\'/><m" +
-				"enuitem name=\'ActionFuelReport\' action=\'ActionFuelReport\'/><menuitem name=\'Actio" +
-				"nDriversWageBalance\' action=\'ActionDriversWageBalance\'/><menuitem name=\'ActionDe" +
-				"liveriesLate\' action=\'ActionDeliveriesLate\'/><menuitem name=\'ActionRouteListsOnC" +
-				"losing\' action=\'ActionRouteListsOnClosing\'/><separator/><menuitem name=\'ActionRo" +
-				"utesListRegister\' action=\'ActionRoutesListRegister\'/><menuitem name=\'ActionOnLoa" +
-				"dTime\' action=\'ActionOnLoadTime\'/><menuitem name=\'ActionDeliveryTimeReport\' acti" +
-				"on=\'ActionDeliveryTimeReport\'/><menuitem name=\'ActionCompanyTrucks\' action=\'Acti" +
-				"onCompanyTrucks\'/><menuitem name=\'ActionShipmentReport\' action=\'ActionShipmentRe" +
-				"port\'/><menuitem name=\'ActionMileageReport\' action=\'ActionMileageReport\'/></menu" +
-				"><separator/><menu name=\'ActionReportService\' action=\'ActionReportService\'><menu" +
-				"item name=\'Action42\' action=\'Action42\'/><menuitem name=\'Action41\' action=\'Action" +
-				"41\'/></menu></menu><menu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem name=" +
-				"\'aboutAction\' action=\'aboutAction\'/></menu></menubar></ui>");
+				"entSummaryReport\' action=\'ActionBottlesMovementSummaryReport\'/><menuitem name=\'A" +
+				"ctionBottlesMovementRLReport\' action=\'ActionBottlesMovementRLReport\'/><menuitem " +
+				"name=\'ActionShortfallBattles\' action=\'ActionShortfallBattles\'/></menu><separator" +
+				"/><menu name=\'ActionReportEmployees\' action=\'ActionReportEmployees\'><menuitem na" +
+				"me=\'ActionEmployeeFines\' action=\'ActionEmployeeFines\'/><menuitem name=\'ActionWag" +
+				"esOperations\' action=\'ActionWagesOperations\'/><menuitem name=\'ActionForwarderWag" +
+				"eReport\' action=\'ActionForwarderWageReport\'/></menu><menu name=\'ActionReportsDri" +
+				"vers\' action=\'ActionReportsDrivers\'><menuitem name=\'ActionDriverWages\' action=\'A" +
+				"ctionDriverWages\'/><menuitem name=\'ActionFuelReport\' action=\'ActionFuelReport\'/>" +
+				"<menuitem name=\'ActionDriversWageBalance\' action=\'ActionDriversWageBalance\'/><me" +
+				"nuitem name=\'ActionDeliveriesLate\' action=\'ActionDeliveriesLate\'/><menuitem name" +
+				"=\'ActionRouteListsOnClosing\' action=\'ActionRouteListsOnClosing\'/><separator/><me" +
+				"nuitem name=\'ActionRoutesListRegister\' action=\'ActionRoutesListRegister\'/><menui" +
+				"tem name=\'ActionOnLoadTime\' action=\'ActionOnLoadTime\'/><menuitem name=\'ActionDel" +
+				"iveryTimeReport\' action=\'ActionDeliveryTimeReport\'/><menuitem name=\'ActionCompan" +
+				"yTrucks\' action=\'ActionCompanyTrucks\'/><menuitem name=\'ActionShipmentReport\' act" +
+				"ion=\'ActionShipmentReport\'/><menuitem name=\'ActionMileageReport\' action=\'ActionM" +
+				"ileageReport\'/></menu><separator/><menu name=\'ActionReportService\' action=\'Actio" +
+				"nReportService\'><menuitem name=\'Action42\' action=\'Action42\'/><menuitem name=\'Act" +
+				"ion41\' action=\'Action41\'/></menu></menu><menu name=\'ActionAbout\' action=\'ActionA" +
+				"bout\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -949,7 +955,7 @@ public partial class MainWindow
 		this.actionSelfDeliveryReport.Activated += new global::System.EventHandler(this.OnActionSelfDeliveryReportActivated);
 		this.ActionDeliveryDaySchedule.Activated += new global::System.EventHandler(this.OnActionDeliveryDayScheduleActivated);
 		this.ActionShipmentReport.Activated += new global::System.EventHandler(this.OnActionShipmentReportActivated);
-		this.ActionBottlesMovementReport.Activated += new global::System.EventHandler(this.OnActionBottlesMovementReportActivated);
+		this.ActionBottlesMovementRLReport.Activated += new global::System.EventHandler(this.OnActionBottlesMovementReportActivated);
 		this.ActionMileageReport.Activated += new global::System.EventHandler(this.OnActionMileageReportActivated);
 		this.Action42.Activated += new global::System.EventHandler(this.OnActionMastersReportActivated);
 		this.ActionSuburbWaterPrice.Activated += new global::System.EventHandler(this.OnActionSuburbWaterPriceActivated);
@@ -959,6 +965,7 @@ public partial class MainWindow
 		this.Action41.Activated += new global::System.EventHandler(this.OnActionEquipmentReportActivated);
 		this.Action43.Activated += new global::System.EventHandler(this.OnAction43Activated);
 		this.Action45.Activated += new global::System.EventHandler(this.OnAction45Activated);
+		this.ActionBottlesMovementSummaryReport.Activated += new global::System.EventHandler(this.OnActionBottlesMovementSummaryReportActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QSTDI.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QSTDI.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QSTDI.TabClosedEventArgs>(this.OnTdiMainTabClosed);

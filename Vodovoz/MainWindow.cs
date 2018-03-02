@@ -651,7 +651,7 @@ public partial class MainWindow : Gtk.Window
 	}
 	protected void OnActionShortfallBattlesActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.ShortfallBattlesReport();
+		var widget = new Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg(widget)
@@ -844,7 +844,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionBottlesMovementReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Logistic.BottlesMovementReport();
+		var widget = new Vodovoz.ReportsParameters.Bottles.BottlesMovementReport();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg(widget)
@@ -908,6 +908,15 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ReplaceEntityLinksDlg>(),
 			() => new ReplaceEntityLinksDlg()
+		);
+	}
+
+	protected void OnActionBottlesMovementSummaryReportActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.Bottles.BottlesMovementSummaryReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 }

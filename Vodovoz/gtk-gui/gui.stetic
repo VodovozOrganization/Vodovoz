@@ -789,9 +789,9 @@
         <property name="ShortLabel" translatable="yes">Отчёт по отгрузке</property>
         <signal name="Activated" handler="OnActionShipmentReportActivated" />
       </action>
-      <action id="ActionBottlesMovementReport">
+      <action id="ActionBottlesMovementRLReport">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Отчет по движению бутылям (по МЛ)</property>
+        <property name="Label" translatable="yes">Отчет по движению бутылей (по МЛ)</property>
         <property name="ShortLabel" translatable="yes">Отчёт по движению бутылей</property>
         <signal name="Activated" handler="OnActionBottlesMovementReportActivated" />
       </action>
@@ -863,6 +863,12 @@
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Бутыли</property>
         <property name="ShortLabel" translatable="yes">Бутыли</property>
+      </action>
+      <action id="ActionBottlesMovementSummaryReport">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчет по движению бутылей</property>
+        <property name="ShortLabel" translatable="yes">Отчет по движению бутылей</property>
+        <signal name="Activated" handler="OnActionBottlesMovementSummaryReportActivated" />
       </action>
     </action-group>
     <property name="MemberName" />
@@ -995,7 +1001,8 @@
                       <node type="Menuitem" action="ActionStockMovements" />
                     </node>
                     <node type="Menu" action="ActionReportsBottles">
-                      <node type="Menuitem" action="ActionBottlesMovementReport" />
+                      <node type="Menuitem" action="ActionBottlesMovementSummaryReport" />
+                      <node type="Menuitem" action="ActionBottlesMovementRLReport" />
                       <node type="Menuitem" action="ActionShortfallBattles" />
                     </node>
                     <node type="Separator" />
@@ -39467,7 +39474,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Reports.ShortfallBattlesReport" design-size="232 353">
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport" design-size="153 332">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -39502,7 +39509,6 @@
               <packing>
                 <property name="Position">1</property>
                 <property name="AutoSize">False</property>
-                <property name="Expand">False</property>
               </packing>
             </child>
           </widget>
@@ -39517,36 +39523,8 @@
           <widget class="Gtk.Table" id="table1">
             <property name="MemberName" />
             <property name="NRows">5</property>
-            <property name="NColumns">3</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
             <child>
               <widget class="Gtk.CheckButton" id="checkOneDriver">
                 <property name="MemberName" />
@@ -39618,33 +39596,6 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.VBox" id="vbox2">
-                <property name="MemberName" />
-                <property name="Spacing">6</property>
-                <child>
-                  <placeholder />
-                </child>
-                <child>
-                  <placeholder />
-                </child>
-                <child>
-                  <placeholder />
-                </child>
-              </widget>
-              <packing>
-                <property name="LeftAttach">1</property>
-                <property name="RightAttach">2</property>
-                <property name="AutoSize">True</property>
-                <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
-                <property name="XFill">True</property>
-                <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
-                <property name="YFill">True</property>
-                <property name="YShrink">False</property>
-              </packing>
-            </child>
-            <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
@@ -39654,7 +39605,6 @@
                     <property name="Sensitive">False</property>
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">новый адрес</property>
-                    <property name="Active">True</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -44886,7 +44836,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Logistic.BottlesMovementReport" design-size="300 300">
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Bottles.BottlesMovementReport" design-size="300 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -44900,7 +44850,8 @@
             <child>
               <widget class="Gtk.Label" id="label1">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">Дата:</property>
+                <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes">Период:</property>
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -46808,6 +46759,72 @@
         </child>
         <child>
           <placeholder />
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Bottles.BottlesMovementSummaryReport" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hbox1">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="label1">
+                <property name="MemberName" />
+                <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes">Период:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="QSWidgetLib.DatePeriodPicker" id="dateperiodpicker">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="StartDate">0</property>
+                <property name="EndDate">0</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">False</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonCreateReport">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Сформировать отчет</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonCreateReportClicked" />
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
         </child>
       </widget>
     </child>

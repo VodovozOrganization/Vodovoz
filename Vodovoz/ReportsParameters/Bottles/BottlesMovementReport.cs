@@ -4,7 +4,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 
-namespace Vodovoz.ReportsParameters.Logistic
+namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class BottlesMovementReport : Gtk.Bin, IOrmDialog, IParametersWidget
@@ -32,7 +32,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		public string Title {
 			get {
-				return "Отчёт по движению бутылей";
+				return "Отчёт по движению бутылей (по МЛ)";
 			}
 		}
 
@@ -48,7 +48,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Identifier = "Logistic.BottlesMovementReport",
+				Identifier = "Bottles.BottlesMovementReport",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
@@ -60,7 +60,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
 			if(dateperiodpicker.StartDateOrNull == null) {
-				MessageDialogWorks.RunErrorDialog("Необходимо выбрать дату");
+				MessageDialogWorks.RunErrorDialog("Необходимо выбрать период");
 				return;
 			}
 			OnUpdate(true);

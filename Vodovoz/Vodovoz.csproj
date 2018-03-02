@@ -595,8 +595,6 @@
     <Compile Include="ReportsParameters\DriverWagesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.DriverWagesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.FuelReport.cs" />
-    <Compile Include="ReportsParameters\ShortfallBattlesReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Reports.ShortfallBattlesReport.cs" />
     <Compile Include="Representations\FinesVM.cs" />
     <Compile Include="JournalFilters\FineFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.FineFilter.cs" />
@@ -679,8 +677,6 @@
     <Compile Include="Additions\Logistic\RouteOptimization\PossibleTrip.cs" />
     <Compile Include="ReportsParameters\Logistic\ShipmentReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ShipmentReport.cs" />
-    <Compile Include="ReportsParameters\Logistic\BottlesMovementReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.BottlesMovementReport.cs" />
     <Compile Include="Additions\Logistic\MapDrawingHelper.cs" />
     <Compile Include="ReportsParameters\Logistic\MileageReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.MileageReport.cs" />
@@ -709,6 +705,12 @@
     <Compile Include="Core\CurrentUserSettings.cs" />
     <Compile Include="Core\CurrentPermissions.cs" />
     <Compile Include="Additions\Store\StoreDocumentHelper.cs" />
+    <Compile Include="ReportsParameters\Bottles\BottlesMovementReport.cs" />
+    <Compile Include="ReportsParameters\Bottles\BottlesMovementSummaryReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.BottlesMovementSummaryReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.BottlesMovementReport.cs" />
+    <Compile Include="ReportsParameters\Bottles\ShortfallBattlesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -861,6 +863,8 @@
     <Folder Include="ReportsParameters\Store\" />
     <Folder Include="Core\" />
     <Folder Include="Additions\Store\" />
+    <Folder Include="ReportsParameters\Bottles\" />
+    <Folder Include="Reports\Bottles\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -995,9 +999,6 @@
     <None Include="Reports\Wages\DriverWage.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Orders\ShortfallBattlesReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Reports\Employees\WagesOperations.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -1090,9 +1091,6 @@
     <None Include="Reports\Logistic\ShipmentReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Logistic\BottlesMovementReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Reports\Logistic\RouteMap.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -1122,6 +1120,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\StockWaterMovements.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Bottles\BottlesMovementReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Bottles\ShortfallBattlesReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
