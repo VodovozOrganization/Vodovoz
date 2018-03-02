@@ -628,12 +628,12 @@ namespace Vodovoz.Domain.Orders
 					foreach(OrderItem item in ObservableOrderItems) {
 						decimal fixedPrice = GetFixedPrice(item);
 						decimal nomenclaturePrice = GetNomenclaturePrice(item);
-						if(fixedPrice > default(decimal)) {
+						if(fixedPrice > default(decimal) && item.Price < fixedPrice) {
 							incorrectPriceItems.Add(String.Format("{0} - цена: {1}, должна быть: {2}\n",
 																  item.NomenclatureString,
 																  item.Price,
 																  fixedPrice));
-						} else if(nomenclaturePrice > default(decimal)) {
+						} else if(nomenclaturePrice > default(decimal) && item.Price < nomenclaturePrice) {
 							incorrectPriceItems.Add(String.Format("{0} - цена: {1}, должна быть: {2}\n",
 																  item.NomenclatureString,
 																  item.Price,
