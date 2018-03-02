@@ -729,7 +729,7 @@ namespace Vodovoz
 				if(wsa == null) {
 					//Если нет доп. соглашения продажи воды.
 					if(MessageDialogWorks.RunQuestionDialog("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?")) {
-						RunAdditionalAgreementWaterDialog();
+						RunAdditionalAgreementWaterDialog(nomenclature);
 					} else
 						return;
 				} else {
@@ -1590,7 +1590,7 @@ namespace Vodovoz
 						if(wsa == null) {
 							//Если нет доп. соглашения продажи воды.
 							if(MessageDialogWorks.RunQuestionDialog("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?")) {
-								RunAdditionalAgreementWaterDialog();
+								RunAdditionalAgreementWaterDialog(orderItem.Nomenclature);
 							} else
 								continue;
 						} else {
