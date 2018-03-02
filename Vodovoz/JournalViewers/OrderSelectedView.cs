@@ -130,7 +130,9 @@ namespace Vodovoz.JournalViewers
 		public int DocumentId { get; set; }
 		public OrderDocumentType DocumentType {
 			get{
-				return OrderDocument.OrderDocumentTypeValues[DocumentTypeString];
+				OrderDocumentType result;
+				Enum.TryParse<OrderDocumentType>(DocumentTypeString, out result);
+				return result;
 			}
 		}
 		public string DocumentTypeString { get; set; }

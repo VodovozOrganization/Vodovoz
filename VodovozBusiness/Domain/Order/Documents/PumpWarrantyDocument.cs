@@ -11,21 +11,7 @@ namespace Vodovoz.Domain.Orders.Documents
 {
 	public class PumpWarrantyDocument:OrderDocument
 	{
-		/// <summary>
-		/// Тип документа используемый для маппинга для DiscriminatorValue
-		/// а также для определния типа в нумераторе типов документов.
-		/// Создано для определения этого значения только в одном месте.
-		/// </summary>
-		public static new string OrderDocumentTypeValue { get => "pump_warranty"; }
-
 		#region implemented abstract members of OrderDocument
-
-		public override OrderDocumentType Type {
-			get {
-				return OrderDocumentTypeValues[OrderDocumentTypeValue];
-			}
-		}
-
 		public override QSReport.ReportInfo GetReportInfo ()
 		{
 			return new QSReport.ReportInfo {
@@ -38,6 +24,11 @@ namespace Vodovoz.Domain.Orders.Documents
 					{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization])}
 				}
 			};
+		}
+		public override OrderDocumentType Type {
+			get {
+				return OrderDocumentType.PumpWarranty;
+			}
 		}
 
 		public override DateTime? DocumentDate {

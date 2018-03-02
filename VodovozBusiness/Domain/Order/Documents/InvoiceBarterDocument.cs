@@ -6,21 +6,7 @@ namespace Vodovoz.Domain.Orders.Documents
 {
 	public class InvoiceBarterDocument : OrderDocument
 	{
-		/// <summary>
-		/// Тип документа используемый для маппинга для DiscriminatorValue
-		/// а также для определния типа в нумераторе типов документов.
-		/// Создано для определения этого значения только в одном месте.
-		/// </summary>
-		public static new string OrderDocumentTypeValue { get => "invoice_barter"; }
-
 		#region implemented abstract members of OrderDocument
-
-		public override OrderDocumentType Type {
-			get {
-				return OrderDocumentTypeValues[OrderDocumentTypeValue];
-			}
-		}
-
 		public override QSReport.ReportInfo GetReportInfo ()
 		{
 			return new QSReport.ReportInfo {
@@ -31,7 +17,11 @@ namespace Vodovoz.Domain.Orders.Documents
 				}
 			};
 		}
-
+		public override OrderDocumentType Type {
+			get {
+				return OrderDocumentType.InvoiceBarter;
+			}
+		}
 		#endregion
 
 		public override string Name { get { return String.Format ("Накладная №{0} (бартер)",Order.Id); }  }

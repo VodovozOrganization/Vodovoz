@@ -21,7 +21,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public OrderAgreementMap ()
 		{
-			DiscriminatorValue (OrderAgreement.OrderDocumentTypeValue);
+			DiscriminatorValue ("AdditionalAgreement");
 			References (x => x.AdditionalAgreement).Column ("agreement_id");
 		}
 	}
@@ -30,7 +30,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public OrderContractMap ()
 		{
-			DiscriminatorValue (OrderContract.OrderDocumentTypeValue);
+			DiscriminatorValue ("Contract");
 			References (x => x.Contract).Column ("contract_id");
 		}
 	}
@@ -39,7 +39,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public BillDocumentMap()
 		{
-			DiscriminatorValue (BillDocument.OrderDocumentTypeValue);
+			DiscriminatorValue ("Bill");
 		}
 	}
 
@@ -47,7 +47,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public CoolerWarrantyDocumentMap()
 		{
-			DiscriminatorValue (CoolerWarrantyDocument.OrderDocumentTypeValue);
+			DiscriminatorValue ("CoolerWarranty");
 			Map(x => x.WarrantyNumber).Column("warranty_number");
 			References(x => x.Contract).Column("contract_id");
 			References(x => x.AdditionalAgreement).Column("agreement_id");
@@ -58,7 +58,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public DoneWorkDocumentMap()
 		{
-			DiscriminatorValue (DoneWorkDocument.OrderDocumentTypeValue);
+			DiscriminatorValue ("DoneWorkReport");
 			References (x => x.ServiceClaim).Column ("service_claim_id");
 		}
 	}
@@ -67,7 +67,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public EquipmentTransferDocumentMap()
 		{
-			DiscriminatorValue (EquipmentTransferDocument.OrderDocumentTypeValue);
+			DiscriminatorValue ("EquipmentTransfer");
 			References (x => x.ServiceClaim).Column ("service_claim_id");
 		}
 	}
@@ -76,7 +76,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public InvoiceBarterDocumentMap()
 		{
-			DiscriminatorValue (InvoiceBarterDocument.OrderDocumentTypeValue);
+			DiscriminatorValue ("InvoiceBarter");
 		}
 	}
 
@@ -84,7 +84,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public InvoiceDocumentMap()
 		{
-			DiscriminatorValue (InvoiceDocument.OrderDocumentTypeValue);
+			DiscriminatorValue ("Invoice");
 
 			Map(x => x.WithoutAdvertising).Column("without_advertising");
 		}
@@ -94,7 +94,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public PumpWarrantyDocumentMap()
 		{
-			DiscriminatorValue (PumpWarrantyDocument.OrderDocumentTypeValue);
+			DiscriminatorValue ("PumpWarranty");
 			Map(x => x.WarrantyNumber).Column("warranty_number");
 			References(x => x.Contract).Column("contract_id");
 			References(x => x.AdditionalAgreement).Column("agreement_id");
@@ -105,7 +105,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public UPDDocumentMap()
 		{
-			DiscriminatorValue (UPDDocument.OrderDocumentTypeValue);
+			DiscriminatorValue ("UPD");
 		}
 	}
 
@@ -113,7 +113,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public DriverTicketDocumentMap()
 		{
-			DiscriminatorValue (DriverTicketDocument.OrderDocumentTypeValue);
+			DiscriminatorValue ("DriverTicket");
 		}
 	}
 
@@ -121,7 +121,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public Torg12DocumentMap()
 		{
-			DiscriminatorValue(Torg12Document.OrderDocumentTypeValue);
+			DiscriminatorValue("Torg12");
 		}
 	}
 
@@ -129,7 +129,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public ShetFacturaDocumentMap()
 		{
-			DiscriminatorValue(ShetFacturaDocument.OrderDocumentTypeValue);
+			DiscriminatorValue("ShetFactura");
 		}
 	}
 }

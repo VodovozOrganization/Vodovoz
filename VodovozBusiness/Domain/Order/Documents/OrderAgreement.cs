@@ -1,25 +1,19 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Client;
+using QSReport;
 using QSDocTemplates;
 using QSOrmProject;
-using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
 	public class OrderAgreement : OrderDocument, ITemplatePrntDoc, ITemplateOdtDocument
 	{
-		/// <summary>
-		/// Тип документа используемый для маппинга для DiscriminatorValue
-		/// а также для определния типа в нумераторе типов документов.
-		/// Создано для определения этого значения только в одном месте.
-		/// </summary>
-		public static new string OrderDocumentTypeValue { get => "order_agreement"; }
-
 		#region implemented abstract members of OrderDocument
 
 		public override OrderDocumentType Type {
 			get {
-				return OrderDocumentTypeValues[OrderDocumentTypeValue];	
+				return OrderDocumentType.AdditionalAgreement;	
 			}
 		}
 
