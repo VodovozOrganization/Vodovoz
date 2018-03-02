@@ -1351,7 +1351,7 @@ namespace Vodovoz.Domain.Orders
 								Count = paidRentEquipment.Count,
 								Equipment = null,
 								Nomenclature = nomenclature,
-								Price = nomenclature.GetPrice(paidRentEquipment.Count),
+								Price = paidRentEquipment.Price,
 								PaidRentEquipment = paidRentEquipment
 							}
 						);
