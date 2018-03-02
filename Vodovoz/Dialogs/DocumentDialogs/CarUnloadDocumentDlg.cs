@@ -274,7 +274,7 @@ namespace Vodovoz
 				}
 			}
 
-			foreach(var item in Entity.Items)
+			foreach(var item in Entity.Items.ToList())
 			{
 				var exist = tempItemList.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature?.Id);
 				
