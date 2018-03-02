@@ -1636,7 +1636,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void CreateOrderAgreementDocument(AdditionalAgreement agreement)
 		{
-			if(ObservableOrderDocuments.OfType<OrderAgreement>().Any(x => x.AdditionalAgreement == agreement)) {
+			if(ObservableOrderDocuments.OfType<OrderAgreement>().Any(x => x.AdditionalAgreement.Id == agreement.Id)) {
 				return;
 			}
 			ObservableOrderDocuments.Add(new OrderAgreement {
