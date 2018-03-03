@@ -69,6 +69,11 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
+			if(CheckWarehouseItems() == false){
+				MessageDialogWorks.RunErrorDialog("На складе не хватает материалов");
+				return false;
+			}
+				
 			var valid = new QSValidator<IncomingWater> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -84,6 +89,15 @@ namespace Vodovoz
 			logger.Info ("Сохраняем документ производства...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok.");
+			return true;
+		}
+
+		private bool CheckWarehouseItems()
+		{
+			foreach(var mater in Entity.Materials){
+				if(mater.Amount > mater.AmountOnSource)
+					return false;
+			} 
 			return true;
 		}
 
