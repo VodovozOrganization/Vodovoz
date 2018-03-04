@@ -113,13 +113,9 @@
 				doc_residue.id = docs.doc_id)
 #equipment deposit if it's order
 		when docs.doc_name = 'Заказ' then
-			(select 
-				sum(deposit_operations.received_deposit - deposit_operations.refund_deposit)
-			from
-				deposit_operations
-			where
-				deposit_operations.order_id = docs.doc_id
-				and deposit_operations.deposit_type = 'Equipment')
+			 (SELECT price * count 
+                                                FROM  order_items where nomenclature_id in (SELECT id FROM Vodovoz_honeybee.nomenclature where name like 'залог%'  and name not like '%буты%') 
+                          and   order_items.order_id = docs.doc_id)
 #equipment deposit if it's transfer
 		else
 			(select
@@ -375,7 +371,7 @@ FROM counterparty WHERE id = @client_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Bottles">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
     docs.doc_id
@@ -410,7 +406,7 @@ where
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bottle_balance">
           <DataField>bottle_balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1605,8 +1601,8 @@ ____________(                        )
         <Width>257.45pt</Width>
         <Value>=First({full_name}, "Client")</Value>
         <ZIndex>1</ZIndex>
-        <Left>309.1pt</Left>
-        <Top>207.8pt</Top>
+        <Left>309.10pt</Left>
+        <Top>207.80pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1842,7 +1838,7 @@ ____________(                        )
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
