@@ -711,6 +711,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.BottlesMovementReport.cs" />
     <Compile Include="ReportsParameters\Bottles\ShortfallBattlesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\DrivingCallReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DrivingCallReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1126,6 +1128,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bottles\ShortfallBattlesReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\DrivingCall.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -919,4 +919,13 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
+
+	protected void OnActionDriveingCallsActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.Logistic.DrivingCallReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
 }
