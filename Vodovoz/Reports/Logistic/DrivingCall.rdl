@@ -22,7 +22,7 @@
   end as called
   ,rl.id as ML
  ,CONCAT(emp.last_name, ' ', emp.name, ' ', emp.patronymic) as FIO,
-orders.client_phone 
+orders.comment_manager 
 FROM    orders
   left join route_list_addresses rla on rla.order_id = orders.id
   left join route_lists rl on rl.id = rla.route_list_id
@@ -56,8 +56,8 @@ where driver_call_type &lt;&gt; 'NoCall'
           <DataField>FIO</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="client_phone">
-          <DataField>client_phone</DataField>
+        <Field Name="comment_manager">
+          <DataField>comment_manager</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -296,7 +296,7 @@ where driver_call_type &lt;&gt; 'NoCall'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>=Fields!client_phone.Value</Value>
+                      <Value>=Fields!comment_manager.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
