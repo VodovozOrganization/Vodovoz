@@ -1665,7 +1665,6 @@ namespace Vodovoz
 			int result = 0;
 			if(Int32.TryParse(entryBottlesReturn.Text, out result)) {
 				Entity.BottlesReturn = result;
-				UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
 			}
 		}
 

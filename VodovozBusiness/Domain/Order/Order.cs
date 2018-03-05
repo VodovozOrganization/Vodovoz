@@ -1211,6 +1211,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalcBottlesDeposits(IUnitOfWork uow)
 		{
+			/* Отключено в связи с изменением работы возврата залогов
 			var expectedBottleDepositsCount = GetExpectedBottlesDepositsCount();
 			var bottleDeposit = NomenclatureRepository.GetBottleDeposit(uow);
 			if(bottleDeposit == null)
@@ -1226,7 +1227,7 @@ namespace Vodovoz.Domain.Orders
 				}
 				if(depositPaymentItem != null)
 					depositPaymentItem.Count = expectedBottleDepositsCount;
-				else {
+				else {*/
 					/* Временно отключил взятие с клиента залогов за бутыли. Удалить если залоги так и не вернутся.
 					 * 					ObservableOrderItems.Add (new OrderItem {
 											Order = this,
@@ -1245,10 +1246,11 @@ namespace Vodovoz.Domain.Orders
 											FreeRentItem = null,
 											PaidRentItem = null,
 											PaymentDirection = PaymentDirection.FromClient
-										}); */
+										}); *//*
 				}
 				return;
 			}
+			
 			if(expectedBottleDepositsCount == 0) {
 				if(depositRefundItem != null)
 					ObservableOrderDepositItems.Remove(depositRefundItem);
@@ -1281,7 +1283,7 @@ namespace Vodovoz.Domain.Orders
 							Count = count
 						});
 				return;
-			}
+			}*/
 		}
 
 		/// <summary>
