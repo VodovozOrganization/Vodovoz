@@ -13,9 +13,9 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>60</Timeout>
+		<Timeout>60</Timeout>
         <CommandText>select
 	docs.doc_id,
     docs.doc_date,
@@ -113,9 +113,13 @@
 				doc_residue.id = docs.doc_id)
 #equipment deposit if it's order
 		when docs.doc_name = 'Заказ' then
-			 (SELECT price * count 
-                                                FROM  order_items where nomenclature_id in (SELECT id FROM Vodovoz_honeybee.nomenclature where name like 'залог%'  and name not like '%буты%') 
-                          and   order_items.order_id = docs.doc_id)
+			(select 
+				sum(deposit_operations.received_deposit - deposit_operations.refund_deposit)
+			from
+				deposit_operations
+			where
+				deposit_operations.order_id = docs.doc_id
+				and deposit_operations.deposit_type = 'Equipment')
 #equipment deposit if it's transfer
 		else
 			(select
@@ -289,7 +293,7 @@ order by docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="doc_id">
           <DataField>doc_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -373,30 +377,35 @@ FROM counterparty WHERE id = @client_id;</CommandText>
     <DataSet Name="Bottles">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>select
-    docs.doc_id
-    ,docs.delivery_point_id
-    ,sum(ifnull(bottles_movement_operations.delivered,0) - ifnull(bottles_movement_operations.returned,0) - ifnull(forfeits.forfeitCount,0)) bottle_balance
-  from  (select 
-	orders.id as doc_id,
-	orders.bottles_movement_operation_id,
-	orders.delivery_date as doc_date,
-	delivery_points.id as delivery_point_id,
-	orders.client_id as doc_client_id
-	from orders
-	left join delivery_points on delivery_points.id = orders.delivery_point_id
-	where not (orders.order_status = 'Canceled'  or orders.order_status = 'DeliveryCanceled' or orders.order_status = 'NorDelivered')
-	) as docs
- left join bottles_movement_operations on docs.bottles_movement_operation_id = bottles_movement_operations.id
- left join (select 
-	 order_items.order_id as order_id,
-	 sum(order_items.actual_count) as forfeitCount
-	 from order_items
-	 where order_items.nomenclature_id in  (select str_value from base_parameters where base_parameters.name = 'forfeit_nomenclature_id' OR  base_parameters.name = 'forfeit1с_nomenclature_id')
-	 group by order_items.order_id)   as forfeits on forfeits.order_id = docs.doc_id
-where
-	docs.doc_client_id = @client_id
-	and (@delivery_point_id = -1 or docs.delivery_point_id = @delivery_point_id)</CommandText>
+        <CommandText>SELECT 
+    SUM(CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) - IFNULL((SELECT 
+                    SUM(order_items.actual_count)
+                FROM
+                    order_items
+                        LEFT JOIN
+                    orders ON orders.id = order_items.order_id
+                WHERE
+                    orders.client_id = @client_id
+                    AND(order_items.nomenclature_id = (SELECT 
+                               str_value
+                           FROM
+                               base_parameters
+                           WHERE
+                               base_parameters.name = 'forfeit_nomenclature_id')
+	      OR order_items.nomenclature_id = (SELECT 
+                 	     str_value
+                	   FROM
+                   	     base_parameters
+              	 	   WHERE
+                   	  base_parameters.name = 'forfeit1с_nomenclature_id'))
+	  GROUP BY client_id),
+            0) AS bottle_balance                    
+FROM
+    bottles_movement_operations
+WHERE
+    counterparty_id = @client_id
+        AND (@delivery_point_id = - 1
+        OR delivery_point_id = @delivery_point_id)</CommandText>
         <QueryParameters>
           <QueryParameter Name="client_id">
             <Value>={?client_id}</Value>
@@ -1601,8 +1610,8 @@ ____________(                        )
         <Width>257.45pt</Width>
         <Value>=First({full_name}, "Client")</Value>
         <ZIndex>1</ZIndex>
-        <Left>309.10pt</Left>
-        <Top>207.80pt</Top>
+        <Left>309.1pt</Left>
+        <Top>207.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1661,8 +1670,8 @@ ____________(                        )
         <Width>130.88pt</Width>
         <Value>=Sum({bottles_deposit}, 'Data')</Value>
         <ZIndex>1</ZIndex>
-        <Left>222.9pt</Left>
-        <Top>172.8pt</Top>
+        <Left>222.10pt</Left>
+        <Top>172.80pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1789,7 +1798,7 @@ ____________(                        )
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>16293</Value>
+          <Value>7015</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1828,7 +1837,7 @@ ____________(                        )
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-03-24</Value>
+          <Value>2017-08-24</Value>
         </Values>
       </DefaultValue>
       <Nullable>true</Nullable>
@@ -1838,11 +1847,12 @@ ____________(                        )
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>
+        </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
