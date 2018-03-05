@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -21,7 +21,8 @@
             when driver_call_type = 'CallFromAnywhere' then 'Не с адреса'
   end as called
   ,rl.id as ML
- ,CONCAT(emp.last_name, ' ', emp.name, ' ', emp.patronymic) as FIO
+ ,CONCAT(emp.last_name, ' ', emp.name, ' ', emp.patronymic) as FIO,
+orders.client_phone 
 FROM    orders
   left join route_list_addresses rla on rla.order_id = orders.id
   left join route_lists rl on rl.id = rla.route_list_id
@@ -49,10 +50,14 @@ where driver_call_type &lt;&gt; 'NoCall'
         </Field>
         <Field Name="ML">
           <DataField>ML</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
+          <rd:TypeName>System.UInt32</rd:TypeName>
         </Field>
         <Field Name="FIO">
           <DataField>FIO</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="client_phone">
+          <DataField>client_phone</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -80,16 +85,19 @@ where driver_call_type &lt;&gt; 'NoCall'
             <Width>26.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65.1pt</Width>
+            <Width>61.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>223.6pt</Width>
+            <Width>175.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.0pt</Width>
+            <Width>43.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>109.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>144.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -166,6 +174,22 @@ where driver_call_type &lt;&gt; 'NoCall'
                     <Textbox Name="Textbox4">
                       <Value>Позвонил:</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>Водительский телефон</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -269,6 +293,23 @@ where driver_call_type &lt;&gt; 'NoCall'
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>=Fields!client_phone.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -349,17 +390,34 @@ where driver_call_type &lt;&gt; 'NoCall'
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>22.3pt</Left>
+        <Left>0.0pt</Left>
         <Top>57.9pt</Top>
       </Table>
       <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>27.6pt</Top>
-        <Left>1.7pt</Left>
-        <Width>575.75pt</Width>
+        <Top>27.60pt</Top>
+        <Left>1.70pt</Left>
+        <Width>555.50pt</Width>
         <Height>19.60pt</Height>
         <Value>='Звонки водителей' </Value>
         <Style>
@@ -373,7 +431,7 @@ where driver_call_type &lt;&gt; 'NoCall'
         </Style>
       </Textbox>
     </ReportItems>
-    <Height>142.6pt</Height>
+    <Height>132.2pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -433,11 +491,11 @@ where driver_call_type &lt;&gt; 'NoCall'
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user= ;password= ;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_temp;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
