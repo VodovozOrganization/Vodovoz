@@ -17,6 +17,12 @@ namespace Vodovoz.Domain.Client
 	{
 		public virtual int Id { get; set; }
 
+		public virtual string Title {
+			get {
+				return $"{Nomenclature.Name} - {Price}";
+			}
+		}
+
 		Nomenclature nomenclature;
 
 		[Display (Name = "Номенклатура")]
@@ -40,12 +46,6 @@ namespace Vodovoz.Domain.Client
 			get { return additionalAgreement; }
 			set { SetField (ref additionalAgreement, value, () => AdditionalAgreement); }
 		}
-
-
-
-
-
-
 
 	}
 	

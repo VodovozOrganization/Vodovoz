@@ -114,7 +114,7 @@ namespace Vodovoz
 				OrmObjectMapping<FreeRentAgreement>.Create().Dialog<FreeRentAgreementDlg>(),
 				OrmObjectMapping<DailyRentAgreement>.Create().Dialog<DailyRentAgreementDlg>(),
 				OrmObjectMapping<NonfreeRentAgreement>.Create().Dialog<NonFreeRentAgreementDlg>(),
-				OrmObjectMapping<WaterSalesAgreement>.Create().Dialog<WaterAgreementDlg>(),
+				OrmObjectMapping<WaterSalesAgreement>.Create().Trace().Dialog<WaterAgreementDlg>(),
 				OrmObjectMapping<RepairAgreement>.Create().Dialog<RepairAgreementDlg>(),
 				OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView().SearchColumn("Название", x => x.FullName).End(),
 				OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),
@@ -160,6 +160,7 @@ namespace Vodovoz
 				OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().EditPermision("store_manage").DefaultTableView().Column("Название", w=>w.Name).End(),
 				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().EditPermision("store_manage").DefaultTableView().Column("Название", w=>w.Name).End()
 			};
+
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
 			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
 

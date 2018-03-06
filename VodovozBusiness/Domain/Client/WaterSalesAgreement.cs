@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Goods;
+using QSHistoryLog;
 
 namespace Vodovoz.Domain.Client
 {
@@ -13,6 +14,7 @@ namespace Vodovoz.Domain.Client
 		Nominative = "доп. соглашение продажи воды")]
 	public class WaterSalesAgreement : AdditionalAgreement
 	{
+		[HistoryDeepCloneItems]
 		IList<WaterSalesAgreementFixedPrice> fixedPrices = new List<WaterSalesAgreementFixedPrice> ();
 
 		[Display (Name = "Фиксированные цены")]
@@ -23,6 +25,7 @@ namespace Vodovoz.Domain.Client
 
 		GenericObservableList<WaterSalesAgreementFixedPrice> observableFixedPrices;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<WaterSalesAgreementFixedPrice> ObservablFixedPrices {
 			get {
 				if (observableFixedPrices == null)
