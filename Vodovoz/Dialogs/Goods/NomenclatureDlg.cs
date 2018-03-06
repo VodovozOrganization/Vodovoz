@@ -62,6 +62,8 @@ namespace Vodovoz
 			spinWeight.Binding.AddBinding (Entity, e => e.Weight, w => w.Value).InitializeFromSource ();
 			spinVolume.Binding.AddBinding(Entity, e => e.Volume, w => w.Value).InitializeFromSource();
 			checkSerial.Binding.AddBinding(Entity, e => e.IsSerial, w => w.Active).InitializeFromSource();
+			ycheckNewBottle.Binding.AddBinding(Entity, e => e.IsNewBottle, w => w.Active).InitializeFromSource();
+			ycheckDefectiveBottle.Binding.AddBinding(Entity, e => e.IsDefectiveBottle, w => w.Active).InitializeFromSource();
 
 			referenceUnit.SubjectType = typeof (MeasurementUnits);
 			referenceUnit.Binding.AddBinding (Entity, n => n.Unit, w => w.Subject).InitializeFromSource ();
@@ -134,6 +136,8 @@ namespace Vodovoz
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelRentPriority.Sensitive = ycheckRentPriority.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
+
+			labelBottle.Sensitive = ycheckNewBottle.Sensitive = ycheckDefectiveBottle.Sensitive = selected == NomenclatureCategory.bottle;
 
 			//FIXME запуск оборудования - временный фикс
 			//if (Entity.Category == NomenclatureCategory.equipment)
