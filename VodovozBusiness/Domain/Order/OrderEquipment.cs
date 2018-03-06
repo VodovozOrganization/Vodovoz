@@ -156,6 +156,16 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref actualCount, value, () => ActualCount); }
 		}
 
+		#region Вычисляемые
+
+		public virtual bool IsDelivered {
+			get {
+				return Count - ActualCount == 0;
+			}
+		}
+
+		#endregion
+
 		#region Функции
 
 		public virtual CounterpartyMovementOperation UpdateCounterpartyOperation()

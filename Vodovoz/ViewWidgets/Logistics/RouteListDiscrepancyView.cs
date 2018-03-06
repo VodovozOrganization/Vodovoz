@@ -68,19 +68,73 @@ namespace Vodovoz
 			});
 		}	
 
-		public void FindDiscrepancies(IList<RouteListItem> items, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse){
-			var discrepancies = new List<Discrepancy>();
-
-			var goodsDiscrepancies = GetGoodsDiscrepancies(items, allReturnsToWarehouse);
-			var equipmentDiscrepancies = GetEquipmentDiscrepancies(items, allReturnsToWarehouse);
-
-			discrepancies.AddRange(goodsDiscrepancies);
-			discrepancies.AddRange(equipmentDiscrepancies);
-
-			DomainHelper.FillPropertyByEntity<Discrepancy, Nomenclature>(MyOrmDialog.UoW, discrepancies, x => x.NomenclatureId, (x, y) => x.Nomenclature = y);
-			Items = discrepancies;
+		public void FindDiscrepancies(IList<RouteListItem> items, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse)
+		{
+			Items = GetDiscrepancies(items, allReturnsToWarehouse);
 		}
 
+		List<Discrepancy> GetDiscrepancies(IList<RouteListItem> items, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse)
+		{
+			List<Discrepancy> result = new List<Discrepancy>();
+
+			//ТОВАРЫ
+			var orderClosingItems = items
+				.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
+				.SelectMany(item => item.Order.OrderItems)
+				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+				.ToList();
+			foreach(var orderItem in orderClosingItems) {
+				var discrepancy = new Discrepancy();
+				discrepancy.Nomenclature = orderItem.Nomenclature;
+				if(!orderItem.IsDelivered) {
+					discrepancy.FromCancelledOrders = orderItem.Count;
+				}
+				discrepancy.ClientRejected = orderItem.ReturnedCount;
+				discrepancy.ToWarehouse = allReturnsToWarehouse.Where(x => x.NomenclatureId == orderItem.Nomenclature.Id).Select(x => x.Amount).FirstOrDefault();
+				discrepancy.Name = orderItem.Nomenclature.Name;
+				result.Add(discrepancy);
+			}
+
+			//ОБОРУДОВАНИЕ
+			var orderEquipments = items
+				.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
+				.SelectMany(item => item.Order.OrderEquipments)
+				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+				//По тем номенклатурам которых нет в товарах
+				.Where(item => !result.Select(x => x.NomenclatureId).ToArray().Contains(item.Nomenclature.Id))
+				.ToList();
+			foreach(var orderEquip in orderEquipments) {
+				var discrepancy = new Discrepancy();
+				discrepancy.Nomenclature = orderEquip.Nomenclature;
+				if(orderEquip.Direction == Domain.Orders.Direction.Deliver){
+					if(!orderEquip.IsDelivered) {
+						discrepancy.FromCancelledOrders = orderEquip.Count;
+					}
+					discrepancy.ClientRejected = orderEquip.Count - orderEquip.ActualCount;
+				}else {
+					discrepancy.PickedUpFromClient = orderEquip.Count;
+				}
+				discrepancy.ToWarehouse = allReturnsToWarehouse.Where(x => x.NomenclatureId == orderEquip.Nomenclature.Id).Select(x => x.Amount).FirstOrDefault();
+				discrepancy.Name = orderEquip.Nomenclature.Name;
+				result.Add(discrepancy);
+			}
+
+			//ДОСТАВЛЕНО НА СКЛАД
+			var warehouseItems = allReturnsToWarehouse
+				//По тем номенклатурам которых нет в товарах и оборудовании
+				.Where(item => !result.Select(x => x.NomenclatureId).ToArray().Contains(item.NomenclatureId))
+				.ToList();
+			foreach(var item in warehouseItems) {
+				var discrepancy = new Discrepancy();
+				discrepancy.ToWarehouse = item.Amount;
+				discrepancy.Name = item.Name;
+				result.Add(discrepancy);
+			}
+
+			return result;
+		}
+
+		//FIXME НЕ используется. При вводе оборудования с серийнымы номерами, возможно понадобится. Удалить если не будет использоваться
 		IList<Discrepancy> GetGoodsDiscrepancies(IList<RouteListItem> items, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse)
 		{
 			var discrepancies = new List<Discrepancy>();
@@ -142,6 +196,7 @@ namespace Vodovoz
 			return discrepancies;
 		}
 
+		//FIXME НЕ используется. При вводе оборудования с серийнымы номерами, возможно понадобится. Удалить если не будет использоваться
 		IList<Discrepancy> GetEquipmentDiscrepancies(IList<RouteListItem> items, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse)
 		{
 			var discrepancies = new List<Discrepancy>();
@@ -246,10 +301,23 @@ namespace Vodovoz
 
 	public class Discrepancy
 	{
+		public int Id { get; set; }
 		public string Name{get;set;}
-		public int NomenclatureId{get;set;}
-		public Nomenclature Nomenclature {get;set;}
-		public int Id{get;set;}
+
+		private Nomenclature nomenclature;
+		public Nomenclature Nomenclature {
+			get {
+				return nomenclature;
+			}
+
+			set {
+				nomenclature = value;
+				NomenclatureId = nomenclature.Id;
+				NomenclatureCategory = nomenclature.Category;
+			}
+		}
+		public int NomenclatureId { get; set; }
+		public NomenclatureCategory NomenclatureCategory { get; set; }
 		public decimal PickedUpFromClient{ get; set; }
 		public decimal ClientRejected{ get; set; }
 		public decimal ToWarehouse{ get; set;}
@@ -267,7 +335,6 @@ namespace Vodovoz
 			}
 		}
 		public bool Trackable{ get; set; }
-		public NomenclatureCategory NomenclatureCategory{ get; set; }
 		public string Serial{ get { 
 				if (Trackable) {
 					return Id > 0 ? Id.ToString () : "(не определен)";
