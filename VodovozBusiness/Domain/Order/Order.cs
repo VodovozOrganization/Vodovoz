@@ -377,7 +377,9 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		string commentManager;
-
+		/// <summary>
+		/// Комментарий менеджера ответственного за водительский телефон
+		/// </summary>
 		[Display(Name = "Комментарий менеджера")]
 		public virtual string CommentManager {
 			get { return commentManager; }

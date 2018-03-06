@@ -211,9 +211,9 @@ namespace Vodovoz
 						.Adjustment(new Adjustment(0, -100000, 100000, 100, 100, 1))
 				.AddColumn ("Комментарий\nкассира")
 				.AddTextRenderer (node => node.CashierComment).EditedEvent (CommentCellEdited).Editable()
+				// Комментарий менеджера ответственного за водительский телефон
 				.AddColumn("Вод. телефон").HeaderAlignment(0.5f)
 					.AddTextRenderer()
-						.AddSetter((cell, node) => cell.Markup = FromClientString(node))
 						.AddTextRenderer(node => node.Order.CommentManager)
 				.AddColumn("  З/П\nводителя").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.DriverWage)						
