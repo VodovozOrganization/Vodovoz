@@ -238,22 +238,22 @@ namespace Vodovoz
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
-						var color = colorWhite;
-						if (!node.IsDelivered())
-							color = colorRed;
-					else
-					{
+					var color = colorWhite;
+					if(!node.IsDelivered()) {
+						color = colorRed;
+					} else {
 						var itemChanged = node.Order.OrderItems
 							.Where(item => !item.Nomenclature.IsSerial)
 							.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-							.Any(item => item.Count != item.ActualCount);
-						var equipmentChanged = node.Order.OrderEquipments
-							.Any(eq => !eq.Confirmed);
-						if (itemChanged || equipmentChanged)
+						    .Any(item => !item.IsDelivered);
+						var equipmentChanged = node.Order.OrderEquipments.Any(eq => !eq.IsDelivered);
+						if(itemChanged || equipmentChanged) {
 							color = colorLightBlue;
+						}
 					}
-						if(node.Status == RouteListItemStatus.Transfered)
-							color = colorYellow;
+					if(node.Status == RouteListItemStatus.Transfered) {
+						color = colorYellow;
+					}
 					cell.CellBackgroundGdk = color;
 				});
 
