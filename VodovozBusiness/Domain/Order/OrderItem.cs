@@ -155,17 +155,11 @@ namespace Vodovoz.Domain.Orders
 			get{
 				return Count - ActualCount;
 			}
-			set{
-				ActualCount = Count - value;
-			}
 		}
 
 		public virtual bool IsDelivered{
 			get{
 				return ReturnedCount == 0;
-			}
-			set{
-				ReturnedCount = value ? 0 : 1;
 			}
 		}
 

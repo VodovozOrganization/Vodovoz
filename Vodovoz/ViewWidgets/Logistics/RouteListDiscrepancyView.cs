@@ -82,17 +82,14 @@ namespace Vodovoz
 				.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
 				.SelectMany(item => item.Order.OrderItems)
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+				.Where(item => item.Nomenclature.Category != NomenclatureCategory.bottle)
 				.ToList();
 			foreach(var orderItem in orderClosingItems) {
 				var discrepancy = new Discrepancy();
 				discrepancy.Nomenclature = orderItem.Nomenclature;
-				if(!orderItem.IsDelivered) {
-					discrepancy.FromCancelledOrders = orderItem.Count;
-				}
 				discrepancy.ClientRejected = orderItem.ReturnedCount;
-				discrepancy.ToWarehouse = allReturnsToWarehouse.Where(x => x.NomenclatureId == orderItem.Nomenclature.Id).Select(x => x.Amount).FirstOrDefault();
 				discrepancy.Name = orderItem.Nomenclature.Name;
-				result.Add(discrepancy);
+				AddDiscrepancy(result, discrepancy);
 			}
 
 			//ОБОРУДОВАНИЕ
@@ -100,188 +97,48 @@ namespace Vodovoz
 				.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
 				.SelectMany(item => item.Order.OrderEquipments)
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				//По тем номенклатурам которых нет в товарах
-				.Where(item => !result.Select(x => x.NomenclatureId).ToArray().Contains(item.Nomenclature.Id))
 				.ToList();
 			foreach(var orderEquip in orderEquipments) {
 				var discrepancy = new Discrepancy();
 				discrepancy.Nomenclature = orderEquip.Nomenclature;
 				if(orderEquip.Direction == Domain.Orders.Direction.Deliver){
-					if(!orderEquip.IsDelivered) {
-						discrepancy.FromCancelledOrders = orderEquip.Count;
-					}
 					discrepancy.ClientRejected = orderEquip.Count - orderEquip.ActualCount;
 				}else {
 					discrepancy.PickedUpFromClient = orderEquip.Count;
 				}
-				discrepancy.ToWarehouse = allReturnsToWarehouse.Where(x => x.NomenclatureId == orderEquip.Nomenclature.Id).Select(x => x.Amount).FirstOrDefault();
 				discrepancy.Name = orderEquip.Nomenclature.Name;
-				result.Add(discrepancy);
+				AddDiscrepancy(result, discrepancy);
 			}
 
 			//ДОСТАВЛЕНО НА СКЛАД
 			var warehouseItems = allReturnsToWarehouse
-				//По тем номенклатурам которых нет в товарах и оборудовании
-				.Where(item => !result.Select(x => x.NomenclatureId).ToArray().Contains(item.NomenclatureId))
+				.Where(x => x.NomenclatureCategory != NomenclatureCategory.bottle)
 				.ToList();
-			foreach(var item in warehouseItems) {
+			foreach(var whItem in warehouseItems) {
 				var discrepancy = new Discrepancy();
-				discrepancy.ToWarehouse = item.Amount;
-				discrepancy.Name = item.Name;
-				result.Add(discrepancy);
+				discrepancy.Nomenclature = whItem.Nomenclature;
+				discrepancy.ToWarehouse = whItem.Amount;
+				discrepancy.Name = whItem.Name;
+				AddDiscrepancy(result, discrepancy);
 			}
 
 			return result;
 		}
 
-		//FIXME НЕ используется. При вводе оборудования с серийнымы номерами, возможно понадобится. Удалить если не будет использоваться
-		IList<Discrepancy> GetGoodsDiscrepancies(IList<RouteListItem> items, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse)
+		/// <summary>
+		/// Добавляет новое расхождение если такой номенклатуры нет в списке, 
+		/// иначе прибавляет все значения к найденной в списке номенклатуре
+		/// </summary>
+		void AddDiscrepancy(List<Discrepancy> list, Discrepancy item)
 		{
-			var discrepancies = new List<Discrepancy>();
-			var orderClosingItems = items
-				.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
-				.SelectMany(item => item.Order.OrderItems)
-				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				.ToList();
-			var goodsReturnedFromClient = orderClosingItems.Where(item => !item.Nomenclature.IsSerial)
-				.GroupBy(item => item.Nomenclature,
-					item => item.ReturnedCount,
-					(nomenclature, amounts) => new
-					RouteListRepository.ReturnsNode {
-						Name = nomenclature.Name,
-						NomenclatureId = nomenclature.Id,
-						NomenclatureCategory = nomenclature.Category,
-						Amount = amounts.Sum(i => i),
-						Trackable=false
-					}).ToList();
-			var goodsToWarehouse = allReturnsToWarehouse.Where(item => !item.Trackable).ToList();
-			foreach (var itemFromClient in goodsReturnedFromClient)
-			{
-				var itemToWarehouse = 
-					goodsToWarehouse.FirstOrDefault(item => item.NomenclatureId == itemFromClient.NomenclatureId);
-
-				var failedDeliveryGoodsCount = items.Where(item => !item.IsDelivered())
-					.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
-					.SelectMany(item => item.Order.OrderItems)
-					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-					.Where(item => item.Nomenclature.Id == itemFromClient.NomenclatureId)
-					.Sum(item => item.ReturnedCount);
-				discrepancies.Add(new Discrepancy
-					{
-						Name = itemFromClient.Name,
-						NomenclatureId = itemFromClient.NomenclatureId,
-						FromCancelledOrders = failedDeliveryGoodsCount,
-						ClientRejected = itemFromClient.Amount-failedDeliveryGoodsCount,
-						ToWarehouse = itemToWarehouse?.Amount ?? 0,
-						Trackable = false,
-					});
+			var existsDiscrepancy = list.FirstOrDefault(x => x.Nomenclature == item.Nomenclature);
+			if(existsDiscrepancy == null) {
+				list.Add(item);
+			}else {
+				existsDiscrepancy.ClientRejected += item.ClientRejected;
+				existsDiscrepancy.PickedUpFromClient += item.PickedUpFromClient;
+				existsDiscrepancy.ToWarehouse += item.ToWarehouse;
 			}
-
-			//Заполняем номенклатуры которые были сданы на склад, но в заказах их не было. Их тоже нужно показывать в расхождения.
-			foreach(var item in goodsToWarehouse.Where(x => x.NomenclatureCategory != NomenclatureCategory.bottle))
-			{
-				if (discrepancies.Any (x => x.NomenclatureId == item.NomenclatureId))
-					continue;
-
-				discrepancies.Add (new Discrepancy {
-					Name = item.Name,
-					NomenclatureId = item.NomenclatureId,
-					FromCancelledOrders = 0,
-					ClientRejected = 0,
-					ToWarehouse = item.Amount,
-					Trackable = false,
-				});
-			}
-
-			return discrepancies;
-		}
-
-		//FIXME НЕ используется. При вводе оборудования с серийнымы номерами, возможно понадобится. Удалить если не будет использоваться
-		IList<Discrepancy> GetEquipmentDiscrepancies(IList<RouteListItem> items, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse)
-		{
-			var discrepancies = new List<Discrepancy>();
-			var equipmentRejectedItems = items
-				.SelectMany(item => item.Order.OrderEquipments).Where(item => item.Equipment != null)
-				.Where(item=>item.Direction==Vodovoz.Domain.Orders.Direction.Deliver)
-				.ToList();
-
-			var equipmentPickedUpItems = items
-				.SelectMany(item => item.Order.OrderEquipments).Where(item => item.Equipment != null)
-				.Where(item => item.Direction == Vodovoz.Domain.Orders.Direction.PickUp)
-				.ToList();
-
-			var equipmentRejectedTypes = equipmentRejectedItems
-				.GroupBy(
-					item => item.Equipment.Nomenclature.Type,
-					item => item.Confirmed ? 0 : 1,
-					EquipmentTypeGroupingResult.Selector
-				).Where(item=>item.Amount>0);
-
-			var equipmentPickedUpTypes = equipmentPickedUpItems
-				.GroupBy(
-					item => item.Equipment.Nomenclature.Type,
-					item => item.Confirmed ? 1 : 0,
-					EquipmentTypeGroupingResult.Selector
-				).Where(item => item.Amount > 0);
-
-			var equipmentToWarehouseTypes = allReturnsToWarehouse.Where(item => item.Trackable)
-				.GroupBy(
-					item => item.EquipmentType,
-					item => (int)item.Amount,
-					EquipmentTypeGroupingResult.Selector
-				).Where(item => item.Amount > 0);
-
-			foreach (var fromClient in equipmentRejectedTypes)
-			{
-				var toWarehouse = equipmentToWarehouseTypes
-					.FirstOrDefault(item => item.EquipmentType.Id == fromClient.EquipmentType.Id);
-				var pickedUp = equipmentPickedUpTypes
-					.FirstOrDefault(item => item.EquipmentType.Id == fromClient.EquipmentType.Id);
-				discrepancies.Add(new Discrepancy
-					{
-						Name=fromClient.EquipmentType.Name,
-						ClientRejected = fromClient.Amount,
-						ToWarehouse = toWarehouse!=null ? toWarehouse.Amount : 0,
-						PickedUpFromClient = pickedUp!=null ? pickedUp.Amount : 0
-					});
-			}
-
-			foreach (var toWarehouse in equipmentToWarehouseTypes)
-			{
-				var fromClient = equipmentRejectedTypes
-					.FirstOrDefault(item => item.EquipmentType.Id == toWarehouse.EquipmentType.Id);
-				var pickedUp = equipmentPickedUpTypes
-					.FirstOrDefault(item => item.EquipmentType.Id == toWarehouse.EquipmentType.Id);
-				if (fromClient == null)
-				{
-					discrepancies.Add(new Discrepancy
-						{
-							Name=toWarehouse.EquipmentType.Name,
-							ClientRejected = 0,
-							ToWarehouse = toWarehouse.Amount,
-							PickedUpFromClient = pickedUp!=null ? pickedUp.Amount : 0
-						});
-				}
-			}
-
-			foreach (var pickedUp in equipmentPickedUpTypes)
-			{
-				var fromClient = equipmentRejectedTypes
-					.FirstOrDefault(item => item.EquipmentType.Id == pickedUp.EquipmentType.Id);
-				var toWarehouse = equipmentToWarehouseTypes
-					.FirstOrDefault(item => item.EquipmentType.Id == pickedUp.EquipmentType.Id);
-				if (fromClient == null && toWarehouse == null)
-				{
-					discrepancies.Add(new Discrepancy
-						{
-							Name = pickedUp.EquipmentType.Name,
-							ClientRejected = 0,
-							ToWarehouse = 0,
-							PickedUpFromClient = pickedUp.Amount
-						});
-				}
-			}
-			return discrepancies;
 		}
 	}
 
@@ -312,29 +169,51 @@ namespace Vodovoz
 
 			set {
 				nomenclature = value;
-				NomenclatureId = nomenclature.Id;
-				NomenclatureCategory = nomenclature.Category;
 			}
 		}
-		public int NomenclatureId { get; set; }
-		public NomenclatureCategory NomenclatureCategory { get; set; }
+
+		/// <summary>
+		/// Количество которое необходимо забрать у клиента
+		/// </summary>
+		/// <value>The picked up from client.</value>
 		public decimal PickedUpFromClient{ get; set; }
+
+		/// <summary>
+		/// Недовезенное количество
+		/// </summary>
+		/// <value>The client rejected.</value>
 		public decimal ClientRejected{ get; set; }
-		public decimal ToWarehouse{ get; set;}
-		public decimal FromCancelledOrders{ get; set;}
+
+		/// <summary>
+		/// Выгружено на склад
+		/// </summary>
+		/// <value>To warehouse.</value>
+		public decimal ToWarehouse { get; set; }
+
+		public bool Trackable { get; set; }
+		public bool UseFine { get; set; }
+
+		/// <summary>
+		/// Остаток
+		/// </summary>
 		public decimal Remainder{
 			get{
-				return ToWarehouse - ClientRejected - FromCancelledOrders - PickedUpFromClient;
+				return ToWarehouse - ClientRejected - PickedUpFromClient;
 			}
 		}
+
+		/// <summary>
+		/// Недовоз
+		/// </summary>
 		public string Returns{
 			get{
-				return ClientRejected > 0 
-					? String.Format("{0}({1:+0;-0})", FromCancelledOrders, ClientRejected) 
-						: String.Format("{0}", FromCancelledOrders);
+				return String.Format("{0}", ClientRejected);
 			}
 		}
-		public bool Trackable{ get; set; }
+
+		/// <summary>
+		/// Серийный номер
+		/// </summary>
 		public string Serial{ get { 
 				if (Trackable) {
 					return Id > 0 ? Id.ToString () : "(не определен)";
@@ -343,8 +222,9 @@ namespace Vodovoz
 			}
 		}
 
-		public bool UseFine{ get; set;}
-
+		/// <summary>
+		/// Ущерб
+		/// </summary>
 		public decimal SumOfDamage{
 			get
 			{

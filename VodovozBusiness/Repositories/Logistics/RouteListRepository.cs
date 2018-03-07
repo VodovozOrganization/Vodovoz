@@ -181,6 +181,7 @@ namespace Vodovoz.Repository.Logistics
 
 			result.AddRange (returnableItems);
 			result.AddRange (returnableEquipment);
+			DomainHelper.FillPropertyByEntity<ReturnsNode, Nomenclature>(uow, result, x => x.NomenclatureId, (node, nom) => node.Nomenclature = nom);
 			return result;
 		}
 
@@ -239,6 +240,7 @@ namespace Vodovoz.Repository.Logistics
 
 			result.AddRange(returnableItems);
 			result.AddRange(returnableEquipment);
+			DomainHelper.FillPropertyByEntity<ReturnsNode, Nomenclature>(uow, result, x => x.NomenclatureId, (node, nom) => node.Nomenclature = nom);
 			return result;
 		}
 
@@ -248,6 +250,7 @@ namespace Vodovoz.Repository.Logistics
 		public class ReturnsNode
 		{
 			public int Id { get; set; }
+			public Nomenclature Nomenclature { get; set; }
 			public NomenclatureCategory NomenclatureCategory { get; set; }
 			public int NomenclatureId { get; set; }
 			public string Name { get; set; }
