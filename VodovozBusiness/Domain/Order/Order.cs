@@ -728,6 +728,9 @@ namespace Vodovoz.Domain.Orders
 			   .Any(x => x.OwnType == OwnTypes.None))
 				yield return new ValidationResult("У оборудования обязательно должна быть выбрана принадлежность.");
 
+			if(observableOrderDepositItems.Any(x => x.Total < 0)) {
+				yield return new ValidationResult("В возврате залогов необходимо вводить положительную сумму.");
+			}
 #if !SHORT
 			if (ObservableOrderItems.Any (item => item.Count < 1))
 				yield return new ValidationResult ("В заказе присутствуют позиции с нулевым количеством.", 

@@ -213,7 +213,7 @@ namespace Vodovoz.Domain.Logistic
 				if(depositsCollected != 0m) {
 					return depositsCollected;
 				}else {
-					return Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Bottles).Sum(x => x.Total);
+					return 0 - Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Bottles).Sum(x => x.Total);
 				}
 			}
 		}
@@ -227,7 +227,7 @@ namespace Vodovoz.Domain.Logistic
 				if(equipmentDepositsCollected != 0m) {
 					return equipmentDepositsCollected;
 				} else {
-					return Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);
+					return 0 - Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);
 				}
 			}
 		}
