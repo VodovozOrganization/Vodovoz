@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
 	docs.doc_id,
@@ -338,7 +338,7 @@ order by docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="doc_id">
           <DataField>doc_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -591,34 +591,32 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="StoredEquipments" >
-      <Query>
+    <DataSet Name="StoredEquipments">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	GROUP_CONCAT(IF(client_amount_pickedup &gt; 0, CONCAT(name, ': ', client_amount_pickedup, 'шт'), NULL) SEPARATOR ', ') as we_have_clients_equip,
     GROUP_CONCAT(IF(duty_and_rent_amount_delivered &gt; 0, CONCAT(name, ': ', duty_and_rent_amount_delivered, 'шт'), NULL) SEPARATOR ', ') as client_have_ours_equip
 FROM 
-	(SELECT DISTINCT
+	(SELECT
 		nomenclature.id,
 		nomenclature.name,
-		IF(clientEquipPickedUp.client_amount_pickedup &gt; 0, clientEquipPickedUp.client_amount_pickedup, 0) as client_amount_pickedup,
-		IF(OurDutyEquipDelivered.duty_amount_delivered &gt; 0, OurDutyEquipDelivered.duty_amount_delivered, 0)
-		+ IF(OurRentEquipDelivered.rent_amount_delivered &gt; 0, OurRentEquipDelivered.rent_amount_delivered, 0) as duty_and_rent_amount_delivered
+		SUM(IF(clientEquipPickedUp.client_amount_pickedup &gt; 0, clientEquipPickedUp.client_amount_pickedup, 0)) as client_amount_pickedup,
+		SUM(IF(OurDutyEquipDelivered.duty_amount_delivered &gt; 0, OurDutyEquipDelivered.duty_amount_delivered, 0))
+		+ SUM(IF(OurRentEquipDelivered.rent_amount_delivered &gt; 0, OurRentEquipDelivered.rent_amount_delivered, 0)) as duty_and_rent_amount_delivered
 	FROM
 		orders
 		LEFT JOIN
-		order_equipment ON orders.id = order_equipment.order_id
-		LEFT JOIN 
-		nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+		order_equipment ON orders.id = order_equipment.order_id		
 	#Оборудование в собственности клиента
 		LEFT JOIN
 		(
 			SELECT
-				nom_id,
-				ROUND(SUM(client_amount_pickedup) - SUM(client_amount_delivered)) as client_amount_pickedup
+                equip_id,
+				ROUND(client_amount_pickedup - client_amount_delivered) as client_amount_pickedup
 			FROM
 				(SELECT
-					inner_order_equipments.nomenclature_id as nom_id,
+                    inner_order_equipments.id as equip_id,
 					IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
 					IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
 				FROM
@@ -627,17 +625,16 @@ FROM
 					order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
 				WHERE
 					inner_order_equipments.own_type = 'Client') as t
-			GROUP BY nom_id
-		) as clientEquipPickedUp ON clientEquipPickedUp.nom_id = nomenclature.id
+		) as clientEquipPickedUp ON clientEquipPickedUp.equip_id = order_equipment.id
 	#Дежурное оборудование
 		LEFT JOIN
 		(
 			SELECT
-				nom_id,
-				ROUND(SUM(client_amount_delivered) - SUM(client_amount_pickedup)) as duty_amount_delivered
+                equip_id,
+				ROUND(client_amount_delivered - client_amount_pickedup) as duty_amount_delivered
 			FROM
 				(SELECT
-					inner_order_equipments.nomenclature_id as nom_id,
+                    inner_order_equipments.id as equip_id,
 					IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
 					IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
 				FROM
@@ -646,17 +643,16 @@ FROM
 					order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
 				WHERE
 					inner_order_equipments.own_type = 'Duty') as t
-			GROUP BY nom_id
-		) as OurDutyEquipDelivered ON OurDutyEquipDelivered.nom_id = nomenclature.id
+		) as OurDutyEquipDelivered ON OurDutyEquipDelivered.equip_id = order_equipment.id
 	#Оборудование в аренду
 		LEFT JOIN
 		(
 			SELECT
-				nom_id,
-				ROUND(SUM(client_amount_delivered) - SUM(client_amount_pickedup)) as rent_amount_delivered
+                equip_id,
+				ROUND(client_amount_delivered - client_amount_pickedup) as rent_amount_delivered
 			FROM
 				(SELECT
-					inner_order_equipments.nomenclature_id as nom_id,
+                    inner_order_equipments.id as equip_id,
 					IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
 					IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
 				FROM
@@ -665,12 +661,13 @@ FROM
 					order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
 				WHERE
 					inner_order_equipments.own_type = 'Rent') as t
-			GROUP BY nom_id
-		) as OurRentEquipDelivered ON OurRentEquipDelivered.nom_id = nomenclature.id
+		) as OurRentEquipDelivered ON OurRentEquipDelivered.equip_id = order_equipment.id
+        LEFT JOIN 
+		nomenclature ON nomenclature.id = order_equipment.nomenclature_id
 	WHERE
 			orders.client_id = @client_id
 		and	order_equipment.nomenclature_id IS NOT NULL
-	) as main
+	GROUP BY nomenclature.id) as main
 WHERE 
 		client_amount_pickedup &gt; 0 
     or 	duty_and_rent_amount_delivered &gt; 0</CommandText>
@@ -680,7 +677,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="we_have_clients_equip">
           <DataField>we_have_clients_equip</DataField>
           <TypeName>System.String</TypeName>
@@ -757,7 +754,7 @@ WHERE
           <TableColumn>
             <Width>124.6pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>130.9pt</Width>
           </TableColumn>
           <TableColumn>
@@ -930,7 +927,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
                       <Value>Оборудование
@@ -1149,7 +1146,7 @@ WHERE
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox55">
                           <Value>
@@ -1334,7 +1331,7 @@ WHERE
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox56">
                           <Value>
@@ -1547,7 +1544,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
                       <Value>=Fields!equipment_from_client.Value</Value>
@@ -1737,7 +1734,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
                       <Value>
@@ -1814,7 +1811,7 @@ ____________(                        )
 м.п.</Value>
         <ZIndex>1</ZIndex>
         <Left>24.0pt</Left>
-        <Top>312.8pt</Top>
+        <Top>302.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1829,7 +1826,7 @@ ____________(                        )
 м.п.</Value>
         <ZIndex>1</ZIndex>
         <Left>312.9pt</Left>
-        <Top>334.0pt</Top>
+        <Top>323.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1843,7 +1840,7 @@ ____________(                        )
         <Value>=First({full_name}, "Client")</Value>
         <ZIndex>1</ZIndex>
         <Left>309.1pt</Left>
-        <Top>311.0pt</Top>
+        <Top>300.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1888,7 +1885,7 @@ ____________(                        )
         <Value>Вернуть залогов за бутыли:</Value>
         <ZIndex>1</ZIndex>
         <Left>0.8pt</Left>
-        <Top>173.4pt</Top>
+        <Top>163.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1903,7 +1900,7 @@ ____________(                        )
         <Value>=Sum({bottles_deposit}, 'Data')</Value>
         <ZIndex>1</ZIndex>
         <Left>222.1pt</Left>
-        <Top>173.6pt</Top>
+        <Top>163.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1918,7 +1915,7 @@ ____________(                        )
         <Value>Вернуть залогов за оборудование:</Value>
         <ZIndex>1</ZIndex>
         <Left>0.8pt</Left>
-        <Top>187.8pt</Top>
+        <Top>177.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1932,8 +1929,8 @@ ____________(                        )
         <Width>130.88pt</Width>
         <Value>=First({equipment_deposit}, 'EquipmentDeposit')</Value>
         <ZIndex>1</ZIndex>
-        <Left>223.20pt</Left>
-        <Top>187.50pt</Top>
+        <Left>223.2pt</Left>
+        <Top>177.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1942,69 +1939,13 @@ ____________(                        )
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox35" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14.25pt</Height>
-        <Width>210.73pt</Width>
-        <Value>Забрать оборудование:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>12.2pt</Left>
-        <Top>160.4pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Right</TextAlign>
-          <FontWeight>Bold</FontWeight>
-        </Style>
-      </Textbox>
-      <List Name="List1">
-        <Height>11.35pt</Height>
-        <Width>356.00pt</Width>
-        <Left>222.80pt</Left>
-        <Top>162.00pt</Top>
-        <ReportItems>
-          <Textbox Name="Textbox36">
-            <Height>9.75pt</Height>
-            <Width>41.47pt</Width>
-            <Value>={amount}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.8pt</Left>
-            <Top>0.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <Format>0 шт.</Format>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox37">
-            <Height>9.76pt</Height>
-            <Width>310.23pt</Width>
-            <Value>=" - " + Fields!name.Value</Value>
-            <ZIndex>1</ZIndex>
-            <Left>38.20pt</Left>
-            <Top>0.00pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-          </Textbox>
-        </ReportItems>
-        <DataSetName>NotReturnedEquipment</DataSetName>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </List>
-      <Textbox Name="Textbox57" >
+      <Textbox Name="Textbox57">
         <Height>14.30pt</Height>
         <Width>220.04pt</Width>
         <Value>Оборудование клиента у нас:</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>217.7pt</Top>
+        <Top>207.3pt</Top>
         <Style>
           <TextAlign>Right</TextAlign>
           <BorderStyle />
@@ -2013,13 +1954,13 @@ ____________(                        )
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox58" >
+      <Textbox Name="Textbox58">
         <Height>14.30pt</Height>
         <Width>220.04pt</Width>
         <Value>Наше оборудование у клиента:</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>240.4pt</Top>
+        <Top>230.0pt</Top>
         <Style>
           <TextAlign>Right</TextAlign>
           <BorderStyle />
@@ -2028,13 +1969,13 @@ ____________(                        )
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox59" >
+      <Textbox Name="Textbox59">
         <Height>21.17pt</Height>
         <Width>484.24pt</Width>
         <Value>=First({we_have_clients_equip}, 'StoredEquipments')</Value>
         <ZIndex>1</ZIndex>
-        <Left>220.70pt</Left>
-        <Top>217.70pt</Top>
+        <Left>220.7pt</Left>
+        <Top>207.3pt</Top>
         <Style>
           <TextAlign>Left</TextAlign>
           <BorderStyle />
@@ -2045,13 +1986,13 @@ ____________(                        )
         <CanGrow>true</CanGrow>
         <CanShrink>false</CanShrink>
       </Textbox>
-      <Textbox Name="Textbox60" >
+      <Textbox Name="Textbox60">
         <Height>24.92pt</Height>
         <Width>484.24pt</Width>
         <Value>=First({client_have_ours_equip}, 'StoredEquipments')</Value>
         <ZIndex>1</ZIndex>
-        <Left>220.70pt</Left>
-        <Top>240.40pt</Top>
+        <Left>220.7pt</Left>
+        <Top>230.0pt</Top>
         <Style>
           <TextAlign>Left</TextAlign>
           <BorderStyle />
@@ -2099,7 +2040,7 @@ ____________(                        )
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="client_id">
       <DataType>Integer</DataType>
       <DefaultValue>
