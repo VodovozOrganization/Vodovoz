@@ -1867,10 +1867,10 @@ namespace Vodovoz.Domain.Orders
 
 		decimal GetFixedPrice(OrderItem item)
 		{
-			if(item.AdditionalAgreement != null && item.AdditionalAgreement is WaterSalesAgreement) {
-				WaterSalesAgreement agreement = (item.AdditionalAgreement as WaterSalesAgreement);
-				if(agreement.FixedPrices.Any(x => x.Nomenclature == item.Nomenclature)) {
-					return agreement.FixedPrices.Where(x => x.Nomenclature == item.Nomenclature).Select(x => x.Price).FirstOrDefault();
+			if(item.AdditionalAgreement != null && item.AdditionalAgreement.Self is WaterSalesAgreement) {
+				WaterSalesAgreement agreement = (item.AdditionalAgreement.Self as WaterSalesAgreement);
+				if(agreement.FixedPrices.Any(x => x.Nomenclature.Id == item.Nomenclature.Id)) {
+					return agreement.FixedPrices.Where(x => x.Nomenclature.Id == item.Nomenclature.Id).Select(x => x.Price).FirstOrDefault();
 				}
 			}
 			return default(decimal);
