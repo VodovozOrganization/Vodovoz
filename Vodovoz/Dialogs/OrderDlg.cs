@@ -206,7 +206,7 @@ namespace Vodovoz
 				buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows() > 0;
 			};
 
-			treeDocuments.RowActivated += (o, args) => buttonViewDocument.Click();
+			treeDocuments.RowActivated += (o, args) => { PrintDocument(); };
 
 			enumAddRentButton.ItemsEnum = typeof(OrderAgreementType);
 			enumAddRentButton.EnumItemClicked += (sender, e) => AddRentAgreement((OrderAgreementType)e.ItemEnum);
@@ -826,6 +826,14 @@ namespace Vodovoz
 		}
 
 		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
+		{
+			PrintDocument();
+		}
+
+		/// <summary>
+		/// Открывает печатную форму документа в отдельной вкладке
+		/// </summary>
+		void PrintDocument()
 		{
 			if(treeDocuments.GetSelectedObjects().GetLength(0) > 0) {
 				ITdiDialog dlg = null;
