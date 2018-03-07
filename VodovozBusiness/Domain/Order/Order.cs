@@ -452,6 +452,7 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
+		[HistoryDeepCloneItems]
 		IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem>();
 
 		[Display(Name = "Залоги заказа")]
