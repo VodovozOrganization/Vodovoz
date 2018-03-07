@@ -1029,7 +1029,6 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			bool hasChanges = UoWGeneric.HasChanges;
 			if(UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder) {
 				var valid = new QSValidator<Order>(UoWGeneric.Root,
 								new Dictionary<object, object> {
@@ -1081,7 +1080,6 @@ namespace Vodovoz
 				treeItems.Selection.UnselectAll();
 				treeEquipment.Selection.UnselectAll();
 				UpdateButtonState();
-				this.HasChanges = hasChanges;
 				buttonSave.Click();
 				return;
 			}
