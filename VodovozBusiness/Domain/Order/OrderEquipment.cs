@@ -158,6 +158,12 @@ namespace Vodovoz.Domain.Orders
 
 		#region Вычисляемые
 
+		public virtual int ReturnedCount {
+			get {
+				return Count - ActualCount;
+			}
+		}
+
 		public virtual bool IsDelivered {
 			get {
 				return Count - ActualCount == 0;
