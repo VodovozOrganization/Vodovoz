@@ -254,7 +254,7 @@ FROM
     </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>.5in</Height>
+    <Height>32.2pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Top>7.23pt</Top>
@@ -1970,25 +1970,27 @@ FROM
             </TableRow>
           </TableRows>
         </Footer>
+        <Left>0.0pt</Left>
+        <Top>1.6pt</Top>
       </Table>
-      <Textbox Name="Textbox69">
+      <Textbox Name="Textbox69" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>50.38pt</Height>
         <Width>568.35pt</Width>
         <Value>Даты отмеченные * имеют незакрытые маршрутные листы.
 В колонках склада: Отгружено, Принято и Дельта учет идет и по полным и по пустым бутылям. Иными словами считаются так же отгруженные пустые бутыли и принятые с возврата полные.
 Колонка "Пришло больше" считается как разность дельты по складу и дельты по клиентам.</Value>
-        <ZIndex>1</ZIndex>
-        <Left>8.28pt</Left>
-        <Top>108.45pt</Top>
+        <ZIndex>0</ZIndex>
+        <Left>2.4pt</Left>
+        <Top>116.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign>Justified</TextAlign>
+          <TextAlign>General</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
-    <Height>164.8pt</Height>
+    <Height>169.4pt</Height>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -2021,11 +2023,11 @@ FROM
     </DataSource>
   </DataSources>
   <ReportParameters>
-    <ReportParameter Name="end_date">
+    <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-03-10</Value>
+          <Value>2018-03-08</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2034,7 +2036,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="start_date">
+    <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
