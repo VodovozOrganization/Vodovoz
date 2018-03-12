@@ -616,10 +616,10 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("Не указан договор.",
 							new[] { this.GetPropertyName(o => o.Contract) });
 
-					if(bottlesReturn == null)
+					if(bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water))
 						yield return new ValidationResult("Не указано бутылей на возврат.",
 							new[] { this.GetPropertyName(o => o.Contract) });
-					if(trifle == null && PaymentType == PaymentType.cash)
+					if(trifle == null && PaymentType == PaymentType.cash && this.TotalSum > 0m)
 						yield return new ValidationResult("Не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
