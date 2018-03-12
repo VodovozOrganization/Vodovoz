@@ -6,14 +6,6 @@
   </Author>
   <PageHeight>11in</PageHeight>
   <PageWidth>8.5in</PageWidth>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_temp;user=andrey;password=123;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <Width>7.5in</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -164,24 +156,26 @@
                 AND nomenclature.is_new_bottle = 1) AS new_bottle_count
 FROM
     (SELECT 
-        DATE(bottles_movement_operations.operation_time) AS date,
-            SUM(IF(orders.reason_type = 'NewAddress', bottles_movement_operations.delivered, 0)) AS delivered_NewAddress,
-            SUM(IF(orders.reason_type = 'NewAddress', bottles_movement_operations.returned, 0)) AS returned_NewAddress,
-            SUM(IF(orders.reason_type = 'OrderIncrease', bottles_movement_operations.delivered, 0)) AS delivered_OrderIncrease,
-            SUM(IF(orders.reason_type = 'OrderIncrease', bottles_movement_operations.returned, 0)) AS returned_OrderIncrease,
-            SUM(IF(orders.reason_type = 'FirstOrder', bottles_movement_operations.delivered, 0)) AS delivered_FirstOrder,
-            SUM(IF(orders.reason_type = 'FirstOrder', bottles_movement_operations.returned, 0)) AS returned_FirstOrder,
-            SUM(IF(orders.reason_type = 'Unknown', bottles_movement_operations.delivered, 0)) AS delivered_Unknown,
-            SUM(IF(orders.reason_type = 'Unknown', bottles_movement_operations.returned, 0)) AS returned_Unknown,
-            SUM(bottles_movement_operations.delivered) AS delivered_All,
-            SUM(bottles_movement_operations.returned) AS returned_All
+        route_lists.date,
+            SUM(IF(orders.reason_type = 'NewAddress' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.delivered, 0)) AS delivered_NewAddress,
+            SUM(IF(orders.reason_type = 'NewAddress' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.returned, 0)) AS returned_NewAddress,
+            SUM(IF(orders.reason_type = 'OrderIncrease' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.delivered, 0)) AS delivered_OrderIncrease,
+            SUM(IF(orders.reason_type = 'OrderIncrease' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.returned, 0)) AS returned_OrderIncrease,
+            SUM(IF(orders.reason_type = 'FirstOrder' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.delivered, 0)) AS delivered_FirstOrder,
+            SUM(IF(orders.reason_type = 'FirstOrder' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.returned, 0)) AS returned_FirstOrder,
+            SUM(IF(orders.reason_type = 'Unknown' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.delivered, 0)) AS delivered_Unknown,
+            SUM(IF(orders.reason_type = 'Unknown' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.returned, 0)) AS returned_Unknown,
+            SUM(IF(bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.delivered, 0)) AS delivered_All,
+            SUM(If(bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.returned, 0)) AS returned_All
     FROM
-        bottles_movement_operations
-    LEFT JOIN orders ON orders.bottles_movement_operation_id = bottles_movement_operations.id
+        route_lists
+     LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+    LEFT JOIN orders ON route_list_addresses.order_id = orders.id AND route_list_addresses.was_transfered = 0
+    LEFT JOIN bottles_movement_operations ON orders.bottles_movement_operation_id = bottles_movement_operations.id
     WHERE
-        bottles_movement_operations.operation_time &gt;= @start_date
-            AND bottles_movement_operations.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
-    GROUP BY DATE(bottles_movement_operations.operation_time)) byOrders</CommandText>
+        route_lists.date &gt;= @start_date
+            AND route_lists.date &lt;= @end_date
+    GROUP BY route_lists.date) byOrders</CommandText>
         <QueryParameters>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
@@ -191,7 +185,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <rd:TypeName>System.DateTime</rd:TypeName>
@@ -2001,12 +1995,21 @@ FROM
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017-10-25</Value>
+          <Value>2018-03-10</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2019,7 +2022,7 @@ FROM
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017-09-17</Value>
+          <Value>2018-03-10</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
