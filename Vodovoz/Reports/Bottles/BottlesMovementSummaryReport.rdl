@@ -185,7 +185,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <rd:TypeName>System.DateTime</rd:TypeName>
@@ -1971,8 +1971,24 @@ FROM
           </TableRows>
         </Footer>
       </Table>
+      <Textbox Name="Textbox69">
+        <Height>50.38pt</Height>
+        <Width>568.35pt</Width>
+        <Value>Даты отмеченные * имеют незакрытые маршрутные листы.
+В колонках склада: Отгружено, Принято и Дельта учет идет и по полным и по пустым бутылям. Иными словами считаются так же отгруженные пустые бутыли и принятые с возврата полные.
+Колонка "Пришло больше" считается как разность дельты по складу и дельты по клиентам.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>8.28pt</Left>
+        <Top>108.45pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Justified</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
-    <Height>103.5pt</Height>
+    <Height>164.8pt</Height>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
