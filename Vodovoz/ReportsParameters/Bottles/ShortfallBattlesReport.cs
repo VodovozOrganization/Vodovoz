@@ -90,6 +90,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 			return new ReportInfo {
 				Identifier = "Bottles.ShortfallBattlesReport",
+				ParameterDatesWithTime = false,
 				Parameters = parameters
 			};
 		}
