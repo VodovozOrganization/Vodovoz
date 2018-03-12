@@ -68,6 +68,8 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.Button buttonDiscountReasonUnselect;
 
+		private global::Gtk.Label labelTableTitle;
+
 		private global::Gtk.Table table1;
 
 		private global::Gtk.Button buttonSelectAll;
@@ -390,6 +392,15 @@ namespace Vodovoz.Reports
 			w31.Expand = false;
 			w31.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.labelTableTitle = new global::Gtk.Label();
+			this.labelTableTitle.Name = "labelTableTitle";
+			this.labelTableTitle.Xalign = 0F;
+			this.vbox1.Add(this.labelTableTitle);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelTableTitle]));
+			w32.Position = 7;
+			w32.Expand = false;
+			w32.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
@@ -401,11 +412,11 @@ namespace Vodovoz.Reports
 			this.buttonSelectAll.UseUnderline = true;
 			this.buttonSelectAll.Label = global::Mono.Unix.Catalog.GetString("Выбрать всех");
 			this.table1.Add(this.buttonSelectAll);
-			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonSelectAll]));
-			w32.TopAttach = ((uint)(1));
-			w32.BottomAttach = ((uint)(2));
-			w32.XOptions = ((global::Gtk.AttachOptions)(4));
-			w32.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonSelectAll]));
+			w33.TopAttach = ((uint)(1));
+			w33.BottomAttach = ((uint)(2));
+			w33.XOptions = ((global::Gtk.AttachOptions)(4));
+			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.buttonUnselectAll = new global::Gtk.Button();
 			this.buttonUnselectAll.CanFocus = true;
@@ -413,13 +424,13 @@ namespace Vodovoz.Reports
 			this.buttonUnselectAll.UseUnderline = true;
 			this.buttonUnselectAll.Label = global::Mono.Unix.Catalog.GetString("Снять выделение");
 			this.table1.Add(this.buttonUnselectAll);
-			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonUnselectAll]));
-			w33.TopAttach = ((uint)(1));
-			w33.BottomAttach = ((uint)(2));
-			w33.LeftAttach = ((uint)(1));
-			w33.RightAttach = ((uint)(2));
-			w33.XOptions = ((global::Gtk.AttachOptions)(4));
-			w33.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonUnselectAll]));
+			w34.TopAttach = ((uint)(1));
+			w34.BottomAttach = ((uint)(2));
+			w34.LeftAttach = ((uint)(1));
+			w34.RightAttach = ((uint)(2));
+			w34.XOptions = ((global::Gtk.AttachOptions)(4));
+			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -431,11 +442,11 @@ namespace Vodovoz.Reports
 			this.ytreeviewSelectedList.Name = "ytreeviewSelectedList";
 			this.GtkScrolledWindow.Add(this.ytreeviewSelectedList);
 			this.table1.Add(this.GtkScrolledWindow);
-			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow]));
-			w35.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow]));
+			w36.RightAttach = ((uint)(2));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w36.Position = 7;
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w37.Position = 8;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -443,11 +454,11 @@ namespace Vodovoz.Reports
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w37.PackType = ((global::Gtk.PackType)(1));
-			w37.Position = 8;
-			w37.Expand = false;
-			w37.Fill = false;
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w38.PackType = ((global::Gtk.PackType)(1));
+			w38.Position = 9;
+			w38.Expand = false;
+			w38.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
