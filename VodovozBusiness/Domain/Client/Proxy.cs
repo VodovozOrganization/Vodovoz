@@ -66,6 +66,7 @@ namespace Vodovoz.Domain.Client
 		private DateTime expirationDate;
 
 		[Display (Name = "Окончание действия")]
+		[DateRequired(ErrorMessage = "Дата окончания доверености должна быть указана.")]
 		public virtual DateTime ExpirationDate
 		{
 			get { return expirationDate; }
@@ -122,9 +123,9 @@ namespace Vodovoz.Domain.Client
 			if (StartDate != default(DateTime) && StartDate < IssueDate)
 				yield return new ValidationResult ("Нельзя установить дату начала действия доверенности раньше даты ее выдачи.",
 					new[] { this.GetPropertyName (o => o.StartDate), this.GetPropertyName (o => o.IssueDate) });
-			if (ExpirationDate != default(DateTime) && ExpirationDate < StartDate)
-				yield return new ValidationResult ("Нельзя установить дату окончания действия доверенности раньше даты начала ее действия.",
-					new[] { this.GetPropertyName (o => o.StartDate), this.GetPropertyName (o => o.ExpirationDate) });
+			if(ExpirationDate != default(DateTime) && ExpirationDate < StartDate)
+				yield return new ValidationResult("Нельзя установить дату окончания действия доверенности раньше даты начала ее действия.",
+					new[] { this.GetPropertyName(o => o.StartDate), this.GetPropertyName(o => o.ExpirationDate) });
 		}
 
 		#endregion
