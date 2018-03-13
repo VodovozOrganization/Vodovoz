@@ -5402,7 +5402,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyDlg" design-size="1037 670">
+  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyDlg" design-size="1088 670">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -5492,6 +5492,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5660,7 +5661,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">8</property>
+            <property name="CurrentPage">3</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
                 <property name="MemberName" />
@@ -5685,6 +5686,7 @@
                           <widget class="QSOrmProject.yLegalName" id="datalegalname1">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
+                            <signal name="OwnershipChanged" handler="OnDatalegalname1OwnershipChanged" />
                           </widget>
                           <packing>
                             <property name="TopAttach">2</property>

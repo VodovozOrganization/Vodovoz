@@ -400,7 +400,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 8;
+			this.notebook1.CurrentPage = 3;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -782,11 +782,11 @@ namespace Vodovoz
 			w52.XOptions = ((global::Gtk.AttachOptions)(4));
 			w52.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.spinMaxCredit = new global::Gamma.GtkWidgets.ySpinButton(0, 1000000, 100);
+			this.spinMaxCredit = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 100D);
 			this.spinMaxCredit.CanFocus = true;
 			this.spinMaxCredit.Name = "spinMaxCredit";
-			this.spinMaxCredit.Adjustment.PageIncrement = 10;
-			this.spinMaxCredit.ClimbRate = 1;
+			this.spinMaxCredit.Adjustment.PageIncrement = 10D;
+			this.spinMaxCredit.ClimbRate = 1D;
 			this.spinMaxCredit.Numeric = true;
 			this.spinMaxCredit.ValueAsDecimal = 0m;
 			this.spinMaxCredit.ValueAsInt = 0;
@@ -1347,6 +1347,7 @@ namespace Vodovoz
 			this.referenceMainCounterparty.ChangedByUser += new global::System.EventHandler(this.OnReferenceMainCounterpartyChangedByUser);
 			this.enumPersonType.Changed += new global::System.EventHandler(this.OnEnumPersonTypeChanged);
 			this.enumPayment.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumPaymentEnumItemSelected);
+			this.datalegalname1.OwnershipChanged += new global::System.EventHandler(this.OnDatalegalname1OwnershipChanged);
 			this.yentrySignPost.FocusInEvent += new global::Gtk.FocusInEventHandler(this.OnYentrySignPostFocusInEvent);
 			this.yentrySignBaseOf.FocusInEvent += new global::Gtk.FocusInEventHandler(this.OnYentrySignBaseOfFocusInEvent);
 		}

@@ -315,6 +315,10 @@ namespace Vodovoz
 			}
 		}
 
+		protected void OnDatalegalname1OwnershipChanged(object sender, EventArgs e)
+		{
+			validatedKPP.Sensitive = Entity.TypeOfOwnership != "ИП";
+		}
 	}
 }
 
