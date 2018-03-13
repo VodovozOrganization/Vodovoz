@@ -106,9 +106,10 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title {
 			get{
-				return String.Format("{0} - {1}", 
+				return String.Format("[{2}] {0} - {1}",
 					WarehouseMovementOperation.Nomenclature.Name, 
-					WarehouseMovementOperation.Nomenclature.Unit.MakeAmountShortStr(WarehouseMovementOperation.Amount));
+				                     WarehouseMovementOperation.Nomenclature.Unit.MakeAmountShortStr(WarehouseMovementOperation.Amount),
+					Document.Title);
 			}
 		}
 
