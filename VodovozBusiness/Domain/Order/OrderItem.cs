@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
@@ -68,9 +68,11 @@ namespace Vodovoz.Domain.Orders
 
 		[Display (Name = "Количество")]
 		public virtual int Count {
-			get { return count; }
-			set { 			
-				if (count != -1) {	
+			get {
+				return count; 
+			}
+			set {
+				if (count != -1 && !IsRentCategory) {	
 					var oldDefaultPrice = DefaultPrice;
 					var newDefaultPrice = GetDefaultPrice (value);
 					if (Price == oldDefaultPrice)
@@ -151,6 +153,63 @@ namespace Vodovoz.Domain.Orders
 
 		#region Вычисляемы
 
+		/// <summary>
+		/// Получает количество оборудования для аренды
+		/// </summary>
+		int RentEquipmentCount {
+			get {
+				if(AdditionalAgreement.Type == AgreementType.NonfreeRent && PaidRentEquipment != null) {
+					return PaidRentEquipment.Count;
+				}
+				if(AdditionalAgreement.Type == AgreementType.FreeRent && FreeRentEquipment != null) {
+					return FreeRentEquipment.Count;
+				}
+				return 0;
+			}
+		}
+
+		public virtual bool IsRentCategory {
+			get {
+				return Nomenclature.Category == NomenclatureCategory.rent
+								   || (RentEquipmentCount > 0);
+			}
+		}
+
+		int RentTime {
+			get {
+				if(AdditionalAgreement == null) {
+					return 0;
+				}
+				if(AdditionalAgreement.Self is NonfreeRentAgreement) {
+					NonfreeRentAgreement nonFreeRent = AdditionalAgreement.Self as NonfreeRentAgreement;
+					if(nonFreeRent.RentMonths.HasValue) {
+						return nonFreeRent.RentMonths.Value;
+					}
+				}
+
+				if(AdditionalAgreement.Self is DailyRentAgreement) {
+					DailyRentAgreement dailyRent = AdditionalAgreement.Self as DailyRentAgreement;
+					return dailyRent.RentDays;
+				}
+
+				return 0;
+			}
+		}
+
+		public virtual string RentString {
+			get {
+				int rentCount = RentTime;
+				int count = RentEquipmentCount;
+
+				if(rentCount != 0 && Nomenclature.Category == NomenclatureCategory.rent) {
+					return String.Format("{0}*{1}", count, rentCount);
+				} else {
+					return "";
+				}
+			}
+		}
+
+
 		public virtual int ReturnedCount{
 			get{
 				return Count - ActualCount;
@@ -200,33 +259,23 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanEditAmount {
 			get {
-				return AdditionalAgreement == null 	|| AdditionalAgreement.Type == AgreementType.WaterSales 
-													|| AdditionalAgreement.Type == AgreementType.NonfreeRent 
-													|| AdditionalAgreement.Type == AgreementType.DailyRent;
-			}
-		}
+				bool result = false;
+				if(AdditionalAgreement == null) {
+					result = true;
+				}
+				if(AdditionalAgreement.Type == AgreementType.WaterSales
+				   || AdditionalAgreement.Type == AgreementType.NonfreeRent
+				   || AdditionalAgreement.Type == AgreementType.DailyRent) {
+					result = true;
+				}
+				if(Nomenclature.Category == NomenclatureCategory.rent
+				   || Nomenclature.Category == NomenclatureCategory.deposit) {
+					result = false;
+				}
 
-
-		//FIXME Временный обход проблемы с приведением AdditionalAgreement'а к 
-		//конкретному типу потомку, для получения доступа к свойствам доступным только этим классам
-		NonfreeRentAgreement nonFreeRentAgreement;
-		public NonfreeRentAgreement NonFreeRentAgreement
-		{
-			get {
-				if(nonFreeRentAgreement == null)
-					nonFreeRentAgreement = Order.UoW.GetById<NonfreeRentAgreement>(AdditionalAgreement.Id);
-				return nonFreeRentAgreement;
+				return result;
 			}
 		}
-		DailyRentAgreement dailyRentAgreement;
-		public DailyRentAgreement DailyRentAgreement {
-			get {
-				if(dailyRentAgreement == null)
-					dailyRentAgreement = Order.UoW.GetById<DailyRentAgreement>(AdditionalAgreement.Id);
-				return dailyRentAgreement;
-			}
-		}
-		//----------
 
 		public virtual string NomenclatureString {
 			get { return Nomenclature != null ? Nomenclature.Name : ""; }
@@ -245,6 +294,7 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Функции
+
 
 		public virtual CounterpartyMovementOperation UpdateCounterpartyOperation(IUnitOfWork uow)
 		{

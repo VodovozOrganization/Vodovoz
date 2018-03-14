@@ -260,9 +260,9 @@ namespace Vodovoz
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 				.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 				.AddSetter((c, node) => c.Editable = node.CanEditAmount).WidthChars(10)
-				.AddTextRenderer(node => String.Format("({0})", node.ReturnedCount))
+				.AddTextRenderer(node => (!node.IsRentCategory) ? String.Format("({0})", node.ReturnedCount) : "")
 				.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
-				.AddColumn("Сроки аренды").AddTextRenderer(node => GetRentsCount(node))
+				.AddColumn("Аренда").AddTextRenderer(node => node.IsRentCategory ? node.RentString : "")
 				.AddColumn("Цена").AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 				.AddSetter((c, node) => c.Editable = Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
@@ -370,23 +370,6 @@ namespace Vodovoz
 			depositrefunditemsview.Configure(UoWGeneric, UoWGeneric.Root);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
-		}
-
-		string GetRentsCount(OrderItem orderItem)
-		{
-			if(orderItem == null || orderItem.AdditionalAgreement == null) {
-				return "";
-			}
-			switch(orderItem.AdditionalAgreement.Type) {
-				case AgreementType.NonfreeRent:
-					if(orderItem.NonFreeRentAgreement.RentMonths.HasValue){
-						return orderItem.NonFreeRentAgreement.RentMonths.Value.ToString();
-					}
-					return "";
-				case AgreementType.DailyRent:
-					return orderItem.DailyRentAgreement.RentDays.ToString();
-			}
-			return "";
 		}
 
 		void Entity_UpdateClientCanChange(object aList, int[] aIdx)

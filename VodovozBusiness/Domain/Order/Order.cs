@@ -1312,12 +1312,15 @@ namespace Vodovoz.Domain.Orders
 			if(a.Type == AgreementType.DailyRent || a.Type == AgreementType.NonfreeRent) {
 				IList<PaidRentEquipment> paidRentEquipmentList;
 				bool IsDaily = false;
-
+				int RentCount = 0;
 				if(a.Type == AgreementType.DailyRent) {
 					paidRentEquipmentList = (a as DailyRentAgreement).Equipment;
+					RentCount = (a as DailyRentAgreement).RentDays;
 					IsDaily = true;
-				} else
+				} else {
 					paidRentEquipmentList = (a as NonfreeRentAgreement).PaidRentEquipments;
+					RentCount = (a as NonfreeRentAgreement).RentMonths ?? 0;
+				}
 
 				foreach(PaidRentEquipment paidRentEquipment in paidRentEquipmentList) {
 					int ItemId;
@@ -1356,7 +1359,7 @@ namespace Vodovoz.Domain.Orders
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = a,
-								Count = paidRentEquipment.Count,
+								Count = paidRentEquipment.Count * RentCount,
 								Equipment = null,
 								Nomenclature = nomenclature,
 								Price = paidRentEquipment.Price,

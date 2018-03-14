@@ -110,7 +110,13 @@ namespace Vodovoz
 				.AddColumn("Кол-во по факту")
 					.AddToggleRenderer(node => node.IsDelivered, false)
 						.AddSetter((cell, node) => cell.Visible = node.IsSerialEquipment)
-					.AddNumericRenderer(node => node.ActualCount, false).Editing()
+					.AddNumericRenderer(node => node.ActualCount, false)
+				.AddSetter((cell, node) => {
+					if(node.Nomenclature.Category == NomenclatureCategory.rent 
+				       || node.Nomenclature.Category == NomenclatureCategory.deposit){
+						cell.Editable = false;
+					}
+				})
 						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
