@@ -1,9 +1,11 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using Gamma.Binding;
 using Gamma.Utilities;
 using NHibernate.AdoNet;
 using NHibernate.Cfg;
+using QS.DomainModel;
+using QS.DomainModel.Tracking;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
 using QSContacts;
