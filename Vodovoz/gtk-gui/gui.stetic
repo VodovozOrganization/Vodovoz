@@ -31502,7 +31502,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Panel.DeliveryPointPanelView" design-size="300 281">
+  <widget class="Gtk.Bin" id="Vodovoz.Panel.DeliveryPointPanelView" design-size="300 304">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -31660,7 +31660,6 @@
             <child>
               <widget class="Gtk.Label" id="labelLastOrders">
                 <property name="MemberName" />
-                <property name="Visible">False</property>
                 <property name="LabelProp" translatable="yes">&lt;b&gt;Последние заказы:&lt;/b&gt;</property>
                 <property name="UseMarkup">True</property>
               </widget>
@@ -31674,7 +31673,6 @@
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
                 <property name="MemberName" />
-                <property name="Visible">False</property>
                 <property name="VscrollbarPolicy">Never</property>
                 <property name="ShadowType">In</property>
                 <child>
