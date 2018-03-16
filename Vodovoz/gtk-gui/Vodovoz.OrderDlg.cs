@@ -118,7 +118,7 @@ namespace Vodovoz
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow4;
 
-		private global::Gamma.GtkWidgets.yTextView textComments;
+		private global::Gamma.GtkWidgets.yTextView textComments1c;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow6;
 
@@ -134,7 +134,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label27;
 
-		private global::Gtk.Label label31;
+		private global::Gtk.Label labelComment1c;
 
 		private global::Gtk.Label labelDeliveryDate3;
 
@@ -899,7 +899,7 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.table5, this.labelOrdersComments);
 			this.labelOrdersComments.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.table3 = new global::Gtk.Table(((uint)(9)), ((uint)(3)), false);
+			this.table3 = new global::Gtk.Table(((uint)(7)), ((uint)(3)), false);
 			this.table3.Name = "table3";
 			this.table3.RowSpacing = ((uint)(6));
 			this.table3.ColumnSpacing = ((uint)(6));
@@ -938,10 +938,10 @@ namespace Vodovoz
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
 			this.GtkScrolledWindow4.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow4.Gtk.Container+ContainerChild
-			this.textComments = new global::Gamma.GtkWidgets.yTextView();
-			this.textComments.CanFocus = true;
-			this.textComments.Name = "textComments";
-			this.GtkScrolledWindow4.Add(this.textComments);
+			this.textComments1c = new global::Gamma.GtkWidgets.yTextView();
+			this.textComments1c.CanFocus = true;
+			this.textComments1c.Name = "textComments1c";
+			this.GtkScrolledWindow4.Add(this.textComments1c);
 			this.table3.Add(this.GtkScrolledWindow4);
 			global::Gtk.Table.TableChild w55 = ((global::Gtk.Table.TableChild)(this.table3[this.GtkScrolledWindow4]));
 			w55.LeftAttach = ((uint)(1));
@@ -1018,13 +1018,13 @@ namespace Vodovoz
 			w62.XOptions = ((global::Gtk.AttachOptions)(4));
 			w62.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
-			this.label31 = new global::Gtk.Label();
-			this.label31.Name = "label31";
-			this.label31.Xalign = 1F;
-			this.label31.Yalign = 0F;
-			this.label31.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий из 1С:");
-			this.table3.Add(this.label31);
-			global::Gtk.Table.TableChild w63 = ((global::Gtk.Table.TableChild)(this.table3[this.label31]));
+			this.labelComment1c = new global::Gtk.Label();
+			this.labelComment1c.Name = "labelComment1c";
+			this.labelComment1c.Xalign = 1F;
+			this.labelComment1c.Yalign = 0F;
+			this.labelComment1c.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий из 1С:");
+			this.table3.Add(this.labelComment1c);
+			global::Gtk.Table.TableChild w63 = ((global::Gtk.Table.TableChild)(this.table3[this.labelComment1c]));
 			w63.XOptions = ((global::Gtk.AttachOptions)(4));
 			w63.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
@@ -1389,11 +1389,11 @@ namespace Vodovoz
 			w103.Expand = false;
 			w103.Fill = false;
 			// Container child hbox11.Gtk.Box+BoxChild
-			this.yspinDiscountOrder = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
+			this.yspinDiscountOrder = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.yspinDiscountOrder.CanFocus = true;
 			this.yspinDiscountOrder.Name = "yspinDiscountOrder";
-			this.yspinDiscountOrder.Adjustment.PageIncrement = 10;
-			this.yspinDiscountOrder.ClimbRate = 1;
+			this.yspinDiscountOrder.Adjustment.PageIncrement = 10D;
+			this.yspinDiscountOrder.ClimbRate = 1D;
 			this.yspinDiscountOrder.Numeric = true;
 			this.yspinDiscountOrder.ValueAsDecimal = 0m;
 			this.yspinDiscountOrder.ValueAsInt = 0;
@@ -1523,11 +1523,11 @@ namespace Vodovoz
 			w115.XOptions = ((global::Gtk.AttachOptions)(4));
 			w115.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
-			this.spinSumDifference = new global::Gamma.GtkWidgets.ySpinButton(-100000, 100000, 1);
+			this.spinSumDifference = new global::Gamma.GtkWidgets.ySpinButton(-100000D, 100000D, 1D);
 			this.spinSumDifference.CanFocus = true;
 			this.spinSumDifference.Name = "spinSumDifference";
-			this.spinSumDifference.Adjustment.PageIncrement = 10;
-			this.spinSumDifference.ClimbRate = 1;
+			this.spinSumDifference.Adjustment.PageIncrement = 10D;
+			this.spinSumDifference.ClimbRate = 1D;
 			this.spinSumDifference.Numeric = true;
 			this.spinSumDifference.ValueAsDecimal = 0m;
 			this.spinSumDifference.ValueAsInt = 0;
@@ -1802,6 +1802,7 @@ namespace Vodovoz
 			}
 			this.toggleEquipment.Hide();
 			this.toggleService.Hide();
+			this.toggleComments.Hide();
 			this.labelProxyInfo.Hide();
 			this.labelDeposit1.Hide();
 			this.depositrefunditemsview.Hide();

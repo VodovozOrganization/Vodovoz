@@ -26,9 +26,6 @@ using Vodovoz.Domain.Service;
 using Vodovoz.JournalFilters;
 using Vodovoz.Panel;
 using Vodovoz.Repository;
-using Vodovoz.Domain.Operations;
-using System.ComponentModel.DataAnnotations;
-using Vodovoz.Representations;
 
 namespace Vodovoz
 {
@@ -146,7 +143,7 @@ namespace Vodovoz
 
 			pickerDeliveryDate.Binding.AddBinding (Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource ();
 
-			textComments.Binding.AddBinding(Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
+			textComments1c.Binding.AddBinding(Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
 
 			checkSelfDelivery.Binding.AddBinding(Entity, s => s.SelfDelivery, w => w.Active).InitializeFromSource();
 			checkDelivered.Binding.AddBinding(Entity, s => s.Shipped, w => w.Active).InitializeFromSource();
@@ -221,18 +218,6 @@ namespace Vodovoz
 
 			UoWGeneric.Root.ObservableOrderItems.ElementAdded += (aList, aIdx) => {
 				FixPrice(aIdx[0]);
-			};
-
-			UoWGeneric.Root.ObservableOrderDepositItems.ListContentChanged += (sender, e) => {
-				UpdateVisibleOfWingets();
-			};
-
-			UoWGeneric.Root.ObservableOrderDepositItems.ElementAdded += (aList, aIdx) => {
-				UpdateVisibleOfWingets();
-			};
-
-			Entity.ObservableOrderDepositItems.ListChanged += delegate (object aList) {
-				UpdateVisibleOfWingets();
 			};
 
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
@@ -351,8 +336,6 @@ namespace Vodovoz
 			enumareRasonType.ItemsEnum = typeof(ReasonType);
 			enumareRasonType.Binding.AddBinding(Entity, s => s.ReasonType, w => w.SelectedItem).InitializeFromSource();
 
-
-			UpdateVisibleOfWingets();
 			UpdateButtonState();
 
 			if(Entity.DeliveryPoint == null && !string.IsNullOrWhiteSpace(Entity.Address1c)) {
@@ -633,7 +616,7 @@ namespace Vodovoz
 				buttonAddForSale.Sensitive = val;
 			//spinBottlesReturn.Sensitive = spinSumDifference.Sensitive = val;
 			checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
-			textComments.Sensitive = val;
+			textComments1c.Sensitive = val;
 			pickerDeliveryDate.Sensitive = val;
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
@@ -802,12 +785,6 @@ namespace Vodovoz
 			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType)
 			                              .AdditionalAgreements
 			                              .Add(agreement);
-		}
-
-		void UpdateVisibleOfWingets()
-		{
-			//bool visibleDeposit = Entity.OrderDepositItems.Count > 0;
-			//treeDepositRefundItems.Visible = labelDeposit.Visible = visibleDeposit;
 		}
 
 		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)

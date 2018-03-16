@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -26200,6 +26200,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -26285,6 +26286,7 @@
             <child>
               <widget class="Gtk.RadioButton" id="toggleComments">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Комментарии</property>
                 <property name="DrawIndicator">False</property>
@@ -27186,28 +27188,10 @@
             <child>
               <widget class="Gtk.Table" id="table3">
                 <property name="MemberName" />
-                <property name="NRows">9</property>
+                <property name="NRows">7</property>
                 <property name="NColumns">3</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
-                <child>
-                  <placeholder />
-                </child>
-                <child>
-                  <placeholder />
-                </child>
-                <child>
-                  <placeholder />
-                </child>
-                <child>
-                  <placeholder />
-                </child>
-                <child>
-                  <placeholder />
-                </child>
-                <child>
-                  <placeholder />
-                </child>
                 <child>
                   <placeholder />
                 </child>
@@ -27294,7 +27278,7 @@
                     <property name="MemberName" />
                     <property name="ShadowType">In</property>
                     <child>
-                      <widget class="Gamma.GtkWidgets.yTextView" id="textComments">
+                      <widget class="Gamma.GtkWidgets.yTextView" id="textComments1c">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="ShowScrollbars">True</property>
@@ -27437,7 +27421,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.Label" id="label31">
+                  <widget class="Gtk.Label" id="labelComment1c">
                     <property name="MemberName" />
                     <property name="Xalign">1</property>
                     <property name="Yalign">0</property>
