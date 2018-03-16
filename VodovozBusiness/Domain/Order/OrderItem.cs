@@ -158,10 +158,10 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		int RentEquipmentCount {
 			get {
-				if(AdditionalAgreement.Type == AgreementType.NonfreeRent && PaidRentEquipment != null) {
+				if(AdditionalAgreement?.Type == AgreementType.NonfreeRent && PaidRentEquipment != null) {
 					return PaidRentEquipment.Count;
 				}
-				if(AdditionalAgreement.Type == AgreementType.FreeRent && FreeRentEquipment != null) {
+				if(AdditionalAgreement?.Type == AgreementType.FreeRent && FreeRentEquipment != null) {
 					return FreeRentEquipment.Count;
 				}
 				return 0;
@@ -263,9 +263,9 @@ namespace Vodovoz.Domain.Orders
 				if(AdditionalAgreement == null) {
 					result = true;
 				}
-				if(AdditionalAgreement.Type == AgreementType.WaterSales
-				   || AdditionalAgreement.Type == AgreementType.NonfreeRent
-				   || AdditionalAgreement.Type == AgreementType.DailyRent) {
+				if(AdditionalAgreement?.Type == AgreementType.WaterSales
+				   || AdditionalAgreement?.Type == AgreementType.NonfreeRent
+				   || AdditionalAgreement?.Type == AgreementType.DailyRent) {
 					result = true;
 				}
 				if(Nomenclature.Category == NomenclatureCategory.rent
