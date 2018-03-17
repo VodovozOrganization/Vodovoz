@@ -86,13 +86,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				leftToOrderText = String.Format(" (осталось: {0})", bottlesLeftToOrder);
 			labelBottlesPerMonth.Text = String.Format("{0} из {1}{2}", bottlesThisMonth, requiredBottlesThisMonth, leftToOrderText);
 
-			List<WaterSalesAgreementFixedPrice> fixedPricesList = new List<WaterSalesAgreementFixedPrice>();
-
-			foreach(AdditionalAgreement agreement in agreements)
-			{
-				var fixedPrices = AdditionalAgreementRepository.GetFixedPricesForAgreement(InfoProvider.UoW, agreement);
-				fixedPricesList.AddRange(fixedPrices);
-			}
+			var fixedPricesList = AdditionalAgreementRepository.GetFixedPricesForDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 
 			ytreeviewFixedPrices.ColumnsConfig = ColumnsConfigFactory.Create<WaterSalesAgreementFixedPrice>()
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)

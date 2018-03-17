@@ -35,8 +35,6 @@ namespace Vodovoz
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
-		List<Nomenclature> fixedPrices = new List<Nomenclature>();
-
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		LastChosenAction lastChosenAction = LastChosenAction.None;
@@ -1151,7 +1149,6 @@ namespace Vodovoz
 				CurrentObjectChanged(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
 			if(Entity.DeliveryPoint != null) {
 				UpdateProxyInfo();
-				fixedPrices = GetFixedPriceList(Entity.DeliveryPoint);
 				SetProxyForOrder();
 			}
 		}
@@ -1435,30 +1432,6 @@ namespace Vodovoz
 			if(docList.Count > 0) {
 				DocumentPrinter.PrintAll(docList);
 			}
-		}
-
-		/// <summary>
-		/// Получить список номенклатур с фиксированной ценой для данной точки доставки.
-		/// </summary>
-		/// <returns>Лист номенклатур с фиксированной ценой.</returns>
-		/// <param name="delPoint">Точка доставки.</param>
-		private List<Nomenclature> GetFixedPriceList(DeliveryPoint delPoint)
-		{
-			var agreements = AdditionalAgreementRepository.GetActiveAgreementsForDeliveryPoint(UoW, delPoint);
-
-			List<WaterSalesAgreementFixedPrice> fixedPricesList = new List<WaterSalesAgreementFixedPrice>();
-			List<Nomenclature> nomenclature = new List<Nomenclature>();
-
-			foreach(AdditionalAgreement agreement in agreements) {
-				var fixedPrices = AdditionalAgreementRepository.GetFixedPricesForAgreement(UoW, agreement);
-				fixedPricesList.AddRange(fixedPrices);
-			}
-
-			foreach(WaterSalesAgreementFixedPrice fixedPrice in fixedPricesList) {
-				nomenclature.Add(fixedPrice.Nomenclature);
-			}
-
-			return nomenclature;
 		}
 
 		private void SetProxyForOrder()
