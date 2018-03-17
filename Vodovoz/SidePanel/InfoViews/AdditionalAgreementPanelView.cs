@@ -10,7 +10,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
-using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -21,6 +20,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		private AdditionalAgreement[] WaterAgreements;
 
 		DeliveryPoint DeliveryPoint{get;set;}
+
+		IList<WaterSalesAgreementFixedPrice> fixedPricesList;
 
 		public AdditionalAgreementPanelView()
 		{
@@ -33,7 +34,16 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelNextService.LineWrapMode = Pango.WrapMode.WordChar;
 			labelRent.LineWrapMode = Pango.WrapMode.WordChar;
 			labelEquipmentCount.LineWrapMode = Pango.WrapMode.WordChar;
+
+			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += Handle_ObjectUpdatedGeneric;
 		}
+
+		void Handle_ObjectUpdatedGeneric(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<WaterSalesAgreement> e)
+		{
+			if(e.UpdatedSubjects.Any(x => x.DeliveryPoint.Id == x.DeliveryPoint.Id))
+				Refresh();
+		}
+
 
 		#region IPanelView implementation
 
@@ -86,7 +96,9 @@ namespace Vodovoz.SidePanel.InfoViews
 				leftToOrderText = String.Format(" (осталось: {0})", bottlesLeftToOrder);
 			labelBottlesPerMonth.Text = String.Format("{0} из {1}{2}", bottlesThisMonth, requiredBottlesThisMonth, leftToOrderText);
 
-			var fixedPricesList = AdditionalAgreementRepository.GetFixedPricesForDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
+			if(fixedPricesList != null)
+				fixedPricesList.ToList().ForEach(x => InfoProvider.UoW.Session.Evict(x));
+			fixedPricesList = AdditionalAgreementRepository.GetFixedPricesForDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 
 			ytreeviewFixedPrices.ColumnsConfig = ColumnsConfigFactory.Create<WaterSalesAgreementFixedPrice>()
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
@@ -157,7 +169,13 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 		}
 
-		#endregion
-	}
+        #endregion
+
+        public override void Destroy()
+        {
+			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric -= Handle_ObjectUpdatedGeneric;
+			base.Destroy();
+        }
+    }
 }
 

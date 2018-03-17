@@ -61,8 +61,10 @@ namespace Vodovoz.SidePanel
 			PanelViewContainer container = sender as PanelViewContainer;
 			if(this.currentInfoProvider!=container.InfoProvider)
 				content.Remove(container);
+			
 			if (container.IsOrphan())
 			{
+				container.Widget.Destroy();
 				container.Dispose();
 			}
 			else
@@ -125,6 +127,7 @@ namespace Vodovoz.SidePanel
 				foreach (var view in views.Where(c=>!c.Pinned))
 				{
 					content.Remove(view);
+					view.Widget?.Destroy();
 					view.Dispose();
 				}
 				providerToViewMap.Remove(provider);
