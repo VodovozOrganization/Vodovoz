@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using NHibernate.Proxy;
-using QSHistoryLog;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
@@ -11,12 +10,16 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
+using Vodovoz.SidePanel;
+using Vodovoz.SidePanel.InfoProviders;
 
-namespace Vodovoz.Panel
+namespace Vodovoz.SidePanel.InfoViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class AdditionalAgreementPanelView : Gtk.Bin, IPanelView
 	{
+		private AdditionalAgreement[] WaterAgreements;
+
 		DeliveryPoint DeliveryPoint{get;set;}
 
 		public AdditionalAgreementPanelView()
@@ -84,18 +87,11 @@ namespace Vodovoz.Panel
 			labelBottlesPerMonth.Text = String.Format("{0} из {1}{2}", bottlesThisMonth, requiredBottlesThisMonth, leftToOrderText);
 
 			List<WaterSalesAgreementFixedPrice> fixedPricesList = new List<WaterSalesAgreementFixedPrice>();
-			string fixedPricesString = "";
 
 			foreach(AdditionalAgreement agreement in agreements)
 			{
 				var fixedPrices = WaterSalesAgreementFixedPriceRepository.GetFixedPricesForAgreement(InfoProvider.UoW, agreement);
 				fixedPricesList.AddRange(fixedPrices);
-			}
-
-			vboxFixedPrices.Visible = fixedPricesList.Count > 0;
-			foreach (WaterSalesAgreementFixedPrice fixedPrice in fixedPricesList)
-			{
-				fixedPricesString += String.Format("{0}: {1:C}\n", fixedPrice.Nomenclature.Name, fixedPrice.Price);
 			}
 
 			ytreeviewFixedPrices.ColumnsConfig = ColumnsConfigFactory.Create<WaterSalesAgreementFixedPrice>()
@@ -105,6 +101,13 @@ namespace Vodovoz.Panel
 				.Finish();
 
 			ytreeviewFixedPrices.SetItemsSource(fixedPricesList);
+
+			ytreeviewFixedPrices.Visible = fixedPricesList.Count > 0;
+			hboxNotFixedPriceInfo.Visible = fixedPricesList.Count == 0;
+
+			WaterAgreements = agreements.Where(a => a.Type == AgreementType.WaterSales).ToArray();
+
+			buttonWaterAgreement.Label = WaterAgreements.Length > 0 ? "Открыть доп. согл." : "Создать доп. согл.";
 		}
 
 		public bool VisibleOnPanel
@@ -124,11 +127,9 @@ namespace Vodovoz.Panel
 			}
 		}
 
-		public IInfoProvider InfoProvider
-		{
-			get;
-			set;
-		}
+		public IInfoProvider InfoProvider { get; set; }
+
+		public CounterpartyContract Contract => (InfoProvider as IContractInfoProvider)?.Contract;
 
 		protected void OnYtreeviewFixedPricesRowActivated(object o, Gtk.RowActivatedArgs args)
 		{
@@ -139,6 +140,27 @@ namespace Vodovoz.Panel
 				OrmMain.GenerateDialogHashName(type, selectedPrice.AdditionalAgreement.Id),
 				() => dialog
 			);
+		}
+
+		protected void OnButtonWaterAgreementClicked(object sender, EventArgs e)
+		{
+			if(WaterAgreements.Length > 0)
+			{
+				foreach(var wa in WaterAgreements) {
+					TDIMain.MainNotebook.OpenTab(
+						OrmMain.GenerateDialogHashName<WaterSalesAgreement>(wa.Id),
+						() => new WaterAgreementDlg(wa.Id)
+					);
+				}
+			}
+			else
+			{
+				if(Contract == null || DeliveryPoint == null)
+					return;
+				
+				var waDlg = new WaterAgreementDlg(Contract, DeliveryPoint);
+				TDIMain.MainNotebook.AddTab(waDlg);
+			}
 		}
 
 		#endregion

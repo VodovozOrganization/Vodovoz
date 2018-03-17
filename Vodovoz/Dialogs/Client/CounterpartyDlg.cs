@@ -10,7 +10,8 @@ using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Panel;
+using Vodovoz.SidePanel;
+using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz
 {

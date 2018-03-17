@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vodovoz.Panel
+namespace Vodovoz.SidePanel.InfoProviders
 {
 	public class DefaultInfoProvider : IInfoProvider
 	{

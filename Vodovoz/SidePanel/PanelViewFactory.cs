@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gtk;
+using Vodovoz.SidePanel.InfoViews;
 
-namespace Vodovoz.Panel
+namespace Vodovoz.SidePanel
 {
 	public static class PanelViewFactory
 	{

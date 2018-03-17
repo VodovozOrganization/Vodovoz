@@ -17,8 +17,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using Vodovoz.Panel;
 using Vodovoz.ServiceDialogs.Database;
+using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 
 public partial class MainWindow : Gtk.Window

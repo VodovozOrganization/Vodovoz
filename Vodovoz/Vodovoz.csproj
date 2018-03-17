@@ -441,22 +441,17 @@
     <Compile Include="Dialogs\Cash\CashExpenseCategoryDlg.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListDiscrepancyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListDiscrepancyView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Panel.InfoPanel.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Panel.PanelViewContainer.cs" />
     <Compile Include="SidePanel\InfoProviders\IInfoProvider.cs" />
     <Compile Include="SidePanel\PanelViewContainer.cs" />
     <Compile Include="SidePanel\IPanelView.cs" />
     <Compile Include="SidePanel\PanelViewFactory.cs" />
     <Compile Include="SidePanel\InfoPanel.cs" />
-    <Compile Include="SidePanel\PanelWidgets\CounterpartyPanelView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Panel.CounterpartyPanelView.cs" />
-    <Compile Include="SidePanel\PanelWidgets\DeliveryPointPanelView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Panel.DeliveryPointPanelView.cs" />
+    <Compile Include="SidePanel\InfoViews\CounterpartyPanelView.cs" />
+    <Compile Include="SidePanel\InfoViews\DeliveryPointPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\ICounterpartyInfoProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\IDeliveryPointInfoProvider.cs" />
     <Compile Include="Сrutches\WrapLabel.cs" />
-    <Compile Include="SidePanel\PanelWidgets\AdditionalAgreementPanelView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Panel.AdditionalAgreementPanelView.cs" />
+    <Compile Include="SidePanel\InfoViews\AdditionalAgreementPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
     <Compile Include="ReportsParameters\Revision.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
@@ -727,6 +722,12 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Store.NonSerialEquipmentReceptionView.cs" />
     <Compile Include="ViewWidgets\DepositRefundItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.DepositRefundItemsView.cs" />
+    <Compile Include="SidePanel\InfoProviders\IContractInfoProvider.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoPanel.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.PanelViewContainer.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CounterpartyPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.DeliveryPointPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.AdditionalAgreementPanelView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -857,7 +858,7 @@
     <Folder Include="Reports\Store\" />
     <Folder Include="Commons\" />
     <Folder Include="SidePanel\" />
-    <Folder Include="SidePanel\PanelWidgets\" />
+    <Folder Include="SidePanel\InfoViews\" />
     <Folder Include="SidePanel\InfoProviders\" />
     <Folder Include="ServiceDialogs\ExportTo1c\" />
     <Folder Include="Dialogs\Client\" />
@@ -1141,10 +1142,7 @@
     <MonoDevelop>
       <Properties>
         <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild">
-            <inheritsSet />
-            <inheritsScope />
-          </DotNetNamingPolicy>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild" />
         </Policies>
         <Deployment.LinuxDeployData generateScript="False" />
       </Properties>

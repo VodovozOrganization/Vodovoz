@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -15,8 +13,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
-using Vodovoz.Panel;
 using Vodovoz.Repository;
+using Vodovoz.SidePanel;
+using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz
 {

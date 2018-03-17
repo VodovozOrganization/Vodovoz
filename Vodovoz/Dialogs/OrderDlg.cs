@@ -24,12 +24,13 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.JournalFilters;
-using Vodovoz.Panel;
 using Vodovoz.Repository;
+using Vodovoz.SidePanel;
+using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz
 {
-	public partial class OrderDlg : OrmGtkDialogBase<Order>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
+	public partial class OrderDlg : OrmGtkDialogBase<Order>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider, IContractInfoProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -55,6 +56,8 @@ namespace Vodovoz
 			FreeRentAgreement,
 		}
 
+		#region Работа с боковыми панелями
+
 		public PanelViewType[] InfoWidgets {
 			get {
 				return new[]{
@@ -65,17 +68,13 @@ namespace Vodovoz
 			}
 		}
 
-		public Counterparty Counterparty {
-			get {
-				return referenceClient.Subject as Counterparty;
-			}
-		}
+		public Counterparty Counterparty => Entity.Client;
 
-		public DeliveryPoint DeliveryPoint {
-			get {
-				return referenceDeliveryPoint.Subject as DeliveryPoint;
-			}
-		}
+		public DeliveryPoint DeliveryPoint => Entity.DeliveryPoint;
+
+		public CounterpartyContract Contract => Entity.Contract;
+
+		#endregion
 
 		public OrderDlg()
 		{

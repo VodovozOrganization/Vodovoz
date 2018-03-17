@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QSProjectsLib;
@@ -7,8 +6,9 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Operations;
+using Vodovoz.SidePanel.InfoProviders;
 
-namespace Vodovoz.Panel
+namespace Vodovoz.SidePanel.InfoViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CounterpartyPanelView : Gtk.Bin, IPanelView

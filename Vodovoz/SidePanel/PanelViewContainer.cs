@@ -1,7 +1,8 @@
 ﻿using System;
 using Gtk;
+using Vodovoz.SidePanel.InfoProviders;
 
-namespace Vodovoz.Panel
+namespace Vodovoz.SidePanel
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class PanelViewContainer : Gtk.Bin

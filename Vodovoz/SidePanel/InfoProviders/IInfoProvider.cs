@@ -1,8 +1,7 @@
 ﻿using System;
 using QSOrmProject;
-using NHibernate;
 
-namespace Vodovoz.Panel
+namespace Vodovoz.SidePanel.InfoProviders
 {
 	public interface IInfoProvider
 	{

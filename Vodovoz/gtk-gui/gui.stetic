@@ -1165,7 +1165,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Vodovoz.Panel.InfoPanel" id="infopanel">
+          <widget class="Vodovoz.SidePanel.InfoPanel" id="infopanel">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -5492,7 +5492,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -26200,7 +26199,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -31188,7 +31186,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Panel.InfoPanel" design-size="219 300">
+  <widget class="Gtk.Bin" id="Vodovoz.SidePanel.InfoPanel" design-size="157 181">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -31200,7 +31198,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Panel.CounterpartyPanelView" design-size="300 386">
+  <widget class="Gtk.Bin" id="Vodovoz.SidePanel.InfoViews.CounterpartyPanelView" design-size="300 395">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -31466,7 +31464,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Panel.PanelViewContainer" design-size="300 300">
+  <widget class="Gtk.Bin" id="Vodovoz.SidePanel.PanelViewContainer" design-size="305 304">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -31502,7 +31500,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Panel.DeliveryPointPanelView" design-size="300 304">
+  <widget class="Gtk.Bin" id="Vodovoz.SidePanel.InfoViews.DeliveryPointPanelView" design-size="300 304">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -31739,7 +31737,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Panel.AdditionalAgreementPanelView" design-size="300 309">
+  <widget class="Gtk.Bin" id="Vodovoz.SidePanel.InfoViews.AdditionalAgreementPanelView" design-size="300 361">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -31982,12 +31980,49 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <placeholder />
+              <widget class="Gtk.HBox" id="hboxNotFixedPriceInfo">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.Label" id="label7">
+                    <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes">Цены по прайсу</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.Button" id="buttonWaterAgreement">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">GtkButton</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonWaterAgreementClicked" />
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
             </child>
           </widget>
           <packing>
             <property name="Position">6</property>
             <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
           </packing>
         </child>
       </widget>

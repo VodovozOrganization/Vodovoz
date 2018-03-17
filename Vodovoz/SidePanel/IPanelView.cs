@@ -1,6 +1,7 @@
 ﻿using System;
+using Vodovoz.SidePanel.InfoProviders;
 
-namespace Vodovoz.Panel
+namespace Vodovoz.SidePanel
 {
 	public interface IPanelView
 	{

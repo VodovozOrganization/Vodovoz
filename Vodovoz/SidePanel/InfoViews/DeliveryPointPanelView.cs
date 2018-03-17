@@ -1,6 +1,5 @@
 ﻿using System;
 using Gamma.GtkWidgets;
-using Gamma.Utilities;
 using Gtk;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
@@ -8,8 +7,9 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Operations;
+using Vodovoz.SidePanel.InfoProviders;
 
-namespace Vodovoz.Panel
+namespace Vodovoz.SidePanel.InfoViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DeliveryPointPanelView : Gtk.Bin, IPanelView

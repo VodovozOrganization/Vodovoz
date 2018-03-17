@@ -1,12 +1,10 @@
 ﻿using System;
-using QSWidgetLib;
-using Gtk;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain;
-using QSTDI;
+using Gtk;
+using Vodovoz.SidePanel.InfoProviders;
 
-namespace Vodovoz.Panel
+namespace Vodovoz.SidePanel
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class InfoPanel : Gtk.Bin
