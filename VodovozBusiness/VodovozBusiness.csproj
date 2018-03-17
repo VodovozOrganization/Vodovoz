@@ -296,7 +296,6 @@
     <Compile Include="HibernateMapping\Store\WarehouseMap.cs" />
     <Compile Include="Repositories\Accounting\AccountExpenseRepository.cs" />
     <Compile Include="Repositories\Accounting\AccountIncomeRepository.cs" />
-    <Compile Include="Repositories\AdditionalAgreementRepository.cs" />
     <Compile Include="Repositories\BasicHandbooks\CullingCategoryRepository.cs" />
     <Compile Include="Repositories\BasicHandbooks\DeliveryScheduleRepository.cs" />
     <Compile Include="Repositories\Cash\AccountableDebtsRepository.cs" />
@@ -398,7 +397,6 @@
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
     <Compile Include="HibernateMapping\Logistic\CachedDistanceMap.cs" />
     <Compile Include="Repositories\Logistics\CachedDistanceRepository.cs" />
-    <Compile Include="Repositories\WaterSalesAgreementFixedPriceRepository.cs" />
     <Compile Include="Tools\Logistic\RouteGeometryCalculator.cs" />
     <Compile Include="Domain\Logistic\AtWorkDriverDistrictPriority.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkDriverDistrictPriorityMap.cs" />
@@ -417,6 +415,7 @@
     <Compile Include="Repositories\Sale\ScheduleRestrictionRepository.cs" />
     <Compile Include="Domain\Order\DiscountReason.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonMap.cs" />
+    <Compile Include="Repositories\Client\AdditionalAgreementRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

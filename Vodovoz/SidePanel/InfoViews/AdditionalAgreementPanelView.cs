@@ -90,7 +90,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			foreach(AdditionalAgreement agreement in agreements)
 			{
-				var fixedPrices = WaterSalesAgreementFixedPriceRepository.GetFixedPricesForAgreement(InfoProvider.UoW, agreement);
+				var fixedPrices = AdditionalAgreementRepository.GetFixedPricesForAgreement(InfoProvider.UoW, agreement);
 				fixedPricesList.AddRange(fixedPrices);
 			}
 

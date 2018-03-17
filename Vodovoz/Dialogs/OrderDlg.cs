@@ -25,6 +25,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repository;
+using Vodovoz.Repository.Client;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 
@@ -1449,7 +1450,7 @@ namespace Vodovoz
 			List<Nomenclature> nomenclature = new List<Nomenclature>();
 
 			foreach(AdditionalAgreement agreement in agreements) {
-				var fixedPrices = WaterSalesAgreementFixedPriceRepository.GetFixedPricesForAgreement(UoW, agreement);
+				var fixedPrices = AdditionalAgreementRepository.GetFixedPricesForAgreement(UoW, agreement);
 				fixedPricesList.AddRange(fixedPrices);
 			}
 
