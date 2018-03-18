@@ -4,7 +4,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.HibernateMapping
 {
-	public class CounterpartyMap : ClassMap<Counterparty>
+	public class CounterpartyMap : ClassMap<Vodovoz.Domain.Client.Counterparty>
 	{
 		public CounterpartyMap ()
 		{

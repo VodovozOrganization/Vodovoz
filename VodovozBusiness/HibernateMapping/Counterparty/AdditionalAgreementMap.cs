@@ -64,6 +64,15 @@ namespace Vodovoz.HibernateMapping
 		}
 	}
 
+	public class EquipmentSalesAgreementMap : SubclassMap<SalesEquipmentAgreement>
+	{
+		public EquipmentSalesAgreementMap()
+		{
+			DiscriminatorValue("EquipmentSales");
+			HasMany(x => x.SalesEqipments).KeyColumn("additional_agreement_id").Inverse().Cascade.AllDeleteOrphan().LazyLoad();
+		}
+	}
+
 	public class RepairAgreementMap : SubclassMap<RepairAgreement>
 	{
 		public RepairAgreementMap()

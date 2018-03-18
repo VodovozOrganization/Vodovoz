@@ -25,7 +25,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repository;
-using Vodovoz.Repository.Client;
+using Vodovoz.Dialogs.Client;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 
@@ -676,7 +676,7 @@ namespace Vodovoz
 			}
 
 			if(nomenclature.Category == NomenclatureCategory.equipment) {
-				UoWGeneric.Root.AddEquipmentNomenclatureForSale(nomenclature, UoWGeneric);
+				RunAdditionalAgreementSalesEquipmentDialog(nomenclature);
 			} else if(nomenclature.Category == NomenclatureCategory.water) {
 				CounterpartyContract contract = CounterpartyContractRepository.
 					GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType);
@@ -936,6 +936,22 @@ namespace Vodovoz
 					if(nom != null) {
 						AddNomenclature(nom);
 					}
+				};
+			TabParent.AddSlaveTab(this, dlg);
+		}
+
+		protected void RunAdditionalAgreementSalesEquipmentDialog(Nomenclature nom = null)
+		{
+			ITdiDialog dlg = new EquipSalesAgreementDlg(
+				CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType), 
+				UoWGeneric.Root.DeliveryPoint, 
+				UoWGeneric.Root.DeliveryDate,
+				nom
+			);
+
+			(dlg as IAgreementSaved).AgreementSaved +=
+				(sender, e) => {
+					AgreementSaved(sender, e);
 				};
 			TabParent.AddSlaveTab(this, dlg);
 		}

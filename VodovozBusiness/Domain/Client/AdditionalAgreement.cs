@@ -63,6 +63,8 @@ namespace Vodovoz.Domain.Client
 					return AgreementType.FreeRent;
 				if (this is WaterSalesAgreement)
 					return AgreementType.WaterSales;
+				if(this is SalesEquipmentAgreement)
+					return AgreementType.EquipmentSales;
 				return AgreementType.Repair;
 			}		
 		}
@@ -164,6 +166,8 @@ namespace Vodovoz.Domain.Client
 					return "Т";
 				case AgreementType.WaterSales:
 					return "В";
+				case AgreementType.EquipmentSales:
+					return "П";
 				default:
 					throw new InvalidOperationException(String.Format("Тип {0} не поддерживается.", type));
 			}
@@ -204,6 +208,8 @@ namespace Vodovoz.Domain.Client
 		FreeRent,
 		[Display (Name = "Продажа воды")]
 		WaterSales,
+		[Display (Name = "Продажа оборудования")]
+		EquipmentSales,
 		[Display (Name = "Ремонт")]
 		Repair
 	}

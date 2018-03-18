@@ -839,14 +839,34 @@ namespace Vodovoz.Domain.Orders
 			return true;
 		}
 
-		public virtual void AddEquipmentNomenclatureForSale(Nomenclature nomenclature, IUnitOfWork UoW)
+
+		/// <summary>
+		/// Adds the equipment nomenclature for sale.
+		/// </summary>
+		/// <param name="nomenclature">Nomenclature.</param>
+		/// <param name="UoW">Uo w.</param>
+		public virtual void AddEquipmentNomenclatureForSale(AdditionalAgreement agreement, Nomenclature nomenclature, IUnitOfWork UoW)
+		{
+			AddEquipmentForSale(agreement, nomenclature, UoW);
+			UpdateDocuments();
+		}
+
+		public virtual void AddEquipmentNomenclatureForSale(AdditionalAgreement agreement, IEnumerable<Nomenclature> nomenclatures, IUnitOfWork UoW)
+		{
+			foreach(var item in nomenclatures) {
+				AddEquipmentForSale(agreement, item, UoW);
+			}
+			UpdateDocuments();
+		}
+
+		void AddEquipmentForSale(AdditionalAgreement agreement, Nomenclature nomenclature, IUnitOfWork UoW)
 		{
 			if(nomenclature.Category != NomenclatureCategory.equipment)
 				return;
 			if(!nomenclature.IsSerial) {
 				ObservableOrderItems.Add(new OrderItem {
 					Order = this,
-					AdditionalAgreement = null,
+					AdditionalAgreement = agreement,
 					Count = 0,
 					Equipment = null,
 					Nomenclature = nomenclature,
@@ -856,14 +876,13 @@ namespace Vodovoz.Domain.Orders
 				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, nomenclature);
 				ObservableOrderItems.AddWithReturn(new OrderItem {
 					Order = this,
-					AdditionalAgreement = null,
+					AdditionalAgreement = agreement,
 					Count = 1,
 					Equipment = eq,
 					Nomenclature = nomenclature,
 					Price = nomenclature.GetPrice(1)
 				});
 			}
-			UpdateDocuments();
 		}
 
 		public virtual void AddEquipmentNomenclatureToClient(Nomenclature nomenclature, IUnitOfWork UoW)
@@ -1422,6 +1441,40 @@ namespace Vodovoz.Domain.Orders
 							Reason = Reason.Rent,
 							OrderItem = ObservableOrderItems[ItemId],
 							OwnType = OwnTypes.Rent
+						}
+					);
+				}
+			}
+			else if (a.Type == AgreementType.EquipmentSales)
+			{
+				SalesEquipmentAgreement agreement = a as SalesEquipmentAgreement;
+				foreach (SalesEquipment equipment in agreement.SalesEqipments)
+				{
+					int ItemId;
+					//Добавляем номенклатуру продажи оборудования.
+					ItemId = ObservableOrderItems.AddWithReturn(
+						new OrderItem
+						{
+							Order = this,
+							AdditionalAgreement = agreement,
+							Count = equipment.Count,
+							Equipment = null,
+							Nomenclature = equipment.Nomenclature,
+							Price = equipment.Price
+						}
+					);
+					//Добавляем оборудование.
+					ObservableOrderEquipments.Add(
+						new OrderEquipment
+						{
+							Order = this,
+							Direction = Direction.Deliver,
+							Count = equipment.Count,
+							Equipment = null,
+							Nomenclature = equipment.Nomenclature,
+							Reason = Reason.Sale,
+							OrderItem = ObservableOrderItems[ItemId],
+							OwnType = OwnTypes.Client
 						}
 					);
 				}

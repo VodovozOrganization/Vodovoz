@@ -54,6 +54,13 @@ namespace Vodovoz.Repository
 				            .Where(n => !n.IsArchive);
 		}
 
+		public static QueryOver<Nomenclature> NomenclatureEquipOnlyQuery()
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category == NomenclatureCategory.equipment)
+							.Where(n => !n.IsArchive);
+		}
+
 		public static Nomenclature GetBottleDeposit (IUnitOfWork uow)
 		{
 			var bottleDepositParameter = "bottleDeposit_id";

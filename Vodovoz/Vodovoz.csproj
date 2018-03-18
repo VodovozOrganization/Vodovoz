@@ -722,6 +722,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Store.NonSerialEquipmentReceptionView.cs" />
     <Compile Include="ViewWidgets\DepositRefundItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.DepositRefundItemsView.cs" />
+    <Compile Include="Dialogs\Client\EquipSalesAgreementDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.EquipSalesAgreementDlg.cs" />
     <Compile Include="SidePanel\InfoProviders\IContractInfoProvider.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoPanel.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.PanelViewContainer.cs" />
