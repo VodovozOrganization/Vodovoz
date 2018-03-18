@@ -39,10 +39,10 @@ namespace Vodovoz
 					.AddColumn ("% НДС").AddEnumRenderer (i => i.VAT).Editing ()
 					.AddColumn ("Количество")
 						.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
-						.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
+						.AddSetter((c, i) => c.Digits = (i.Nomenclature.Unit == null ? 1 :(uint)i.Nomenclature.Unit.Digits)) 
 						.AddSetter ((c, i) => c.Editable = i.CanEditAmount)
 						.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
-						.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
+						.AddTextRenderer (i => i.Nomenclature.Unit == null ? String.Empty: i.Nomenclature.Unit.Name, false)
 					.AddColumn ("Цена закупки").AddNumericRenderer (i => i.Price).Digits (2).Editing ()
 						.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 						.AddTextRenderer (i => CurrencyWorks.CurrencyShortName, false)
@@ -136,7 +136,7 @@ namespace Vodovoz
 				DocumentUoW.Root.AddItem (new IncomingInvoiceItem { 
 					Nomenclature = e.Subject as Nomenclature, 
 					Equipment = null,
-					Amount = 0, Price = 0 
+					Amount = 0, Price = 0
 				});
 			}
 		}
