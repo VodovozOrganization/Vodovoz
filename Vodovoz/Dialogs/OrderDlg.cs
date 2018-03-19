@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -679,7 +679,7 @@ namespace Vodovoz
 				RunAdditionalAgreementSalesEquipmentDialog(nomenclature);
 			} else if(nomenclature.Category == NomenclatureCategory.water) {
 				CounterpartyContract contract = CounterpartyContractRepository.
-					GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType);
+					GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType);
 				if(contract == null) {
 					var result = AskCreateContract();
 					switch(result) {
@@ -725,7 +725,7 @@ namespace Vodovoz
 				MessageDialogWorks.RunWarningDialog("Для добавления оборудования должна быть выбрана точка доставки.");
 				return;
 			}
-			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType);
+			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType);
 			if(contract == null) {
 				switch(type) {
 					case OrderAgreementType.NonfreeRent:
@@ -784,7 +784,7 @@ namespace Vodovoz
 			var agreement = UoWGeneric.Session.Merge(e.Agreement);
 			UoWGeneric.Root.CreateOrderAgreementDocument(agreement);
 			UoWGeneric.Root.FillItemsFromAgreement(agreement);
-			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType)
+			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType)
 			                              .AdditionalAgreements
 			                              .Add(agreement);
 		}
@@ -868,7 +868,7 @@ namespace Vodovoz
 			var response = AskCreateContract();
 			if(response == (int)ResponseType.Yes) {
 				dlg = new CounterpartyContractDlg(UoWGeneric.Root.Client,
-					OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric, UoWGeneric.Root.PaymentType),
+					OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType),
 					UoWGeneric.Root.DeliveryDate);
 				(dlg as IContractSaved).ContractSaved += OnContractSaved;
 				TabParent.AddSlaveTab(this, dlg);
@@ -899,7 +899,7 @@ namespace Vodovoz
 		protected void RunContractAndWaterAgreementDialog(Nomenclature nomenclature)
 		{
 			ITdiTab dlg = new CounterpartyContractDlg(UoWGeneric.Root.Client,
-							  OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric, UoWGeneric.Root.PaymentType),
+							  OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType),
 							  UoWGeneric.Root.DeliveryDate);
 			(dlg as IContractSaved).ContractSaved += OnContractSaved;
 			dlg.CloseTab += (sender, e) => {
@@ -907,6 +907,7 @@ namespace Vodovoz
 					CounterpartyContractRepository.GetCounterpartyContractByPaymentType(
 						UoWGeneric,
 						UoWGeneric.Root.Client,
+						UoWGeneric.Root.Client.PersonType,
 						UoWGeneric.Root.PaymentType);
 				if(contract != null) {
 					bool hasWaterAgreement = contract.GetWaterSalesAgreement(UoWGeneric.Root.DeliveryPoint, nomenclature) != null;
@@ -929,7 +930,7 @@ namespace Vodovoz
 
 		protected void RunAdditionalAgreementWaterDialog(Nomenclature nom = null)
 		{
-			ITdiDialog dlg = new WaterAgreementDlg(CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType), UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
+			ITdiDialog dlg = new WaterAgreementDlg(CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType), UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
 			(dlg as IAgreementSaved).AgreementSaved += 
 				(sender, e) => {
 					AgreementSaved(sender, e);
@@ -943,7 +944,7 @@ namespace Vodovoz
 		protected void RunAdditionalAgreementSalesEquipmentDialog(Nomenclature nom = null)
 		{
 			ITdiDialog dlg = new EquipSalesAgreementDlg(
-				CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType), 
+				CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType), 
 				UoWGeneric.Root.DeliveryPoint, 
 				UoWGeneric.Root.DeliveryDate,
 				nom
@@ -976,7 +977,7 @@ namespace Vodovoz
 			using(var uow = CounterpartyContract.Create(UoWGeneric.Root.Client)) {
 				var contract = uow.Root;
 				contract.Organization = OrganizationRepository
-					.GetOrganizationByPaymentType(UoWGeneric, UoWGeneric.Root.PaymentType);
+					.GetOrganizationByPaymentType(UoWGeneric, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType);
 				contract.IsArchive = false;
 				if(UoWGeneric.Root.DeliveryDate.HasValue)
 					contract.IssueDate = UoWGeneric.Root.DeliveryDate.Value;
@@ -1235,6 +1236,7 @@ namespace Vodovoz
 			var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(
 							   UoWGeneric,
 							   UoWGeneric.Root.Client,
+							   UoWGeneric.Root.Client.PersonType,
 							   UoWGeneric.Root.PaymentType);
 			if(!contract.RepairAgreementExists()) {
 				RunAgreementCreateDialog(contract);
@@ -1350,9 +1352,9 @@ namespace Vodovoz
 
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
 		{
-			var org = OrganizationRepository.GetOrganizationByPaymentType(UoW, Entity.PaymentType);
+			var org = OrganizationRepository.GetOrganizationByPaymentType(UoW, Counterparty.PersonType, Entity.PaymentType);
 			if((Entity.Contract == null || Entity.Contract.Organization.Id != org.Id) && Entity.Client != null)
-				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.PaymentType);
+				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Counterparty.PersonType, Entity.PaymentType);
 
 			//Изменяем организацию в документах.
 			foreach(var doc in Entity.OrderDocuments.OfType<OrderContract>()) {
@@ -1532,7 +1534,7 @@ namespace Vodovoz
 						continue;
 					case NomenclatureCategory.water:
 						CounterpartyContract contract = CounterpartyContractRepository.
-						GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType);
+						GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType);
 						if(contract == null) {
 							/*	var result = AskCreateContract();
 								switch (result)

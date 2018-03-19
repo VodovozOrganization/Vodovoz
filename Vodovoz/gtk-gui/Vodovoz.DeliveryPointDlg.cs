@@ -357,8 +357,7 @@ namespace Vodovoz
 			this.hbox11.Spacing = 6;
 			// Container child hbox11.Gtk.Box+BoxChild
 			this.ylabelDistrictOfCity = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelDistrictOfCity.TooltipMarkup = "При проставлении логистического района у данной точки доставки он проставится у в" +
-				"сех точек доставки с совпадающим до номера дома включительно адресом.";
+			this.ylabelDistrictOfCity.TooltipMarkup = "При проставлении логистического района у данной точки доставки он проставится у всех точек доставки с совпадающим до номера дома включительно адресом.";
 			this.ylabelDistrictOfCity.Events = ((global::Gdk.EventMask)(256));
 			this.ylabelDistrictOfCity.Name = "ylabelDistrictOfCity";
 			this.ylabelDistrictOfCity.Xalign = 0F;
@@ -404,11 +403,11 @@ namespace Vodovoz
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.spinBottlesReserv = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000D, 1D);
+			this.spinBottlesReserv = new global::Gamma.GtkWidgets.ySpinButton(0, 10000, 1);
 			this.spinBottlesReserv.CanFocus = true;
 			this.spinBottlesReserv.Name = "spinBottlesReserv";
-			this.spinBottlesReserv.Adjustment.PageIncrement = 10D;
-			this.spinBottlesReserv.ClimbRate = 1D;
+			this.spinBottlesReserv.Adjustment.PageIncrement = 10;
+			this.spinBottlesReserv.ClimbRate = 1;
 			this.spinBottlesReserv.Numeric = true;
 			this.spinBottlesReserv.ValueAsDecimal = 0m;
 			this.spinBottlesReserv.ValueAsInt = 0;
@@ -641,15 +640,15 @@ namespace Vodovoz
 			w45.Expand = false;
 			w45.Fill = false;
 			// Container child hbox9.Gtk.Box+BoxChild
-			this.spinFloor = new global::Gamma.GtkWidgets.ySpinButton(-5D, 100D, 1D);
+			this.spinFloor = new global::Gamma.GtkWidgets.ySpinButton(-5, 100, 1);
 			this.spinFloor.WidthRequest = 0;
 			this.spinFloor.HeightRequest = 0;
 			this.spinFloor.CanFocus = true;
 			this.spinFloor.Name = "spinFloor";
-			this.spinFloor.Adjustment.PageIncrement = 10D;
-			this.spinFloor.ClimbRate = 1D;
+			this.spinFloor.Adjustment.PageIncrement = 10;
+			this.spinFloor.ClimbRate = 1;
 			this.spinFloor.Numeric = true;
-			this.spinFloor.Value = 7D;
+			this.spinFloor.Value = 7;
 			this.spinFloor.ValueAsDecimal = 0m;
 			this.spinFloor.ValueAsInt = 0;
 			this.hbox9.Add(this.spinFloor);
@@ -788,15 +787,15 @@ namespace Vodovoz
 			w58.XOptions = ((global::Gtk.AttachOptions)(4));
 			w58.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.spinMinutesToUnload = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.spinMinutesToUnload = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
 			this.spinMinutesToUnload.WidthRequest = 0;
 			this.spinMinutesToUnload.HeightRequest = 0;
 			this.spinMinutesToUnload.CanFocus = true;
 			this.spinMinutesToUnload.Name = "spinMinutesToUnload";
-			this.spinMinutesToUnload.Adjustment.PageIncrement = 10D;
-			this.spinMinutesToUnload.ClimbRate = 1D;
+			this.spinMinutesToUnload.Adjustment.PageIncrement = 10;
+			this.spinMinutesToUnload.ClimbRate = 1;
 			this.spinMinutesToUnload.Numeric = true;
-			this.spinMinutesToUnload.Value = 1D;
+			this.spinMinutesToUnload.Value = 1;
 			this.spinMinutesToUnload.ValueAsDecimal = 0m;
 			this.spinMinutesToUnload.ValueAsInt = 0;
 			this.datatable1.Add(this.spinMinutesToUnload);
@@ -849,7 +848,9 @@ namespace Vodovoz
 			this.datatable5.ColumnSpacing = ((uint)(6));
 			this.datatable5.BorderWidth = ((uint)(6));
 			// Container child datatable5.Gtk.Table+TableChild
-			this.commentsview4 = null;
+			this.commentsview4 = new global::Vodovoz.ViewWidgets.CommentsView();
+			this.commentsview4.Events = ((global::Gdk.EventMask)(256));
+			this.commentsview4.Name = "commentsview4";
 			this.datatable5.Add(this.commentsview4);
 			global::Gtk.Table.TableChild w66 = ((global::Gtk.Table.TableChild)(this.datatable5[this.commentsview4]));
 			w66.TopAttach = ((uint)(1));

@@ -46,6 +46,14 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref isArchive, value, () => IsArchive); }
 		}
 
+		bool canPrintPrice;
+
+		[Display(Name = "Печатается прайс в документах")]
+		public virtual bool CanPrintPrice {
+			get { return canPrintPrice; }
+			set { SetField(ref canPrintPrice, value, () => CanPrintPrice); }
+		}
+
 		string code1c;
 		[Display (Name = "Код 1с")]
 		public virtual string Code1c {

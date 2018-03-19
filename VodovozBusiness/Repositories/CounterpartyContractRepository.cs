@@ -1,42 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Repository.Client;
 
 namespace Vodovoz.Repository
 {
 	public class CounterpartyContractRepository
 	{
-		public static CounterpartyContract GetCounterpartyContractByPaymentType (IUnitOfWork uow, Counterparty counterparty, PaymentType paymentType)
+		public static CounterpartyContract GetCounterpartyContractByPaymentType (IUnitOfWork uow, Counterparty counterparty, PersonType personType, PaymentType paymentType)
 		{
-			Organization organization = OrganizationRepository.GetOrganizationByPaymentType (uow, paymentType);
-			if (organization == null)
-				throw new InvalidProgramException(String.Format("В параметрах базы не указана организация для типа оплаты {0}",
-					paymentType));
+			var contractType = DocTemplateRepository.GetContractTypeForPaymentType(personType, paymentType);
+			Organization organization = OrganizationRepository.GetOrganizationByPaymentType (uow, personType, paymentType);
+			if(organization == null)
+				return null;
+				/*throw new InvalidProgramException(String.Format("В параметрах базы не указана организация для типа оплаты {0}",
+					paymentType));*/
 
 			Counterparty counterpartyAlias = null;
 			Organization organizationAlias = null;
-
-			return uow.Session.QueryOver<CounterpartyContract> ()
+			var result = 
+			uow.Session.QueryOver<CounterpartyContract> ()
 				.JoinAlias (co => co.Counterparty, () => counterpartyAlias)
 				.JoinAlias (co => co.Organization, () => organizationAlias)
 				.Where (co => (counterpartyAlias.Id == counterparty.Id &&
 			!co.IsArchive &&
 			!co.OnCancellation &&
-			organizationAlias.Id == organization.Id))
-				.OrderBy(x => x.IssueDate).Desc
-				.Take(1)
-				.SingleOrDefault ();
+			organizationAlias.Id == organization.Id &&
+			co.ContractType == contractType))
+				.OrderBy(x => x.IssueDate).Desc.List();
+			return result.FirstOrDefault();
 		}
 
-		public static IList<CounterpartyContract> GetActiveContractsWithOrganization (IUnitOfWork uow, Counterparty counterparty, Organization org)
+		public static IList<CounterpartyContract> GetActiveContractsWithOrganization (IUnitOfWork uow, Counterparty counterparty, Organization org, ContractType type)
 		{
 			return uow.Session.QueryOver<CounterpartyContract> ()
 				.Where (co => (co.Counterparty.Id == counterparty.Id &&
 					!co.IsArchive &&
 					!co.OnCancellation &&
-					co.Organization.Id == org.Id))
+					co.Organization.Id == org.Id)
+				    && co.ContractType == type)
 				.List();
 		}
 

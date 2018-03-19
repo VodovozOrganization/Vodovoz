@@ -229,7 +229,7 @@ namespace Vodovoz
 				return false;
 
 			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType 
-				(UoWGeneric, UoWGeneric.Root.Counterparty, UoWGeneric.Root.Payment);
+				(UoWGeneric, UoWGeneric.Root.Counterparty, UoWGeneric.Root.Counterparty.PersonType, UoWGeneric.Root.Payment);
 
 			if (contract == null) {
 				RunContractCreateDialog ();
@@ -306,7 +306,7 @@ namespace Vodovoz
 			                  " формы оплаты. Создать?";
 			if (MessageDialogWorks.RunQuestionDialog (question)) {
 				dlg = new CounterpartyContractDlg (UoWGeneric.Root.Counterparty, 
-					OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric,UoWGeneric.Root.Payment));	
+					OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric, UoWGeneric.Root.Counterparty.PersonType, UoWGeneric.Root.Payment));	
 				(dlg as IContractSaved).ContractSaved += (sender, e) => {
 					if (UoWGeneric.Root.InitialOrder != null)
 						UoWGeneric.Root.InitialOrder.ObservableOrderDocuments.Add (new OrderContract { 

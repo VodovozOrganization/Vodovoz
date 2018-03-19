@@ -96,6 +96,7 @@ namespace Vodovoz.Domain.Client
 
 		public virtual string Title { get { return String.Format ("Доп. соглашение №{0} от {1}", FullNumberText, StartDate.ToShortDateString ()); } }
 
+		[Display(Name = "Полный номер")]
 		public virtual string FullNumberText {
 			get{
 				return String.Format("{0}-{1}{2}", Contract.Id, GetTypePrefix(Type), AgreementNumber);
@@ -129,7 +130,12 @@ namespace Vodovoz.Domain.Client
 			}
 			else
 			{
-				var newTemplate = Repository.Client.DocTemplateRepository.GetTemplate(uow, GetTemplateType(Type), Contract.Organization);
+				var newTemplate = Repository.Client.DocTemplateRepository.GetTemplate(uow, GetTemplateType(Type), Contract.Organization, Contract.ContractType);
+				if(newTemplate == null) {
+					AgreementTemplate = null;
+					ChangedTemplateFile = null;
+					return;
+				}
 				if (!DomainHelper.EqualDomainObjects(newTemplate, AgreementTemplate))
 				{
 					AgreementTemplate = newTemplate;
@@ -188,6 +194,8 @@ namespace Vodovoz.Domain.Client
 					return TemplateType.AgRepair;
 				case AgreementType.WaterSales:
 					return TemplateType.AgWater;
+				case AgreementType.EquipmentSales:
+					return TemplateType.AgEquip;
 				default:
 					throw new InvalidOperationException(String.Format("Тип {0} не поддерживается.", type));
 			}

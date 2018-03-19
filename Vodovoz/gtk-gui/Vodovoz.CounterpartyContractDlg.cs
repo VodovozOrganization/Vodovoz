@@ -36,6 +36,8 @@ namespace Vodovoz
 
 		private global::Gtk.Label label35;
 
+		private global::Gtk.Label label36;
+
 		private global::Gtk.Label label38;
 
 		private global::Gamma.Widgets.yEntryReference referenceOrganization;
@@ -43,6 +45,8 @@ namespace Vodovoz
 		private global::Gamma.GtkWidgets.ySpinButton spinDelay;
 
 		private global::QSDocTemplates.TemplateWidget templatewidget1;
+
+		private global::Gamma.Widgets.yEnumComboBox ycomboContractType;
 
 		protected virtual void Build()
 		{
@@ -92,7 +96,7 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.datatable5 = new global::Gtk.Table(((uint)(6)), ((uint)(3)), false);
+			this.datatable5 = new global::Gtk.Table(((uint)(7)), ((uint)(3)), false);
 			this.datatable5.Name = "datatable5";
 			this.datatable5.RowSpacing = ((uint)(6));
 			this.datatable5.ColumnSpacing = ((uint)(6));
@@ -105,8 +109,8 @@ namespace Vodovoz
 			this.additionalagreementsview1.IsEditable = true;
 			this.datatable5.Add(this.additionalagreementsview1);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable5[this.additionalagreementsview1]));
-			w6.TopAttach = ((uint)(5));
-			w6.BottomAttach = ((uint)(6));
+			w6.TopAttach = ((uint)(6));
+			w6.BottomAttach = ((uint)(7));
 			w6.RightAttach = ((uint)(3));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
@@ -118,8 +122,8 @@ namespace Vodovoz
 			this.checkOnCancellation.UseUnderline = true;
 			this.datatable5.Add(this.checkOnCancellation);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable5[this.checkOnCancellation]));
-			w7.TopAttach = ((uint)(4));
-			w7.BottomAttach = ((uint)(5));
+			w7.TopAttach = ((uint)(5));
+			w7.BottomAttach = ((uint)(6));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
@@ -182,8 +186,8 @@ namespace Vodovoz
 			w12.Fill = false;
 			this.datatable5.Add(this.hbox17);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable5[this.hbox17]));
-			w13.TopAttach = ((uint)(4));
-			w13.BottomAttach = ((uint)(5));
+			w13.TopAttach = ((uint)(5));
+			w13.BottomAttach = ((uint)(6));
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(2));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -220,28 +224,39 @@ namespace Vodovoz
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
-			this.label38 = new global::Gtk.Label();
-			this.label38.Name = "label38";
-			this.label38.Xalign = 1F;
-			this.label38.LabelProp = global::Mono.Unix.Catalog.GetString("Максимальный срок отсрочки:");
-			this.datatable5.Add(this.label38);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatable5[this.label38]));
+			this.label36 = new global::Gtk.Label();
+			this.label36.Name = "label36";
+			this.label36.Xalign = 1F;
+			this.label36.LabelProp = global::Mono.Unix.Catalog.GetString("Тип договора:");
+			this.datatable5.Add(this.label36);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatable5[this.label36]));
 			w17.TopAttach = ((uint)(3));
 			w17.BottomAttach = ((uint)(4));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
+			this.label38 = new global::Gtk.Label();
+			this.label38.Name = "label38";
+			this.label38.Xalign = 1F;
+			this.label38.LabelProp = global::Mono.Unix.Catalog.GetString("Максимальный срок отсрочки:");
+			this.datatable5.Add(this.label38);
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable5[this.label38]));
+			w18.TopAttach = ((uint)(4));
+			w18.BottomAttach = ((uint)(5));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable5.Gtk.Table+TableChild
 			this.referenceOrganization = new global::Gamma.Widgets.yEntryReference();
 			this.referenceOrganization.Events = ((global::Gdk.EventMask)(256));
 			this.referenceOrganization.Name = "referenceOrganization";
 			this.datatable5.Add(this.referenceOrganization);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable5[this.referenceOrganization]));
-			w18.TopAttach = ((uint)(2));
-			w18.BottomAttach = ((uint)(3));
-			w18.LeftAttach = ((uint)(1));
-			w18.RightAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable5[this.referenceOrganization]));
+			w19.TopAttach = ((uint)(2));
+			w19.BottomAttach = ((uint)(3));
+			w19.LeftAttach = ((uint)(1));
+			w19.RightAttach = ((uint)(2));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
 			this.spinDelay = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
 			this.spinDelay.CanFocus = true;
@@ -253,34 +268,48 @@ namespace Vodovoz
 			this.spinDelay.ValueAsDecimal = 0m;
 			this.spinDelay.ValueAsInt = 0;
 			this.datatable5.Add(this.spinDelay);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable5[this.spinDelay]));
-			w19.TopAttach = ((uint)(3));
-			w19.BottomAttach = ((uint)(4));
-			w19.LeftAttach = ((uint)(1));
-			w19.RightAttach = ((uint)(2));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatable5[this.spinDelay]));
+			w20.TopAttach = ((uint)(4));
+			w20.BottomAttach = ((uint)(5));
+			w20.LeftAttach = ((uint)(1));
+			w20.RightAttach = ((uint)(2));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
 			this.templatewidget1 = new global::QSDocTemplates.TemplateWidget();
 			this.templatewidget1.Events = ((global::Gdk.EventMask)(256));
 			this.templatewidget1.Name = "templatewidget1";
 			this.datatable5.Add(this.templatewidget1);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatable5[this.templatewidget1]));
-			w20.BottomAttach = ((uint)(5));
-			w20.LeftAttach = ((uint)(2));
-			w20.RightAttach = ((uint)(3));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatable5[this.templatewidget1]));
+			w21.BottomAttach = ((uint)(6));
+			w21.LeftAttach = ((uint)(2));
+			w21.RightAttach = ((uint)(3));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable5.Gtk.Table+TableChild
+			this.ycomboContractType = new global::Gamma.Widgets.yEnumComboBox();
+			this.ycomboContractType.Name = "ycomboContractType";
+			this.ycomboContractType.ShowSpecialStateAll = false;
+			this.ycomboContractType.ShowSpecialStateNot = false;
+			this.ycomboContractType.UseShortTitle = false;
+			this.ycomboContractType.DefaultFirst = false;
+			this.datatable5.Add(this.ycomboContractType);
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.datatable5[this.ycomboContractType]));
+			w22.TopAttach = ((uint)(3));
+			w22.BottomAttach = ((uint)(4));
+			w22.LeftAttach = ((uint)(1));
+			w22.RightAttach = ((uint)(2));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.datatable5);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.datatable5]));
-			w21.Position = 1;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.datatable5]));
+			w23.Position = 1;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 		}
 	}
 }

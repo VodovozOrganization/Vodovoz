@@ -66,6 +66,8 @@ namespace Vodovoz
 			dateIssue.Binding.AddBinding (Entity, e => e.IssueDate, w => w.Date).InitializeFromSource ();
 			entryNumber.Binding.AddBinding (Entity, e => e.Number, w => w.Text).InitializeFromSource ();
 			spinDelay.Binding.AddBinding (Entity, e => e.MaxDelay, w => w.ValueAsInt).InitializeFromSource ();
+			ycomboContractType.ItemsEnum = typeof(ContractType);
+			ycomboContractType.Binding.AddBinding(Entity, e => e.ContractType, w => w.SelectedItem).InitializeFromSource();
 
 			referenceOrganization.SubjectType = typeof(Organization);
 			referenceOrganization.Binding.AddBinding (Entity, e => e.Organization, w => w.Subject).InitializeFromSource ();

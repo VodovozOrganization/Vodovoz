@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using QSDocTemplates;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.DocTemplates
 {
-	public class FreeRentAgreementParser : DocParserBase<FreeRentAgreement>
+	public class DailyRentAgreementParser : DocParserBase<DailyRentAgreement>
 	{
-		public FreeRentAgreementParser()
-		{
-		}
 
 		public override void UpdateFields()
 		{
@@ -26,12 +26,30 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.IssueDate, PatternFieldType.FDate);
 			AddField(x => x.DeliveryPoint.CompiledAddress, PatternFieldType.FString);
 
-			AddTable(x => x.Equipment)
-				.AddColumn(x => x.WaterAmount, PatternFieldType.FString)
+			SortFields();
+		}
+
+	public void AddTableNomenclatures(List<PaidRentEquipment> list)
+		{
+			List<Nomenclature> result = new List<Nomenclature>();
+			foreach(var item in list) {
+				for(int i = 0; i < item.Count; i++) {
+					result.Add(item.Nomenclature);
+				}
+			}
+			AddCustomTable<Nomenclature>("СписокОборудования", result)
+				.AddColumn(x => x.OfficialName, PatternFieldType.FString);
+				SortFields();
+		}
+
+		public void AddTableEquipmentTypes(List<PaidRentEquipment> list)
+		{
+			AddCustomTable<PaidRentEquipment>("ТипыОборудования", list)
 				.AddColumn(x => x.Nomenclature.OfficialName, PatternFieldType.FString)
 				.AddColumn(x => x.Deposit, PatternFieldType.FString)
+				.AddColumn(x => x.Price, PatternFieldType.FString)
 				.AddColumn(x => x.Nomenclature.SumOfDamage, PatternFieldType.FString);
-			
+
 			SortFields();
 		}
 	}

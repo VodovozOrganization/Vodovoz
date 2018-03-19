@@ -353,7 +353,7 @@
     <Compile Include="DocTemplates\WaterAgreementParser.cs" />
     <Compile Include="DocTemplates\NonFreeRentAgreementParser.cs" />
     <Compile Include="DocTemplates\FreeRentAgreementParser.cs" />
-    <Compile Include="DocTemplates\ShortRentAgreementParser.cs" />
+    <Compile Include="DocTemplates\DailyRentAgreementParser.cs" />
     <Compile Include="DocTemplates\RepairAgreementParser.cs" />
     <Compile Include="Domain\Client\WaterSalesAgreementFixedPrice.cs" />
     <Compile Include="HibernateMapping\Counterparty\WaterSalesAgreementFixedPriceMap.cs" />
@@ -415,8 +415,10 @@
     <Compile Include="Repositories\Sale\ScheduleRestrictionRepository.cs" />
     <Compile Include="Domain\Order\DiscountReason.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonMap.cs" />
+    <Compile Include="Repositories\Client\WaterPricesRepository.cs" />
     <Compile Include="Domain\Client\SalesEquipmentAgreement.cs" />
     <Compile Include="Domain\Client\SalesEquipment.cs" />
+    <Compile Include="DocTemplates\EquipmentAgreementParser.cs" />
     <Compile Include="HibernateMapping\Counterparty\SalesEquipmentMap.cs" />
     <Compile Include="Repositories\Client\AdditionalAgreementRepository.cs" />
   </ItemGroup>

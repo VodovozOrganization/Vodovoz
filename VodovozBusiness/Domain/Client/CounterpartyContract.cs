@@ -94,6 +94,14 @@ namespace Vodovoz.Domain.Client
 			protected set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
+		ContractType contractType;
+
+		[Display(Name = "Тип договора")]
+		public virtual ContractType ContractType {
+			get { return contractType; }
+			protected set { SetField(ref contractType, value, () => ContractType); }
+		}
+
 		DocTemplate contractTemplate;
 
 		[Display (Name = "Шаблон договора")]
@@ -123,7 +131,8 @@ namespace Vodovoz.Domain.Client
 		{
 			if (!IsArchive && !OnCancellation)
 			{
-				var contracts = Repository.CounterpartyContractRepository.GetActiveContractsWithOrganization(UoW, Counterparty, Organization);
+				
+				var contracts = Repository.CounterpartyContractRepository.GetActiveContractsWithOrganization(UnitOfWorkFactory.CreateWithoutRoot(), Counterparty, Organization, ContractType);
 				if (contracts.Any(c => c.Id != Id))
 					yield return new ValidationResult(
 						String.Format("У контрагента '{0}' уже есть активный договор с организацией '{1}'", Counterparty.Name, Organization.Name),
@@ -217,7 +226,12 @@ namespace Vodovoz.Domain.Client
 			}
 			else
 			{
-				var newTemplate = Repository.Client.DocTemplateRepository.GetTemplate(uow, TemplateType.Contract, Organization);
+				var newTemplate = Repository.Client.DocTemplateRepository.GetTemplate(uow, TemplateType.Contract, Organization, ContractType);
+				if(newTemplate == null) {
+					ContractTemplate = null;
+					ChangedTemplateFile = null;
+					return;
+				}
 				if(!DomainHelper.EqualDomainObjects(newTemplate, ContractTemplate))
 				{
 					ContractTemplate = newTemplate;

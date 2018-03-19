@@ -8,33 +8,37 @@ namespace Vodovoz.Repository.Client
 {
 	public static class DocTemplateRepository
 	{
-		public static IList<DocTemplate> GetTemplatesOnlyForOrganization (IUnitOfWork uow, TemplateType type, Organization org)
+		public static ContractType GetContractTypeForPaymentType(PersonType clientType, PaymentType paymentType)
 		{
-			return uow.Session.QueryOver<DocTemplate> ()
-				.Where(x => x.TemplateType == type)
-				.Where(x => x.Organization == org)
-				.List<DocTemplate> ();
-		}
-
-		public static IList<DocTemplate> GetTemplatesForAnyOrganization (IUnitOfWork uow, TemplateType type)
-		{
-			return uow.Session.QueryOver<DocTemplate> ()
-				.Where(x => x.TemplateType == type)
-				.Where(x => x.Organization == null)
-				.List<DocTemplate> ();
+			switch(paymentType) {
+				case PaymentType.cash:
+				case PaymentType.ByCard:
+					if(clientType == PersonType.legal) {
+						return ContractType.CashUL;
+					}else {
+						return ContractType.CashFL;
+					}
+				case PaymentType.cashless:
+				case PaymentType.Internal:
+					return ContractType.Cashless;
+				case PaymentType.barter:
+					return ContractType.Barter;
+				default:
+					return ContractType.Cashless;
+			}
 		}
 
 		/// <summary>
 		/// Получаем первый подходящий шаболон документа по указанным критериям.
 		/// </summary>
-		public static DocTemplate GetTemplate (IUnitOfWork uow, TemplateType type, Organization org)
+		public static DocTemplate GetTemplate (IUnitOfWork uow, TemplateType type, Organization org, ContractType contractType)
 		{
-			var forOrg = GetTemplatesOnlyForOrganization(uow, type, org);
-			if (forOrg.Count > 0)
-				return forOrg.First();
-
-			var any = GetTemplatesForAnyOrganization(uow, type);
-			return any.FirstOrDefault();
+			var templates = uow.Session.QueryOver<DocTemplate>()
+				.Where(x => x.TemplateType == type)
+				.Where(x => x.Organization == org)
+				.Where(x => x.ContractType == contractType)
+				.List<DocTemplate>(); ;
+			return templates.FirstOrDefault();
 		}
 
 	}

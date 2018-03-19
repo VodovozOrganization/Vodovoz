@@ -67,7 +67,7 @@ namespace Vodovoz.ExportTo1c
 			this.NomenclatureCatalog = new NomenclatureCatalog(this);
 			this.OrganizationCatalog = new OrganizationCatalog(this);
 			this.WarehouseCatalog = new WarehouseCatalog(this);
-			this.CashlessOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PaymentType.cashless);
+			this.CashlessOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PersonType.legal, PaymentType.cashless);
 			this.CategoryToNomenclatureMap = new Dictionary<NomenclatureCategory, Nomenclature>();
 			// для реализации группировки по категориям 
 			// для каждой категории создадим экземпляр номенклатуры-группы с отрицательным id( других таких быть не может
@@ -110,7 +110,7 @@ namespace Vodovoz.ExportTo1c
 				)
 			);
 
-			var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW,order.Client,order.PaymentType);
+			var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW,order.Client, order.Client.PersonType,order.PaymentType);
 			if (contract != null)
 			{
 				exportInvoiceDocument.Properties.Add(
@@ -240,7 +240,7 @@ namespace Vodovoz.ExportTo1c
 					CounterpartyCatalog.CreateReferenceTo(order.Client)
 				)
 			);
-			var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW,order.Client,order.PaymentType);
+			var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW,order.Client, order.Client.PersonType, order.PaymentType);
 			if (contract != null)
 			{
 				exportSaleDocument.Properties.Add(

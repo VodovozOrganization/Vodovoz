@@ -49,6 +49,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref organization, value, () => Organization); }
 		}
 
+		ContractType contractType;
+
+		[Display(Name = "Тип договора")]
+		public virtual ContractType ContractType {
+			get { return contractType; }
+			set { SetField(ref contractType, value, () => ContractType); }
+		}
+
 		byte[] templateFile;
 
 		[Display (Name = "Файл шаблона")]
@@ -122,12 +130,14 @@ namespace Vodovoz.Domain.Client
 					return new ContractParser();
 				case TemplateType.AgWater:
 					return new WaterAgreementParser();
+				case TemplateType.AgEquip:
+					return new EquipmentAgreementParser();
 				case TemplateType.AgLongRent:
 					return new NonFreeRentAgreementParser();
 				case TemplateType.AgFreeRent:
 					return new FreeRentAgreementParser();
 				case TemplateType.AgShortRent:
-					return new ShortRentAgreementParser();
+					return new DailyRentAgreementParser();
 				case TemplateType.AgRepair:
 					return new RepairAgreementParser();
 				default:
@@ -144,6 +154,8 @@ namespace Vodovoz.Domain.Client
 		Contract,
 		[Display (Name = "Доп. соглашение на воду")]
 		AgWater,
+		[Display (Name = "Доп. соглашение на продажу оборудования")]
+		AgEquip,
 		[Display (Name = "Доп. соглашение бесплатной аренды")]
 		AgFreeRent,
 		[Display (Name = "Доп. соглашение короткосрочной аренды")]

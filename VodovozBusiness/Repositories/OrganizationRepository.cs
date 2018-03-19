@@ -1,8 +1,10 @@
-﻿using QSBanks;
+﻿using System.Linq;
+using QSBanks;
 using QSOrmProject;
 using QSSupportLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Repository.Client;
 
 namespace Vodovoz.Repository
 {
@@ -11,30 +13,18 @@ namespace Vodovoz.Repository
 		public const string CashOrganization = "cash_organization_id";
 		public const string CashlessOrganization = "cashless_organization_id";
 
-		public static Organization GetOrganizationByPaymentType(IUnitOfWork uow, PaymentType paymentType)
+		public static Organization GetOrganizationByPaymentType(IUnitOfWork uow, PersonType personType, PaymentType paymentType)
 		{
-			string organizationParameter="";
-			switch (paymentType) {
-			case PaymentType.cash:
-					//FIXME Должен быть отдельные договор!!!!
-			case PaymentType.barter:
-			case PaymentType.ByCard:
-					//FIXME Должно выбираться разное.
-			case PaymentType.Internal:
-				organizationParameter = CashOrganization;
-				break;
-			case PaymentType.cashless:
-				organizationParameter = CashlessOrganization;
-				break;
+			var contractType = DocTemplateRepository.GetContractTypeForPaymentType(personType, paymentType);
+			DocTemplate template =
+			uow.Session.QueryOver<DocTemplate>()
+			   .Where(x => x.TemplateType == TemplateType.Contract)
+			   .Where(x => x.ContractType == contractType)
+			   .List().FirstOrDefault();
+			if(template == null) {
+				return null;
 			}
-			if (MainSupport.BaseParameters.All.ContainsKey (organizationParameter)) {
-				int id = -1;
-				id = int.Parse (MainSupport.BaseParameters.All [organizationParameter]);
-				if (id == -1)
-					return null;
-				return uow.GetById<Organization> (id);
-			}
-			return null;
+			return template.Organization;
 		}
 
 		public static Organization GetOrganizationByName (IUnitOfWork uow, string fullName)

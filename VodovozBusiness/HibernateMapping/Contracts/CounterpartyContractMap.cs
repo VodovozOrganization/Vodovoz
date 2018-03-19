@@ -15,6 +15,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.IsArchive).Column ("is_archive");
 			Map (x => x.OnCancellation).Column ("on_cancellation");
 			Map(x => x.ChangedTemplateFile).Column("doc_changed_template").LazyLoad();
+			Map(x => x.ContractType).Column("contract_type").CustomType<ContractTypeStringType>();
 			References(x => x.ContractTemplate).Column("doc_template_id");
 			References (x => x.Organization).Column ("organization_id");
 			References (x => x.Counterparty).Column ("counterparty_id");

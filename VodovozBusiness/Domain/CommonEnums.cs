@@ -45,4 +45,23 @@ namespace Vodovoz.Domain.Client
 		{
 		}
 	}
+
+	public enum ContractType
+	{
+		[Display(Name = "Безналичная")]
+		Cashless,
+		[Display(Name = "Наличная ФЛ")]
+		CashFL,
+		[Display(Name = "Наличная ЮЛ")]
+		CashUL,
+		[Display(Name = "Бартер")]
+		Barter
+	}
+
+	public class ContractTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public ContractTypeStringType() : base(typeof(ContractType))
+		{
+		}
+	}
 }

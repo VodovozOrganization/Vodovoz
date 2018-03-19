@@ -15,6 +15,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.Name).Column ("name");
 			Map (x => x.TempalteFile).Column ("file").LazyLoad();
 			Map (x => x.TemplateType).Column ("type").CustomType<TemplateTypeStringType> ();
+			Map (x => x.ContractType).Column("contract_type").CustomType<ContractTypeStringType>();
 			References(x => x.Organization).Column("organization_id");
 		}
 	}

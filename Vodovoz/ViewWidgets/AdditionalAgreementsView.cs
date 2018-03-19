@@ -4,6 +4,7 @@ using Gtk;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
+using Vodovoz.Dialogs.Client;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz
@@ -76,6 +77,9 @@ namespace Vodovoz
 				break;
 			case AgreementType.DailyRent:
 				dlg = new DailyRentAgreementDlg (AgreementUoW.Root);
+				break;
+			case AgreementType.EquipmentSales:
+				dlg = new EquipSalesAgreementDlg(AgreementUoW.Root);
 				break;
 			case AgreementType.Repair:
 				if (AgreementUoW.Root.RepairAgreementExists ()) {

@@ -38,6 +38,8 @@ namespace Vodovoz
 			ylabelSize.Binding.AddFuncBinding(Entity, e => StringWorks.BytesToIECUnitsString((ulong)e.FileSize), w => w.LabelProp).InitializeFromSource();
 			ycomboType.ItemsEnum = typeof(TemplateType);
 			ycomboType.Binding.AddBinding(Entity, e => e.TemplateType, w => w.SelectedItem).InitializeFromSource();
+			ycomboContractType.ItemsEnum = typeof(ContractType);
+			ycomboContractType.Binding.AddBinding(Entity, e => e.ContractType, w => w.SelectedItem).InitializeFromSource();
 			yentryreferenceOrg.SubjectType = typeof(Organization);
 			yentryreferenceOrg.Binding.AddBinding(Entity, e => e.Organization, w => w.Subject).InitializeFromSource();
 

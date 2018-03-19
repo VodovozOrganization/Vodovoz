@@ -5,6 +5,7 @@ using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain;
 using Vodovoz.DocTemplates;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -90,8 +91,11 @@ namespace Vodovoz
 			if (Entity.AgreementTemplate == null && Entity.Contract != null)
 				Entity.UpdateContractTemplate(UoW);
 
-			if (Entity.AgreementTemplate != null)
+			if(Entity.AgreementTemplate != null) {
 				(Entity.AgreementTemplate.DocParser as NonFreeRentAgreementParser).RootObject = Entity;
+				(Entity.AgreementTemplate.DocParser as NonFreeRentAgreementParser).AddTableNomenclatures(Entity.PaidRentEquipments.ToList());
+				(Entity.AgreementTemplate.DocParser as NonFreeRentAgreementParser).AddTableEquipmentTypes(Entity.PaidRentEquipments.ToList());
+			}
 			templatewidget1.Binding.AddBinding(Entity, e => e.AgreementTemplate, w => w.Template).InitializeFromSource();
 			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 		}

@@ -55,7 +55,9 @@ namespace Vodovoz
 			parallel.GetParallelTextFunc = GenerateOfficialName;
 
 			ycheckRentPriority.Binding.AddBinding(Entity, e => e.RentPriority, w => w.Active).InitializeFromSource();
-			checkNotReserve.Binding.AddBinding (Entity, e => e.DoNotReserve, w => w.Active).InitializeFromSource ();
+			checkNotReserve.Binding.AddBinding(Entity, e => e.DoNotReserve, w => w.Active).InitializeFromSource();
+			checkcanPrintPrice.Binding.AddBinding (Entity, e => e.CanPrintPrice, w => w.Active).InitializeFromSource ();
+			labelCanPrintPrice.Visible = checkcanPrintPrice.Visible = Entity.Category == NomenclatureCategory.water;
 			checkHide.Binding.AddBinding (Entity, e => e.Hide, w => w.Active).InitializeFromSource ();
 			entryCode1c.Binding.AddBinding (Entity, e => e.Code1c, w => w.Text).InitializeFromSource();
 			yspinSumOfDamage.Binding.AddBinding(Entity, e => e.SumOfDamage, w => w.ValueAsDecimal).InitializeFromSource();

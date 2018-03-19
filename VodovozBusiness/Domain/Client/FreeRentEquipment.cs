@@ -56,7 +56,7 @@ namespace Vodovoz.Domain.Client
 
 		int waterAmount;
 
-		[Display (Name = "Кол. бутылей")]
+		[Display (Name = "Кол бутылей")]
 		public virtual int WaterAmount {
 			get { return waterAmount; }
 			set { SetField (ref waterAmount, value, () => WaterAmount); }
