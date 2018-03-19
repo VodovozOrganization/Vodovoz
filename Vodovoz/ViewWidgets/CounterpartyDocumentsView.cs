@@ -47,6 +47,7 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Номер").AddTextRenderer(x => x.Number)
 				.AddColumn("Дата").AddTextRenderer(x => x.Date)
 				.AddColumn("Количество кулеров/помп").AddTextRenderer(x => x.EquipmentCount)
+				.AddColumn("Точка доставки").AddTextRenderer(x => x.DeliveryPoint != null ? x.DeliveryPoint.ShortAddress : String.Empty)
 				.Finish();
 
 			LoadData();
@@ -71,6 +72,7 @@ namespace Vodovoz.ViewWidgets
 			var agreements = UoW.Session.QueryOver<AdditionalAgreement>(() => agreementAlias)
 				.JoinAlias(x => x.Contract, () => contractAlias, NHibernate.SqlCommand.JoinType.InnerJoin)
 				.Where(() => agreementAlias.Contract.Id == contractAlias.Id && contractAlias.Counterparty.Id == Counterparty.Id)
+			    .Fetch(x => x.DeliveryPoint).Eager
 				.List();
 
 			//получаем список контрактов
@@ -90,6 +92,7 @@ namespace Vodovoz.ViewWidgets
 					agreementNode.Document = agreement;
 					agreementNode.Parent = contractNode;
 					agreementNode.Documents = new List<CounterpartyDocumentNode>();
+					agreementNode.DeliveryPoint = agreement.DeliveryPoint;
 
 					//добавление гарантийных листов к документам доп. соглашения
 					List<OrderDocument> agreementWarranties = new List<OrderDocument>();
@@ -281,6 +284,8 @@ namespace Vodovoz.ViewWidgets
 		}
 
 		public object Document { get; set; }
+
+		public DeliveryPoint DeliveryPoint { get; set; }
 
 		public CounterpartyDocumentNode Parent { get; set; }
 
