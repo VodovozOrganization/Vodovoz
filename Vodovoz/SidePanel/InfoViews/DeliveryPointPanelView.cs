@@ -49,6 +49,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			if (DeliveryPoint == null)
 				return;			
 			labelAddress.Text = DeliveryPoint.CompiledAddress;
+			labelPhone.LabelProp = "+7 " + DeliveryPoint.Phone;
+			labelPhone.Visible = labelPhoneText.Visible = !String.IsNullOrWhiteSpace(DeliveryPoint.Phone);
+
 			var bottlesAtDeliveryPoint = BottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			var bottlesAvgDeliveryPoint = DeliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);
 			labelBottles.Text = String.Format("{0} шт. (сред. зак.: {1:G3})", bottlesAtDeliveryPoint, bottlesAvgDeliveryPoint);
