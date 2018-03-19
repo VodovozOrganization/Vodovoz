@@ -225,40 +225,28 @@ namespace Vodovoz
 				notebook1.CurrentPage = 3;
 		}
 
-		protected void OnRadioCuratorsToggled(object sender, EventArgs e)
-		{
-			if(radioCurators.Active)
-				notebook1.CurrentPage = 4;
-		}
-
-		protected void OnRadioContactPersonsToggled(object sender, EventArgs e)
-		{
-			if(radioContactPersons.Active)
-				notebook1.CurrentPage = 5;
-		}
-
 		protected void OnRadiobuttonProxiesToggled(object sender, EventArgs e)
 		{
 			if(radiobuttonProxies.Active)
-				notebook1.CurrentPage = 6;
+				notebook1.CurrentPage = 4;
 		}
 
 		protected void OnRadioContractsToggled(object sender, EventArgs e)
 		{
 			if(radioContracts.Active)
-				notebook1.CurrentPage = 7;
+				notebook1.CurrentPage = 5;
 		}
 
 		protected void OnRadioDocumentsToggled(object sender, EventArgs e)
 		{
 			if(radioDocuments.Active)
-				notebook1.CurrentPage = 8;
+				notebook1.CurrentPage = 6;
 		}
 
 		protected void OnRadioDeliveryPointToggled(object sender, EventArgs e)
 		{
 			if(radioDeliveryPoint.Active)
-				notebook1.CurrentPage = 9;
+				notebook1.CurrentPage = 7;
 		}
 
 		protected void OnEnumPersonTypeChanged (object sender, EventArgs e)
