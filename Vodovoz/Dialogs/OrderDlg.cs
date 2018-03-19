@@ -248,7 +248,7 @@ namespace Vodovoz
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 				.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 				.AddSetter((c, node) => c.Editable = node.CanEditAmount).WidthChars(10)
-				.AddTextRenderer(node => (!node.IsRentCategory) ? String.Format("({0})", node.ReturnedCount) : "")
+				.AddTextRenderer(node => (node.CanShowReturnedCount) ? String.Format("({0})", node.ReturnedCount) : "")
 				.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Аренда").AddTextRenderer(node => node.IsRentCategory ? node.RentString : "")
 				.AddColumn("Цена").AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)

@@ -168,6 +168,12 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual bool CanShowReturnedCount{
+			get {
+				return  Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category);
+			}
+		}
+
 		public virtual bool IsRentCategory {
 			get {
 				return Nomenclature.Category == NomenclatureCategory.rent
