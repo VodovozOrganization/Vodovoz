@@ -1329,6 +1329,7 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.radioContactPersons.Hide();
+			this.radioContracts.Hide();
 			this.labelDefaultExpense.Hide();
 			this.referenceDefaultExpense.Hide();
 			this.Hide();

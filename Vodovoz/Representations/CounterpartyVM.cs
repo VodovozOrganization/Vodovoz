@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
