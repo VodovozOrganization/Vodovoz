@@ -90,14 +90,15 @@ namespace Vodovoz
 			spinFloor.Binding.AddBinding(Entity, e => e.Floor, w => w.ValueAsInt).InitializeFromSource();
 			spinMinutesToUnload.Binding.AddBinding(Entity, e => e.MinutesToUnload, w => w.ValueAsInt).InitializeFromSource();
 
-			ylabelDistrictOfCity.Binding.AddFuncBinding (Entity, entity => entity.StreetDistrict != null ? entity.StreetDistrict.Replace(",", "\n") : null, widget => widget.LabelProp)
-				.InitializeFromSource ();
-
 			yentryAddition.Binding.AddBinding(Entity, e => e.АddressAddition, w => w.Text).InitializeFromSource();
 
+#region Оставлено для корректного отображения старых заказов.
 			yentryAddress1c.Binding.AddBinding(Entity, e => e.Address1c, w => w.Text).InitializeFromSource();
 			yentryAddress1c.Binding.AddBinding(Entity, e => e.Address1c, w => w.TooltipText).InitializeFromSource();
+			labelAddress1c.Visible = yentryAddress1c.Visible = !String.IsNullOrWhiteSpace(Entity.Address1c);
 			yentryCode1c.Binding.AddBinding(Entity, e => e.Code1c, w => w.Text).InitializeFromSource();
+			codeLabel.Visible = hboxCode.Visible = !String.IsNullOrWhiteSpace(Entity.Code1c);
+#endregion
 			spinBottlesReserv.Binding.AddBinding(Entity, e => e.BottleReserv, w => w.ValueAsInt).InitializeFromSource();
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding (Entity, 
