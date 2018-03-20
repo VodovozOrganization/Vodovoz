@@ -19,10 +19,12 @@
 orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, 
 counterparty.full_name AS client_name, counterparty.jur_address AS client_address, 
 counterparty.inn, counterparty.kpp,
-CONCAT('+7 ', phones.number) AS phone
+CONCAT('+7 ', phones.number) AS phone,
+CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) as author
 FROM orders 
 LEFT JOIN counterparty ON orders.client_id = counterparty.id
 LEFT JOIN phones ON counterparty.id = phones.counterparty_id
+LEFT JOIN employees ON employees.id = orders.author_employee_id
 WHERE orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -59,10 +61,14 @@ WHERE orders.id = @order_id;</CommandText>
           <DataField>kpp</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="author">
+          <DataField>author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -71,7 +77,7 @@ WHERE orders.id = @order_id;</CommandText>
     '--' AS unit_code,
     measurement_units.name AS mu_name,
     order_items.count AS count,
-    order_items.price AS item_price,
+    order_items.price * (1 - order_items.discount / 100) AS item_price,
     order_items.include_nds,
     order_items.discount,
     order_items.price * order_items.count * (1 - order_items.discount / 100)   AS total
@@ -89,7 +95,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -289,8 +295,8 @@ WHERE
         <Width>333.36pt</Width>
         <Value>Внимание! Оплата данного счета означает согласие с условиями поставки товара. Уведомление об оплате обязательно, в противном случае не гарантируется наличие товара на складе. Товар отпускается по факту прихода денег на р/с Поставщика.</Value>
         <ZIndex>1</ZIndex>
-        <Left>219.1pt</Left>
-        <Top>19.4pt</Top>
+        <Left>208.7pt</Left>
+        <Top>24.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -662,22 +668,19 @@ First({client_address}, 'Order')</Value>
             <Width>32.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>252.5pt</Width>
+            <Width>264.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.6pt</Width>
+            <Width>41.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26.2pt</Width>
+            <Width>30.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.0pt</Width>
+            <Width>59.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.1pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>1in</Width>
+            <Width>80.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -767,22 +770,6 @@ First({client_address}, 'Order')</Value>
                         <BorderWidth />
                       </Style>
                       <ZIndex>2</ZIndex>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox32">
-                      <Value>Скидка</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -898,24 +885,6 @@ First({client_address}, 'Order')</Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox33">
-                      <Value>=Fields!discount.Value + '%'</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <PaddingRight>0pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                      <ZIndex>2</ZIndex>
-                      <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox55">
                       <Value>=Fields!total.Value</Value>
                       <CanGrow>true</CanGrow>
@@ -963,26 +932,6 @@ First({client_address}, 'Order')</Value>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>5</ColSpan>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Bottom</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1035,25 +984,6 @@ First({client_address}, 'Order')</Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox38">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox67">
                       <Value>=Sum({include_nds}, 'Goods')</Value>
                       <Style>
@@ -1096,7 +1026,7 @@ First({client_address}, 'Order')</Value>
                       <ZIndex>2</ZIndex>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>7</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1125,7 +1055,7 @@ First({client_address}, 'Order')</Value>
                       <ZIndex>2</ZIndex>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>7</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1334,7 +1264,7 @@ First({client_address}, 'Order')</Value>
         <Height>34.58pt</Height>
         <Width>597.74pt</Width>
         <Value>Рекомендуется проводить санитарную обработку не реже одного раза в 4-6 месяцев.
-Стоимость данной услуги составляет 700 руб. На время проведения санитарной обработки
+Стоимость данной услуги составляет 1200 руб. На время проведения санитарной обработки
 для Вашего удобства мы предоставляем дежурный кулер совершенно бесплатно.</Value>
         <ZIndex>1</ZIndex>
         <Left>0.5pt</Left>
@@ -1377,6 +1307,26 @@ First({client_address}, 'Order')</Value>
           <PaddingTop>1pt</PaddingTop>
         </Style>
       </Textbox>
+      <List Name="List4">
+        <Height>15.81pt</Height>
+        <Width>438.13pt</Width>
+        <Left>120.3pt</Left>
+        <Top>8.9pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox39">
+            <Height>12.73pt</Height>
+            <Width>420.89pt</Width>
+            <Value>="Автор: " + {author}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>1.6pt</Top>
+            <Style>
+              <TextAlign>Right</TextAlign>
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <DataSetName>Order</DataSetName>
+      </List>
     </ReportItems>
   </Body>
   <PageFooter>

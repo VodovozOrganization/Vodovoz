@@ -115,7 +115,9 @@ namespace Vodovoz.Domain.Orders
 				if(value != discount && value == 0) {
 					DiscountReason = null;
 				}
-				SetField(ref discount, value, () => Discount); 
+				if(SetField(ref discount, value, () => Discount)){
+					RecalculateNDS();
+				} 
 			}
 		}
 
