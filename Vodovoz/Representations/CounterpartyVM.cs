@@ -6,7 +6,6 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using QSProjectsLib;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModel
@@ -34,21 +33,6 @@ namespace Vodovoz.ViewModel
 			DeliveryPoint addressAlias = null;
 
 			var query = UoW.Session.QueryOver<Counterparty>(() => counterpartyAlias);
-
-			if(Filter != null
-				&& BooleanWorks.CountTrue(Filter.RestrictIncludeCustomer, Filter.RestrictIncludeSupplier, Filter.RestrictIncludePartner) < 3) {
-				var dijuction = new Disjunction();
-				if(Filter.RestrictIncludeCustomer)
-					dijuction.Add<Counterparty>(x => x.CooperationCustomer == true);
-
-				if(Filter.RestrictIncludeSupplier)
-					dijuction.Add<Counterparty>(x => x.CooperationSupplier == true);
-
-				if(Filter.RestrictIncludePartner)
-					dijuction.Add<Counterparty>(x => x.CooperationPartner == true);
-
-				query.Where(dijuction);
-			}
 
 			if(Filter != null && !Filter.RestrictIncludeArhive) {
 				query.Where(c => !c.IsArchive);

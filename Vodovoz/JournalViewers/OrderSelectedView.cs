@@ -50,11 +50,7 @@ namespace Vodovoz.JournalViewers
 				})
 				.Finish();
 
-			var filter = new CounterpartyFilter(UoW);
-			filter.RestrictIncludeCustomer = true;
-			filter.RestrictIncludeSupplier = false;
-			filter.RestrictIncludePartner = false;
-			entryreferencevm1.RepresentationModel = new ViewModel.CounterpartyVM(filter);
+			entryreferencevm1.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			entryreferencevm1.Subject = Client;
 			entryreferencevm1.ChangedByUser += (sender, e) => { UpdateNodes(); };
 			yvalidatedentry1.ValidationMode = QSWidgetLib.ValidationType.numeric;

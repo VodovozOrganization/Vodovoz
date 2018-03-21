@@ -91,7 +91,6 @@ namespace Vodovoz
 			spinMaxCredit.Binding.AddBinding(Entity, e => e.MaxCredit, w => w.ValueAsDecimal).InitializeFromSource();
 
 			dataComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
-			dataWaybillComment.Binding.AddBinding(Entity, e => e.WaybillComment, w => w.Buffer.Text).InitializeFromSource();
 
 			enumPayment.ItemsEnum = typeof(PaymentType);
 			enumPayment.Binding.AddBinding(Entity, s => s.PaymentMethod, w => w.SelectedItemOrNull).InitializeFromSource();
@@ -110,19 +109,11 @@ namespace Vodovoz
 			referencePreviousCounterparty.RepresentationModel = counterpatiesView;
 			referencePreviousCounterparty.Binding.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject).InitializeFromSource();
 
-			checkCustomer.Binding.AddBinding(Entity, e => e.CooperationCustomer, w => w.Active).InitializeFromSource();
-			checkSupplier.Binding.AddBinding(Entity, e => e.CooperationSupplier, w => w.Active).InitializeFromSource();
-			checkPartner.Binding.AddBinding(Entity, e => e.CooperationPartner, w => w.Active).InitializeFromSource();
-
 			//Setting subjects
 			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account> (UoWGeneric, c => c.Accounts);
 			deliveryPointView.DeliveryPointUoW = UoWGeneric;
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
 			counterpartydocumentsview.Config(UoWGeneric, Entity);
-			referenceSignificance.SubjectType = typeof(Significance);
-			referenceSignificance.Binding.AddBinding(Entity, e => e.Significance, w => w.Subject).InitializeFromSource();
-			referenceStatus.SubjectType = typeof(CounterpartyStatus);
-			referenceStatus.Binding.AddBinding(Entity, e => e.Status, w => w.Subject).InitializeFromSource();
 			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
 			referenceDefaultExpense.Binding.AddBinding(Entity, e => e.DefaultExpenseCategory, w => w.Subject).InitializeFromSource();
 			referenceAccountant.SubjectType = referenceBottleManager.SubjectType = referenceSalesManager.SubjectType = typeof(Employee);
@@ -273,11 +264,6 @@ namespace Vodovoz
 		{
 			if (DomainHelper.EqualDomainObjects(Entity.MainCounterparty, Entity))
 				Entity.MainCounterparty = null;
-		}
-
-		protected void OnCheckSupplierToggled(object sender, EventArgs e)
-		{
-			labelDefaultExpense.Visible = referenceDefaultExpense.Visible = checkSupplier.Active;
 		}
 
 		protected void OnYentrySignPostFocusInEvent(object o, Gtk.FocusInEventArgs args)

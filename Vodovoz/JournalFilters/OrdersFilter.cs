@@ -18,11 +18,7 @@ namespace Vodovoz
 			set {
 				uow = value;
 				enumcomboStatus.ItemsEnum = typeof (OrderStatus);
-				var filter = new CounterpartyFilter (UnitOfWorkFactory.CreateWithoutRoot ());
-				filter.RestrictIncludeCustomer = true;
-				filter.RestrictIncludeSupplier = false;
-				filter.RestrictIncludePartner = false;
-				entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM (filter);
+				entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM (new CounterpartyFilter(UoW));
 			}
 		}
 

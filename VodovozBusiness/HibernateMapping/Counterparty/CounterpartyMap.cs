@@ -18,14 +18,10 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.Code1c).Column ("code_1c");
 			Map (x => x.MaxCredit).Column ("max_credit");
 			Map (x => x.Comment).Column ("comment");
-			Map (x => x.WaybillComment).Column ("waybill_comment");
 			Map (x => x.INN).Column ("inn");
 			Map (x => x.KPP).Column ("kpp");
 			Map (x => x.JurAddress).Column ("jur_address");
 			Map (x => x.Address).Column ("address");
-			Map (x => x.CooperationCustomer).Column ("cooperation_customer");
-			Map (x => x.CooperationSupplier).Column ("cooperation_supplier");
-			Map (x => x.CooperationPartner).Column ("cooperation_partner");
 			Map (x => x.SignatoryFIO).Column ("signatory_FIO");
 			Map (x => x.SignatoryPost).Column ("signatory_post");
 			Map (x => x.SignatoryBaseOf).Column ("signatory_base_of");
@@ -33,8 +29,6 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.PaymentMethod).Column ("payment_method").CustomType<PaymentTypeStringType> ();
 			Map (x => x.PersonType).Column ("person_type").CustomType<PersonTypeStringType> ();
 			Map (x => x.DefaultDocumentType).Column ("default_document_type").CustomType<DefaultDocumentTypeStringType> ();
-			References (x => x.Significance).Column ("significance_id");
-			References (x => x.Status).Column ("status_id");
 			References (x => x.MainCounterparty).Column ("maincounterparty_id");
 			References (x => x.PreviousCounterparty).Column ("previous_counterparty_id");
 			References (x => x.Accountant).Column ("accountant_id");

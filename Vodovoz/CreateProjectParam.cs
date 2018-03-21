@@ -87,8 +87,6 @@ namespace Vodovoz
 				OrmObjectMapping<Subdivision>.Create().Dialog<SubdivisionDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<Manufacturer>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<EquipmentColors>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
-				OrmObjectMapping<CounterpartyStatus>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
-				OrmObjectMapping<Significance>.Create().DefaultTableView().SearchColumn("Значимость клиента", x => x.Name).End(),
 				OrmObjectMapping<User>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<UserSettings>.Create().Dialog<UserSettingsDlg>(),
 				OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Стоимость", x => x.Cost.ToString()).End(),

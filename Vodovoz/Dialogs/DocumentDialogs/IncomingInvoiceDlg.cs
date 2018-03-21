@@ -59,11 +59,7 @@ namespace Vodovoz
 			referenceWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			referenceWarehouse.Sensitive = isEditingPermission;
 
-			var counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.RestrictIncludeSupplier = true;
-			counterpartyFilter.RestrictIncludeCustomer = false;
-			counterpartyFilter.RestrictIncludePartner = false;
-			referenceContractor.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
+			referenceContractor.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			referenceContractor.Binding.AddBinding(Entity, e => e.Contractor, w => w.Subject);
 
 			incominginvoiceitemsview1.DocumentUoW = UoWGeneric;

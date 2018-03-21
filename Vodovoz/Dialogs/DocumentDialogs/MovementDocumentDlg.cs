@@ -55,18 +55,10 @@ namespace Vodovoz
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 
-			var counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.RestrictIncludeSupplier = false;
-			counterpartyFilter.RestrictIncludeCustomer = true;
-			counterpartyFilter.RestrictIncludePartner = false;
-			referenceCounterpartyFrom.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
+			referenceCounterpartyFrom.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
 
-			counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.RestrictIncludeSupplier = false;
-			counterpartyFilter.RestrictIncludeCustomer = true;
-			counterpartyFilter.RestrictIncludePartner = false;
-			referenceCounterpartyTo.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
+			referenceCounterpartyTo.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
 			referenceWarehouseTo.SubjectType = typeof(Warehouse);

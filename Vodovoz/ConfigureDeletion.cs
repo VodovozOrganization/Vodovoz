@@ -294,26 +294,6 @@ namespace Vodovoz
 
 			DeleteConfig.AddClearDependence<Post> (ClearDependenceInfo.Create<Contact> (item => item.Post));
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(Significance),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<Counterparty> (item => item.Significance)
-				}
-			}.FillFromMetaInfo ()
-			);
-
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(CounterpartyStatus),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<Counterparty> (item => item.Status)
-				}
-			}.FillFromMetaInfo ()
-			);
-
 			DeleteConfig.AddHibernateDeleteInfo<Proxy>()
 				.AddDeleteDependenceFromBag(item => item.Persons);
 

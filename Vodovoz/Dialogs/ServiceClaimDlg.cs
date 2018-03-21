@@ -125,11 +125,7 @@ namespace Vodovoz
 			textKit.Binding.AddBinding(Entity, e => e.Kit, w => w.Buffer.Text).InitializeFromSource();
 			textDiagnosticsResult.Binding.AddBinding(Entity, e => e.DiagnosticsResult, w => w.Buffer.Text).InitializeFromSource();
 
-			var counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.RestrictIncludeCustomer = true;
-			counterpartyFilter.RestrictIncludeSupplier = false;
-			counterpartyFilter.RestrictIncludePartner = true;
-			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
+			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			referenceCounterparty.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 
 			referenceEngineer.SubjectType = typeof(Employee);

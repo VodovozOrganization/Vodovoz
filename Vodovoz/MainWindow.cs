@@ -361,18 +361,6 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionSignificanceActivated(object sender, EventArgs e)
-	{
-		OrmReference refWin = new OrmReference(typeof(Significance));
-		tdiMain.AddTab(refWin);
-	}
-
-	protected void OnActionStatusActivated(object sender, EventArgs e)
-	{
-		OrmReference refWin = new OrmReference(typeof(CounterpartyStatus));
-		tdiMain.AddTab(refWin);
-	}
-
 	protected void OnActionEMailTypesActivated(object sender, EventArgs e)
 	{
 		OrmReference refWin = new OrmReference(typeof(EmailType));

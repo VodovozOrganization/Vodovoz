@@ -126,14 +126,6 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
-		string waybillComment;
-
-		[Display (Name = "Комментарий для накладной")]
-		public virtual string WaybillComment {
-			get { return waybillComment; }
-			set { SetField (ref waybillComment, value, () => WaybillComment); }
-		}
-
 		string iNN;
 
 		[Display (Name = "ИНН")]
@@ -190,14 +182,6 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref defaultExpenseCategory, value, () => DefaultExpenseCategory); }
 		}
 
-		Significance significance;
-
-		[Display (Name = "Значимость")]
-		public virtual Significance Significance {
-			get { return significance; }
-			set { SetField (ref significance, value, () => Significance); }
-		}
-
 		Counterparty mainCounterparty;
 
 		[Display (Name = "Головная организация")]
@@ -212,38 +196,6 @@ namespace Vodovoz.Domain.Client
 		public virtual Counterparty PreviousCounterparty {
 			get { return previousCounterparty; }
 			set { SetField (ref previousCounterparty, value, () => PreviousCounterparty); }
-		}
-
-		bool cooperationCustomer = true;
-
-		[Display (Name = "Это покупатель")]
-		public virtual bool CooperationCustomer {
-			get { return cooperationCustomer; }
-			set { SetField (ref cooperationCustomer, value, () => CooperationCustomer); }
-		}
-
-		bool cooperationSupplier;
-
-		[Display (Name = "Это поставщик")]
-		public virtual bool CooperationSupplier {
-			get { return cooperationSupplier; }
-			set { SetField (ref cooperationSupplier, value, () => CooperationSupplier); }
-		}
-
-		bool cooperationPartner;
-
-		[Display (Name = "Это партнер")]
-		public virtual bool CooperationPartner {
-			get { return cooperationPartner; }
-			set { SetField (ref cooperationPartner, value, () => CooperationPartner); }
-		}
-
-		CounterpartyStatus status;
-
-		[Display (Name = "Статус")]
-		public virtual CounterpartyStatus Status {
-			get { return status; }
-			set { SetField (ref status, value, () => Status); }
 		}
 
 		bool isArchive;
@@ -357,7 +309,6 @@ namespace Vodovoz.Domain.Client
 			Name = String.Empty;
 			FullName = String.Empty;
 			Comment = String.Empty;
-			WaybillComment = String.Empty;
 			INN = String.Empty;
 			KPP = String.Empty;
 			JurAddress = String.Empty;

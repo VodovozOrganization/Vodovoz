@@ -502,7 +502,6 @@ namespace Vodovoz
 						cuow.Root.FullName = doc.RecipientName;
 						cuow.Root.INN = doc.RecipientInn;
 						cuow.Root.KPP = doc.RecipientKpp;
-						cuow.Root.CooperationSupplier = true;
 						cuow.Root.PaymentMethod = PaymentType.cashless;
 						cuow.Root.TypeOfOwnership = TryGetOrganizationType (doc.RecipientName);
 						if (cuow.Root.TypeOfOwnership != null)

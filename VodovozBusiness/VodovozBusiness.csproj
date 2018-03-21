@@ -326,8 +326,6 @@
     <Compile Include="TimeAsTimeSpanTypeClone.cs" />
     <Compile Include="Attributes\Code1c.cs" />
     <Compile Include="Attributes\Value1c.cs" />
-    <Compile Include="HibernateMapping\Counterparty\CounterpartyStatusMap.cs" />
-    <Compile Include="Domain\Client\CounterpartyStatus.cs" />
     <Compile Include="Domain\Logistic\Track.cs" />
     <Compile Include="Domain\Logistic\TrackPoint.cs" />
     <Compile Include="HibernateMapping\Logistic\TrackMap.cs" />
@@ -342,8 +340,6 @@
     <Compile Include="HibernateMapping\Chat\LastReadedMessageMap.cs" />
     <Compile Include="Repositories\Chats\ChatRepository.cs" />
     <Compile Include="Repositories\Chats\ChatMessageRepository.cs" />
-    <Compile Include="HibernateMapping\Counterparty\SignificanceMap.cs" />
-    <Compile Include="Domain\Client\Significance.cs" />
     <Compile Include="Repositories\Chats\LastReadedRepository.cs" />
     <Compile Include="Domain\Order\Documents\ShetFacturaDocument.cs" />
     <Compile Include="Domain\Order\Documents\Torg12Document.cs" />
