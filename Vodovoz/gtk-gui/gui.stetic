@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -26659,6 +26659,7 @@
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <signal name="Changed" handler="OnReferenceDeliveryPointChanged" />
+                        <signal name="ChangedByUser" handler="OnReferenceDeliveryPointChangedByUser" />
                       </widget>
                       <packing>
                         <property name="TopAttach">3</property>

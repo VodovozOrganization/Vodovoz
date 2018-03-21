@@ -42,7 +42,7 @@ namespace Vodovoz
 
 		public WaterAgreementDlg(CounterpartyContract contract, DeliveryPoint deliveryPoint) : this(contract)
 		{
-			UoWGeneric.Root.DeliveryPoint = deliveryPoint;
+			UoWGeneric.Root.DeliveryPoint = UoW.GetById<DeliveryPoint>(deliveryPoint.Id) ;
 			ConfigureDlg();
 		}
 

@@ -734,6 +734,14 @@ namespace Vodovoz.Domain.Orders
 			if(observableOrderDepositItems.Any(x => x.Total < 0)) {
 				yield return new ValidationResult("В возврате залогов необходимо вводить положительную сумму.");
 			}
+
+			if(observableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water) &&
+			   //Если нету ни одного допсоглашения на воду подходящего на точку доставку в заказе 
+			   //(или без точки доставки если относится на все точки)
+			   !HaveActualWaterSaleAgreementByDeliveryPoint()
+			  ) {
+				yield return new ValidationResult("В заказе выбрана точка доставки для которой нет актуального дополнительного соглашения по доставке воды");
+			}
 #if !SHORT
 			if (ObservableOrderItems.Any (item => item.Count < 1))
 				yield return new ValidationResult ("В заказе присутствуют позиции с нулевым количеством.", 
@@ -829,6 +837,16 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Функции
+
+		public virtual bool HaveActualWaterSaleAgreementByDeliveryPoint()
+		{
+			if(Contract == null) {
+				return false;
+			}
+			Contract.AdditionalAgreements.OfType<WaterSalesAgreement>();
+			var waterSalesAgreementList =  Contract.AdditionalAgreements.Where(x => x.Self is WaterSalesAgreement);
+			return waterSalesAgreementList.Any(x => x.DeliveryPoint == null || x.DeliveryPoint == DeliveryPoint);
+		}
 
 		public virtual bool CanChangeContractor()
 		{

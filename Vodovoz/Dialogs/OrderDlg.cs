@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿﻿﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -352,6 +352,31 @@ namespace Vodovoz
 			depositrefunditemsview.Configure(UoWGeneric, UoWGeneric.Root);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
+		}
+
+		bool HaveAgreementForDeliveryPoint()
+		{
+			bool a = Entity.HaveActualWaterSaleAgreementByDeliveryPoint();
+			if(Entity.ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water) && 
+			   !a) {
+				//У выбранной точки доставки нет соглашения о доставке воды, предлагаем создать.
+				//Если пользователь создаст соглашение, то запишется выбранная точка доставки
+				//если не создаст то ничего не произойдет и точка доставки останется прежней
+				CounterpartyContract contract;
+				if(Entity.Contract != null) {
+					contract = Entity.Contract;
+				} else {
+					contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType);
+				}
+				if(MessageDialogWorks.RunQuestionDialog("В заказе добавлена вода, а для данной точки доставки нет дополнительного соглашения о доставке воды, создать?")) {
+					ITdiDialog dlg = new WaterAgreementDlg(contract, Entity.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
+					(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
+					TabParent.AddSlaveTab(this, dlg);
+				}
+				return false;
+			}else {
+				return true;
+			}
 		}
 
 		void Entity_UpdateClientCanChange(object aList, int[] aIdx)
@@ -1164,6 +1189,18 @@ namespace Vodovoz
 			if(Entity.DeliveryPoint != null) {
 				UpdateProxyInfo();
 				SetProxyForOrder();
+			}
+		}
+
+		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
+		{
+			if(!HaveAgreementForDeliveryPoint()) {
+				Order originalOrder = UoW.GetById<Order>(Entity.Id);
+				if(originalOrder != null && originalOrder.DeliveryPoint != null) {
+					Entity.DeliveryPoint = originalOrder.DeliveryPoint;
+				} else {
+					Entity.DeliveryPoint = null;
+				}
 			}
 		}
 

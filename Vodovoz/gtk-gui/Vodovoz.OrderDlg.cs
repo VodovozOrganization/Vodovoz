@@ -1851,6 +1851,7 @@ namespace Vodovoz
 			this.toggleComments.Toggled += new global::System.EventHandler(this.OnToggleCommentsToggled);
 			this.toggleTareControl.Toggled += new global::System.EventHandler(this.OnToggleTareControlToggled);
 			this.referenceDeliveryPoint.Changed += new global::System.EventHandler(this.OnReferenceDeliveryPointChanged);
+			this.referenceDeliveryPoint.ChangedByUser += new global::System.EventHandler(this.OnReferenceDeliveryPointChangedByUser);
 			this.referenceClient.Changed += new global::System.EventHandler(this.OnReferenceClientChanged);
 			this.referenceClient.ChangedByUser += new global::System.EventHandler(this.OnReferenceClientChangedByUser);
 			this.pickerDeliveryDate.DateChanged += new global::System.EventHandler(this.OnPickerDeliveryDateDateChanged);
