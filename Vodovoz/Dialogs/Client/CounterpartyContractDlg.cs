@@ -5,6 +5,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.DocTemplates;
 using QSProjectsLib;
+using Vodovoz.Repository.Client;
 
 namespace Vodovoz
 {
@@ -42,7 +43,9 @@ namespace Vodovoz
 			Entity.UpdateContractTemplate(UoW);
 		}
 
-		public CounterpartyContractDlg(Counterparty counterparty, Organization organizetion, DateTime? date):this(counterparty,organizetion){
+		public CounterpartyContractDlg(Counterparty counterparty, PaymentType paymentType, Organization organizetion, DateTime? date):this(counterparty,organizetion){
+			var contractType =  DocTemplateRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
+			Entity.ContractType = contractType;
 			if(date.HasValue)
 				UoWGeneric.Root.IssueDate = date.Value;
 		}

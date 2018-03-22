@@ -99,7 +99,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Тип договора")]
 		public virtual ContractType ContractType {
 			get { return contractType; }
-			protected set { SetField(ref contractType, value, () => ContractType); }
+			set { SetField(ref contractType, value, () => ContractType); }
 		}
 
 		DocTemplate contractTemplate;

@@ -16,8 +16,6 @@ namespace Vodovoz.Repository
 			Organization organization = OrganizationRepository.GetOrganizationByPaymentType (uow, personType, paymentType);
 			if(organization == null)
 				return null;
-				/*throw new InvalidProgramException(String.Format("В параметрах базы не указана организация для типа оплаты {0}",
-					paymentType));*/
 
 			Counterparty counterpartyAlias = null;
 			Organization organizationAlias = null;

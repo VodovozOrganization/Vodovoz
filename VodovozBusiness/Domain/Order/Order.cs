@@ -843,9 +843,12 @@ namespace Vodovoz.Domain.Orders
 			if(Contract == null) {
 				return false;
 			}
-			Contract.AdditionalAgreements.OfType<WaterSalesAgreement>();
-			var waterSalesAgreementList =  Contract.AdditionalAgreements.Where(x => x.Self is WaterSalesAgreement);
-			return waterSalesAgreementList.Any(x => x.DeliveryPoint == null || x.DeliveryPoint == DeliveryPoint);
+			Contract.AdditionalAgreements.Where(x => !x.IsCancelled).OfType<WaterSalesAgreement>();
+			var waterSalesAgreementList = Contract.AdditionalAgreements
+												   .Where(x => !x.IsCancelled)
+												   .Select(x => x.Self)
+												   .OfType<WaterSalesAgreement>();
+			return waterSalesAgreementList.Any(x => x.DeliveryPoint == null || x.DeliveryPoint.Id == DeliveryPoint.Id);
 		}
 
 		public virtual bool CanChangeContractor()

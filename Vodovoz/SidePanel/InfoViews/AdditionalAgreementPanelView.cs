@@ -19,7 +19,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private AdditionalAgreement[] WaterAgreements;
 
-		DeliveryPoint DeliveryPoint{get;set;}
+		DeliveryPoint DeliveryPoint { get; set; }
 
 		IList<WaterSalesAgreementFixedPrice> fixedPricesList;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		void Handle_ObjectUpdatedGeneric(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<WaterSalesAgreement> e)
 		{
-			if(e.UpdatedSubjects.Any(x => x.DeliveryPoint.Id == x.DeliveryPoint.Id))
+			if(e.UpdatedSubjects.Where(x => x.DeliveryPoint != null).Any(x => x.DeliveryPoint.Id == DeliveryPoint.Id))
 				Refresh();
 		}
 
