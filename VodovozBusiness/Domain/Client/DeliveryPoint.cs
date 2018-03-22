@@ -438,8 +438,8 @@ namespace Vodovoz.Domain.Client
 			route.Add(new PointOnEarth(Latitude.Value, Longitude.Value));
 
 			var result = OsrmMain.GetRoute(route, false, GeometryOverview.False);
-			if(result.Code != "Ok") {
-				logger.Error("Сервер расчета расстояний вернул следующее сообщение:\n" + result.StatusMessageRus);
+			if(result?.Code != "Ok") {
+				logger.Error("Сервер расчета расстояний вернул следующее сообщение:\n" + result?.StatusMessageRus);
 				return false;
 			}
 			DistanceFromBaseMeters = result.Routes[0].TotalDistance;
