@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override QSReport.ReportInfo GetReportInfo ()
 		{
 			return new QSReport.ReportInfo {
-				Title = String.Format ("Счет №{0} от {1:d}", Order.Id, Order.DeliveryDate),
+				Title = String.Format ("Счет №{0} от {1:d}", Order.Id, Order.BillDate),
 				Identifier = "Documents.Bill",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
@@ -32,7 +32,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override QSReport.ReportInfo GetReportInfoForPreview()
 		{
 			return new QSReport.ReportInfo {
-				Title = String.Format ("Счет №{0} от {1:d}", Order.Id, Order.DeliveryDate),
+				Title = String.Format ("Счет №{0} от {1:d}", Order.Id, Order.BillDate),
 				Identifier = "Documents.Bill",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
@@ -49,7 +49,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		}			
 
 		public override DateTime? DocumentDate {
-			get { return Order?.DeliveryDate; }
+			get { return Order?.BillDate; }
 		}
 			
 		public override PrinterType PrintType {

@@ -110,8 +110,10 @@ namespace Vodovoz
 //TODO Make it clickable.
 			} else
 				labelPreviousOrder.Visible = false;
-			hboxStatusButtons.Visible = (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder 
-				|| UoWGeneric.Root.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled);
+			hboxStatusButtons.Visible = (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder
+										 || UoWGeneric.Root.OrderStatus == OrderStatus.WaitForPayment
+										 || UoWGeneric.Root.OrderStatus == OrderStatus.Accepted 
+			                             || Entity.OrderStatus == OrderStatus.Canceled);
 
 	//		var fixedPrices = GetFixedPriceList(Entity.DeliveryPoint);
 
@@ -140,7 +142,9 @@ namespace Vodovoz
 			enumDocumentType.ItemsEnum = typeof(DefaultDocumentType);
 			enumDocumentType.Binding.AddBinding (Entity, s => s.DocumentType, w => w.SelectedItem).InitializeFromSource ();
 
-			pickerDeliveryDate.Binding.AddBinding (Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource ();
+			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
+			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
+			pickerBillDate.Binding.AddBinding (Entity, s => s.BillDate, w => w.DateOrNull).InitializeFromSource ();
 
 			textComments.Binding.AddBinding(Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
 			textCommentsLogistic.Binding.AddBinding(Entity, s => s.CommentLogist, w => w.Buffer.Text).InitializeFromSource();
@@ -327,6 +331,7 @@ namespace Vodovoz
 
 			enumPaymentType.ItemsEnum = typeof(PaymentType);
 			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			enumPaymentType.Sensitive = Entity.Client != null;
 
 			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
 			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
@@ -629,14 +634,21 @@ namespace Vodovoz
 			}
 			SetProxyForOrder();
 			//	UpdateProxyInfo();
+
+			enumPaymentType.Sensitive = Entity.Client != null;
 		}
 
 		private void IsUIEditable(bool val = true)
 		{
+			if(Entity.Client != null) {
+				enumPaymentType.Sensitive = val;
+			}else {
+				enumPaymentType.Sensitive = false;
+			}
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable =
 				referenceClient.IsEditable = val;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =// enumStatus.Sensitive = 
-				enumPaymentType.Sensitive = enumDocumentType.Sensitive = val;
+				enumDocumentType.Sensitive = val;
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive =
 				buttonAddForSale.Sensitive = val;
 			//spinBottlesReturn.Sensitive = spinSumDifference.Sensitive = val;
@@ -1296,6 +1308,7 @@ namespace Vodovoz
 			treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
 				dataSumDifferenceReason.Visible = Entity.PaymentType == PaymentType.cash;
+			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 		}
 
 		protected void OnPickerDeliveryDateDateChanged(object sender, EventArgs e)
@@ -1322,7 +1335,7 @@ namespace Vodovoz
 			}
 
 			//Выбираем конракт, если он один у контрагента
-			if(Entity.Client.CounterpartyContracts.Count == 1) {
+			if(Entity.Client != null && Entity.Client.CounterpartyContracts.Count == 1) {
 				Entity.Contract = Entity.Client.CounterpartyContracts.FirstOrDefault();
 			} else {
 				Entity.Contract = null;

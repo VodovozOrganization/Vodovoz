@@ -102,6 +102,23 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		DateTime? billDate;
+
+		[Display(Name = "Дата счета")]
+		[HistoryDateOnly]
+		public virtual DateTime? BillDate {
+			get {
+				if(PaymentType != PaymentType.cashless) {
+					return deliveryDate;
+				}
+				if(PaymentType == PaymentType.cashless && !billDate.HasValue) {
+					return deliveryDate;
+				}
+				return billDate; 
+			}
+			set { SetField(ref billDate, value, () => BillDate); }
+		}
+
 		DeliverySchedule deliverySchedule;
 
 		[Display(Name = "Время доставки")]
@@ -1668,6 +1685,9 @@ namespace Vodovoz.Domain.Orders
 			if(newStatus == OrderStatus.Closed) {
 				OnClosedOrder();
 			}
+			if(newStatus == OrderStatus.WaitForPayment) {
+				OnWaitingPaymentOrder();
+			}
 		}
 
 		/// <summary>
@@ -1676,6 +1696,18 @@ namespace Vodovoz.Domain.Orders
 		public virtual void OnClosedOrder()
 		{
 			SetDepositsActualCounts();
+		}
+
+		/// <summary>
+		/// Действия при переводе заказа в ожидание оплаты
+		/// </summary>
+		public virtual void OnWaitingPaymentOrder()
+		{
+			//Создается счет
+			var billDoc = observableOrderDocuments.FirstOrDefault(x => x.Order == this && x.Type == OrderDocumentType.Bill) as BillDocument;
+			if(billDoc == null){
+				observableOrderDocuments.Add(CreateDocumentOfOrder(OrderDocumentType.Bill));
+			}
 		}
 
 

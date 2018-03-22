@@ -25984,10 +25984,16 @@
                 <child>
                   <widget class="Gtk.Table" id="table1">
                     <property name="MemberName" />
-                    <property name="NRows">13</property>
+                    <property name="NRows">14</property>
                     <property name="NColumns">4</property>
                     <property name="RowSpacing">6</property>
                     <property name="ColumnSpacing">6</property>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
                     <child>
                       <placeholder />
                     </child>
@@ -26127,8 +26133,8 @@
                         <signal name="Changed" handler="OnEnumSignatureTypeChanged" />
                       </widget>
                       <packing>
-                        <property name="TopAttach">11</property>
-                        <property name="BottomAttach">12</property>
+                        <property name="TopAttach">12</property>
+                        <property name="BottomAttach">13</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">3</property>
                         <property name="AutoSize">True</property>
@@ -26183,8 +26189,8 @@
                         </child>
                       </widget>
                       <packing>
-                        <property name="TopAttach">9</property>
-                        <property name="BottomAttach">10</property>
+                        <property name="TopAttach">10</property>
+                        <property name="BottomAttach">11</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">2</property>
                         <property name="AutoSize">True</property>
@@ -26223,8 +26229,8 @@
                         <property name="MemberName" />
                       </widget>
                       <packing>
-                        <property name="TopAttach">10</property>
-                        <property name="BottomAttach">11</property>
+                        <property name="TopAttach">11</property>
+                        <property name="BottomAttach">12</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
                         <property name="AutoSize">True</property>
@@ -26402,6 +26408,26 @@
                       </packing>
                     </child>
                     <child>
+                      <widget class="Gtk.Label" id="labelBillDate">
+                        <property name="MemberName" />
+                        <property name="Xalign">1</property>
+                        <property name="LabelProp" translatable="yes">Дата счета:</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">9</property>
+                        <property name="BottomAttach">10</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="Gtk.Label" id="labelDeliveryDate">
                         <property name="MemberName" />
                         <property name="Xalign">1</property>
@@ -26411,10 +26437,10 @@
                         <property name="TopAttach">8</property>
                         <property name="BottomAttach">9</property>
                         <property name="AutoSize">False</property>
-                        <property name="XOptions">0</property>
+                        <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
                         <property name="XExpand">False</property>
-                        <property name="XFill">False</property>
+                        <property name="XFill">True</property>
                         <property name="XShrink">False</property>
                         <property name="YExpand">False</property>
                         <property name="YFill">True</property>
@@ -26513,8 +26539,8 @@
                         <property name="Justify">Fill</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">12</property>
-                        <property name="BottomAttach">13</property>
+                        <property name="TopAttach">13</property>
+                        <property name="BottomAttach">14</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">3</property>
                         <property name="AutoSize">True</property>
@@ -26536,8 +26562,34 @@
  документов:</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">11</property>
-                        <property name="BottomAttach">12</property>
+                        <property name="TopAttach">12</property>
+                        <property name="BottomAttach">13</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.Widgets.yDatePicker" id="pickerBillDate">
+                        <property name="MemberName" />
+                        <property name="Events">ButtonPressMask</property>
+                        <property name="WithTime">False</property>
+                        <property name="Date">0</property>
+                        <property name="IsEditable">True</property>
+                        <property name="AutoSeparation">True</property>
+                        <signal name="DateChanged" handler="OnPickerDeliveryDateDateChanged" />
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">9</property>
+                        <property name="BottomAttach">10</property>
+                        <property name="LeftAttach">1</property>
+                        <property name="RightAttach">2</property>
                         <property name="AutoSize">True</property>
                         <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
