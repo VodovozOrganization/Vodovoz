@@ -79,7 +79,8 @@ namespace Vodovoz.Dialogs.Logistic
 			Routes = routeQuery.Fetch(x => x.Driver).Eager
 								 .Fetch(x => x.Car).Eager
 								 .List()
-			                     .Select(x => new PrintRoute(x))
+			                   	 .Select(x => new PrintRoute(x))
+			                   	 .OrderBy(x => x.RouteList.Driver.LastName)
 			                     .ToList();
 			ytreeRoutes.SetItemsSource<PrintRoute>(new GenericObservableList<PrintRoute>(Routes));
 			var notPrintedRoutes = Routes.Where(x => x.RouteList.Status < RouteListStatus.InLoading).ToList();
