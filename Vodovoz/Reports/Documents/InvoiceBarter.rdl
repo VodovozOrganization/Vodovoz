@@ -29,7 +29,7 @@
     organizations.full_name AS org_name,
     organizations.address AS org_address,
     delivery_points.comment AS delivery_point_comment,
-    CONCAT('+7 ', delivery_points.phone) AS phone,
+    (SELECT GROUP_CONCAT(CONCAT('+7 ', phones.number) SEPARATOR '; ') FROM phones WHERE phones.delivery_piont_id = delivery_points.id) AS phone,
     delivery_points.city AS city,
     delivery_points.street AS street,
     delivery_points.building AS building,

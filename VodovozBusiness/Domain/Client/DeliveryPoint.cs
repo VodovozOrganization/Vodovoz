@@ -251,14 +251,6 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		string phone;
-
-		[Display (Name = "Телефон точки")]
-		public virtual string Phone {
-			get { return phone; }
-			set { SetField (ref phone, value, () => Phone); }
-		}
-
 		LogisticsArea logisticsArea;
 
 		[Display (Name = "Логистический район")]
@@ -421,7 +413,6 @@ namespace Vodovoz.Domain.Client
 			Building = String.Empty;
 			Room = String.Empty;
 			Comment = String.Empty;
-			Phone = String.Empty;
 		}
 
 		public virtual void AddContact(Contact contact)

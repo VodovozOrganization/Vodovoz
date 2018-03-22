@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using QSProjectsLib;
@@ -49,8 +50,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			if (DeliveryPoint == null)
 				return;			
 			labelAddress.Text = DeliveryPoint.CompiledAddress;
-			labelPhone.LabelProp = "+7 " + DeliveryPoint.Phone;
-			labelPhone.Visible = labelPhoneText.Visible = !String.IsNullOrWhiteSpace(DeliveryPoint.Phone);
+			labelPhone.LabelProp = String.Join(";", DeliveryPoint.Phones.Select(ph => ph.LongText)) ;
+			labelPhone.Visible = labelPhoneText.Visible = DeliveryPoint.Phones.Count > 0;
 
 			var bottlesAtDeliveryPoint = BottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			var bottlesAvgDeliveryPoint = DeliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);

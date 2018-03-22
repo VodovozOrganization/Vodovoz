@@ -35,7 +35,6 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.Latitude)		 	 	.Column ("latitude");
 			Map (x => x.Longitude)			  	.Column ("longitude");
 			Map (x => x.IsActive)			  	.Column ("is_active");
-			Map (x => x.Phone)			  		.Column ("phone");
 			Map (x => x.Address1c)			  	.Column ("address_1c");
 			Map (x => x.Code1c)			  		.Column ("code1c");
 			Map	(x => x.BottleReserv)	  		.Column ("bottle_reserv");
