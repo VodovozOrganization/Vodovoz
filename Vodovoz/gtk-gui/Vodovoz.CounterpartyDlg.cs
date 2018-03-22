@@ -1117,6 +1117,7 @@ namespace Vodovoz
 			{
 				this.Child.ShowAll();
 			}
+			this.radioComments.Hide();
 			this.radioContracts.Hide();
 			this.label19.Hide();
 			this.labelDefaultExpense.Hide();
