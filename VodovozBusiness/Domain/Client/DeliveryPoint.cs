@@ -11,6 +11,7 @@ using QSOsm.DTO;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Employees;
 using QSOsm.Osrm;
+using QSContacts;
 
 namespace Vodovoz.Domain.Client
 {
@@ -347,6 +348,24 @@ namespace Vodovoz.Domain.Client
 		public virtual int? DistanceFromBaseMeters {
 			get { return distanceFromBaseMeters; }
 			set { SetField(ref distanceFromBaseMeters, value, () => DistanceFromBaseMeters); }
+		}
+
+		IList<Phone> phones = new List<Phone>();
+
+		[Display (Name = "Телефоны")]
+		public virtual IList<Phone> Phones {
+			get { return phones; }
+			set { SetField (ref phones, value, () => Phones); }
+		}
+
+		GenericObservableList<Phone> observablePhones;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Phone> ObservablePhones {
+			get {
+				if (observablePhones == null)
+					observablePhones = new GenericObservableList<Phone> (Phones);
+				return observablePhones;
+			}
 		}
 
 		#endregion

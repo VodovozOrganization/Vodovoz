@@ -71,9 +71,9 @@ namespace Vodovoz
 			ytreeviewResponsiblePersons.ItemsDataSource = Entity.ObservableContacts;
 			ytreeviewResponsiblePersons.Selection.Changed += YtreeviewResponsiblePersons_Selection_Changed;
 
+			phonesview1.UoW = UoW;
+			phonesview1.PhonesList = Entity.ObservablePhones;
 
-			entryPhone.ValidationMode = QSWidgetLib.ValidationType.phone;
-			entryPhone.Binding.AddBinding(Entity, e => e.Phone, w => w.Text).InitializeFromSource();
 			comboRoomType.ItemsEnum = typeof(RoomType);
 			comboRoomType.Binding.AddBinding (Entity, entity => entity.RoomType, widget => widget.SelectedItem)
 				.InitializeFromSource ();
@@ -337,6 +337,7 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
+			phonesview1.SaveChanges();
 			UoWGeneric.Save ();
 			return true;
 		}

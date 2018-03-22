@@ -50,6 +50,9 @@ namespace Vodovoz.HibernateMapping
 				.ParentKeyColumn("delivery_point_id")
 				.ChildKeyColumn("contact_person_id")
 				.LazyLoad();
+
+			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad()
+			                      .KeyColumn("delivery_point_id");
 		}
 	}
 }
