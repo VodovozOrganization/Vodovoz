@@ -633,7 +633,7 @@ namespace Vodovoz
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
 			}
 			SetProxyForOrder();
-			//	UpdateProxyInfo();
+			UpdateProxyInfo();
 
 			enumPaymentType.Sensitive = Entity.Client != null;
 		}
@@ -1149,11 +1149,11 @@ namespace Vodovoz
 
 		void UpdateProxyInfo()
 		{
-			labelProxyInfo.Visible = Entity.SignatureType == OrderSignatureType.ByProxy;
-			if(Entity.SignatureType != OrderSignatureType.ByProxy)
-				return;
+			bool canShow = Entity.Client != null && Entity.DeliveryDate.HasValue && Entity.PaymentType == PaymentType.cashless;
+			labelProxyInfo.Visible = canShow;
+
 			DBWorks.SQLHelper text = new DBWorks.SQLHelper("");
-			if(Entity.Client != null && Entity.DeliveryDate.HasValue) {
+			if(canShow) {
 				var proxies = Entity.Client.Proxies.Where(p => p.IsActiveProxy(Entity.DeliveryDate.Value) && (p.DeliveryPoints == null || p.DeliveryPoints.Count() == 0 || p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, Entity.DeliveryPoint))));
 				foreach(var proxy in proxies) {
 					if(!String.IsNullOrWhiteSpace(text.Text))
@@ -1309,12 +1309,14 @@ namespace Vodovoz
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
 				dataSumDifferenceReason.Visible = Entity.PaymentType == PaymentType.cash;
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
+			SetProxyForOrder();
+			UpdateProxyInfo();
 		}
 
 		protected void OnPickerDeliveryDateDateChanged(object sender, EventArgs e)
 		{
 			SetProxyForOrder();
-			//	UpdateProxyInfo();
+			UpdateProxyInfo();
 		}
 
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
@@ -1471,12 +1473,12 @@ namespace Vodovoz
 		private void SetProxyForOrder()
 		{
 			if(Entity.Client != null
-			   && Entity.DeliveryDate.HasValue) {
+			   && Entity.DeliveryDate.HasValue
+			   && Entity.PaymentType == PaymentType.cashless) {
 				var proxies = Entity.Client.Proxies.Where(p => p.IsActiveProxy(Entity.DeliveryDate.Value) && (p.DeliveryPoints == null || p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, Entity.DeliveryPoint))));
 				if(proxies.Count() > 0) {
 					enumSignatureType.SelectedItem = OrderSignatureType.ByProxy;
 				}
-				UpdateProxyInfo();
 			}
 		}
 
