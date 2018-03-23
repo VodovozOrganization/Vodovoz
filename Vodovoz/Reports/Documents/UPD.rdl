@@ -216,13 +216,13 @@ WHERE
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>529.0pt</Height>
+    <Height>619.2pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List2">
-        <Height>164.41pt</Height>
-        <Width>700.05pt</Width>
-        <Left>100.20pt</Left>
+        <Height>168.91pt</Height>
+        <Width>701.55pt</Width>
+        <Left>93.00pt</Left>
         <Top>2.00pt</Top>
         <ReportItems>
           <Textbox Name="Textbox5">
@@ -236,7 +236,7 @@ WHERE
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox6">
@@ -245,12 +245,12 @@ WHERE
             <Value>Исправление №</Value>
             <ZIndex>1</ZIndex>
             <Left>0.8pt</Left>
-            <Top>18.0pt</Top>
+            <Top>15.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox7">
@@ -259,13 +259,13 @@ WHERE
             <Value>Продавец:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>36.6pt</Top>
+            <Top>29.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox8">
@@ -274,12 +274,12 @@ WHERE
             <Value>Адрес:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>49.0pt</Top>
+            <Top>40.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox9">
@@ -288,12 +288,12 @@ WHERE
             <Value>ИНН/КПП продавца:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>61.4pt</Top>
+            <Top>52.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox10">
@@ -302,12 +302,12 @@ WHERE
             <Value>Грузоотправитель и его адрес:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>74.6pt</Top>
+            <Top>64.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox11">
@@ -316,12 +316,12 @@ WHERE
             <Value>К платежно-расчетному документу №</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>100.2pt</Top>
+            <Top>88.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox12">
@@ -330,13 +330,13 @@ WHERE
             <Value>Покупатель:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>112.6pt</Top>
+            <Top>100.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox13">
@@ -345,12 +345,12 @@ WHERE
             <Value>ИНН/КПП покупателя:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>137.4pt</Top>
+            <Top>124.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox14">
@@ -359,12 +359,12 @@ WHERE
             <Value>Валюта: наименование, код</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>151.2pt</Top>
+            <Top>137.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox16">
@@ -373,12 +373,12 @@ WHERE
             <Value>Адрес:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>125.0pt</Top>
+            <Top>112.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox15">
@@ -387,12 +387,12 @@ WHERE
             <Value>Грузополучатель и его адрес:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>87.0pt</Top>
+            <Top>76.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox37">
@@ -409,6 +409,7 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <TextAlign>Center</TextAlign>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox38">
@@ -422,7 +423,7 @@ WHERE
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox39">
@@ -440,6 +441,7 @@ WHERE
               <BorderWidth />
               <Format>d</Format>
               <TextAlign>Center</TextAlign>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox40">
@@ -453,7 +455,7 @@ WHERE
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox41">
@@ -462,7 +464,7 @@ WHERE
             <Value>--</Value>
             <ZIndex>1</ZIndex>
             <Left>97.1pt</Left>
-            <Top>15.6pt</Top>
+            <Top>13.2pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -470,6 +472,7 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <TextAlign>Center</TextAlign>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox42">
@@ -478,12 +481,12 @@ WHERE
             <Value>от</Value>
             <ZIndex>1</ZIndex>
             <Left>176.5pt</Left>
-            <Top>18.0pt</Top>
+            <Top>15.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox43">
@@ -492,7 +495,7 @@ WHERE
             <Value>--</Value>
             <ZIndex>1</ZIndex>
             <Left>196.9pt</Left>
-            <Top>14.8pt</Top>
+            <Top>12.4pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -500,6 +503,7 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <TextAlign>Center</TextAlign>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox44">
@@ -508,21 +512,21 @@ WHERE
             <Value>(1а)</Value>
             <ZIndex>1</ZIndex>
             <Left>300.1pt</Left>
-            <Top>18.0pt</Top>
+            <Top>15.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox17" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
-            <Width>439.25pt</Width>
+            <Width>493.25pt</Width>
             <Value>=Fields!org_name.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>180.3pt</Left>
-            <Top>36.6pt</Top>
+            <Left>155.50pt</Left>
+            <Top>29.40pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -530,145 +534,145 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <TextDecoration>None</TextDecoration>
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>440.00pt</Width>
+            <Width>493.25pt</Width>
             <Value>=Fields!org_address.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>180.3pt</Left>
-            <Top>49.0pt</Top>
+            <Left>155.50pt</Left>
+            <Top>40.20pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>440.00pt</Width>
+            <Width>493.25pt</Width>
             <Value>=Fields!org_kpp.Value + '\\' + Fields!org_kpp.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>180.30pt</Left>
-            <Top>61.40pt</Top>
+            <Left>155.50pt</Left>
+            <Top>52.60pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox20" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>440.00pt</Width>
+            <Width>493.25pt</Width>
             <Value>он же</Value>
             <ZIndex>1</ZIndex>
-            <Left>180.3pt</Left>
-            <Top>74.6pt</Top>
+            <Left>155.50pt</Left>
+            <Top>64.20pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>440.00pt</Width>
+            <Width>493.25pt</Width>
             <Value>=Fields!client_name.Value + ' ' + Fields!client_address.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>180.3pt</Left>
-            <Top>87.0pt</Top>
+            <Left>155.50pt</Left>
+            <Top>76.60pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox22" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>440.00pt</Width>
+            <Width>493.25pt</Width>
             <Value>
             </Value>
             <ZIndex>1</ZIndex>
-            <Left>180.3pt</Left>
-            <Top>100.2pt</Top>
+            <Left>155.50pt</Left>
+            <Top>88.20pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>440.00pt</Width>
+            <Width>493.25pt</Width>
             <Value>=Fields!client_name.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>180.3pt</Left>
-            <Top>112.6pt</Top>
+            <Left>155.50pt</Left>
+            <Top>100.60pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox24" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>440.00pt</Width>
+            <Width>493.25pt</Width>
             <Value>=Fields!client_address.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>180.3pt</Left>
-            <Top>125.0pt</Top>
+            <Left>155.50pt</Left>
+            <Top>112.20pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>440.00pt</Width>
+            <Width>493.25pt</Width>
             <Value>=Fields!client_inn.Value + '\\' + Fields!client_kpp.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>180.3pt</Left>
-            <Top>137.4pt</Top>
+            <Left>155.50pt</Left>
+            <Top>124.60pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>440pt</Width>
+            <Width>493.25pt</Width>
             <Value>Российский рубль, 643</Value>
             <ZIndex>1</ZIndex>
-            <Left>180.3pt</Left>
-            <Top>150.2pt</Top>
+            <Left>155.50pt</Left>
+            <Top>136.60pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -684,12 +688,12 @@ WHERE
             <Value>(2)</Value>
             <ZIndex>1</ZIndex>
             <Left>668.9pt</Left>
-            <Top>38.2pt</Top>
+            <Top>31.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox28" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -698,12 +702,12 @@ WHERE
             <Value>(2а)</Value>
             <ZIndex>1</ZIndex>
             <Left>668.9pt</Left>
-            <Top>50.6pt</Top>
+            <Top>41.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -712,12 +716,12 @@ WHERE
             <Value>(2б)</Value>
             <ZIndex>1</ZIndex>
             <Left>668.9pt</Left>
-            <Top>62.2pt</Top>
+            <Top>53.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox30" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -726,12 +730,12 @@ WHERE
             <Value>(3)</Value>
             <ZIndex>1</ZIndex>
             <Left>668.9pt</Left>
-            <Top>75.4pt</Top>
+            <Top>65.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -740,12 +744,12 @@ WHERE
             <Value>(4)</Value>
             <ZIndex>1</ZIndex>
             <Left>668.9pt</Left>
-            <Top>87.0pt</Top>
+            <Top>76.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox32" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -754,12 +758,12 @@ WHERE
             <Value>(5)</Value>
             <ZIndex>1</ZIndex>
             <Left>668.9pt</Left>
-            <Top>100.2pt</Top>
+            <Top>88.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox33" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -768,12 +772,12 @@ WHERE
             <Value>(6)</Value>
             <ZIndex>1</ZIndex>
             <Left>668.9pt</Left>
-            <Top>112.6pt</Top>
+            <Top>100.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -782,12 +786,12 @@ WHERE
             <Value>(6а)</Value>
             <ZIndex>1</ZIndex>
             <Left>668.9pt</Left>
-            <Top>125.8pt</Top>
+            <Top>113.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox35" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -796,12 +800,12 @@ WHERE
             <Value>(6б)</Value>
             <ZIndex>1</ZIndex>
             <Left>668.9pt</Left>
-            <Top>138.2pt</Top>
+            <Top>125.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox36" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -810,26 +814,26 @@ WHERE
             <Value>(7)</Value>
             <ZIndex>1</ZIndex>
             <Left>668.9pt</Left>
-            <Top>149.8pt</Top>
+            <Top>136.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <CustomReportItem Name="CustomReportItem1">
             <Type>BarCode39</Type>
-            <Height>100.13pt</Height>
+            <Height>94.88pt</Height>
             <Width>154.45pt</Width>
             <CustomProperties>
-              <CustomProperty >
+              <CustomProperty>
                 <Name>Code</Name>
                 <Value>=Format({order_date}, "ddMMyy")+ "-"+ {order_id}</Value>
               </CustomProperty>
             </CustomProperties>
             <Left>513.0pt</Left>
-            <Top>34.4pt</Top>
+            <Top>36.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -848,6 +852,52 @@ WHERE
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>8pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox178" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.00pt</Height>
+            <Width>374.52pt</Width>
+            <Value>Идентификатор государственного контракта, договора (соглашения) (при наличии)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>148.2pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox179" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>10.50pt</Height>
+            <Width>647.00pt</Width>
+            <Value>
+            </Value>
+            <ZIndex>1</ZIndex>
+            <Left>2.40pt</Left>
+            <Top>156.40pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox180" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.25pt</Height>
+            <Width>23.52pt</Width>
+            <Value>(8)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>668.9pt</Left>
+            <Top>155.9pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
         </ReportItems>
@@ -865,19 +915,19 @@ WHERE
         <DataSetName>Order</DataSetName>
       </List>
       <Textbox Name="Textbox45">
-        <Height>25.64pt</Height>
-        <Width>195.25pt</Width>
+        <Height>33.14pt</Height>
+        <Width>221.50pt</Width>
         <Value>Приложение №1
 к постановлению Правительства Российской Федерации
-от 26 декабря 2011 г. № 1137</Value>
+от 26 декабря 2011 г. № 1137 (в ред. Постановления Правительства РФ от 25.05.2017 № 625 и от 19.08.2017 № 981)</Value>
         <ZIndex>1</ZIndex>
-        <Left>595.8pt</Left>
-        <Top>7.4pt</Top>
+        <Left>570.2pt</Left>
+        <Top>4.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontSize>7pt</FontSize>
+          <FontSize>6pt</FontSize>
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
@@ -899,7 +949,10 @@ WHERE
             <Width>53.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>113.3pt</Width>
+            <Width>129.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>31.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>19.8pt</Width>
@@ -908,31 +961,31 @@ WHERE
             <Width>64.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.2pt</Width>
+            <Width>48.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>56.2pt</Width>
+            <Width>43.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65.9pt</Width>
+            <Width>66.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>32.7pt</Width>
+            <Width>30.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65.0pt</Width>
+            <Width>50.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.0pt</Width>
+            <Width>53.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>30.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.1pt</Width>
+            <Width>37.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>52.2pt</Width>
@@ -941,7 +994,7 @@ WHERE
         <Header>
           <TableRows>
             <TableRow>
-              <Height>27.7pt</Height>
+              <Height>27.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1004,6 +1057,25 @@ WHERE
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox181">
+                      <Value>Код вида товара</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox47">
                       <Value>Единица измерения</Value>
                       <Style>
@@ -1043,7 +1115,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>Цена (тариф) за единицу измерения</Value>
+                      <Value>Цена, руб. коп.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1100,7 +1172,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
-                      <Value>Нало-говая ставка</Value>
+                      <Value>НДС ставка</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1119,7 +1191,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
-                      <Value>Сумма налога, предъявляемая покупателю</Value>
+                      <Value>НДС сумма, руб. коп.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1138,7 +1210,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>Стоимость товаров (работ, услуг)</Value>
+                      <Value>Сумма с учетом НДС, руб. коп.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1176,7 +1248,9 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox118">
-                      <Value>Номер таможенной декларации</Value>
+                      <Value>Регистраци
+онный 
+номер</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1195,7 +1269,7 @@ WHERE
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>30.7pt</Height>
+              <Height>29.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1254,6 +1328,26 @@ WHERE
                       </Style>
                       <Visibility>
                       </Visibility>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox182">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1414,7 +1508,8 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox105">
-                      <Value>имущественных прав с налогом - всего</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1469,8 +1564,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox90">
-                      <Value>
-                      </Value>
+                      <Value>таможенной декларации</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1489,7 +1583,7 @@ WHERE
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>13.1pt</Height>
+              <Height>9.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1539,6 +1633,23 @@ WHERE
                         <BorderWidth>
                           <Left>3pt</Left>
                         </BorderWidth>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox183">
+                      <Value>1а</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
@@ -1756,7 +1867,7 @@ WHERE
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>10.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1809,6 +1920,25 @@ WHERE
                         <PaddingRight>2pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox184">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2041,7 +2171,7 @@ WHERE
         <Footer>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>10.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -2072,10 +2202,11 @@ WHERE
                         </BorderWidth>
                         <FontWeight>Bold</FontWeight>
                         <PaddingLeft>3pt</PaddingLeft>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -2091,6 +2222,7 @@ WHERE
                         <Format># ##0.00</Format>
                         <PaddingLeft>3pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2108,6 +2240,7 @@ WHERE
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2127,6 +2260,7 @@ WHERE
                         <Format># ##0.00</Format>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2145,6 +2279,7 @@ WHERE
                         <Format># ##0.00</Format>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2158,6 +2293,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2167,14 +2303,14 @@ WHERE
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>12.5pt</Left>
-        <Top>168.4pt</Top>
+        <Left>11.7pt</Left>
+        <Top>173.2pt</Top>
       </Table>
       <List Name="List4">
-        <Height>262.04pt</Height>
+        <Height>231.29pt</Height>
         <Width>792.25pt</Width>
-        <Left>2.30pt</Left>
-        <Top>264.00pt</Top>
+        <Left>2.3pt</Left>
+        <Top>261.6pt</Top>
         <ReportItems>
           <Textbox Name="Textbox131">
             <Height>15.03pt</Height>
@@ -2182,12 +2318,12 @@ WHERE
             <Value>Основание передачи (сдачи) / получения (приемки)</Value>
             <ZIndex>1</ZIndex>
             <Left>6.9pt</Left>
-            <Top>55.3pt</Top>
+            <Top>45.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox133">
@@ -2196,12 +2332,12 @@ WHERE
             <Value>Данные о транспортировке и грузе</Value>
             <ZIndex>1</ZIndex>
             <Left>7.2pt</Left>
-            <Top>73.1pt</Top>
+            <Top>62.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox134">
@@ -2210,7 +2346,7 @@ WHERE
             <Value>(договор; доверенность и др.)</Value>
             <ZIndex>1</ZIndex>
             <Left>254.1pt</Left>
-            <Top>66.3pt</Top>
+            <Top>56.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2227,21 +2363,21 @@ WHERE
             <Value>Товар (груз) передал / услуги, результаты работ, права сдал</Value>
             <ZIndex>1</ZIndex>
             <Left>7.7pt</Left>
-            <Top>119.0pt</Top>
+            <Top>102.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox136">
-            <Height>17.30pt</Height>
-            <Width>30.87pt</Width>
+            <Height>14.30pt</Height>
+            <Width>15.87pt</Width>
             <Value>[8]</Value>
             <ZIndex>1</ZIndex>
-            <Left>776.3pt</Left>
-            <Top>54.4pt</Top>
+            <Left>776.30pt</Left>
+            <Top>44.80pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2254,12 +2390,12 @@ WHERE
             <Value>Иные сведения об отгрузке, передаче</Value>
             <ZIndex>1</ZIndex>
             <Left>7.2pt</Left>
-            <Top>161.4pt</Top>
+            <Top>142.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox138">
@@ -2268,7 +2404,7 @@ WHERE
             <Value>[9]</Value>
             <ZIndex>1</ZIndex>
             <Left>775.7pt</Left>
-            <Top>70.7pt</Top>
+            <Top>60.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2281,7 +2417,7 @@ WHERE
             <Value>(транспортная накладная, поручение экспедитору, экспедиторская / складская расписка и др. / масса нетто / брутто груза, если не приведены ссылки на транспортные документы, содержащие эти сведения)</Value>
             <ZIndex>1</ZIndex>
             <Left>173.3pt</Left>
-            <Top>82.9pt</Top>
+            <Top>72.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2293,7 +2429,7 @@ WHERE
             </Style>
           </Textbox>
           <Line Name="Line3">
-            <Height>141.54pt</Height>
+            <Height>147.54pt</Height>
             <Width>0.02pt</Width>
             <Style>
               <BorderStyle>
@@ -2305,7 +2441,7 @@ WHERE
               </BorderWidth>
             </Style>
             <Left>400.0pt</Left>
-            <Top>118.5pt</Top>
+            <Top>78.5pt</Top>
           </Line>
           <Textbox Name="Textbox142">
             <Height>13.49pt</Height>
@@ -2313,7 +2449,7 @@ WHERE
             <Value>[10]</Value>
             <ZIndex>1</ZIndex>
             <Left>375.9pt</Left>
-            <Top>130.9pt</Top>
+            <Top>110.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2326,7 +2462,7 @@ WHERE
             <Value>(должность)</Value>
             <ZIndex>1</ZIndex>
             <Left>9.1pt</Left>
-            <Top>142.2pt</Top>
+            <Top>122.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2343,13 +2479,14 @@ WHERE
             <Value>«     »                                  года</Value>
             <ZIndex>1</ZIndex>
             <Left>180.7pt</Left>
-            <Top>150.8pt</Top>
+            <Top>130.8pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox145">
@@ -2358,7 +2495,7 @@ WHERE
             <Value>[11]</Value>
             <ZIndex>1</ZIndex>
             <Left>376.5pt</Left>
-            <Top>150.7pt</Top>
+            <Top>130.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2371,12 +2508,12 @@ WHERE
             <Value>Дата отгрузки, передачи (сдачи)</Value>
             <ZIndex>1</ZIndex>
             <Left>6.9pt</Left>
-            <Top>150.2pt</Top>
+            <Top>131.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox152">
@@ -2385,7 +2522,7 @@ WHERE
             <Value>(ссылки на неотъемлемые приложения, сопутствующие документы, иные документы и т.п.)</Value>
             <ZIndex>1</ZIndex>
             <Left>9.1pt</Left>
-            <Top>183.0pt</Top>
+            <Top>159.8pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2402,7 +2539,7 @@ WHERE
             <Value>[12]</Value>
             <ZIndex>1</ZIndex>
             <Left>376.1pt</Left>
-            <Top>171.5pt</Top>
+            <Top>148.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2415,7 +2552,7 @@ WHERE
             <Value>[13]</Value>
             <ZIndex>1</ZIndex>
             <Left>376.4pt</Left>
-            <Top>199.6pt</Top>
+            <Top>175.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2428,7 +2565,7 @@ WHERE
             <Value>[14]</Value>
             <ZIndex>1</ZIndex>
             <Left>375.6pt</Left>
-            <Top>228.4pt</Top>
+            <Top>203.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2441,13 +2578,13 @@ WHERE
             <Value>Наименование экономического субъекта - составителя документа (в т.ч. комиссионера / агента)</Value>
             <ZIndex>1</ZIndex>
             <Left>4.0pt</Left>
-            <Top>218.8pt</Top>
+            <Top>195.6pt</Top>
             <Style>
               <FontFamily>Arial</FontFamily>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>8.5pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox159">
@@ -2456,12 +2593,12 @@ WHERE
             <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
             <ZIndex>1</ZIndex>
             <Left>7.3pt</Left>
-            <Top>190.7pt</Top>
+            <Top>168.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox164" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2470,7 +2607,7 @@ WHERE
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>230.4pt</Left>
-            <Top>142.0pt</Top>
+            <Top>122.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2487,11 +2624,12 @@ WHERE
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
             <Left>27.5pt</Left>
-            <Top>248.8pt</Top>
+            <Top>223.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox166">
@@ -2500,7 +2638,7 @@ WHERE
             <Value>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</Value>
             <ZIndex>1</ZIndex>
             <Left>9.7pt</Left>
-            <Top>238.6pt</Top>
+            <Top>213.8pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2517,12 +2655,13 @@ WHERE
             <Value>Количество сданной пустой тары</Value>
             <ZIndex>1</ZIndex>
             <Left>7.2pt</Left>
-            <Top>97.1pt</Top>
+            <Top>80.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox171">
@@ -2531,7 +2670,7 @@ WHERE
             <Value>(                 )</Value>
             <ZIndex>1</ZIndex>
             <Left>174.7pt</Left>
-            <Top>97.1pt</Top>
+            <Top>80.3pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2546,7 +2685,7 @@ WHERE
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>231.1pt</Left>
-            <Top>210.5pt</Top>
+            <Top>186.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2563,7 +2702,7 @@ WHERE
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>114.1pt</Left>
-            <Top>141.9pt</Top>
+            <Top>121.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2580,7 +2719,7 @@ WHERE
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>114.8pt</Left>
-            <Top>210.9pt</Top>
+            <Top>186.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2597,7 +2736,7 @@ WHERE
             <Value>(должность)</Value>
             <ZIndex>1</ZIndex>
             <Left>10.0pt</Left>
-            <Top>211.0pt</Top>
+            <Top>187.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2614,11 +2753,12 @@ WHERE
             <Value>Товар (груз) получил / услуги, результаты работ, права принял</Value>
             <ZIndex>1</ZIndex>
             <Left>404.2pt</Left>
-            <Top>118.7pt</Top>
+            <Top>101.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox125" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2627,20 +2767,21 @@ WHERE
             <Value>Иные сведения о получении, приемке</Value>
             <ZIndex>1</ZIndex>
             <Left>403.7pt</Left>
-            <Top>161.1pt</Top>
+            <Top>141.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox132" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>13.49pt</Height>
-            <Width>24.07pt</Width>
+            <Width>21.07pt</Width>
             <Value>[15]</Value>
             <ZIndex>1</ZIndex>
-            <Left>772.4pt</Left>
-            <Top>128.2pt</Top>
+            <Left>770.80pt</Left>
+            <Top>108.20pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2653,7 +2794,7 @@ WHERE
             <Value>(должность)</Value>
             <ZIndex>1</ZIndex>
             <Left>405.6pt</Left>
-            <Top>141.9pt</Top>
+            <Top>121.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2670,22 +2811,23 @@ WHERE
             <Value>«     »                                  года</Value>
             <ZIndex>1</ZIndex>
             <Left>562.8pt</Left>
-            <Top>150.5pt</Top>
+            <Top>130.5pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox148" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>14.26pt</Height>
-            <Width>24.09pt</Width>
+            <Width>21.09pt</Width>
             <Value>[16]</Value>
             <ZIndex>1</ZIndex>
-            <Left>772.2pt</Left>
-            <Top>148.0pt</Top>
+            <Left>770.60pt</Left>
+            <Top>128.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2698,11 +2840,12 @@ WHERE
             <Value>Дата получения (приемки)</Value>
             <ZIndex>1</ZIndex>
             <Left>403.4pt</Left>
-            <Top>149.9pt</Top>
+            <Top>130.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox150" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2711,7 +2854,7 @@ WHERE
             <Value>(информация о наличии/отсутствии претензии; ссылки на неотъемлимые приложения, и другие документы и т.п.)</Value>
             <ZIndex>1</ZIndex>
             <Left>405.6pt</Left>
-            <Top>182.7pt</Top>
+            <Top>159.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2724,11 +2867,11 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox151" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.75pt</Height>
-            <Width>24.84pt</Width>
+            <Width>21.09pt</Width>
             <Value>[17]</Value>
             <ZIndex>1</ZIndex>
-            <Left>772.6pt</Left>
-            <Top>168.0pt</Top>
+            <Left>771.00pt</Left>
+            <Top>144.80pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2737,11 +2880,11 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox153" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>16.51pt</Height>
-            <Width>24.82pt</Width>
+            <Width>21.07pt</Width>
             <Value>[18]</Value>
             <ZIndex>1</ZIndex>
-            <Left>772.1pt</Left>
-            <Top>196.9pt</Top>
+            <Left>770.50pt</Left>
+            <Top>172.90pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2750,11 +2893,11 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox157" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>16.52pt</Height>
-            <Width>26.34pt</Width>
+            <Width>21.09pt</Width>
             <Value>[19]</Value>
             <ZIndex>1</ZIndex>
-            <Left>772.9pt</Left>
-            <Top>224.1pt</Top>
+            <Left>771.3pt</Left>
+            <Top>199.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2764,17 +2907,17 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox160" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>13.51pt</Height>
-            <Width>396.75pt</Width>
+            <Width>388.50pt</Width>
             <Value>Наименование экономического субъекта - составителя документа</Value>
             <ZIndex>1</ZIndex>
-            <Left>403.7pt</Left>
-            <Top>218.5pt</Top>
+            <Left>403.70pt</Left>
+            <Top>195.30pt</Top>
             <Style>
               <FontFamily>Arial</FontFamily>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>8.5pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox161" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2783,11 +2926,12 @@ WHERE
             <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
             <ZIndex>1</ZIndex>
             <Left>403.8pt</Left>
-            <Top>190.4pt</Top>
+            <Top>168.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox162" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2796,7 +2940,7 @@ WHERE
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>626.9pt</Left>
-            <Top>141.8pt</Top>
+            <Top>121.8pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2813,11 +2957,12 @@ WHERE
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
             <Left>424.0pt</Left>
-            <Top>247.7pt</Top>
+            <Top>222.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox168" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2826,7 +2971,7 @@ WHERE
             <Value>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</Value>
             <ZIndex>1</ZIndex>
             <Left>406.2pt</Left>
-            <Top>238.3pt</Top>
+            <Top>213.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2843,7 +2988,7 @@ WHERE
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>627.6pt</Left>
-            <Top>210.2pt</Top>
+            <Top>186.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2860,7 +3005,7 @@ WHERE
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>510.6pt</Left>
-            <Top>141.6pt</Top>
+            <Top>121.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2877,7 +3022,7 @@ WHERE
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>511.3pt</Left>
-            <Top>210.6pt</Top>
+            <Top>186.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2894,7 +3039,7 @@ WHERE
             <Value>(должность)</Value>
             <ZIndex>1</ZIndex>
             <Left>406.5pt</Left>
-            <Top>210.7pt</Top>
+            <Top>186.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2906,32 +3051,33 @@ WHERE
             </Style>
           </Textbox>
           <Textbox Name="Textbox65" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>22.59pt</Height>
+            <Height>18.84pt</Height>
             <Width>157.25pt</Width>
             <Value>Руководитель организации 
 или иное уполномоченное лицо</Value>
             <ZIndex>1</ZIndex>
             <Left>123.9pt</Left>
-            <Top>4.8pt</Top>
+            <Top>1.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox66" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>14.27pt</Height>
+            <Height>18.02pt</Height>
             <Width>178.38pt</Width>
-            <Value>Индивидуальный предприниматель</Value>
+            <Value>Индивидуальный предприниматель
+или иное уполномоченное лицо</Value>
             <ZIndex>1</ZIndex>
             <Left>123.9pt</Left>
-            <Top>28.0pt</Top>
+            <Top>20.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox67" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2940,7 +3086,7 @@ WHERE
             <Value>=Fields!leader_last_name.Value + ' ' + Fields!leader_name + '.' + Fields!leader_patronymic + '.'</Value>
             <ZIndex>1</ZIndex>
             <Left>353.8pt</Left>
-            <Top>5.6pt</Top>
+            <Top>2.4pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2948,6 +3094,7 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <TextDecoration>None</TextDecoration>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox70" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2957,12 +3104,12 @@ WHERE
 иное уполномоченное лицо</Value>
             <ZIndex>1</ZIndex>
             <Left>465.4pt</Left>
-            <Top>5.6pt</Top>
+            <Top>1.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox78" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2971,7 +3118,7 @@ WHERE
             <Value>=Fields!buh_last_name.Value + ' ' + Fields!buh_name + '.' + Fields!buh_patronymic + '.'</Value>
             <ZIndex>1</ZIndex>
             <Left>678.2pt</Left>
-            <Top>4.8pt</Top>
+            <Top>1.6pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2979,6 +3126,7 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <TextDecoration>None</TextDecoration>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox109" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2987,7 +3135,7 @@ WHERE
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>268.7pt</Left>
-            <Top>18.7pt</Top>
+            <Top>14.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3004,7 +3152,7 @@ WHERE
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>384.2pt</Left>
-            <Top>18.0pt</Top>
+            <Top>14.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -3018,7 +3166,7 @@ WHERE
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>284.7pt</Left>
-            <Top>38.5pt</Top>
+            <Top>32.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3035,7 +3183,7 @@ WHERE
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>590.6pt</Left>
-            <Top>19.2pt</Top>
+            <Top>15.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3048,11 +3196,11 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox124" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.26pt</Height>
-            <Width>128.04pt</Width>
+            <Width>122.04pt</Width>
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
-            <Left>373.2pt</Left>
-            <Top>38.5pt</Top>
+            <Left>373.20pt</Left>
+            <Top>32.90pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3069,7 +3217,7 @@ WHERE
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>709.5pt</Left>
-            <Top>26.4pt</Top>
+            <Top>16.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -3078,12 +3226,12 @@ WHERE
             </Style>
           </Textbox>
           <Textbox Name="Textbox127" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>14.25pt</Height>
-            <Width>280.05pt</Width>
+            <Height>9.00pt</Height>
+            <Width>290.55pt</Width>
             <Value>(реквизиты свидетельства о государственной регистрации индивидуального предпринимателя)</Value>
             <ZIndex>1</ZIndex>
-            <Left>508.6pt</Left>
-            <Top>38.5pt</Top>
+            <Left>500.60pt</Left>
+            <Top>32.90pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3106,11 +3254,11 @@ WHERE
                 <Default>3pt</Default>
               </BorderWidth>
             </Style>
-            <Left>85.90pt</Left>
-            <Top>50.10pt</Top>
+            <Left>85.9pt</Left>
+            <Top>43.7pt</Top>
           </Line>
           <Line Name="Line2">
-            <Height>49.0pt</Height>
+            <Height>43.00pt</Height>
             <Width>0.01pt</Width>
             <Style>
               <BorderStyle>
@@ -3121,8 +3269,8 @@ WHERE
                 <Default>3pt</Default>
               </BorderWidth>
             </Style>
-            <Left>86.7pt</Left>
-            <Top>0.8pt</Top>
+            <Left>86.70pt</Left>
+            <Top>0.00pt</Top>
           </Line>
           <Textbox Name="Textbox128">
             <Height>11.25pt</Height>
@@ -3130,12 +3278,12 @@ WHERE
             <Value>=Fields!contract_number.Value + ' от ' + Fields!contract_date.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>258.7pt</Left>
-            <Top>55.3pt</Top>
+            <Top>45.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>9pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox129">
@@ -3158,7 +3306,7 @@ WHERE
             <Value>(подпись клиента)</Value>
             <ZIndex>1</ZIndex>
             <Left>327.4pt</Left>
-            <Top>109.5pt</Top>
+            <Top>92.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3175,7 +3323,7 @@ WHERE
             <Value>(расшифровка подписи)</Value>
             <ZIndex>1</ZIndex>
             <Left>415.4pt</Left>
-            <Top>109.9pt</Top>
+            <Top>93.1pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3192,7 +3340,7 @@ WHERE
             <Value>(подпись водителя)</Value>
             <ZIndex>1</ZIndex>
             <Left>551.5pt</Left>
-            <Top>108.8pt</Top>
+            <Top>92.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3209,7 +3357,7 @@ WHERE
             <Value>(расшифровка подписи)</Value>
             <ZIndex>1</ZIndex>
             <Left>640.3pt</Left>
-            <Top>109.2pt</Top>
+            <Top>92.4pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3243,7 +3391,8 @@ WHERE
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontSize>9pt</FontSize>
+          <FontSize>8pt</FontSize>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3257,7 +3406,7 @@ WHERE
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontSize>9pt</FontSize>
+          <FontSize>8pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3304,7 +3453,7 @@ WHERE
         </Style>
       </Textbox>
       <Line Name="Line4">
-        <Height>161.98pt</Height>
+        <Height>189.73pt</Height>
         <Width>-0.03pt</Width>
         <Style>
           <BorderStyle>
@@ -3315,8 +3464,8 @@ WHERE
             <Default>3pt</Default>
           </BorderWidth>
         </Style>
-        <Left>89.4pt</Left>
-        <Top>6.4pt</Top>
+        <Left>88.6pt</Left>
+        <Top>5.6pt</Top>
       </Line>
     </ReportItems>
   </Body>
