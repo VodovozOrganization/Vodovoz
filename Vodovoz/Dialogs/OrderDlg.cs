@@ -936,9 +936,7 @@ namespace Vodovoz
 				DialogFlags.Modal,
 				MessageType.Question,
 				ButtonsType.YesNo,
-				"Отсутствует договор с клиентом для " +
-			                                     (Entity.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.ByCard ? "наличной" : "безналичной") +
-				" формы оплаты. Создать?");
+			                                     $"Отсутствует договор с клиентом для формы оплаты '{Entity.PaymentType.GetEnumTitle()}'. Создать?");
 			md.SetPosition(WindowPosition.Center);
 			md.AddButton("Автоматически", ResponseType.Accept);
 			md.ShowAll();
@@ -1263,7 +1261,7 @@ namespace Vodovoz
 							   UoWGeneric.Root.Client.PersonType,
 							   UoWGeneric.Root.PaymentType);
 			if(!contract.RepairAgreementExists()) {
-				RunAgreementCreateDialog(contract);
+				RunRepairAgreementCreateDialog(contract);
 				return;
 			}
 			selected.FinalOrder = UoWGeneric.Root;
@@ -1283,12 +1281,10 @@ namespace Vodovoz
 			return true;
 		}
 
-		void RunAgreementCreateDialog(CounterpartyContract contract)
+		private void RunRepairAgreementCreateDialog(CounterpartyContract contract)
 		{
 			ITdiTab dlg;
-			string question = "Отсутствует доп. соглашение сервиса с клиентом в договоре для " +
-				(UoWGeneric.Root.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.ByCard ? "наличной" : "безналичной") +
-							  " формы оплаты. Создать?";
+			string question = "Отсутствует доп. соглашение сервиса с клиентом в текущем договоре. Создать?";
 			if(MessageDialogWorks.RunQuestionDialog(question)) {
 				dlg = new RepairAgreementDlg(contract);
 				(dlg as IAgreementSaved).AgreementSaved += (sender, e) =>
