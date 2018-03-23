@@ -27,11 +27,16 @@
             '%d.%m.%y') AS contract_date,
     counterparty.full_name AS client_name,
     counterparty.address AS client_address,
-    counterparty.waybill_comment AS invoice_comment,
+    delivery_points.address_addition AS address_comment,
     organizations.full_name AS org_name,
     organizations.address AS org_address,
     delivery_points.comment AS delivery_point_comment,
-    CONCAT('+7 ', delivery_points.phone) AS phone,
+    
+    IF(COUNT(delivery_points_phones.number) &gt; 0, 
+		GROUP_CONCAT(CONCAT(delivery_points_phones.number, ' - ', delivery_points_phones.name ) SEPARATOR ', '),
+		GROUP_CONCAT(CONCAT(counterparty_phones.number, ' - ', delivery_points_phones.name ) SEPARATOR ', ')
+	) AS phones,
+    
     logistics_area.name AS logistics_area,
     delivery_points.city AS city,
     delivery_points.street AS street,
@@ -65,6 +70,10 @@ FROM
     logistics_area ON delivery_points.logistic_area_id = logistics_area.id
         LEFT JOIN
     employees ON employees.id = orders.author_employee_id
+		LEFT JOIN
+    phones as delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id
+		LEFT JOIN
+    phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id
 WHERE
     orders.id = @order_id;</CommandText>
         <QueryParameters>
@@ -114,8 +123,8 @@ WHERE
           <DataField>client_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="invoice_comment">
-          <DataField>invoice_comment</DataField>
+        <Field Name="address_comment">
+          <DataField>address_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="org_name">
@@ -130,8 +139,8 @@ WHERE
           <DataField>delivery_point_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="phone">
-          <DataField>phone</DataField>
+        <Field Name="phones">
+          <DataField>phones</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="logistics_area">
@@ -366,24 +375,25 @@ GROUP BY responsible_person_name</CommandText>
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List1">
-        <Height>182.31pt</Height>
-        <Width>561.84pt</Width>
+        <Height>176.31pt</Height>
+        <Width>516.09pt</Width>
         <Left>35.00pt</Left>
         <Top>0.00pt</Top>
         <ReportItems>
           <Textbox Name="Textbox1">
             <Height>17.25pt</Height>
-            <Width>320.29pt</Width>
+            <Width>322.54pt</Width>
             <Value>='Талон доставки № ' + {order_id} + ' от ' + {order_date} + ' БезНал'</Value>
             <ZIndex>1</ZIndex>
-            <Left>86.30pt</Left>
-            <Top>35.50pt</Top>
+            <Left>76.70pt</Left>
+            <Top>33.90pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
               <FontSize>14pt</FontSize>
+              <TextAlign>Center</TextAlign>
             </Style>
           </Textbox>
           <Textbox Name="Textbox2">
@@ -402,11 +412,11 @@ GROUP BY responsible_person_name</CommandText>
           </Textbox>
           <Textbox Name="Textbox3">
             <Height>12.00pt</Height>
-            <Width>80pt</Width>
+            <Width>59.75pt</Width>
             <Value>Поставщик:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0pt</Left>
-            <Top>80pt</Top>
+            <Left>13.6pt</Left>
+            <Top>78.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -415,12 +425,12 @@ GROUP BY responsible_person_name</CommandText>
             </Style>
           </Textbox>
           <Textbox Name="Textbox4">
-            <Height>15pt</Height>
-            <Width>80pt</Width>
+            <Height>15.00pt</Height>
+            <Width>38.75pt</Width>
             <Value>Адрес:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>125pt</Top>
+            <Left>34.6pt</Left>
+            <Top>110.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -430,10 +440,10 @@ GROUP BY responsible_person_name</CommandText>
           </Textbox>
           <Textbox Name="Textbox6">
             <Height>12.75pt</Height>
-            <Width>80pt</Width>
+            <Width>62.75pt</Width>
             <Value>Покупатель:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
+            <Left>10.6pt</Left>
             <Top>95.0pt</Top>
             <Style>
               <BorderStyle />
@@ -444,11 +454,11 @@ GROUP BY responsible_person_name</CommandText>
           </Textbox>
           <Textbox Name="Textbox7">
             <Height>12.00pt</Height>
-            <Width>80pt</Width>
+            <Width>50.00pt</Width>
             <Value>Телефон:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>152.8pt</Top>
+            <Left>23.3pt</Left>
+            <Top>143.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -457,12 +467,12 @@ GROUP BY responsible_person_name</CommandText>
             </Style>
           </Textbox>
           <Textbox Name="Textbox8">
-            <Height>15pt</Height>
-            <Width>6in</Width>
+            <Height>14.25pt</Height>
+            <Width>433.62pt</Width>
             <Value>={org_name} + ' ' + {org_address}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85pt</Left>
-            <Top>80pt</Top>
+            <Left>73.00pt</Left>
+            <Top>79.20pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -472,12 +482,12 @@ GROUP BY responsible_person_name</CommandText>
             <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox9">
-            <Height>15pt</Height>
-            <Width>6in</Width>
+            <Height>12.75pt</Height>
+            <Width>433.62pt</Width>
             <Value>={client_name}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85pt</Left>
-            <Top>95.0pt</Top>
+            <Left>73.00pt</Left>
+            <Top>95.80pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -491,8 +501,8 @@ GROUP BY responsible_person_name</CommandText>
             <Width>433.62pt</Width>
             <Value>=Iif(Fields!logistics_area.IsMissing, "", "["+ {logistics_area} + "]") + {city} + ' ' + {street} + ' д.' + {building} + ' ' + {room} + '\n' + {delivery_point_comment}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85.00pt</Left>
-            <Top>125.00pt</Top>
+            <Left>73.0pt</Left>
+            <Top>111.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -502,12 +512,12 @@ GROUP BY responsible_person_name</CommandText>
             <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox12">
-            <Height>12pt</Height>
-            <Width>6in</Width>
-            <Value>={phone}</Value>
+            <Height>12.75pt</Height>
+            <Width>433.62pt</Width>
+            <Value>={phones}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85.0pt</Left>
-            <Top>152.8pt</Top>
+            <Left>73.0pt</Left>
+            <Top>144.0pt</Top>
             <Style>
               <FontWeight>Bold</FontWeight>
               <BorderStyle />
@@ -518,11 +528,11 @@ GROUP BY responsible_person_name</CommandText>
           </Textbox>
           <Textbox Name="Textbox14">
             <Height>12.00pt</Height>
-            <Width>72.27pt</Width>
+            <Width>65.52pt</Width>
             <Value>={delivery_schedule}</Value>
             <ZIndex>1</ZIndex>
-            <Left>263.0pt</Left>
-            <Top>167.2pt</Top>
+            <Left>268.6pt</Left>
+            <Top>158.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -530,28 +540,30 @@ GROUP BY responsible_person_name</CommandText>
               <FontWeight>Bold</FontWeight>
               <FontSize>10pt</FontSize>
             </Style>
+            <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox18">
             <Height>12.00pt</Height>
-            <Width>186.27pt</Width>
+            <Width>154.02pt</Width>
             <Value>='Договор: ' + {contract_number} + ' от ' + {contract_date}</Value>
             <ZIndex>1</ZIndex>
-            <Left>367.7pt</Left>
-            <Top>167.2pt</Top>
+            <Left>336.5pt</Left>
+            <Top>158.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
             </Style>
+            <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>15pt</Height>
-            <Width>80pt</Width>
+            <Height>15.00pt</Height>
+            <Width>71.75pt</Width>
             <Value>Комментарий:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>110pt</Top>
+            <Left>0.8pt</Left>
+            <Top>127.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -560,12 +572,12 @@ GROUP BY responsible_person_name</CommandText>
             </Style>
           </Textbox>
           <Textbox Name="Textbox53">
-            <Height>15pt</Height>
-            <Width>6in</Width>
-            <Value>={invoice_comment}</Value>
+            <Height>13.50pt</Height>
+            <Width>433.62pt</Width>
+            <Value>={address_comment}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85.00pt</Left>
-            <Top>110pt</Top>
+            <Left>73.00pt</Left>
+            <Top>128.40pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -584,8 +596,8 @@ GROUP BY responsible_person_name</CommandText>
                 <Value>={order_id}</Value>
               </CustomProperty>
             </CustomProperties>
-            <Left>394.7pt</Left>
-            <Top>34.6pt</Top>
+            <Left>384.3pt</Left>
+            <Top>32.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -594,45 +606,18 @@ GROUP BY responsible_person_name</CommandText>
           </CustomReportItem>
           <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>65.51pt</Width>
+            <Width>52.01pt</Width>
             <Value>Время дост.:</Value>
             <ZIndex>1</ZIndex>
-            <Left>208.8pt</Left>
-            <Top>167.7pt</Top>
+            <Left>215.2pt</Left>
+            <Top>158.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
             </Style>
-          </Textbox>
-          <Textbox Name="Textbox32">
-            <Height>12.00pt</Height>
-            <Width>72.27pt</Width>
-            <Value>Координаты:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>7.2pt</Left>
-            <Top>139.2pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox33">
-            <Height>12.03pt</Height>
-            <Width>462.23pt</Width>
-            <Value>="широта N" + Format({latitude}, "F6") + ", долгота E" + Format( {longitude}, "F6")</Value>
-            <ZIndex>1</ZIndex>
-            <Left>84.50pt</Left>
-            <Top>139.80pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-            </Style>
+            <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox36" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15.00pt</Height>
@@ -666,25 +651,26 @@ GROUP BY responsible_person_name</CommandText>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
+          <PaddingTop>0pt</PaddingTop>
         </Style>
         <TableColumns>
           <TableColumn>
             <Width>24.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>305.3pt</Width>
+            <Width>276.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.7pt</Width>
+            <Width>49.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.7pt</Width>
+            <Width>27.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.5pt</Width>
+            <Width>53.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.8pt</Width>
+            <Width>66.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -720,6 +706,7 @@ GROUP BY responsible_person_name</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingTop>0pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -893,13 +880,13 @@ GROUP BY responsible_person_name</CommandText>
           </TableRows>
         </Details>
         <Left>52.9pt</Left>
-        <Top>189.4pt</Top>
+        <Top>204.6pt</Top>
       </Table>
       <List Name="List2">
         <Height>78.49pt</Height>
         <Width>542.82pt</Width>
         <Left>32.6pt</Left>
-        <Top>352.3pt</Top>
+        <Top>278.7pt</Top>
         <ReportItems>
           <Textbox Name="Textbox42">
             <Height>13.50pt</Height>
@@ -971,11 +958,11 @@ GROUP BY responsible_person_name</CommandText>
       </List>
       <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
-        <Width>142.02pt</Width>
-        <Value>='Итого: ' + Format(Sum({total}, 'Goods'), "N2")</Value>
+        <Width>67.02pt</Width>
+        <Value>=Format(Sum({total}, 'Goods'), "N2")</Value>
         <ZIndex>1</ZIndex>
-        <Left>453.8pt</Left>
-        <Top>215.9pt</Top>
+        <Left>485.8pt</Left>
+        <Top>231.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -983,13 +970,13 @@ GROUP BY responsible_person_name</CommandText>
           <FontWeight>Normal</FontWeight>
           <Format># ##0.00</Format>
         </Style>
-        <CanGrow>true</CanGrow>
+        <CanGrow>false</CanGrow>
       </Textbox>
       <Subreport Name="Subreport1">
         <Height>11.26pt</Height>
         <Width>598.34pt</Width>
         <Left>0.0pt</Left>
-        <Top>338.3pt</Top>
+        <Top>264.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1003,135 +990,13 @@ GROUP BY responsible_person_name</CommandText>
           </Parameter>
         </Parameters>
       </Subreport>
-      <Table Name="Table2">
-        <DataSetName>ResponsiblePerson</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>None</Default>
-            <Left>None</Left>
-            <Right>None</Right>
-            <Top>None</Top>
-            <Bottom>None</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>237.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>133.8pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Header>
-          <TableRows>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox35">
-                      <Value>Ответственное лицо</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Value>Телефон</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-          <RepeatOnNewPage>true</RepeatOnNewPage>
-        </Header>
-        <Details>
-          <TableRows>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox39">
-                      <Value>=Fields!responsible_person_name.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox41">
-                      <Value>=Fields!responsible_person_phone.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
-        <Left>53.8pt</Left>
-        <Top>245.7pt</Top>
-      </Table>
       <Textbox Name="Textbox38" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
-        <Width>142.02pt</Width>
-        <Value>='В том числе НДС: ' + Format(Sum({include_nds}, 'Goods'), "N2")</Value>
+        <Width>66.27pt</Width>
+        <Value>=Format(Sum({include_nds}, 'Goods'), "N2")</Value>
         <ZIndex>1</ZIndex>
-        <Left>400.0pt</Left>
-        <Top>229.6pt</Top>
+        <Left>485.6pt</Left>
+        <Top>244.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1139,13 +1004,13 @@ GROUP BY responsible_person_name</CommandText>
           <FontWeight>Normal</FontWeight>
           <Format># ##0.00</Format>
         </Style>
-        <CanGrow>true</CanGrow>
+        <CanGrow>false</CanGrow>
       </Textbox>
       <List Name="List5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>34.72pt</Height>
         <Width>540.51pt</Width>
         <Left>30.5pt</Left>
-        <Top>274.2pt</Top>
+        <Top>362.2pt</Top>
         <ReportItems>
           <Textbox Name="Textbox11">
             <Height>27.76pt</Height>
@@ -1167,8 +1032,8 @@ GROUP BY responsible_person_name</CommandText>
             <Width>187.73pt</Width>
             <Value>=Fields!equipment_to.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>83.40pt</Left>
-            <Top>1.20pt</Top>
+            <Left>83.4pt</Left>
+            <Top>1.2pt</Top>
             <CanGrow>true</CanGrow>
             <Style>
               <BorderStyle />
@@ -1196,8 +1061,8 @@ GROUP BY responsible_person_name</CommandText>
             <Width>187.47pt</Width>
             <Value>=Fields!equipment_from.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>348.20pt</Left>
-            <Top>2.70pt</Top>
+            <Left>348.2pt</Left>
+            <Top>2.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1206,8 +1071,39 @@ GROUP BY responsible_person_name</CommandText>
             <CanGrow>true</CanGrow>
           </Textbox>
         </ReportItems>
+        <Visibility>
+          <Hidden>=Countrows("Equipments")
+ &gt; 0</Hidden>
+        </Visibility>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
         <DataSetName>Equipments</DataSetName>
       </List>
+      <Textbox Name="Textbox32">
+        <Height>12.00pt</Height>
+        <Width>53.52pt</Width>
+        <Value>Итого:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>430.6pt</Left>
+        <Top>230.3pt</Top>
+        <Style>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox33">
+        <Height>12.00pt</Height>
+        <Width>93.27pt</Width>
+        <Value>В том числе НДС:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>390.7pt</Left>
+        <Top>244.1pt</Top>
+        <Style>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
