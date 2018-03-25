@@ -734,11 +734,13 @@
     <Compile Include="ReportsParameters\Bottles\BottlesMovementReport.cs" />
     <Compile Include="ReportsParameters\Bottles\BottlesMovementSummaryReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.BottlesMovementSummaryReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.BottlesMovementReport.cs" />
     <Compile Include="ReportsParameters\Bottles\ShortfallBattlesReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport.cs" />
     <Compile Include="ReportsParameters\Logistic\DrivingCallReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DrivingCallReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersVisitReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.BottlesMovementReport.cs" />
+    <Compile Include="ReportsParameters\MastersVisitReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
