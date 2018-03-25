@@ -21,6 +21,14 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual int Id { get; set; }
 
+		FineTypes fineType;
+
+		[Display(Name = "Тип штрафа")]
+		public virtual FineTypes FineType {
+			get { return fineType; }
+			set { SetField(ref fineType, value, () => FineType); }
+		}
+
 		private DateTime date = DateTime.Today;
 
 		[Display (Name = "Дата")]
@@ -37,6 +45,17 @@ namespace Vodovoz.Domain.Employees
 		public virtual decimal TotalMoney {
 			get { return totalMoney; }
 			set { SetField (ref totalMoney, value, () => TotalMoney); }
+		}
+
+		decimal litersOverspending;
+		/// <summary>
+		/// Перерасходовано литров.
+		/// Свойство без маппинга, данные записываются в FineItem
+		/// </summary>
+		[Display(Name = "Перерасходовано литров")]
+		public virtual decimal LitersOverspending {
+			get { return litersOverspending; }
+			set { SetField(ref litersOverspending, value, () => LitersOverspending); }
 		}
 
 		private string fineReasonString;
@@ -56,6 +75,15 @@ namespace Vodovoz.Domain.Employees
 			get { return routeList; }
 			set { SetField(ref routeList, value, () => RouteList); }
 		}
+
+        private Employee author;
+
+        [Display(Name = "Автор штрафа")]
+        public virtual Employee Author
+        {
+            get { return author; }
+            set { SetField(ref author, value, () => Author); }
+        }
 
 		IList<FineItem> items = new List<FineItem> ();
 
@@ -85,6 +113,34 @@ namespace Vodovoz.Domain.Employees
 			get { return nomenclatures; }
 			set {
 				SetField (ref nomenclatures, value, () => Nomenclatures);
+			}
+		}
+
+		public virtual void UpdateFuelOperations(IUnitOfWork uow)
+		{
+			if(FineType == FineTypes.FuelOverspending && ObservableItems.Count() > 0) {
+				var item = ObservableItems.FirstOrDefault();
+				if(item.FuelOutlayedOperation == null) {
+					item.FuelOutlayedOperation = new FuelOperation() {
+						Car = item.Fine.RouteList.Car,
+						Fuel = item.Fine.RouteList.Car.FuelType,
+						Driver = item.Employee,
+						LitersGived = 0,
+						LitersOutlayed = item.LitersOverspending,
+						OperationTime = DateTime.Now,
+						IsFine = true
+					};
+				}else {
+					item.FuelOutlayedOperation.Car = item.Fine.RouteList.Car;
+					item.FuelOutlayedOperation.Fuel = item.Fine.RouteList.Car.FuelType;
+					item.FuelOutlayedOperation.Driver = item.Employee;
+					item.FuelOutlayedOperation.LitersGived = 0;
+					item.FuelOutlayedOperation.LitersOutlayed = item.LitersOverspending;
+					item.FuelOutlayedOperation.OperationTime = DateTime.Now;
+					item.FuelOutlayedOperation.IsFine = true;
+				}
+
+				uow.Save(item.FuelOutlayedOperation);
 			}
 		}
 
@@ -229,10 +285,29 @@ namespace Vodovoz.Domain.Employees
 			if(string.IsNullOrWhiteSpace(FineReasonString))
 				yield return new ValidationResult (String.Format("Отсутствует причина выдачи штрафа."),
 					new[] { this.GetPropertyName (o => o.FineReasonString) });
+			
+			if(FineType == FineTypes.FuelOverspending && RouteList == null) {
+				yield return new ValidationResult(String.Format("Не выбран маршрутный лист, при типе штрафа \"{0}\"", FineType.GetEnumTitle()));
+			}
 		}
-		
+
 
 		#endregion
+	}
+
+	public enum FineTypes
+	{
+		[Display(Name = "Стандартный")]
+		Standart,
+		[Display(Name = "Перерасход топлива")]
+		FuelOverspending
+	}
+
+	public class FineTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public FineTypeStringType() : base(typeof(FineTypes))
+		{
+		}
 	}
 }
 

@@ -1,12 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using QSReport;
-using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
-using QSProjectsLib;
-using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Reports
+namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ShortfallBattlesReport : Gtk.Bin, IOrmDialog, IParametersWidget
@@ -90,7 +89,8 @@ namespace Vodovoz.Reports
 				parameters.Add("driver_call", 0);
 
 			return new ReportInfo {
-				Identifier = "Orders.ShortfallBattlesReport",
+				Identifier = "Bottles.ShortfallBattlesReport",
+				ParameterDatesWithTime = false,
 				Parameters = parameters
 			};
 		}

@@ -104,6 +104,7 @@ namespace Vodovoz.ViewModel
 						),
 						Projections.Constant ("\n"))).WithAlias(() => resultAlias.EmployeesName)
 					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
+                    .Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSumm)
 				).OrderBy(o => o.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<FinesVMNode>())
 				.List<FinesVMNode>();
@@ -116,6 +117,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
 			.AddColumn("Сотудники").AddTextRenderer(node => node.EmployeesName)
 			.AddColumn("Причина штрафа").AddTextRenderer(node => node.FineReason)
+            .AddColumn("Сумма штрафа").AddTextRenderer(node => node.FineSumm.ToString())
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -154,6 +156,10 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		[SearchHighlight]
 		public string FineReason { get; set; }
+
+        [UseForSearch]
+        [SearchHighlight]
+        public decimal FineSumm { get; set; }
 	}
 }
 

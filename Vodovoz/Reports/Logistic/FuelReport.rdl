@@ -777,7 +777,7 @@ FROM
 			#Выбираем потраченное топливо
 			(SELECT 
 				DATE(fuel_operations.date) 	AS date,
-				IFNULL(route_lists.id, 'Коррек-ка') AS route_list_id,
+				IFNULL(route_lists.id, IF(fuel_operations.is_fine,'Штраф','Коррек-ка')) AS route_list_id,
 				route_lists.date AS route_list_date,
 				CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
 				delivery_shift.name AS shift,

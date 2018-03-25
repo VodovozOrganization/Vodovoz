@@ -8,6 +8,7 @@ using QSWidgetLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.ServiceDialogs.Database;
 
 namespace Vodovoz
 {
@@ -64,6 +65,8 @@ namespace Vodovoz
 			spinWeight.Binding.AddBinding (Entity, e => e.Weight, w => w.Value).InitializeFromSource ();
 			spinVolume.Binding.AddBinding(Entity, e => e.Volume, w => w.Value).InitializeFromSource();
 			checkSerial.Binding.AddBinding(Entity, e => e.IsSerial, w => w.Active).InitializeFromSource();
+			ycheckNewBottle.Binding.AddBinding(Entity, e => e.IsNewBottle, w => w.Active).InitializeFromSource();
+			ycheckDefectiveBottle.Binding.AddBinding(Entity, e => e.IsDefectiveBottle, w => w.Active).InitializeFromSource();
 
 			referenceUnit.SubjectType = typeof (MeasurementUnits);
 			referenceUnit.Binding.AddBinding (Entity, n => n.Unit, w => w.Subject).InitializeFromSource ();
@@ -88,6 +91,21 @@ namespace Vodovoz
 			ConfigureInputs (Entity.Category);
 
 			pricesView.UoWGeneric = UoWGeneric;
+
+			//make actions menu
+			var menu = new Gtk.Menu();
+			var menuItem = new Gtk.MenuItem("Заменить все ссылки на номенклатуру...");
+			menuItem.Activated += MenuItem_ReplaceLinks_Activated;;
+			menu.Add(menuItem);
+			menuActions.Menu = menu;
+			menu.ShowAll();
+			menuActions.Sensitive = !UoWGeneric.IsNew;
+		}
+
+		void MenuItem_ReplaceLinks_Activated(object sender, EventArgs e)
+		{
+			var replaceDlg = new ReplaceEntityLinksDlg(Entity);
+			OpenTab(replaceDlg);
 		}
 
 		string GenerateOfficialName (object arg)
@@ -124,6 +142,8 @@ namespace Vodovoz
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelRentPriority.Sensitive = ycheckRentPriority.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
+
+			labelBottle.Sensitive = ycheckNewBottle.Sensitive = ycheckDefectiveBottle.Sensitive = selected == NomenclatureCategory.bottle;
 
 			//FIXME запуск оборудования - временный фикс
 			//if (Entity.Category == NomenclatureCategory.equipment)

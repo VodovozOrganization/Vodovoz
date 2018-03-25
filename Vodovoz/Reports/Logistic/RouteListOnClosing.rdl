@@ -63,7 +63,18 @@
         and route_list_addresses.route_list_id = routeListId
         ) as bottles,
 	sum(ifnull(orders.returned_tare,0)) as planned_returned_bottles,
-    sum(ifnull(route_list_addresses.bottles_returned,0)) as returned_bottles,
+    (
+		SELECT 
+			ROUND(IFNULL(SUM(warehouse_movement_operations.amount),0))   
+		FROM 
+			warehouse_movement_operations
+			LEFT JOIN store_car_unload_document_items ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+			LEFT JOIN store_car_unload_documents ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
+            LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+		WHERE
+				nomenclature.category = 'bottle'
+            AND	store_car_unload_documents.route_list_id = routeListId
+	) as returned_bottles,
 	closing_comment
 FROM
 	route_lists
@@ -319,7 +330,8 @@ GROUP BY routeListId</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>Сданная пустая тара</Value>
+                      <Value>Сданная пустая тара
+(по складу)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>

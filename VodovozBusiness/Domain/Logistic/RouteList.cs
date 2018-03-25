@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -170,6 +170,23 @@ namespace Vodovoz.Domain.Logistic
 				SetField(ref cashier, value, () => Cashier);
 			}
 		}
+
+		decimal fixedDriverWage;
+
+		[Display(Name = "Фиксированная заработанная плата водителя")]
+		public virtual decimal FixedDriverWage {
+			get { return fixedDriverWage; }
+			set { SetField(ref fixedDriverWage, value, () => FixedDriverWage); }
+		}
+
+		decimal fixedForwarderWage;
+
+		[Display(Name = "Фиксированная заработанная плата экспедитора")]
+		public virtual decimal FixedForwarderWage {
+			get { return fixedForwarderWage; }
+			set { SetField(ref fixedForwarderWage, value, () => FixedForwarderWage); }
+		}
+
 
 		Fine bottleFine;
 
@@ -355,12 +372,20 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal UniqueAddressCount {
 			get {
-				return Addresses.Where(item => item.IsDelivered()).Select(item => item.Order.DeliveryPoint.Id).Distinct().Count();
+				return Addresses
+						.Where(item => item.IsDelivered())
+						.Select(item => item.Order.DeliveryPoint.Id)
+						.Distinct().Count();
 			}
 		}
 
 		public virtual decimal PhoneSum {
-			get {
+			get
+			{
+                var count = Addresses.Where(item => item.RouteList.car.TypeOfUse == CarTypeOfUse.Truck || item.Order.IsService == true)
+                                     .Select(item => item).Count();
+				if (count > 0)
+					return 0;
 
 				return Wages.GetDriverRates(Date).PhoneServiceCompensationRate * UniqueAddressCount;
 			}
@@ -637,6 +662,102 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции относящиеся к закрытию МЛ
 
+		public virtual void CompleteRoute()
+		{
+			Status = RouteListStatus.OnClosing;
+			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
+				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
+			}
+			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
+			if(track != null) {
+				track.CalculateDistance();
+				track.CalculateDistanceToBase();
+				UoW.Save(track);
+			}
+			FirstFillClosing();
+			UoW.Save(this);
+		}
+
+		/// <summary>
+		/// Возвращает пересчитанную заного зарплату водителя (не записывает)
+		/// </summary>
+		public virtual decimal GetRecalculatedDriverWage()
+		{
+			if(Driver.WageCalcType == WageCalculationType.fixedDay || Driver.WageCalcType == WageCalculationType.fixedRoute) {
+				return FixedDriverWage;
+			}
+			decimal result = 0m;
+			foreach(var address in Addresses) {
+				result += address.CalculateDriverWage() + address.DriverWageSurcharge;
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Возвращает пересчитанную заного зарплату экспедитора (не записывает)
+		/// </summary>
+		public virtual decimal GetRecalculatedForwarderWage()
+		{
+			if(Forwarder == null) {
+				return 0;
+			}
+			if(Forwarder.WageCalcType == WageCalculationType.fixedDay || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+				return FixedForwarderWage;
+			}
+			decimal result = 0m;
+			foreach(var address in Addresses) {
+				result += address.CalculateForwarderWage() + address.ForwarderWageSurcharge;
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Возвращает текущую зарплату водителя
+		/// </summary>
+		public virtual decimal GetDriversTotalWage()
+		{
+			if(Driver.WageCalcType == WageCalculationType.fixedDay 
+			  || Driver.WageCalcType == WageCalculationType.fixedRoute) {
+				return FixedDriverWage;
+			}
+			return Addresses.Sum(item => item.DriverWage) + Addresses.Sum(item => item.DriverWageSurcharge);
+		}
+
+		/// <summary>
+		/// Возвращает текущую зарплату экспедитора
+		/// </summary>
+		public virtual decimal GetForwardersTotalWage()
+		{
+			if(Forwarder == null) {
+				return 0;
+			}
+			if(Forwarder.WageCalcType == WageCalculationType.fixedDay
+			  || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+				return FixedDriverWage;
+			}
+			return Addresses.Sum(item => item.ForwarderWage);
+		}
+
+		/// <summary>
+		/// Расчитывает и записывает зарплату
+		/// </summary>
+		public virtual void CalculateWages()
+		{
+			if(Driver.WageCalcType == WageCalculationType.fixedDay
+				   || Driver.WageCalcType == WageCalculationType.fixedRoute) {
+				FixedDriverWage = Driver.WageCalcRate;
+			}
+
+			if(Forwarder != null) {
+				if(Forwarder.WageCalcType == WageCalculationType.fixedDay
+				   || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+					FixedForwarderWage = Forwarder.WageCalcRate;
+				}
+			}
+
+			Addresses.ToList().ForEach(x => x.RecalculateWages());
+		}
+
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
 		public virtual void FirstFillClosing()
 		{
@@ -876,31 +997,41 @@ namespace Vodovoz.Domain.Logistic
 
 			foreach(RouteListItem item in addresesDelivered) {
 				if(item.DepositsCollected != 0) {
-					foreach(var depositItem in item.Order.OrderDepositItems.ToList()) {
-						DepositOperation depositOperation;
-						if(depositItem.DepositOperation != null) {
-							if(depositItem.PaymentDirection == PaymentDirection.ToClient) {
-								depositItem.DepositOperation.RefundDeposit = depositItem.Total;
-							}else {
-								depositItem.DepositOperation.ReceivedDeposit = depositItem.Total;
-							}
-							depositOperation = depositItem.DepositOperation;
-						}else {
-							depositOperation = new DepositOperation();
-							depositOperation.Order = item.Order;
-							depositOperation.OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-							depositOperation.Counterparty = item.Order.Client;
-							depositOperation.DeliveryPoint = item.Order.DeliveryPoint;
+					DepositOperation bottlesOperation;
 
-							if(depositItem.PaymentDirection == PaymentDirection.ToClient) {
-								depositOperation.RefundDeposit = depositItem.Total;
-							}else {
-								depositOperation.ReceivedDeposit = depositItem.Total;
-							}
-							depositOperation.DepositType = depositItem.DepositType;
-						}
-						result.Add(depositOperation);
+					if(item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Bottles).ToList().Count >= 1) {
+						bottlesOperation = item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Bottles).FirstOrDefault();
+						bottlesOperation.ReceivedDeposit = item.DepositsCollected;
+					} else {
+						bottlesOperation = new DepositOperation {
+							Order = item.Order,
+							OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+							DepositType = DepositType.Bottles,
+							Counterparty = item.Order.Client,
+							DeliveryPoint = item.Order.DeliveryPoint,
+							ReceivedDeposit = item.DepositsCollected
+						};
 					}
+					result.Add(bottlesOperation);
+				}
+
+				if(item.EquipmentDepositsCollected != 0) {
+					DepositOperation equipmentOperation;
+
+					if(item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Equipment).ToList().Count >= 1) {
+						equipmentOperation = item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Equipment).FirstOrDefault();
+						equipmentOperation.ReceivedDeposit = item.EquipmentDepositsCollected;
+					} else {
+						equipmentOperation = new DepositOperation {
+							Order = item.Order,
+							OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+							DepositType = DepositType.Equipment,
+							Counterparty = item.Order.Client,
+							DeliveryPoint = item.Order.DeliveryPoint,
+							ReceivedDeposit = item.EquipmentDepositsCollected
+						};
+					}
+					result.Add(equipmentOperation);
 				}
 			}
 #endif
@@ -1072,7 +1203,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			//Необходимо для того, чтобы расход топлива не пересчитывался после подтверждения логистами
-			if(Status == RouteListStatus.Closed){
+			if(Status == RouteListStatus.Closed && MileageCheck){
 				return;
 			}
 

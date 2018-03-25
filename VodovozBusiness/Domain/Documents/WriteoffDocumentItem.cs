@@ -140,9 +140,10 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title {
 			get{
-				return String.Format("{0} - {1}", 
+				return String.Format("[{2}] {0} - {1}",
 					Nomenclature.Name, 
-					Nomenclature.Unit.MakeAmountShortStr(Amount));
+				                     Nomenclature.Unit.MakeAmountShortStr(Amount),
+					Document.Title);
 			}
 		}
 

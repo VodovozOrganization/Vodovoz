@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>297mm</PageHeight>
-  <PageWidth>210mm</PageWidth>
+  <PageHeight>296.926mm</PageHeight>
+  <PageWidth>209.804mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>5mm</TopMargin>
   <LeftMargin>5mm</LeftMargin>
@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>199.4pt</Height>
+    <Height>358.9pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>ForwarderWage</DataSetName>
@@ -370,6 +370,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -496,16 +498,18 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>0.1pt</Left>
-        <Top>97.5pt</Top>
+        <Left>1.5pt</Left>
+        <Top>159.5pt</Top>
       </Table>
       <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>18.03pt</Height>
         <Width>292.84pt</Width>
-        <Value>="Итого: " + Convert.ToString( Sum(Fields!wage.Value, "ForwarderWage") - Sum(Fields!advance.Value, "Advances"))</Value>
+        <Value>="Итого: " + Convert.ToString( Sum(Fields!wage.Value, "ForwarderWage") - Sum(Fields!advance.Value, "Advances")
+- Sum(Fields!money.Value, "ForwarderFines")
+)</Value>
         <ZIndex>1</ZIndex>
-        <Left>5.2pt</Left>
-        <Top>147.5pt</Top>
+        <Left>5.90pt</Left>
+        <Top>209.50pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -637,8 +641,259 @@
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <Left>0.0pt</Left>
-        <Top>176.0pt</Top>
+        <Left>1.5pt</Left>
+        <Top>238.0pt</Top>
+      </Table>
+      <Table Name="Table4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>ForwarderFines</DataSetName>
+        <NoRows>Штрафов нет</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>70.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>104.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>75.5pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>Дата</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>Штраф</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>Причина</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>Дата МЛ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>=Format(Fields!date.Value, "dd/MM/yyyy")</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>=Iif(Fields!money.Value = 0, "" ,Fields!money.Value )</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>=Fields!reason.Value + ": " + Fields!nom_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>=Format(Fields!rl_date.Value, "dd/MM/yyyy")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>2.6pt</Left>
+        <Top>103.7pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <Value>Всего:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum(Fields!money.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                          <Left>None</Left>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -661,15 +916,6 @@
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <DataSets>
     <DataSet Name="ForwarderWage">
       <Query>
@@ -793,7 +1039,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="ForwarderWageBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(wages_movement_operations.money) AS balance
@@ -817,10 +1063,70 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="ForwarderFines">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>
+SELECT 
+     fines.date,
+    money,
+    GROUP_CONCAT(nomenclature.name SEPARATOR ', ') AS nom_name,
+    route_lists.date AS rl_date,
+    fines.fine_reason_string AS reason
+FROM
+    fines_items
+        LEFT JOIN
+    fines ON fines.id = fines_items.fine_id
+        LEFT JOIN
+    fines_nomenclatures ON fines_nomenclatures.fine_id = fines_items.fine_id
+        LEFT JOIN
+    nomenclature ON nomenclature.id = fines_nomenclatures.nomenclature_id
+        LEFT JOIN
+    route_lists ON route_lists.id = fines.route_list_id
+WHERE
+    fines_items.employee_id = @forwarder_id
+        AND fines.date &gt;= @start_date
+        AND fines.date &lt;= @end_date
+GROUP BY fines.id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="forwarder_id">
+            <Value>={?forwarder_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="money">
+          <DataField>money</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="nom_name">
+          <DataField>nom_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="rl_date">
+          <DataField>rl_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="reason">
+          <DataField>reason</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -830,6 +1136,11 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
   <ReportParameters>
     <ReportParameter Name="forwarder_id">
       <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>901</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -838,6 +1149,11 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
     </ReportParameter>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-01-23</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -846,6 +1162,11 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-02-06</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -861,4 +1182,13 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

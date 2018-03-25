@@ -12,15 +12,19 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonCancel;
 
-		private global::Gtk.HBox hbox1;
+		private global::Gtk.Table table1;
+
+		private global::Gamma.Widgets.yEnumComboBox comboTypeOfUse;
+
+		private global::Gtk.Label label1;
 
 		private global::Gtk.Label labelName;
-
-		private global::Gamma.GtkWidgets.yEntry yentryName;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonCanReceiveBottles;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonCanReceiveEquipment;
+
+		private global::Gamma.GtkWidgets.yEntry yentryName;
 
 		protected virtual void Build()
 		{
@@ -70,66 +74,98 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
+			this.table1.Name = "table1";
+			this.table1.RowSpacing = ((uint)(6));
+			this.table1.ColumnSpacing = ((uint)(6));
+			// Container child table1.Gtk.Table+TableChild
+			this.comboTypeOfUse = new global::Gamma.Widgets.yEnumComboBox();
+			this.comboTypeOfUse.Name = "comboTypeOfUse";
+			this.comboTypeOfUse.ShowSpecialStateAll = false;
+			this.comboTypeOfUse.ShowSpecialStateNot = false;
+			this.comboTypeOfUse.UseShortTitle = false;
+			this.comboTypeOfUse.DefaultFirst = false;
+			this.table1.Add(this.comboTypeOfUse);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.comboTypeOfUse]));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label1 = new global::Gtk.Label();
+			this.label1.Name = "label1";
+			this.label1.Xalign = 1F;
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Тип использования:");
+			this.table1.Add(this.label1);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.labelName = new global::Gtk.Label();
 			this.labelName.Name = "labelName";
 			this.labelName.Xalign = 1F;
 			this.labelName.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
-			this.hbox1.Add(this.labelName);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelName]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
-			this.yentryName.CanFocus = true;
-			this.yentryName.Name = "yentryName";
-			this.yentryName.IsEditable = true;
-			this.yentryName.InvisibleChar = '•';
-			this.hbox1.Add(this.yentryName);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yentryName]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
-			this.vbox2.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
-			// Container child vbox2.Gtk.Box+BoxChild
+			this.table1.Add(this.labelName);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.labelName]));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ycheckbuttonCanReceiveBottles = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonCanReceiveBottles.CanFocus = true;
 			this.ycheckbuttonCanReceiveBottles.Name = "ycheckbuttonCanReceiveBottles";
 			this.ycheckbuttonCanReceiveBottles.Label = global::Mono.Unix.Catalog.GetString("Прием тары");
 			this.ycheckbuttonCanReceiveBottles.DrawIndicator = true;
 			this.ycheckbuttonCanReceiveBottles.UseUnderline = true;
-			this.vbox2.Add(this.ycheckbuttonCanReceiveBottles);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ycheckbuttonCanReceiveBottles]));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
-			// Container child vbox2.Gtk.Box+BoxChild
+			this.table1.Add(this.ycheckbuttonCanReceiveBottles);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonCanReceiveBottles]));
+			w9.TopAttach = ((uint)(2));
+			w9.BottomAttach = ((uint)(3));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ycheckbuttonCanReceiveEquipment = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonCanReceiveEquipment.CanFocus = true;
 			this.ycheckbuttonCanReceiveEquipment.Name = "ycheckbuttonCanReceiveEquipment";
 			this.ycheckbuttonCanReceiveEquipment.Label = global::Mono.Unix.Catalog.GetString("Прием оборудования");
 			this.ycheckbuttonCanReceiveEquipment.DrawIndicator = true;
 			this.ycheckbuttonCanReceiveEquipment.UseUnderline = true;
-			this.vbox2.Add(this.ycheckbuttonCanReceiveEquipment);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ycheckbuttonCanReceiveEquipment]));
-			w10.Position = 3;
-			w10.Expand = false;
-			w10.Fill = false;
+			this.table1.Add(this.ycheckbuttonCanReceiveEquipment);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonCanReceiveEquipment]));
+			w10.TopAttach = ((uint)(3));
+			w10.BottomAttach = ((uint)(4));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryName.CanFocus = true;
+			this.yentryName.Name = "yentryName";
+			this.yentryName.IsEditable = true;
+			this.yentryName.InvisibleChar = '•';
+			this.table1.Add(this.yentryName);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.vbox2.Add(this.table1);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table1]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add(this.vbox2);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 		}
 	}
 }

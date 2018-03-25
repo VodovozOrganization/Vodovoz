@@ -30,7 +30,9 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.SumOfDamage)  .Column ("sum_of_damage");
 			Map (x => x.ShortName)	  .Column ("short_name");
 			Map (x => x.Hide)   	  .Column ("hide");
-			Map (x => x.NoDelivey)    .Column ("no_delivery"); 
+			Map (x => x.NoDelivey)    .Column ("no_delivery");
+			Map(x => x.IsNewBottle).Column("is_new_bottle");
+			Map(x => x.IsDefectiveBottle).Column("is_defective_bottle");
 
 			References (x => x.Unit)		   .Column ("unit_id").Not.LazyLoad ();
 			References (x => x.Color)		   .Column ("color_id");

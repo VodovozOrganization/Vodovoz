@@ -170,7 +170,6 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.yentryrefWarehouse]));
 			w14.LeftAttach = ((uint)(3));
 			w14.RightAttach = ((uint)(4));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox4.Add(this.tableWriteoff);
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.tableWriteoff]));

@@ -495,7 +495,6 @@
     <Compile Include="Dialogs\Client\CounterpartyDlg.cs" />
     <Compile Include="Dialogs\Client\ContactDlg.cs" />
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
-    <Compile Include="Commons\CurrentUserSettings.cs" />
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
     <Compile Include="Representations\EquipmentTypesForRentVM.cs" />
     <Compile Include="Dialogs\Client\DailyRentAgreementDlg.cs" />
@@ -535,7 +534,6 @@
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsTemplateDlg.cs" />
     <Compile Include="ReportsParameters\EmployeesFines.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.EmployeesFines.cs" />
-    <Compile Include="ReportsParameters\StockMovements.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.StockMovements.cs" />
     <Compile Include="Dialogs\DocumentDialogs\SelfDeliveryDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.SelfDeliveryDocumentDlg.cs" />
@@ -593,8 +591,6 @@
     <Compile Include="ReportsParameters\DriverWagesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.DriverWagesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.FuelReport.cs" />
-    <Compile Include="ReportsParameters\ShortfallBattlesReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Reports.ShortfallBattlesReport.cs" />
     <Compile Include="Representations\FinesVM.cs" />
     <Compile Include="JournalFilters\FineFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.FineFilter.cs" />
@@ -677,10 +673,6 @@
     <Compile Include="Additions\Logistic\RouteOptimization\PossibleTrip.cs" />
     <Compile Include="ReportsParameters\Logistic\ShipmentReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ShipmentReport.cs" />
-    <Compile Include="ReportsParameters\Logistic\BottlesMovementReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.BottlesMovementReport.cs" />
-    <Compile Include="ReportsParameters\MastersVisitReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersVisitReport.cs" />
     <Compile Include="Additions\Logistic\MapDrawingHelper.cs" />
     <Compile Include="ReportsParameters\Logistic\MileageReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.MileageReport.cs" />
@@ -730,6 +722,23 @@
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CounterpartyPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.DeliveryPointPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.AdditionalAgreementPanelView.cs" />
+    <Compile Include="ReportsParameters\IncomeBalanceReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.IncomeBalanceReport.cs" />
+    <Compile Include="ServiceDialogs\Database\ReplaceEntityLinksDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.ReplaceEntityLinksDlg.cs" />
+    <Compile Include="ReportsParameters\Store\StockMovements.cs" />
+    <Compile Include="Core\Permissions\WarehousePermissions.cs" />
+    <Compile Include="Core\CurrentUserSettings.cs" />
+    <Compile Include="Core\CurrentPermissions.cs" />
+    <Compile Include="Additions\Store\StoreDocumentHelper.cs" />
+    <Compile Include="ReportsParameters\Bottles\BottlesMovementReport.cs" />
+    <Compile Include="ReportsParameters\Bottles\BottlesMovementSummaryReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.BottlesMovementSummaryReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.BottlesMovementReport.cs" />
+    <Compile Include="ReportsParameters\Bottles\ShortfallBattlesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\DrivingCallReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DrivingCallReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -879,6 +888,11 @@
     <Folder Include="Reports\ServiceCenter\" />
     <Folder Include="Dialogs\Sale\" />
     <Folder Include="ReportsParameters\Sales\" />
+    <Folder Include="ReportsParameters\Store\" />
+    <Folder Include="Core\" />
+    <Folder Include="Additions\Store\" />
+    <Folder Include="ReportsParameters\Bottles\" />
+    <Folder Include="Reports\Bottles\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -986,7 +1000,7 @@
     <None Include="Reports\Employees\Fines.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Store\SummaryMovements.rdl">
+    <None Include="Reports\Store\StockShipmentMovements.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\ShetFactura.rdl">
@@ -1011,9 +1025,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Wages\DriverWage.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\ShortfallBattlesReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Employees\WagesOperations.rdl">
@@ -1137,6 +1148,30 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Sales\SalesReportDetail.rdl">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\IncomeBalance.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\StockProductionMovements.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\StockWagonMovements.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\StockWaterMovements.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Bottles\BottlesMovementReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Bottles\ShortfallBattlesReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\DrivingCall.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Bottles\BottlesMovementSummaryReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -169,10 +169,10 @@ namespace Vodovoz.Domain.Documents
 
 	public enum WriteoffType
 	{
-		[Display(Name = "От клиента")]
-		counterparty,
 		[Display(Name = "Со склада")]
-		warehouse
+		warehouse,
+		[Display(Name = "От клиента")]
+		counterparty
 	}
 
 	public class WriteoffStringType : NHibernate.Type.EnumStringType

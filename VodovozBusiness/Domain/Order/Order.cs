@@ -776,7 +776,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		public virtual string Title {
-			get { return String.Format("Заказ №{0}", Id); }
+			get { return String.Format("Заказ №{0} от {1:d}", Id, DeliveryDate); }
 		}
 
 		[IgnoreHistoryTrace]

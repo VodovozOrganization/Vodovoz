@@ -4,12 +4,12 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 
-namespace Vodovoz.ReportsParameters.Logistic
+namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class BottlesMovementReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class BottlesMovementSummaryReport : Gtk.Bin, IOrmDialog, IParametersWidget
 	{
-		public BottlesMovementReport()
+		public BottlesMovementSummaryReport()
 		{
 			this.Build();
 		}
@@ -48,7 +48,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Identifier = "Logistic.BottlesMovementReport",
+				Identifier = "Bottles.BottlesMovementSummaryReport",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
@@ -60,10 +60,11 @@ namespace Vodovoz.ReportsParameters.Logistic
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
 			if(dateperiodpicker.StartDateOrNull == null) {
-				MessageDialogWorks.RunErrorDialog("Необходимо выбрать дату");
+				MessageDialogWorks.RunErrorDialog("Необходимо выбрать период.");
 				return;
 			}
 			OnUpdate(true);
 		}
+
 	}
 }

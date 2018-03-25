@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Gtk;
 using NLog;
 using QSBanks;
@@ -9,6 +10,7 @@ using QSProjectsLib;
 using QSSupportLib;
 using QSTDI;
 using Vodovoz;
+using Vodovoz.Core;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -79,24 +81,7 @@ public partial class MainWindow : Gtk.Window
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
 			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions["logistican"];
-		ActionStock.Sensitive = QSMain.User.Permissions["store_manage"]
-			|| QSMain.User.Permissions["store_worker"]
-			|| QSMain.User.Permissions["store_production"]
-			|| QSMain.User.Permissions["store_office"]
-			|| QSMain.User.Permissions["store_equipment"]
-			|| QSMain.User.Permissions["store_vartemyagi"];
-		if(QSMain.User.Permissions["store_production"] || QSMain.User.Permissions["store_vartemyagi"]) // TODO: Вот поэтому группы доступа стоило бы создавать и настраивать в каком-нибудь диалоге, а не хардкодить. @Дима
-		{
-			ActionReadyForShipment.Sensitive =
-				ActionReadyForReception.Sensitive =
-				ActionOrders.Sensitive =
-				ActionServices.Sensitive =
-				ActionLogistics.Sensitive =
-				ActionReports.Sensitive =
-				ActionArchive.Sensitive =
-				ActionClientBalance.Sensitive =
-				ActionStaff.Sensitive = false;
-		}
+		ActionStock.Sensitive = CurrentPermissions.Warehouse.Allowed().Any();
 
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
@@ -661,7 +646,7 @@ public partial class MainWindow : Gtk.Window
 	}
 	protected void OnActionShortfallBattlesActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.ShortfallBattlesReport();
+		var widget = new Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg(widget)
@@ -854,16 +839,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionBottlesMovementReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Logistic.BottlesMovementReport();
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
-		);
-	}
-
-	protected void OnActionMastersVisitReportActivated(object sender, EventArgs e)
-	{
-		var widget = new Vodovoz.ReportsParameters.MastersVisitReport();
+		var widget = new Vodovoz.ReportsParameters.Bottles.BottlesMovementReport();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg(widget)
@@ -918,6 +894,41 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<QSHistoryLog.HistoryView>(),
 			() => new QSHistoryLog.HistoryView()
+		);
+	}
+			
+	protected void OnAction43Activated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.IncomeBalanceReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+
+	protected void OnAction45Activated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<ReplaceEntityLinksDlg>(),
+			() => new ReplaceEntityLinksDlg()
+		);
+	}
+
+	protected void OnActionBottlesMovementSummaryReportActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.Bottles.BottlesMovementSummaryReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+
+	protected void OnActionDriveingCallsActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.Logistic.DrivingCallReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 }

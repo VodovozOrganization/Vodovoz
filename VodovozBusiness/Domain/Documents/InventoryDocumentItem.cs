@@ -102,9 +102,10 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title {
 			get{
-				return String.Format("{0} - {1}", 
+				return String.Format("[{2}] {0} - {1}",
 					Nomenclature.Name, 
-					Nomenclature.Unit.MakeAmountShortStr(AmountInFact));
+				                     Nomenclature.Unit.MakeAmountShortStr(AmountInFact),
+					Document.Title);
 			}
 		}
 

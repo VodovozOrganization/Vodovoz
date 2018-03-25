@@ -13,11 +13,12 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="BottleDebt">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT DISTINCT
-	bottles_movement_operations.delivery_point_id AS pointid,
-	bottles_movement_operations.counterparty_id AS clientid,
+	rows.delivery_point_id AS pointid,
+	rows.counterparty_id AS clientid,
 	delivery_points.comment AS comment,
 	TRIM(full_name) AS fullname,
 	compiled_address,
@@ -44,16 +45,16 @@
 		nomenclature ON nomenclature.id = order_items.nomenclature_id
 	WHERE
 		orders.delivery_point_id = pointid
-		AND order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled')
+		AND order_status &lt;&gt; 'Canceled' AND order_status &lt;&gt; 'DeliveryCanceled'
 		AND category = 'water') AS lastorder
 FROM
-	bottles_movement_operations
+	(SELECT DISTINCT counterparty_id, delivery_point_id FROM bottles_movement_operations) as rows
 LEFT JOIN
 	counterparty ON counterparty_id = counterparty.id
 LEFT JOIN
 	delivery_points ON delivery_point_id = delivery_points.id
 LEFT JOIN
-	doc_residue ON bottles_movement_operations.delivery_point_id = doc_residue.delivery_point_id
+	doc_residue ON rows.delivery_point_id = doc_residue.delivery_point_id
 HAVING
 	debt &lt;&gt; 0 
 	AND ((@allshow = 0 
@@ -66,7 +67,7 @@ HAVING
 		AND @withresidue = -1))
 ORDER BY
 	debtsum DESC,
-	bottles_movement_operations.counterparty_id ASC,
+	rows.counterparty_id ASC,
 	debt DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="allshow">
@@ -77,7 +78,7 @@ ORDER BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="pointid">
           <DataField>pointid</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -348,7 +349,7 @@ ORDER BY
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <Format >dd/MM/yyyy</Format>
+                        <Format>dd/MM/yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -379,8 +380,8 @@ ORDER BY
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >=Fields!debtsum.Value</GroupExpression>
-                <GroupExpression >=Fields!fullname.Value</GroupExpression>
+                <GroupExpression>=Fields!debtsum.Value</GroupExpression>
+                <GroupExpression>=Fields!fullname.Value</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -402,7 +403,7 @@ ORDER BY
                             <TextAlign>Center</TextAlign>
                           </Style>
                           <Value>=Fields!fullname.Value</Value>
-                          <CanGrow >true</CanGrow>
+                          <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
                       <ColSpan>6</ColSpan>
@@ -468,7 +469,7 @@ ORDER BY
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign >Center</TextAlign>
+                            <TextAlign>Center</TextAlign>
                           </Style>
                           <Value>=Sum(Fields!debt.Value)</Value>
                         </Textbox>
@@ -507,7 +508,7 @@ ORDER BY
                 </TableRow>
               </TableRows>
             </Footer>
-            <Sorting >
+            <Sorting>
               <SortBy>
                 <SortExpression>=Fields!debtsum.Value</SortExpression>
                 <Direction>Descending</Direction>
@@ -573,7 +574,7 @@ ORDER BY
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

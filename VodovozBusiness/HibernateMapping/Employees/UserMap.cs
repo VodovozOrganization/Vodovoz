@@ -12,6 +12,8 @@ namespace Vodovoz.HibernateMapping
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.Name).Column ("name");
 			Map (x => x.Login).Column ("login");
+
+			Map(x => x.WarehouseAccess).Column("warehouse_access").LazyLoad();
 		}
 	}
 }

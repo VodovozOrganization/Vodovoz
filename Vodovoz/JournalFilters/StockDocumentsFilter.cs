@@ -1,12 +1,11 @@
 ﻿using System;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using QSProjectsLib;
+using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
@@ -22,15 +21,11 @@ namespace Vodovoz
 			set {
 				uow = value;
 				enumcomboDocumentType.ItemsEnum = typeof(DocumentType);
-				//entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM (uow);
-				yentryrefWarehouse.ItemsQuery = Repository.Store.WarehouseRepository.ActiveWarehouseQuery();
+
+				yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
 				if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 					yentryrefWarehouse.Subject = uow.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id) ;
 				yentryrefDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery();
-				if(QSMain.User.Permissions["store_production"])
-					IfUserTypeProduction();
-				if(QSMain.User.Permissions["store_vartemyagi"])
-					IfUserTypeVartemyagi();
 			}
 		}
 
@@ -126,44 +121,6 @@ namespace Vodovoz
 		protected void OnDateperiodDocsPeriodChanged(object sender, EventArgs e)
 		{
 			OnRefiltered ();
-		}
-
-		protected void IfUserTypeProduction()
-		{
-			DocumentType[] filteredDoctypeList = { DocumentType.CarLoadDocument, DocumentType.CarUnloadDocument, DocumentType.SelfDeliveryDocument };
-
-			object[] fDoctypeList = Array.ConvertAll(filteredDoctypeList, x => (object)x);
-
-			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForProduction(uow);
-
-			enumcomboDocumentType.AddEnumToHideList(fDoctypeList);
-			enumcomboDocumentType.ShowSpecialStateAll = false;
-			enumcomboDocumentType.SelectedItem = DocumentType.MovementDocument;
-
-			if(productionWarehouse != null) {
-				yentryrefWarehouse.Subject = uow.GetById<Warehouse>(WarehouseRepository.DefaultWarehouseForProduction(uow).Id);
-				yentryrefWarehouse.Sensitive = false;
-			}
-
-		}
-
-		protected void IfUserTypeVartemyagi()
-		{
-			DocumentType[] filteredDoctypeList = { DocumentType.CarLoadDocument, DocumentType.CarUnloadDocument, DocumentType.SelfDeliveryDocument };
-
-			object[] fDoctypeList = Array.ConvertAll(filteredDoctypeList, x => (object)x);
-
-			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForVartemyagi(uow);
-
-			enumcomboDocumentType.AddEnumToHideList(fDoctypeList);
-			enumcomboDocumentType.ShowSpecialStateAll = false;
-			enumcomboDocumentType.SelectedItem = DocumentType.MovementDocument;
-
-			if(productionWarehouse != null) {
-				yentryrefWarehouse.Subject = uow.GetById<Warehouse>(WarehouseRepository.DefaultWarehouseForVartemyagi(uow).Id);
-				yentryrefWarehouse.Sensitive = false;
-			}
-
 		}
 	}
 }

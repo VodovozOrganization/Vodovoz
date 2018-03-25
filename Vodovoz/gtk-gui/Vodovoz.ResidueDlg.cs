@@ -122,8 +122,8 @@ namespace Vodovoz
 			this.disablespinBottlesDeposit.Events = ((global::Gdk.EventMask)(256));
 			this.disablespinBottlesDeposit.Name = "disablespinBottlesDeposit";
 			this.disablespinBottlesDeposit.Active = false;
-			this.disablespinBottlesDeposit.Upper = 100000;
-			this.disablespinBottlesDeposit.Lower = -100000;
+			this.disablespinBottlesDeposit.Upper = 10000000D;
+			this.disablespinBottlesDeposit.Lower = -10000000D;
 			this.disablespinBottlesDeposit.Digits = ((uint)(2));
 			this.table1.Add(this.disablespinBottlesDeposit);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.disablespinBottlesDeposit]));
@@ -137,8 +137,8 @@ namespace Vodovoz
 			this.disablespinBottlesResidue.Events = ((global::Gdk.EventMask)(256));
 			this.disablespinBottlesResidue.Name = "disablespinBottlesResidue";
 			this.disablespinBottlesResidue.Active = false;
-			this.disablespinBottlesResidue.Upper = 100000;
-			this.disablespinBottlesResidue.Lower = -100000;
+			this.disablespinBottlesResidue.Upper = 10000000D;
+			this.disablespinBottlesResidue.Lower = -10000000D;
 			this.disablespinBottlesResidue.Digits = ((uint)(0));
 			this.table1.Add(this.disablespinBottlesResidue);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.disablespinBottlesResidue]));
@@ -152,8 +152,8 @@ namespace Vodovoz
 			this.disablespinEquipmentDeposit.Events = ((global::Gdk.EventMask)(256));
 			this.disablespinEquipmentDeposit.Name = "disablespinEquipmentDeposit";
 			this.disablespinEquipmentDeposit.Active = false;
-			this.disablespinEquipmentDeposit.Upper = 100000;
-			this.disablespinEquipmentDeposit.Lower = -100000;
+			this.disablespinEquipmentDeposit.Upper = 100000D;
+			this.disablespinEquipmentDeposit.Lower = -100000D;
 			this.disablespinEquipmentDeposit.Digits = ((uint)(2));
 			this.table1.Add(this.disablespinEquipmentDeposit);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.disablespinEquipmentDeposit]));
@@ -168,8 +168,8 @@ namespace Vodovoz
 			this.disablespinMoneyDebt.Events = ((global::Gdk.EventMask)(256));
 			this.disablespinMoneyDebt.Name = "disablespinMoneyDebt";
 			this.disablespinMoneyDebt.Active = false;
-			this.disablespinMoneyDebt.Upper = 10000000;
-			this.disablespinMoneyDebt.Lower = -10000000;
+			this.disablespinMoneyDebt.Upper = 10000000D;
+			this.disablespinMoneyDebt.Lower = -10000000D;
 			this.disablespinMoneyDebt.Digits = ((uint)(2));
 			this.table1.Add(this.disablespinMoneyDebt);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.disablespinMoneyDebt]));
@@ -438,7 +438,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table1]));
 			w32.Position = 1;
 			this.Add(this.vbox2);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

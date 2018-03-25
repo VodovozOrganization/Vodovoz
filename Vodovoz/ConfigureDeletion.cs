@@ -38,8 +38,6 @@ namespace Vodovoz
 				.AddDeleteDependence<OrderEquipment>(x => x.Nomenclature)
 				.AddDeleteDependence<ServiceClaim>(x => x.Nomenclature)
 				.AddDeleteDependence<ServiceClaimItem>(x => x.Nomenclature)
-				.AddDeleteDependence<WarehouseMovementOperation> (item => item.Nomenclature)
-				.AddDeleteDependence<CounterpartyMovementOperation> (item => item.Nomenclature)
 				.AddDeleteDependence<IncomingInvoiceItem> (item => item.Nomenclature)
 				.AddDeleteDependence<IncomingWater>(x => x.Product)
 				.AddDeleteDependence<IncomingWaterMaterial>(x => x.Nomenclature)
@@ -57,6 +55,8 @@ namespace Vodovoz
 				.AddDeleteDependence<WaterSalesAgreementFixedPrice>(x => x.Nomenclature)
 				.AddDeleteDependence<FineNomenclature>(x => x.Nomenclature)
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.Nomenclature)
+			    .AddDeleteDependence<WarehouseMovementOperation>(item => item.Nomenclature)
+				.AddDeleteDependence<CounterpartyMovementOperation>(item => item.Nomenclature)
 				.AddClearDependence<PaidRentPackage>(x => x.RentServiceDaily)
 				.AddClearDependence<PaidRentPackage>(x => x.RentServiceMonthly)
 				.AddClearDependence<PaidRentPackage>(x => x.DepositService)
@@ -237,7 +237,8 @@ namespace Vodovoz
 				.AddClearDependence<RouteList>(x => x.BottleFine);
 
 			DeleteConfig.AddHibernateDeleteInfo<FineItem>()
-				.AddDeleteCascadeDependence(item => item.WageOperation);
+				.AddDeleteCascadeDependence(item => item.WageOperation)
+			    .AddDeleteCascadeDependence(item => item.FuelOutlayedOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<Subdivision>()
 				.AddClearDependence<Employee>(item => item.Subdivision);
@@ -327,6 +328,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPoint>()
 				.AddDeleteDependence<AdditionalAgreement> (item => item.DeliveryPoint)
 				.AddDeleteDependence<BottlesMovementOperation> (item => item.DeliveryPoint)
+			    .AddDeleteDependence<TransferOperationDocument>(item => item.FromDeliveryPoint)
+			    .AddDeleteDependence<TransferOperationDocument>(item => item.ToDeliveryPoint)
 				.AddDeleteDependence<DepositOperation> (item => item.DeliveryPoint)
 				.AddDeleteDependence<CounterpartyMovementOperation> (item => item.WriteoffDeliveryPoint)
 				.AddDeleteDependence<CounterpartyMovementOperation> (item => item.IncomingDeliveryPoint)
@@ -338,6 +341,14 @@ namespace Vodovoz
 				.AddRemoveFromDependence<Proxy> (item => item.DeliveryPoints)
 				.AddRemoveFromDependence<Contact>(x => x.DeliveryPoints)
 				.AddClearDependence<ServiceClaim>(x => x.DeliveryPoint);
+
+			DeleteConfig.AddHibernateDeleteInfo<TransferOperationDocument>()
+				.AddDeleteCascadeDependence(item => item.IncBottlesOperation)
+				.AddDeleteCascadeDependence(item => item.OutBottlesOperation)
+				.AddDeleteCascadeDependence(item => item.IncBottlesDepositOperation)
+				.AddDeleteCascadeDependence(item => item.OutBottlesDepositOperation)
+				.AddDeleteCascadeDependence(item => item.IncEquipmentDepositOperation)
+				.AddDeleteCascadeDependence(item => item.OutEquipmentDepositOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<WaterSalesAgreementFixedPrice>();
 

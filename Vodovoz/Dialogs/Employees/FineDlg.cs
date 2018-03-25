@@ -1,10 +1,12 @@
-﻿using System;
+﻿﻿using System;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
-using NHibernate.Criterion;
 using Vodovoz.Domain;
+using Gamma.Utilities;
+using Vodovoz.Repository;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -20,7 +22,7 @@ namespace Vodovoz
 		}
 
 		/// <summary>
-		/// Создаем новый диалог с штрафа с уже заполненными сотрудниками.
+		/// Создаем новый диалог штрафа с уже заполненными сотрудниками.
 		/// </summary>
 		public FineDlg(decimal money, params Employee[] employees) : this()
 		{
@@ -58,24 +60,49 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
+			enumFineType.ItemsEnum = typeof(FineTypes);
+			enumFineType.Binding.AddBinding(Entity, s => s.FineType, w => w.SelectedItem).InitializeFromSource();
+
+			yspinLiters.Binding.AddBinding(Entity, s => s.LitersOverspending, w => w.ValueAsDecimal);
+
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.Date.ToString("D"), w => w.LabelProp).InitializeFromSource();
 			yspinMoney.Binding.AddBinding(Entity, e => e.TotalMoney, w => w.ValueAsDecimal).InitializeFromSource();
 			yentryFineReasonString.Binding.AddBinding(Entity, e => e.FineReasonString, w => w.Text).InitializeFromSource();
-			fineitemsview.FineUoW = UoWGeneric;
+			fineitemsview1.FineUoW = UoWGeneric;
 
 			var filter = new RouteListsFilter(UoW);
 			filter.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryreferenceRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
+
+			Entity.ObservableItems.ListChanged += ObservableItems_ListChanged;
+            yentryAuthor.SubjectType = typeof(Employee);
+            yentryAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.Subject).InitializeFromSource();
+			
+            UpdateControlsState();
+			ShowLiters();
+		}
+
+		void ObservableItems_ListChanged(object aList)
+		{
+			enumFineType.Sensitive = !(Entity.ObservableItems.Count() > 1);
 		}
 
 		public override bool Save ()
 		{
+            Employee author;
+            if (!GetAuthor(out author)) return false;
+
+            if (Entity.Author == null)
+            {
+                Entity.Author = author;
+            }
 			var valid = new QSValidation.QSValidator<Fine> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
 			Entity.UpdateWageOperations(UoW);
+			Entity.UpdateFuelOperations(UoW);
 
 			logger.Info ("Сохраняем штраф...");
 			UoWGeneric.Save ();
@@ -94,13 +121,119 @@ namespace Vodovoz
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
 			SelectDialog.ObjectSelected += (s, ea) => {
-				if (ea.Subject != null) {
+				if(ea.Subject != null && Entity.FineType != FineTypes.FuelOverspending) {
 					UoWGeneric.Root.FineReasonString = (ea.Subject as FineTemplate).Reason;
 					UoWGeneric.Root.TotalMoney = (ea.Subject as FineTemplate).FineMoney;
 				}
 			};
 			TabParent.AddSlaveTab (this, SelectDialog);
 		}
+
+		protected void OnEnumFineTypeChangedByUser(object sender, EventArgs e)
+		{
+			UpdateControlsState();
+		}
+
+		/// <summary>
+		/// Обновляет состояние контролов по выбранному типу штрафа
+		/// </summary>
+		private void UpdateControlsState()
+		{
+			switch(Entity.FineType) {
+				case FineTypes.Standart:
+					fineitemsview1.IsFuelOverspending = false;
+					buttonDivideAtAll.Visible = true;
+					yspinMoney.IsEditable = true;
+					yspinMoney.Sensitive = true;
+					labelOverspending.Visible = false;
+					yspinLiters.Visible = false;
+					labelRequestRouteList.Visible = false;
+					buttonGetReasonFromTemplate.Visible = true;
+					break;
+				case FineTypes.FuelOverspending:
+					fineitemsview1.IsFuelOverspending = true;
+					buttonDivideAtAll.Visible = false;
+					yspinMoney.Sensitive = false;
+					labelOverspending.Visible = true;
+					yspinLiters.Visible = true;
+					buttonGetReasonFromTemplate.Visible = false;
+					yentryFineReasonString.Text = Entity.FineType.GetEnumTitle();
+					labelRequestRouteList.Visible = yentryreferenceRouteList.Subject == null;
+					if(Entity.RouteList != null) {
+						ClearItems(Entity.RouteList.Driver);
+					}else {
+						ClearItems();
+					}
+					break;
+				default:
+					break;
+			}
+		}
+
+		private void ShowLiters()
+		{
+			if(Entity.FineType == FineTypes.FuelOverspending && Entity.ObservableItems.Count() > 0){
+				Entity.LitersOverspending = Entity.ObservableItems[0].LitersOverspending;
+			}
+		}
+
+		private void CalculateMoneyFromLiters()
+		{
+			if(Entity.ObservableItems.Count() > 1) {
+				throw new Exception("При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
+			}
+			if(yentryreferenceRouteList.Subject != null) {
+				decimal fuelCost = (yentryreferenceRouteList.Subject as RouteList).Car.FuelType.Cost;
+				Entity.TotalMoney = Math.Round(Entity.LitersOverspending * fuelCost, 0, MidpointRounding.ToEven);
+				var item = Entity.ObservableItems.FirstOrDefault();
+				if(item != null) {
+					item.Money = Entity.TotalMoney;
+					item.LitersOverspending = Entity.LitersOverspending;
+				}
+			}
+		}
+
+		protected void OnYspinLitersValueChanged(object sender, EventArgs e)
+		{
+			UpdateControlsState();
+			CalculateMoneyFromLiters();
+
+		}
+
+		private void ClearItems(Employee driver = null)
+		{
+			FineItem item = null;
+			if(driver != null) {
+				item = Entity.ObservableItems.Where(x => x.Employee == driver).FirstOrDefault();
+			}
+			Entity.ObservableItems.Clear();
+			if(driver != null) {
+				if(item != null) {
+					Entity.ObservableItems.Add(item);
+				}else {
+					Entity.AddItem(driver);
+				}
+			}
+		}
+
+		protected void OnYentryreferenceRouteListChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.FineType == FineTypes.FuelOverspending && Entity.RouteList != null) {
+				ClearItems(Entity.RouteList.Driver);
+				CalculateMoneyFromLiters();
+			}
+		}
+
+        private bool GetAuthor(out Employee cashier)
+        {
+            cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+            if (cashier == null)
+            {
+                MessageDialogWorks.RunErrorDialog(
+                    "Ваш пользователь не привязан к действующему сотруднику.");
+                return false;
+            }
+            return true;
+        }
 	}
 }
-

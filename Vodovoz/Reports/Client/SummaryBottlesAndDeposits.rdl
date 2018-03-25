@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -15,6 +15,7 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>select
 	docs.doc_id,
     docs.doc_date,
@@ -110,15 +111,23 @@
 				doc_residue
 			where
 				doc_residue.id = docs.doc_id)
-#equipment deposit if it's order
+#equipment deposit if its order
 		when docs.doc_name = 'Заказ' then
-			(select 
+			ifnull((select 
 				sum(deposit_operations.received_deposit - deposit_operations.refund_deposit)
 			from
 				deposit_operations
 			where
 				deposit_operations.order_id = docs.doc_id
-				and deposit_operations.deposit_type = 'Equipment')
+				and deposit_operations.deposit_type = 'Equipment'), if(docs.doc_status = 'Closed',0,null)) +
+			ifnull((select
+				sum(order_items.price * order_items.actual_count)
+			from
+				order_items
+INNER JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+			where
+				order_items.order_id = docs.doc_id
+				AND order_items.nomenclature_id &lt;&gt; 157 AND nomenclature.category = 'deposit'), if(docs.doc_status = 'Closed',0,null))
 #equipment deposit if it's transfer
 		else
 			(select
@@ -436,13 +445,13 @@ FROM counterparty WHERE id = @client_id;</CommandText>
                 WHERE
                     orders.client_id = @client_id
                     AND(order_items.nomenclature_id = (SELECT 
-                               str_value
+                              CAST(str_value AS UNSIGNED)
                            FROM
                                base_parameters
                            WHERE
                                base_parameters.name = 'forfeit_nomenclature_id')
 	      OR order_items.nomenclature_id = (SELECT 
-                 	     str_value
+                 	     CAST(str_value AS UNSIGNED)
                 	   FROM
                    	     base_parameters
               	 	   WHERE
@@ -1927,7 +1936,7 @@ ____________(                        )
       <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>13.50pt</Height>
         <Width>130.88pt</Width>
-        <Value>=First({equipment_deposit}, 'EquipmentDeposit')</Value>
+        <Value>=Sum({equipment_deposit}, 'Data')</Value>
         <ZIndex>1</ZIndex>
         <Left>223.2pt</Left>
         <Top>177.1pt</Top>
@@ -2034,8 +2043,7 @@ ____________(                        )
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -2045,7 +2053,7 @@ ____________(                        )
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>7015</Value>
+          <Value>16293</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2071,7 +2079,8 @@ ____________(                        )
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017-08-01</Value>
+          <Value>
+          </Value>
         </Values>
       </DefaultValue>
       <Nullable>true</Nullable>
@@ -2084,7 +2093,8 @@ ____________(                        )
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017-08-24</Value>
+          <Value>
+          </Value>
         </Values>
       </DefaultValue>
       <Nullable>true</Nullable>

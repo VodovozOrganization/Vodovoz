@@ -236,6 +236,28 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref noDelivey, value, () => NoDelivey); }
 		}
 
+		private bool isNewBottle;
+
+		[Display(Name = "Это новая бутыль")]
+		public virtual bool IsNewBottle {
+			get { return isNewBottle; }
+			set { SetField(ref isNewBottle, value, () => IsNewBottle);
+				if(isNewBottle)
+					IsDefectiveBottle = false;
+			}
+		}
+
+		private bool isDefectiveBottle;
+
+		[Display(Name = "Это бракованая бутыль")]
+		public virtual bool IsDefectiveBottle {
+			get { return isDefectiveBottle; }
+			set { SetField(ref isDefectiveBottle, value, () => IsDefectiveBottle);
+				if(isDefectiveBottle)
+					IsNewBottle = false;
+			}
+		}
+
 		#endregion
 
 		#region Рассчетные
@@ -292,9 +314,18 @@ namespace Vodovoz.Domain.Goods
 
 		#region statics
 
-		public static NomenclatureCategory[] GetCategoriesForShipment ()
+		public static NomenclatureCategory[] GetCategoriesForShipment()
 		{
-			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water, NomenclatureCategory.disposableBottleWater, NomenclatureCategory.bottle };
+			return new[] { 
+				NomenclatureCategory.additional,
+				NomenclatureCategory.equipment,
+				NomenclatureCategory.water,
+				NomenclatureCategory.disposableBottleWater,
+				NomenclatureCategory.bottle,
+				NomenclatureCategory.spare_parts,
+				NomenclatureCategory.material,
+				NomenclatureCategory.deposit
+			};
 		}
 
 		public static NomenclatureCategory[] GetCategoriesForProductMaterial ()

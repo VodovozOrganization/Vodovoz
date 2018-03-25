@@ -43,10 +43,11 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		public virtual string Title {
-			get{
-				return String.Format("{0} - {1}", 
-					MovementOperation.Nomenclature.Name, 
-					MovementOperation.Nomenclature.Unit.MakeAmountShortStr(MovementOperation.Amount));
+			get {
+				return String.Format("[{2}] {0} - {1}",
+					MovementOperation.Nomenclature.Name,
+				                     MovementOperation.Nomenclature.Unit.MakeAmountShortStr(MovementOperation.Amount),
+					document.Title);
 			}
 		}
 

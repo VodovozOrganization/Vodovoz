@@ -1,24 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using NHibernate.Criterion;
 using QSOrmProject;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Goods;
-using QSSupportLib;
-using QSProjectsLib;
 
 namespace Vodovoz.Repository.Store
 {
 	public static class WarehouseRepository
 	{
-		const string defaultWarehouseForProduction = "production_warehouse";
-		const string defaultWarehouseForVartemyagi = "production_vartemyagi";
-		const string defaultWaterWarehouse = "water_warehouse";
-		const string defaultOfficeWarehouse = "office_warehouse";
-		const string defaultEquipmenteWarehouse = "equipment_warehouse";
 
 		public static IList<Warehouse> GetActiveWarehouse(IUnitOfWork uow)
 		{
@@ -111,92 +101,6 @@ namespace Vodovoz.Repository.Store
 				).Where(n => n.Warehouse != null)
 				.Select(Projections.Distinct(Projections.Property<Nomenclature>(n => n.Warehouse)))
 				.List<Warehouse>();
-		}
-
-
-		public static Warehouse DefaultWarehouseForProduction(IUnitOfWork uow)
-		{
-			int id = -1;
-			if (MainSupport.BaseParameters.All.ContainsKey(defaultWarehouseForProduction) &&
-				int.TryParse(MainSupport.BaseParameters.All[defaultWarehouseForProduction], out id))
-				return uow.Session.QueryOver<Warehouse>()
-					.Where(fExp => fExp.Id == id)
-					.Take(1)
-					.SingleOrDefault();
-
-			throw new Exception(String.Format("Не создан параметр={0} в base_parameters", defaultWarehouseForProduction));
-		}
-
-		public static Warehouse DefaultWarehouseForVartemyagi(IUnitOfWork uow)
-		{
-			int id = -1;
-			if(MainSupport.BaseParameters.All.ContainsKey(defaultWarehouseForVartemyagi) &&
-				int.TryParse(MainSupport.BaseParameters.All[defaultWarehouseForVartemyagi], out id))
-				return uow.Session.QueryOver<Warehouse>()
-					.Where(fExp => fExp.Id == id)
-					.Take(1)
-					.SingleOrDefault();
-
-			throw new Exception(String.Format("Не создан параметр={0} в base_parameters", defaultWarehouseForVartemyagi));
-		}
-
-		public static Warehouse DefaultWarehouseForWater(IUnitOfWork uow)
-		{
-			int id = -1;
-			if (MainSupport.BaseParameters.All.ContainsKey(defaultWaterWarehouse) &&
-				int.TryParse(MainSupport.BaseParameters.All[defaultWaterWarehouse], out id))
-				return uow.Session.QueryOver<Warehouse>()
-					.Where(fExp => fExp.Id == id)
-					.Take(1)
-					.SingleOrDefault();
-
-			throw new Exception(String.Format("Не создан параметр={0} в base_parameters", defaultWaterWarehouse));
-		}
-
-		public static Warehouse DefaultWarehouseForOffice(IUnitOfWork uow)
-		{
-			int id = -1;
-			if (MainSupport.BaseParameters.All.ContainsKey(defaultOfficeWarehouse) &&
-				int.TryParse(MainSupport.BaseParameters.All[defaultOfficeWarehouse], out id))
-				return uow.Session.QueryOver<Warehouse>()
-					.Where(fExp => fExp.Id == id)
-					.Take(1)
-					.SingleOrDefault();
-
-			throw new Exception(String.Format("Не создан параметр={0} в base_parameters", defaultOfficeWarehouse));
-		}
-
-		public static Warehouse DefaultWarehouseForEquipment(IUnitOfWork uow)
-		{
-			int id = -1;
-			if (MainSupport.BaseParameters.All.ContainsKey(defaultEquipmenteWarehouse) &&
-				int.TryParse(MainSupport.BaseParameters.All[defaultEquipmenteWarehouse], out id))
-				return uow.Session.QueryOver<Warehouse>()
-					.Where(fExp => fExp.Id == id)
-					.Take(1)
-					.SingleOrDefault();
-
-			throw new Exception(String.Format("Не создан параметр={0} в base_parameters", defaultEquipmenteWarehouse));
-		}
-
-		public static Warehouse WarehouseByPermission(IUnitOfWork uow)
-		{
-			if (QSMain.User.Permissions["store_production"])
-			{
-				return WarehouseRepository.DefaultWarehouseForProduction(uow);
-			}
-			if(QSMain.User.Permissions["store_vartemyagi"]) {
-				return WarehouseRepository.DefaultWarehouseForVartemyagi(uow);
-			}
-			if (QSMain.User.Permissions["store_office"])
-			{
-				return WarehouseRepository.DefaultWarehouseForOffice(uow);
-			}
-			if (QSMain.User.Permissions["store_equipment"])
-			{
-				return WarehouseRepository.DefaultWarehouseForEquipment(uow);
-			}
-			return null;
 		}
 	}
 }

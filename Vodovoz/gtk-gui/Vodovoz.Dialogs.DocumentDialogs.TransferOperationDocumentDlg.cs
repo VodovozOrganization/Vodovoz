@@ -254,7 +254,6 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.checkbuttonLock.CanFocus = true;
 			this.checkbuttonLock.Name = "checkbuttonLock";
 			this.checkbuttonLock.Label = global::Mono.Unix.Catalog.GetString("Привязка к остаткам");
-			this.checkbuttonLock.Active = true;
 			this.checkbuttonLock.DrawIndicator = true;
 			this.checkbuttonLock.UseUnderline = true;
 			this.tableSender.Add(this.checkbuttonLock);

@@ -1,0 +1,74 @@
+﻿using System;
+using QSOrmProject;
+using QSReport;
+using System.Collections.Generic;
+
+namespace Vodovoz.ReportsParameters.Logistic
+{
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class DrivingCallReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	{
+		public DrivingCallReport()
+		{
+			this.Build();
+		}
+
+		#region IOrmDialog implementation
+
+		public IUnitOfWork UoW { get; private set; }
+
+		public object EntityObject {
+			get {
+				return null;
+			}
+		}
+
+		#endregion
+
+		#region IParametersWidget implementation
+
+		public event EventHandler<LoadReportEventArgs> LoadReport;
+
+		public string Title {
+			get {
+				return "Отчет по звонкам водителей";
+			}
+		}
+
+		private ReportInfo GetReportInfo()
+		{
+			var parameters = new Dictionary<string, object>();
+
+			parameters.Add("startDate", dateperiodpicker.StartDateOrNull);
+			parameters.Add("endDate", dateperiodpicker.EndDateOrNull);
+
+			return new ReportInfo {
+				Identifier = "Logistic.DrivingCall",
+				UseUserVariables = true,
+				Parameters = parameters
+			};
+		}
+
+		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
+		{
+			OnUpdate(true);
+		}
+
+		void OnUpdate(bool hide = false)
+		{
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+		}
+
+		void CanRun()
+		{
+			buttonCreateReport.Sensitive = (dateperiodpicker.EndDateOrNull != null && dateperiodpicker.StartDateOrNull != null);
+		}
+
+		protected void OnDateperiodpickerPeriodChanged(object sender, EventArgs e)
+		{
+			CanRun();
+		}
+
+		#endregion
+	}
+}

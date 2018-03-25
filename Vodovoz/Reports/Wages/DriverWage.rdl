@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>297mm</PageHeight>
-  <PageWidth>210mm</PageWidth>
+  <PageHeight>296.926mm</PageHeight>
+  <PageWidth>209.804mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>5mm</TopMargin>
   <LeftMargin>5mm</LeftMargin>
@@ -291,7 +291,7 @@
                           <Default>Solid</Default>
                           <Left>None</Left>
                           <Bottom>None</Bottom>
-                          <Right >None</Right>
+                          <Right>None</Right>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -303,15 +303,15 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox23" >
+                    <Textbox Name="Textbox23">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -327,9 +327,9 @@
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -346,8 +346,8 @@
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Left >None</Left>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -368,8 +368,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
-                        <FontWeight >Bold</FontWeight>
-                        <VerticalAlign >Top</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Top</VerticalAlign>
                       </Style>
                       <Value>Всего:</Value>
                     </Textbox>
@@ -1363,8 +1363,12 @@
     route_lists.date AS date,
     route_lists.id AS route_list_number,
     IFNULL(SUM(bottles_movement_operations.returned),0) AS empty_bottles,
-    IFNULL(SUM(bottles_movement_operations.delivered),0) AS full_bottles,
-    IFNULL(SUM(Adresses.driver_wage) + SUM(Adresses.driver_wage_surcharge),0) AS wage,
+   IFNULL(case when fixed_driver_wage &gt; 0 then (SELECT count FROM  route_list_addresses left join route_lists rl on rl.id = route_list_id left join order_items oi on oi.order_id = 	route_list_addresses.order_id   where  rl.id = route_lists.id)
+
+	else SUM(bottles_movement_operations.delivered) end ,0) AS full_bottles,
+    IFNULL(case when fixed_driver_wage &gt; 0 then fixed_driver_wage
+                  else SUM(Adresses.driver_wage) + SUM(Adresses.driver_wage_surcharge)
+    end ,0) AS wage,
     IFNULL(COUNT(IF(Adresses.status = 'Overdue'
 	OR Adresses.status = 'Canceled', NULL, Adresses.id)),0) AS addresses_count
 FROM
@@ -1748,11 +1752,11 @@ GROUP BY
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_honeybee;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

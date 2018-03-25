@@ -293,12 +293,11 @@ namespace Vodovoz.Domain.Orders
 			get { return AdditionalAgreement == null ? String.Empty : String.Format ("{0} №{1}", AdditionalAgreement.AgreementTypeTitle, AdditionalAgreement.AgreementNumber); }
 		}
 
-		public virtual string Title{
-			get{
-				return $"{Nomenclature.Name} - {Count}*{Price}={Sum}";
+		public virtual string Title {
+			get {
+				return $"[{order.Title}] {Nomenclature.Name} - {Count}*{Price}={Sum}";
 			}
 		}
-
 		#endregion
 
 		#region Функции

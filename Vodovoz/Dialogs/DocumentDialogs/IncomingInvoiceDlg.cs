@@ -3,16 +3,16 @@ using NLog;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Additions.Store;
+using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
 	public partial class IncomingInvoiceDlg : OrmGtkDialogBase<IncomingInvoice>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
-		bool isEditingPermission = false;
 
 		public IncomingInvoiceDlg()
 		{
@@ -25,12 +25,8 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
-			{
-				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-			}
-			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
-				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.IncomingInvoiceEdit);
+
 			ConfigureDlg();
 		}
 
@@ -47,17 +43,22 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
-			if (QSMain.User.Permissions["store_manage"])
-				isEditingPermission = true;
+			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.IncomingInvoiceEdit, Entity.Warehouse)) {
+				FailInitialize = true;
+				return;
+			}
 
-			buttonSave.Sensitive = isEditingPermission;
+			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.IncomingInvoiceEdit, Entity.Warehouse);
+			entryInvoiceNumber.IsEditable = entryWaybillNumber.IsEditable = ytextviewComment.Editable 
+				= referenceContractor.IsEditable = referenceWarehouse.IsEditable = editing;
+			incominginvoiceitemsview1.Sensitive = editing;
+
 			entryInvoiceNumber.Binding.AddBinding(Entity, e => e.InvoiceNumber, w => w.Text).InitializeFromSource();
 			entryWaybillNumber.Binding.AddBinding(Entity, e => e.WaybillNumber, w => w.Text).InitializeFromSource();
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 
-			referenceWarehouse.SubjectType = typeof(Warehouse);
+			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.IncomingInvoiceEdit);
 			referenceWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
-			referenceWarehouse.Sensitive = isEditingPermission;
 
 			referenceContractor.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			referenceContractor.Binding.AddBinding(Entity, e => e.Contractor, w => w.Subject);

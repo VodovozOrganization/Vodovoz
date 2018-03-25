@@ -5,35 +5,36 @@ using NLog;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Additions.Store;
+using Vodovoz.Core;
+using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
 	public partial class MovementDocumentDlg : OrmGtkDialogBase<MovementDocument>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
-		bool isEditingStore = false;
 
 		public MovementDocumentDlg ()
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<MovementDocument> ();
-			if(WarehouseRepository.WarehouseByPermission(UoWGeneric) != null) 
-				Entity.FromWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
 
-
-			ConfigureDlg ();
-			Entity.Author = Entity.ResponsiblePerson = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
-			if(Entity.Author == null)
-			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+			Entity.Author = Entity.ResponsiblePerson = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(Entity.Author == null) {
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
+
+			Entity.FromWarehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.MovementEdit);
+			Entity.ToWarehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.MovementEdit);
+			
+			ConfigureDlg ();
 		}
 
 		public MovementDocumentDlg (int id)
@@ -49,9 +50,16 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			if (QSMain.User.Permissions["store_manage"] || QSMain.User.Permissions["store_worker"])
-				isEditingStore = true;
-			
+			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.MovementEdit, Entity.FromWarehouse, Entity.ToWarehouse)) {
+				FailInitialize = true;
+				return;
+			}
+
+			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.MovementEdit, Entity.FromWarehouse, Entity.ToWarehouse);
+			enumMovementType.Sensitive = referenceEmployee.IsEditable = referenceWarehouseTo.Sensitive
+				 = yentryrefWagon.IsEditable = textComment.Sensitive = editing;
+			movementdocumentitemsview1.Sensitive = editing;
+
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 
@@ -61,11 +69,11 @@ namespace Vodovoz
 			referenceCounterpartyTo.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
-			referenceWarehouseTo.SubjectType = typeof(Warehouse);
+			referenceWarehouseTo.SubjectType = typeof(Warehouse); //Можем выбрать любой склад, куда везем, а не только склад к которому имеем доступ.
 			referenceWarehouseTo.Binding.AddBinding(Entity, e => e.ToWarehouse, w => w.Subject).InitializeFromSource();
-			referenceWarehouseFrom.SubjectType = typeof(Warehouse);
+			referenceWarehouseFrom.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.MovementEdit);
 			referenceWarehouseFrom.Binding.AddBinding(Entity, e => e.FromWarehouse, w => w.Subject).InitializeFromSource();
-			referenceWarehouseFrom.Sensitive = isEditingStore;
+			referenceWarehouseFrom.IsEditable = StoreDocumentHelper.CanEditDocument(WarehousePermissions.MovementEdit, Entity.FromWarehouse);
 			referenceDeliveryPointTo.CanEditReference = false;
 			referenceDeliveryPointTo.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPointTo.Binding.AddBinding(Entity, e => e.ToDeliveryPoint, w => w.Subject).InitializeFromSource();
@@ -87,18 +95,10 @@ namespace Vodovoz
 			enumMovementType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 			Entity.Category = MovementDocumentCategory.Transportation;
 
-			buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged && !CheckUserAndStore();
+			buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged 
+				&& CurrentPermissions.Warehouse[WarehousePermissions.MovementEdit, Entity.ToWarehouse];
 
 			movementdocumentitemsview1.DocumentUoW = UoWGeneric;
-		}
-
-		private bool CheckUserAndStore()
-		{
-			if(QSMain.User.Permissions["store_production"] && Entity.ToWarehouse == WarehouseRepository.DefaultWarehouseForWater(UoWGeneric))
-				return true;
-			if(QSMain.User.Permissions["store_vartemyagi"] && Entity.ToWarehouse == WarehouseRepository.DefaultWarehouseForWater(UoWGeneric))
-				return true;
-			return false;
 		}
 
 		public override bool Save ()

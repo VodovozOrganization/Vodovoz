@@ -1132,7 +1132,7 @@
       <Textbox Name="Textbox15">
         <Height>19.51pt</Height>
         <Width>561.61pt</Width>
-        <Value>Маршрутные листы</Value>
+        <Value>Не закрытые маршрутные листы</Value>
         <ZIndex>1</ZIndex>
         <Left>4.7pt</Left>
         <Top>104.6pt</Top>
@@ -1253,6 +1253,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1375,10 +1377,13 @@
         <Left>10pt</Left>
         <Height>12pt</Height>
         <Width>3in</Width>
-        <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
         <Style>
           <FontSize>10pt</FontSize>
           <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
@@ -1387,7 +1392,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	bottles_movement_operations.delivery_point_id AS pointid,
@@ -1516,7 +1521,7 @@ ORDER BY reason_type_status</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="ordersIdAlias">
           <DataField>ordersIdAlias</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1608,12 +1613,12 @@ FROM
     employees ON employees.id = route_lists.driver_id
 WHERE
     route_lists.date = @date
-    AND (route_lists.status &lt;&gt; 'closed'
+    AND (route_lists.status &lt;&gt; 'Closed'
         AND route_lists.status &lt;&gt; 'MileageCheck')
     ORDER BY route_lists.status;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
-            <Value>=Parameters!date</Value>
+            <Value>={?date}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1640,7 +1645,7 @@ WHERE
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017-05-15</Value>
+          <Value>2018-03-10</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1674,7 +1679,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

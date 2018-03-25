@@ -53,6 +53,14 @@ namespace Vodovoz
 			set {SetField(ref litersOutlayed, value, () => LitersOutlayed);}
 		}
 
+		private bool isFine;
+
+		[Display(Name = "Операция со штрафом")]
+		public virtual bool IsFine {
+			get { return isFine; }
+			set { SetField(ref isFine, value, () => IsFine); }
+		}
+
 		public FuelOperation()
 		{
 		}

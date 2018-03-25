@@ -733,20 +733,21 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
     orders.id,
     orders.code1c,
     counterparty.name,
-    IF(orders.sum_to_receive &lt;&gt; 0, orders.sum_to_receive,(
-		SELECT 
-			SUM(order_items.price * order_items.count)  
-		FROM
-			order_items
-		WHERE orders.id = order_items.order_id
-		GROUP BY order_items.order_id
-		)) AS sum_to_receive,
+    cast(IF(orders.sum_to_receive &lt;&gt; 0, orders.sum_to_receive,
+
+                  ifnull((SELECT SUM(order_items.price * order_items.count - (order_items.price * order_items.count * discount / 100)) 
+			  FROM order_items
+	WHERE orders.id = order_items.order_id
+	 
+                  GROUP BY order_items.order_id), 0) 
+) as decimal(12,2)) AS 
+    sum_to_receive,
     orders.payment_type,
     orders.order_status,
     orders.comment,
@@ -806,7 +807,7 @@ group by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -864,21 +865,12 @@ group by
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=admey;password=9533;port=3306;server=vod-srv.qsolution.ru;Allow User Variables=True</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters>
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017/10/06</Value>
+          <Value>2018/01/15</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -888,4 +880,13 @@ group by
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_honeybee;user= ;password= ;port=3306;server=vod-srv.qsolution.ru;Allow User Variables=True</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

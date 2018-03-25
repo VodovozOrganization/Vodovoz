@@ -8,10 +8,10 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "сырьё",
 		Nominative = "сырьё")]
-	public class IncomingWaterMaterial: PropertyChangedBase, IDomainObject
+	public class IncomingWaterMaterial : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
@@ -19,24 +19,25 @@ namespace Vodovoz.Domain.Documents
 
 		Nomenclature nomenclature;
 
-		[Required (ErrorMessage = "Номенклатура должна быть заполнена.")]
-		[Display (Name = "Номенклатура")]
+		[Required(ErrorMessage = "Номенклатура должна быть заполнена.")]
+		[Display(Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
-			set { SetField (ref nomenclature, value, () => Nomenclature);
-				if (ConsumptionMaterialOperation != null && ConsumptionMaterialOperation.Nomenclature != nomenclature)
+			set {
+				SetField(ref nomenclature, value, () => Nomenclature);
+				if(ConsumptionMaterialOperation != null && ConsumptionMaterialOperation.Nomenclature != nomenclature)
 					ConsumptionMaterialOperation.Nomenclature = nomenclature;
 			}
 		}
 
 		decimal? oneProductAmount;
 
-		[Display (Name = "На один продукт")]
+		[Display(Name = "На один продукт")]
 		public virtual decimal? OneProductAmount {
 			get { return oneProductAmount; }
-			set { SetField (ref oneProductAmount, value, () => OneProductAmount);
-				if(oneProductAmount.HasValue && Document != null)
-				{
+			set {
+				SetField(ref oneProductAmount, value, () => OneProductAmount);
+				if(oneProductAmount.HasValue && Document != null) {
 					Amount = OneProductAmount.Value * Document.Amount;
 				}
 			}
@@ -50,23 +51,24 @@ namespace Vodovoz.Domain.Documents
 
 		decimal amount;
 
-		[Min (1)]
-		[Display (Name = "Количество")]
+		[Min(1)]
+		[Display(Name = "Количество")]
 		public virtual decimal Amount {
 			get { return amount; }
-			set { SetField (ref amount, value, () => Amount);
-				if (ConsumptionMaterialOperation != null && ConsumptionMaterialOperation.Amount != amount)
+			set {
+				SetField(ref amount, value, () => Amount);
+				if(ConsumptionMaterialOperation != null && ConsumptionMaterialOperation.Amount != amount)
 					ConsumptionMaterialOperation.Amount = amount;
 			}
 		}
 
 		decimal amountOnSource = 10000000; //FIXME пока не реализуем способ загружать количество на складе на конкретный день
 
-		[Display (Name = "Имеется на складе")]
+		[Display(Name = "Имеется на складе")]
 		public virtual decimal AmountOnSource {
 			get { return amountOnSource; }
 			set {
-				SetField (ref amountOnSource, value, () => AmountOnSource);
+				SetField(ref amountOnSource, value, () => AmountOnSource);
 			}
 		}
 
@@ -79,30 +81,30 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual WarehouseMovementOperation ConsumptionMaterialOperation {
 			get { return consumptionMaterialOperation; }
-			set { SetField (ref consumptionMaterialOperation, value, () => ConsumptionMaterialOperation); }
+			set { SetField(ref consumptionMaterialOperation, value, () => ConsumptionMaterialOperation); }
 		}
 
 		public virtual string Title {
-			get{
-				return String.Format("{0} - {1}", 
-					Nomenclature.Name, 
-					Nomenclature.Unit.MakeAmountShortStr(Amount));
+			get {
+				return String.Format("[{2}] {0} - {1}",
+					Nomenclature.Name,
+				                     Nomenclature.Unit.MakeAmountShortStr(Amount),
+									 Document.Title);
 			}
 		}
 
-		public IncomingWaterMaterial() {}
+		public IncomingWaterMaterial() { }
 
 		#region Функции
 
 		public virtual void CreateOperation(Warehouse warehouseSrc, DateTime time)
 		{
-			ConsumptionMaterialOperation = new WarehouseMovementOperation
-				{
-					WriteoffWarehouse = warehouseSrc,
-					Amount = Amount,
-					OperationTime = time,
-					Nomenclature = Nomenclature
-				};
+			ConsumptionMaterialOperation = new WarehouseMovementOperation {
+				WriteoffWarehouse = warehouseSrc,
+				Amount = Amount,
+				OperationTime = time,
+				Nomenclature = Nomenclature
+			};
 		}
 
 		#endregion

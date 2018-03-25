@@ -3,27 +3,20 @@ using System.Collections.Generic;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Repository;
 
-namespace Vodovoz.ReportsParameters
+namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MastersVisitReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class BottlesMovementReport : Gtk.Bin, IOrmDialog, IParametersWidget
 	{
-		IUnitOfWork uow;
-
-		public MastersVisitReport()
+		public BottlesMovementReport()
 		{
 			this.Build();
-			uow = UnitOfWorkFactory.CreateWithoutRoot();
-			yentryrefEmployee.ItemsQuery = EmployeeRepository.DriversQuery();
-			ButtonSensivity();
 		}
 
 		#region IOrmDialog implementation
 
-		public IUnitOfWork UoW { get { return uow; } private set {; } }
+		public IUnitOfWork UoW { get; private set; }
 
 		public object EntityObject {
 			get {
@@ -39,7 +32,7 @@ namespace Vodovoz.ReportsParameters
 
 		public string Title {
 			get {
-				return "Отчёт по выездам мастеров";
+				return "Отчёт по движению бутылей (по МЛ)";
 			}
 		}
 
@@ -55,12 +48,11 @@ namespace Vodovoz.ReportsParameters
 		ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Identifier = "ServiceCenter.MastersVisitReport",
+				Identifier = "Bottles.BottlesMovementReport",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull },
-					{ "master", (yentryrefEmployee.Subject as Employee).Id}
+					{ "end_date", dateperiodpicker.EndDateOrNull }
 				}
 			};
 		}
@@ -68,20 +60,10 @@ namespace Vodovoz.ReportsParameters
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
 			if(dateperiodpicker.StartDateOrNull == null) {
-				MessageDialogWorks.RunErrorDialog("Необходимо выбрать дату");
+				MessageDialogWorks.RunErrorDialog("Необходимо выбрать период");
 				return;
 			}
 			OnUpdate(true);
-		}
-
-		void ButtonSensivity()
-		{
-			buttonCreateReport.Sensitive = yentryrefEmployee.Subject != null;
-		}
-
-		protected void OnYentryrefEmployeeChanged(object sender, EventArgs e)
-		{
-			ButtonSensivity();
 		}
 	}
 }
