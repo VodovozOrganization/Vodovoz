@@ -82,7 +82,7 @@ namespace Vodovoz
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarUnloadEdit, Entity.Warehouse);
 			yentryrefRouteList.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
-			returnsreceptionview1.Sensitive = bottlereceptionview1.Sensitive = equipmentreceptionview1.Sensitive = editing;
+			returnsreceptionview1.Sensitive = bottlereceptionview1.Sensitive = nonserialequipmentreceptionview1.Sensitive = editing;
 			
 			bottlereceptionview1.UoW = UoW;
 			returnsreceptionview1.UoW = UoW;
