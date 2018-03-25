@@ -358,6 +358,20 @@ namespace Vodovoz
 			depositrefunditemsview.Configure(UoWGeneric, UoWGeneric.Root);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
+
+			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += WaterSalesAgreement_ObjectUpdatedGeneric;
+		}
+
+		void WaterSalesAgreement_ObjectUpdatedGeneric(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<WaterSalesAgreement> e)
+		{
+			foreach(var ad in e.UpdatedSubjects)
+			{
+				foreach(var item in Entity.OrderItems)
+				{
+					if(item.AdditionalAgreement?.Id == ad.Id)
+						UoW.Session.Refresh(item.AdditionalAgreement);
+				}
+			}
 		}
 
 		bool HaveAgreementForDeliveryPoint()
@@ -385,7 +399,13 @@ namespace Vodovoz
 			}
 		}
 
-		void Entity_UpdateClientCanChange(object aList, int[] aIdx)
+        public override void Destroy()
+        {
+			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric -= WaterSalesAgreement_ObjectUpdatedGeneric;
+			base.Destroy();
+        }
+
+        void Entity_UpdateClientCanChange(object aList, int[] aIdx)
 		{
 			referenceClient.Sensitive = Entity.CanChangeContractor();
 		}
