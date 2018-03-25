@@ -153,6 +153,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			if(WaterAgreements.Length > 0)
 			{
 				foreach(var wa in WaterAgreements) {
+					if(wa.Contract.Id != Contract?.Id)
+						continue;
 					TDIMain.MainNotebook.OpenTab(
 						OrmMain.GenerateDialogHashName<WaterSalesAgreement>(wa.Id),
 						() => new WaterAgreementDlg(wa.Id)
