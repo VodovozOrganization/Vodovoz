@@ -979,13 +979,11 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa)
+		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water)
 				return;
-			/*	if (ObservableOrderItems.Any (item => item.Nomenclature.Id == nomenclature.Id &&
-					item.AdditionalAgreement.Id == wsa.Id))
-					return; */ // (I-441) Возможно, потребуется раскомментить/переделать. @Дима
+			
 			decimal price;
 			if(wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id))
 				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id).Price;
@@ -995,7 +993,7 @@ namespace Vodovoz.Domain.Orders
 			ObservableOrderItems.Add(new OrderItem {
 				Order = this,
 				AdditionalAgreement = wsa,
-				Count = 0,
+				Count = count,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = price
@@ -1052,32 +1050,6 @@ namespace Vodovoz.Domain.Orders
 				Equipment = orderItem.Equipment,
 				Nomenclature = orderItem.Nomenclature,
 				Price = orderItem.Price
-			});
-			UpdateDocuments();
-		}
-
-		/// <summary>
-		/// Добавить воду из выбранного прерыдущего заказа.
-		/// </summary>
-		/// <param name="orderItem">Элемент заказа.</param>
-		/// <param name="wsa">Договор о продаже воды.</param>
-		public virtual void AddWaterForSaleFromPreviousOrder(OrderItem orderItem, WaterSalesAgreement wsa)
-		{
-			if(orderItem.Nomenclature.Category != NomenclatureCategory.water)
-				return;
-			decimal price;
-			if(wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == orderItem.Nomenclature.Id))
-				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == orderItem.Nomenclature.Id).Price;
-			else
-				price = orderItem.Price;
-
-			ObservableOrderItems.Add(new OrderItem {
-				Order = this,
-				AdditionalAgreement = wsa,
-				Count = orderItem.Count,
-				Equipment = null,
-				Nomenclature = orderItem.Nomenclature,
-				Price = price
 			});
 			UpdateDocuments();
 		}

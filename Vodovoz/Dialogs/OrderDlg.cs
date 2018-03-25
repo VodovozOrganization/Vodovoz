@@ -698,7 +698,7 @@ namespace Vodovoz
 			AddNomenclature(e.Subject as Nomenclature);
 		}
 
-		void AddNomenclature(Nomenclature nomenclature)
+		void AddNomenclature(Nomenclature nomenclature, int count = 0)
 		{
 			if(UoWGeneric.Root.OrderItems.Any(x => x.Nomenclature.NoDelivey == true) && nomenclature.NoDelivey == false) {
 				MessageDialogWorks.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
@@ -738,7 +738,7 @@ namespace Vodovoz
 					} else
 						return;
 				} else {
-					UoWGeneric.Root.AddWaterForSale(nomenclature, wsa);
+					UoWGeneric.Root.AddWaterForSale(nomenclature, wsa, count);
 					UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
 				}
 			} else
@@ -1547,35 +1547,7 @@ namespace Vodovoz
 						Entity.AddEquipmentNomenclatureForSaleFromPreviousOrder(orderItem, UoWGeneric);
 						continue;
 					case NomenclatureCategory.water:
-						CounterpartyContract contract = CounterpartyContractRepository.
-						GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType);
-						if(contract == null) {
-							/*	var result = AskCreateContract();
-								switch (result)
-								{
-									case (int)ResponseType.Yes:
-										RunContractAndWaterAgreementDialog(orderItem.Nomenclature);
-										break;
-									case (int)ResponseType.Accept:
-										CreateDefaultContractWithAgreement(orderItem.Nomenclature);
-										break;
-									default:
-										break;
-								} */
-							continue;
-						}
-						UoWGeneric.Session.Refresh(contract);
-						WaterSalesAgreement wsa = contract.GetWaterSalesAgreement(UoWGeneric.Root.DeliveryPoint, orderItem.Nomenclature);
-						if(wsa == null) {
-							//Если нет доп. соглашения продажи воды.
-							if(MessageDialogWorks.RunQuestionDialog("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?")) {
-								RunAdditionalAgreementWaterDialog(orderItem.Nomenclature);
-							} else
-								continue;
-						} else {
-							Entity.AddWaterForSaleFromPreviousOrder(orderItem, wsa);
-							UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
-						}
+						AddNomenclature(orderItem.Nomenclature, orderItem.Count);
 						continue;
 					default:
 						Entity.AddAnyGoodsNomenclatureForSaleFromPreviousOrder(orderItem);
