@@ -1121,9 +1121,6 @@
     <None Include="Reports\Logistic\ShipmentReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Logistic\BottlesMovementReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Reports\ServiceCenter\MastersVisitReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

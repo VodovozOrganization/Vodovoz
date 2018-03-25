@@ -896,7 +896,7 @@ public partial class MainWindow : Gtk.Window
 			() => new QSHistoryLog.HistoryView()
 		);
 	}
-			
+
 	protected void OnAction43Activated(object sender, EventArgs e)
 	{
 		var widget = new Vodovoz.ReportsParameters.IncomeBalanceReport();

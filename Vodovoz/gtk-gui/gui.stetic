@@ -1040,6 +1040,7 @@
                     <node type="Menu" action="ActionReportService">
                       <node type="Menuitem" action="Action42" />
                       <node type="Menuitem" action="Action41" />
+                      <node type="Menuitem" action="ActionMastersVisitReport" />
                     </node>
                   </node>
                   <node type="Menu" action="ActionAbout">
