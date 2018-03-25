@@ -512,22 +512,6 @@ namespace Vodovoz.Domain.Logistic
 			observableAddresses = null;
 		}
 
-		public virtual void CompleteRoute()
-		{
-			Status = RouteListStatus.OnClosing;
-			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
-				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
-			}
-			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
-			if(track != null) {
-				track.CalculateDistance();
-				track.CalculateDistanceToBase();
-				UoW.Save(track);
-			}
-			FirstFillClosing();
-			UoW.Save(this);
-		}
-
 		public virtual void RollBackEnRouteStatus()
 		{
 			Status = RouteListStatus.EnRoute;
