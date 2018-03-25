@@ -28,7 +28,6 @@
             '%d.%m.%y') AS contract_date,
     counterparty.full_name AS client_name,
     counterparty.address AS client_address,
-    counterparty.waybill_comment AS invoice_comment,
     organizations.full_name AS org_name,
     organizations.address AS org_address,
     delivery_points.comment AS delivery_point_comment,
@@ -112,10 +111,6 @@ WHERE
         </Field>
         <Field Name="client_address">
           <DataField>client_address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="invoice_comment">
-          <DataField>invoice_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="org_name">
@@ -351,10 +346,10 @@ GROUP BY responsible_person_name</CommandText>
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List1">
-        <Height>168.81pt</Height>
-        <Width>562.59pt</Width>
-        <Left>35.0pt</Left>
-        <Top>0.8pt</Top>
+        <Height>162.06pt</Height>
+        <Width>560.34pt</Width>
+        <Left>35.00pt</Left>
+        <Top>0.80pt</Top>
         <ReportItems>
           <Textbox Name="Textbox1">
             <Height>17.25pt</Height>
@@ -405,7 +400,7 @@ GROUP BY responsible_person_name</CommandText>
             <Value>Адрес:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>125pt</Top>
+            <Top>108.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -433,7 +428,7 @@ GROUP BY responsible_person_name</CommandText>
             <Value>Телефон:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>152.0pt</Top>
+            <Top>135.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -476,8 +471,8 @@ GROUP BY responsible_person_name</CommandText>
             <Width>433.62pt</Width>
             <Value>=Iif(Fields!logistics_area.IsMissing, "", "["+ {logistics_area} + "]") + {city} + ' ' + {street} + ' д.' + {building} + ' ' + {room} + '\n' + {delivery_point_comment}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85.00pt</Left>
-            <Top>125.00pt</Top>
+            <Left>85.0pt</Left>
+            <Top>108.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -492,7 +487,7 @@ GROUP BY responsible_person_name</CommandText>
             <Value>={phone}</Value>
             <ZIndex>1</ZIndex>
             <Left>85.0pt</Left>
-            <Top>152.0pt</Top>
+            <Top>135.2pt</Top>
             <Style>
               <FontWeight>Bold</FontWeight>
               <BorderStyle />
@@ -502,12 +497,12 @@ GROUP BY responsible_person_name</CommandText>
             <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox14">
-            <Height>12pt</Height>
-            <Width>1in</Width>
+            <Height>12.00pt</Height>
+            <Width>72.27pt</Width>
             <Value>={delivery_schedule}</Value>
             <ZIndex>1</ZIndex>
-            <Left>262.2pt</Left>
-            <Top>152.0pt</Top>
+            <Left>262.20pt</Left>
+            <Top>147.20pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -522,42 +517,13 @@ GROUP BY responsible_person_name</CommandText>
             <Value>='Договор: ' + {contract_number} + ' от ' + {contract_date}</Value>
             <ZIndex>1</ZIndex>
             <Left>366.9pt</Left>
-            <Top>153.6pt</Top>
+            <Top>148.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
             </Style>
-          </Textbox>
-          <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>15pt</Height>
-            <Width>80pt</Width>
-            <Value>Комментарий:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>110pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox53">
-            <Height>15pt</Height>
-            <Width>6in</Width>
-            <Value>={invoice_comment}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>85.00pt</Left>
-            <Top>110pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-            </Style>
-            <CanGrow>true</CanGrow>
           </Textbox>
           <CustomReportItem Name="CustomReportItem1">
             <Type>BarCode39</Type>
@@ -583,7 +549,7 @@ GROUP BY responsible_person_name</CommandText>
             <Value>Время дост.:</Value>
             <ZIndex>1</ZIndex>
             <Left>208.0pt</Left>
-            <Top>153.3pt</Top>
+            <Top>148.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -612,7 +578,7 @@ GROUP BY responsible_person_name</CommandText>
             <Value>={trifle}</Value>
             <ZIndex>1</ZIndex>
             <Left>85.2pt</Left>
-            <Top>138.5pt</Top>
+            <Top>121.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -865,13 +831,13 @@ GROUP BY responsible_person_name</CommandText>
           </TableRows>
         </Details>
         <Left>31.4pt</Left>
-        <Top>173.4pt</Top>
+        <Top>171.0pt</Top>
       </Table>
       <List Name="List2">
         <Height>388.10pt</Height>
         <Width>545.11pt</Width>
-        <Left>36.6pt</Left>
-        <Top>274.9pt</Top>
+        <Left>36.60pt</Left>
+        <Top>274.90pt</Top>
         <ReportItems>
           <Textbox Name="Textbox32">
             <Height>12.00pt</Height>
@@ -1322,7 +1288,7 @@ GROUP BY responsible_person_name</CommandText>
         <Value>='Итого: ' + Sum({total}, 'Goods')</Value>
         <ZIndex>1</ZIndex>
         <Left>448.2pt</Left>
-        <Top>199.9pt</Top>
+        <Top>197.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1468,7 +1434,7 @@ GROUP BY responsible_person_name</CommandText>
         <Value>Сдача:</Value>
         <ZIndex>1</ZIndex>
         <Left>35.3pt</Left>
-        <Top>138.3pt</Top>
+        <Top>121.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />

@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -25,7 +25,6 @@
             '%d.%m.%y') AS contract_date,
     counterparty.full_name AS client_name,
     counterparty.address AS client_address,
-    counterparty.waybill_comment AS invoice_comment,
     organizations.full_name AS org_name,
     organizations.address AS org_address,
     delivery_points.comment AS delivery_point_comment,
@@ -66,7 +65,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -97,10 +96,6 @@ WHERE
         </Field>
         <Field Name="client_address">
           <DataField>client_address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="invoice_comment">
-          <DataField>invoice_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="org_name">
@@ -237,7 +232,7 @@ payment_type='ToClient'</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>906.0pt</Height>
+    <Height>671.9pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List1">
@@ -356,12 +351,12 @@ payment_type='ToClient'</CommandText>
             <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox9">
-            <Height>15pt</Height>
-            <Width>6in</Width>
+            <Height>25.50pt</Height>
+            <Width>433.62pt</Width>
             <Value>={client_name}</Value>
             <ZIndex>1</ZIndex>
-            <Left>80.2pt</Left>
-            <Top>95.0pt</Top>
+            <Left>80.20pt</Left>
+            <Top>95.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -462,36 +457,6 @@ payment_type='ToClient'</CommandText>
               <BorderWidth />
               <FontSize>8pt</FontSize>
             </Style>
-          </Textbox>
-          <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>15pt</Height>
-            <Width>80pt</Width>
-            <Value>Комментарий:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>110pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox53">
-            <Height>15pt</Height>
-            <Width>6in</Width>
-            <Value>={invoice_comment}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>80.2pt</Left>
-            <Top>110.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <PaddingLeft>4pt</PaddingLeft>
-            </Style>
-            <CanGrow>true</CanGrow>
           </Textbox>
           <CustomReportItem Name="CustomReportItem1">
             <Type>BarCode39</Type>
@@ -776,7 +741,7 @@ payment_type='ToClient'</CommandText>
           </TableRows>
         </Details>
         <Left>52.9pt</Left>
-        <Top>184.6pt</Top>
+        <Top>183.8pt</Top>
       </Table>
       <List Name="List2">
         <Height>409.78pt</Height>
@@ -1250,11 +1215,11 @@ payment_type='ToClient'</CommandText>
       </Textbox>
       <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
-        <Width>142.02pt</Width>
+        <Width>116.52pt</Width>
         <Value>='Итого: ' + Sum({total}, 'Goods')</Value>
         <ZIndex>1</ZIndex>
-        <Left>460.2pt</Left>
-        <Top>215.1pt</Top>
+        <Left>460.20pt</Left>
+        <Top>215.10pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
