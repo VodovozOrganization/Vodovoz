@@ -43,7 +43,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			Counterparty = (InfoProvider as ICounterpartyInfoProvider)?.Counterparty;
 			if (Counterparty == null)
 				return;
-			labelName.LabelProp = Counterparty.FullName;
+			labelName.Text = Counterparty.FullName;
 			textviewComment.Buffer.Text = Counterparty.Comment;
 
 			var debt = MoneyRepository.GetCounterpartyDebt(InfoProvider.UoW, Counterparty);
