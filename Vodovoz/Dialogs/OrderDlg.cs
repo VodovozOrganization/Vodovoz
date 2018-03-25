@@ -719,10 +719,10 @@ namespace Vodovoz
 					var result = AskCreateContract();
 					switch(result) {
 						case (int)ResponseType.Yes:
-							RunContractAndWaterAgreementDialog(nomenclature);
+							RunContractAndWaterAgreementDialog(nomenclature, count);
 							break;
 						case (int)ResponseType.Accept:
-							CreateDefaultContractWithAgreement(nomenclature);
+							CreateDefaultContractWithAgreement(nomenclature, count);
 							break;
 						default:
 							break;
@@ -734,7 +734,7 @@ namespace Vodovoz
 				if(wsa == null) {
 					//Если нет доп. соглашения продажи воды.
 					if(MessageDialogWorks.RunQuestionDialog("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?")) {
-						RunAdditionalAgreementWaterDialog(nomenclature);
+						RunAdditionalAgreementWaterDialog(nomenclature, count);
 					} else
 						return;
 				} else {
@@ -945,7 +945,7 @@ namespace Vodovoz
 			return result;
 		}
 
-		protected void RunContractAndWaterAgreementDialog(Nomenclature nomenclature)
+		protected void RunContractAndWaterAgreementDialog(Nomenclature nomenclature, int count = 0)
 		{
 			ITdiTab dlg = new CounterpartyContractDlg(UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType,
 							  OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType),
@@ -961,7 +961,7 @@ namespace Vodovoz
 				if(contract != null) {
 					bool hasWaterAgreement = contract.GetWaterSalesAgreement(UoWGeneric.Root.DeliveryPoint, nomenclature) != null;
 					if(!hasWaterAgreement)
-						RunAdditionalAgreementWaterDialog(nomenclature);
+						RunAdditionalAgreementWaterDialog(nomenclature, count);
 				}
 			};
 			TabParent.AddSlaveTab(this, dlg);
@@ -984,14 +984,14 @@ namespace Vodovoz
 			Entity.Contract = contract;
 		}
 
-		protected void RunAdditionalAgreementWaterDialog(Nomenclature nom = null)
+		protected void RunAdditionalAgreementWaterDialog(Nomenclature nom = null, int count = 0)
 		{
 			ITdiDialog dlg = new WaterAgreementDlg(CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType), UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
 			(dlg as IAgreementSaved).AgreementSaved += 
 				(sender, e) => {
 					AgreementSaved(sender, e);
 					if(nom != null) {
-						AddNomenclature(nom);
+						AddNomenclature(nom, count);
 					}
 				};
 			TabParent.AddSlaveTab(this, dlg);
@@ -1657,7 +1657,7 @@ namespace Vodovoz
 
 		#region Создание договоров, доп соглашений
 
-		protected void CreateDefaultContractWithAgreement(Nomenclature nomenclature)
+		protected void CreateDefaultContractWithAgreement(Nomenclature nomenclature, int count)
 		{
 			var contract = CreateDefaultContract();
 			Entity.Contract = contract;
@@ -1667,7 +1667,7 @@ namespace Vodovoz
 				agreement = CreateDefaultWaterAgreement(contract);
 				contract.AdditionalAgreements.Add(agreement);
 				UoWGeneric.Root.CreateOrderAgreementDocument(agreement);
-				AddNomenclature(nomenclature);
+				AddNomenclature(nomenclature, count);
 			}
 		}
 
