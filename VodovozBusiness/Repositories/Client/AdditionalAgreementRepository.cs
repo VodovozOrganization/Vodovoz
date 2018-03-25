@@ -7,13 +7,17 @@ namespace Vodovoz.Repository.Client
 {
 	public static class AdditionalAgreementRepository
 	{
+
+		/// <summary>
+		/// Возвращает все доп. соглашения которые применимы к точке доставки. В список так же включены доп соглашения, без точки доставки. Так как они применимы к контрагенту целиком.
+		/// </summary>
 		public static IList<AdditionalAgreement> GetActiveAgreementsForDeliveryPoint(IUnitOfWork uow, DeliveryPoint deliveryPoint)			
 		{
 			AdditionalAgreement agreementAlias = null;
 			var queryResult = uow.Session.QueryOver<AdditionalAgreement>(() => agreementAlias)
-				.Where(() => agreementAlias.DeliveryPoint.Id == deliveryPoint.Id)
-				.Where(() => !agreementAlias.IsCancelled)
-				.List();
+			                     .Where(() => agreementAlias.DeliveryPoint.Id == deliveryPoint.Id || agreementAlias.DeliveryPoint == null)
+								 .Where(() => !agreementAlias.IsCancelled)
+								 .List();
 			return queryResult;
 		}
 
@@ -28,7 +32,7 @@ namespace Vodovoz.Repository.Client
 
 			var queryResults = uow.Session.QueryOver<WaterSalesAgreementFixedPrice>(() => fixedPriceAlias)
 			                      .JoinQueryOver(fix => fix.AdditionalAgreement, () => salesAgreementAlias)
-			                      .Where(wsa => wsa.DeliveryPoint == deliveryPoint)
+			                      .Where(wsa => wsa.DeliveryPoint == deliveryPoint || wsa.DeliveryPoint == null)
 			                      .Where(wsa => !wsa.IsCancelled)
 								  .List();
 
