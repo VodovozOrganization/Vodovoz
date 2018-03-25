@@ -24,6 +24,7 @@ namespace Vodovoz
 			TrayIcon.Tooltip = "Веселый Водовоз";
 
 			CreateProjectParam ();
+			QSMain.SetupFromArgs(args);
 			// Создаем окно входа
 			Login LoginDialog = new Login ();
 			LoginDialog.Logo = Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png");
