@@ -973,9 +973,13 @@ namespace Vodovoz
 			md.SetPosition(WindowPosition.Center);
 			md.AddButton("Автоматически", ResponseType.Accept);
 			md.ShowAll();
-			var result = md.Run();
+			//var result = md.Run();
 			md.Destroy();
-			return result;
+			//TODO Временно сделан выбор создания договора автоматически. 
+			//Если не понадобится возвращатся к выбору создания договора, убрать 
+			//диалог и проверить создание диалогов для доп соглашений которые должны 
+			//будут запускаться после создания договора
+			return (int)ResponseType.Accept;
 		}
 
 		protected void RunContractAndWaterAgreementDialog(Nomenclature nomenclature, int count = 0)
