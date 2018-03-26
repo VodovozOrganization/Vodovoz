@@ -14,8 +14,12 @@ namespace Vodovoz.Repository.Client
 		public static IList<AdditionalAgreement> GetActiveAgreementsForDeliveryPoint(IUnitOfWork uow, DeliveryPoint deliveryPoint)			
 		{
 			AdditionalAgreement agreementAlias = null;
+			CounterpartyContract contractAlias = null;
 			var queryResult = uow.Session.QueryOver<AdditionalAgreement>(() => agreementAlias)
-			                     .Where(() => agreementAlias.DeliveryPoint.Id == deliveryPoint.Id || agreementAlias.DeliveryPoint == null)
+			                     .JoinAlias(() => agreementAlias.Contract, () => contractAlias)
+			                     .Where(() => !contractAlias.IsArchive)
+			                     .Where(() => agreementAlias.DeliveryPoint.Id == deliveryPoint.Id 
+			                            || (agreementAlias.DeliveryPoint == null && contractAlias.Counterparty == deliveryPoint.Counterparty))
 								 .Where(() => !agreementAlias.IsCancelled)
 								 .List();
 			return queryResult;
@@ -29,10 +33,14 @@ namespace Vodovoz.Repository.Client
 		{
 			WaterSalesAgreementFixedPrice fixedPriceAlias = null;
 			WaterSalesAgreement salesAgreementAlias = null;
+			CounterpartyContract contractAlias = null;
 
 			var queryResults = uow.Session.QueryOver<WaterSalesAgreementFixedPrice>(() => fixedPriceAlias)
 			                      .JoinQueryOver(fix => fix.AdditionalAgreement, () => salesAgreementAlias)
-			                      .Where(wsa => wsa.DeliveryPoint == deliveryPoint || wsa.DeliveryPoint == null)
+			                      .JoinAlias(() => salesAgreementAlias.Contract, () => contractAlias)
+								  .Where(() => !contractAlias.IsArchive)
+			                      .Where(wsa => wsa.DeliveryPoint == deliveryPoint 
+			                             || (wsa.DeliveryPoint == null && contractAlias.Counterparty == deliveryPoint.Counterparty))
 			                      .Where(wsa => !wsa.IsCancelled)
 								  .List();
 
