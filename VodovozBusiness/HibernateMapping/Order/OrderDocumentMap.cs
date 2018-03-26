@@ -132,4 +132,20 @@ namespace Vodovoz.HibernateMapping
 			DiscriminatorValue("ShetFactura");
 		}
 	}
+
+	public class RefundBottleDepositDocumentMap : SubclassMap<RefundBottleDepositDocument>
+	{
+		public RefundBottleDepositDocumentMap()
+		{
+			DiscriminatorValue("RefundBottleDeposit");
+		}
+	}
+
+	public class RefundEquipmentDepositDocumentMap : SubclassMap<RefundEquipmentDepositDocument>
+	{
+		public RefundEquipmentDepositDocumentMap()
+		{
+			DiscriminatorValue("RefundEquipmentDeposit");
+		}
+	}
 }

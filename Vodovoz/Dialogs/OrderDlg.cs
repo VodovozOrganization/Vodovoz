@@ -1092,9 +1092,7 @@ namespace Vodovoz
 				}
 
 				DailyNumberIncrement();
-
-				UoWGeneric.Root.OrderStatus = OrderStatus.Accepted;
-				UoWGeneric.Root.UpdateDocuments();
+				Entity.ChangeStatus(OrderStatus.Accepted);
 
 				treeItems.Selection.UnselectAll();
 				treeEquipment.Selection.UnselectAll();

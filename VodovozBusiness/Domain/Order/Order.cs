@@ -1660,6 +1660,9 @@ namespace Vodovoz.Domain.Orders
 			if(newStatus == OrderStatus.WaitForPayment) {
 				OnWaitingPaymentOrder();
 			}
+			if(newStatus == OrderStatus.Accepted) {
+				OnAcceptOrder();
+			}
 		}
 
 		/// <summary>
@@ -1682,6 +1685,14 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		/// <summary>
+		/// Действия при подтверждении заказа
+		/// </summary>
+		public virtual void OnAcceptOrder()
+		{
+			UpdateDocuments();
+		}
+
 
 		/// <summary>
 		/// Устанавливает количество для каждого залога как actualCount, 
@@ -1701,23 +1712,58 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateDocuments()
 		{
+			List<OrderDocumentType> docTypes = new List<OrderDocumentType>();
 			if(ObservableOrderItems.Count > 0) {
 				if(OrderStatus >= OrderStatus.Accepted) {
 					if(paymentType == PaymentType.cashless) {
 						if(this.DocumentType == DefaultDocumentType.upd) {
-							CheckAndCreateDocuments(OrderDocumentType.Bill, OrderDocumentType.UPD, OrderDocumentType.DriverTicket);
+							docTypes = new List<OrderDocumentType>() {
+								OrderDocumentType.Bill,
+								OrderDocumentType.UPD,
+								OrderDocumentType.DriverTicket
+							};
 						} else if(this.DocumentType == DefaultDocumentType.torg12) {
-							CheckAndCreateDocuments(OrderDocumentType.Bill, OrderDocumentType.Torg12, OrderDocumentType.ShetFactura, OrderDocumentType.DriverTicket);
+							docTypes = new List<OrderDocumentType>() {
+								OrderDocumentType.Bill,
+								OrderDocumentType.Torg12,
+								OrderDocumentType.ShetFactura,
+								OrderDocumentType.DriverTicket
+							};
 						}
 					} else if(paymentType == PaymentType.cash || PaymentType == PaymentType.ByCard || PaymentType == PaymentType.Internal) {
-						CheckAndCreateDocuments(OrderDocumentType.Invoice);
+						docTypes = new List<OrderDocumentType>() {
+							OrderDocumentType.Invoice
+						};
 					} else if(paymentType == PaymentType.barter) {
-						CheckAndCreateDocuments(OrderDocumentType.InvoiceBarter);
+						docTypes = new List<OrderDocumentType>() {
+							OrderDocumentType.InvoiceBarter
+						};
 					}
-				} else if(PaymentType == PaymentType.cashless)
-					CheckAndCreateDocuments(OrderDocumentType.Bill);
+					if(this.ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles
+															&& x.PaymentDirection == PaymentDirection.ToClient)) {
+						docTypes.Add(OrderDocumentType.RefundBottleDeposit);
+					}
 
-				else
+					if(this.ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Equipment
+															&& x.PaymentDirection == PaymentDirection.ToClient)) {
+						docTypes.Add(OrderDocumentType.RefundEquipmentDeposit);
+					}
+					CheckAndCreateDocuments(docTypes.ToArray());
+				} else if(PaymentType == PaymentType.cashless) {
+					docTypes = new List<OrderDocumentType>() {
+							OrderDocumentType.Bill
+						};
+					if(this.ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles
+															&& x.PaymentDirection == PaymentDirection.ToClient)) {
+						docTypes.Add(OrderDocumentType.RefundBottleDeposit);
+					}
+
+					if(this.ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Equipment
+															&& x.PaymentDirection == PaymentDirection.ToClient)) {
+						docTypes.Add(OrderDocumentType.RefundEquipmentDeposit);
+					}
+					CheckAndCreateDocuments(docTypes.ToArray());
+				} else
 					CheckAndCreateDocuments();
 			} else
 				CheckAndCreateDocuments();
@@ -1875,6 +1921,12 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.DriverTicket:
 					newDoc = new DriverTicketDocument();
+					break;
+				case OrderDocumentType.RefundBottleDeposit:
+					newDoc = new RefundBottleDepositDocument();
+					break;
+				case OrderDocumentType.RefundEquipmentDeposit:
+					newDoc = new RefundEquipmentDepositDocument();
 					break;
 				default:
 					throw new NotImplementedException();

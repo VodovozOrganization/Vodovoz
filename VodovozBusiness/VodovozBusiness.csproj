@@ -417,6 +417,8 @@
     <Compile Include="DocTemplates\EquipmentAgreementParser.cs" />
     <Compile Include="HibernateMapping\Counterparty\SalesEquipmentMap.cs" />
     <Compile Include="Repositories\Client\AdditionalAgreementRepository.cs" />
+    <Compile Include="Domain\Order\Documents\RefundBottleDepositDocument.cs" />
+    <Compile Include="Domain\Order\Documents\RefundEquipmentDepositDocument.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -68,43 +68,49 @@ namespace Vodovoz.Domain.Orders.Documents
 		}
 		#endregion
 	}
-		
+
 
 	public enum OrderDocumentType
 	{
-		[Display (Name = "Доп. соглашение для заказа")]
+		[Display(Name = "Доп. соглашение для заказа")]
 		AdditionalAgreement,
-		[Display (Name = "Договор для заказа")]
+		[Display(Name = "Договор для заказа")]
 		Contract,
 		[DocumentOfOrder]
-		[Display (Name = "Счет")]
+		[Display(Name = "Счет")]
 		Bill,
-		[Display (Name = "Акт выполненных работ")]
+		[Display(Name = "Акт выполненных работ")]
 		DoneWorkReport,
-		[Display (Name = "Акт приема-передачи оборудования")]
+		[Display(Name = "Акт приема-передачи оборудования")]
 		EquipmentTransfer,
 		[DocumentOfOrder]
-		[Display (Name = "Накладная (нал.)")]
+		[Display(Name = "Накладная (нал.)")]
 		Invoice,
 		[DocumentOfOrder]
-		[Display (Name = "Накладная (безденежно)")]
+		[Display(Name = "Накладная (безденежно)")]
 		InvoiceBarter,
 		[DocumentOfOrder]
-		[Display (Name = "УПД")]
+		[Display(Name = "УПД")]
 		UPD,
-		[Display(Name="Гарантийный талон для кулеров")]
+		[Display(Name = "Гарантийный талон для кулеров")]
 		CoolerWarranty,
-		[Display(Name="Гарантийный талон для помп")]
+		[Display(Name = "Гарантийный талон для помп")]
 		PumpWarranty,
 		[DocumentOfOrder]
-		[Display(Name="Талон водителю")]
+		[Display(Name = "Талон водителю")]
 		DriverTicket,
 		[DocumentOfOrder]
-		[Display(Name="ТОРГ-12")]
+		[Display(Name = "ТОРГ-12")]
 		Torg12,
 		[DocumentOfOrder]
-		[Display(Name="Счет-Фактура")]
-		ShetFactura
+		[Display(Name = "Счет-Фактура")]
+		ShetFactura,
+		[DocumentOfOrder]
+		[Display(Name = "Акт возврата залога за бутыли")]
+		RefundBottleDeposit,
+		[DocumentOfOrder]
+		[Display(Name = "Акт возврата залога за оборудование")]
+		RefundEquipmentDeposit
 	}
 
 	public interface ITemplateOdtDocument
