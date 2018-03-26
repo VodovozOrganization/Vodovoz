@@ -1739,36 +1739,46 @@ namespace Vodovoz.Domain.Orders
 							OrderDocumentType.InvoiceBarter
 						};
 					}
-					if(this.ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles
-															&& x.PaymentDirection == PaymentDirection.ToClient)) {
-						docTypes.Add(OrderDocumentType.RefundBottleDeposit);
-					}
-
-					if(this.ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Equipment
-															&& x.PaymentDirection == PaymentDirection.ToClient)) {
-						docTypes.Add(OrderDocumentType.RefundEquipmentDeposit);
-					}
+					AddDepositDocuments(docTypes);
 					CheckAndCreateDocuments(docTypes.ToArray());
 				} else if(PaymentType == PaymentType.cashless) {
 					docTypes = new List<OrderDocumentType>() {
-							OrderDocumentType.Bill
-						};
-					if(this.ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles
-															&& x.PaymentDirection == PaymentDirection.ToClient)) {
-						docTypes.Add(OrderDocumentType.RefundBottleDeposit);
-					}
-
-					if(this.ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Equipment
-															&& x.PaymentDirection == PaymentDirection.ToClient)) {
-						docTypes.Add(OrderDocumentType.RefundEquipmentDeposit);
-					}
+						OrderDocumentType.Bill
+					};
+					AddDepositDocuments(docTypes);
 					CheckAndCreateDocuments(docTypes.ToArray());
-				} else
+
+				} else {
 					CheckAndCreateDocuments();
-			} else
+				}
+			} else if(!this.ObservableOrderEquipments.Any()
+					   && BottlesReturn.HasValue
+					   && BottlesReturn.Value > 0)
+			{
+				docTypes = new List<OrderDocumentType>() {
+					OrderDocumentType.DriverTicket,
+					OrderDocumentType.BottleTransfer
+				};
+				AddDepositDocuments(docTypes);
+				CheckAndCreateDocuments(docTypes.ToArray());
+			} else {
 				CheckAndCreateDocuments();
+			}
 
 			CreateWarrantyDocuments();
+		}
+
+		private void AddDepositDocuments(List<OrderDocumentType> list)
+		{
+			if(this.ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles
+															&& x.PaymentDirection == PaymentDirection.ToClient)) {
+				list.Add(OrderDocumentType.RefundBottleDeposit);
+			}
+
+			if(this.ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Equipment
+													&& x.PaymentDirection == PaymentDirection.ToClient)) {
+				list.Add(OrderDocumentType.RefundEquipmentDeposit);
+			}
 		}
 
 		public virtual void CreateOrderAgreementDocument(AdditionalAgreement agreement)
@@ -1927,6 +1937,9 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.RefundEquipmentDeposit:
 					newDoc = new RefundEquipmentDepositDocument();
+					break;
+				case OrderDocumentType.BottleTransfer:
+					newDoc = new BottleTransferDocument();
 					break;
 				default:
 					throw new NotImplementedException();

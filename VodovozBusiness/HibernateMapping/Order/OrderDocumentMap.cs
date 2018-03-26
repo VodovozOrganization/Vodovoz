@@ -148,4 +148,12 @@ namespace Vodovoz.HibernateMapping
 			DiscriminatorValue("RefundEquipmentDeposit");
 		}
 	}
+
+	public class BottleTransferDocumentMap : SubclassMap<BottleTransferDocument>
+	{
+		public BottleTransferDocumentMap()
+		{
+			DiscriminatorValue("BottleTransfer");
+		}
+	}
 }

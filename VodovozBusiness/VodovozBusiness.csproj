@@ -419,6 +419,7 @@
     <Compile Include="Repositories\Client\AdditionalAgreementRepository.cs" />
     <Compile Include="Domain\Order\Documents\RefundBottleDepositDocument.cs" />
     <Compile Include="Domain\Order\Documents\RefundEquipmentDepositDocument.cs" />
+    <Compile Include="Domain\Order\Documents\BottleTransferDocument.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
