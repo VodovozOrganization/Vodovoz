@@ -342,7 +342,7 @@ GROUP BY responsible_person_name</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>797.2pt</Height>
+    <Height>771.4pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List1">
@@ -834,7 +834,7 @@ GROUP BY responsible_person_name</CommandText>
         <Top>171.0pt</Top>
       </Table>
       <List Name="List2">
-        <Height>388.10pt</Height>
+        <Height>384.35pt</Height>
         <Width>545.11pt</Width>
         <Left>36.60pt</Left>
         <Top>274.90pt</Top>
@@ -1260,7 +1260,7 @@ GROUP BY responsible_person_name</CommandText>
             </Style>
           </Textbox>
           <Textbox Name="Textbox30">
-            <Height>16.53pt</Height>
+            <Height>15.78pt</Height>
             <Width>536.74pt</Width>
             <Value>=Iif(Fields!order_online_number.IsMissing, '', 'Заказ #' + {order_online_number}+' - онлайн оплата. ') + {order_comment}</Value>
             <ZIndex>1</ZIndex>
@@ -1446,7 +1446,7 @@ GROUP BY responsible_person_name</CommandText>
         <Height>73.72pt</Height>
         <Width>541.29pt</Width>
         <Left>30.8pt</Left>
-        <Top>674.8pt</Top>
+        <Top>692.4pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1544,10 +1544,10 @@ GROUP BY responsible_person_name</CommandText>
         </Visibility>
       </Rectangle>
       <List Name="List3">
-        <Height>34.72pt</Height>
+        <Height>29.47pt</Height>
         <Width>540.51pt</Width>
-        <Left>31.20pt</Left>
-        <Top>755.90pt</Top>
+        <Left>31.2pt</Left>
+        <Top>660.7pt</Top>
         <ReportItems>
           <Textbox Name="Textbox65">
             <Height>27.76pt</Height>
