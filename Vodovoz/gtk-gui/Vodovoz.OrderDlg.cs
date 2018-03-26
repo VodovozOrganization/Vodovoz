@@ -30,7 +30,7 @@ namespace Vodovoz
 
 		private global::Gtk.Notebook notebook1;
 
-		private global::Gtk.VBox vbox3;
+		private global::Gtk.VBox vboxInfo;
 
 		private global::Gtk.Table table1;
 
@@ -154,7 +154,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label6;
 
-		private global::Gtk.VBox vbox4;
+		private global::Gtk.VBox vboxGoods;
 
 		private global::Gtk.ScrolledWindow scrolledwindow1;
 
@@ -268,7 +268,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label18;
 
-		private global::Gtk.VBox vbox7;
+		private global::Gtk.VBox vboxDocuments;
 
 		private global::Gtk.HBox hbox14;
 
@@ -436,14 +436,15 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 6;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.vbox3 = new global::Gtk.VBox();
-			this.vbox3.Name = "vbox3";
-			this.vbox3.Spacing = 6;
-			this.vbox3.BorderWidth = ((uint)(6));
-			// Container child vbox3.Gtk.Box+BoxChild
+			this.vboxInfo = new global::Gtk.VBox();
+			this.vboxInfo.Name = "vboxInfo";
+			this.vboxInfo.Spacing = 6;
+			this.vboxInfo.BorderWidth = ((uint)(6));
+			// Container child vboxInfo.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(15)), ((uint)(4)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -958,15 +959,15 @@ namespace Vodovoz
 			w55.RightAttach = ((uint)(2));
 			w55.XOptions = ((global::Gtk.AttachOptions)(4));
 			w55.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vbox3.Add(this.table1);
-			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.table1]));
+			this.vboxInfo.Add(this.table1);
+			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.vboxInfo[this.table1]));
 			w56.Position = 0;
-			this.notebook1.Add(this.vbox3);
+			this.notebook1.Add(this.vboxInfo);
 			// Notebook tab
 			this.label13 = new global::Gtk.Label();
 			this.label13.Name = "label13";
 			this.label13.LabelProp = global::Mono.Unix.Catalog.GetString("Информация");
-			this.notebook1.SetTabLabel(this.vbox3, this.label13);
+			this.notebook1.SetTabLabel(this.vboxInfo, this.label13);
 			this.label13.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.table5 = new global::Gtk.Table(((uint)(4)), ((uint)(4)), false);
@@ -1139,11 +1140,11 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.table3, this.label6);
 			this.label6.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.vbox4 = new global::Gtk.VBox();
-			this.vbox4.Name = "vbox4";
-			this.vbox4.Spacing = 6;
-			this.vbox4.BorderWidth = ((uint)(6));
-			// Container child vbox4.Gtk.Box+BoxChild
+			this.vboxGoods = new global::Gtk.VBox();
+			this.vboxGoods.Name = "vboxGoods";
+			this.vboxGoods.Spacing = 6;
+			this.vboxGoods.BorderWidth = ((uint)(6));
+			// Container child vboxGoods.Gtk.Box+BoxChild
 			this.scrolledwindow1 = new global::Gtk.ScrolledWindow();
 			this.scrolledwindow1.CanFocus = true;
 			this.scrolledwindow1.Name = "scrolledwindow1";
@@ -1329,10 +1330,10 @@ namespace Vodovoz
 			w94.Position = 7;
 			w73.Add(this.vbox8);
 			this.scrolledwindow1.Add(w73);
-			this.vbox4.Add(this.scrolledwindow1);
-			global::Gtk.Box.BoxChild w97 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.scrolledwindow1]));
+			this.vboxGoods.Add(this.scrolledwindow1);
+			global::Gtk.Box.BoxChild w97 = ((global::Gtk.Box.BoxChild)(this.vboxGoods[this.scrolledwindow1]));
 			w97.Position = 0;
-			// Container child vbox4.Gtk.Box+BoxChild
+			// Container child vboxGoods.Gtk.Box+BoxChild
 			this.table2 = new global::Gtk.Table(((uint)(4)), ((uint)(4)), false);
 			this.table2.Name = "table2";
 			this.table2.RowSpacing = ((uint)(6));
@@ -1604,19 +1605,19 @@ namespace Vodovoz
 			w121.RightAttach = ((uint)(2));
 			w121.XOptions = ((global::Gtk.AttachOptions)(4));
 			w121.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vbox4.Add(this.table2);
-			global::Gtk.Box.BoxChild w122 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.table2]));
+			this.vboxGoods.Add(this.table2);
+			global::Gtk.Box.BoxChild w122 = ((global::Gtk.Box.BoxChild)(this.vboxGoods[this.table2]));
 			w122.Position = 1;
 			w122.Expand = false;
 			w122.Fill = false;
-			this.notebook1.Add(this.vbox4);
-			global::Gtk.Notebook.NotebookChild w123 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vbox4]));
+			this.notebook1.Add(this.vboxGoods);
+			global::Gtk.Notebook.NotebookChild w123 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vboxGoods]));
 			w123.Position = 3;
 			// Notebook tab
 			this.label15 = new global::Gtk.Label();
 			this.label15.Name = "label15";
 			this.label15.LabelProp = global::Mono.Unix.Catalog.GetString("Товары");
-			this.notebook1.SetTabLabel(this.vbox4, this.label15);
+			this.notebook1.SetTabLabel(this.vboxGoods, this.label15);
 			this.label15.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.table4 = new global::Gtk.Table(((uint)(3)), ((uint)(1)), false);
@@ -1707,10 +1708,10 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.vbox6, this.label18);
 			this.label18.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.vbox7 = new global::Gtk.VBox();
-			this.vbox7.Name = "vbox7";
-			this.vbox7.Spacing = 6;
-			// Container child vbox7.Gtk.Box+BoxChild
+			this.vboxDocuments = new global::Gtk.VBox();
+			this.vboxDocuments.Name = "vboxDocuments";
+			this.vboxDocuments.Spacing = 6;
+			// Container child vboxDocuments.Gtk.Box+BoxChild
 			this.hbox14 = new global::Gtk.HBox();
 			this.hbox14.Name = "hbox14";
 			this.hbox14.Spacing = 6;
@@ -1794,17 +1795,17 @@ namespace Vodovoz
 			this.hbox14.Add(this.vbox9);
 			global::Gtk.Box.BoxChild w144 = ((global::Gtk.Box.BoxChild)(this.hbox14[this.vbox9]));
 			w144.Position = 0;
-			this.vbox7.Add(this.hbox14);
-			global::Gtk.Box.BoxChild w145 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.hbox14]));
+			this.vboxDocuments.Add(this.hbox14);
+			global::Gtk.Box.BoxChild w145 = ((global::Gtk.Box.BoxChild)(this.vboxDocuments[this.hbox14]));
 			w145.Position = 0;
-			this.notebook1.Add(this.vbox7);
-			global::Gtk.Notebook.NotebookChild w146 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vbox7]));
+			this.notebook1.Add(this.vboxDocuments);
+			global::Gtk.Notebook.NotebookChild w146 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vboxDocuments]));
 			w146.Position = 6;
 			// Notebook tab
 			this.label29 = new global::Gtk.Label();
 			this.label29.Name = "label29";
 			this.label29.LabelProp = global::Mono.Unix.Catalog.GetString("Документы");
-			this.notebook1.SetTabLabel(this.vbox7, this.label29);
+			this.notebook1.SetTabLabel(this.vboxDocuments, this.label29);
 			this.label29.ShowAll();
 			this.vbox2.Add(this.notebook1);
 			global::Gtk.Box.BoxChild w147 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
@@ -1861,8 +1862,7 @@ namespace Vodovoz
 			w154.Expand = false;
 			w154.Fill = false;
 			this.Add(this.vbox2);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.toggleEquipment.Hide();

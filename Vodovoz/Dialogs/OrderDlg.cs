@@ -1,4 +1,4 @@
-﻿﻿﻿using System;
+﻿﻿﻿﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -37,6 +37,13 @@ namespace Vodovoz
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+
+		private bool CanChange {
+			get{
+				return Entity.OrderStatus == OrderStatus.NewOrder
+							 || Entity.OrderStatus == OrderStatus.WaitForPayment;
+			}
+		}
 
 		LastChosenAction lastChosenAction = LastChosenAction.None;
 
@@ -671,14 +678,20 @@ namespace Vodovoz
 				enumDocumentType.Sensitive = val;
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive =
 				buttonAddForSale.Sensitive = val;
-			//spinBottlesReturn.Sensitive = spinSumDifference.Sensitive = val;
 			checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
 			textComments.Sensitive = textCommentsLogistic.Sensitive = val;
 			pickerDeliveryDate.Sensitive = val;
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
-
 			yspinDiscountOrder.Visible = buttonSetDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
+			ChangeOrderEditable();
+		}
+
+		void ChangeOrderEditable()
+		{
+			vboxInfo.Sensitive = CanChange;
+			vboxGoods.Sensitive = CanChange;
+			vboxDocuments.Sensitive = CanChange;
 		}
 
 		protected void OnButtonDelete1Clicked(object sender, EventArgs e)

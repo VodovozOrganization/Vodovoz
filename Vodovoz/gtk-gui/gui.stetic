@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -993,7 +993,7 @@
                   </node>
                   <node type="Menu" action="Action31">
                     <node type="Menu" action="ActionReportOrders">
-                      <node type="Menuitem" action="Action39" />
+                      <node type="Menuitem" />
                       <node type="Menuitem" action="Action1cComments" />
                       <node type="Menuitem" action="ActionOrdersByDistrict" />
                       <node type="Menuitem" action="Action30" />
@@ -26000,6 +26000,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -26129,9 +26130,9 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">6</property>
             <child>
-              <widget class="Gtk.VBox" id="vbox3">
+              <widget class="Gtk.VBox" id="vboxInfo">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <property name="BorderWidth">6</property>
@@ -27410,7 +27411,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.VBox" id="vbox4">
+              <widget class="Gtk.VBox" id="vboxGoods">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <property name="BorderWidth">6</property>
@@ -28279,7 +28280,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.VBox" id="vbox7">
+              <widget class="Gtk.VBox" id="vboxDocuments">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
