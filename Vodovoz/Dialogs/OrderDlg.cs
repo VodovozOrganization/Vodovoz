@@ -1114,7 +1114,7 @@ namespace Vodovoz
 				treeItems.Selection.UnselectAll();
 				treeEquipment.Selection.UnselectAll();
 				UpdateButtonState();
-				buttonSave.Click();
+				Save();
 				return;
 			}
 			if(Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled) {
