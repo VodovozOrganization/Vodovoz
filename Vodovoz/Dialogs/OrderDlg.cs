@@ -1733,6 +1733,7 @@ namespace Vodovoz
 			using(var uow = WaterSalesAgreement.Create(contract)) {
 				AdditionalAgreement agreement = uow.Root;
 				agreement.Contract = contract;
+				agreement.DeliveryPoint = Entity.DeliveryPoint;
 				agreement.AgreementNumber = WaterSalesAgreement.GetNumberWithType(contract, AgreementType.WaterSales);
 				if(UoWGeneric.Root.DeliveryDate.HasValue) {
 					agreement.IssueDate = UoWGeneric.Root.DeliveryDate.Value;
