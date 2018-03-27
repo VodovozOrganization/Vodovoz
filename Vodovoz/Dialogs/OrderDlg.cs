@@ -691,7 +691,7 @@ namespace Vodovoz
 		{
 			vboxInfo.Sensitive = CanChange;
 			vboxGoods.Sensitive = CanChange;
-			vboxDocuments.Sensitive = CanChange;
+			buttonAddExistingDocument.Sensitive = CanChange;
 		}
 
 		protected void OnButtonDelete1Clicked(object sender, EventArgs e)
