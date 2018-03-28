@@ -22,33 +22,31 @@ namespace Vodovoz.Domain.Orders.Documents
 				Title = Name,
 				Identifier = "Documents.DoneWorkReport",
 				Parameters = new Dictionary<string, object> {
-					{ "order_id",  Order.Id },
-					{ "service_claim_id",ServiceClaim.Id }
+					{ "order_id",  Order.Id }
 				}
 			};
 		}
 
 		#endregion
 
-		ServiceClaim serviceClaim;
-
-		[Display (Name = "Заявка на сервис")]
-		public virtual ServiceClaim ServiceClaim {
-			get { return serviceClaim; }
-			set { SetField (ref serviceClaim, value, () => ServiceClaim); }
-		}
 
 		public override string Name {
-			get { return String.Format ("Акт выполненных работ №{0}", serviceClaim.Id); }
+			get { return String.Format ("Акт выполненных работ"); }
 		}
 
 		public override DateTime? DocumentDate {
-			get { return serviceClaim?.ServiceStartDate; }
+			get { return Order?.DeliveryDate; }
 		}
 
 		public override PrinterType PrintType {
 			get {
 				return PrinterType.RDL;
+			}
+		}
+
+		public override DocumentOrientation Orientation {
+			get {
+				return DocumentOrientation.Portrait;
 			}
 		}
 	}

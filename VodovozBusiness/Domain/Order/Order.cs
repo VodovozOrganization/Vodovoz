@@ -1145,30 +1145,24 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.DoneWorkReport:
-						DoneWorkDocument dwd = (item as DoneWorkDocument);
 						if(observableOrderDocuments
 						   .OfType<DoneWorkDocument>()
-						   .FirstOrDefault(x => x.ServiceClaim == dwd.ServiceClaim
-										   && x.Order == dwd.Order)
+						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
 							ObservableOrderDocuments.Add(new DoneWorkDocument {
 								Order = item.Order,
-								AttachedToOrder = this,
-								ServiceClaim = dwd.ServiceClaim
+								AttachedToOrder = this
 							});
 						}
 						break;
 					case OrderDocumentType.EquipmentTransfer:
-						EquipmentTransferDocument etd = (item as EquipmentTransferDocument);
 						if(observableOrderDocuments
 						   .OfType<EquipmentTransferDocument>()
-						   .FirstOrDefault(x => x.ServiceClaim == etd.ServiceClaim
-										   && x.Order == etd.Order)
+						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
 							ObservableOrderDocuments.Add(new EquipmentTransferDocument {
 								Order = item.Order,
-								AttachedToOrder = this,
-								ServiceClaim = etd.ServiceClaim
+								AttachedToOrder = this
 							});
 						}
 						break;
@@ -1605,11 +1599,10 @@ namespace Vodovoz.Domain.Orders
 				if(ObservableInitialOrderService.FirstOrDefault(sc => sc.Id == service.Id) == null)
 					ObservableInitialOrderService.Add(service);
 				if(ObservableOrderDocuments.Where(doc => doc.Type == OrderDocumentType.EquipmentTransfer).Cast<EquipmentTransferDocument>()
-					.FirstOrDefault(doc => doc.ServiceClaim.Id == service.Id) == null) {
+					.FirstOrDefault() == null) {
 					ObservableOrderDocuments.Add(new EquipmentTransferDocument {
 						Order = this,
-						AttachedToOrder = this,
-						ServiceClaim = service
+						AttachedToOrder = this
 					});
 				}
 			}
@@ -1617,7 +1610,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddServiceClaimAsFinal(ServiceClaim service)
 		{
-			if(service.FinalOrder != null && service.FinalOrder.Id == Id) {
+			//TODO FIXME скрыто до реализации работы заявок на сервисное обслуживание, 
+			//в связи с изменением работы документов DoneWorkDocument, EquipmentTransfer
+			/*if(service.FinalOrder != null && service.FinalOrder.Id == Id) {
 				if(ObservableOrderEquipments.FirstOrDefault(eq => eq.Equipment.Id == service.Equipment.Id) == null) {
 					ObservableOrderEquipments.Add(new OrderEquipment {
 						Order = this,
@@ -1635,7 +1630,7 @@ namespace Vodovoz.Domain.Orders
 						ServiceClaim = service
 					});
 				}
-			}
+			}*/
 			//TODO FIXME Добавить строку сервиса OrderItems
 			//И вообще много чего тут сделать.
 		}
@@ -1740,15 +1735,18 @@ namespace Vodovoz.Domain.Orders
 						};
 					}
 					AddDepositDocuments(docTypes);
+					AddEquipmentDocuments(docTypes);
 					CheckAndCreateDocuments(docTypes.ToArray());
 				} else if(PaymentType == PaymentType.cashless) {
 					docTypes = new List<OrderDocumentType>() {
 						OrderDocumentType.Bill
 					};
 					AddDepositDocuments(docTypes);
+					AddEquipmentDocuments(docTypes);
 					CheckAndCreateDocuments(docTypes.ToArray());
 
 				} else {
+					AddEquipmentDocuments(docTypes);
 					CheckAndCreateDocuments();
 				}
 			} else if(!this.ObservableOrderEquipments.Any()
@@ -1762,22 +1760,46 @@ namespace Vodovoz.Domain.Orders
 				AddDepositDocuments(docTypes);
 				CheckAndCreateDocuments(docTypes.ToArray());
 			} else {
+				AddEquipmentDocuments(docTypes);
 				CheckAndCreateDocuments();
 			}
-
 			CreateWarrantyDocuments();
 		}
 
 		private void AddDepositDocuments(List<OrderDocumentType> list)
 		{
-			if(this.ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles
+			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles
 															&& x.PaymentDirection == PaymentDirection.ToClient)) {
 				list.Add(OrderDocumentType.RefundBottleDeposit);
 			}
 
-			if(this.ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Equipment
+			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Equipment
 													&& x.PaymentDirection == PaymentDirection.ToClient)) {
 				list.Add(OrderDocumentType.RefundEquipmentDeposit);
+			}
+		}
+
+		private void AddEquipmentDocuments(List<OrderDocumentType> list)
+		{
+			//Доставка оборудования в собственности клиента после обслуживания
+			if(ObservableOrderEquipments
+			   .Any(x => x.OrderItem == null 
+			        && x.Direction == Direction.Deliver 
+			        && x.OwnType == OwnTypes.Client)
+			  ) {
+				list.Add(OrderDocumentType.DoneWorkReport);
+			}
+
+			bool equipmentTransfer =
+			//Дежурное оборудование
+			ObservableOrderEquipments.Any(x => x.OwnType == OwnTypes.Duty)
+			//Забор оборудования клиента
+			|| ObservableOrderEquipments.Any(x => x.Direction == Direction.PickUp && x.OwnType == OwnTypes.Client)
+			//Оборудование в аренду, если оно добавлено вручную а не через доп соглашение
+			|| ObservableOrderEquipments.Any(x => x.OrderItem == null && x.OwnType == OwnTypes.Rent);
+
+			if(equipmentTransfer) {
+				list.Add(OrderDocumentType.EquipmentTransfer);
 			}
 		}
 
@@ -1900,9 +1922,15 @@ namespace Vodovoz.Domain.Orders
 					needCreate.Remove(doc.Type);
 				else
 					ObservableOrderDocuments.Remove(doc);
+				if(OrderDocuments.Any(x => x.Id != doc.Id && x.Type == doc.Type)) {
+					ObservableOrderDocuments.Remove(doc);
+				}
 			}
 			//Создаем отсутствующие
 			foreach(var type in needCreate) {
+				if(ObservableOrderDocuments.Any(x => x.Type == type)) {
+					continue;
+				}
 				ObservableOrderDocuments.Add(CreateDocumentOfOrder(type));
 			}
 		}
@@ -1940,6 +1968,12 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.BottleTransfer:
 					newDoc = new BottleTransferDocument();
+					break;
+				case OrderDocumentType.DoneWorkReport:
+					newDoc = new DoneWorkDocument();
+					break;
+				case OrderDocumentType.EquipmentTransfer:
+					newDoc = new EquipmentTransferDocument();
 					break;
 				default:
 					throw new NotImplementedException();

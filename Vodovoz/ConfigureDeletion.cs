@@ -451,9 +451,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<ServiceClaim>()
 				.AddDeleteDependence<ServiceClaimItem>(x => x.ServiceClaim)
-				.AddDeleteDependence<ServiceClaimHistory>(x => x.ServiceClaim)
-				.AddDeleteDependence<DoneWorkDocument>(x => x.ServiceClaim)
-				.AddDeleteDependence<EquipmentTransferDocument>(x => x.ServiceClaim);
+				.AddDeleteDependence<ServiceClaimHistory>(x => x.ServiceClaim);
 
 			DeleteConfig.AddHibernateDeleteInfo<ServiceClaimItem>();
 

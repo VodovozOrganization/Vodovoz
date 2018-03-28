@@ -13,11 +13,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override QSReport.ReportInfo GetReportInfo ()
 		{
 			return new QSReport.ReportInfo {
-				Title = String.Format ("Акт приема-передачи оборудования №{0}", ServiceClaim.Id),
+				Title = Name,
 				Identifier = "Documents.EquipmentTransfer",
 				Parameters = new Dictionary<string, object> {
-					{ "order_id",  Order.Id },
-					{ "service_claim_id",ServiceClaim.Id }
+					{ "order_id",  Order.Id }
 				}
 			};
 		}
@@ -30,25 +29,23 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		#endregion
 
-		ServiceClaim serviceClaim;
-
-		[Display (Name = "Заявка на сервис")]
-		public virtual ServiceClaim ServiceClaim {
-			get { return serviceClaim; }
-			set { SetField (ref serviceClaim, value, () => ServiceClaim); }
-		}
-
 		public override string Name {
-			get { return String.Format ("Акт приема-передачи оборудования №{0}", serviceClaim.Id); }
+			get { return String.Format ("Акт приема-передачи оборудования"); }
 		}
 
 		public override DateTime? DocumentDate {
-			get { return serviceClaim?.ServiceStartDate; }
+			get { return Order?.DeliveryDate; }
 		}
 
 		public override PrinterType PrintType {
 			get {
 				return PrinterType.RDL;
+			}
+		}
+
+		public override DocumentOrientation Orientation {
+			get {
+				return DocumentOrientation.Portrait;
 			}
 		}
 	}

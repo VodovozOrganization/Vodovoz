@@ -59,7 +59,6 @@ namespace Vodovoz.HibernateMapping
 		public DoneWorkDocumentMap()
 		{
 			DiscriminatorValue ("DoneWorkReport");
-			References (x => x.ServiceClaim).Column ("service_claim_id");
 		}
 	}
 
@@ -68,7 +67,6 @@ namespace Vodovoz.HibernateMapping
 		public EquipmentTransferDocumentMap()
 		{
 			DiscriminatorValue ("EquipmentTransfer");
-			References (x => x.ServiceClaim).Column ("service_claim_id");
 		}
 	}
 

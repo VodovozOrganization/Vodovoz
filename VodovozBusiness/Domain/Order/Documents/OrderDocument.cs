@@ -79,8 +79,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		[DocumentOfOrder]
 		[Display(Name = "Счет")]
 		Bill,
+		[DocumentOfOrder]
 		[Display(Name = "Акт выполненных работ")]
 		DoneWorkReport,
+		[DocumentOfOrder]
 		[Display(Name = "Акт приема-передачи оборудования")]
 		EquipmentTransfer,
 		[DocumentOfOrder]
