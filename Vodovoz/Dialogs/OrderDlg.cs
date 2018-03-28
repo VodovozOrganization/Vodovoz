@@ -1066,56 +1066,10 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			if(UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder) {
-				var valid = new QSValidator<Order>(UoWGeneric.Root,
-								new Dictionary<object, object> {
-						{ "NewStatus", OrderStatus.Accepted }
-					});
-				if(valid.RunDlgIfNotValid((Window)this.Toplevel))
-					return;
-
-#if !SHORT
-
-				if (UoWGeneric.Root.BottlesReturn == 0 && Entity.OrderItems.Any (i => i.Nomenclature.Category == NomenclatureCategory.water)) {
-					if (!MessageDialogWorks.RunQuestionDialog ("Указано нулевое количество бутылей на возврат. Вы действительно хотите продолжить?"))
-						return;
-				}
-
-#endif
-				 
-				foreach(OrderItem item in UoWGeneric.Root.ObservableOrderItems) {
-					if(item.Nomenclature.Category == NomenclatureCategory.equipment && item.Nomenclature.IsSerial) {
-						int[] alreadyAdded = UoWGeneric.Root.OrderEquipments
-							.Where(orderEquipment => orderEquipment.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
-							.Where(orderEquipment => orderEquipment.Equipment != null)
-							.Select(orderEquipment => orderEquipment.Equipment.Id).ToArray();
-						int equipmentCount = UoWGeneric.Root.OrderEquipments.Count(orderEquipment => orderEquipment?.Equipment?.Nomenclature?.Id == item.Nomenclature.Id);
-						int equipmentToAddCount = item.Count - equipmentCount;
-						var equipmentToAdd = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, item.Nomenclature, equipmentToAddCount, alreadyAdded);
-						for(int i = 0; i < equipmentToAddCount; i++) {
-							UoWGeneric.Root.ObservableOrderEquipments.Add(new OrderEquipment {
-								Order = UoWGeneric.Root,
-								Direction = Vodovoz.Domain.Orders.Direction.Deliver,
-								Equipment = equipmentToAdd[i],
-								OrderItem = item,
-								Reason = Reason.Sale
-							});
-						}
-						for(; equipmentCount > item.Count; equipmentCount--) {
-							UoWGeneric.Root.ObservableOrderEquipments.Remove(
-								UoWGeneric.Root.ObservableOrderEquipments.Where(orderEquipment => orderEquipment.Reason == Reason.Sale && orderEquipment.Equipment.Nomenclature.Id == item.Nomenclature.Id).First()
-							);
-						}
-					}
-				}
-
-				DailyNumberIncrement();
-				Entity.ChangeStatus(OrderStatus.Accepted);
-
-				treeItems.Selection.UnselectAll();
-				treeEquipment.Selection.UnselectAll();
+			if(UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder
+			  || UoWGeneric.Root.OrderStatus == OrderStatus.WaitForPayment) {
+				AcceptOrder();
 				UpdateButtonState();
-				Save();
 				return;
 			}
 			if(Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled) {
@@ -1123,6 +1077,47 @@ namespace Vodovoz
 				UpdateButtonState();
 				return;
 			}
+		}
+
+		private void AcceptOrder()
+		{
+			var valid = new QSValidator<Order>(UoWGeneric.Root,
+								new Dictionary<object, object> {
+						{ "NewStatus", OrderStatus.Accepted }
+					});
+			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+				return;
+
+			foreach(OrderItem item in UoWGeneric.Root.ObservableOrderItems) {
+				if(item.Nomenclature.Category == NomenclatureCategory.equipment && item.Nomenclature.IsSerial) {
+					int[] alreadyAdded = UoWGeneric.Root.OrderEquipments
+						.Where(orderEquipment => orderEquipment.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
+						.Where(orderEquipment => orderEquipment.Equipment != null)
+						.Select(orderEquipment => orderEquipment.Equipment.Id).ToArray();
+					int equipmentCount = UoWGeneric.Root.OrderEquipments.Count(orderEquipment => orderEquipment?.Equipment?.Nomenclature?.Id == item.Nomenclature.Id);
+					int equipmentToAddCount = item.Count - equipmentCount;
+					var equipmentToAdd = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, item.Nomenclature, equipmentToAddCount, alreadyAdded);
+					for(int i = 0; i < equipmentToAddCount; i++) {
+						UoWGeneric.Root.ObservableOrderEquipments.Add(new OrderEquipment {
+							Order = UoWGeneric.Root,
+							Direction = Vodovoz.Domain.Orders.Direction.Deliver,
+							Equipment = equipmentToAdd[i],
+							OrderItem = item,
+							Reason = Reason.Sale
+						});
+					}
+					for(; equipmentCount > item.Count; equipmentCount--) {
+						UoWGeneric.Root.ObservableOrderEquipments.Remove(
+							UoWGeneric.Root.ObservableOrderEquipments.Where(orderEquipment => orderEquipment.Reason == Reason.Sale && orderEquipment.Equipment.Nomenclature.Id == item.Nomenclature.Id).First()
+						);
+					}
+				}
+			}
+			DailyNumberIncrement();
+			Entity.ChangeStatus(OrderStatus.Accepted);
+			treeItems.Selection.UnselectAll();
+			treeEquipment.Selection.UnselectAll();
+			Save();
 		}
 
 		private void DailyNumberIncrement()
