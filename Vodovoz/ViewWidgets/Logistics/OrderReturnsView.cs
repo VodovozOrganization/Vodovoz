@@ -115,6 +115,8 @@ namespace Vodovoz
 					if(node.Nomenclature.Category == NomenclatureCategory.rent 
 				       || node.Nomenclature.Category == NomenclatureCategory.deposit){
 						cell.Editable = false;
+					}else {
+						cell.Editable = true;
 					}
 				})
 						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
