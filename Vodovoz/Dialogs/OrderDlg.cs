@@ -1178,7 +1178,9 @@ namespace Vodovoz
 
 		void UpdateProxyInfo()
 		{
-			bool canShow = Entity.Client != null && Entity.DeliveryDate.HasValue && Entity.PaymentType == PaymentType.cashless;
+			bool canShow = Entity.Client != null && Entity.DeliveryDate.HasValue && 
+			                     (Entity.Client?.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless);
+
 			labelProxyInfo.Visible = canShow;
 
 			DBWorks.SQLHelper text = new DBWorks.SQLHelper("");
@@ -1326,10 +1328,12 @@ namespace Vodovoz
 
 		protected void OnEnumPaymentTypeChanged(object sender, EventArgs e)
 		{
-			enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible =
-				enumDocumentType.Visible = labelDocumentType.Visible =
+			checkDelivered.Visible = enumDocumentType.Visible = labelDocumentType.Visible =
 				(Entity.PaymentType == PaymentType.cashless);
-
+			
+			enumSignatureType.Visible = labelSignatureType.Visible =
+				(Entity.Client?.PersonType == PersonType.legal);
+			
 			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (Entity.PaymentType == PaymentType.ByCard);
 
 			treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
@@ -1501,7 +1505,7 @@ namespace Vodovoz
 		{
 			if(Entity.Client != null
 			   && Entity.DeliveryDate.HasValue
-			   && Entity.PaymentType == PaymentType.cashless) {
+			   && (Entity.Client?.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)) {
 				var proxies = Entity.Client.Proxies.Where(p => p.IsActiveProxy(Entity.DeliveryDate.Value) && (p.DeliveryPoints == null || p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, Entity.DeliveryPoint))));
 				if(proxies.Count() > 0) {
 					enumSignatureType.SelectedItem = OrderSignatureType.ByProxy;
