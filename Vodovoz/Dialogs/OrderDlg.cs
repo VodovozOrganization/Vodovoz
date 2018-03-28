@@ -717,6 +717,7 @@ namespace Vodovoz
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Номенклатура на продажу";
 			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
+			SelectDialog.ShowFilter = true;
 			TabParent.AddSlaveTab(this, SelectDialog);
 
 		}
@@ -1603,6 +1604,7 @@ namespace Vodovoz
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование к клиенту";
 			SelectDialog.ObjectSelected += NomenclatureToClient;
+			SelectDialog.ShowFilter = true;
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
@@ -1628,6 +1630,7 @@ namespace Vodovoz
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование от клиенту";
 			SelectDialog.ObjectSelected += NomenclatureFromClient;
+			SelectDialog.ShowFilter = true;
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
