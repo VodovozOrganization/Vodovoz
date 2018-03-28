@@ -614,9 +614,9 @@ WHERE
             </Style>
           </Textbox>
           <Textbox Name="Textbox7">
-            <Height>16.50pt</Height>
+            <Height>26.25pt</Height>
             <Width>243.15pt</Width>
-            <Value>="Водитель: " + {driver}</Value>
+            <Value>="Водитель: " + {driver} + "\nАвто: " + {model} + "(" + {reg_number}+ ")"</Value>
             <ZIndex>1</ZIndex>
             <Left>6.00pt</Left>
             <Top>37.10pt</Top>
@@ -716,7 +716,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>= Format({amount}, "N0") + " " + {unit}</Value>
+                      <Value>= Format(Iif({category} = "water", {amount} mod 48, {amount}), "N0") + " " + {unit}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -772,10 +772,10 @@ WHERE
         <Style>
           <BorderStyle>
             <Default>None</Default>
-            <Left >None</Left>
-            <Right >None</Right>
-            <Top >None</Top>
-            <Bottom >None</Bottom>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
@@ -842,7 +842,7 @@ WHERE
         </Details>
         <Left>334.2pt</Left>
         <Top>91.6pt</Top>
-        <Filters >
+        <Filters>
           <Filter>
             <FilterExpression>={category}</FilterExpression>
             <Operator>NotEqual</Operator>
@@ -882,10 +882,10 @@ WHERE
           <Textbox Name="Textbox5">
             <Height>14.94pt</Height>
             <Width>759.57pt</Width>
-            <Value>="Водитель: " + {driver}</Value>
+            <Value>="Водитель: " + {driver} + " Авто: " + {model} + "(" + {reg_number}+ ")"</Value>
             <ZIndex>1</ZIndex>
-            <Left>13.3pt</Left>
-            <Top>28.0pt</Top>
+            <Left>13.30pt</Left>
+            <Top>28.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -925,10 +925,10 @@ WHERE
           <Textbox Name="Textbox25">
             <Height>16.48pt</Height>
             <Width>473.51pt</Width>
-            <Value>="Водитель: " + {driver}</Value>
+            <Value>="Водитель: " + {driver} + " Авто: " + {model} + "(" + {reg_number}+ ")"</Value>
             <ZIndex>1</ZIndex>
-            <Left>13.30pt</Left>
-            <Top>25.90pt</Top>
+            <Left>12.5pt</Left>
+            <Top>25.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -945,10 +945,10 @@ WHERE
         <Style>
           <BorderStyle>
             <Default>None</Default>
-            <Left >None</Left>
-            <Right >None</Right>
-            <Top >None</Top>
-            <Bottom >None</Bottom>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
@@ -1015,7 +1015,7 @@ WHERE
         </Details>
         <Left>4.8pt</Left>
         <Top>214.1pt</Top>
-        <Filters >
+        <Filters>
           <Filter>
             <FilterExpression>={category}</FilterExpression>
             <Operator>Equal</Operator>
@@ -1032,10 +1032,10 @@ WHERE
         <Style>
           <BorderStyle>
             <Default>None</Default>
-            <Left >None</Left>
-            <Right >None</Right>
-            <Top >None</Top>
-            <Bottom >None</Bottom>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
@@ -1102,7 +1102,7 @@ WHERE
         </Details>
         <Left>381.1pt</Left>
         <Top>214.2pt</Top>
-        <Filters >
+        <Filters>
           <Filter>
             <FilterExpression>={category}</FilterExpression>
             <Operator>NotEqual</Operator>
