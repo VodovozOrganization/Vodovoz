@@ -297,8 +297,7 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.disposableBottleWater,
 				NomenclatureCategory.bottle,
 				NomenclatureCategory.spare_parts,
-				NomenclatureCategory.material,
-				NomenclatureCategory.deposit
+				NomenclatureCategory.material
 			};
 		}
 
