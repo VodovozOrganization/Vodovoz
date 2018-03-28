@@ -96,7 +96,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			var docCount = (checkRoute.Active ? 1 : 0) + (checkDailyList.Active ? 1 : 0) + (checkRouteMap.Active ? 1 : 0);
+			var docCount = (checkRoute.Active ? 1 : 0) + (checkDailyList.Active ? 1 : 0) + (checkRouteMap.Active ? 1 : 0) + (checkLoadSofiyskaya.Active ? 1 : 0);
 			var routeCount = Routes.Count(x => x.Selected);
 			progressPrint.Adjustment.Upper = docCount * routeCount;
 			progressPrint.Adjustment.Value = 0;
@@ -124,6 +124,12 @@ namespace Vodovoz.Dialogs.Logistic
 
 				if(checkRouteMap.Active) {
 					PrintDoc(route.RouteList, RouteListPrintableDocuments.RouteMap, PageOrientation.Portrait, 1);
+					progressPrint.Adjustment.Value++;
+					QSMain.WaitRedraw();
+				}
+
+				if(checkLoadSofiyskaya.Active) {
+					PrintDoc(route.RouteList, RouteListPrintableDocuments.LoadSofiyskaya, PageOrientation.Portrait, 1);
 					progressPrint.Adjustment.Value++;
 					QSMain.WaitRedraw();
 				}

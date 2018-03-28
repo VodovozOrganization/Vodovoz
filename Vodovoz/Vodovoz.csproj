@@ -1139,6 +1139,9 @@
     <None Include="Reports\Store\CarLoadDocPallets.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\RouteList\CarLoadDocSofiyskaya.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
