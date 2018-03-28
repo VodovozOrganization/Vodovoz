@@ -172,7 +172,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanShowReturnedCount{
 			get {
-				return  Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category);
+				return (Order.OrderStatus >= OrderStatus.OnTheWay
+				        && ReturnedCount > 0
+				        && Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category));
 			}
 		}
 
