@@ -1013,67 +1013,79 @@ GROUP BY responsible_person_name</CommandText>
         <Top>362.2pt</Top>
         <ReportItems>
           <Textbox Name="Textbox11">
-            <Height>27.76pt</Height>
+            <Height>27.80pt</Height>
             <Width>77.70pt</Width>
             <Value>Оборудование
 к клиенту: </Value>
             <ZIndex>1</ZIndex>
-            <Left>2.4pt</Left>
-            <Top>0.7pt</Top>
+            <Left>2.40pt</Left>
+            <Top>1.50pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <TextAlign>Right</TextAlign>
             </Style>
+            <Visibility >
+              <Hidden>=Count({equipment_to},"Equipments")  = 0</Hidden>
+            </Visibility>
           </Textbox>
           <Textbox Name="Textbox34">
-            <Height>24.00pt</Height>
-            <Width>187.73pt</Width>
+            <Height>27.80pt</Height>
+            <Width>180.23pt</Width>
             <Value>=Fields!equipment_to.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>83.4pt</Left>
-            <Top>1.2pt</Top>
+            <Left>81.0pt</Left>
+            <Top>2.0pt</Top>
             <CanGrow>true</CanGrow>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
+            <Visibility >
+              <Hidden>=Count({equipment_to},"Equipments")  = 0</Hidden>
+            </Visibility>
           </Textbox>
           <Textbox Name="Textbox40">
-            <Height>24.00pt</Height>
-            <Width>79.77pt</Width>
+            <Height>27.80pt</Height>
+            <Width>75.27pt</Width>
             <Value>Оборудование
  от клиента:</Value>
             <ZIndex>1</ZIndex>
-            <Left>265.9pt</Left>
-            <Top>2.6pt</Top>
+            <Left>262.4pt</Left>
+            <Top>1.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <TextAlign>Right</TextAlign>
             </Style>
+            <Visibility >
+              <Hidden>=Count({equipment_from},"Equipments")  = 0</Hidden>
+            </Visibility>
           </Textbox>
           <Textbox Name="Textbox43">
-            <Height>21.80pt</Height>
+            <Height>27.80pt</Height>
             <Width>187.47pt</Width>
             <Value>=Fields!equipment_from.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>348.2pt</Left>
-            <Top>2.7pt</Top>
+            <Left>337.0pt</Left>
+            <Top>1.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
             <CanGrow>true</CanGrow>
+            <Visibility >
+              <Hidden>=Count({equipment_from},"Equipments")  = 0</Hidden>
+            </Visibility>
           </Textbox>
         </ReportItems>
         <Visibility>
           <Hidden>=Countrows("Equipments")
- &gt; 0</Hidden>
+ = 0</Hidden>
         </Visibility>
         <Style>
           <BorderStyle />
