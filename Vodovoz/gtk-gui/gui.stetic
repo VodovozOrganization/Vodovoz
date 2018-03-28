@@ -35198,14 +35198,15 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Button" id="buttonPrint">
+              <widget class="QSOrmProject.EnumMenuButton" id="enumPrint">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-print Menu</property>
                 <property name="Label" translatable="yes">Печать</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonPrintClicked" />
+                <property name="UseMarkup">False</property>
+                <signal name="EnumItemClicked" handler="OnEnumPrintEnumItemClicked" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -35214,6 +35215,9 @@
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
+            </child>
+            <child>
+              <placeholder />
             </child>
           </widget>
           <packing>
