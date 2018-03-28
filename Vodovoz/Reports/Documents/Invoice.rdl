@@ -335,6 +335,59 @@ GROUP BY responsible_person_name</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="Proxies" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	counterparty_proxies.number as proxyNumber,
+    start_date as proxyStartDate,
+    expiration_date as proxyExpirationDate,
+    proxy_persons.FIO as proxyFIO
+FROM
+	counterparty_proxies
+    LEFT JOIN
+    counterparty ON counterparty.id = counterparty_proxies.counterparty_id
+    LEFT JOIN
+    orders ON orders.client_id = counterparty.id
+    LEFT JOIN
+    (
+		SELECT
+			counterparty_proxy_id,
+			GROUP_CONCAT(CONCAT(persons.surname, ' ', persons.name, ' ', persons.patronymic) SEPARATOR ',\n') as FIO 
+		FROM 
+			persons
+		GROUP BY counterparty_proxy_id
+    ) as proxy_persons
+    ON proxy_persons.counterparty_proxy_id = counterparty_proxies.id
+WHERE 
+	orders.id = @order_id
+    AND orders.payment_type = 'cash'
+    AND orders.signature_type = 'ByProxy'</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="proxyNumber">
+          <DataField>proxyNumber</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="proxyStartDate">
+          <DataField>proxyStartDate</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="proxyExpirationDate">
+          <DataField>proxyExpirationDate</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="proxyFIO">
+          <DataField>proxyFIO</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -342,7 +395,7 @@ GROUP BY responsible_person_name</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>771.4pt</Height>
+    <Height>869.7pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List1">
@@ -1446,7 +1499,7 @@ GROUP BY responsible_person_name</CommandText>
         <Height>73.72pt</Height>
         <Width>541.29pt</Width>
         <Left>30.8pt</Left>
-        <Top>692.4pt</Top>
+        <Top>730.0pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1610,6 +1663,100 @@ GROUP BY responsible_person_name</CommandText>
         </ReportItems>
         <DataSetName>Equipments</DataSetName>
       </List>
+      <Table Name="Table3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>Proxies</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>210.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>238.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>16.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>="№ " + {proxyNumber} + " с "+ Format({proxyStartDate}, "dd.MM.yyyy") + " по " + Format({proxyExpirationDate}, "dd.MM.yyyy") + " на "</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Value>=Fields!proxyFIO.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>115.7pt</Left>
+        <Top>695.6pt</Top>
+        <Visibility>
+          <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
+        </Visibility>
+      </Table>
+      <Textbox Name="Textbox69" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.57pt</Height>
+        <Width>77.15pt</Width>
+        <Value>Доверенности:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>37.4pt</Left>
+        <Top>694.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Left</TextAlign>
+        </Style>
+        <Visibility>
+          <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
+        </Visibility>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>

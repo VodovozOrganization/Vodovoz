@@ -364,6 +364,59 @@ GROUP BY responsible_person_name</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="Proxies">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	counterparty_proxies.number as proxyNumber,
+    start_date as proxyStartDate,
+    expiration_date as proxyExpirationDate,
+    proxy_persons.FIO as proxyFIO
+FROM
+	counterparty_proxies
+    LEFT JOIN
+    counterparty ON counterparty.id = counterparty_proxies.counterparty_id
+    LEFT JOIN
+    orders ON orders.client_id = counterparty.id
+    LEFT JOIN
+    (
+		SELECT
+			counterparty_proxy_id,
+			GROUP_CONCAT(CONCAT(persons.surname, ' ', persons.name, ' ', persons.patronymic) SEPARATOR ',\n') as FIO 
+		FROM 
+			persons
+		GROUP BY counterparty_proxy_id
+    ) as proxy_persons
+    ON proxy_persons.counterparty_proxy_id = counterparty_proxies.id
+WHERE 
+	orders.id = @order_id
+    AND orders.payment_type = 'cashless'
+    AND orders.signature_type = 'ByProxy'</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="proxyNumber">
+          <DataField>proxyNumber</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="proxyStartDate">
+          <DataField>proxyStartDate</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="proxyExpirationDate">
+          <DataField>proxyExpirationDate</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="proxyFIO">
+          <DataField>proxyFIO</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -371,7 +424,7 @@ GROUP BY responsible_person_name</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>439.0pt</Height>
+    <Height>550.0pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List1">
@@ -882,80 +935,6 @@ GROUP BY responsible_person_name</CommandText>
         <Left>52.9pt</Left>
         <Top>204.6pt</Top>
       </Table>
-      <List Name="List2">
-        <Height>78.49pt</Height>
-        <Width>542.82pt</Width>
-        <Left>32.6pt</Left>
-        <Top>278.7pt</Top>
-        <ReportItems>
-          <Textbox Name="Textbox42">
-            <Height>13.50pt</Height>
-            <Width>533.24pt</Width>
-            <Value>='Предполагаемое количеcтво возвратной тары: ' + {bottles_return} + ' бутылей'</Value>
-            <ZIndex>1</ZIndex>
-            <Left>1.5pt</Left>
-            <Top>25.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>12pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>145.77pt</Width>
-            <Value>='Всего: ' + {total}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>354.3pt</Left>
-            <Top>5.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>11pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>352.77pt</Width>
-            <Value>=Code.SummaString_Val(Convert.ToString({total}))</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>5.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox30">
-            <Height>16.53pt</Height>
-            <Width>536.74pt</Width>
-            <Value>={order_comment}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>1.7pt</Left>
-            <Top>48.2pt</Top>
-            <CanGrow>true</CanGrow>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>12pt</FontSize>
-            </Style>
-          </Textbox>
-        </ReportItems>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <DataSetName>Order</DataSetName>
-      </List>
       <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
         <Width>67.02pt</Width>
@@ -1009,8 +988,8 @@ GROUP BY responsible_person_name</CommandText>
       <List Name="List5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>34.72pt</Height>
         <Width>540.51pt</Width>
-        <Left>30.5pt</Left>
-        <Top>362.2pt</Top>
+        <Left>27.3pt</Left>
+        <Top>367.8pt</Top>
         <ReportItems>
           <Textbox Name="Textbox11">
             <Height>27.80pt</Height>
@@ -1018,15 +997,15 @@ GROUP BY responsible_person_name</CommandText>
             <Value>Оборудование
 к клиенту: </Value>
             <ZIndex>1</ZIndex>
-            <Left>2.40pt</Left>
-            <Top>1.50pt</Top>
+            <Left>2.4pt</Left>
+            <Top>1.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <TextAlign>Right</TextAlign>
             </Style>
-            <Visibility >
+            <Visibility>
               <Hidden>=Count({equipment_to},"Equipments")  = 0</Hidden>
             </Visibility>
           </Textbox>
@@ -1043,7 +1022,7 @@ GROUP BY responsible_person_name</CommandText>
               <BorderColor />
               <BorderWidth />
             </Style>
-            <Visibility >
+            <Visibility>
               <Hidden>=Count({equipment_to},"Equipments")  = 0</Hidden>
             </Visibility>
           </Textbox>
@@ -1061,7 +1040,7 @@ GROUP BY responsible_person_name</CommandText>
               <BorderWidth />
               <TextAlign>Right</TextAlign>
             </Style>
-            <Visibility >
+            <Visibility>
               <Hidden>=Count({equipment_from},"Equipments")  = 0</Hidden>
             </Visibility>
           </Textbox>
@@ -1070,15 +1049,15 @@ GROUP BY responsible_person_name</CommandText>
             <Width>187.47pt</Width>
             <Value>=Fields!equipment_from.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>337.0pt</Left>
-            <Top>1.9pt</Top>
+            <Left>337.00pt</Left>
+            <Top>1.90pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
             <CanGrow>true</CanGrow>
-            <Visibility >
+            <Visibility>
               <Hidden>=Count({equipment_from},"Equipments")  = 0</Hidden>
             </Visibility>
           </Textbox>
@@ -1116,6 +1095,160 @@ GROUP BY responsible_person_name</CommandText>
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox35" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>16.53pt</Height>
+        <Width>536.74pt</Width>
+        <Value>=First({order_comment}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>31.50pt</Left>
+        <Top>327.60pt</Top>
+        <CanGrow>true</CanGrow>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox37" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.50pt</Height>
+        <Width>533.24pt</Width>
+        <Value>='Предполагаемое количеcтво возвратной тары: ' + First({bottles_return}, "Order") + ' бутылей'</Value>
+        <ZIndex>1</ZIndex>
+        <Left>31.3pt</Left>
+        <Top>305.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox39" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>347.52pt</Width>
+        <Value>=Code.SummaString_Val(Convert.ToString(First({total}, "Order")))</Value>
+        <ZIndex>1</ZIndex>
+        <Left>32.20pt</Left>
+        <Top>285.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox41" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>145.77pt</Width>
+        <Value>='Всего: ' + First({total}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>384.1pt</Left>
+        <Top>285.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox30" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.57pt</Height>
+        <Width>77.15pt</Width>
+        <Value>Доверенности:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>31.6pt</Left>
+        <Top>348.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Left</TextAlign>
+        </Style>
+        <Visibility>
+          <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
+        </Visibility>
+      </Textbox>
+      <Table Name="Table2">
+        <DataSetName>Proxies</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>210.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>231.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>16.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>="№ " + {proxyNumber} + " с "+ Format({proxyStartDate}, "dd.MM.yyyy") + " по " + Format({proxyExpirationDate}, "dd.MM.yyyy") + " на "</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>=Fields!proxyFIO.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>108.0pt</Left>
+        <Top>349.7pt</Top>
+        <Visibility>
+          <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
+        </Visibility>
+      </Table>
     </ReportItems>
   </Body>
   <PageFooter>
