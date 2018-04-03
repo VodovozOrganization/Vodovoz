@@ -33,7 +33,7 @@ using Vodovoz.Repositories.Client;
 
 namespace Vodovoz
 {
-	public partial class OrderDlg : OrmGtkDialogBase<Order>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider, IContractInfoProvider
+	public partial class OrderDlg : OrmGtkDialogBase<Order>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider, IContractInfoProvider, ITdiTabAddedNotifier
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -107,7 +107,14 @@ namespace Vodovoz
 		}
 
 		public OrderDlg(Order sub) : this(sub.Id)
-		{
+		{}
+
+		//реализация метода интерфейса ITdiTabAddedNotifier
+		public void OnTabAdded(){
+			//если новый заказ
+			if(UoW.IsNew) 
+				//открыть окно выбора контрагента
+				referenceClient.OpenSelectDialog();
 		}
 
 		public void ConfigureDlg ()
@@ -1603,7 +1610,7 @@ namespace Vodovoz
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Оборудование к клиенту";
+			SelectDialog.TabName = "Оборудование к клиента";
 			SelectDialog.ObjectSelected += NomenclatureToClient;
 			SelectDialog.ShowFilter = true;
 			TabParent.AddSlaveTab(this, SelectDialog);
@@ -1629,7 +1636,7 @@ namespace Vodovoz
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Оборудование от клиенту";
+			SelectDialog.TabName = "Оборудование от клиента";
 			SelectDialog.ObjectSelected += NomenclatureFromClient;
 			SelectDialog.ShowFilter = true;
 			TabParent.AddSlaveTab(this, SelectDialog);

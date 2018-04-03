@@ -25940,7 +25940,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="949 744">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="976 744">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <signal name="Shown" handler="OnShown" />
