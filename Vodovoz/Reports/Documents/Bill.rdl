@@ -68,7 +68,7 @@ WHERE orders.id = @order_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -95,7 +95,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -878,6 +878,7 @@ First({client_address}, 'Order')</Value>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >N2</Format>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
