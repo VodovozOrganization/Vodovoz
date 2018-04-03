@@ -1,11 +1,30 @@
 ﻿using System;
+using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DeliveryPointFilter : RepresentationFilterBase
 	{
+		IUnitOfWork uow;
+
+		public IUnitOfWork UoW {
+			get {
+				return uow;
+			}
+			set {
+				uow = value;
+			}
+		}
+
+		public DeliveryPointFilter(IUnitOfWork uow) : this ()
+		{
+			UoW = uow;
+		}
+
+		public Counterparty Client { get; set; }
 
 		public DeliveryPointFilter()
 		{

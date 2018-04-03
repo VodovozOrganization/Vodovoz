@@ -26,9 +26,9 @@ namespace Vodovoz
 
 		private global::Gtk.Label label3;
 
-		private global::Gamma.Widgets.yEntryReference yentryCounterparty;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceClient;
 
-		private global::Gamma.Widgets.yEntryReference yentryDeliveryPoint;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceDeliveryPoint;
 
 		private global::Gtk.HBox hbox3;
 
@@ -60,7 +60,7 @@ namespace Vodovoz
 
 		private global::Vodovoz.ViewWidgets.DepositRefundItemsView depositrefunditemsview1;
 
-		private global::Gtk.Label GtkLabel5;
+		private global::Gtk.Label GtkLabel6;
 
 		protected virtual void Build()
 		{
@@ -177,26 +177,26 @@ namespace Vodovoz
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryCounterparty = new global::Gamma.Widgets.yEntryReference();
-			this.yentryCounterparty.Sensitive = false;
-			this.yentryCounterparty.Events = ((global::Gdk.EventMask)(256));
-			this.yentryCounterparty.Name = "yentryCounterparty";
-			this.table1.Add(this.yentryCounterparty);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryCounterparty]));
+			this.referenceClient = new global::Gamma.Widgets.yEntryReferenceVM();
+			this.referenceClient.Events = ((global::Gdk.EventMask)(256));
+			this.referenceClient.Name = "referenceClient";
+			this.table1.Add(this.referenceClient);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceClient]));
 			w10.LeftAttach = ((uint)(1));
 			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryDeliveryPoint = new global::Gamma.Widgets.yEntryReference();
-			this.yentryDeliveryPoint.Sensitive = false;
-			this.yentryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
-			this.yentryDeliveryPoint.Name = "yentryDeliveryPoint";
-			this.table1.Add(this.yentryDeliveryPoint);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryDeliveryPoint]));
+			this.referenceDeliveryPoint = new global::Gamma.Widgets.yEntryReferenceVM();
+			this.referenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
+			this.referenceDeliveryPoint.Name = "referenceDeliveryPoint";
+			this.table1.Add(this.referenceDeliveryPoint);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceDeliveryPoint]));
 			w11.TopAttach = ((uint)(1));
 			w11.BottomAttach = ((uint)(2));
 			w11.LeftAttach = ((uint)(1));
 			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
@@ -285,11 +285,11 @@ namespace Vodovoz
 			w22.Position = 0;
 			this.GtkAlignment.Add(this.vbox2);
 			this.frame3.Add(this.GtkAlignment);
-			this.GtkLabel5 = new global::Gtk.Label();
-			this.GtkLabel5.Name = "GtkLabel5";
-			this.GtkLabel5.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Возврат залогов</b>");
-			this.GtkLabel5.UseMarkup = true;
-			this.frame3.LabelWidget = this.GtkLabel5;
+			this.GtkLabel6 = new global::Gtk.Label();
+			this.GtkLabel6.Name = "GtkLabel6";
+			this.GtkLabel6.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Возврат залогов</b>");
+			this.GtkLabel6.UseMarkup = true;
+			this.frame3.LabelWidget = this.GtkLabel6;
 			this.vbox1.Add(this.frame3);
 			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame3]));
 			w25.Position = 2;
@@ -299,6 +299,9 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.referenceDeliveryPoint.ChangedByUser += new global::System.EventHandler(this.OnReferenceDeliveryPointChangedByUser);
+			this.referenceClient.ChangedByUser += new global::System.EventHandler(this.OnReferenceClientChangedByUser);
+			this.yenumcomboOrderPayment.ChangedByUser += new global::System.EventHandler(this.OnYenumcomboOrderPaymentChangedByUser);
 			this.buttonDelivered.Clicked += new global::System.EventHandler(this.OnButtonDeliveredClicked);
 			this.buttonNotDelivered.Clicked += new global::System.EventHandler(this.OnButtonNotDeliveredClicked);
 			this.buttonDeliveryCanceled.Clicked += new global::System.EventHandler(this.OnButtonDeliveryCanseledClicked);

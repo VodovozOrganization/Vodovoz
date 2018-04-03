@@ -15,6 +15,59 @@ namespace Vodovoz
 {
 	public partial class OrderReturnsView : TdiTabBase
 	{
+		class OrderNode : PropertyChangedBase
+		{
+			public enum ChangedType
+			{
+				None,
+				DeliveryPoint,
+				Both
+			}
+
+			Counterparty client;
+			public Counterparty Client {
+				get {
+					return client;
+				}
+				set {
+					SetField(ref client, value, () => Client);
+				}
+			}
+
+			DeliveryPoint deliveryPoint;
+			public DeliveryPoint DeliveryPoint {
+				get {
+					return deliveryPoint;
+				}
+				set {
+					SetField(ref deliveryPoint, value, () => DeliveryPoint);
+				}
+			}
+
+			private Order BaseOrder { get; set; }
+
+			public OrderNode(Order order)
+			{
+				DeliveryPoint = order.DeliveryPoint;
+				Client = order.Client;
+				BaseOrder = order;
+			}
+
+			public ChangedType CompletedChange {
+				get {
+					if(Client == null || DeliveryPoint == null) {
+						return ChangedType.None;
+					}
+					if(Client.Id == BaseOrder.Client.Id && DeliveryPoint.Id != BaseOrder.DeliveryPoint.Id) {
+						return ChangedType.DeliveryPoint;
+					}
+					if(Client.Id != BaseOrder.Client.Id && DeliveryPoint.Id != BaseOrder.DeliveryPoint.Id) {
+						return ChangedType.Both;
+					}
+					return ChangedType.None;
+				}
+			}
+		}
 		List<OrderItemReturnsNode> equipmentFromClient;
 		List<OrderItemReturnsNode> itemsToClient;
 
@@ -29,14 +82,18 @@ namespace Vodovoz
 				depositrefunditemsview1.Configure(uow, routeListItem.Order, true);
 			}
 		}
-
+		OrderNode orderNode;
 		RouteListItem routeListItem;
 
-		public OrderReturnsView(RouteListItem routeListItem)
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		public OrderReturnsView(RouteListItem routeListItem, IUnitOfWork uow)
 		{
 			this.Build();
 			this.routeListItem = routeListItem;
 			this.TabName = "Изменение заказа №" + routeListItem.Order.Id;
+
+			UoW = uow;
 
 			entryTotal.Sensitive = yenumcomboOrderPayment.Sensitive =
 				routeListItem.Status != RouteListItemStatus.Transfered;
@@ -48,23 +105,20 @@ namespace Vodovoz
 			var nomenclatures = routeListItem.Order.OrderItems
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.Where(item => !item.Nomenclature.IsSerial).ToList();
-			foreach(var item in nomenclatures)
-			{
+			foreach(var item in nomenclatures) {
 				itemsToClient.Add(new OrderItemReturnsNode(item));
 				item.PropertyChanged += OnOrderChanged;
 			}
 			var equipments = routeListItem.Order.OrderEquipments
 				.Where(item => item.Direction == Vodovoz.Domain.Orders.Direction.Deliver);
-			foreach(var item in equipments)
-			{				
+			foreach(var item in equipments) {
 				itemsToClient.Add(new OrderItemReturnsNode(item));
 				item.PropertyChanged += OnOrderChanged;
 			}
 			//Добавление в список услуг
 			var services = routeListItem.Order.OrderItems
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.service).ToList();
-			foreach (var item in services)
-			{
+			foreach(var item in services) {
 				itemsToClient.Add(new OrderItemReturnsNode(item));
 				item.PropertyChanged += OnOrderChanged;
 			}
@@ -73,8 +127,7 @@ namespace Vodovoz
 			equipmentFromClient = new List<OrderItemReturnsNode>();
 			var fromClient = routeListItem.Order.OrderEquipments
 				.Where(equipment => equipment.Direction == Vodovoz.Domain.Orders.Direction.PickUp).ToList();
-			foreach (var item in fromClient)
-			{
+			foreach(var item in fromClient) {
 				var newOrderEquipmentNode = new OrderItemReturnsNode(item);
 				equipmentFromClient.Add(newOrderEquipmentNode);
 			}
@@ -92,13 +145,14 @@ namespace Vodovoz
 
 		protected void Configure()
 		{
-			yentryCounterparty.SubjectType = typeof(Counterparty);
-			yentryCounterparty.Binding.AddBinding(routeListItem.Order, o => o.Client, w => w.Subject).InitializeFromSource();
-			yentryCounterparty.CanEditReference = false;
+			orderNode = new OrderNode(routeListItem.Order);
+			var counterpartyFilter = new CounterpartyFilter(UoW);
+			counterpartyFilter.RestrictIncludeArhive = false;
+			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
+			referenceClient.Binding.AddBinding(orderNode, s => s.Client, w => w.Subject).InitializeFromSource();
+			referenceClient.CanEditReference = false;
 
-			yentryDeliveryPoint.SubjectType = typeof(DeliveryPoint);
-			yentryDeliveryPoint.Binding.AddBinding(routeListItem.Order, o => o.DeliveryPoint, w => w.Subject).InitializeFromSource();
-			yentryDeliveryPoint.CanEditReference = false;
+			ConfigureDeliveryPointRefference(orderNode.Client);
 
 			ytreeToClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
 				.AddColumn("Название")
@@ -143,17 +197,15 @@ namespace Vodovoz
 			var order = routeListItem.Order;
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
-			yenumcomboOrderPayment.Changed += YenumcomboOrderPayment_Changed;
 		}
 
-		void YenumcomboOrderPayment_Changed (object sender, EventArgs e)
+		private void ConfigureDeliveryPointRefference(Counterparty client = null)
 		{
-			routeListItem.RecalculateTotalCash();
-
-			if(routeListItem.Order.PaymentType == PaymentType.cashless && routeListItem.TotalCash != 0)
-			{
-				routeListItem.RecalculateTotalCash();
-			}
+			var deliveryPointFilter = new DeliveryPointFilter(UoW);
+			deliveryPointFilter.Client = client;
+			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM(deliveryPointFilter);
+			referenceDeliveryPoint.Binding.AddBinding(orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
+			referenceDeliveryPoint.CanEditReference = false;
 		}
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
@@ -183,6 +235,47 @@ namespace Vodovoz
 			buttonDeliveryCanceled.Sensitive = !isTransfered && routeListItem.Status != RouteListItemStatus.Canceled;
 			buttonNotDelivered.Sensitive = !isTransfered && routeListItem.Status != RouteListItemStatus.Overdue;
 			buttonDelivered.Sensitive = !isTransfered && routeListItem.Status != RouteListItemStatus.Completed && routeListItem.Status != RouteListItemStatus.EnRoute;
+		}
+
+		protected void OnYenumcomboOrderPaymentChangedByUser(object sender, EventArgs e)
+		{
+			routeListItem.RecalculateTotalCash();
+
+			if(routeListItem.Order.PaymentType == PaymentType.cashless && routeListItem.TotalCash != 0) {
+				routeListItem.RecalculateTotalCash();
+			}
+		}
+
+		private void AcceptOrderChange()
+		{
+			if(orderNode.CompletedChange == OrderNode.ChangedType.None) {
+				orderNode = new OrderNode(routeListItem.Order);
+				return;
+			}
+
+			if(orderNode.CompletedChange == OrderNode.ChangedType.DeliveryPoint) {
+				routeListItem.Order.DeliveryPoint = orderNode.DeliveryPoint;
+			}
+
+			if(orderNode.CompletedChange == OrderNode.ChangedType.Both) {
+				//Сначала ставим точку доставки чтобы при установке клиента она была доступна, 
+				//иначе при записи клиента убирается не его точка доставки и будет ошибка при 
+				//изменении документов которые должны меняться при смене клиента потомучто точка 
+				//доставки будет пустая
+				routeListItem.Order.DeliveryPoint = orderNode.DeliveryPoint;
+				routeListItem.Order.Client = orderNode.Client;
+			}
+		}
+
+		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
+		{
+			ConfigureDeliveryPointRefference(orderNode.Client);
+			referenceDeliveryPoint.OpenSelectDialog();
+		}
+
+		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
+		{
+			AcceptOrderChange();
 		}
 	}
 

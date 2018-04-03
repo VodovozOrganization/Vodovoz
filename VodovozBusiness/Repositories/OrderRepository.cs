@@ -111,6 +111,14 @@ namespace Vodovoz.Repository
 			    .Take(count).List();
 			return queryResult;
 		}
+
+		public static OrderStatus[] GetOnClosingOrderStatuses()
+		{
+			return new OrderStatus[] {
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
+		}
 	}
 }
 

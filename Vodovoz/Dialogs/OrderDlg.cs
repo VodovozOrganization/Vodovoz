@@ -29,6 +29,7 @@ using Vodovoz.Dialogs.Client;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Repository.Client;
+using Vodovoz.Repositories.Client;
 
 namespace Vodovoz
 {
@@ -756,7 +757,7 @@ namespace Vodovoz
 							RunContractAndWaterAgreementDialog(nomenclature, count);
 							break;
 						case (int)ResponseType.Accept:
-							CreateDefaultContractWithAgreement(nomenclature, count);
+							CreateContractWithAgreement(nomenclature, count);
 							break;
 						default:
 							break;
@@ -958,7 +959,7 @@ namespace Vodovoz
 				};
 				TabParent.AddSlaveTab(this, dlg);
 			} else if(response == (int)ResponseType.Accept) {
-				var contract = CreateDefaultContract();
+				var contract = GetActualInstanceContract(ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate));
 				AddContractDocument(contract);
 				Entity.Contract = contract;
 			}
@@ -1332,8 +1333,9 @@ namespace Vodovoz
 				(Entity.PaymentType == PaymentType.cashless);
 			
 			enumSignatureType.Visible = labelSignatureType.Visible =
-				(Entity.Client?.PersonType == PersonType.legal);
-			
+				(Entity.Client != null && 
+				 (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)
+				);
 			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (Entity.PaymentType == PaymentType.ByCard);
 
 			treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
@@ -1694,57 +1696,23 @@ namespace Vodovoz
 
 		#region Создание договоров, доп соглашений
 
-		protected void CreateDefaultContractWithAgreement(Nomenclature nomenclature, int count)
+		protected void CreateContractWithAgreement(Nomenclature nomenclature, int count)
 		{
-			var contract = CreateDefaultContract();
+			var contract = GetActualInstanceContract(ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate));
 			Entity.Contract = contract;
 			AddContractDocument(contract);
 			AdditionalAgreement agreement = contract.GetWaterSalesAgreement(UoWGeneric.Root.DeliveryPoint, nomenclature);
 			if(agreement == null) {
-				agreement = CreateDefaultWaterAgreement(contract);
+				agreement = ClientDocumentsRepository.CreateDefaultWaterAgreement(UoW, Entity.DeliveryPoint, Entity.DeliveryDate, contract);
 				contract.AdditionalAgreements.Add(agreement);
 				UoWGeneric.Root.CreateOrderAgreementDocument(agreement);
 				AddNomenclature(nomenclature, count);
 			}
 		}
 
-		protected CounterpartyContract CreateDefaultContract()
+		CounterpartyContract GetActualInstanceContract(CounterpartyContract anotherSessionContract)
 		{
-			var org = OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType);
-			var contractType = DocTemplateRepository.GetContractTypeForPaymentType(UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType);
-			CounterpartyContract result;
-			using(var uow = CounterpartyContract.Create(UoWGeneric.Root.Client)) {
-				var contract = uow.Root;
-				var organization =
-				contract.Organization = uow.GetById<Organization>(org.Id);
-				contract.IsArchive = false;
-				contract.ContractType = contractType;
-				if(UoWGeneric.Root.DeliveryDate.HasValue) {
-					contract.IssueDate = UoWGeneric.Root.DeliveryDate.Value;
-				}
-				contract.AdditionalAgreements = new List<AdditionalAgreement>();
-				uow.Save();
-				result = UoWGeneric.GetById<CounterpartyContract>(uow.Root.Id);
-			}
-			return result;
-		}
-
-		protected AdditionalAgreement CreateDefaultWaterAgreement(CounterpartyContract contract)
-		{
-			AdditionalAgreement result = null;
-			using(var uow = WaterSalesAgreement.Create(contract)) {
-				AdditionalAgreement agreement = uow.Root;
-				agreement.Contract = contract;
-				agreement.DeliveryPoint = Entity.DeliveryPoint;
-				agreement.AgreementNumber = WaterSalesAgreement.GetNumberWithType(contract, AgreementType.WaterSales);
-				if(UoWGeneric.Root.DeliveryDate.HasValue) {
-					agreement.IssueDate = UoWGeneric.Root.DeliveryDate.Value;
-					agreement.StartDate = UoWGeneric.Root.DeliveryDate.Value;
-				}
-				uow.Save();
-				result = UoW.GetById<WaterSalesAgreement>(uow.Root.Id);
-			}
-			return result;
+			return UoW.GetById<CounterpartyContract>(anotherSessionContract.Id);
 		}
 
 		#endregion

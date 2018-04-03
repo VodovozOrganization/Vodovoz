@@ -312,6 +312,9 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<RepairAgreement>();
 
+			DeleteConfig.AddHibernateDeleteInfo<SalesEquipmentAgreement>()
+			    .AddDeleteDependenceFromBag(x => x.SalesEqipments);
+
 			DeleteConfig.AddHibernateDeleteInfo<NonfreeRentAgreement>()
 				.AddDeleteDependenceFromBag(x => x.PaidRentEquipments);
 

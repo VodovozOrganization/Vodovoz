@@ -210,6 +210,22 @@ namespace Vodovoz.Domain.Client
 			return agreement?.Self as WaterSalesAgreement;
 		}
 
+
+		/// <summary>
+		/// Возвращает допсоглашение на воду по текущей точке доставке
+		/// </summary>
+		public virtual WaterSalesAgreement GetWaterSalesAgreement(DeliveryPoint deliveryPoint)
+		{
+			if(AdditionalAgreements == null || AdditionalAgreements.Count < 1) {
+				return null;
+			}
+			return AdditionalAgreements
+				.Select(x => x.Self)
+				.OfType<WaterSalesAgreement>()
+				.Where(x => x.DeliveryPoint == deliveryPoint && !x.IsCancelled)
+				.FirstOrDefault();
+		}
+
 		public virtual bool RepairAgreementExists ()
 		{
 			if (AdditionalAgreements == null || AdditionalAgreements.Count < 1)

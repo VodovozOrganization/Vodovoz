@@ -361,8 +361,7 @@ namespace Vodovoz
 		void OnRouteListItemActivated(object sender, RowActivatedArgs args)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
-			var dlg = new OrderReturnsView(node);
-			dlg.UoW = UoW;
+			var dlg = new OrderReturnsView(node, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 		}
 

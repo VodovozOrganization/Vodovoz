@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Client
 		[HistoryDeepCloneItems]
 		IList<SalesEquipment> salesEqipments = new List<SalesEquipment>();
 
-		[Display(Name = "Фиксированные цены")]
+		[Display(Name = "Оборудование на продажу")]
 		public virtual IList<SalesEquipment> SalesEqipments {
 			get { return salesEqipments; }
 			set { SetField(ref salesEqipments, value, () => SalesEqipments); }

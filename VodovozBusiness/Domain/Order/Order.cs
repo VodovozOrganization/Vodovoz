@@ -14,7 +14,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
+using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
+using Vodovoz.Repository.Client;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -58,8 +60,11 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == client)
 					return;
-				if(client != null && !CanChangeContractor())
+				if(OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
+					OnChangeCounterparty(value);
+				}else if(client != null && !CanChangeContractor()){
 					throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
+				}
 				SetField(ref client, value, () => Client);
 				if(DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id)) {
 					//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
@@ -75,6 +80,14 @@ namespace Vodovoz.Domain.Orders
 		public virtual DeliveryPoint DeliveryPoint {
 			get { return deliveryPoint; }
 			set {
+				//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
+				if(OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)
+				   //чтобы не обрабатывались действия при изменении только точки доставки
+				   //когда меняется клиент (так как вместе с ним обязательно будет менять еще и точка доставки)
+				   && deliveryPoint != null && Client.DeliveryPoints.Any(d => d.Id == deliveryPoint.Id)) {
+					OnChangeDeliveryPoint();
+				}
+
 				SetField(ref deliveryPoint, value, () => DeliveryPoint);
 				if(value != null && DeliverySchedule == null) {
 					DeliverySchedule = value.DeliverySchedule;
@@ -236,6 +249,10 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == paymentType)
 					return;
+				//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
+				if(Client != null && OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
+					OnChangePaymentType();
+				}
 				SetField(ref paymentType, value, () => PaymentType);
 			}
 		}
@@ -853,7 +870,90 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
+		#region Автосоздание договоров, допсоглашений при изменении подтвержденного заказа
+
+		private void OnChangeCounterparty(Counterparty newClient)
+		{
+			if(newClient == null || Client == null || newClient.Id == Client.Id) {
+				return;
+			}
+
+			Contract = FindOrCreateContract(newClient);
+			OnChangeContract(true);
+		}
+
+		private void OnChangeContract(bool changedClient = false)
+		{
+			foreach(var item in ObservableOrderItems
+					.Where(x => x.AdditionalAgreement != null)) {
+				
+				if(item.AdditionalAgreement.Self is WaterSalesAgreement) {
+					var waterAgreement = Contract.GetWaterSalesAgreement(DeliveryPoint);
+					if(waterAgreement == null) {
+						waterAgreement = ClientDocumentsRepository.CreateDefaultWaterAgreement(UoW, DeliveryPoint, DeliveryDate, Contract);
+						Contract.ObservableAdditionalAgreements.Add(waterAgreement);
+					}
+					item.AdditionalAgreement = waterAgreement;
+				}
+
+				if(item.AdditionalAgreement.Self is SalesEquipmentAgreement
+				  || item.AdditionalAgreement.Self is NonfreeRentAgreement
+				  || item.AdditionalAgreement.Self is DailyRentAgreement
+				  || item.AdditionalAgreement.Self is FreeRentAgreement
+				  ) {
+					item.AdditionalAgreement.Self.Contract = Contract;
+					if(changedClient && item.AdditionalAgreement.Self.DeliveryPoint != null) {
+						item.AdditionalAgreement.Self.DeliveryPoint = DeliveryPoint;
+					}
+				}
+			}
+			UpdateDocuments();
+		}
+
+		private void OnChangePaymentType()
+		{
+			ChangeContractOnChangePaymentType();
+			if(Contract == null) {
+				Contract = FindOrCreateContract(Client);
+			}
+			OnChangeContract();
+		}
+
+		private void OnChangeDeliveryPoint()
+		{
+			foreach(OrderItem item in ObservableOrderItems.Where(x => x.AdditionalAgreement != null)) {
+				//меняем только у тех соглашений у которых ранее была указана точка доставки
+				if(item.AdditionalAgreement.Self.DeliveryPoint != null) {
+					item.AdditionalAgreement.Self.DeliveryPoint = DeliveryPoint;
+				}
+			}
+
+		}
+
+		#endregion
+
 		#region Функции
+
+		/// <summary>
+		/// Находит соответсвующий типу клиента и типу оплаты контракт, если не найден создает новый
+		/// </summary>
+		private CounterpartyContract FindOrCreateContract(Counterparty client)
+		{
+			var contractType = DocTemplateRepository.GetContractTypeForPaymentType(client.PersonType, PaymentType);
+			var newContract = client.CounterpartyContracts.FirstOrDefault(x => x.ContractType == contractType && !x.IsArchive);
+			if(newContract == null) {
+				newContract = ClientDocumentsRepository.CreateDefaultContract(UoW, client, PaymentType, DeliveryDate);
+			}
+			return newContract;
+		}
+
+		//Выбирает договор соответствующий форме оплаты если такой найден
+		public virtual void ChangeContractOnChangePaymentType()
+		{
+			var org = OrganizationRepository.GetOrganizationByPaymentType(UoW, Client.PersonType, PaymentType);
+			if((Contract == null || Contract.Organization.Id != org.Id) && Client != null)
+				Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+		}
 
 		public virtual bool HaveActualWaterSaleAgreementByDeliveryPoint()
 		{
