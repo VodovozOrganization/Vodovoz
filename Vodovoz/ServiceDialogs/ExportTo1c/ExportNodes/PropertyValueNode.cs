@@ -15,7 +15,7 @@ namespace Vodovoz.ExportTo1c
 		public XElement ToXml()
 		{
 			XElement xml = new XElement("Значение");
-			xml.Value = Value;
+			xml.Value = Value ?? "";
 			return xml;
 		}
 	}
