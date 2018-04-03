@@ -1446,12 +1446,12 @@
         </Style>
       </Textbox>
       <Textbox Name="Textbox74">
-        <Height>13.52pt</Height>
-        <Width>96.32pt</Width>
-        <Value>Тонаж МЛ:</Value>
+        <Height>12.77pt</Height>
+        <Width>191.13pt</Width>
+        <Value>="Тонаж МЛ: " + Sum({Weight}, "Orders") + " кг."</Value>
         <ZIndex>1</ZIndex>
-        <Left>204.6pt</Left>
-        <Top>175.6pt</Top>
+        <Left>204.60pt</Left>
+        <Top>175.60pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1577,6 +1577,9 @@ WHERE route_lists.id = @route_list_id;</CommandText>
 SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
 orders.daily_number_1c, route_list_addresses.need_to_reload AS Reloaded,
+(SELECT SUM(order_items.count * nomenclature.weight) FROM order_items
+LEFT JOIN nomenclature ON nomenclature.id=order_items.nomenclature_id
+WHERE order_items.order_id = orders.id) as weight,
 CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
 CONCAT(DATE_FORMAT(route_list_addresses.plan_time_start, '%H:%i'),'-', DATE_FORMAT(route_list_addresses.plan_time_end, '%H:%i')) AS PlanTime,
 orders.bottles_return AS EmptyBottles, IF(orders.payment_type = 'cash', orders.sum_to_receive, 0) AS Total, 
@@ -1665,6 +1668,10 @@ ORDER BY order_in_route;
         <Field Name="Reloaded">
           <DataField>Reloaded</DataField>
           <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="Weight">
+          <DataField>weight</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="DeliveryTime">
           <DataField>DeliveryTime</DataField>
