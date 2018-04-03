@@ -70,7 +70,7 @@ namespace Vodovoz
 
 			//Запускаем программу
 			MainWin = new MainWindow ();
-			MainWin.Title += string.Format(" - ЗАКАЗЫ (БД: {0})", LoginDialog.BaseName);
+			MainWin.Title += string.Format(" (БД: {0})", LoginDialog.BaseName);
 			QSMain.ErrorDlgParrent = MainWin;
 			if (QSMain.User.Login == "root")
 				return;

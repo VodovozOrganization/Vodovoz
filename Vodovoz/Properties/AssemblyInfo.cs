@@ -5,7 +5,7 @@ using QSProjectsLib;
 // Information about this assembly is defined by the following attributes.
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle ("QS: Доставка воды")]
+[assembly: AssemblyTitle ("QS: Доставка воды - ЗАКАЗЫ")]
 [assembly: AssemblyDescription ("Информационная система для организации службы доставки воды.")]
 [assembly: AssemblyBetaBuild]
 [assembly: AssemblyEdition ("gpl")]
