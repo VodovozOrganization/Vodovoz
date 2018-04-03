@@ -84,7 +84,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 orders.id AS order_id, 
@@ -120,8 +120,8 @@ LEFT(leader.patronymic, 1) AS leader_patronymic
 
 FROM orders 
 LEFT JOIN counterparty ON orders.client_id = counterparty.id
-LEFT JOIN organizations ON organizations.id = (SELECT IF(orders.payment_type = 'cash', 12, 11)  FROM orders WHERE id = @order_id)
-LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id AND counterparty_contract.organization_id = organizations.id
+LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
+LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
 LEFT JOIN employees leader ON leader.id = organizations.leader_id 
 LEFT JOIN employees buhgalter ON buhgalter.id = organizations.buhgalter_id
 LEFT JOIN accounts org_account ON org_account.id = organizations.default_account_id
@@ -135,7 +135,7 @@ WHERE orders.id = @order_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -3033,7 +3033,14 @@ WHERE orders.id = @order_id;</CommandText>
           <Textbox Name="Textbox182">
             <Height>20.00pt</Height>
             <Width>555.75pt</Width>
-            <Value>={org_name} + Iif({org_inn} != null and {org_inn} != "", ", ИНН " + {org_inn}, "") + Iif({org_address} != null and {org_address} != "", ", " + {org_address}, "") + Iif({org_phone_number} != null and {org_phone_number} != "", ", тел: " + {org_phone_number}, "") + Iif({org_acc_number} != null and {org_acc_number} != "", ", р/с " + {org_acc_number}, "") + Iif({org_bank_name} != null and {org_bank_name} != "", ", в банке " + {org_bank_name}, "") + Iif({org_bank_bik} != null and {org_bank_bik} != "", ", БИК " + {org_bank_bik}, "") + Iif({org_bank_cor_account} != null and {org_bank_cor_account} != "", ", к/с " + {org_bank_cor_account}, "")</Value>
+            <Value>={org_name} + 
+Iif({org_inn} != null and {org_inn} != "", ", ИНН " + {org_inn}, "") + 
+Iif({org_address} != null and {org_address} != "", ", " + {org_address}, "") + 
+Iif({org_phone_number} != null and {org_phone_number} != "", ", тел: " + {org_phone_number}, "") + 
+Iif({org_acc_number} != null and {org_acc_number} != "", ", р/с " + {org_acc_number}, "") + 
+Iif({org_bank_name} != null and {org_bank_name} != "", ", в банке " + {org_bank_name}, "") + 
+Iif({org_bank_bik} != null and {org_bank_bik} != "", ", БИК " + {org_bank_bik}, "") + 
+Iif({org_bank_cor_account} != null and {org_bank_cor_account} != "", ", к/с " + {org_bank_cor_account}, "")</Value>
             <ZIndex>1</ZIndex>
             <Left>94.80pt</Left>
             <Top>73.20pt</Top>
@@ -3755,11 +3762,11 @@ WHERE orders.id = @order_id;</CommandText>
         <Top>28.0pt</Top>
       </Table>
       <Textbox Name="Textbox35">
-        <Height>12pt</Height>
-        <Width>92pt</Width>
+        <Height>12.00pt</Height>
+        <Width>95.75pt</Width>
         <Value>Вид деятельности</Value>
         <ZIndex>1</ZIndex>
-        <Left>586.2pt</Left>
+        <Left>583.8pt</Left>
         <Top>80.5pt</Top>
         <Style>
           <BorderStyle />
