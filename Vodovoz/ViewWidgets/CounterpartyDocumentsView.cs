@@ -64,14 +64,13 @@ namespace Vodovoz.ViewWidgets
 			var orderDocuments = UoW.Session.QueryOver<OrderDocument>(() => orderDocumentAlias)
 				.JoinAlias(x => x.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.InnerJoin)
 				.JoinAlias(() => orderAlias.Contract, () => contractAlias, NHibernate.SqlCommand.JoinType.InnerJoin)
-				.Where(() => orderAlias.Id == orderDocumentAlias.Order.Id && contractAlias.Id == orderAlias.Contract.Id)
 				.Where(() => contractAlias.Counterparty.Id == Counterparty.Id)
 				.List();
 
 			//получаем список доп. соглашений
 			var agreements = UoW.Session.QueryOver<AdditionalAgreement>(() => agreementAlias)
 				.JoinAlias(x => x.Contract, () => contractAlias, NHibernate.SqlCommand.JoinType.InnerJoin)
-				.Where(() => agreementAlias.Contract.Id == contractAlias.Id && contractAlias.Counterparty.Id == Counterparty.Id)
+				.Where(() => contractAlias.Counterparty.Id == Counterparty.Id)
 			    .Fetch(x => x.DeliveryPoint).Eager
 				.List();
 
