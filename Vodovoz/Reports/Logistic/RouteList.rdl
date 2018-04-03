@@ -60,7 +60,7 @@
           <BorderWidth />
           <TextAlign>Left</TextAlign>
         </Style>
-        <ZIndex >1</ZIndex>
+        <ZIndex>1</ZIndex>
       </Textbox>
     </ReportItems>
   </PageHeader>
@@ -94,6 +94,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -1430,6 +1432,32 @@
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox73">
+        <Height>12.02pt</Height>
+        <Width>183.64pt</Width>
+        <Value>="Грузоподъёмность: " +First({max_weight} , "RouteList") + " кг."</Value>
+        <ZIndex>1</ZIndex>
+        <Left>204.40pt</Left>
+        <Top>157.80pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox74">
+        <Height>13.52pt</Height>
+        <Width>96.32pt</Width>
+        <Value>Тонаж МЛ:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>204.6pt</Left>
+        <Top>175.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -1445,7 +1473,11 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 driver.name AS DriverName, driver.last_name AS DriverLastname, driver_phone.number AS DriverPhone, 
-cars.model AS CarModel, cars.reg_number AS CarRegNumber, cars.fuel_consumption AS FuelConsumption, fuel_types.name AS FuelType, 
+cars.model AS CarModel,
+cars.reg_number AS CarRegNumber,
+cars.fuel_consumption AS FuelConsumption,
+cars.max_weight,
+fuel_types.name AS FuelType, 
 forwarder.name AS ForwarderName, forwarder.last_name AS ForwarderLastname, forwarder_phone.number AS ForwarderPhone, 
 logistican.name AS LogisticanName, logistican.last_name AS LogisticanLastname,
 route_lists.date as Date,
@@ -1491,6 +1523,10 @@ WHERE route_lists.id = @route_list_id;</CommandText>
         <Field Name="FuelConsumption">
           <DataField>FuelConsumption</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="max_weight">
+          <DataField>max_weight</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="FuelType">
           <DataField>FuelType</DataField>
@@ -1694,7 +1730,7 @@ ORDER BY order_in_route;
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_orders;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
