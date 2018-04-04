@@ -1261,6 +1261,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -16861,6 +16862,7 @@
             <child>
               <widget class="Gtk.Button" id="buttonCreate">
                 <property name="MemberName" />
+                <property name="Sensitive">False</property>
                 <property name="Tooltip" translatable="yes">Создать серийные номера для оборудования и добавить в накладную.</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
@@ -26000,7 +26002,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>

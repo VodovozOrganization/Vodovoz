@@ -76,6 +76,7 @@ namespace Vodovoz
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.buttonCreate = new global::Gtk.Button();
 			this.buttonCreate.TooltipMarkup = "Создать серийные номера для оборудования и добавить в накладную.";
+			this.buttonCreate.Sensitive = false;
 			this.buttonCreate.CanFocus = true;
 			this.buttonCreate.Name = "buttonCreate";
 			this.buttonCreate.UseUnderline = true;
@@ -118,7 +119,8 @@ namespace Vodovoz
 			w11.Expand = false;
 			w11.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Show();
