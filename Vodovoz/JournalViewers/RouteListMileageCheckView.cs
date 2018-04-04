@@ -20,8 +20,9 @@ namespace Vodovoz
 				if (uow == value)
 					return;
 				uow = value;
+				routelistsfilter1.UoW = uow;
 				viewModel = new ViewModel.RouteListsVM (value);
-				viewModel.Filter = new RouteListsFilter(uow);
+				viewModel.Filter = routelistsfilter1;
 				viewModel.Filter.RestrictStatus = RouteListStatus.MileageCheck;
 				treeRouteLists.RepresentationModel = viewModel;
 				treeRouteLists.RepresentationModel.UpdateNodes ();

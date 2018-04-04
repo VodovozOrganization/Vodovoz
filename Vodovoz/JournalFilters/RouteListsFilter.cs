@@ -3,11 +3,12 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Logistic;
 using Gamma.Widgets;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmDefaultIsFiltered (true)]
-	[System.ComponentModel.ToolboxItem (true)]
+	[OrmDefaultIsFiltered(true)]
+	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListsFilter : Gtk.Bin, IRepresentationFilter
 	{
 		IUnitOfWork uow;
@@ -20,27 +21,29 @@ namespace Vodovoz
 				uow = value;
 				enumcomboStatus.ItemsEnum = typeof(RouteListStatus);
 				yentryreferenceShift.SubjectType = typeof(DeliveryShift);
+				//инициализация списка
+				yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport);
 			}
 		}
 
-		public RouteListsFilter (IUnitOfWork uow) : this ()
+		public RouteListsFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
 		}
 
-		public RouteListsFilter ()
+		public RouteListsFilter()
 		{
-			this.Build ();
+			this.Build();
 		}
 
 		#region IReferenceFilter implementation
 
 		public event EventHandler Refiltered;
 
-		void OnRefiltered ()
+		void OnRefiltered()
 		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
+			if(Refiltered != null)
+				Refiltered(this, new EventArgs());
 		}
 
 		#endregion
@@ -77,34 +80,33 @@ namespace Vodovoz
 			}
 		}
 
-		private RouteListStatus [] onlyStatuses;
+		private RouteListStatus[] onlyStatuses;
 
-		public RouteListStatus[] OnlyStatuses{
-			get{
+		public RouteListStatus[] OnlyStatuses {
+			get {
 				return onlyStatuses;
 			}
-			set{
+			set {
 				onlyStatuses = value;
-				if(onlyStatuses != null)
-				{
+				if(onlyStatuses != null) {
 					RestrictStatus = null;
 				}
 			}
 		}
 
-		protected void OnEnumcomboStatusEnumItemSelected (object sender, ItemSelectedEventArgs e)
+		protected void OnEnumcomboStatusEnumItemSelected(object sender, ItemSelectedEventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnDateperiodOrdersPeriodChanged (object sender, EventArgs e)
+		protected void OnDateperiodOrdersPeriodChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnYentryreferenceShiftChanged (object sender, EventArgs e)
+		protected void OnYentryreferenceShiftChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		public void SetFilterDates(DateTime? startDate, DateTime? endDate)
@@ -117,6 +119,36 @@ namespace Vodovoz
 		{
 			enumcomboStatus.SelectedItem = status;
 		}
+
+
+		//возврат выбранного значения в списке ТС и засерение списка в случае программной установки значения
+		public RLFilterTransport? RestrictTransport {
+			get { return yEnumCmbTransport.SelectedItem as RLFilterTransport?; }
+			set {
+				yEnumCmbTransport.SelectedItemOrNull = value;
+				yEnumCmbTransport.Sensitive = false;
+			}
+		}
+
+		protected void OnYEnumCmbTransportChangedByUser(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+	}
+
+	//значения для списка ТС
+	public enum RLFilterTransport
+	{
+		[Display(Name = "Наёмники")]
+		Mercenaries,
+		[Display(Name = "Раскат")]
+		Raskat,
+		[Display(Name = "Ларгус")]
+		Largus,
+		[Display(Name = "Фура")]
+		Waggon,
+		[Display(Name = "Прочее")]
+		Others
 	}
 }
 

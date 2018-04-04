@@ -6,6 +6,10 @@ namespace Vodovoz
 	{
 		private global::Gtk.VBox vbox2;
 
+		private global::Gtk.Alignment alignment1;
+
+		private global::Vodovoz.RouteListsFilter routelistsfilter1;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::QSOrmProject.RepresentationTreeView treeRouteLists;
@@ -25,6 +29,19 @@ namespace Vodovoz
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.alignment1 = new global::Gtk.Alignment(0.5F, 0.5F, 1F, 1F);
+			this.alignment1.Name = "alignment1";
+			// Container child alignment1.Gtk.Container+ContainerChild
+			this.routelistsfilter1 = new global::Vodovoz.RouteListsFilter();
+			this.routelistsfilter1.Events = ((global::Gdk.EventMask)(256));
+			this.routelistsfilter1.Name = "routelistsfilter1";
+			this.alignment1.Add(this.routelistsfilter1);
+			this.vbox2.Add(this.alignment1);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.alignment1]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -34,8 +51,8 @@ namespace Vodovoz
 			this.treeRouteLists.Name = "treeRouteLists";
 			this.GtkScrolledWindow.Add(this.treeRouteLists);
 			this.vbox2.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
-			w2.Position = 0;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
+			w4.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
@@ -47,20 +64,21 @@ namespace Vodovoz
 			this.buttonOpen.Name = "buttonOpen";
 			this.buttonOpen.UseUnderline = true;
 			this.buttonOpen.Label = global::Mono.Unix.Catalog.GetString("Открыть");
-			global::Gtk.Image w3 = new global::Gtk.Image();
-			this.buttonOpen.Image = w3;
+			global::Gtk.Image w5 = new global::Gtk.Image();
+			this.buttonOpen.Image = w5;
 			this.hbox1.Add(this.buttonOpen);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonOpen]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonOpen]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.vbox2.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
-			w5.Position = 1;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
+			w7.Position = 2;
+			w7.Expand = false;
+			w7.Fill = false;
 			this.Add(this.vbox2);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

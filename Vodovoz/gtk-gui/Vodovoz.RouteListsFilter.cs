@@ -16,7 +16,11 @@ namespace Vodovoz
 
 		private global::Gtk.Label label4;
 
+		private global::Gtk.Label label5;
+
 		private global::Gamma.Widgets.yEntryReference yentryreferenceShift;
+
+		private global::Gamma.Widgets.yEnumComboBox yEnumCmbTransport;
 
 		protected virtual void Build()
 		{
@@ -26,7 +30,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.RouteListsFilter";
 			// Container child Vodovoz.RouteListsFilter.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(4)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -84,24 +87,54 @@ namespace Vodovoz
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.label5 = new global::Gtk.Label();
+			this.label5.Name = "label5";
+			this.label5.Xalign = 1F;
+			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Тип ТС:");
+			this.table1.Add(this.label5);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.label5]));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
+			w6.LeftAttach = ((uint)(2));
+			w6.RightAttach = ((uint)(3));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.yentryreferenceShift = new global::Gamma.Widgets.yEntryReference();
 			this.yentryreferenceShift.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceShift.Name = "yentryreferenceShift";
 			this.table1.Add(this.yentryreferenceShift);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryreferenceShift]));
-			w6.TopAttach = ((uint)(1));
-			w6.BottomAttach = ((uint)(2));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryreferenceShift]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yEnumCmbTransport = new global::Gamma.Widgets.yEnumComboBox();
+			this.yEnumCmbTransport.Name = "yEnumCmbTransport";
+			this.yEnumCmbTransport.ShowSpecialStateAll = true;
+			this.yEnumCmbTransport.ShowSpecialStateNot = false;
+			this.yEnumCmbTransport.UseShortTitle = false;
+			this.yEnumCmbTransport.DefaultFirst = false;
+			this.table1.Add(this.yEnumCmbTransport);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.yEnumCmbTransport]));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
+			w8.LeftAttach = ((uint)(3));
+			w8.RightAttach = ((uint)(4));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.yEnumCmbTransport.ChangedByUser += new global::System.EventHandler(this.OnYEnumCmbTransportChangedByUser);
 			this.yentryreferenceShift.Changed += new global::System.EventHandler(this.OnYentryreferenceShiftChanged);
-			this.enumcomboStatus.EnumItemSelected += new global::System.EventHandler< Gamma.Widgets.ItemSelectedEventArgs > (this.OnEnumcomboStatusEnumItemSelected);
+			this.enumcomboStatus.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumcomboStatusEnumItemSelected);
 			this.dateperiodOrders.PeriodChanged += new global::System.EventHandler(this.OnDateperiodOrdersPeriodChanged);
 		}
 	}
