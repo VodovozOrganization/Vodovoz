@@ -438,7 +438,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 3;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vboxInfo = new global::Gtk.VBox();
 			this.vboxInfo.Name = "vboxInfo";
@@ -446,7 +446,6 @@ namespace Vodovoz
 			this.vboxInfo.BorderWidth = ((uint)(6));
 			// Container child vboxInfo.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(15)), ((uint)(4)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -1470,11 +1469,11 @@ namespace Vodovoz
 			w110.Expand = false;
 			w110.Fill = false;
 			// Container child hbox11.Gtk.Box+BoxChild
-			this.yspinDiscountOrder = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
+			this.yspinDiscountOrder = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.yspinDiscountOrder.CanFocus = true;
 			this.yspinDiscountOrder.Name = "yspinDiscountOrder";
-			this.yspinDiscountOrder.Adjustment.PageIncrement = 10;
-			this.yspinDiscountOrder.ClimbRate = 1;
+			this.yspinDiscountOrder.Adjustment.PageIncrement = 10D;
+			this.yspinDiscountOrder.ClimbRate = 1D;
 			this.yspinDiscountOrder.Numeric = true;
 			this.yspinDiscountOrder.ValueAsDecimal = 0m;
 			this.yspinDiscountOrder.ValueAsInt = 0;
@@ -1604,11 +1603,11 @@ namespace Vodovoz
 			w122.XOptions = ((global::Gtk.AttachOptions)(4));
 			w122.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
-			this.spinSumDifference = new global::Gamma.GtkWidgets.ySpinButton(-100000, 100000, 1);
+			this.spinSumDifference = new global::Gamma.GtkWidgets.ySpinButton(-100000D, 100000D, 1D);
 			this.spinSumDifference.CanFocus = true;
 			this.spinSumDifference.Name = "spinSumDifference";
-			this.spinSumDifference.Adjustment.PageIncrement = 10;
-			this.spinSumDifference.ClimbRate = 1;
+			this.spinSumDifference.Adjustment.PageIncrement = 10D;
+			this.spinSumDifference.ClimbRate = 1D;
 			this.spinSumDifference.Numeric = true;
 			this.spinSumDifference.ValueAsDecimal = 0m;
 			this.spinSumDifference.ValueAsInt = 0;
@@ -1843,6 +1842,7 @@ namespace Vodovoz
 			w151.Position = 0;
 			// Container child hboxStatusButtons.Gtk.Box+BoxChild
 			this.buttonWaitForPayment = new global::Gtk.Button();
+			this.buttonWaitForPayment.Sensitive = false;
 			this.buttonWaitForPayment.CanFocus = true;
 			this.buttonWaitForPayment.Name = "buttonWaitForPayment";
 			this.buttonWaitForPayment.UseUnderline = true;
