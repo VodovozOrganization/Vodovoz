@@ -50,39 +50,47 @@ namespace Vodovoz.JournalFilters
 
 		#endregion
 
-		NomenclatureCategory nomenCategory;
+		NomenclatureCategory[] availableCategories;
 
-		public NomenclatureCategory NomenCategory
-		{
-			get { return nomenCategory; }
-			set { 
-				nomenCategory = value;
-				AllSelected = false;
+		public NomenclatureCategory[] AvailableCategories {
+			get { return availableCategories; }
+			set {
+				availableCategories = value;
+				SetAvailableCategories();
+			}
+		}
+
+		NomenclatureCategory defaultSelectedCategory;
+
+		public NomenclatureCategory DefaultSelectedCategory {
+			get { return defaultSelectedCategory; }
+			set {
+				defaultSelectedCategory = value;
 				enumcomboCategory.SelectedItem = value;
 			}
 		}
 
-		bool allSelected = true;
-
-		public bool AllSelected
-		{
-			get { return allSelected; }
-			set { allSelected = value; }
-		}
-
-		private object[] HideList(NomenclatureCategory[] nomCat)
-		{
-			ArrayList ncList = new ArrayList(), objList = new ArrayList();
-			ncList.AddRange(Enum.GetValues(typeof(NomenclatureCategory)));
-			foreach (NomenclatureCategory nc in ncList)
-			{
-				if(!nomCat.Contains(nc))
-				{
-					objList.Add(nc);
+		public NomenclatureCategory[] SelectedCategories {
+			get {
+				var selected = enumcomboCategory.SelectedItem as NomenclatureCategory?;
+				if(selected == null) {
+					if(availableCategories.Any()) {
+						return availableCategories;
+					} else {
+						return Enum.GetValues(typeof(NomenclatureCategory)).OfType<NomenclatureCategory>().ToArray();
+					}
+				} else {
+					return new NomenclatureCategory[] { (NomenclatureCategory)enumcomboCategory.SelectedItem };
 				}
 			}
+		}
 
-			return objList.Cast<object>().ToArray();
+		private void SetAvailableCategories()
+		{
+			enumcomboCategory.ClearEnumHideList();
+			var hidingCategories = Enum.GetValues(typeof(NomenclatureCategory)).OfType<NomenclatureCategory>().ToList();
+			hidingCategories.RemoveAll(x => AvailableCategories.Contains(x));
+			enumcomboCategory.AddEnumToHideList(hidingCategories.Cast<object>().ToArray());
 		}
 
 		protected void OnEnumcomboCategoryChangedByUser(object sender, EventArgs e)
@@ -91,11 +99,6 @@ namespace Vodovoz.JournalFilters
 				return;
 			}
 
-			if((SpecialComboState)enumcomboCategory.SelectedItem == SpecialComboState.All) {
-				AllSelected = true;
-			} else {
-				NomenCategory = (NomenclatureCategory)enumcomboCategory.SelectedItem;
-			}
 			OnRefiltered();
 		}
 	}

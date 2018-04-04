@@ -26000,6 +26000,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -26129,7 +26130,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">3</property>
             <child>
               <widget class="Gtk.VBox" id="vboxInfo">
                 <property name="MemberName" />
@@ -27470,6 +27471,22 @@
                                   </packing>
                                 </child>
                                 <child>
+                                  <widget class="Gtk.Button" id="buttonAddMaster">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Type">TextAndIcon</property>
+                                    <property name="Icon">stock:gtk-add Menu</property>
+                                    <property name="Label" translatable="yes">Выезд мастера</property>
+                                    <signal name="Clicked" handler="OnButtonAddMasterClicked" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">1</property>
+                                    <property name="AutoSize">True</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
                                   <widget class="QSOrmProject.EnumMenuButton" id="enumAddRentButton">
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
@@ -27480,7 +27497,7 @@
                                     <property name="UseMarkup">False</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">1</property>
+                                    <property name="Position">2</property>
                                     <property name="AutoSize">False</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -27491,7 +27508,7 @@
                                     <property name="MemberName" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">2</property>
+                                    <property name="Position">3</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -27508,7 +27525,7 @@
                                     <signal name="Clicked" handler="OnButtonDelete1Clicked" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">3</property>
+                                    <property name="Position">4</property>
                                     <property name="AutoSize">False</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -44935,7 +44952,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.JournalFilters.NomenclatureRepFilter" design-size="153 32">
+  <widget class="Gtk.Bin" id="Vodovoz.JournalFilters.NomenclatureRepFilter" design-size="124 35">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>

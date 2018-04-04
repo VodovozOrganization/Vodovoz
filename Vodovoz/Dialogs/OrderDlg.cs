@@ -707,6 +707,29 @@ namespace Vodovoz
 			Entity.RemoveItem(UoWGeneric, treeItems.GetSelectedObject() as OrderItem);
 		}
 
+		protected void OnButtonAddMasterClicked(object sender, EventArgs e)
+		{
+			if(UoWGeneric.Root.Client == null) {
+				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				return;
+			}
+
+			if(UoWGeneric.Root.DeliveryDate == null) {
+				MessageDialogWorks.RunErrorDialog("Введите дату доставки");
+				return;
+			}
+
+			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			nomenclatureFilter.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.master };
+			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.master;
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.TabName = "Выезд мастера";
+			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
+			SelectDialog.ShowFilter = true;
+			TabParent.AddSlaveTab(this, SelectDialog);
+		}
+
 		protected void OnButtonAddForSaleClicked(object sender, EventArgs e)
 		{
 			if(UoWGeneric.Root.Client == null) {
@@ -720,7 +743,8 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.NomenCategory = NomenclatureCategory.water;
+			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForSale();
+			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.water;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Номенклатура на продажу";
@@ -742,13 +766,15 @@ namespace Vodovoz
 
 		void AddNomenclature(Nomenclature nomenclature, int count = 0)
 		{
-			if(UoWGeneric.Root.OrderItems.Any(x => x.Nomenclature.NoDelivey == true) && nomenclature.NoDelivey == false) {
-				MessageDialogWorks.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
+			if(UoWGeneric.Root.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
+			   && nomenclature.Category == NomenclatureCategory.master) {
+				MessageDialogWorks.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
 				return;
 			}
 
-			if(UoWGeneric.Root.OrderItems.Any(x => x.Nomenclature.NoDelivey == false) && nomenclature.NoDelivey == true) {
-				MessageDialogWorks.RunInfoDialog("Услуга без доставки должна добавляться в новый заказ");
+			if(UoWGeneric.Root.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
+			   && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
+				MessageDialogWorks.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
 				return;
 			}
 
@@ -802,6 +828,12 @@ namespace Vodovoz
 				MessageDialogWorks.RunWarningDialog("Для добавления оборудования должна быть выбрана точка доставки.");
 				return;
 			}
+
+			if(UoWGeneric.Root.ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)) {
+				MessageDialogWorks.RunWarningDialog("Нельзя добавлять аренду в сервисный заказ");
+				return;
+			}
+
 			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType);
 			if(contract == null) {
 				switch(type) {

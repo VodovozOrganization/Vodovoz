@@ -417,11 +417,11 @@ namespace Vodovoz
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.yspinSumOfDamage = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
+			this.yspinSumOfDamage = new global::Gamma.GtkWidgets.ySpinButton(0, 100000, 1);
 			this.yspinSumOfDamage.CanFocus = true;
 			this.yspinSumOfDamage.Name = "yspinSumOfDamage";
-			this.yspinSumOfDamage.Adjustment.PageIncrement = 10D;
-			this.yspinSumOfDamage.ClimbRate = 1D;
+			this.yspinSumOfDamage.Adjustment.PageIncrement = 10;
+			this.yspinSumOfDamage.ClimbRate = 1;
 			this.yspinSumOfDamage.Digits = ((uint)(2));
 			this.yspinSumOfDamage.Numeric = true;
 			this.yspinSumOfDamage.ValueAsDecimal = 0m;
@@ -648,14 +648,14 @@ namespace Vodovoz
 			w44.XOptions = ((global::Gtk.AttachOptions)(4));
 			w44.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.spinVolume = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
+			this.spinVolume = new global::Gamma.GtkWidgets.ySpinButton(0, 999, 1);
 			this.spinVolume.CanFocus = true;
 			this.spinVolume.Name = "spinVolume";
-			this.spinVolume.Adjustment.PageIncrement = 10D;
-			this.spinVolume.ClimbRate = 1D;
+			this.spinVolume.Adjustment.PageIncrement = 10;
+			this.spinVolume.ClimbRate = 1;
 			this.spinVolume.Digits = ((uint)(3));
 			this.spinVolume.Numeric = true;
-			this.spinVolume.Value = 3D;
+			this.spinVolume.Value = 3;
 			this.spinVolume.ValueAsDecimal = 0m;
 			this.spinVolume.ValueAsInt = 0;
 			this.datatable1.Add(this.spinVolume);
@@ -667,14 +667,14 @@ namespace Vodovoz
 			w45.XOptions = ((global::Gtk.AttachOptions)(4));
 			w45.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.spinWeight = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
+			this.spinWeight = new global::Gamma.GtkWidgets.ySpinButton(0, 999, 1);
 			this.spinWeight.CanFocus = true;
 			this.spinWeight.Name = "spinWeight";
-			this.spinWeight.Adjustment.PageIncrement = 10D;
-			this.spinWeight.ClimbRate = 1D;
+			this.spinWeight.Adjustment.PageIncrement = 10;
+			this.spinWeight.ClimbRate = 1;
 			this.spinWeight.Digits = ((uint)(3));
 			this.spinWeight.Numeric = true;
-			this.spinWeight.Value = 3D;
+			this.spinWeight.Value = 3;
 			this.spinWeight.ValueAsDecimal = 0m;
 			this.spinWeight.ValueAsInt = 0;
 			this.datatable1.Add(this.spinWeight);

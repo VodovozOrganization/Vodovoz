@@ -1065,17 +1065,27 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature)
 		{
-			if(nomenclature.Category != NomenclatureCategory.additional && nomenclature.Category != NomenclatureCategory.bottle &&
-				nomenclature.Category != NomenclatureCategory.service && nomenclature.Category != NomenclatureCategory.disposableBottleWater)
+			var acceptCategories = new NomenclatureCategory[] {
+				NomenclatureCategory.additional,
+				NomenclatureCategory.bottle,
+				NomenclatureCategory.service,
+				NomenclatureCategory.master,
+				NomenclatureCategory.disposableBottleWater
+			};
+			if(!acceptCategories.Contains(nomenclature.Category)){
 				return;
+			}
+			
 			ObservableOrderItems.Add(new OrderItem {
 				Order = this,
 				AdditionalAgreement = null,
-				Count = nomenclature.Category == NomenclatureCategory.service ? 1 : 0,
+				Count = (nomenclature.Category == NomenclatureCategory.service 
+				         || nomenclature.Category == NomenclatureCategory.master) ? 1 : 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)
 			});
+
 			UpdateDocuments();
 		}
 

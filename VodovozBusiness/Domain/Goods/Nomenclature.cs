@@ -337,6 +337,14 @@ namespace Vodovoz.Domain.Goods
 			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water, NomenclatureCategory.disposableBottleWater, NomenclatureCategory.bottle };
 		}
 
+		public static NomenclatureCategory[] GetCategoriesForMaster()
+		{
+			List<NomenclatureCategory> list = new List<NomenclatureCategory>(GetCategoriesForSale());
+			list.Add(NomenclatureCategory.master);
+			list.Add(NomenclatureCategory.spare_parts);
+			return list.ToArray();
+		}
+
 		/// <summary>
 		/// Категории товаров. Товары могут хранится на складе.
 		/// </summary>

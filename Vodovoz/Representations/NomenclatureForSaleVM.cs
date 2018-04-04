@@ -42,10 +42,6 @@ namespace Vodovoz.ViewModel
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
 
-			NomenclatureCategory[] filteredCat = new NomenclatureCategory[1];
-
-			filteredCat[0] = Filter.NomenCategory;
-
 			var subqueryAdded = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
 				.Where (() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.Where (Restrictions.IsNotNull (Projections.Property<WarehouseMovementOperation> (o => o.IncomingWarehouse)))
@@ -67,8 +63,7 @@ namespace Vodovoz.ViewModel
 
 			var items = UoW.Session.QueryOver<Nomenclature>(()=>nomenclatureAlias)
 			    .Where(() => !nomenclatureAlias.IsArchive)
-			    .Where(Restrictions.In(Projections.Property(()=>nomenclatureAlias.Category),Nomenclature.GetCategoriesForSale()))
-			    .Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category),(Filter.AllSelected? Enum.GetValues(typeof(NomenclatureCategory)) : filteredCat)))
+			    .Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category), Filter.SelectedCategories))
 				.JoinAlias(()=>nomenclatureAlias.Unit,()=>unitAlias).Where(()=>!nomenclatureAlias.IsSerial)
 				.SelectList(list=>list
 					.SelectGroup(()=>nomenclatureAlias.Id).WithAlias(()=>resultAlias.Id)
@@ -87,7 +82,7 @@ namespace Vodovoz.ViewModel
 				.GetExecutableQueryOver(UoW.Session)
 				.Where (eq => !eq.OnDuty)
 				.JoinAlias (eq => eq.Nomenclature, () => nomenclatureAlias)
-				.Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category), (Filter.AllSelected ? Enum.GetValues(typeof(NomenclatureCategory)) : filteredCat)))
+			    .Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category), Filter.SelectedCategories))
 				.JoinAlias (() => nomenclatureAlias.Unit, () => unitAlias)
 				.SelectList(list=>list
 					.SelectGroup(()=>nomenclatureAlias.Id).WithAlias(()=>resultAlias.Id)
@@ -115,7 +110,7 @@ namespace Vodovoz.ViewModel
 			List<NomenclatureForSaleVMNode> forSale = new List<NomenclatureForSaleVMNode>();
 			forSale.AddRange (items);
 			forSale.AddRange (equipment);
-			if (Filter.AllSelected || Filter.NomenCategory == NomenclatureCategory.service)
+			if (Filter.SelectedCategories.Contains(NomenclatureCategory.service))
 			{
 				forSale.AddRange(services);
 			}
