@@ -30754,14 +30754,9 @@
         <property name="MemberName" />
         <property name="Spacing">6</property>
         <child>
-          <widget class="Gtk.Alignment" id="alignment1">
+          <widget class="Vodovoz.RouteListsFilter" id="routelistsfilter1">
             <property name="MemberName" />
-            <child>
-              <widget class="Vodovoz.RouteListsFilter" id="routelistsfilter1">
-                <property name="MemberName" />
-                <property name="Events">ButtonPressMask</property>
-              </widget>
-            </child>
+            <property name="Events">ButtonPressMask</property>
           </widget>
           <packing>
             <property name="Position">0</property>
@@ -30789,7 +30784,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gtk.HBox" id="hbox1">
+          <widget class="Gtk.HBox" id="hbox2">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
