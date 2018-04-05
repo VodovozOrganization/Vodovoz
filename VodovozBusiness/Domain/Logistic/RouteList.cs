@@ -702,7 +702,12 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(Driver.WageCalcType == WageCalculationType.fixedDay 
 			  || Driver.WageCalcType == WageCalculationType.fixedRoute) {
-				return FixedDriverWage;
+				//Если все заказы не выполнены, то нет зарплаты
+				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed)) {
+					return FixedDriverWage;
+				}else {
+					return 0m;
+				}
 			}
 			return Addresses.Sum(item => item.DriverWage) + Addresses.Sum(item => item.DriverWageSurcharge);
 		}
@@ -717,7 +722,12 @@ namespace Vodovoz.Domain.Logistic
 			}
 			if(Forwarder.WageCalcType == WageCalculationType.fixedDay
 			  || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
-				return FixedDriverWage;
+				//Если все заказы не выполнены, то нет зарплаты
+				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed)) {
+					return FixedForwarderWage;
+				} else {
+					return 0m;
+				}
 			}
 			return Addresses.Sum(item => item.ForwarderWage);
 		}
@@ -1248,8 +1258,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void UpdateWageOperation()
 		{
-			var driverWage = Addresses
-				.Where(item => item.IsDelivered()).Sum(item => item.DriverWageTotal);
+			decimal driverWage = GetDriversTotalWage();
+
 			if(DriverWageOperation == null) {
 				DriverWageOperation = new WagesMovementOperations {
 					OperationTime = this.Date,
@@ -1264,8 +1274,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 			UoW.Save(DriverWageOperation);
 
-			var forwarderWage = Addresses
-				.Where(item => item.IsDelivered()).Sum(item => item.ForwarderWageTotal);
+			decimal forwarderWage = GetForwardersTotalWage();
 
 			if(ForwarderWageOperation == null && forwarderWage > 0) {
 				ForwarderWageOperation = new WagesMovementOperations {
