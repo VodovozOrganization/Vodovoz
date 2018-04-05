@@ -152,30 +152,19 @@ namespace Vodovoz
 			if(Entity.RouteList == null || Entity.Warehouse == null) return;
 			Dictionary<int, decimal> returns = Repositories.Store.CarUnloadRepository.NomenclatureUnloaded(UoW, Entity.RouteList, Entity.Warehouse, Entity);
 
-			treeOtherReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<OneReturn>()
-				//.AddColumn("Id").AddTextRenderer(x => x.id.ToString())
-				.AddColumn("Название").AddTextRenderer(x => x.name)
-				.AddColumn("Количество").AddTextRenderer(x => ((int)returns[x.id]).ToString())
+			treeOtherReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<Nomenclature>()
+				.AddColumn("Название").AddTextRenderer(x => x.Name)
+				.AddColumn("Количество").AddTextRenderer(x => ((int)returns[x.Id]).ToString())
 				.Finish();
 
 			Nomenclature nomenclatureAlias = null;
-			OneReturn resultAlias = null;
+
 			var query = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
 						   .WhereRestrictionOn(() => nomenclatureAlias.Id)
 						   .IsIn(returns.Keys)
-						   .SelectList(list => list
-									   .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.id)
-									   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.name))
-						   .TransformUsing(Transformers.AliasToBean<OneReturn>())
-						   .List<OneReturn>();
+						   .List<Nomenclature>();
 
 			treeOtherReturns.ItemsDataSource = query;
-		}
-
-		class OneReturn
-		{
-			public int id;
-			public string name;
 		}
 
 		void SetupForNewRouteList()
