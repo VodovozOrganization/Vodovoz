@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate.Transform;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Additions.Store;
@@ -15,7 +16,7 @@ namespace Vodovoz
 {
 	public partial class CarUnloadDocumentDlg : OrmGtkDialogBase<CarUnloadDocument>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		IList<Equipment> alreadyUnloadedEquipment;
 
@@ -32,9 +33,9 @@ namespace Vodovoz
 			ConfigureNewDoc();
 			ConfigureDlg();
 		}
- 
 
-		public CarUnloadDocumentDlg (int routeListId, int? warehouseId)
+
+		public CarUnloadDocumentDlg(int routeListId, int? warehouseId)
 		{
 			this.Build();
 			ConfigureNewDoc();
@@ -45,14 +46,14 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public CarUnloadDocumentDlg (int id)
+		public CarUnloadDocumentDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarUnloadDocument> (id);
-			ConfigureDlg ();
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarUnloadDocument>(id);
+			ConfigureDlg();
 		}
 
-		public CarUnloadDocumentDlg (CarUnloadDocument sub) : this (sub.Id)
+		public CarUnloadDocumentDlg(CarUnloadDocument sub) : this(sub.Id)
 		{
 		}
 		#endregion
@@ -71,7 +72,7 @@ namespace Vodovoz
 			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.CarUnloadEdit);
 		}
 
-		void ConfigureDlg ()
+		void ConfigureDlg()
 		{
 			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.CarUnloadEdit, Entity.Warehouse)) {
 				FailInitialize = true;
@@ -81,7 +82,7 @@ namespace Vodovoz
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarUnloadEdit, Entity.Warehouse);
 			yentryrefRouteList.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
 			returnsreceptionview1.Sensitive = bottlereceptionview1.Sensitive = equipmentreceptionview1.Sensitive = editing;
-			
+
 			bottlereceptionview1.UoW = UoW;
 			returnsreceptionview1.UoW = UoW;
 
@@ -101,44 +102,42 @@ namespace Vodovoz
 				LoadReception();
 		}
 
-		public override bool Save ()
+		public override bool Save()
 		{
 			UpdateReceivedItemsOnEntity();
 
-			var valid = new QSValidation.QSValidator<CarUnloadDocument> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var valid = new QSValidation.QSValidator<CarUnloadDocument>(UoWGeneric.Root);
+			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditor == null)
-			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+			if(Entity.LastEditor == null) {
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
-			logger.Info ("Сохраняем разгрузочный талон...");
-			UoWGeneric.Save ();
-			logger.Info ("Ok.");
+			logger.Info("Сохраняем разгрузочный талон...");
+			UoWGeneric.Save();
+			logger.Info("Ok.");
 			return true;
 		}
 
 		void UpdateRouteListInfo()
 		{
-			if(Entity.RouteList == null)
-			{
+			if(Entity.RouteList == null) {
 				ytextviewRouteListInfo.Buffer.Text = String.Empty;
 				return;
 			}
 
 			ytextviewRouteListInfo.Buffer.Text =
-				String.Format ("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
+				String.Format("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
 					Entity.RouteList.Id,
 					Entity.RouteList.Date,
 					Entity.RouteList.Driver.FullName,
 					Entity.RouteList.Car.Model,
 					Entity.RouteList.Car.RegistrationNumber,
-					Entity.RouteList.Forwarder != null ? Entity.RouteList.Forwarder.FullName : "(Отсутствует)" 
+					Entity.RouteList.Forwarder != null ? Entity.RouteList.Forwarder.FullName : "(Отсутствует)"
 				);
 		}
 
@@ -148,11 +147,41 @@ namespace Vodovoz
 			returnsreceptionview1.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
 		}
 
+		void fillOtherReturnsTable()
+		{
+			if(Entity.RouteList == null || Entity.Warehouse == null) return;
+			Dictionary<int, decimal> returns = Repositories.Store.CarUnloadRepository.NomenclatureUnloaded(UoW, Entity.RouteList, Entity.Warehouse, Entity);
+
+			treeOtherReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<OneReturn>()
+				//.AddColumn("Id").AddTextRenderer(x => x.id.ToString())
+				.AddColumn("Название").AddTextRenderer(x => x.name)
+				.AddColumn("Количество").AddTextRenderer(x => ((int)returns[x.id]).ToString())
+				.Finish();
+
+			Nomenclature nomenclatureAlias = null;
+			OneReturn resultAlias = null;
+			var query = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
+						   .WhereRestrictionOn(() => nomenclatureAlias.Id)
+						   .IsIn(returns.Keys)
+						   .SelectList(list => list
+									   .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.id)
+									   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.name))
+						   .TransformUsing(Transformers.AliasToBean<OneReturn>())
+						   .List<OneReturn>();
+
+			treeOtherReturns.ItemsDataSource = query;
+		}
+
+		class OneReturn
+		{
+			public int id;
+			public string name;
+		}
+
 		void SetupForNewRouteList()
 		{
 			UpdateRouteListInfo();
-			if (Entity.RouteList != null)
-			{
+			if(Entity.RouteList != null) {
 				UpdateAlreadyUnloaded();
 			}
 			equipmentreceptionview1.RouteList = Entity.RouteList;
@@ -167,11 +196,9 @@ namespace Vodovoz
 
 		void LoadReception()
 		{
-			foreach(var item in Entity.Items)
-			{
+			foreach(var item in Entity.Items) {
 				var bottle = bottlereceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
-				if(bottle != null)
-				{
+				if(bottle != null) {
 					bottle.Amount = (int)item.MovementOperation.Amount;
 					continue;
 				}
@@ -179,8 +206,7 @@ namespace Vodovoz
 				var returned = item.MovementOperation.Equipment != null
 					? returnsreceptionview1.Items.FirstOrDefault(x => x.EquipmentId == item.MovementOperation.Equipment.Id)
 					: returnsreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
-				if(returned != null)
-				{
+				if(returned != null) {
 					returned.Amount = (int)item.MovementOperation.Amount;
 					continue;
 				}
@@ -208,17 +234,15 @@ namespace Vodovoz
 					continue;
 				}
 
-				logger.Warn ("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.MovementOperation.Nomenclature);
-				var newItem = new ReceptionItemNode (item.MovementOperation.Nomenclature, (int)item.MovementOperation.Amount);
-				if (item.MovementOperation.Equipment != null)
-				{
+				logger.Warn("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.MovementOperation.Nomenclature);
+				var newItem = new ReceptionItemNode(item.MovementOperation.Nomenclature, (int)item.MovementOperation.Amount);
+				if(item.MovementOperation.Equipment != null) {
 					newItem.EquipmentId = item.MovementOperation.Equipment.Id;
-				}			
-				returnsreceptionview1.AddItem (newItem);
+				}
+				returnsreceptionview1.AddItem(newItem);
 			}
 
-			foreach(var item in bottlereceptionview1.Items)
-			{
+			foreach(var item in bottlereceptionview1.Items) {
 				var returned = Entity.Items.FirstOrDefault(x => x.MovementOperation.Nomenclature.Id == item.NomenclatureId);
 				item.Amount = returned != null ? (int)returned.MovementOperation.Amount : 0;
 			}
@@ -229,62 +253,57 @@ namespace Vodovoz
 			//Собираем список всего на возврат из разных виджетов.
 			var tempItemList = new List<InternalItem>();
 
-			foreach (var node in bottlereceptionview1.Items) 
-			{
-				if (node.Amount == 0)
+			foreach(var node in bottlereceptionview1.Items) {
+				if(node.Amount == 0)
 					continue;
 
 				var item = new InternalItem {
-						ReciveType = ReciveTypes.Bottle,
-						NomenclatureId = node.NomenclatureId,
-						Amount = node.Amount
-					};
-					tempItemList.Add(item);
+					ReciveType = ReciveTypes.Bottle,
+					NomenclatureId = node.NomenclatureId,
+					Amount = node.Amount
+				};
+				tempItemList.Add(item);
 			}
 
-			foreach (var node in returnsreceptionview1.Items) 
-			{
-				if (node.Amount == 0)
+			foreach(var node in returnsreceptionview1.Items) {
+				if(node.Amount == 0)
 					continue;
 
-				var	item = new InternalItem {
+				var item = new InternalItem {
 					ReciveType = ReciveTypes.Returnes,
-						NomenclatureId = node.NomenclatureId,
-						EquipmentId = node.EquipmentId,
-						Amount = node.Amount
-					};
-					tempItemList.Add(item);
+					NomenclatureId = node.NomenclatureId,
+					EquipmentId = node.EquipmentId,
+					Amount = node.Amount
+				};
+				tempItemList.Add(item);
 			}
 
-			foreach (var node in equipmentreceptionview1.Items) 
-			{
-				if (node.Amount == 0)
+			foreach(var node in equipmentreceptionview1.Items) {
+				if(node.Amount == 0)
 					continue;
 
-				var	item = new InternalItem {
+				var item = new InternalItem {
 					ReciveType = ReciveTypes.Equipment,
-						NomenclatureId = node.NomenclatureId,
-						EquipmentId = node.EquipmentId,
-						Amount = node.Amount,
-						ServiceClaim = node.ServiceClaim
-					};
-					tempItemList.Add(item);
+					NomenclatureId = node.NomenclatureId,
+					EquipmentId = node.EquipmentId,
+					Amount = node.Amount,
+					ServiceClaim = node.ServiceClaim
+				};
+				tempItemList.Add(item);
 
-				if (node.ServiceClaim == null)
+				if(node.ServiceClaim == null)
 					continue;
 
 				node.ServiceClaim.UoW = UoW;
-				if (node.IsNew)
-				{
+				if(node.IsNew) {
 					node.NewEquipment.AssignedToClient = node.ServiceClaim.Counterparty;
 					UoW.Save(node.NewEquipment);
 					node.ServiceClaim.FillNewEquipment(node.NewEquipment);
 				}
 				//FIXME предположительно нужно возвращать статус заявки если поступление удаляется.
-				if(node.ServiceClaim.Status == ServiceClaimStatus.PickUp)
-				{
+				if(node.ServiceClaim.Status == ServiceClaimStatus.PickUp) {
 					node.ServiceClaim.AddHistoryRecord(ServiceClaimStatus.DeliveredToWarehouse,
-						String.Format("Поступил на склад '{0}', по талону разгрузки №{1} для МЛ №{2}", 
+						String.Format("Поступил на склад '{0}', по талону разгрузки №{1} для МЛ №{2}",
 							Entity.Warehouse.Name,
 							Entity.Id,
 							Entity.RouteList.Id
@@ -297,11 +316,11 @@ namespace Vodovoz
 			//Обновляем Entity
 			var nomenclatures = UoW.GetById<Nomenclature>(tempItemList.Select(x => x.NomenclatureId).ToArray());
 			var equipments = UoW.GetById<Equipment>(tempItemList.Select(x => x.EquipmentId).ToArray());
-			foreach (var tempItem in tempItemList) {
+			foreach(var tempItem in tempItemList) {
 				var item = tempItem.EquipmentId > 0
 					? Entity.Items.FirstOrDefault(x => x.MovementOperation.Equipment?.Id == tempItem.EquipmentId)
 					: Entity.Items.FirstOrDefault(x => x.MovementOperation.Nomenclature.Id == tempItem.NomenclatureId);
-				if (item == null) {
+				if(item == null) {
 					var nom = nomenclatures.First(x => x.Id == tempItem.NomenclatureId);
 					var equ = equipments.FirstOrDefault(x => x.Id == tempItem.EquipmentId);
 					Entity.AddItem(
@@ -311,24 +330,20 @@ namespace Vodovoz
 						tempItem.Amount,
 						tempItem.ServiceClaim
 					);
-				}
-				else
-				{
+				} else {
 					if(item.MovementOperation.Amount != tempItem.Amount)
 						item.MovementOperation.Amount = tempItem.Amount;
-					if (item.ServiceClaim != tempItem.ServiceClaim)
+					if(item.ServiceClaim != tempItem.ServiceClaim)
 						item.ServiceClaim = tempItem.ServiceClaim;
 				}
 			}
 
-			foreach(var item in Entity.Items.ToList())
-			{
+			foreach(var item in Entity.Items.ToList()) {
 				var exist = item.MovementOperation.Equipment != null
 					? tempItemList.Any(x => x.EquipmentId == item.MovementOperation.Equipment.Id)
 					: tempItemList.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
-				
-				if(!exist)
-				{
+
+				if(!exist) {
 					UoW.Delete(item.MovementOperation);
 					Entity.ObservableItems.Remove(item);
 				}
@@ -339,18 +354,17 @@ namespace Vodovoz
 		#region События
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(CarUnloadDocument), "талона"))
-				Save ();
+			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(CarUnloadDocument), "талона"))
+				Save();
 
-			var reportInfo = new QSReport.ReportInfo
-				{
-					Title = Entity.Title,
-					Identifier = "Store.CarUnloadDoc",
-					Parameters = new System.Collections.Generic.Dictionary<string, object>
+			var reportInfo = new QSReport.ReportInfo {
+				Title = Entity.Title,
+				Identifier = "Store.CarUnloadDoc",
+				Parameters = new System.Collections.Generic.Dictionary<string, object>
 					{
 						{ "id",  Entity.Id }
 					}
-				};
+			};
 
 			TabParent.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
@@ -362,16 +376,19 @@ namespace Vodovoz
 		{
 			UpdateWidgetsVisible();
 			returnsreceptionview1.Warehouse = Entity.Warehouse;
+			fillOtherReturnsTable();
 		}
 
 		protected void OnYentryrefRouteListChanged(object sender, EventArgs e)
 		{
 			SetupForNewRouteList();
+			fillOtherReturnsTable();
 		}
 		#endregion
 
-		class InternalItem{
-			
+		class InternalItem
+		{
+
 			public ReciveTypes ReciveType;
 			public ServiceClaim ServiceClaim;
 			public int NomenclatureId;

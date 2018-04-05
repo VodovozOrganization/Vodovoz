@@ -713,6 +713,7 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport.cs" />
     <Compile Include="ReportsParameters\Logistic\DrivingCallReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DrivingCallReport.cs" />
+    <Compile Include="Dialogs\Store\CarUnloadRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
