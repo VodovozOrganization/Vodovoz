@@ -2,6 +2,7 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -47,8 +48,11 @@ namespace Vodovoz.SidePanel.InfoViews
 		public void Refresh()
 		{
 			DeliveryPoint = (InfoProvider as IDeliveryPointInfoProvider)?.DeliveryPoint;
-			if (DeliveryPoint == null)
-				return;			
+			if(DeliveryPoint == null) {
+				buttonSaveComment.Sensitive = false;
+				return;
+			}
+			buttonSaveComment.Sensitive = true;
 			labelAddress.Text = DeliveryPoint.CompiledAddress;
 			labelPhone.LabelProp = String.Join(";", DeliveryPoint.Phones.Select(ph => ph.LongText)) ;
 			labelPhone.Visible = labelPhoneText.Visible = DeliveryPoint.Phones.Count > 0;
@@ -116,6 +120,14 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			ytreeLastOrders.TooltipText = tooltip;
 			ytreeLastOrders.HasTooltip = true;
+		}
+
+		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
+		{
+			using(var uow = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id)) {
+				uow.Root.Comment = textviewComment.Buffer.Text;
+				uow.Save();
+			}
 		}
 	}
 }

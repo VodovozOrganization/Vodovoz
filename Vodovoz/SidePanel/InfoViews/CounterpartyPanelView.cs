@@ -1,6 +1,7 @@
 ﻿using System;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
+using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -41,8 +42,11 @@ namespace Vodovoz.SidePanel.InfoViews
 		public void Refresh()
 		{
 			Counterparty = (InfoProvider as ICounterpartyInfoProvider)?.Counterparty;
-			if (Counterparty == null)
+			if(Counterparty == null) {
+				buttonSaveComment.Sensitive = false;
 				return;
+			}
+			buttonSaveComment.Sensitive = true;
 			labelName.Text = Counterparty.FullName;
 			textviewComment.Buffer.Text = Counterparty.Comment;
 
@@ -96,7 +100,16 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				Refresh();
 			}
-		}			
+		}
+
+		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
+		{
+			using(var uow = UnitOfWorkFactory.CreateForRoot<Counterparty>(Counterparty.Id))
+			{
+				uow.Root.Comment = textviewComment.Buffer.Text;
+				uow.Save();
+			}
+		}
 		#endregion
 	}
 }

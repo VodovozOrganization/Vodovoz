@@ -40,6 +40,10 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.TextView textviewComment;
 
+		private global::Gtk.HBox hbox1;
+
+		private global::Gtk.Button buttonSaveComment;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -212,18 +216,40 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.textviewComment = new global::Gtk.TextView();
 			this.textviewComment.CanFocus = true;
 			this.textviewComment.Name = "textviewComment";
-			this.textviewComment.Editable = false;
 			this.textviewComment.WrapMode = ((global::Gtk.WrapMode)(3));
 			this.GtkScrolledWindow.Add(this.textviewComment);
 			this.vbox1.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
 			w17.Position = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonSaveComment = new global::Gtk.Button();
+			this.buttonSaveComment.CanFocus = true;
+			this.buttonSaveComment.Name = "buttonSaveComment";
+			this.buttonSaveComment.UseUnderline = true;
+			this.buttonSaveComment.Label = global::Mono.Unix.Catalog.GetString("Сохранить комментарий");
+			global::Gtk.Image w18 = new global::Gtk.Image();
+			w18.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-floppy", global::Gtk.IconSize.Menu);
+			this.buttonSaveComment.Image = w18;
+			this.hbox1.Add(this.buttonSaveComment);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonSaveComment]));
+			w19.Position = 0;
+			w19.Expand = false;
+			w19.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w20.Position = 7;
+			w20.Expand = false;
+			w20.Fill = false;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.buttonSaveComment.Clicked += new global::System.EventHandler(this.OnButtonSaveCommentClicked);
 		}
 	}
 }
