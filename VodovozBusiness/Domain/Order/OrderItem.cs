@@ -56,12 +56,30 @@ namespace Vodovoz.Domain.Orders
 		[Display (Name = "Цена")]
 		public virtual Decimal Price {
 			get { return price; }
-			set { 
+			set {
+				//Если цена не отличается от той которая должна быть по прайсам в 
+				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
+				var defaultPrice = GetDefaultPrice();
+				if(defaultPrice.HasValue) {
+					if(value == defaultPrice.Value || value == 0) {
+						IsUserPrice = false;
+					} else {
+						IsUserPrice = true;
+					}	 
+				}
 				if(SetField (ref price, value, () => Price))
 				{
 					RecalculateNDS();
 				}
 			}
+		}
+
+		bool isUserPrice;
+
+		[Display(Name = "Цена установлена пользователем")]
+		public virtual bool IsUserPrice {
+			get { return isUserPrice; }
+			set { SetField(ref isUserPrice, value, () => IsUserPrice); }
 		}
 
 		int count=-1;
@@ -72,15 +90,9 @@ namespace Vodovoz.Domain.Orders
 				return count; 
 			}
 			set {
-				if (count != -1 && !IsRentCategory) {	
-					var oldDefaultPrice = DefaultPrice;
-					var newDefaultPrice = GetDefaultPrice (value);
-					if (Price == oldDefaultPrice)
-						Price = newDefaultPrice;
-					DefaultPrice = newDefaultPrice;
-				}
 				if(SetField (ref count, value, () => Count))
 				{
+					Order?.RecalculateItemsPrice();
 					RecalculateNDS();
 				}
 			}
@@ -232,33 +244,41 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		protected Decimal GetDefaultPrice(int count){
-			Decimal result=0;
-			result = Nomenclature.GetPrice(count);
-			if (Nomenclature.Category == NomenclatureCategory.water) {
+		public virtual decimal? GetWaterFixedPrice()
+		{
+			decimal? result = null;
+			if(Nomenclature.Category == NomenclatureCategory.water) {
 				var waterSalesAgreement = AdditionalAgreement as WaterSalesAgreement;
-				if (waterSalesAgreement != null && waterSalesAgreement.IsFixedPrice
-					&& waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == Nomenclature.Id))
+				if(waterSalesAgreement == null) {
+					return result;
+				}
+				if(waterSalesAgreement.IsFixedPrice
+					&& waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == Nomenclature.Id)
+				   ) {
 					result = waterSalesAgreement.FixedPrices.First(x => x.Nomenclature.Id == Nomenclature.Id).Price;
+				}
 			}
 			return result;
 		}
 
-		Decimal defaultPrice=-1;
-
-		[IgnoreHistoryTrace]
-		public virtual Decimal DefaultPrice {
-			get { 
-				if (defaultPrice == -1) {
-					defaultPrice = GetDefaultPrice (count);
-				}
-				return defaultPrice; 
+		public virtual void RecalculatePrice()
+		{
+			if(isUserPrice) {
+				return;
 			}
-			set { SetField (ref defaultPrice, value, () => DefaultPrice); }
+			var defaultPrice = GetDefaultPrice();
+			if(defaultPrice.HasValue) {
+				Price = defaultPrice.Value;
+			}
 		}
 
-		public virtual bool HasUserSpecifiedPrice(){
-			return price != DefaultPrice;
+		private Decimal? GetDefaultPrice()
+		{
+			if(Nomenclature?.Category == NomenclatureCategory.water) {
+				return Nomenclature?.GetPrice(Order.GetTotalWaterCount());
+			} else {
+				return Nomenclature?.GetPrice(Count);
+			}
 		}
 
 		public virtual decimal Sum{

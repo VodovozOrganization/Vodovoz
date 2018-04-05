@@ -281,7 +281,7 @@ namespace Vodovoz
 					if(aa is WaterSalesAgreement &&
 					  (aa as WaterSalesAgreement).IsFixedPrice) {
 						c.ForegroundGdk = colorGreen;
-					} else if(node.HasUserSpecifiedPrice() &&
+					} else if(node.IsUserPrice &&
 					  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 						c.ForegroundGdk = colorBlue;
 					}
@@ -464,8 +464,7 @@ namespace Vodovoz
 			if((item.Nomenclature.Category == NomenclatureCategory.deposit || item.Nomenclature.Category == NomenclatureCategory.rent)
 				 && item.Price != 0)
 				return;
-			if(!item.HasUserSpecifiedPrice())
-				item.Price = item.DefaultPrice;
+			item.RecalculatePrice();
 		}
 
 		void TreeItems_Selection_Changed(object sender, EventArgs e)

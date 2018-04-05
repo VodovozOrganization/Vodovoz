@@ -53,7 +53,7 @@ namespace Vodovoz.Domain.Client
 
 		public virtual bool IsFixedPrice {
 			get {
-				return FixedPrices != null || FixedPrices.Count > 0;
+				return FixedPrices != null && FixedPrices.Count > 0;
 			}
 		}
 

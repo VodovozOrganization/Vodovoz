@@ -934,6 +934,22 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		public virtual void RecalculateItemsPrice()
+		{
+			foreach(OrderItem item in ObservableOrderItems) {
+				if(item.Nomenclature.Category == NomenclatureCategory.water) {
+					item.RecalculatePrice();
+				}
+			}
+		}
+
+		public virtual int GetTotalWaterCount()
+		{
+			return ObservableOrderItems
+				.Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
+				.Sum(x => x.Count);
+		}
+
 		/// <summary>
 		/// Находит соответсвующий типу клиента и типу оплаты контракт, если не найден создает новый
 		/// </summary>
@@ -2159,26 +2175,26 @@ namespace Vodovoz.Domain.Orders
 
 		decimal GetFixedPrice(OrderItem item)
 		{
-			if(item.AdditionalAgreement != null && item.AdditionalAgreement.Self is WaterSalesAgreement) {
-				WaterSalesAgreement agreement = (item.AdditionalAgreement.Self as WaterSalesAgreement);
-				if(agreement.FixedPrices.Any(x => x.Nomenclature.Id == item.Nomenclature.Id)) {
-					return agreement.FixedPrices.Where(x => x.Nomenclature.Id == item.Nomenclature.Id).Select(x => x.Price).FirstOrDefault();
-				}
+			var fixedPrice = item.GetWaterFixedPrice();
+			if(!fixedPrice.HasValue) {
+				return fixedPrice.Value;
 			}
 			return default(decimal);
 		}
 
 		decimal GetNomenclaturePrice(OrderItem item)
 		{
-			var nomenclaturePrice = item.Nomenclature.NomenclaturePrice
-										.Where(n => n.MinCount <= item.Count)
-										.OrderByDescending(o => o.MinCount)
-										.FirstOrDefault();
-			if(nomenclaturePrice != null) {
-				return nomenclaturePrice.Price;
+			decimal nomenclaturePrice = 0M;
+			if(item.Nomenclature.Category == NomenclatureCategory.water) {
+				int totalWaterCount = ObservableOrderItems
+											   .Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
+											   .Sum(x => x.Count);
+				nomenclaturePrice = item.Nomenclature.GetPrice(totalWaterCount);
+			}else {
+				nomenclaturePrice = item.Nomenclature.GetPrice(item.Count);
 			}
 
-			return default(decimal);
+			return nomenclaturePrice;
 		}
 
 		void ObservableOrderDepositItems_ListContentChanged(object sender, EventArgs e)
