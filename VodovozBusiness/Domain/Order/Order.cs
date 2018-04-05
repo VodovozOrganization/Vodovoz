@@ -2176,7 +2176,7 @@ namespace Vodovoz.Domain.Orders
 		decimal GetFixedPrice(OrderItem item)
 		{
 			var fixedPrice = item.GetWaterFixedPrice();
-			if(!fixedPrice.HasValue) {
+			if(fixedPrice.HasValue) {
 				return fixedPrice.Value;
 			}
 			return default(decimal);
