@@ -67,16 +67,17 @@ namespace Vodovoz
 				referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyHavings ? true : false;
 				//Водители на Авто компании катаются без экспедитора
 				Entity.Forwarder = Entity.Car.IsCompanyHavings ? null : Entity.Forwarder;
-				referenceForwarder.Sensitive = !Entity.Car.IsCompanyHavings;
+				referenceForwarder.IsEditable= !Entity.Car.IsCompanyHavings;
 			};
 
 			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
 			referenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 			referenceDriver.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
-			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictCategory = EmployeeCategory.forwarder;
+			referenceForwarder.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			referenceForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject).InitializeFromSource();
-			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 			referenceForwarder.Changed += (sender, args) =>
 			{
 				createroutelistitemsview1.OnForwarderChanged();

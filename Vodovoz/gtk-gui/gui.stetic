@@ -1843,7 +1843,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.EmployeeDlg" design-size="837 572">
+  <widget class="Gtk.Bin" id="Vodovoz.EmployeeDlg" design-size="859 572">
     <action-group name="Default" />
     <property name="MemberName" />
     <property name="Visible">False</property>
@@ -5721,7 +5721,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">4</property>
+            <property name="CurrentPage">7</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
                 <property name="MemberName" />
@@ -18298,7 +18298,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceForwarder">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceForwarder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -23030,7 +23030,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CashIncomeDlg" design-size="671 506">
+  <widget class="Gtk.Bin" id="Vodovoz.CashIncomeDlg" design-size="671 511">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -23521,10 +23521,10 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryEmploeey">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <signal name="Changed" handler="OnYentryEmploeeyChanged" />
+                <signal name="Changed" handler="OnYentryEmployeeChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">4</property>
@@ -23977,7 +23977,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryEmploeey">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -24120,6 +24120,12 @@
             <property name="NColumns">6</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
             <child>
               <placeholder />
             </child>
@@ -24496,19 +24502,20 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryEmploeey">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <signal name="Changed" handler="OnYentryEmploeeyChanged" />
+                <signal name="Changed" handler="OnYentryEmployeeChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
                 <property name="BottomAttach">2</property>
                 <property name="LeftAttach">1</property>
-                <property name="RightAttach">4</property>
+                <property name="RightAttach">2</property>
                 <property name="AutoSize">False</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -38989,13 +38996,15 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReference" id="yentryEmployee">
+                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryEmployee">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                       </widget>
                       <packing>
                         <property name="Position">1</property>
                         <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
                       </packing>
                     </child>
                   </widget>

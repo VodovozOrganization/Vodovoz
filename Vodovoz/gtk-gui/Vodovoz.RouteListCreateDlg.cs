@@ -40,7 +40,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReference referenceDriver;
 
-		private global::Gamma.Widgets.yEntryReference referenceForwarder;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceForwarder;
 
 		private global::Gamma.Widgets.yEntryReference referenceLogistican;
 
@@ -261,7 +261,7 @@ namespace Vodovoz
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.referenceForwarder = new global::Gamma.Widgets.yEntryReference();
+			this.referenceForwarder = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceForwarder.Events = ((global::Gdk.EventMask)(256));
 			this.referenceForwarder.Name = "referenceForwarder";
 			this.dataRouteList.Add(this.referenceForwarder);
