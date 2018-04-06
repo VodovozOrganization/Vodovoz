@@ -714,6 +714,7 @@
     <Compile Include="ReportsParameters\Logistic\DrivingCallReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DrivingCallReport.cs" />
     <Compile Include="Dialogs\Store\CarUnloadRepository.cs" />
+    <Compile Include="Representations\EmployeesVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

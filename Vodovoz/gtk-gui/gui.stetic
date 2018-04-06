@@ -10925,7 +10925,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.EmployeeFilter" design-size="245 32">
+  <widget class="Gtk.Bin" id="Vodovoz.EmployeeFilter" design-size="277 32">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -10939,6 +10939,7 @@
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Показывать уволенных</property>
+            <property name="Active">True</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>

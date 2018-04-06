@@ -2,77 +2,73 @@
 using NHibernate;
 using NHibernate.Criterion;
 using QSOrmProject;
+using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
 	[OrmDefaultIsFiltered(true)]
-	public partial class EmployeeFilter : Gtk.Bin, IReferenceFilter
+	public partial class EmployeeFilter : Gtk.Bin, IRepresentationFilter
 	{
-		public IUnitOfWork UoW { set; get;}
-		public ICriteria BaseCriteria { set; get;}
-		public event EventHandler Refiltered;
+		IUnitOfWork uow;
 
-		public bool IsFiltred { get; private set;}
-
-		ICriteria filtredCriteria;
-		public ICriteria FiltredCriteria {
-			private set {
-				filtredCriteria = value;
-			}
+		public IUnitOfWork UoW {
 			get {
-				if (filtredCriteria == null)
-					UpdateCreteria ();
-				return filtredCriteria;
+				return uow;
+			}
+			set {
+				uow = value;
+				enumcomboCategory.ItemsEnum = typeof(EmployeeCategory);
+				checkFired.Active = false;
 			}
 		}
 
-		public EmployeeFilter (IUnitOfWork uow)
+		public EmployeeFilter(IUnitOfWork uow) : this()
 		{
-			this.Build ();
 			UoW = uow;
-			IsFiltred = false;
-			enumcomboCategory.ItemsEnum = typeof(EmployeeCategory);
 		}
 
-		void UpdateCreteria()
+		public EmployeeFilter()
 		{
-			IsFiltred = false;
-			if (BaseCriteria == null)
-				return;
-			FiltredCriteria = (ICriteria)BaseCriteria.Clone ();
-
-			if(!checkFired.Active)
-			{
-				FiltredCriteria.Add (Restrictions.Eq ("IsFired", false));
-				IsFiltred = true;
-			}
-
-			if(enumcomboCategory.SelectedItem is EmployeeCategory)
-			{
-				FiltredCriteria.Add (Restrictions.Eq ("Category", enumcomboCategory.SelectedItem));
-				IsFiltred = true;
-			}
-
-			OnRefiltered ();
+			this.Build();
 		}
+
+		#region IReferenceFilter implementation
+
+		public event EventHandler Refiltered;
 
 		void OnRefiltered()
 		{
 			if(Refiltered != null)
-			{
-				Refiltered (this, new EventArgs ());
+				Refiltered(this, new EventArgs());
+		}
+
+		#endregion
+
+		public EmployeeCategory? RestrictCategory {
+			get { return enumcomboCategory.SelectedItem as EmployeeCategory?; }
+			set {
+				enumcomboCategory.SelectedItem = value;
+				enumcomboCategory.Sensitive = false;
 			}
 		}
 
-		protected void OnCheckFiredToggled (object sender, EventArgs e)
+		public bool RestrictFired {
+			get { return checkFired.Active; }
+			set {
+				checkFired.Active = value;
+				checkFired.Sensitive = false;
+			}
+		}
+
+		protected void OnCheckFiredToggled(object sender, EventArgs e)
 		{
-			UpdateCreteria ();
+			OnRefiltered();
 		}
 
 		protected void OnEnumcomboCategoryChanged(object sender, EventArgs e)
 		{
-			UpdateCreteria ();
+			OnRefiltered();
 		}
 	}
 }

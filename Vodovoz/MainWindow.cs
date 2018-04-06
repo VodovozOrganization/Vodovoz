@@ -287,8 +287,10 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionEmploeyActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(Employee));
-		tdiMain.AddTab(refWin);
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<EmployeesVM>(),
+			() => new ReferenceRepresentation(new EmployeesVM())
+		);
 	}
 
 	protected void OnActionCarsActivated(object sender, EventArgs e)
