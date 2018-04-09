@@ -116,8 +116,8 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
 			.AddColumn("Сотудники").AddTextRenderer(node => node.EmployeesName)
+			.AddColumn("Сумма штрафа").AddTextRenderer(node => node.FineSumm.ToString())
 			.AddColumn("Причина штрафа").AddTextRenderer(node => node.FineReason)
-            .AddColumn("Сумма штрафа").AddTextRenderer(node => node.FineSumm.ToString())
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {
