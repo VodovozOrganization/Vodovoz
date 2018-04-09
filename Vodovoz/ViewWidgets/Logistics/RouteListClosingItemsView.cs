@@ -223,7 +223,7 @@ namespace Vodovoz
 				.AddColumn("Вод. телефон").HeaderAlignment(0.5f)
 					.AddTextRenderer()
 						.AddSetter((cell, node) => cell.Markup = FromClientString(node))
-						.AddTextRenderer(node => node.Order.CommentManager)
+				.AddTextRenderer(node => DriverPhoneComment(node))
 				.AddColumn("  З/П\nводителя").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.DriverWage)						
 				.AddColumn (" доплата\nводителя").HeaderAlignment (0.5f)
@@ -345,6 +345,15 @@ namespace Vodovoz
 				? "<b>{0}</b>({1})" 
 				: "<b>{0}</b>";
 			return String.Format(formatString, actual, planned-actual);
+		}
+
+		private string DriverPhoneComment(RouteListItem item)
+		{
+			string commentManager = "";
+			if(!string.IsNullOrWhiteSpace(item.Order.CommentManager)) {
+				commentManager = item.Order.CommentManager + ",";
+			}
+			return string.Format("{0} {1}", commentManager, item.Order.InformationOnTara);
 		}
 
 		public string ToClientString(RouteListItem item)
