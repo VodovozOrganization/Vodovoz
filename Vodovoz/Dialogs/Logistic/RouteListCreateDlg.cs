@@ -121,6 +121,19 @@ namespace Vodovoz
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
+			CheckCarLoadDocuments();
+		}
+
+		private void CheckCarLoadDocuments()
+		{
+			if(Entity.Id == 0) {
+				return;
+			}
+
+			var docs = RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id);
+			if(docs.Count() > 0) {
+				IsEditable = false;
+			}
 		}
 
 		private void PrintSelectedDocument (RouteListPrintableDocuments choise)
@@ -258,7 +271,11 @@ namespace Vodovoz
 				return;
 			}
 			if (UoWGeneric.Root.Status == RouteListStatus.InLoading) {
-				UoWGeneric.Root.ChangeStatus(RouteListStatus.New);
+				if(RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any()) {
+					MessageDialogWorks.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначало необходимо удалить их.");
+				}else {
+					UoWGeneric.Root.ChangeStatus(RouteListStatus.New);
+				}
 				UpdateButtonStatus();
 				return;
 			}

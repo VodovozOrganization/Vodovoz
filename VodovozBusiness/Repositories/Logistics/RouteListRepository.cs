@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
@@ -243,6 +244,12 @@ namespace Vodovoz.Repository.Logistics
 			return result;
 		}
 
+		public static IEnumerable<CarLoadDocument> GetCarLoadDocuments(IUnitOfWork uow, int routelistId)
+		{
+			return uow.Session.QueryOver<CarLoadDocument>()
+			   .Where(x => x.RouteList.Id == routelistId)
+			   .List();
+		}
 
 		#region DTO
 
