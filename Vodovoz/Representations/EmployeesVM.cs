@@ -100,7 +100,7 @@ namespace Vodovoz.ViewModel
 
 	}
 
-	public class EmployeesVMNode
+	public class EmployeesVMNode : INodeWithEntryFastSelect
 	{
 		[UseForSearch]
 		[SearchHighlight]
@@ -118,6 +118,8 @@ namespace Vodovoz.ViewModel
 
 		public bool IsFired { get; set; }
 
-		public string RowColor { get { return IsFired ? "grey" : "black"; } }
+		public string RowColor => IsFired ? "grey" : "black";
+
+		public string EntityTitle => FullName;
 	}
 }
