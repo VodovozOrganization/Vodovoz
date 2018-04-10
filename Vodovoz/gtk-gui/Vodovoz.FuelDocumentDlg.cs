@@ -54,7 +54,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReference yentryCar;
 
-		private global::Gamma.Widgets.yEntryReference yentrydriver;
+		private global::Gamma.Widgets.yEntryReferenceVM yentrydriver;
 
 		private global::Gamma.Widgets.yEntryReference yentryfuel;
 
@@ -117,12 +117,12 @@ namespace Vodovoz
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.yspinFuelTicketLiters = new global::Gamma.GtkWidgets.ySpinButton(0, 1000, 10);
+			this.yspinFuelTicketLiters = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 10D);
 			this.yspinFuelTicketLiters.WidthRequest = 90;
 			this.yspinFuelTicketLiters.CanFocus = true;
 			this.yspinFuelTicketLiters.Name = "yspinFuelTicketLiters";
-			this.yspinFuelTicketLiters.Adjustment.PageIncrement = 20;
-			this.yspinFuelTicketLiters.ClimbRate = 1;
+			this.yspinFuelTicketLiters.Adjustment.PageIncrement = 20D;
+			this.yspinFuelTicketLiters.ClimbRate = 1D;
 			this.yspinFuelTicketLiters.Numeric = true;
 			this.yspinFuelTicketLiters.ValueAsDecimal = 0m;
 			this.yspinFuelTicketLiters.ValueAsInt = 0;
@@ -170,8 +170,8 @@ namespace Vodovoz
 			this.disablespinMoney.Events = ((global::Gdk.EventMask)(256));
 			this.disablespinMoney.Name = "disablespinMoney";
 			this.disablespinMoney.Active = false;
-			this.disablespinMoney.Upper = 100000;
-			this.disablespinMoney.Lower = 0;
+			this.disablespinMoney.Upper = 100000D;
+			this.disablespinMoney.Lower = 0D;
 			this.disablespinMoney.Digits = ((uint)(2));
 			this.hbox4.Add(this.disablespinMoney);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.disablespinMoney]));
@@ -345,7 +345,7 @@ namespace Vodovoz
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
-			this.yentrydriver = new global::Gamma.Widgets.yEntryReference();
+			this.yentrydriver = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentrydriver.Sensitive = false;
 			this.yentrydriver.Events = ((global::Gdk.EventMask)(256));
 			this.yentrydriver.Name = "yentrydriver";
