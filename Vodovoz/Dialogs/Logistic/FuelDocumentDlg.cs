@@ -7,6 +7,7 @@ using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -57,7 +58,9 @@ namespace Vodovoz
 		{
 			ydatepicker.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
-			yentrydriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
+			var filterDriver = new EmployeeFilter(UoW);
+			filterDriver.RestrictCategory = EmployeeCategory.driver;
+			yentrydriver.RepresentationModel = new EmployeesVM(filterDriver);
 			yentrydriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			yentryCar.SubjectType = typeof(Car);
