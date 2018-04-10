@@ -11,6 +11,7 @@ using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -69,7 +70,9 @@ namespace Vodovoz
 			yentryDeliveryDaySchedule.SubjectType = typeof(DeliveryDaySchedule);
 			yentryDeliveryDaySchedule.Binding.AddBinding(Entity, e => e.DefaultDaySheldule, w => w.Subject).InitializeFromSource();
 
-			yentryDefaultForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery();
+			var filterDefaultForwarder = new EmployeeFilter(UoW);
+			filterDefaultForwarder.RestrictCategory = EmployeeCategory.driver;
+			yentryDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			yentryDefaultForwarder.Binding.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
 
 			referenceNationality.SubjectType = typeof(Nationality);
