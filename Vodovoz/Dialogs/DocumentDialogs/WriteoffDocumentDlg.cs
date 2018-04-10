@@ -73,7 +73,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPoint.CanEditReference = false;
 			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
-			referenceEmployee.RepresentationModel = new EmployeesVM(new EmployeeFilter());
+			referenceEmployee.RepresentationModel = new EmployeesVM(new EmployeeFilter(UoW));
 			referenceEmployee.Binding.AddBinding (Entity, e => e.ResponsibleEmployee, w => w.Subject).InitializeFromSource ();
 			comboType.ItemsEnum = typeof(WriteoffType);
 			referenceDeliveryPoint.Sensitive = referenceCounterparty.Sensitive = (UoWGeneric.Root.Client != null);
