@@ -146,7 +146,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelAndroidPassword;
 
-		private global::Gamma.Widgets.yEntryReference yentryDefaultForwarder;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryDefaultForwarder;
 
 		private global::Gamma.Widgets.yEntryReference yentryDeliveryDaySchedule;
 
@@ -287,7 +287,7 @@ namespace Vodovoz
 			this.notebookMain = new global::Gtk.Notebook();
 			this.notebookMain.CanFocus = true;
 			this.notebookMain.Name = "notebookMain";
-			this.notebookMain.CurrentPage = 0;
+			this.notebookMain.CurrentPage = 1;
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -513,11 +513,11 @@ namespace Vodovoz
 			w31.Expand = false;
 			w31.Fill = false;
 			// Container child hboxCustomWageCalc.Gtk.Box+BoxChild
-			this.yspinWageCalcRate = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
+			this.yspinWageCalcRate = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.yspinWageCalcRate.CanFocus = true;
 			this.yspinWageCalcRate.Name = "yspinWageCalcRate";
-			this.yspinWageCalcRate.Adjustment.PageIncrement = 10;
-			this.yspinWageCalcRate.ClimbRate = 1;
+			this.yspinWageCalcRate.Adjustment.PageIncrement = 10D;
+			this.yspinWageCalcRate.ClimbRate = 1D;
 			this.yspinWageCalcRate.Numeric = true;
 			this.yspinWageCalcRate.ValueAsDecimal = 0m;
 			this.yspinWageCalcRate.ValueAsInt = 0;
@@ -801,6 +801,7 @@ namespace Vodovoz
 			this.vboxPageLogistic.Spacing = 6;
 			// Container child vboxPageLogistic.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(4)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -849,13 +850,13 @@ namespace Vodovoz
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.yspinDriverSpeed = new global::Gamma.GtkWidgets.ySpinButton(1, 1000, 1);
+			this.yspinDriverSpeed = new global::Gamma.GtkWidgets.ySpinButton(1D, 1000D, 1D);
 			this.yspinDriverSpeed.CanFocus = true;
 			this.yspinDriverSpeed.Name = "yspinDriverSpeed";
-			this.yspinDriverSpeed.Adjustment.PageIncrement = 10;
-			this.yspinDriverSpeed.ClimbRate = 1;
+			this.yspinDriverSpeed.Adjustment.PageIncrement = 10D;
+			this.yspinDriverSpeed.ClimbRate = 1D;
 			this.yspinDriverSpeed.Numeric = true;
-			this.yspinDriverSpeed.Value = 1;
+			this.yspinDriverSpeed.Value = 1D;
 			this.yspinDriverSpeed.ValueAsDecimal = 0m;
 			this.yspinDriverSpeed.ValueAsInt = 0;
 			this.hbox7.Add(this.yspinDriverSpeed);
@@ -946,7 +947,7 @@ namespace Vodovoz
 			w71.XOptions = ((global::Gtk.AttachOptions)(4));
 			w71.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryDefaultForwarder = new global::Gamma.Widgets.yEntryReference();
+			this.yentryDefaultForwarder = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryDefaultForwarder.Events = ((global::Gdk.EventMask)(256));
 			this.yentryDefaultForwarder.Name = "yentryDefaultForwarder";
 			this.table1.Add(this.yentryDefaultForwarder);
@@ -983,14 +984,14 @@ namespace Vodovoz
 			w74.XOptions = ((global::Gtk.AttachOptions)(4));
 			w74.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yspinTripsPriority = new global::Gamma.GtkWidgets.ySpinButton(1, 10, 1);
+			this.yspinTripsPriority = new global::Gamma.GtkWidgets.ySpinButton(1D, 10D, 1D);
 			this.yspinTripsPriority.TooltipMarkup = "1 - максимальный приоритет\n10 - минимальный приоритет";
 			this.yspinTripsPriority.CanFocus = true;
 			this.yspinTripsPriority.Name = "yspinTripsPriority";
-			this.yspinTripsPriority.Adjustment.PageIncrement = 1;
-			this.yspinTripsPriority.ClimbRate = 1;
+			this.yspinTripsPriority.Adjustment.PageIncrement = 1D;
+			this.yspinTripsPriority.ClimbRate = 1D;
 			this.yspinTripsPriority.Numeric = true;
-			this.yspinTripsPriority.Value = 1;
+			this.yspinTripsPriority.Value = 1D;
 			this.yspinTripsPriority.ValueAsDecimal = 0m;
 			this.yspinTripsPriority.ValueAsInt = 0;
 			this.table1.Add(this.yspinTripsPriority);
@@ -1150,8 +1151,8 @@ namespace Vodovoz
 			this.radioTabLogistic.Toggled += new global::System.EventHandler(this.OnRadioTabLogisticToggled);
 			this.radioTabAccounting.Toggled += new global::System.EventHandler(this.OnRadioTabAccountingToggled);
 			this.radioTabFiles.Toggled += new global::System.EventHandler(this.OnRadioTabFilesToggled);
-			this.comboWageCalcType.EnumItemSelected += new global::System.EventHandler< Gamma.Widgets.ItemSelectedEventArgs > (this.OnComboWageCalcTypeEnumItemSelected);
-			this.comboCategory.EnumItemSelected += new global::System.EventHandler< Gamma.Widgets.ItemSelectedEventArgs > (this.OnComboCategoryEnumItemSelected);
+			this.comboWageCalcType.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnComboWageCalcTypeEnumItemSelected);
+			this.comboCategory.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnComboCategoryEnumItemSelected);
 			this.buttonAddDistrict.Clicked += new global::System.EventHandler(this.OnButtonAddDistrictClicked);
 			this.buttonRemoveDistrict.Clicked += new global::System.EventHandler(this.OnButtonRemoveDistrictClicked);
 		}
