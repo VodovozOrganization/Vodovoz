@@ -31,8 +31,9 @@ namespace Vodovoz
 			this.Build();
 		}
 
-		public EmployeeFilter(bool showFired) : this()
+		public EmployeeFilter(IUnitOfWork uow, bool showFired) : this()
 		{
+			UoW = uow;
 			RestrictFired = showFired;
 		}
 

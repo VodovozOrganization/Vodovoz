@@ -64,7 +64,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			referenceDeliveryPointFrom.CanEditReference = false;
 			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPointFrom.Binding.AddBinding(Entity, e => e.FromDeliveryPoint, w => w.Subject).InitializeFromSource();
-			referenceEmployee.RepresentationModel = new EmployeesVM(new EmployeeFilter());
+			referenceEmployee.RepresentationModel = new EmployeesVM(new EmployeeFilter(UoW));
 			referenceEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
 
 			transferoperationdocumentitemview1.DocumentUoW = UoWGeneric;

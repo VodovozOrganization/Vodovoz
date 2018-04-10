@@ -36,7 +36,7 @@ namespace Vodovoz
 		{
 			yentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
-			yentryreferenceChief.RepresentationModel = new EmployeesVM(new EmployeeFilter());
+			yentryreferenceChief.RepresentationModel = new EmployeesVM(new EmployeeFilter(UoW));
 			yentryreferenceChief.Binding.AddBinding(Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
 		}
 
