@@ -5,6 +5,7 @@ using Gamma.GtkWidgets;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using QSProjectsLib;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -79,17 +80,16 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var addEmployeeDlg = new OrmReference(Repository.EmployeeRepository.ActiveEmployeeOrderedQuery());
+			var addEmployeeDlg = new ReferenceRepresentation(new EmployeesVM());
 			addEmployeeDlg.Mode = OrmReferenceMode.Select;
-			addEmployeeDlg.ObjectSelected += AddEmployeeDlg_ObjectSelected;
+			addEmployeeDlg.ObjectSelected += AddEmployeeDlg_ObjectSelected; 
 			MyTab.TabParent.AddSlaveTab(MyTab, addEmployeeDlg);
 		}
-
-		void AddEmployeeDlg_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		
+		void AddEmployeeDlg_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
-			var employee = e.Subject as Employee;
-			if(FineUoW.Root.Items.Any(x => x.Employee.Id == employee.Id))
-			{
+			var employee = FineUoW.GetById<Employee>(e.ObjectId);
+			if(FineUoW.Root.Items.Any(x => x.Employee.Id == employee.Id)) {
 				MessageDialogWorks.RunErrorDialog("Сотрудник {0} уже присутствует в списке.", employee.ShortName);
 				return;
 			}

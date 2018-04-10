@@ -17,6 +17,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Panel;
 using Vodovoz.Repository;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -133,7 +134,7 @@ namespace Vodovoz
 			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceCounterparty.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 
-			referenceEngineer.SubjectType = typeof(Employee);
+			referenceEngineer.RepresentationModel = new EmployeesVM(new EmployeeFilter());
 			referenceEngineer.Binding.AddBinding(Entity, e => e.Engineer, w => w.Subject).InitializeFromSource();
 
 			yentryEquipmentReplacement.ItemsQuery = EquipmentRepository.AvailableOnDutyEquipmentQuery ();

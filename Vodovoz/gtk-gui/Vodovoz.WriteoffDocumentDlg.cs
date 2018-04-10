@@ -42,7 +42,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReference referenceDeliveryPoint;
 
-		private global::Gamma.Widgets.yEntryReference referenceEmployee;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceEmployee;
 
 		private global::Gamma.Widgets.yEntryReference referenceWarehouse;
 
@@ -262,7 +262,7 @@ namespace Vodovoz
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.referenceEmployee = new global::Gamma.Widgets.yEntryReference();
+			this.referenceEmployee = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEmployee.Name = "referenceEmployee";
 			this.tableWriteoff.Add(this.referenceEmployee);
@@ -297,7 +297,7 @@ namespace Vodovoz
 			w24.PackType = ((global::Gtk.PackType)(1));
 			w24.Position = 2;
 			this.Add(this.vbox4);
-			if((this.Child != null)) {
+			if ((this.Child != null)){
 				this.Child.ShowAll();
 			}
 			this.Hide();

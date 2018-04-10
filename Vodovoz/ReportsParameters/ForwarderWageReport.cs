@@ -3,6 +3,7 @@ using QSOrmProject;
 using QSReport;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.Reports
 {
@@ -13,8 +14,10 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
-			yentryreferenceForwarder.SubjectType = typeof(Employee);
-			yentryreferenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery();
+
+			var filterForwarder = new EmployeeFilter(UoW);
+			filterForwarder.RestrictCategory = EmployeeCategory.forwarder;
+			yentryreferenceForwarder.RepresentationModel = new EmployeesVM(filterForwarder);
 		}
 
 		#region IOrmDialog implementation

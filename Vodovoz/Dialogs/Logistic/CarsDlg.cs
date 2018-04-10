@@ -4,6 +4,7 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -40,7 +41,9 @@ namespace Vodovoz
 			dataentryModel.Binding.AddBinding(Entity, e => e.Model, w => w.Text).InitializeFromSource();
 			dataentryRegNumber.Binding.AddBinding(Entity, e => e.RegistrationNumber, w => w.Text).InitializeFromSource();
 
-			dataentryreferenceDriver.SubjectType = typeof(Employee);
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictCategory = EmployeeCategory.driver;
+			dataentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
 			dataentryreferenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			dataentryFuelType.SubjectType = typeof(FuelType);

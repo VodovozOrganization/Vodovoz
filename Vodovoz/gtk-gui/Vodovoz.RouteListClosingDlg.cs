@@ -54,11 +54,11 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReference referenceCar;
 
-		private global::Gamma.Widgets.yEntryReference referenceDriver;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceDriver;
 
-		private global::Gamma.Widgets.yEntryReference referenceForwarder;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceForwarder;
 
-		private global::Gamma.Widgets.yEntryReference referenceLogistican;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceLogistican;
 
 		private global::Gamma.Widgets.ySpecComboBox speccomboShift;
 
@@ -256,7 +256,6 @@ namespace Vodovoz
 			this.expander1.Expanded = true;
 			// Container child expander1.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(7)), ((uint)(7)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -459,7 +458,7 @@ namespace Vodovoz
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceDriver = new global::Gamma.Widgets.yEntryReference();
+			this.referenceDriver = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceDriver.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDriver.Name = "referenceDriver";
 			this.table1.Add(this.referenceDriver);
@@ -471,7 +470,7 @@ namespace Vodovoz
 			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceForwarder = new global::Gamma.Widgets.yEntryReference();
+			this.referenceForwarder = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceForwarder.Events = ((global::Gdk.EventMask)(256));
 			this.referenceForwarder.Name = "referenceForwarder";
 			this.table1.Add(this.referenceForwarder);
@@ -483,7 +482,7 @@ namespace Vodovoz
 			w28.XOptions = ((global::Gtk.AttachOptions)(4));
 			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceLogistican = new global::Gamma.Widgets.yEntryReference();
+			this.referenceLogistican = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceLogistican.Events = ((global::Gdk.EventMask)(256));
 			this.referenceLogistican.Name = "referenceLogistican";
 			this.table1.Add(this.referenceLogistican);

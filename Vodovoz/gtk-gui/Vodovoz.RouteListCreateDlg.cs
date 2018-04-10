@@ -38,11 +38,11 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReference referenceCar;
 
-		private global::Gamma.Widgets.yEntryReference referenceDriver;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceDriver;
 
 		private global::Gamma.Widgets.yEntryReferenceVM referenceForwarder;
 
-		private global::Gamma.Widgets.yEntryReference referenceLogistican;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceLogistican;
 
 		private global::Gamma.Widgets.ySpecComboBox speccomboShift;
 
@@ -249,7 +249,7 @@ namespace Vodovoz
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.referenceDriver = new global::Gamma.Widgets.yEntryReference();
+			this.referenceDriver = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceDriver.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDriver.Name = "referenceDriver";
 			this.dataRouteList.Add(this.referenceDriver);
@@ -273,7 +273,7 @@ namespace Vodovoz
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.referenceLogistican = new global::Gamma.Widgets.yEntryReference();
+			this.referenceLogistican = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceLogistican.Events = ((global::Gdk.EventMask)(256));
 			this.referenceLogistican.Name = "referenceLogistican";
 			this.dataRouteList.Add(this.referenceLogistican);

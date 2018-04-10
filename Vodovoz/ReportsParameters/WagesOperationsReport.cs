@@ -4,6 +4,7 @@ using QSReport;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using QSProjectsLib;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.Reports
 {
@@ -16,8 +17,9 @@ namespace Vodovoz.Reports
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
-			yentryreferenceEmployee.SubjectType = typeof(Employee);
-			yentryreferenceEmployee.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery();
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictFired = false;
+			yentryreferenceEmployee.RepresentationModel = new EmployeesVM(filter);
 		}
 
 		#region IOrmDialog implementation

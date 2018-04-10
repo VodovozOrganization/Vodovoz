@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using NHibernate.Criterion;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.Reports
 {
@@ -13,8 +14,8 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			yentryDriver.SubjectType = typeof(Employee);
-
+			var filter = new EmployeeFilter(UoW);
+			yentryDriver.RepresentationModel = new EmployeesVM(filter);
 		}
 		#region IOrmDialog implementation
 
@@ -99,22 +100,19 @@ namespace Vodovoz.Reports
 
 		protected void OnRadioCatAllToggled(object sender, EventArgs e)
 		{
-			var query = QueryOver.Of<Employee>();
-
-			if(radioCatDriver.Active)
-			{
-				query = query.Where(x => x.Category == EmployeeCategory.driver);
+			var filter = new EmployeeFilter(UoW);
+			if(radioCatDriver.Active) {
+				filter.RestrictCategory = EmployeeCategory.driver;
 			}
 
 			if(radioCatForwarder.Active) {
-				query = query.Where(x => x.Category == EmployeeCategory.forwarder);
+				filter.RestrictCategory = EmployeeCategory.forwarder;
 			}
 
 			if(radioCatOffice.Active) {
-				query = query.Where(x => x.Category == EmployeeCategory.office);
+				filter.RestrictCategory = EmployeeCategory.office;
 			}
-
-			yentryDriver.ItemsQuery = query;
+			yentryDriver.RepresentationModel = new EmployeesVM(filter);
 		}
 
 		protected string GetCategory()

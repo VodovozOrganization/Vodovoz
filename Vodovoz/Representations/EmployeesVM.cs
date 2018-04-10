@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModel
 			}
 
 			if(Filter.RestrictCategory != null) {
-				query.Where(e => e.Category==Filter.RestrictCategory);
+				query.Where(e => e.Category == Filter.RestrictCategory);
 			}
 
 			#region для ускорения редактора
@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModel
 		IColumnsConfig columnsConfig = FluentColumnsConfig<EmployeesVMNode>.Create()
 			.AddColumn("Код").SetDataProperty(node => node.Id.ToString())
 			.AddColumn("Ф.И.О.").SetDataProperty(node => node.FullName)
-		    .AddColumn("Категория").SetDataProperty(node => node.EmpCatEnum.GetEnumTitle())
+			.AddColumn("Категория").SetDataProperty(node => node.EmpCatEnum.GetEnumTitle())
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 			.Finish();
 
@@ -83,17 +83,17 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public EmployeesVM(EmployeeFilter filter) : this (filter.UoW)
+		public EmployeesVM(EmployeeFilter filter) : this(filter.UoW)
 		{
 			Filter = filter;
 		}
 
-		public EmployeesVM() : this (UnitOfWorkFactory.CreateWithoutRoot ())
+		public EmployeesVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			CreateRepresentationFilter = () => new EmployeeFilter(UoW);
 		}
 
-		public EmployeesVM(IUnitOfWork uow) : base ()
+		public EmployeesVM(IUnitOfWork uow) : base()
 		{
 			this.UoW = uow;
 		}
@@ -112,12 +112,12 @@ namespace Vodovoz.ViewModel
 
 		[UseForSearch]
 		[SearchHighlight]
-		public string FullName { get { return String.Format("{0} {1} {2}", EmpLastName.ToUpper(), EmpFirstName, EmpMiddleName); } }
+		public string FullName { get { return String.Format("{0} {1} {2}", EmpLastName, EmpFirstName, EmpMiddleName); } }
 
 		public EmployeeCategory EmpCatEnum { get; set; }
 
-		public bool IsFired{ get; set; }
+		public bool IsFired { get; set; }
 
-		public string RowColor {get {return IsFired ? "grey" : "black";}}
+		public string RowColor { get { return IsFired ? "grey" : "black"; } }
 	}
 }

@@ -7,7 +7,6 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
-	[OrmDefaultIsFiltered(true)]
 	public partial class EmployeeFilter : Gtk.Bin, IRepresentationFilter
 	{
 		IUnitOfWork uow;
@@ -19,7 +18,6 @@ namespace Vodovoz
 			set {
 				uow = value;
 				enumcomboCategory.ItemsEnum = typeof(EmployeeCategory);
-				checkFired.Active = false;
 			}
 		}
 

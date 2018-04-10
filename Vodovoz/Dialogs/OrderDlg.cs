@@ -153,8 +153,9 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding (Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource ();
 			referenceDeliverySchedule.Binding.AddBinding (Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			referenceAuthor.ItemsQuery = EmployeeRepository.ActiveEmployeeOrderedQuery ();
-			referenceAuthor.SetObjectDisplayFunc<Employee> (e => e.ShortName);
+			var filterAuthor = new EmployeeFilter(UoW);
+			filterAuthor.RestrictFired = false;
+			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
 			referenceAuthor.Binding.AddBinding (Entity, s => s.Author, w => w.Subject).InitializeFromSource ();
 			referenceAuthor.Sensitive = false;
 

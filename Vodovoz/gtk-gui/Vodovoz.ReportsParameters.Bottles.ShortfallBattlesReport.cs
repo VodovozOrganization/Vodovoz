@@ -34,7 +34,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private global::Gtk.Label label1;
 
-		private global::Gamma.Widgets.yEntryReference yentryDriver;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryDriver;
 
 		private global::Gtk.Button buttonCreateRepot;
 
@@ -79,7 +79,6 @@ namespace Vodovoz.ReportsParameters.Bottles
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(5)), ((uint)(1)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -200,7 +199,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryDriver = new global::Gamma.Widgets.yEntryReference();
+			this.yentryDriver = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryDriver.Sensitive = false;
 			this.yentryDriver.Events = ((global::Gdk.EventMask)(256));
 			this.yentryDriver.Name = "yentryDriver";

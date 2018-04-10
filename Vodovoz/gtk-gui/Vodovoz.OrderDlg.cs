@@ -58,7 +58,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label11;
 
-		private global::Gamma.Widgets.yEntryReference referenceAuthor;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceAuthor;
 
 		private global::Gtk.HBox hbox6;
 
@@ -401,7 +401,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 2;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox();
 			this.vbox3.Name = "vbox3";
@@ -409,7 +409,6 @@ namespace Vodovoz
 			this.vbox3.BorderWidth = ((uint)(6));
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(18)), ((uint)(3)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -557,7 +556,7 @@ namespace Vodovoz
 			w24.Expand = false;
 			w24.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.referenceAuthor = new global::Gamma.Widgets.yEntryReference();
+			this.referenceAuthor = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.referenceAuthor.Name = "referenceAuthor";
 			this.hbox5.Add(this.referenceAuthor);

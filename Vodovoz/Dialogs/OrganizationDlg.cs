@@ -7,6 +7,7 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -54,9 +55,11 @@ namespace Vodovoz
 			notebookMain.ShowTabs = false;
 			accountsview1.ParentReference = new ParentReferenceGeneric<Organization, Account> (UoWGeneric, o => o.Accounts);
 
-			referenceBuhgalter.SubjectType = typeof(Employee);
+			var filterBuhgalter = new EmployeeFilter(UoW);
+			referenceBuhgalter.RepresentationModel = new EmployeesVM(filterBuhgalter);
 			referenceBuhgalter.Binding.AddBinding(Entity, e => e.Buhgalter, w => w.Subject).InitializeFromSource();
-			referenceLeader.SubjectType = typeof(Employee);
+			var filterLeader = new EmployeeFilter(UoW);
+			referenceLeader.RepresentationModel = new EmployeesVM(filterLeader);
 			referenceLeader.Binding.AddBinding(Entity, e => e.Leader, w => w.Subject).InitializeFromSource();
 
 			phonesview1.UoW = UoWGeneric;

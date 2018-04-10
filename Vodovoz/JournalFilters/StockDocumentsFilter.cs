@@ -6,6 +6,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -25,7 +26,9 @@ namespace Vodovoz
 				yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
 				if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 					yentryrefWarehouse.Subject = uow.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id) ;
-				yentryrefDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery();
+				var filter = new EmployeeFilter(UoW);
+				filter.RestrictCategory = EmployeeCategory.driver;
+				yentryrefDriver.RepresentationModel = new EmployeesVM(filter);
 			}
 		}
 

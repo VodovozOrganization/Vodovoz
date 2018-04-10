@@ -32,7 +32,7 @@ namespace Dialogs.Employees
 
 		private global::Gtk.Label label3;
 
-		private global::Gamma.Widgets.yEntryReference yentryEmployee;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryEmployee;
 
 		private global::Gtk.Label labelTotalHours;
 
@@ -135,11 +135,11 @@ namespace Dialogs.Employees
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yspinYear = new global::Gamma.GtkWidgets.ySpinButton(1, 5000, 1);
+			this.yspinYear = new global::Gamma.GtkWidgets.ySpinButton(1D, 5000D, 1D);
 			this.yspinYear.CanFocus = true;
 			this.yspinYear.Name = "yspinYear";
-			this.yspinYear.Adjustment.PageIncrement = 10;
-			this.yspinYear.ClimbRate = 1;
+			this.yspinYear.Adjustment.PageIncrement = 10D;
+			this.yspinYear.ClimbRate = 1D;
 			this.yspinYear.Numeric = true;
 			this.yspinYear.ValueAsDecimal = 0m;
 			this.yspinYear.ValueAsInt = 0;
@@ -165,7 +165,7 @@ namespace Dialogs.Employees
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.yentryEmployee = new global::Gamma.Widgets.yEntryReference();
+			this.yentryEmployee = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.yentryEmployee.Name = "yentryEmployee";
 			this.hbox6.Add(this.yentryEmployee);

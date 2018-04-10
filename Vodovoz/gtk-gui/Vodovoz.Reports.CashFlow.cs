@@ -30,9 +30,9 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.Label label6;
 
-		private global::Gamma.Widgets.yEntryReference yentryrefCasher;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryrefCasher;
 
-		private global::Gamma.Widgets.yEntryReference yentryrefEmployee;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryrefEmployee;
 
 		protected virtual void Build()
 		{
@@ -42,7 +42,6 @@ namespace Vodovoz.Reports
 			this.Name = "Vodovoz.Reports.CashFlow";
 			// Container child Vodovoz.Reports.CashFlow.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(8)), ((uint)(2)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			this.table1.BorderWidth = ((uint)(6));
@@ -194,7 +193,7 @@ namespace Vodovoz.Reports
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryrefCasher = new global::Gamma.Widgets.yEntryReference();
+			this.yentryrefCasher = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryrefCasher.Events = ((global::Gdk.EventMask)(256));
 			this.yentryrefCasher.Name = "yentryrefCasher";
 			this.table1.Add(this.yentryrefCasher);
@@ -206,7 +205,7 @@ namespace Vodovoz.Reports
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryrefEmployee = new global::Gamma.Widgets.yEntryReference();
+			this.yentryrefEmployee = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryrefEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.yentryrefEmployee.Name = "yentryrefEmployee";
 			this.table1.Add(this.yentryrefEmployee);

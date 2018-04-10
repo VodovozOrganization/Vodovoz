@@ -9,6 +9,7 @@ using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -39,19 +40,22 @@ namespace Vodovoz
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = editing;
 
-			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
+			var filterDriver = new EmployeeFilter(UoW);
+			filterDriver.RestrictCategory = EmployeeCategory.driver;
+			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
-			referenceDriver.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 			referenceDriver.Sensitive = editing;
 
-			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
+			var filterForwarder = new EmployeeFilter(UoW);
+			filterForwarder.RestrictCategory = EmployeeCategory.forwarder;
+			referenceForwarder.RepresentationModel = new EmployeesVM(filterForwarder);
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
-			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 			referenceForwarder.Sensitive = editing;
 
-			referenceLogistican.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery();
+			var filterLogistican = new EmployeeFilter(UoW);
+			filterLogistican.RestrictFired = false;
+			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
-			referenceLogistican.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 			referenceLogistican.Sensitive = editing;
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoWGeneric);

@@ -16,7 +16,7 @@ namespace Vodovoz.Reports
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
-		private global::Gamma.Widgets.yEntryReference yentryreferenceEmployee;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryreferenceEmployee;
 
 		private global::Gtk.Button buttonCreateReport;
 
@@ -73,7 +73,7 @@ namespace Vodovoz.Reports
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.yentryreferenceEmployee = new global::Gamma.Widgets.yEntryReference();
+			this.yentryreferenceEmployee = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryreferenceEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceEmployee.Name = "yentryreferenceEmployee";
 			this.hbox2.Add(this.yentryreferenceEmployee);
@@ -97,7 +97,8 @@ namespace Vodovoz.Reports
 			w7.Expand = false;
 			w7.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

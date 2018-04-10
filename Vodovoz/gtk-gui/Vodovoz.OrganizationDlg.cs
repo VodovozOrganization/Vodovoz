@@ -70,9 +70,9 @@ namespace Vodovoz
 
 		private global::QSContacts.PhonesView phonesview1;
 
-		private global::Gamma.Widgets.yEntryReference referenceBuhgalter;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceBuhgalter;
 
-		private global::Gamma.Widgets.yEntryReference referenceLeader;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceLeader;
 
 		private global::Gtk.Label label1;
 
@@ -438,7 +438,7 @@ namespace Vodovoz
 			w33.XOptions = ((global::Gtk.AttachOptions)(4));
 			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.referenceBuhgalter = new global::Gamma.Widgets.yEntryReference();
+			this.referenceBuhgalter = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceBuhgalter.Events = ((global::Gdk.EventMask)(256));
 			this.referenceBuhgalter.Name = "referenceBuhgalter";
 			this.datatableMain.Add(this.referenceBuhgalter);
@@ -450,7 +450,7 @@ namespace Vodovoz
 			w34.XOptions = ((global::Gtk.AttachOptions)(4));
 			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.referenceLeader = new global::Gamma.Widgets.yEntryReference();
+			this.referenceLeader = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceLeader.Events = ((global::Gdk.EventMask)(256));
 			this.referenceLeader.Name = "referenceLeader";
 			this.datatableMain.Add(this.referenceLeader);
@@ -487,7 +487,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebookMain]));
 			w40.Position = 1;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			w1.SetUiManager(UIManager);

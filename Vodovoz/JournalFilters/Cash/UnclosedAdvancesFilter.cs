@@ -30,8 +30,9 @@ namespace Vodovoz
 			this.Build ();
 
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
-			yentryAccountable.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery ();
-			yentryAccountable.SetObjectDisplayFunc<Employee> (e => e.ShortName);
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictFired = false;
+			yentryAccountable.RepresentationModel = new ViewModel.EmployeesVM(filter);
 		}
 
 		#region IReferenceFilter implementation

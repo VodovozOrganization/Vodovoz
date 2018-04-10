@@ -60,13 +60,10 @@ namespace Vodovoz
 			enumcomboOperation.ItemsEnum = typeof(IncomeType);
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
-			yentryCasher.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeOrderedQuery ();
-			yentryCasher.SetObjectDisplayFunc<Employee> (e => e.ShortName);
-			yentryCasher.Binding.AddBinding (Entity, s => s.Casher, w => w.Subject).InitializeFromSource ();
-
-			//yentryEmploeey.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeOrderedQuery ();
-			//yentryEmploeey.SetObjectDisplayFunc<Employee> (e => e.ShortName);
-			//yentryEmploeey.Binding.AddBinding (Entity, s => s.Employee, w => w.Subject).InitializeFromSource ();
+			var filterCasher = new EmployeeFilter(UoW);
+			filterCasher.RestrictFired = false;
+			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
+			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
 			var filter = new EmployeeFilter(UoW);
 			filter.RestrictFired = false;

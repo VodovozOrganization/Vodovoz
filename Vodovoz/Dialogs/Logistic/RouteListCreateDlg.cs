@@ -13,6 +13,7 @@ using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -70,9 +71,10 @@ namespace Vodovoz
 				referenceForwarder.IsEditable= !Entity.Car.IsCompanyHavings;
 			};
 
-			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
+			var filterDriver = new EmployeeFilter(UoW);
+			filterDriver.RestrictCategory = EmployeeCategory.driver;
+			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
-			referenceDriver.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
 			var filter = new EmployeeFilter(UoW);
 			filter.RestrictCategory = EmployeeCategory.forwarder;
@@ -84,10 +86,9 @@ namespace Vodovoz
 			};
 
 			referenceLogistican.Sensitive = false;
-			//SubjectType не подхватывается автоматически
-			referenceLogistican.SubjectType = typeof(Employee);
+			var filterLogistican = new EmployeeFilter(UoW);
+			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistican, w => w.Subject).InitializeFromSource();
-			referenceLogistican.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts (UoW);
 			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();

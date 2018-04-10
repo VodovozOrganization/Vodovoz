@@ -89,18 +89,15 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
-			yentryCasher.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeOrderedQuery();
-			yentryCasher.SetObjectDisplayFunc<Employee>(e => e.ShortName);
-			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
-
-			//yentryEmployee.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeOrderedQuery ();
-			//yentryEmploeey.SetObjectDisplayFunc<Employee> (e => e.ShortName);
-			//yentryEmploeey.Binding.AddBinding (Entity, s => s.Accountable, w => w.Subject).InitializeFromSource ();
-
-			var filter = new EmployeeFilter(UoW);
-			filter.RestrictFired = false;
-			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filter);
+			var filterEmployee = new EmployeeFilter(UoW);
+			filterEmployee.RestrictFired = false;
+			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
 			yentryEmployee.Binding.AddBinding(Entity, e => e.Accountable, w => w.Subject).InitializeFromSource();
+
+			var filterCasher = new EmployeeFilter(UoW);
+			filterCasher.RestrictFired = false;
+			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
+			yentryCasher.Binding.AddBinding(Entity, e => e.Casher, w => w.Subject).InitializeFromSource();
 
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 

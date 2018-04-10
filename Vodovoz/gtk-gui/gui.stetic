@@ -1214,7 +1214,6 @@
                 <property name="Icon">stock:gtk-save Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -1231,7 +1230,6 @@
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отменить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -1256,7 +1254,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1760,7 +1757,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReference" id="referenceBuhgalter">
+                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceBuhgalter">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -1781,7 +1778,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReference" id="referenceLeader">
+                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceLeader">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -3352,7 +3349,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="769 373">
+  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="779 386">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -3399,6 +3396,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3619,7 +3617,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReference" id="dataentryreferenceDriver">
+                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="dataentryreferenceDriver">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                     <signal name="Changed" handler="OnDataentryreferenceDriverChanged" />
@@ -7056,7 +7054,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReference" id="referenceAccountant">
+                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceAccountant">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -7077,7 +7075,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReference" id="referenceBottleManager">
+                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceBottleManager">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -7098,7 +7096,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReference" id="referenceSalesManager">
+                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceSalesManager">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -10939,7 +10937,6 @@
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Показывать уволенных</property>
-            <property name="Active">True</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -13356,7 +13353,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReference" id="yentryrefDriver">
+          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryrefDriver">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="ChangedByUser" handler="OnYentryrefDriverChangedByUser" />
@@ -16013,7 +16010,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceEmployee">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -16745,7 +16742,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceEmployee">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -18277,7 +18274,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceDriver">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -18319,7 +18316,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceLogistican">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceLogistican">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -18907,7 +18904,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReference" id="referenceDriver">
+                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDriver">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -18928,7 +18925,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReference" id="referenceForwarder">
+                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceForwarder">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -18949,7 +18946,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReference" id="referenceLogistican">
+                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceLogistican">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -22355,7 +22352,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReference" id="referenceEngineer">
+                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceEngineer">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                       </widget>
@@ -23481,7 +23478,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryCasher">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryCasher">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -23958,7 +23955,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryCasher">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryCasher">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -24483,7 +24480,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryCasher">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryCasher">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -25088,7 +25085,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReference" id="yentryAccountable">
+          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryAccountable">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnYentryAccountableChanged" />
@@ -25180,7 +25177,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReference" id="yentryAccountable">
+          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryAccountable">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnYentryAccountableChanged" />
@@ -25501,7 +25498,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReference" id="yentryrefCasher">
+          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryrefCasher">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -25522,7 +25519,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReference" id="yentryrefEmployee">
+          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryrefEmployee">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -26604,7 +26601,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReference" id="referenceAuthor">
+                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceAuthor">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -29919,7 +29916,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceDriver">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -29940,7 +29937,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceForwarder">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceForwarder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -29961,7 +29958,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceLogistican">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceLogistican">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -30537,7 +30534,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceDriver">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -30558,7 +30555,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceForwarder">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceForwarder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -30579,7 +30576,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceLogistican">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceLogistican">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -33864,7 +33861,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryAuthor">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryAuthor">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -34398,7 +34395,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Reports.EmployeesFines" design-size="274 300">
+  <widget class="Gtk.Bin" id="Vodovoz.Reports.EmployeesFines" design-size="278 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -34623,7 +34620,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReference" id="yentryDriver">
+          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryDriver">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnYentryDriverChanged" />
@@ -37996,7 +37993,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentrydriver">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentrydriver">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -38072,7 +38069,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1021 363">
+  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1065 366">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -38391,7 +38388,7 @@
               <widget class="Gtk.Notebook" id="notebook1">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="CurrentPage">1</property>
+                <property name="CurrentPage">0</property>
                 <property name="TabPos">Left</property>
                 <child>
                   <widget class="Gtk.VBox" id="vboxDrivers">
@@ -39182,7 +39179,6 @@
                 <property name="Icon">stock:gtk-save Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -39199,7 +39195,6 @@
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отменить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -39284,7 +39279,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReference" id="yentryreferenceChief">
+          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceChief">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -39367,7 +39362,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryreferenceDriver">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -39581,7 +39576,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryreferenceDriver">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -39651,7 +39646,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryAuthor">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryAuthor">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -39690,7 +39685,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport" design-size="153 332">
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport" design-size="166 336">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -39928,7 +39923,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryDriver">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryDriver">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -40173,7 +40168,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryreferenceEmployee">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -40336,7 +40331,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryreferenceForwarder">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceForwarder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnYentryreferenceForwarderChanged" />
@@ -42848,7 +42843,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceEmployee">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceEmployee">
                 <property name="MemberName" />
                 <property name="Visible">False</property>
                 <property name="Sensitive">False</property>
@@ -45266,7 +45261,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryreferenceDriver">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnYentryreferenceDriverChanged" />

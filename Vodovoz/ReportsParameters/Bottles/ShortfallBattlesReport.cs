@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Employees;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
@@ -16,7 +17,9 @@ namespace Vodovoz.ReportsParameters.Bottles
 			ydatepicker.Date = DateTime.Now.Date;
 			comboboxDriver.ItemsEnum = typeof(Drivers);
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			yentryDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery();
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictCategory = EmployeeCategory.driver;
+			yentryDriver.RepresentationModel = new EmployeesVM(filter);
 		}
 
 		#region IOrmDialog implementation

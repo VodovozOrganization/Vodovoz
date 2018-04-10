@@ -16,7 +16,7 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.Label label2;
 
-		private global::Gamma.Widgets.yEntryReference yentryreferenceDriver;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryreferenceDriver;
 
 		private global::Gtk.CheckButton checkShowBalance;
 
@@ -73,7 +73,7 @@ namespace Vodovoz.Reports
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yentryreferenceDriver = new global::Gamma.Widgets.yEntryReference();
+			this.yentryreferenceDriver = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryreferenceDriver.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceDriver.Name = "yentryreferenceDriver";
 			this.hbox3.Add(this.yentryreferenceDriver);
@@ -111,7 +111,8 @@ namespace Vodovoz.Reports
 			w8.Expand = false;
 			w8.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

@@ -9,6 +9,7 @@ using QSReport;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository.Cash;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.Reports
 {
@@ -25,8 +26,13 @@ namespace Vodovoz.Reports
 			comboPart.ItemsEnum = typeof(ReportParts);
 			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (uow);
 			comboExpenseCategory.Sensitive = comboIncomeCategory.Sensitive = false;
-			yentryrefCasher.ItemsQuery = Repository.EmployeeRepository.OfficeWorkersQuery();
-			yentryrefEmployee.SubjectType = typeof(Employee);
+
+			var filterCasher = new EmployeeFilter(uow);
+			filterCasher.RestrictCategory = EmployeeCategory.office;
+			yentryrefCasher.RepresentationModel = new EmployeesVM(filterCasher);
+
+			var filterEmployee = new EmployeeFilter(uow);
+			yentryrefEmployee.RepresentationModel = new EmployeesVM(filterEmployee);
 
 			var recurciveConfig = OrmMain.GetObjectDescription<ExpenseCategory>().TableView.RecursiveTreeConfig;
 			var list = CategoryRepository.ExpenseCategories(uow);

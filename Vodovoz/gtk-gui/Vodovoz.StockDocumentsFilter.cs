@@ -22,7 +22,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label5;
 
-		private global::Gamma.Widgets.yEntryReference yentryrefDriver;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryrefDriver;
 
 		private global::Gamma.Widgets.yEntryReference yentryrefWarehouse;
 
@@ -34,7 +34,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.StockDocumentsFilter";
 			// Container child Vodovoz.StockDocumentsFilter.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(4)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -131,7 +130,7 @@ namespace Vodovoz
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryrefDriver = new global::Gamma.Widgets.yEntryReference();
+			this.yentryrefDriver = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryrefDriver.Events = ((global::Gdk.EventMask)(256));
 			this.yentryrefDriver.Name = "yentryrefDriver";
 			this.table1.Add(this.yentryrefDriver);
@@ -155,7 +154,8 @@ namespace Vodovoz
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

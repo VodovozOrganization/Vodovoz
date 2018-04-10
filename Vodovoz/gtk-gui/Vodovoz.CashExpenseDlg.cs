@@ -40,7 +40,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yDatePicker ydateDocument;
 
-		private global::Gamma.Widgets.yEntryReference yentryCasher;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryCasher;
 
 		private global::Gamma.Widgets.yEntryReferenceVM yentryEmployee;
 
@@ -261,7 +261,7 @@ namespace Vodovoz
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryCasher = new global::Gamma.Widgets.yEntryReference();
+			this.yentryCasher = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryCasher.Sensitive = false;
 			this.yentryCasher.Events = ((global::Gdk.EventMask)(256));
 			this.yentryCasher.Name = "yentryCasher";

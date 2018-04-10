@@ -34,7 +34,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yEntry dataentryModel;
 
-		private global::Gamma.Widgets.yEntryReference dataentryreferenceDriver;
+		private global::Gamma.Widgets.yEntryReferenceVM dataentryreferenceDriver;
 
 		private global::Gamma.GtkWidgets.yEntry dataentryRegNumber;
 
@@ -275,7 +275,7 @@ namespace Vodovoz
 			w14.RightAttach = ((uint)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
-			this.dataentryreferenceDriver = new global::Gamma.Widgets.yEntryReference();
+			this.dataentryreferenceDriver = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.dataentryreferenceDriver.Events = ((global::Gdk.EventMask)(256));
 			this.dataentryreferenceDriver.Name = "dataentryreferenceDriver";
 			this.tableCarData.Add(this.dataentryreferenceDriver);
@@ -305,11 +305,11 @@ namespace Vodovoz
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.maxVolumeSpin = new global::Gamma.GtkWidgets.ySpinButton(0, 999, 1);
+			this.maxVolumeSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
 			this.maxVolumeSpin.CanFocus = true;
 			this.maxVolumeSpin.Name = "maxVolumeSpin";
-			this.maxVolumeSpin.Adjustment.PageIncrement = 10;
-			this.maxVolumeSpin.ClimbRate = 1;
+			this.maxVolumeSpin.Adjustment.PageIncrement = 10D;
+			this.maxVolumeSpin.ClimbRate = 1D;
 			this.maxVolumeSpin.Digits = ((uint)(2));
 			this.maxVolumeSpin.Numeric = true;
 			this.maxVolumeSpin.ValueAsDecimal = 0m;
@@ -339,11 +339,11 @@ namespace Vodovoz
 			w19.Expand = false;
 			w19.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.dataspinbutton1 = new global::Gamma.GtkWidgets.ySpinButton(0, 999, 1);
+			this.dataspinbutton1 = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
 			this.dataspinbutton1.CanFocus = true;
 			this.dataspinbutton1.Name = "dataspinbutton1";
-			this.dataspinbutton1.Adjustment.PageIncrement = 10;
-			this.dataspinbutton1.ClimbRate = 1;
+			this.dataspinbutton1.Adjustment.PageIncrement = 10D;
+			this.dataspinbutton1.ClimbRate = 1D;
 			this.dataspinbutton1.Digits = ((uint)(2));
 			this.dataspinbutton1.Numeric = true;
 			this.dataspinbutton1.ValueAsDecimal = 0m;
@@ -384,11 +384,11 @@ namespace Vodovoz
 			w23.Expand = false;
 			w23.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.minBottlesSpin = new global::Gamma.GtkWidgets.ySpinButton(0, 999, 1);
+			this.minBottlesSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
 			this.minBottlesSpin.CanFocus = true;
 			this.minBottlesSpin.Name = "minBottlesSpin";
-			this.minBottlesSpin.Adjustment.PageIncrement = 10;
-			this.minBottlesSpin.ClimbRate = 1;
+			this.minBottlesSpin.Adjustment.PageIncrement = 10D;
+			this.minBottlesSpin.ClimbRate = 1D;
 			this.minBottlesSpin.Numeric = true;
 			this.minBottlesSpin.ValueAsDecimal = 0m;
 			this.minBottlesSpin.ValueAsInt = 0;
@@ -405,11 +405,11 @@ namespace Vodovoz
 			w25.Expand = false;
 			w25.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.maxBottlesSpin = new global::Gamma.GtkWidgets.ySpinButton(0, 999, 1);
+			this.maxBottlesSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
 			this.maxBottlesSpin.CanFocus = true;
 			this.maxBottlesSpin.Name = "maxBottlesSpin";
-			this.maxBottlesSpin.Adjustment.PageIncrement = 10;
-			this.maxBottlesSpin.ClimbRate = 1;
+			this.maxBottlesSpin.Adjustment.PageIncrement = 10D;
+			this.maxBottlesSpin.ClimbRate = 1D;
 			this.maxBottlesSpin.Numeric = true;
 			this.maxBottlesSpin.ValueAsDecimal = 0m;
 			this.maxBottlesSpin.ValueAsInt = 0;
@@ -438,11 +438,11 @@ namespace Vodovoz
 			w28.Expand = false;
 			w28.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.minAddressesSpin = new global::Gamma.GtkWidgets.ySpinButton(0, 999, 1);
+			this.minAddressesSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
 			this.minAddressesSpin.CanFocus = true;
 			this.minAddressesSpin.Name = "minAddressesSpin";
-			this.minAddressesSpin.Adjustment.PageIncrement = 10;
-			this.minAddressesSpin.ClimbRate = 1;
+			this.minAddressesSpin.Adjustment.PageIncrement = 10D;
+			this.minAddressesSpin.ClimbRate = 1D;
 			this.minAddressesSpin.Numeric = true;
 			this.minAddressesSpin.ValueAsDecimal = 0m;
 			this.minAddressesSpin.ValueAsInt = 0;
@@ -459,11 +459,11 @@ namespace Vodovoz
 			w30.Expand = false;
 			w30.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.maxAddressesSpin = new global::Gamma.GtkWidgets.ySpinButton(0, 999, 1);
+			this.maxAddressesSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
 			this.maxAddressesSpin.CanFocus = true;
 			this.maxAddressesSpin.Name = "maxAddressesSpin";
-			this.maxAddressesSpin.Adjustment.PageIncrement = 10;
-			this.maxAddressesSpin.ClimbRate = 1;
+			this.maxAddressesSpin.Adjustment.PageIncrement = 10D;
+			this.maxAddressesSpin.ClimbRate = 1D;
 			this.maxAddressesSpin.Numeric = true;
 			this.maxAddressesSpin.ValueAsDecimal = 0m;
 			this.maxAddressesSpin.ValueAsInt = 0;
@@ -581,11 +581,11 @@ namespace Vodovoz
 			w41.XOptions = ((global::Gtk.AttachOptions)(4));
 			w41.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
-			this.maxWeightSpin = new global::Gamma.GtkWidgets.ySpinButton(0, 20000, 500);
+			this.maxWeightSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 20000D, 500D);
 			this.maxWeightSpin.CanFocus = true;
 			this.maxWeightSpin.Name = "maxWeightSpin";
-			this.maxWeightSpin.Adjustment.PageIncrement = 500;
-			this.maxWeightSpin.ClimbRate = 1;
+			this.maxWeightSpin.Adjustment.PageIncrement = 500D;
+			this.maxWeightSpin.ClimbRate = 1D;
 			this.maxWeightSpin.Numeric = true;
 			this.maxWeightSpin.ValueAsDecimal = 0m;
 			this.maxWeightSpin.ValueAsInt = 0;
