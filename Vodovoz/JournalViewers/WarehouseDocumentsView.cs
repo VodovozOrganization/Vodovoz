@@ -8,6 +8,7 @@ using QSOrmProject.UpdateNotification;
 using QSTDI;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
+using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModel;
 
@@ -76,29 +77,35 @@ namespace Vodovoz
 							OrmMain.GenerateDialogHashName<IncomingInvoice>(id),
 							() => new IncomingInvoiceDlg (id),
 							this);
-					break;
-				case DocumentType.IncomingWater:
+						break;
+					case DocumentType.IncomingWater:
 						TabParent.OpenTab(
 							OrmMain.GenerateDialogHashName<IncomingWater>(id),
 							() => new IncomingWaterDlg (id),
 							this);
-					break;
-				case DocumentType.MovementDocument: 
+						break;
+					case DocumentType.MovementDocument: 
 						TabParent.OpenTab(
 							OrmMain.GenerateDialogHashName<MovementDocument>(id),
 							() => new MovementDocumentDlg (id),
 							this);
-					break;
-				case DocumentType.WriteoffDocument:
+						break;
+					case DocumentType.WriteoffDocument:
 						TabParent.OpenTab(
 							OrmMain.GenerateDialogHashName<WriteoffDocument>(id),
 							() => new WriteoffDocumentDlg (id),
 							this);
-					break;
+						break;
 					case DocumentType.InventoryDocument:
 						TabParent.OpenTab(
 							OrmMain.GenerateDialogHashName<InventoryDocument>(id),
 							() => new InventoryDocumentDlg (id),
+							this);
+						break;
+					case DocumentType.ShiftChangeDocument:
+						TabParent.OpenTab(
+							OrmMain.GenerateDialogHashName<ShiftChangeWarehouseDocument>(id),
+							() => new ShiftChangeWarehouseDocumentDlg(id),
 							this);
 						break;
 					case DocumentType.RegradingOfGoodsDocument:

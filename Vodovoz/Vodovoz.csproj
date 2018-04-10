@@ -713,6 +713,10 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport.cs" />
     <Compile Include="ReportsParameters\Logistic\DrivingCallReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DrivingCallReport.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\ShiftChangeWarehouseDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentDlg.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\ShiftChangeWarehouseDocumentItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentItemsView.cs" />
     <Compile Include="Dialogs\Store\CarUnloadRepository.cs" />
     <Compile Include="Representations\EmployeesVM.cs" />
   </ItemGroup>
@@ -1144,12 +1148,18 @@
     <None Include="Reports\RouteList\CarLoadDocSofiyskaya.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\Store\ShiftChangeWarehouse.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
         <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild" />
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild">
+            <inheritsSet />
+            <inheritsScope />
+          </DotNetNamingPolicy>
         </Policies>
         <Deployment.LinuxDeployData generateScript="False" />
       </Properties>

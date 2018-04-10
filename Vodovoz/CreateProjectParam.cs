@@ -123,6 +123,7 @@ namespace Vodovoz
 					OrmObjectMapping<MovementDocument>.Create().Dialog<MovementDocumentDlg>(),
 					OrmObjectMapping<WriteoffDocument>.Create().Dialog<WriteoffDocumentDlg>(),
 					OrmObjectMapping<InventoryDocument>.Create().Dialog<InventoryDocumentDlg>(),
+					OrmObjectMapping<ShiftChangeWarehouseDocument>.Create().Dialog<ShiftChangeWarehouseDocumentDlg>(),
 					OrmObjectMapping<RegradingOfGoodsDocument>.Create().Dialog<RegradingOfGoodsDocumentDlg>(),
 					OrmObjectMapping<SelfDeliveryDocument>.Create().Dialog<SelfDeliveryDocumentDlg>(),
 					OrmObjectMapping<CarLoadDocument>.Create().Dialog<CarLoadDocumentDlg>(),
