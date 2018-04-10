@@ -31,6 +31,11 @@ namespace Vodovoz
 			this.Build();
 		}
 
+		public EmployeeFilter(bool showFired) : this()
+		{
+			RestrictFired = showFired;
+		}
+
 		#region IReferenceFilter implementation
 
 		public event EventHandler Refiltered;

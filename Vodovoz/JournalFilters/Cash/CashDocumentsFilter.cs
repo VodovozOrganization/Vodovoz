@@ -32,7 +32,7 @@ namespace Vodovoz
 			this.Build ();
 			yentryIncome.ItemsQuery = Repository.Cash.CategoryRepository.IncomeCategoriesQuery ();
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
-			entryEmployee.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery ();
+			entryEmployee.RepresentationModel = new ViewModel.EmployeesVM(new EmployeeFilter(showFired: false));
 
 			//Последние 30 дней.
 			dateperiodDocs.StartDateOrNull = DateTime.Today.AddDays(-30);
