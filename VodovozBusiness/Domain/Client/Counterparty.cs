@@ -270,6 +270,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref defaultDocumentType, value, () => DefaultDocumentType); }
 		}
 
+		private bool newBottlesNeeded;
+
+		[Display(Name = "Новая необоротная тара")]
+		public virtual bool NewBottlesNeeded {
+			get { return newBottlesNeeded; }
+			set { SetField(ref newBottlesNeeded, value, () => NewBottlesNeeded); }
+		}
+
 		string signatoryFIO;
 
 		[Display (Name = "ФИО подписанта")]

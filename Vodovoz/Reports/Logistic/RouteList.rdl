@@ -821,7 +821,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value>={Address} + Iif({Reloaded}, "*", "")</Value>
+                      <Value>={Address} + Iif({Reloaded}, "*", "") + Iif({NeedNewBottles}, "(Н)", "")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1547,6 +1547,7 @@ CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) A
 CONCAT(DATE_FORMAT(route_list_addresses.plan_time_start, '%H:%i'),'-', DATE_FORMAT(route_list_addresses.plan_time_end, '%H:%i')) AS PlanTime,
 orders.bottles_return AS EmptyBottles, IF(orders.payment_type = 'cash', orders.sum_to_receive, 0) AS Total, 
 CONCAT_WS(' ', IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address),IF(route_list_addresses.status = 'Transfered',CONCAT_WS('','(Перенесен в МЛ №',TransferedAddresses.route_list_id,')'),'')) AS Address,
+counterparty.need_new_bottles AS NeedNewBottles,
 CONCAT_WS(
 	' ', 
     GROUP_CONCAT(DISTINCT
@@ -1601,6 +1602,7 @@ FROM route_list_addresses
 LEFT JOIN orders ON orders.id = route_list_addresses.order_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
 LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN 
 	(SELECT
     route_list_addresses.id,
@@ -1694,6 +1696,10 @@ ORDER BY order_in_route;
         </Field>
         <Field Name="Reloaded">
           <DataField>Reloaded</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="NeedNewBottles">
+          <DataField>NeedNewBottles</DataField>
           <TypeName>System.Boolean</TypeName>
         </Field>
         <Field Name="DeliveryTime">
