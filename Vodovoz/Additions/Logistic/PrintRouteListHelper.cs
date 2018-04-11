@@ -143,7 +143,7 @@ namespace Vodovoz.Additions.Logistic
 					column.Id, "Water" + column.Id.ToString ());
 				if(isClosed)
 				{
-					SqlSelect += String.Format (", IFNULL(wt_qry.Water_fact{0}, 0) AS Water_fact{0}", column.Id.ToString ());
+					SqlSelect += String.Format (", IF(route_list_addresses.status = 'Transfered', 0, IFNULL(wt_qry.Water_fact{0}, 0)) AS Water_fact{0}", column.Id.ToString ());
 					SqlSelectSubquery += String.Format (", SUM(IF(nomenclature_route_column.id = {0}, order_items.actual_count, 0)) AS {1}",
 						column.Id, "Water_fact" + column.Id.ToString ());
 				}
