@@ -90,7 +90,7 @@ FROM
     GROUP BY warehouse_movement_operations.nomenclature_id) movements ON movements.nomenclature_id = nomenclature.id
         LEFT JOIN
     measurement_units ON measurement_units.id = nomenclature.unit_id
-HAVING before_added - before_removed &lt;&gt; 0 OR all_added - all_removed &lt;&gt; 0
+HAVING before_added - before_removed &lt;&gt; 0 OR IFNULL(all_added, 0) &lt;&gt; 0 OR IFNULL(all_removed, 0) &lt;&gt; 0
 ORDER BY nomenclature.category , nomenclature.name</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
