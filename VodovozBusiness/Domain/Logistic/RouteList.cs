@@ -1004,6 +1004,12 @@ namespace Vodovoz.Domain.Logistic
 						};
 					}
 					result.Add(bottlesOperation);
+				}else {
+					if(item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Bottles).ToList().Count >= 1) {
+						var bottlesOperation = item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Bottles).FirstOrDefault();
+						item.Order.DepositOperations.Remove(bottlesOperation);
+						UoW.Delete(bottlesOperation);
+					}
 				}
 
 				if(item.EquipmentDepositsCollected != 0) {
@@ -1023,6 +1029,12 @@ namespace Vodovoz.Domain.Logistic
 						};
 					}
 					result.Add(equipmentOperation);
+				} else {
+					if(item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Equipment).ToList().Count >= 1) {
+						var equipmentOperation = item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Equipment).FirstOrDefault();
+						item.Order.DepositOperations.Remove(equipmentOperation);
+						UoW.Delete(equipmentOperation);
+					}
 				}
 			}
 #endif
