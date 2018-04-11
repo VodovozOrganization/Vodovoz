@@ -719,6 +719,8 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentItemsView.cs" />
     <Compile Include="Dialogs\Store\CarUnloadRepository.cs" />
     <Compile Include="Representations\EmployeesVM.cs" />
+    <Compile Include="ReportsParameters\NotDeliveredOrdersReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NotDeliveredOrdersReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1149,6 +1151,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\ShiftChangeWarehouse.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\NotDeliveredOrders.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

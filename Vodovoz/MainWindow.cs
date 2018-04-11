@@ -930,4 +930,13 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
+
+	protected void OnAction46Activated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.NotDeliveredOrdersReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
 }
