@@ -1650,6 +1650,7 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование к клиента";
@@ -1676,6 +1677,7 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование от клиента";

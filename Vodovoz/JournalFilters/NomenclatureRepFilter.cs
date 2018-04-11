@@ -19,7 +19,6 @@ namespace Vodovoz.JournalFilters
 		public NomenclatureRepFilter()
 		{
 			this.Build();
-			UoW = uow;
 			enumcomboCategory.ItemsEnum = typeof(NomenclatureCategory);
 			OnRefiltered();
 		}
