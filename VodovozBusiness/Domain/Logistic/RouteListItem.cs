@@ -753,9 +753,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int GetGoodsActualAmountForColumn(int columnId)
 		{
-			return Order.OrderItems.Where(i => i.Nomenclature.RouteListColumn != null)
-				.Where(i => i.Nomenclature.RouteListColumn.Id == columnId)
-				.Sum(i => i.ActualCount);
+			if(Status == RouteListItemStatus.Transfered) {
+				return 0;
+			} else {
+				return Order.OrderItems.Where(i => i.Nomenclature.RouteListColumn != null)
+					.Where(i => i.Nomenclature.RouteListColumn.Id == columnId)
+					.Sum(i => i.ActualCount);
+			}
 		}
 
 
