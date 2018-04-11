@@ -905,8 +905,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox15">
-                      <Value>=Iif({EmptyBottles} = 0, "", {EmptyBottles})</Value>
+                    <Textbox Name="Textbox15" >
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1125,8 +1126,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox68">
-                      <Value>=Iif(Sum({EmptyBottles}) = 0, "", Sum({EmptyBottles}))</Value>
+                    <Textbox Name="Textbox68" >
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1571,7 +1573,23 @@ CONCAT_WS(
             pickup_eq_qry.cnt
 		)
     ), 
-    orders.from_client_text
+    orders.from_client_text,
+    "\n",
+    IF(
+        (EXISTS(
+            SELECT oi.id
+            FROM order_items oi LEFT JOIN nomenclature n
+            ON (oi.nomenclature_id=n.id AND n.category IN ('water', 'equipment', 'spare_parts', 'additional', 'bottle', 'material', 'disposableBottleWater'))
+        	WHERE oi.order_id=orders.id
+		) OR
+        EXISTS(
+            SELECT id
+            FROM order_equipment
+            WHERE direction = 'Deliver' AND order_equipment.order_id=orders.id
+        )),
+        "",
+        CONCAT("Тара: ", orders.bottles_return)
+    )
 ) AS FromClient,
 #IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit,
 #База в запросе выше на проде пустая, залоги гребутся из той, что в запросе ниже.
