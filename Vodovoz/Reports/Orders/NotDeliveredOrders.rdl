@@ -276,6 +276,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -306,6 +307,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
