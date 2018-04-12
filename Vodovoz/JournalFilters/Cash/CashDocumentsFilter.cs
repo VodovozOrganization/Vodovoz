@@ -19,6 +19,7 @@ namespace Vodovoz
 			set {
 				uow = value;
 				enumcomboDocumentType.ItemsEnum = typeof(CashDocumentType);
+				entryEmployee.RepresentationModel = new ViewModel.EmployeesVM(new EmployeeFilter(uow: UoW, showFired: false));
 			}
 		}
 
@@ -32,7 +33,6 @@ namespace Vodovoz
 			this.Build();
 			yentryIncome.ItemsQuery = Repository.Cash.CategoryRepository.IncomeCategoriesQuery();
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
-			entryEmployee.RepresentationModel = new ViewModel.EmployeesVM(new EmployeeFilter(uow: UoW, showFired: false));
 
 			//Последние 30 дней.
 			dateperiodDocs.StartDateOrNull = DateTime.Today.AddDays(-30);
