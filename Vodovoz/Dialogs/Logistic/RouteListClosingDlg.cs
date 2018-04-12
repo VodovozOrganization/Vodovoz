@@ -39,6 +39,7 @@ namespace Vodovoz
 		List<RouteListRepository.ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
 		int bottlesReturnedTotal;
+		int defectiveBottlesReturnedToWarehouse;
 
 		enum RouteListActions
 		{
@@ -88,6 +89,7 @@ namespace Vodovoz
 		{
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
+			referenceCar.SubjectType = typeof(Car);
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = editing;
 
@@ -481,6 +483,15 @@ namespace Vodovoz
 				bottlesReturnedTotal
 			);
 
+			if(defectiveBottlesReturnedToWarehouse > 0) {
+				lblQtyOfDefectiveGoods.Visible = true;
+				lblQtyOfDefectiveGoods.Markup = String.Format(
+					"Единиц брака: <b>{0}</b> шт.",
+						defectiveBottlesReturnedToWarehouse);
+			} else {
+				lblQtyOfDefectiveGoods.Visible = false;
+			}
+
 			var bottleDifference = bottlesReturnedToWarehouse - bottlesReturnedTotal;
 			var differenceAttributes = bottlesReturnedToWarehouse - bottlesReturnedTotal > 0 ? "background=\"#ff5555\"" : "";
 			var bottleDifferenceFormat = "<span {1}><b>{0}</b><sub>(осталось)</sub></span>";
@@ -828,8 +839,17 @@ namespace Vodovoz
 		{
 			allReturnsToWarehouse = RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
 			var returnedBottlesNom = Int32.Parse(MainSupport.BaseParameters.All["returned_bottle_nomenclature_id"]);
-			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, returnedBottlesNom)
-				.Sum(item => item.Amount);
+			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(
+				UoW,
+				Entity.Id,
+				returnedBottlesNom)
+			.Sum(item => item.Amount);
+
+			defectiveBottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(
+				UoW,
+				Entity.Id,
+				NomenclatureRepository.NomenclatureOfDefectiveGoods(UoW).Select(n => n.Id).ToArray())
+			.Sum(item => item.Amount);
 		}
 
 		public override void Destroy()
