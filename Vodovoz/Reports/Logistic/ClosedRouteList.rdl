@@ -1626,7 +1626,7 @@ LEFT JOIN (
 SELECT order_items.order_id as order_id, nomenclature.id AS nomenclature_id,
 IFNULL(nomenclature.short_name, nomenclature.name) as name, SUM(order_items.actual_count) AS cnt FROM order_items 
 LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id 
-WHERE nomenclature.category = 'equipment' OR nomenclature.category = 'additional' AND nomenclature.hide = 0
+WHERE (nomenclature.category = 'equipment' OR nomenclature.category = 'additional' OR nomenclature.route_column_id IS NULL AND nomenclature.category IN ('water', 'disposableBottleWater')) AND nomenclature.hide = 0
 GROUP BY order_id, nomenclature_id
 ) AS eq_qry ON eq_qry.order_id = orders.id
 
