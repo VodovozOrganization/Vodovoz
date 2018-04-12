@@ -17,6 +17,9 @@ namespace Vodovoz
 			}
 			set {
 				uow = value;
+				var filter = new EmployeeFilter(UoW);
+				filter.RestrictFired = false;
+				yentryAccountable.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			}
 		}
 
@@ -28,11 +31,8 @@ namespace Vodovoz
 		public UnclosedAdvancesFilter ()
 		{
 			this.Build ();
-
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
-			var filter = new EmployeeFilter(UoW);
-			filter.RestrictFired = false;
-			yentryAccountable.RepresentationModel = new ViewModel.EmployeesVM(filter);
+
 		}
 
 		#region IReferenceFilter implementation
