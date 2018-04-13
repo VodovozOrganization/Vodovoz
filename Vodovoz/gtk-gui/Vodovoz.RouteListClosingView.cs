@@ -20,7 +20,7 @@ namespace Vodovoz
 
 		private global::QSOrmProject.RepresentationTreeView treeRouteLists;
 
-		private global::Gtk.HBox hbox1;
+		private global::Gtk.HBox hbox2;
 
 		private global::Gtk.Button buttonCloseRouteList;
 
@@ -97,29 +97,28 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
 			w8.Position = 2;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.buttonCloseRouteList = new global::Gtk.Button();
 			this.buttonCloseRouteList.CanFocus = true;
 			this.buttonCloseRouteList.Name = "buttonCloseRouteList";
 			this.buttonCloseRouteList.UseUnderline = true;
-			this.buttonCloseRouteList.Label = global::Mono.Unix.Catalog.GetString("Закрыть МЛ");
-			global::Gtk.Image w9 = new global::Gtk.Image();
-			this.buttonCloseRouteList.Image = w9;
-			this.hbox1.Add(this.buttonCloseRouteList);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonCloseRouteList]));
-			w10.Position = 0;
+			this.buttonCloseRouteList.Label = global::Mono.Unix.Catalog.GetString("Открыть");
+			this.hbox2.Add(this.buttonCloseRouteList);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonCloseRouteList]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
+			this.vbox2.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
+			w10.Position = 3;
 			w10.Expand = false;
 			w10.Fill = false;
-			this.vbox2.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
-			w11.Position = 3;
-			w11.Expand = false;
-			w11.Fill = false;
 			this.Add(this.vbox2);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

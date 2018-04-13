@@ -29127,15 +29127,15 @@
           </packing>
         </child>
         <child>
-          <widget class="Gtk.HBox" id="hbox1">
+          <widget class="Gtk.HBox" id="hbox2">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
               <widget class="Gtk.Button" id="buttonCloseRouteList">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Type">TextAndIcon</property>
-                <property name="Label" translatable="yes">Закрыть МЛ</property>
+                <property name="Type">TextOnly</property>
+                <property name="Label" translatable="yes">Открыть</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonCloseRouteListClicked" />
               </widget>

@@ -23,23 +23,23 @@ namespace Vodovoz
 				return uow;
 			}
 			set {
-				if (uow == value)
+				if(uow == value)
 					return;
 				uow = value;
-				viewModel = new ViewModel.RouteListsVM (value);
+				viewModel = new ViewModel.RouteListsVM(value);
 				viewModel.Filter = routelistsfilter1;
 				viewModel.Filter.UoW = uow;
 				viewModel.Filter.SetFilterStatus(RouteListStatus.OnClosing);
 				treeRouteLists.RepresentationModel = viewModel;
-				treeRouteLists.RepresentationModel.UpdateNodes ();
+				treeRouteLists.RepresentationModel.UpdateNodes();
 			}
 		}
-				
+
 		public RouteListClosingView()
 		{
 			this.Build();
 			this.TabName = "Готовые к закрытию";
-			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			treeRouteLists.Selection.Changed += OnSelectionChanged;
 		}
 
@@ -48,14 +48,30 @@ namespace Vodovoz
 			buttonCloseRouteList.Sensitive = treeRouteLists.Selection.CountSelectedRows() > 0;
 		}
 
-		protected void OnButtonCloseRouteListClicked (object sender, EventArgs e)
+		protected void OnButtonCloseRouteListClicked(object sender, EventArgs e)
 		{
-			var node = treeRouteLists.GetSelectedNode () as ViewModel.RouteListsVMNode;
-			TabParent.OpenTab (RouteListClosingDlg.GenerateHashName (node.Id),
-			                   () => new RouteListClosingDlg (node.Id));
+			var node = treeRouteLists.GetSelectedNode() as ViewModel.RouteListsVMNode;
+
+			switch(node.StatusEnum) {
+				case RouteListStatus.New:
+				case RouteListStatus.InLoading:
+					TabParent.OpenTab(RouteListCreateDlg.GenerateHashName(node.Id), () => new RouteListCreateDlg(node.Id));
+					break;
+				case RouteListStatus.EnRoute:
+					TabParent.OpenTab(RouteListKeepingDlg.GenerateHashName(node.Id), () => new RouteListKeepingDlg(node.Id));
+					break;
+				case RouteListStatus.MileageCheck:
+					TabParent.OpenTab(RouteListMileageCheckDlg.GenerateHashName(node.Id), () => new RouteListMileageCheckDlg(node.Id));
+					break;
+				case RouteListStatus.OnClosing:
+				case RouteListStatus.Closed:
+					TabParent.OpenTab(RouteListClosingDlg.GenerateHashName(node.Id), () => new RouteListClosingDlg(node.Id));
+					break;
+				default: throw new NotSupportedException("Тип документа не поддерживается.");
+			}
 		}
 
-		protected void OnRouteListActivated (object o, Gtk.RowActivatedArgs args)
+		protected void OnRouteListActivated(object o, Gtk.RowActivatedArgs args)
 		{
 			OnButtonCloseRouteListClicked(o, args);
 		}
@@ -75,7 +91,7 @@ namespace Vodovoz
 			Menu popupMenu = new Gtk.Menu();
 			Gtk.MenuItem menuItemRouteList = new MenuItem("Вернуть в статус \"Сдается\"");
 			menuItemRouteList.Activated += MenuItemRouteList_Activated;
-			menuItemRouteList.Sensitive = node.StatusEnum == Vodovoz.Domain.Logistic.RouteListStatus.Closed 
+			menuItemRouteList.Sensitive = node.StatusEnum == Vodovoz.Domain.Logistic.RouteListStatus.Closed
 														  && QSMain.User.Permissions["routelist_unclosing"];
 			popupMenu.Add(menuItemRouteList);
 
