@@ -707,7 +707,6 @@ namespace Vodovoz
 			var equipmentsToNodes = node.SelectNodes("ТабличнаяЧасть[@Имя='ОборудованияКлиента']/Запись");
 			var equipmentsFromNodes = node.SelectNodes("ТабличнаяЧасть[@Имя='ОборудованияОтКлиента']/Запись");
 			var returnedTare		  = node.SelectSingleNode("Свойство[@Имя='ВозвратнаяТара']/Значение");
-			var informationOnTara	  = node.SelectSingleNode("Свойство[@Имя='ИнформацияПоТаре']/Значение");
 
 			Counterparty client = CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText);
 
@@ -768,7 +767,6 @@ namespace Vodovoz
 					ToClientText 		= toClient?.InnerText,
 					FromClientText 		= fromClient?.InnerText,
 					ClientPhone			= clientPhone?.InnerText,
-					InformationOnTara 	= informationOnTara?.InnerText,
 				    ReasonType 			= reasonType
 				};
 
