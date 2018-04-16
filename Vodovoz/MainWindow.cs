@@ -940,4 +940,10 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
+
+	protected void OnAction46Activated(object sender, EventArgs e)
+	{
+		var refWin = new OrmReference(typeof(Tag));
+		tdiMain.AddTab(refWin);
+	}
 }

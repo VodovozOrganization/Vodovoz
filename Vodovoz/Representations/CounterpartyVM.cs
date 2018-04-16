@@ -31,11 +31,18 @@ namespace Vodovoz.ViewModel
 			CounterpartyVMNode resultAlias = null;
 			QSContacts.Phone phoneAlias = null;
 			DeliveryPoint addressAlias = null;
+			Tag TagAlias = null;
 
 			var query = UoW.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
 			if(Filter != null && !Filter.RestrictIncludeArhive) {
 				query.Where(c => !c.IsArchive);
+			}
+
+			if (Filter != null && Filter.Tag != null)
+			{
+				query.Left.JoinQueryOver(() => counterpartyAlias.Tags, () => TagAlias)
+				     .Where(x => x.Id == Filter.Tag.Id);
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)

@@ -1,22 +1,20 @@
 ﻿using System;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain.Client;
+using Vodovoz.Representations;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class CounterpartyFilter : Gtk.Bin, IRepresentationFilter
 	{
-		public CounterpartyFilter (IUnitOfWork uow) : this ()
+		public CounterpartyFilter (IUnitOfWork uow)
 		{
+			this.Build();
 			UoW = uow;
+			yentryTag.RepresentationModel = new TagVM(UoW);
 		}
-
-		public CounterpartyFilter ()
-		{
-			this.Build ();
-		}
-
 
 		#region IRepresentationFilter implementation
 
@@ -49,6 +47,15 @@ namespace Vodovoz
 			}
 		}
 
+		public Tag Tag
+		{
+			get { return yentryTag.Subject as Tag; }
+			set {
+				yentryTag.Subject = value;
+				yentryTag.Sensitive = false;
+			}
+		}
+
 		protected void OnComboCounterpartyTypeEnumItemSelected (object sender, EnumItemClickedEventArgs e)
 		{
 			OnRefiltered ();
@@ -57,6 +64,11 @@ namespace Vodovoz
 		protected void OnCheckIncludeArhiveToggled(object sender, EventArgs e)
 		{
 			OnRefiltered ();
+		}
+		
+		protected void OnYentryTagChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
 		}
 	}
 }

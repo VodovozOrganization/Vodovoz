@@ -421,6 +421,8 @@
     <Compile Include="Domain\Order\Documents\RefundEquipmentDepositDocument.cs" />
     <Compile Include="Domain\Order\Documents\BottleTransferDocument.cs" />
     <Compile Include="Repositories\Client\ClientDocumentsRepository.cs" />
+	<Compile Include="Domain\Client\Tag.cs" />
+    <Compile Include="HibernateMapping\Counterparty\TagMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -17,6 +17,7 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Core.Permissions;
+using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain;
@@ -119,6 +120,7 @@ namespace Vodovoz
 				OrmObjectMapping<WaterSalesAgreement>.Create().Trace().Dialog<WaterAgreementDlg>(),
 				OrmObjectMapping<RepairAgreement>.Create().Dialog<RepairAgreementDlg>(),
 				OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView().SearchColumn("Название", x => x.FullName).End(),
+				OrmObjectMapping<Tag>.Create().Dialog<TagDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),
 				OrmObjectMapping<DocTemplate>.Create().Dialog<DocTemplateDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип", x => x.TemplateType.GetEnumTitle()).End(),
 				OrmObjectMapping<Residue>.Create().Dialog<ResidueDlg>(),

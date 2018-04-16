@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.GtkWidgets;
+using Gtk;
 using NLog;
 using QSBanks;
 using QSContacts;
@@ -129,6 +131,15 @@ namespace Vodovoz
 				.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
 				.AddBinding(s => s.FullName, t => t.FullName)
 				.InitializeFromSource();
+
+			ytreeviewTags.ColumnsConfig = ColumnsConfigFactory.Create<Tag>()
+				.AddColumn("Название").AddTextRenderer(node => node.Name)
+				.AddColumn("Цвет").AddTextRenderer()
+				.AddSetter((cell, node) => { cell.Markup = String.Format("<span foreground=\"{0}\">⬤</span>", node.ColorText); })
+				.AddColumn("")
+				.Finish();
+
+			ytreeviewTags.ItemsDataSource = Entity.ObservableTags;
 
 			//make actions menu
 			var menu = new Gtk.Menu();
@@ -289,6 +300,40 @@ namespace Vodovoz
 			}
 		}
 
+		protected void OnRadioTagsToggled(object sender, EventArgs e)
+		{
+			if (radioTags.Active)
+				notebook1.CurrentPage = 8;
+		}
+
+		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			var tag = e.Subject as Tag;
+			if (tag == null)
+			{
+				return;
+			}
+			Entity.ObservableTags.Add(tag);
+		}
+
+		protected void OnButtonAddTagClicked(object sender, EventArgs e)
+		{
+			var refWin = new OrmReference(typeof(Tag));
+			refWin.Mode = OrmReferenceMode.Select;
+			refWin.ObjectSelected += RefWin_ObjectSelected;
+			TabParent.AddSlaveTab(this, refWin);
+		}
+
+		protected void OnButtonDeleteTagClicked(object sender, EventArgs e)
+		{
+			var tag = ytreeviewTags.GetSelectedObject() as Tag;
+			if (tag == null)
+			{
+				return;
+			}
+			Entity.ObservableTags.Remove(tag);
+		}
+		
 		protected void OnDatalegalname1OwnershipChanged(object sender, EventArgs e)
 		{
 			validatedKPP.Sensitive = Entity.TypeOfOwnership != "ИП";

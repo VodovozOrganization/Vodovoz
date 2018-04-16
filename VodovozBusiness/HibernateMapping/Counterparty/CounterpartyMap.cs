@@ -53,6 +53,10 @@ namespace Vodovoz.HibernateMapping
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.Proxies).Cascade.None().LazyLoad().Inverse()
 				.KeyColumn("counterparty_id");
+			HasManyToMany(x => x.Tags).Table("counterparty_tags")
+									  .ParentKeyColumn("counterparty_id")
+									  .ChildKeyColumn("tag_id")
+									  .LazyLoad();
 		}
 	}
 }

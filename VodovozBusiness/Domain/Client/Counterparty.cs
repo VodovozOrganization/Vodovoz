@@ -53,6 +53,29 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		private IList<Tag> tags = new List<Tag>();
+
+		[Display(Name = "Теги")]
+		public virtual IList<Tag> Tags
+		{
+			get { return tags; }
+			set { SetField(ref tags, value, () => Tags); }
+		}
+
+		GenericObservableList<Tag> observableTags;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Tag> ObservableTags
+		{
+			get
+			{
+				if (observableTags == null)
+					observableTags = new GenericObservableList<Tag>(Tags);
+				return observableTags;
+			}
+		}
+
+
+
 		private IList<Contact> contact = new List<Contact> ();
 
 		[Display (Name = "Контактные лица")]

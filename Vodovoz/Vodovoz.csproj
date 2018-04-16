@@ -741,6 +741,9 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.BottlesMovementReport.cs" />
     <Compile Include="ReportsParameters\MastersVisitReport.cs" />
+    <Compile Include="Representations\TagVM.cs" />
+    <Compile Include="Dialogs\Client\TagDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.TagDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1187,7 +1190,10 @@
     <MonoDevelop>
       <Properties>
         <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild" />
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild">
+            <inheritsSet />
+            <inheritsScope />
+          </DotNetNamingPolicy>
         </Policies>
         <Deployment.LinuxDeployData generateScript="False" />
       </Properties>
