@@ -11,6 +11,7 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 
@@ -156,6 +157,11 @@ namespace Vodovoz.ViewModel
 				RouteListStatus.Closed
 			};
 
+		private List<RouteListStatus> ControlDlgStatuses = new List<RouteListStatus>()
+			{
+				RouteListStatus.InLoading
+			};
+
 		private List<RouteListStatus> ClosingDlgStatuses = new List<RouteListStatus>()
 			{
 				RouteListStatus.OnClosing,
@@ -197,6 +203,12 @@ namespace Vodovoz.ViewModel
 			Gtk.MenuItem menuItemRouteListCreateDlg = new Gtk.MenuItem("Открыть диалог создания");
 			menuItemRouteListCreateDlg.Activated += MenuItemRouteListCreateDlg_Activated;
 			popupMenu.Add(menuItemRouteListCreateDlg);
+
+			Gtk.MenuItem menuItemRouteListControlDlg = new Gtk.MenuItem("Отгрузка со склада");
+			menuItemRouteListControlDlg.Activated += MenuItemRouteListControlDlg_Activated;
+			menuItemRouteListControlDlg.Sensitive = selected.Any(x =>
+				ControlDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
+			popupMenu.Add(menuItemRouteListControlDlg);
 
 			Gtk.MenuItem menuItemRouteListKeepingDlg = new Gtk.MenuItem("Открыть диалог ведения");
 			menuItemRouteListKeepingDlg.Activated += MenuItemRouteListKeepingDlg_Activated;
@@ -278,6 +290,23 @@ namespace Vodovoz.ViewModel
 				);
 			}
 		}
+
+		void MenuItemRouteListControlDlg_Activated(object sender, EventArgs e)
+		{
+			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
+
+			var routeLists = UoW.Session.QueryOver<RouteList>()
+				.Where(x => x.Id.IsIn(routeListIds))
+				.List();
+
+			foreach(var rl in routeLists.Where(x => ControlDlgStatuses.Contains(x.Status))) {
+				MainClass.MainWin.TdiMain.OpenTab(
+					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
+					() => new RouteListControlDlg(rl.Id)
+				);
+			}
+		}
+
 
 		void MenuItemRouteListKeepingDlg_Activated(object sender, EventArgs e)
 		{

@@ -721,6 +721,8 @@
     <Compile Include="Representations\EmployeesVM.cs" />
     <Compile Include="ReportsParameters\NotDeliveredOrdersReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NotDeliveredOrdersReport.cs" />
+    <Compile Include="Dialogs\Logistic\RouteListControlDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.RouteListControlDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
