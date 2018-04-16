@@ -471,7 +471,7 @@ ORDER BY Category;</CommandText>
                             <BackgroundColor>Lightgrey</BackgroundColor>
                             <VerticalAlign>Bottom</VerticalAlign>
                           </Style>
-                          <Value>=sum(Iif(Previous({expense_id}) != {expense_id}, Fields!Sum.Value, 0))</Value>
+                          <Value>=sum(Iif(Previous({expense_id}) != {expense_id}, Fields!Sum.Value, 0)) - sum({return_money})</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
