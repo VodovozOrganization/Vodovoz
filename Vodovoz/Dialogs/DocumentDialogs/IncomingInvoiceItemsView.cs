@@ -43,7 +43,7 @@ namespace Vodovoz
 						.AddSetter ((c, i) => c.Editable = i.CanEditAmount)
 						.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 						.AddTextRenderer (i => i.Nomenclature.Unit == null ? String.Empty: i.Nomenclature.Unit.Name, false)
-					.AddColumn ("Цена закупки").AddNumericRenderer (i => i.Price).Digits (2).Editing ()
+					.AddColumn("Цена закупки").AddNumericRenderer(i => i.PrimeCost).Digits(2).Editing()
 						.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 						.AddTextRenderer (i => CurrencyWorks.CurrencyShortName, false)
 					.AddColumn ("Сумма").AddTextRenderer (i => CurrencyWorks.GetShortCurrencyString (i.Sum))
@@ -123,11 +123,11 @@ namespace Vodovoz
 				SelectDialog.Mode = OrmReferenceMode.Select;
 				SelectDialog.ButtonMode = ReferenceButtonMode.TreatEditAsOpen | ReferenceButtonMode.CanEdit;
 
-				SelectDialog.ObjectSelected += (s, ev) => DocumentUoW.Root.AddItem (new IncomingInvoiceItem {
+				SelectDialog.ObjectSelected += (s, ev) => DocumentUoW.Root.AddItem(new IncomingInvoiceItem {
 					Nomenclature = (ev.Subject as Equipment).Nomenclature,
 					Equipment = ev.Subject as Equipment,
 					Amount = 1,
-					Price = 0
+					PrimeCost = 0
 				});
 
 				mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
@@ -136,7 +136,7 @@ namespace Vodovoz
 				DocumentUoW.Root.AddItem (new IncomingInvoiceItem { 
 					Nomenclature = e.Subject as Nomenclature, 
 					Equipment = null,
-					Amount = 0, Price = 0
+					Amount = 0, PrimeCost = 0
 				});
 			}
 		}

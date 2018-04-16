@@ -43,6 +43,13 @@ namespace Vodovoz.Domain.Operations
 			set { SetField (ref equipment, value, () => Equipment); }
 		}
 
+		decimal primeCost;
+
+		public virtual decimal PrimeCost {
+			get { return primeCost; }
+			set { SetField(ref primeCost, value, () => PrimeCost); }
+		}
+
 		decimal amount;
 
 		public virtual decimal Amount {

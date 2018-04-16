@@ -10,6 +10,10 @@ using NHibernate.Transform;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Service;
+using Vodovoz.Domain.Operations;
+using System.ComponentModel.DataAnnotations;
+using Gtk;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -27,7 +31,7 @@ namespace Vodovoz
 
 		public void AddItem(ReceptionItemNode item)
 		{
-			ReceptionReturnsList.Add (item);
+			ReceptionReturnsList.Add(item);
 		}
 
 		public ReturnsReceptionView()
@@ -43,6 +47,10 @@ namespace Vodovoz
 				.AddNumericRenderer (node => node.Amount, false)
 				.Adjustment (new Gtk.Adjustment (0, 0, 9999, 1, 100, 0))
 				.AddSetter ((cell, node) => cell.Editable = node.EquipmentId==0)
+				.AddColumn("Цена закупки").AddNumericRenderer(node => node.PrimeCost).Digits(2).Editing()
+					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
+					.AddTextRenderer (i => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn ("Сумма").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Sum))
 				.AddColumn ("")
 				.Finish ();
 
@@ -253,6 +261,13 @@ namespace Vodovoz
 			}
 		}
 
+		WarehouseMovementOperation movementOperation = new WarehouseMovementOperation();
+
+		public virtual WarehouseMovementOperation MovementOperation {
+			get { return movementOperation; }
+			set { SetField(ref movementOperation, value, () => MovementOperation); }
+		}
+
 		public ReceptionItemNode(Nomenclature nomenclature, int amount)
 		{
 			Name = nomenclature.Name;
@@ -261,8 +276,25 @@ namespace Vodovoz
 			this.amount = amount;
 		}
 
-		public ReceptionItemNode () {}
-	}
+		public ReceptionItemNode(WarehouseMovementOperation movementOperation):this(movementOperation.Nomenclature, (int)movementOperation.Amount)
+		{
+			this.movementOperation = movementOperation;
+		}
 
+		public ReceptionItemNode () {}
+
+		[Display(Name = "Цена")]
+		public virtual decimal PrimeCost {
+			get { return MovementOperation.PrimeCost; }
+			set {
+				if(value != MovementOperation.PrimeCost)
+					MovementOperation.PrimeCost = value;
+			}
+		}
+
+		public virtual decimal Sum {
+			get { return PrimeCost * Amount; }
+		}
+	}
 }
 

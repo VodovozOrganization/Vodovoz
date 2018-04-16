@@ -11,7 +11,6 @@ namespace Vodovoz.HibernateMapping
 			Table ("store_incoming_invoice_items");
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
-			Map (x => x.Price).Column ("price");
 			Map (x => x.Amount).Column ("amount");
 			Map (x => x.VAT).Column ("vat").CustomType<VATStringType> ();
 			References (x => x.Document).Column ("incoming_invoice_id").Not.Nullable ();

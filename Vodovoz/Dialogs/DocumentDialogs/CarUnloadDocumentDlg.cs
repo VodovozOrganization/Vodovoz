@@ -224,7 +224,7 @@ namespace Vodovoz
 				}
 
 				logger.Warn("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.MovementOperation.Nomenclature);
-				var newItem = new ReceptionItemNode(item.MovementOperation.Nomenclature, (int)item.MovementOperation.Amount);
+				var newItem = new ReceptionItemNode(item.MovementOperation);
 				if(item.MovementOperation.Equipment != null) {
 					newItem.EquipmentId = item.MovementOperation.Equipment.Id;
 				}
