@@ -72,6 +72,7 @@ namespace Vodovoz
 			yspinFuelTicketLiters.Binding.AddBinding (Entity, e => e.FuelCoupons, w => w.ValueAsInt).InitializeFromSource ();
 
 			disablespinMoney.Binding.AddBinding(Entity, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
+			spinFuelPrice.Binding.AddBinding(Entity, e => e.LiterCost, w => w.ValueAsDecimal).InitializeFromSource();
 
 			UpdateFuelInfo();
 			UpdateResutlInfo();
@@ -214,6 +215,7 @@ namespace Vodovoz
 				GetCashier(out cashier);
 			}
 
+			Entity.Fuel.Cost = spinFuelPrice.ValueAsDecimal;
 			Entity.UpdateOperation();
 			Entity.UpdateFuelCashExpense(UoW, cashier, RouteListClosing.Id);
 			UpdateResutlInfo();
@@ -228,6 +230,7 @@ namespace Vodovoz
 
 		private void UpdateFuelCashExpenseInfo()
 		{
+			spinFuelPrice.Sensitive = disablespinMoney.Active;
 			if (Entity.FuelCashExpense == null && !Entity.PayedForFuel.HasValue)
 			{
 				buttonOpenExpense.Sensitive = false;
@@ -253,7 +256,7 @@ namespace Vodovoz
 				/ 100 * RouteListClosing.ActualDistance;
 			litersBalance = FuelBalance + litersGived - spentFuel;
 
-			decimal moneyToPay = -litersBalance * Entity.Fuel.Cost;
+			decimal moneyToPay = -litersBalance * spinFuelPrice.ValueAsDecimal;
 
 			if (Entity.PayedForFuel == null && moneyToPay > 0)
 				Entity.PayedForFuel = 0;
@@ -285,4 +288,3 @@ namespace Vodovoz
 		}
 	}
 }
-
