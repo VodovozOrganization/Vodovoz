@@ -8,6 +8,7 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 
@@ -26,17 +27,18 @@ namespace Vodovoz
 
 		public RouteListMileageCheckDlg(int id)
 		{
-			this.Build ();
-			editing = QSMain.User.Permissions ["logistican"];
+			this.Build();
+			editing = QSMain.User.Permissions["logistican"];
 			editingAdmin = QSMain.User.Permissions["logistic_admin"];
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
-			TabName = String.Format("Контроль за километражом маршрутного листа №{0}",Entity.Id);
-			ConfigureDlg ();
+			TabName = String.Format("Контроль за километражом маршрутного листа №{0}", Entity.Id);
+			ConfigureDlg();
 		}
 
 		#region Настройка конфигураций
 
-		public void ConfigureDlg(){
+		public void ConfigureDlg()
+		{
 			referenceCar.SubjectType = typeof(Car);
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = editing;
@@ -75,42 +77,41 @@ namespace Vodovoz
 
 			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
 				.AddColumn("Заказ")
-				.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())					
+				.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())
 				.AddColumn("Адрес")
-				.AddTextRenderer(node => String.Format("{0} д.{1}", node.RouteListItem.Order.DeliveryPoint.Street, node.RouteListItem.Order.DeliveryPoint.Building))					
+				.AddTextRenderer(node => String.Format("{0} д.{1}", node.RouteListItem.Order.DeliveryPoint.Street, node.RouteListItem.Order.DeliveryPoint.Building))
 				.AddColumn("Время")
-				.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)					
+				.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Статус")
-				.AddEnumRenderer(node => node.Status).Editing(false)					
+				.AddEnumRenderer(node => node.Status).Editing(false)
 				.AddColumn("Последнее редактирование")
 				.AddTextRenderer(node => node.LastUpdate)
-				.RowCells ()
-				.AddSetter<CellRenderer> ((cell, node) => cell.CellBackgroundGdk = node.RowColor)
+				.RowCells()
+				.AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.RowColor)
 				.Finish();
 
 			items = new List<RouteListKeepingItemNode>();
-			foreach (var item in Entity.Addresses)
-				items.Add(new RouteListKeepingItemNode{RouteListItem=item});
+			foreach(var item in Entity.Addresses)
+				items.Add(new RouteListKeepingItemNode { RouteListItem = item });
 
 			items.Sort((x, y) => {
-				if(x.RouteListItem.StatusLastUpdate.HasValue && y.RouteListItem.StatusLastUpdate.HasValue){
+				if(x.RouteListItem.StatusLastUpdate.HasValue && y.RouteListItem.StatusLastUpdate.HasValue) {
 					if(x.RouteListItem.StatusLastUpdate > y.RouteListItem.StatusLastUpdate) return 1;
 					if(x.RouteListItem.StatusLastUpdate < y.RouteListItem.StatusLastUpdate) return -1;
 				}
 				return 0;
-			} );
+			});
 
 			ytreeviewAddresses.ItemsDataSource = items;
 			entryMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Text).InitializeFromSource();
 
 
 
-			if(Entity.Status == RouteListStatus.MileageCheck){
+			if(Entity.Status == RouteListStatus.MileageCheck) {
 				buttonCloseRouteList.Sensitive = editing;
-			}else if(editingAdmin){
+			} else if(editingAdmin) {
 				buttonCloseRouteList.Sensitive = true;
-			}
-			else
+			} else
 				buttonCloseRouteList.Sensitive = false;
 		}
 
@@ -126,34 +127,32 @@ namespace Vodovoz
 		#endregion
 
 		#region Обработка нажатий кнопок
-		protected void OnButtonConfirmClicked (object sender, EventArgs e)
+		protected void OnButtonConfirmClicked(object sender, EventArgs e)
 		{
 			Entity.ConfirmedDistance = Entity.ActualDistance;
 		}
 
-		protected void OnButtonCloseRouteListClicked (object sender, EventArgs e)
+		protected void OnButtonCloseRouteListClicked(object sender, EventArgs e)
 		{
-			var valid = new QSValidator<RouteList>(Entity, 
-				             new Dictionary<object, object>
+			var valid = new QSValidator<RouteList>(Entity,
+							 new Dictionary<object, object>
 				{
 					{ "NewStatus", RouteListStatus.Closed }
 				});
-			if (valid.RunDlgIfNotValid((Window)this.Toplevel))
+			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
 
-			if(Entity.ConfirmedDistance < Entity.ActualDistance)
-			{
+			if(Entity.ConfirmedDistance < Entity.ActualDistance) {
 				decimal excessKM = Entity.ActualDistance - Entity.ConfirmedDistance;
 				decimal redundantPayForFuel = Entity.GetLitersOutlayed(excessKM) * Entity.Car.FuelType.Cost;
 				string fineReason = "Перевыплата топлива";
 				var fine = new Fine();
 				fine.Fill(redundantPayForFuel, Entity, fineReason, DateTime.Today, Entity.Driver);
+				fine.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 				fine.UpdateWageOperations(UoWGeneric);
 				UoWGeneric.Save(fine);
-			}
-			else if(Entity.ConfirmedDistance > Entity.ActualDistance)
-			{
-					Entity.RecalculateFuelOutlay();
+			} else if(Entity.ConfirmedDistance > Entity.ActualDistance) {
+				Entity.RecalculateFuelOutlay();
 			}
 
 			yspinConfirmedDistance.Sensitive = false;
@@ -163,7 +162,7 @@ namespace Vodovoz
 			Entity.ConfirmMileage(UoWGeneric);
 		}
 
-		protected void OnButtonOpenMapClicked (object sender, EventArgs e)
+		protected void OnButtonOpenMapClicked(object sender, EventArgs e)
 		{
 			var trackWnd = new TrackOnMapWnd(Entity.Id);
 			trackWnd.Show();
