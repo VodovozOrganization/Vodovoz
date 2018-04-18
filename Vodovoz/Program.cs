@@ -3,6 +3,7 @@ using Gtk;
 using NLog;
 using QSProjectsLib;
 using Gdk;
+using QSSupportLib;
 
 namespace Vodovoz
 {
@@ -18,6 +19,7 @@ namespace Vodovoz
 			Application.Init ();
 			QSMain.SubscribeToUnhadledExceptions();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
+			MainSupport.SendErrorRequestEmail = false;
 
 			TrayIcon = new StatusIcon(Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png"));
 			TrayIcon.Visible = true;
