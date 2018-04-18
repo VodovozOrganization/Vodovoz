@@ -723,6 +723,13 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NotDeliveredOrdersReport.cs" />
     <Compile Include="Dialogs\Logistic\RouteListControlDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.RouteListControlDlg.cs" />
+    <Compile Include="Dialogs\Employees\PremiumDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.PremiumDlg.cs" />
+    <Compile Include="Dialogs\Employees\PremiumTemplateDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.PremiumTemplateDlg.cs" />
+    <Compile Include="Representations\PremiumVM.cs" />
+    <Compile Include="JournalFilters\PremiumFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.PremiumFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

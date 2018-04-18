@@ -416,6 +416,12 @@
     <Compile Include="Domain\Documents\ShiftChangeWarehouseDocumentItem.cs" />
     <Compile Include="HibernateMapping\Documents\ShiftChangeWarehouseDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\ShiftChangeWarehouseDocumentItemMap.cs" />
+    <Compile Include="Domain\Employees\Premium.cs" />
+    <Compile Include="Domain\Employees\PremiumItem.cs" />
+    <Compile Include="Domain\Employees\PremiumTemplate.cs" />
+    <Compile Include="HibernateMapping\Employees\PremiumMap.cs" />
+    <Compile Include="HibernateMapping\Employees\PremiumItemMap.cs" />
+    <Compile Include="HibernateMapping\Employees\PremiumTemplateMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
