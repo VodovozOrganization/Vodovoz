@@ -175,7 +175,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			// Container child vboxFixedPrices.Gtk.Box+BoxChild
 			this.label6 = new global::Gtk.Label();
 			this.label6.Name = "label6";
-			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Фиксированные цены:</b>");
+			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Цены:</b>");
 			this.label6.UseMarkup = true;
 			this.vboxFixedPrices.Add(this.label6);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxFixedPrices[this.label6]));
@@ -224,8 +224,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			w17.Expand = false;
 			w17.Fill = false;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.label4.Hide();

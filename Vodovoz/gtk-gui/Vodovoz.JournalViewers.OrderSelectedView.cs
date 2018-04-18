@@ -108,6 +108,7 @@ namespace Vodovoz.JournalViewers
 			}
 			this.Hide();
 			this.yvalidatedentry1.Changed += new global::System.EventHandler(this.OnYvalidatedentry1Changed);
+			this.datatreeviewOrderDocuments.RowActivated += new global::Gtk.RowActivatedHandler(this.OnDatatreeviewOrderDocumentsRowActivated);
 		}
 	}
 }

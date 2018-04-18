@@ -141,9 +141,13 @@ namespace Vodovoz
 			//TODO FIXME Добавить в таблицу закрывающие заказы.
 
 			//Подписывемся на изменения листов для засеривания клиента
+			Entity.ObservableOrderDocuments.ListChanged += ObservableOrderDocuments_ListChanged;
+			Entity.ObservableOrderDocuments.ElementRemoved += ObservableOrderDocuments_ElementRemoved;
+			Entity.ObservableOrderDocuments.ElementAdded += ObservableOrderDocuments_ElementAdded;
 			Entity.ObservableOrderDocuments.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableFinalOrderService.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableInitialOrderService.ElementAdded += Entity_UpdateClientCanChange;
+
 
 			//Подписываемся на изменение товара, для обновления количества оборудования в доп. соглашении
 			Entity.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged_ChangeCount;
@@ -168,8 +172,6 @@ namespace Vodovoz
 			checkSelfDelivery.Binding.AddBinding(Entity, s => s.SelfDelivery, w => w.Active).InitializeFromSource();
 			checkDelivered.Binding.AddBinding(Entity, s => s.Shipped, w => w.Active).InitializeFromSource();
 
-			ycheckbuttonCollectBottles.Binding.AddBinding(Entity, s => s.CollectBottles, w => w.Active).InitializeFromSource();
-
 			entryBottlesReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryBottlesReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
@@ -187,6 +189,8 @@ namespace Vodovoz
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
 			labelTaraComments.Visible = GtkScrolledWindowTaraComments.Visible = !String.IsNullOrWhiteSpace(Entity.InformationOnTara);
 			#endregion
+
+			entryDiscountOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
 
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
@@ -261,42 +265,61 @@ namespace Vodovoz
 			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
 			treeItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderItem>()
-				.AddColumn("Номенклатура").SetDataProperty(node => node.NomenclatureString)
-				.AddColumn("Кол-во").AddNumericRenderer(node => node.Count)
-				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
-				.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
-				.AddSetter((c, node) => c.Editable = node.CanEditAmount).WidthChars(10)
-				.AddTextRenderer(node => (node.CanShowReturnedCount) ? String.Format("({0})", node.ReturnedCount) : "")
-				.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
-				.AddColumn("Аренда").AddTextRenderer(node => node.IsRentCategory ? node.RentString : "")
-				.AddColumn("Цена").AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
-				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
-				.AddSetter((c, node) => c.Editable = Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
-				.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) => {
-					c.ForegroundGdk = colorBlack;
-					if(node.AdditionalAgreement == null) {
-						return;
-					}
-					AdditionalAgreement aa = node.AdditionalAgreement.Self;
-					if(aa is WaterSalesAgreement &&
-					  (aa as WaterSalesAgreement).IsFixedPrice) {
-						c.ForegroundGdk = colorGreen;
-					} else if(node.IsUserPrice &&
-					  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
-						c.ForegroundGdk = colorBlue;
-					}
-				})
-				.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn("В т.ч. НДС").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS))
-				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
-				.AddColumn("Скидка %").AddNumericRenderer(node => node.Discount)
-				.Adjustment(new Adjustment(0, 0, 100, 1, 100, 1)).Editing(true)
-				.AddColumn("Основание скидки").AddComboRenderer(node => node.DiscountReason)
+				.AddColumn("Номенклатура")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(node => node.NomenclatureString)
+				.AddColumn("Кол-во")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(node => node.Count)
+					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
+					.AddSetter((c, node) => c.Editable = node.CanEditAmount).WidthChars(10)
+					.AddTextRenderer(node => (node.CanShowReturnedCount) ? String.Format("({0})", node.ReturnedCount) : "")
+					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+				.AddColumn("Аренда")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(node => node.IsRentCategory ? node.RentString : "")
+				.AddColumn("Цена")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
+					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
+					.AddSetter((c, node) => c.Editable = Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
+					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) => {
+						c.ForegroundGdk = colorBlack;
+						if(node.AdditionalAgreement == null) {
+							return;
+						}
+						AdditionalAgreement aa = node.AdditionalAgreement.Self;
+						if(aa is WaterSalesAgreement &&
+						  (aa as WaterSalesAgreement).IsFixedPrice) {
+							c.ForegroundGdk = colorGreen;
+						} else if(node.IsUserPrice &&
+						  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
+							c.ForegroundGdk = colorBlue;
+						}
+					})
+					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("В т.ч. НДС")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS))
+				.AddColumn("Сумма")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
+				.AddColumn("Скидка %")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(node => node.Discount)
+					.Adjustment(new Adjustment(0, 0, 100, 1, 100, 1)).Editing(true)
+				.AddColumn("Основание скидки")
+					.HeaderAlignment(0.5f)
+					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(UoW.GetAll<DiscountReason>()
 							   .ToList()).AddSetter((c, n) => c.Editable = n.Discount > 0)
-				.AddColumn("Доп. соглашение").SetDataProperty(node => node.AgreementString)
+				.AddColumn("Доп. соглашение")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(node => node.AgreementString)
 				.RowCells()
+					.XAlign(0.5f)
 				.Finish();
 
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
@@ -323,7 +346,7 @@ namespace Vodovoz
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument>()
 				.AddColumn("Документ").SetDataProperty(node => node.Name)
 				.AddColumn("Дата документа").AddTextRenderer(node => node.DocumentDateText)
-				.AddColumn("Заказ №").AddTextRenderer(node => node.Order.Id != node.AttachedToOrder.Id ? node.Order.Id.ToString() : "")
+				.AddColumn("Заказ №").SetTag("OrderNumberColumn").AddTextRenderer(node => node.Order.Id != node.AttachedToOrder.Id ? node.Order.Id.ToString() : "")
 				.AddColumn("Без рекламы").AddToggleRenderer(x => x is InvoiceDocument ? (x as InvoiceDocument).WithoutAdvertising : false)
 				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<InvoiceDocument>(x => x.WithoutAdvertising))
 				.AddSetter((c, n) => c.Visible = n.Type == OrderDocumentType.Invoice)
@@ -369,7 +392,7 @@ namespace Vodovoz
 				IsUIEditable(true);
 
 			OrderItemEquipmentCountHasChanges = false;
-
+			ShowOrderColumnInDocumentsList();
 			ButtonCloseOrderSensitivity();
 			depositrefunditemsview.Configure(UoWGeneric, UoWGeneric.Root);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
@@ -430,6 +453,27 @@ namespace Vodovoz
 			treeItems.ExposeEvent += TreeItems_ExposeEvent;
 			//Выполнение в случае если размер не поменяется
 			EditItemCountCellOnAdd();
+		}
+
+		void ObservableOrderDocuments_ListChanged(object aList)
+		{
+			ShowOrderColumnInDocumentsList();
+		}
+
+		void ObservableOrderDocuments_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			ShowOrderColumnInDocumentsList();
+		}
+
+		void ObservableOrderDocuments_ElementAdded(object aList, int[] aIdx)
+		{
+			ShowOrderColumnInDocumentsList();
+		}
+
+		private void ShowOrderColumnInDocumentsList()
+		{
+			var column = treeDocuments.ColumnsConfig.GetColumnsByTag("OrderNumberColumn").First();
+			column.Visible = Entity.ObservableOrderDocuments.Any(x => x.Order.Id != x.AttachedToOrder.Id);
 		}
 
 		void Entity_ObservableOrderDocuments_ElementAdded(object aList, int[] aIdx)
@@ -689,7 +733,7 @@ namespace Vodovoz
 			pickerDeliveryDate.Sensitive = val;
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
-			yspinDiscountOrder.Visible = buttonSetDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
+			entryDiscountOrder.Visible = buttonSetDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable();
 		}
 
@@ -698,6 +742,7 @@ namespace Vodovoz
 			vboxInfo.Sensitive = CanChange;
 			vboxGoods.Sensitive = CanChange;
 			buttonAddExistingDocument.Sensitive = CanChange;
+			tableTareControl.Sensitive = Entity.OrderStatus == OrderStatus.OnTheWay || Entity.OrderStatus == OrderStatus.Shipped;
 		}
 
 		protected void OnButtonDelete1Clicked(object sender, EventArgs e)
@@ -1469,24 +1514,23 @@ namespace Vodovoz
 
 		protected void OnButtonSetDiscountClicked(object sender, EventArgs e)
 		{
-			DiscountReason reason = (ycomboboxReason.SelectedItem as DiscountReason);
-			int discount = (int)yspinDiscountOrder.Value;
-			if(reason == null && discount > 0) {
-				MessageDialogWorks.RunErrorDialog("Необходимо выбрать основание для скидки");
-				return;
-			}
-			foreach(OrderItem item in UoWGeneric.Root.ObservableOrderItems) {
-				item.Discount = discount;
-				item.DiscountReason = reason;
-			}
+			SetDiscount();
 		}
 
-		protected void OnYspinDiscountOrderValueChanged(object sender, EventArgs e)
+		private void SetDiscount()
 		{
-			bool haveDiscount = (int)yspinDiscountOrder.Value != 0;
-			ycomboboxReason.Sensitive = haveDiscount;
-			if(!haveDiscount) {
-				ycomboboxReason.SelectedItem = null;
+			DiscountReason reason = (ycomboboxReason.SelectedItem as DiscountReason);
+
+			int discount = 0;
+			if(Int32.TryParse(entryDiscountOrder.Text, out discount)) {
+				if(reason == null && discount > 0) {
+					MessageDialogWorks.RunErrorDialog("Необходимо выбрать основание для скидки");
+					return;
+				}
+				foreach(OrderItem item in UoWGeneric.Root.ObservableOrderItems) {
+					item.Discount = discount;
+					item.DiscountReason = reason;
+				}
 			}
 		}
 
@@ -1651,6 +1695,7 @@ namespace Vodovoz
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
 			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.equipment;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование к клиента";
@@ -1678,6 +1723,7 @@ namespace Vodovoz
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
 			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.equipment;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование от клиента";
@@ -1764,6 +1810,25 @@ namespace Vodovoz
 		CounterpartyContract GetActualInstanceContract(CounterpartyContract anotherSessionContract)
 		{
 			return UoW.GetById<CounterpartyContract>(anotherSessionContract.Id);
+		}
+
+		protected void OnEntryDiscountOrderChanged(object sender, EventArgs e)
+		{
+			int result = 0;
+			if(Int32.TryParse(entryDiscountOrder.Text, out result)) {
+				bool haveDiscount = result != 0;
+				ycomboboxReason.Sensitive = haveDiscount;
+				if(!haveDiscount) {
+					ycomboboxReason.SelectedItem = null;
+				}
+			}
+		}
+
+		protected void OnEntryDiscountOrderKeyReleaseEvent(object o, KeyReleaseEventArgs args)
+		{
+			if(args.Event.Key == Gdk.Key.Return) {
+				SetDiscount();
+			}
 		}
 
 		#endregion

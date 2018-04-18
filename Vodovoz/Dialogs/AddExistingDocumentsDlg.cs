@@ -19,6 +19,7 @@ namespace Vodovoz.Dialogs
 			UoW = uow;
 			counterpartydocumentsview1.Config(uow, client, true);
 			orderselectedview1.Config(uow, client);
+			orderselectedview1.OrderActivated += Orderselectedview1_OrderActivated;
 			TabName = "Добавление документов";
 		}
 
@@ -95,6 +96,19 @@ namespace Vodovoz.Dialogs
 			UoW.Root.AddAdditionalDocuments(resultList);
 
 			this.OnCloseTab(false);
+		}
+
+		void Orderselectedview1_OrderActivated(object sender, int e)
+		{
+			var dlg = new OrderDlg(UoW.GetById<Domain.Orders.Order>(e));
+			dlg.Show();
+
+			TabParent.AddTab(dlg, this);
+		}
+
+		private void OpenOrder()
+		{
+			
 		}
 	}
 }

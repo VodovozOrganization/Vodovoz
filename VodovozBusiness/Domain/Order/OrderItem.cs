@@ -312,7 +312,16 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		public virtual string AgreementString {
-			get { return AdditionalAgreement == null ? String.Empty : String.Format ("{0} №{1}", AdditionalAgreement.AgreementTypeTitle, AdditionalAgreement.AgreementNumber); }
+			get {
+				if(AdditionalAgreement == null) {
+					return String.Empty;
+				}
+				string result = String.Format("{0} №{1}", AdditionalAgreement.AgreementTypeTitle, AdditionalAgreement.AgreementNumber);
+				if(AdditionalAgreement.Self is FreeRentAgreement && FreeRentEquipment != null) {
+					result += string.Format(" Пакет №{0}", FreeRentEquipment.FreeRentPackage.Id);
+				}
+				return result;
+			}
 		}
 
 		public virtual string Title {

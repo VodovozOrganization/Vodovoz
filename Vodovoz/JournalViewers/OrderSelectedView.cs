@@ -20,6 +20,8 @@ namespace Vodovoz.JournalViewers
 			this.Build();
 		}
 
+		public event EventHandler<int> OrderActivated;
+
 		public Counterparty Client { get; set; }
 
 		public IUnitOfWork UoW { get; private set; }
@@ -40,6 +42,7 @@ namespace Vodovoz.JournalViewers
 				.AddColumn("Дата").SetDataProperty(node => node.OrderDate.ToString("d"))
 				.AddColumn("Клиент").SetDataProperty(node => node.ClientName)
 				.AddColumn("Документ").AddTextRenderer(node => node.DocumentType.GetAttribute<DisplayAttribute>().Name)
+				.AddColumn("Адрес").AddTextRenderer(node => node.AddressString)
 				.RowCells()
 				.AddSetter<CellRenderer>((c, n) => {
 					if(n.Selected) {
@@ -63,6 +66,7 @@ namespace Vodovoz.JournalViewers
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			Counterparty counterpartyAlias = null;
 			OrderDocument orderDocumentAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
 
 			var query = UoW.Session.QueryOver<OrderDocument>(() => orderDocumentAlias);
 
@@ -80,6 +84,7 @@ namespace Vodovoz.JournalViewers
 			Documents = query
 				.JoinAlias(() => orderDocumentAlias.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Where(() => 
 				          orderDocumentAlias.GetType() == typeof(BillDocument)
 					   || orderDocumentAlias.GetType() == typeof(DoneWorkDocument)
@@ -98,6 +103,7 @@ namespace Vodovoz.JournalViewers
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.ClientName)
 				   .Select(() => orderDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 				   .Select(() => orderDocumentAlias.GetType()).WithAlias(() => resultAlias.DocumentTypeString)
+				   .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.AddressString)
 				).OrderBy(() => orderAlias.DeliveryDate).Desc
 				.TransformUsing(Transformers.AliasToBean<SelectedOrdersDocumentVMNode>())
 				.List<SelectedOrdersDocumentVMNode>().ToList();
@@ -113,6 +119,16 @@ namespace Vodovoz.JournalViewers
 		public List<SelectedOrdersDocumentVMNode> GetSelectedDocuments()
 		{
 			return Documents.Where(x => x.Selected).ToList();
+		}
+
+		protected void OnDatatreeviewOrderDocumentsRowActivated(object o, RowActivatedArgs args)
+		{
+			var selectedItem = datatreeviewOrderDocuments.GetSelectedObject() as SelectedOrdersDocumentVMNode;
+			if(selectedItem == null) {
+				return;
+			}
+
+			OrderActivated?.Invoke(this, selectedItem.OrderId);
 		}
 	}
 
@@ -133,6 +149,7 @@ namespace Vodovoz.JournalViewers
 		}
 		public string DocumentTypeString { get; set; }
 		public DateTime DocumentDate { get; set; }
+		public string AddressString { get; set; }
 
 	}
 }
