@@ -48,7 +48,7 @@ namespace Vodovoz
 					.AddSetter((c, i) => c.Editable = i.CanEditAmount)
 					.AddSetter ((c, i) => c.Adjustment = new Adjustment(0, 0, (double)i.AmountOnStock, 1, 100, 0))
 					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
-					.AddColumn ("Пичина выбраковки").AddComboRenderer (i => i.CullingCategory)
+					.AddColumn ("Причина выбраковки").AddComboRenderer (i => i.CullingCategory)
 					.SetDisplayFunc (DomainHelper.GetObjectTilte).Editing ()
 					.FillItems (Repository.CullingCategoryRepository.All (DocumentUoW))
 					.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
