@@ -408,6 +408,17 @@ namespace Vodovoz
 					if(item.AdditionalAgreement?.Id == ad.Id)
 						UoW.Session.Refresh(item.AdditionalAgreement);
 				}
+				UpdatePrices(ad);
+			}
+		}
+
+		public void UpdatePrices(WaterSalesAgreement agreement)
+		{
+			var pricesMap = agreement.FixedPrices.ToDictionary(p => (int)p.Nomenclature.Id, p => (decimal)p.Price);
+
+			foreach(OrderItem oItem in Entity.ObservableOrderItems) {
+				if(pricesMap.ContainsKey(oItem.Nomenclature.Id) && oItem.Price != pricesMap[oItem.Nomenclature.Id])
+					oItem.Price = pricesMap[oItem.Nomenclature.Id];
 			}
 		}
 
