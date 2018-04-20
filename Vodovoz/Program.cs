@@ -3,6 +3,8 @@ using Gtk;
 using NLog;
 using QSProjectsLib;
 using Gdk;
+using QSSupportLib;
+using Vodovoz.Additions;
 
 namespace Vodovoz
 {
@@ -41,6 +43,8 @@ namespace Vodovoz
 			LoginDialog.Destroy ();
 
 			QSProjectsLib.PerformanceHelper.StartMeasurement ("Замер запуска приложения");
+
+			MainSupport.HandleStaleObjectStateException = EntityChangedExceptionHelper.ShowExceptionMessage;
 
 			//Настройка базы
 			CreateBaseConfig ();

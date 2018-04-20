@@ -33,6 +33,13 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual int Id { get; set; }
 
+		DateTime version;
+		[Display(Name = "Версия")]
+		public virtual DateTime Version {
+			get { return version; }
+			set { SetField(ref version, value, () => Version); }
+		}
+
 		OrderStatus orderStatus;
 
 		[Display(Name = "Статус заказа")]

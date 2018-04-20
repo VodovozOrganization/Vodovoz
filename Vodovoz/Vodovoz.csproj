@@ -730,6 +730,7 @@
     <Compile Include="Representations\PremiumVM.cs" />
     <Compile Include="JournalFilters\PremiumFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.PremiumFilter.cs" />
+    <Compile Include="Additions\EntityChangedExceptionHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
