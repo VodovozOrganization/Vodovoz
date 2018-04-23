@@ -29,7 +29,7 @@ namespace Vodovoz.Repository.Client
 		/// Получаем все фиксированные цены по для точки доставки
 		/// </summary>
 		/// <returns>Фиксированные цены</returns>
-		public static IList<WaterSalesAgreementFixedPrice> GetFixedPricesForDeliveryPoint(IUnitOfWork uow, DeliveryPoint deliveryPoint)
+		public static IList<WaterSalesAgreementFixedPrice> GetFixedPricesForDeliveryPoint(IUnitOfWork uow, DeliveryPoint deliveryPoint, CounterpartyContract contract)
 		{
 			WaterSalesAgreementFixedPrice fixedPriceAlias = null;
 			WaterSalesAgreement salesAgreementAlias = null;
@@ -38,10 +38,10 @@ namespace Vodovoz.Repository.Client
 			var queryResults = uow.Session.QueryOver<WaterSalesAgreementFixedPrice>(() => fixedPriceAlias)
 			                      .JoinQueryOver(fix => fix.AdditionalAgreement, () => salesAgreementAlias)
 			                      .JoinAlias(() => salesAgreementAlias.Contract, () => contractAlias)
-								  .Where(() => !contractAlias.IsArchive)
+			                      .Where(() => !contractAlias.IsArchive)
 			                      .Where(wsa => wsa.DeliveryPoint == deliveryPoint 
 			                             || (wsa.DeliveryPoint == null && contractAlias.Counterparty == deliveryPoint.Counterparty))
-			                      .Where(wsa => !wsa.IsCancelled)
+			                      .Where(wsa => !wsa.IsCancelled && wsa.Contract.Id == contract.Id)
 								  .List();
 
 			return queryResults;

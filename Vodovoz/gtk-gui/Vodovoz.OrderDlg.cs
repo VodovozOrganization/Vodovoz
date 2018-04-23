@@ -1872,6 +1872,7 @@ namespace Vodovoz
 			this.buttonCreateDeliveryPoint.Clicked += new global::System.EventHandler(this.OnButtonCreateDeliveryPointClicked);
 			this.enumDiverCallType.Changed += new global::System.EventHandler(this.OnEnumDiverCallTypeChanged);
 			this.enumareRasonType.Changed += new global::System.EventHandler(this.OnEnumDiverCallTypeChanged);
+			this.referenceContract.Changed += new global::System.EventHandler(this.OnReferenceContractChanged);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler(this.OnButtonAddForSaleClicked);
 			this.buttonAddMaster.Clicked += new global::System.EventHandler(this.OnButtonAddMasterClicked);
 			this.buttonDelete1.Clicked += new global::System.EventHandler(this.OnButtonDelete1Clicked);

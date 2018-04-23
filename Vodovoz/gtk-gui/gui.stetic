@@ -27093,6 +27093,7 @@
                         <property name="MemberName" />
                         <property name="Sensitive">False</property>
                         <property name="Events">ButtonPressMask</property>
+                        <signal name="Changed" handler="OnReferenceContractChanged" />
                       </widget>
                       <packing>
                         <property name="TopAttach">6</property>

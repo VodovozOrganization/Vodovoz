@@ -408,7 +408,23 @@ namespace Vodovoz
 					if(item.AdditionalAgreement?.Id == ad.Id)
 						UoW.Session.Refresh(item.AdditionalAgreement);
 				}
-				UpdatePrices(ad);
+				//UpdatePrices(ad);
+			}
+		}
+
+		public void UpdatePrices()
+		{
+			var agreement = Entity.Contract.GetWaterSalesAgreement(DeliveryPoint);
+			UoW.Session.Refresh(agreement);
+			UpdatePrices(agreement);
+		}
+
+		public void UpdatePrices(int[] agrIds)
+		{
+			var agreements = Entity.Contract.AdditionalAgreements.Select(a => a.Self).OfType<WaterSalesAgreement>().Where(a => agrIds.Contains(a.Id));
+			foreach(var item in agreements) {
+				UoW.Session.Refresh(item);
+				UpdatePrices(item);
 			}
 		}
 
@@ -1840,6 +1856,11 @@ namespace Vodovoz
 			if(args.Event.Key == Gdk.Key.Return) {
 				SetDiscount();
 			}
+		}
+
+		protected void OnReferenceContractChanged(object sender, EventArgs e)
+		{
+			OnReferenceDeliveryPointChanged(sender, e);
 		}
 
 		#endregion
