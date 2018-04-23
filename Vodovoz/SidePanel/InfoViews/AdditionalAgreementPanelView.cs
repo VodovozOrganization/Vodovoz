@@ -98,7 +98,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			if(fixedPricesList != null)
 				fixedPricesList.ToList().ForEach(x => InfoProvider.UoW.Session.Evict(x));
-			fixedPricesList = AdditionalAgreementRepository.GetFixedPricesForDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
+			fixedPricesList = AdditionalAgreementRepository.GetFixedPricesForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, Contract);
 
 			ytreeviewFixedPrices.ColumnsConfig = ColumnsConfigFactory.Create<WaterSalesAgreementFixedPrice>()
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
