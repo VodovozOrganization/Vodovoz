@@ -248,7 +248,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			decimal? result = null;
 			if(Nomenclature.Category == NomenclatureCategory.water) {
-				var waterSalesAgreement = AdditionalAgreement as WaterSalesAgreement;
+				var waterSalesAgreement = AdditionalAgreement.Self as WaterSalesAgreement;
 				if(waterSalesAgreement == null) {
 					return result;
 				}
