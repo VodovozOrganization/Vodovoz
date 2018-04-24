@@ -16,6 +16,13 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "документ погрузки автомобиля")]
 	public class CarLoadDocument: Document, IValidatableObject
 	{
+		DateTime version;
+		[Display(Name = "Версия")]
+		public virtual DateTime Version {
+			get { return version; }
+			set { SetField(ref version, value, () => Version); }
+		}
+
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
 			set {

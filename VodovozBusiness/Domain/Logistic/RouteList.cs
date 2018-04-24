@@ -29,6 +29,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int Id { get; set; }
 
+		DateTime version;
+		[Display(Name = "Версия")]
+		public virtual DateTime Version {
+			get { return version; }
+			set { SetField(ref version, value, () => Version); }
+		}
+
 		Employee driver;
 
 		[Display(Name = "Водитель")]
