@@ -1862,6 +1862,7 @@ namespace Vodovoz
 			this.toggleTareControl.Toggled += new global::System.EventHandler(this.OnToggleTareControlToggled);
 			this.referenceDeliveryPoint.Changed += new global::System.EventHandler(this.OnReferenceDeliveryPointChanged);
 			this.referenceDeliveryPoint.ChangedByUser += new global::System.EventHandler(this.OnReferenceDeliveryPointChangedByUser);
+			this.referenceContract.Changed += new global::System.EventHandler(this.OnReferenceContractChanged);
 			this.referenceClient.Changed += new global::System.EventHandler(this.OnReferenceClientChanged);
 			this.referenceClient.ChangedByUser += new global::System.EventHandler(this.OnReferenceClientChangedByUser);
 			this.pickerDeliveryDate.DateChanged += new global::System.EventHandler(this.OnPickerDeliveryDateDateChanged);
@@ -1872,7 +1873,6 @@ namespace Vodovoz
 			this.buttonCreateDeliveryPoint.Clicked += new global::System.EventHandler(this.OnButtonCreateDeliveryPointClicked);
 			this.enumDiverCallType.Changed += new global::System.EventHandler(this.OnEnumDiverCallTypeChanged);
 			this.enumareRasonType.Changed += new global::System.EventHandler(this.OnEnumDiverCallTypeChanged);
-			this.referenceContract.Changed += new global::System.EventHandler(this.OnReferenceContractChanged);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler(this.OnButtonAddForSaleClicked);
 			this.buttonAddMaster.Clicked += new global::System.EventHandler(this.OnButtonAddMasterClicked);
 			this.buttonDelete1.Clicked += new global::System.EventHandler(this.OnButtonDelete1Clicked);

@@ -423,6 +423,7 @@
     <Compile Include="Repositories\Client\ClientDocumentsRepository.cs" />
 	<Compile Include="Domain\Client\Tag.cs" />
     <Compile Include="HibernateMapping\Counterparty\TagMap.cs" />
+	<Compile Include="Tools\Logistic\DeliveryPriceCalculator.cs" />	
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

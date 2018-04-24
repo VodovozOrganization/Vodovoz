@@ -17,6 +17,8 @@ namespace Vodovoz.SidePanel
 					return new DeliveryPointPanelView();
 				case PanelViewType.AdditionalAgreementPanelView:
 					return new AdditionalAgreementPanelView();
+				case PanelViewType.DeliveryPricePanelView:
+					return new DeliveryPricePanelView();
 				default:
 					throw new NotSupportedException();
 			}
@@ -34,6 +36,7 @@ namespace Vodovoz.SidePanel
 		CounterpartyView,
 		DeliveryPointView,
 		AdditionalAgreementPanelView,
+		DeliveryPricePanelView
 	}
 }
 

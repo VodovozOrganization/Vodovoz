@@ -16,10 +16,12 @@ using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
+using Vodovoz.SidePanel;
+using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz
 {
-	public partial class DeliveryPointDlg : OrmGtkDialogBase<DeliveryPoint>
+	public partial class DeliveryPointDlg : OrmGtkDialogBase<DeliveryPoint>, IDeliveryPointInfoProvider
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get (Gdk.Atom.Intern ("CLIPBOARD", false));
@@ -27,6 +29,17 @@ namespace Vodovoz
 		GMapControl MapWidget;
 		readonly GMapOverlay addressOverlay = new GMapOverlay();
 		GMapMarker addressMarker;
+		public DeliveryPoint DeliveryPoint => Entity;
+
+		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+
+		public PanelViewType[] InfoWidgets {
+			get {
+				return new[]{
+					PanelViewType.DeliveryPricePanelView
+				};
+			}
+		}
 
 		public DeliveryPointDlg (Counterparty counterparty)
 		{
@@ -232,6 +245,7 @@ namespace Vodovoz
 				UpdateMapPosition();
 				UpdateAddressOnMap();
 			}
+			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 		}
 
 		void Rightsidepanel1_PanelHided (object sender, EventArgs e)
