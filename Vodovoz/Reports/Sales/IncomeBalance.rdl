@@ -19,7 +19,7 @@
       <Textbox Name="Textbox2">
         <Height>23.82pt</Height>
         <Width>815.99pt</Width>
-        <Value>="Отчет по прибыли с " +  Format({?StartDate}, "d")  + " по " +  Format({?EndDate}, "d")</Value>
+        <Value>="Отчет по прибыли с " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " по " +  Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.80pt</Left>
         <Top>2.30pt</Top>
@@ -35,7 +35,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>233.0pt</Height>
+    <Height>161.5pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Income</DataSetName>
@@ -53,6 +53,9 @@
           </TableColumn>
           <TableColumn>
             <Width>50.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>70.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>70.9pt</Width>
@@ -79,13 +82,13 @@
             <Width>74.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>176.8pt</Width>
+            <Width>105.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>14.9pt</Height>
+              <Height>25.1pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -124,6 +127,22 @@
                   <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>Водитель</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox58">
+                      <Value>Приходники</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -261,6 +280,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <CanGrow>false</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -272,7 +292,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>12.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -326,8 +346,24 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>={IncMinusExp}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BackgroundColor>
+                        </BackgroundColor>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>=Fields!FactIncome.Value</Value>
+                      <Value>={FactIncome}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -452,6 +488,7 @@
                         <BackgroundColor>
                         </BackgroundColor>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -502,6 +539,21 @@
                     <Textbox Name="Textbox14">
                       <Value>
                       </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>=SUM({IncMinusExp})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -991,7 +1043,7 @@
           </TableRows>
         </Details>
         <Left>0.8pt</Left>
-        <Top>91.1pt</Top>
+        <Top>99.1pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1147,7 +1199,7 @@
         <Value>Прочие статусы</Value>
         <ZIndex>1</ZIndex>
         <Left>0.8pt</Left>
-        <Top>76.1pt</Top>
+        <Top>84.1pt</Top>
         <Style>
           <FontWeight>Bold</FontWeight>
         </Style>
@@ -1186,7 +1238,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	t.*,
@@ -1198,34 +1250,44 @@ FROM
 		employees.last_name as driver,
         #Фактический приход
 			(
-				SUM(route_list_addresses.total_cash 
-					+ route_list_addresses.deposits_collected 
-					+ route_list_addresses.equipment_deposits_collected)                
+				SUM(
+					CAST(IFNULL(money_movement_operations.money, 0) as DECIMAL(10,2)) * IF(route_list_addresses.status='Completed',1,0)
+					+ CAST(IFNULL(deposit_operations.received_deposit, 0) as DECIMAL(10,2))
+                    			)                
 				+ CAST(IFNULL(PhoneSums.Sum, 0) as DECIMAL(10,2))
 			) as FactIncome,
         SUM(Orders.TotalOrdersSum) as PlanedIncome,
 		CAST(IFNULL(PhoneSums.Sum, 0) as DECIMAL(10,2)) as PhoneSum,
 		IFNULL(nedovoz.nedovoz_sum, 0) as NedovozSum,
 		IFNULL(Transfered.TotalOrdersSum, 0) as TransferedSum,
-		SUM(IFNULL((route_list_addresses.deposits_collected + route_list_addresses.equipment_deposits_collected), 0)) as DepositsSum,
-        GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y' ) SEPARATOR ', ') as CashIncomeDates
+		SUM(IFNULL(deposit_operations.received_deposit, 0)) as DepositsSum,
+		CI.CashIncomeDates,
+		CAST((IFNULL(CI.MoneyIncome,0)-IFNULL(CE.MoneyExpence,0)) as DECIMAL(10,2)) as IncMinusExp
 	FROM
 		route_lists
 		LEFT JOIN employees ON route_lists.driver_id = employees.id
 		LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id   
+		LEFT JOIN orders ON route_list_addresses.order_id = orders.id
+		LEFT JOIN money_movement_operations ON money_movement_operations.order_id=orders.id
+		LEFT JOIN deposit_operations ON deposit_operations.order_id=orders.id
 	#Мобильная связь
 		LEFT JOIN
 			(
-				SELECT 
-					route_list_addresses.route_list_id, 
-					0 - (Count(route_list_addresses.id) * 2) as Sum # 2 рубля за каждый доставленный адрес 
-				FROM route_list_addresses
-					LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
-				WHERE 
-					route_list_addresses.status = 'Completed' 
-					|| (route_list_addresses.status = 'EnRoute' &amp;&amp; route_lists.status in ('OnClosing', 'MileageCheck', 'Closed'))
-				GROUP BY route_list_addresses.route_list_id
-			) as PhoneSums ON PhoneSums.route_list_id = route_lists.id
+			SELECT 
+				T.route_list_id,
+			0 - COUNT(T.qty_addr)  * 2 as Sum # 2 рубля за каждый доставленный адрес 
+        			FROM(
+				SELECT
+					route_list_addresses.route_list_id,
+					Count(route_list_addresses.id) as qty_addr
+				FROM	route_list_addresses
+				LEFT JOIN	route_lists ON route_list_addresses.route_list_id = route_lists.id
+               				LEFT JOIN	orders ON route_list_addresses.order_id = orders.id
+				WHERE 		route_list_addresses.status = 'Completed'
+                			GROUP BY	route_list_addresses.route_list_id, orders.delivery_point_id
+               			) as T
+			GROUP BY T.route_list_id
+		) as PhoneSums ON PhoneSums.route_list_id = route_lists.id
 	#Плановый приход
 		LEFT JOIN
 			(
@@ -1302,12 +1364,29 @@ FROM
 				GROUP BY internal_trans.route_list_id HAVING TotalOrdersSum != 0
 			) as Transfered ON Transfered.route_list_id = route_lists.id
 	#Приходные ордера
-		LEFT JOIN cash_income ON cash_income.route_list_id = route_lists.id			
+		LEFT JOIN (
+				SELECT 
+					route_list_id,
+                				SUM(IFNULL(cash_income.money, 0)) as MoneyIncome,
+					GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y' ) SEPARATOR ', ') as CashIncomeDates
+				FROM cash_income
+				GROUP BY
+					route_list_id
+			) AS CI ON CI.route_list_id = route_lists.id
+	#Расходные ордера
+		LEFT JOIN (
+				SELECT 
+					route_list_id,
+                				SUM(IFNULL(cash_expense.money, 0)) as MoneyExpence
+				FROM cash_expense
+				GROUP BY
+					route_list_id
+			) AS CE ON CE.route_list_id = route_lists.id
 	WHERE
 		route_lists.status IN ('Closed', 'MileageCheck')
-        AND route_lists.date &gt;= @StartDate AND route_lists.date &lt;= @EndDate
+		AND route_lists.date &gt;= @StartDate AND route_lists.date &lt;= @EndDate
 	GROUP BY route_lists.id
-    ) as t	</CommandText>
+    ) as t</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -1317,10 +1396,10 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="number">
           <DataField>number</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="date">
           <DataField>date</DataField>
@@ -1354,13 +1433,17 @@ FROM
           <DataField>DepositsSum</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="balance">
-          <DataField>balance</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
         <Field Name="CashIncomeDates">
           <DataField>CashIncomeDates</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IncMinusExp">
+          <DataField>IncMinusExp</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="balance">
+          <DataField>balance</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
