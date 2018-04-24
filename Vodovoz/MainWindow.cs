@@ -21,6 +21,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Panel;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModel;
+using Vodovoz.ReportsParameters;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -944,5 +945,14 @@ public partial class MainWindow : Gtk.Window
 	{
 		OrmReference refWin = new OrmReference(typeof(PremiumTemplate));
 		tdiMain.AddTab(refWin);
+	}
+
+	protected void OnAction48Activated(object sender, EventArgs e)
+	{
+		var widget = new EmployeesPremiums();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
 	}
 }

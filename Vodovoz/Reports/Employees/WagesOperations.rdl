@@ -358,7 +358,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="WageBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     @wage_balance:=@wage_balance + IF(wages_movement_operations.money IS NULL,
@@ -379,6 +379,10 @@ WHERE
                         ' ',
                         fines.fine_reason_string),
                 fines.fine_reason_string)
+		WHEN
+            premium_items.id IS NOT NULL
+        THEN
+            premiums.premium_reason_string
     END AS details
 FROM
     (SELECT 
@@ -398,6 +402,10 @@ FROM
     fines_items ON fines_items.wages_movement_operations_id = wages_movement_operations.id
         LEFT JOIN
     fines ON fines.id = fines_items.fine_id
+		LEFT JOIN
+    premium_items ON premium_items.wages_movement_operations_id = wages_movement_operations.id
+        LEFT JOIN
+    premiums ON premiums.id = premium_items.premium_id
 WHERE
     wages_movement_operations.employee_id = @employee_id
         AND wages_movement_operations.operation_time &gt;= @start_date
@@ -415,7 +423,7 @@ ORDER BY wages_movement_operations.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
