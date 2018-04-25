@@ -649,7 +649,7 @@
       <Textbox Name="Textbox32">
         <Height>18.03pt</Height>
         <Width>292.84pt</Width>
-        <Value>="Итого:" + Convert.ToString( Sum(Fields!wage.Value, "DriverInfo") - Sum(Fields!money.Value, "DriverFines") - Sum(Fields!advance.Value, "Advances"))</Value>
+        <Value>="Итого:" + Convert.ToString( Sum(Fields!wage.Value, "DriverInfo") + Sum(Fields!money.Value, "DriverPremiums") - Sum(Fields!money.Value, "DriverFines") - Sum(Fields!advance.Value, "Advances"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
         <Top>252.8pt</Top>

@@ -504,7 +504,7 @@
       <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>18.03pt</Height>
         <Width>292.84pt</Width>
-        <Value>="Итого: " + Convert.ToString( Sum(Fields!wage.Value, "ForwarderWage") - Sum(Fields!advance.Value, "Advances")
+        <Value>="Итого: " + Convert.ToString( Sum(Fields!wage.Value, "ForwarderWage") + Sum(Fields!money.Value, "ForwarderPremiums") - Sum(Fields!advance.Value, "Advances")
 - Sum(Fields!money.Value, "ForwarderFines")
 )</Value>
         <ZIndex>1</ZIndex>
@@ -896,7 +896,7 @@
         </Footer>
       </Table>
       <Table Name="Table5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <DataSetName>ForwarderFines</DataSetName>
+        <DataSetName>ForwarderPremiums</DataSetName>
         <NoRows>Премий нет</NoRows>
         <Style>
           <BorderStyle>
