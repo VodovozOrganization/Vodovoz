@@ -761,15 +761,15 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Если выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 
-			if(observableOrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
+			if(ObservableOrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
 			   .Any(x => x.OwnType == OwnTypes.None))
 				yield return new ValidationResult("У оборудования обязательно должна быть выбрана принадлежность.");
 
-			if(observableOrderDepositItems.Any(x => x.Total < 0)) {
+			if(ObservableOrderDepositItems.Any(x => x.Total < 0)) {
 				yield return new ValidationResult("В возврате залогов необходимо вводить положительную сумму.");
 			}
 
-			if(observableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water) &&
+			if(ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water) &&
 			   //Если нету ни одного допсоглашения на воду подходящего на точку доставку в заказе 
 			   //(или без точки доставки если относится на все точки)
 			   !HaveActualWaterSaleAgreementByDeliveryPoint()
@@ -864,7 +864,7 @@ namespace Vodovoz.Domain.Orders
 		[IgnoreHistoryTrace]
 		public virtual int TotalWaterBottles {
 			get {
-				return orderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
+				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
 			}
 		}
 
@@ -1713,7 +1713,7 @@ namespace Vodovoz.Domain.Orders
 					});
 				}
 				if(service.ReplacementEquipment != null) {
-					observableOrderEquipments.Add(new OrderEquipment {
+					ObservableOrderEquipments.Add(new OrderEquipment {
 						Order = this,
 						Direction = Direction.Deliver,
 						Equipment = service.ReplacementEquipment,
@@ -1800,9 +1800,9 @@ namespace Vodovoz.Domain.Orders
 		public virtual void OnWaitingPaymentOrder()
 		{
 			//Создается счет
-			var billDoc = observableOrderDocuments.FirstOrDefault(x => x.Order == this && x.Type == OrderDocumentType.Bill) as BillDocument;
+			var billDoc = ObservableOrderDocuments.FirstOrDefault(x => x.Order == this && x.Type == OrderDocumentType.Bill) as BillDocument;
 			if(billDoc == null){
-				observableOrderDocuments.Add(CreateDocumentOfOrder(OrderDocumentType.Bill));
+				ObservableOrderDocuments.Add(CreateDocumentOfOrder(OrderDocumentType.Bill));
 			}
 		}
 
