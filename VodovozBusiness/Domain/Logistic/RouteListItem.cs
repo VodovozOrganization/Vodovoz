@@ -568,6 +568,9 @@ namespace Vodovoz.Domain.Logistic
 			if(RouteList.Driver.WageCalcType == WageCalculationType.percentage)
 				return this.Order.TotalSum * RouteList.Driver.WageCalcRate / 100;
 
+			if(RouteList.Driver.WageCalcType == WageCalculationType.percentageForService)
+				return this.Order.TotalSumForService * RouteList.Driver.WageCalcRate / 100;
+
 			bool withForwarder = RouteList.Forwarder != null;
 			bool ich = RouteList.Car.IsCompanyHavings && !RouteList.NormalWage;
 			var rates = ich ? Wages.GetDriverRatesWithOurCar(RouteList.Date) : Wages.GetDriverRates(RouteList.Date, withForwarder);

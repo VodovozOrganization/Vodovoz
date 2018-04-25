@@ -710,6 +710,13 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual decimal TotalSumForService {
+			get {
+				return ObservableOrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.master)
+											.Sum(i => i.Price * i.ActualCount * (1 - (decimal)i.Discount / 100));
+			}
+		}
+
 		public virtual decimal ActualGoodsTotalSum {
 			get {
 				return OrderItems.Sum(item => item.Price * item.ActualCount);

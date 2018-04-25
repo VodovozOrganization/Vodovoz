@@ -440,6 +440,8 @@ namespace Vodovoz.Domain.Employees
 		normal,
 		[Display(Name = "Процент от стоимости")]
 		percentage,
+		[Display(Name = "Процент от стоимости (СЦ)")]
+		percentageForService,
 		[Display(Name = "Фиксированная ставка за МЛ")]
 		fixedRoute,
 		[Display(Name = "Фиксированная ставка за день")]

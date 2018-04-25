@@ -246,7 +246,8 @@ namespace Vodovoz
 			    = yspinWageCalcRate.Visible
 				= (WageCalculationType)e.SelectedItem != WageCalculationType.normal;
 
-			if((WageCalculationType)e.SelectedItem == WageCalculationType.percentage)
+			if((WageCalculationType)e.SelectedItem == WageCalculationType.percentage
+			   || (WageCalculationType)e.SelectedItem == WageCalculationType.percentageForService)
 			{
 				yspinWageCalcRate.Adjustment.Upper = 100;
 			}
