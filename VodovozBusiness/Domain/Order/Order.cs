@@ -62,7 +62,7 @@ namespace Vodovoz.Domain.Orders
 					return;
 				if(OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
-				}else if(client != null && !CanChangeContractor()){
+				} else if(client != null && !CanChangeContractor()) {
 					throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
 				}
 				SetField(ref client, value, () => Client);
@@ -127,7 +127,7 @@ namespace Vodovoz.Domain.Orders
 				if(PaymentType == PaymentType.cashless && !billDate.HasValue) {
 					return deliveryDate;
 				}
-				return billDate; 
+				return billDate;
 			}
 			set { SetField(ref billDate, value, () => BillDate); }
 		}
@@ -886,7 +886,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			foreach(var item in ObservableOrderItems
 					.Where(x => x.AdditionalAgreement != null)) {
-				
+
 				if(item.AdditionalAgreement.Self is WaterSalesAgreement) {
 					var waterAgreement = Contract.GetWaterSalesAgreement(DeliveryPoint);
 					if(waterAgreement == null) {
@@ -1088,15 +1088,15 @@ namespace Vodovoz.Domain.Orders
 				NomenclatureCategory.master,
 				NomenclatureCategory.disposableBottleWater
 			};
-			if(!acceptCategories.Contains(nomenclature.Category)){
+			if(!acceptCategories.Contains(nomenclature.Category)) {
 				return;
 			}
-			
+
 			ObservableOrderItems.Add(new OrderItem {
 				Order = this,
 				AdditionalAgreement = null,
-				Count = (nomenclature.Category == NomenclatureCategory.service 
-				         || nomenclature.Category == NomenclatureCategory.master) ? 1 : 0,
+				Count = (nomenclature.Category == NomenclatureCategory.service
+						 || nomenclature.Category == NomenclatureCategory.master) ? 1 : 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)
@@ -1109,7 +1109,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(nomenclature.Category != NomenclatureCategory.water)
 				return;
-			
+
 			decimal price;
 			if(wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id))
 				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id).Price;
@@ -1385,62 +1385,62 @@ namespace Vodovoz.Domain.Orders
 				if(depositPaymentItem != null)
 					depositPaymentItem.Count = expectedBottleDepositsCount;
 				else {*/
-					/* Временно отключил взятие с клиента залогов за бутыли. Удалить если залоги так и не вернутся.
-					 * 					ObservableOrderItems.Add (new OrderItem {
-											Order = this,
-											AdditionalAgreement = null,
-											Count = expectedBottleDepositsCount,
-											Equipment = null,
-											Nomenclature = NomenclatureRepository.GetBottleDeposit (uow),
-											Price = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (expectedBottleDepositsCount)
-										});
-										ObservableOrderDepositItems.Add (new OrderDepositItem {
-											Order = this,
-											Count = expectedBottleDepositsCount,
-											Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (expectedBottleDepositsCount),
-											DepositOperation = null,
-											DepositType = DepositType.Bottles,
-											FreeRentItem = null,
-											PaidRentItem = null,
-											PaymentDirection = PaymentDirection.FromClient
-										}); *//*
-				}
-				return;
-			}
-			
-			if(expectedBottleDepositsCount == 0) {
-				if(depositRefundItem != null)
-					ObservableOrderDepositItems.Remove(depositRefundItem);
-				if(depositPaymentItem != null)
-					ObservableOrderItems.Remove(depositPaymentItem);
-				return;
-			}
-			if(expectedBottleDepositsCount < 0) {
-				if(depositPaymentItem != null)
-					ObservableOrderItems.Remove(depositPaymentItem);
-				//Проверяем, сколько надо отдать клиенту залог за бутыли
-				decimal clientDeposit = default(decimal);
-				decimal deposit = bottleDeposit.GetPrice(-expectedBottleDepositsCount);
-				int count = -expectedBottleDepositsCount;
-				if(Client != null)
-					clientDeposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, Client, DepositType.Bottles);
-				if(clientDeposit - deposit * count >= 0)
-					if(depositRefundItem != null) {
-						depositRefundItem.Deposit = deposit;
-						depositRefundItem.Count = count;
-					} else
-						ObservableOrderDepositItems.Add(new OrderDepositItem {
-							Order = this,
-							DepositOperation = null,
-							DepositType = DepositType.Bottles,
-							Deposit = deposit,
-							PaidRentItem = null,
-							FreeRentItem = null,
-							PaymentDirection = PaymentDirection.ToClient,
-							Count = count
-						});
-				return;
-			}*/
+			/* Временно отключил взятие с клиента залогов за бутыли. Удалить если залоги так и не вернутся.
+			 * 					ObservableOrderItems.Add (new OrderItem {
+									Order = this,
+									AdditionalAgreement = null,
+									Count = expectedBottleDepositsCount,
+									Equipment = null,
+									Nomenclature = NomenclatureRepository.GetBottleDeposit (uow),
+									Price = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (expectedBottleDepositsCount)
+								});
+								ObservableOrderDepositItems.Add (new OrderDepositItem {
+									Order = this,
+									Count = expectedBottleDepositsCount,
+									Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (expectedBottleDepositsCount),
+									DepositOperation = null,
+									DepositType = DepositType.Bottles,
+									FreeRentItem = null,
+									PaidRentItem = null,
+									PaymentDirection = PaymentDirection.FromClient
+								}); *//*
+		}
+		return;
+	}
+
+	if(expectedBottleDepositsCount == 0) {
+		if(depositRefundItem != null)
+			ObservableOrderDepositItems.Remove(depositRefundItem);
+		if(depositPaymentItem != null)
+			ObservableOrderItems.Remove(depositPaymentItem);
+		return;
+	}
+	if(expectedBottleDepositsCount < 0) {
+		if(depositPaymentItem != null)
+			ObservableOrderItems.Remove(depositPaymentItem);
+		//Проверяем, сколько надо отдать клиенту залог за бутыли
+		decimal clientDeposit = default(decimal);
+		decimal deposit = bottleDeposit.GetPrice(-expectedBottleDepositsCount);
+		int count = -expectedBottleDepositsCount;
+		if(Client != null)
+			clientDeposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, Client, DepositType.Bottles);
+		if(clientDeposit - deposit * count >= 0)
+			if(depositRefundItem != null) {
+				depositRefundItem.Deposit = deposit;
+				depositRefundItem.Count = count;
+			} else
+				ObservableOrderDepositItems.Add(new OrderDepositItem {
+					Order = this,
+					DepositOperation = null,
+					DepositType = DepositType.Bottles,
+					Deposit = deposit,
+					PaidRentItem = null,
+					FreeRentItem = null,
+					PaymentDirection = PaymentDirection.ToClient,
+					Count = count
+				});
+		return;
+	}*/
 		}
 
 		/// <summary>
@@ -1574,17 +1574,13 @@ namespace Vodovoz.Domain.Orders
 						}
 					);
 				}
-			}
-			else if (a.Type == AgreementType.EquipmentSales)
-			{
+			} else if(a.Type == AgreementType.EquipmentSales) {
 				SalesEquipmentAgreement agreement = a as SalesEquipmentAgreement;
-				foreach (SalesEquipment equipment in agreement.SalesEqipments)
-				{
+				foreach(SalesEquipment equipment in agreement.SalesEqipments) {
 					int ItemId;
 					//Добавляем номенклатуру продажи оборудования.
 					ItemId = ObservableOrderItems.AddWithReturn(
-						new OrderItem
-						{
+						new OrderItem {
 							Order = this,
 							AdditionalAgreement = agreement,
 							Count = equipment.Count,
@@ -1595,8 +1591,7 @@ namespace Vodovoz.Domain.Orders
 					);
 					//Добавляем оборудование.
 					ObservableOrderEquipments.Add(
-						new OrderEquipment
-						{
+						new OrderEquipment {
 							Order = this,
 							Direction = Direction.Deliver,
 							Count = equipment.Count,
@@ -1801,7 +1796,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			//Создается счет
 			var billDoc = ObservableOrderDocuments.FirstOrDefault(x => x.Order == this && x.Type == OrderDocumentType.Bill) as BillDocument;
-			if(billDoc == null){
+			if(billDoc == null) {
 				ObservableOrderDocuments.Add(CreateDocumentOfOrder(OrderDocumentType.Bill));
 			}
 		}
@@ -1877,8 +1872,7 @@ namespace Vodovoz.Domain.Orders
 				}
 			} else if(!this.ObservableOrderEquipments.Any()
 					   && BottlesReturn.HasValue
-					   && BottlesReturn.Value > 0)
-			{
+					   && BottlesReturn.Value > 0) {
 				docTypes = new List<OrderDocumentType>() {
 					OrderDocumentType.DriverTicket,
 					OrderDocumentType.BottleTransfer
@@ -1886,8 +1880,32 @@ namespace Vodovoz.Domain.Orders
 				AddDepositDocuments(docTypes);
 				CheckAndCreateDocuments(docTypes.ToArray());
 			} else {
+				switch(paymentType) {
+					case PaymentType.cash:
+					case PaymentType.Internal:
+					case PaymentType.ByCard:
+						docTypes = new List<OrderDocumentType>() {
+							OrderDocumentType.Invoice,
+						};
+						if(ObservableOrderEquipments.Any())
+							docTypes.Add(OrderDocumentType.EquipmentTransfer);
+						break;
+					case PaymentType.cashless:
+						docTypes = new List<OrderDocumentType>() {
+							OrderDocumentType.DriverTicket,
+						};
+						if(ObservableOrderDepositItems.Any())
+							docTypes.Add(OrderDocumentType.RefundEquipmentDeposit);
+						if(ObservableOrderEquipments.Any())
+							docTypes.Add(OrderDocumentType.EquipmentTransfer);
+						if(BottlesReturn.HasValue && BottlesReturn.Value > 0)
+							docTypes.Add(OrderDocumentType.BottleTransfer);
+						break;
+					default:
+						break;
+				}
 				AddEquipmentDocuments(docTypes);
-				CheckAndCreateDocuments();
+				CheckAndCreateDocuments(docTypes.ToArray());
 			}
 			CreateWarrantyDocuments();
 		}
@@ -1909,9 +1927,9 @@ namespace Vodovoz.Domain.Orders
 		{
 			//Доставка оборудования в собственности клиента после обслуживания
 			if(ObservableOrderEquipments
-			   .Any(x => x.OrderItem == null 
-			        && x.Direction == Direction.Deliver 
-			        && x.OwnType == OwnTypes.Client)
+			   .Any(x => x.OrderItem == null
+					&& x.Direction == Direction.Deliver
+					&& x.OwnType == OwnTypes.Client)
 			  ) {
 				list.Add(OrderDocumentType.DoneWorkReport);
 			}
@@ -2190,7 +2208,7 @@ namespace Vodovoz.Domain.Orders
 											   .Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
 											   .Sum(x => x.Count);
 				nomenclaturePrice = item.Nomenclature.GetPrice(totalWaterCount);
-			}else {
+			} else {
 				nomenclaturePrice = item.Nomenclature.GetPrice(item.Count);
 			}
 

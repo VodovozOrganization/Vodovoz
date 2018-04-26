@@ -335,7 +335,7 @@ GROUP BY responsible_person_name</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Proxies" >
+    <DataSet Name="Proxies">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
@@ -384,6 +384,83 @@ WHERE
         </Field>
         <Field Name="proxyFIO">
           <DataField>proxyFIO</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Orders_count">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>30</Timeout>
+        <CommandText>SELECT
+	COUNT(id) as ord_cnt
+FROM
+	order_items
+WHERE
+	order_id = @order_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="ord_cnt">
+          <DataField>ord_cnt</DataField>
+          <TypeName>System.Int64</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Empty_Goods">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>30</Timeout>
+        <CommandText>SELECT  
+	'--' AS id,
+    'Забор - Доставка' AS name,
+    '--' AS unit_code,
+    '--' AS mu_name,
+    '--' AS count,
+    '--' AS item_price,
+    '--' AS total,
+    '--' AS include_nds</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="unit_code">
+          <DataField>unit_code</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="mu_name">
+          <DataField>mu_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="item_price">
+          <DataField>item_price</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="total">
+          <DataField>total</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="include_nds">
+          <DataField>include_nds</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -885,6 +962,9 @@ WHERE
         </Details>
         <Left>31.4pt</Left>
         <Top>171.0pt</Top>
+        <Visibility>
+          <Hidden>=Iif(First({ord_cnt}, "Orders_count")&gt;0, 'false', 'true')</Hidden>
+        </Visibility>
       </Table>
       <List Name="List2">
         <Height>384.35pt</Height>
@@ -1757,6 +1837,249 @@ WHERE
           <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
         </Visibility>
       </Textbox>
+      <Table Name="Table4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>Empty_Goods</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>24.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>304.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>44.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>28.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>57.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>64.9pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox70">
+                      <Value>№</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox71">
+                      <Value>Товар</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox72">
+                      <Value>Кол-во</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox73">
+                      <Value>Ед.</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox74">
+                      <Value>Цена</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox75">
+                      <Value>Сумма</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox76">
+                      <Value>=RowNumber()</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox77">
+                      <Value>={name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox78">
+                      <Value>={count}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox79">
+                      <Value>={mu_name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox80">
+                      <Value>={item_price}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format># ##0.00</Format>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox81">
+                      <Value>={total}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format># ##0.00</Format>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>31.2pt</Left>
+        <Top>171.0pt</Top>
+        <Visibility>
+          <Hidden>=Iif(First({ord_cnt}, "Orders_count")&lt;=0, 'false', 'true')</Hidden>
+        </Visibility>
+      </Table>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2183,12 +2506,12 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>95960</Value>
+          <Value>183649</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
