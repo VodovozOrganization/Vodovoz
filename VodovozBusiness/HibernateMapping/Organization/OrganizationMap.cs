@@ -15,6 +15,8 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.INN).Column ("INN");
 			Map (x => x.KPP).Column ("KPP");
 			Map (x => x.OGRN).Column ("OGRN");
+			Map (x => x.OKPO).Column("OKPO");
+			Map (x => x.OKVED).Column("OKVED");
 			Map (x => x.Email).Column ("email");
 			Map (x => x.Address).Column ("address");
 			Map (x => x.JurAddress).Column ("jur_address");

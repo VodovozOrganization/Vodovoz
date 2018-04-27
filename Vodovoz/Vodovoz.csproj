@@ -745,6 +745,8 @@
     <Compile Include="Additions\EntityChangedExceptionHelper.cs" />
     <Compile Include="ReportsParameters\EmployeesPremiums.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.EmployeesPremiums.cs" />
+    <Compile Include="Dialogs\Employees\CarProxyDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.CarProxyDocumentDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

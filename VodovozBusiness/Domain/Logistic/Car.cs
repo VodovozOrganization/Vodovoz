@@ -10,7 +10,7 @@ namespace Vodovoz.Domain.Logistic
 		Nominative = "автомобиль")]
 	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
 	{
-		#region Свойства
+		#region Свойства`
 
 		public virtual int Id { get; set; }
 
@@ -25,11 +25,93 @@ namespace Vodovoz.Domain.Logistic
 
 		string registrationNumber;
 
-		[Display (Name = "Гос. номер")]
-//		[Required (ErrorMessage = "Гос. номер автомобиля должен быть заполнен.")]
+		[Display (Name = "Государственный номер")]
+//		[Required (ErrorMessage = "Государственный номер автомобиля должен быть заполнен.")]
 		public virtual string RegistrationNumber {
 			get { return registrationNumber; }
 			set { SetField (ref registrationNumber, value, () => RegistrationNumber); }
+		}
+
+		string vIN;
+
+		[Display(Name = "VIN")]
+		[StringLength(17, MinimumLength = 17, ErrorMessage = "VIN должен содержать 17 знаков ")]
+		public virtual string VIN {
+			get { return vIN; }
+			set { SetField(ref vIN, value, () => VIN); }
+		}
+
+		string manufactureYear;
+
+		[Display(Name = "Год выпуска")]
+		[StringLength(4, MinimumLength = 4, ErrorMessage = "Год выпуска должен содержать 4 знака")]
+		public virtual string ManufactureYear {
+			get { return manufactureYear; }
+			set { SetField(ref manufactureYear, value, () => ManufactureYear); }
+		}
+
+		string motorNumber;
+
+		[Display(Name = "Номер двигателя")]
+		public virtual string MotorNumber {
+			get { return motorNumber; }
+			set { SetField(ref motorNumber, value, () => MotorNumber); }
+		}
+
+		string chassisNumber;
+
+		[Display(Name = "Номер шасси")]
+		public virtual string ChassisNumber {
+			get { return chassisNumber; }
+			set { SetField(ref chassisNumber, value, () => ChassisNumber); }
+		}
+
+		string carcase;
+
+		[Display(Name = "Кузов")]
+		public virtual string Carcase {
+			get { return carcase; }
+			set { SetField(ref carcase, value, () => Carcase); }
+		}
+
+		string color;
+
+		[Display(Name = "Цвет")]
+		public virtual string Color {
+			get { return color; }
+			set { SetField(ref color, value, () => Color); }
+		}
+
+		string docSeries;
+
+		[Display(Name = "Серия свидетельства о регистрации ТС")]
+		public virtual string DocSeries {
+			get { return docSeries; }
+			set { SetField(ref docSeries, value, () => DocSeries); }
+		}
+
+		string docNumber;
+
+		[Display(Name = "Номер свидетельства о регистрации ТС")]
+		public virtual string DocNumber {
+			get { return docNumber; }
+			set { SetField(ref docNumber, value, () => DocNumber); }
+		}
+
+		string docIssuedOrg;
+
+		[Display(Name = "Кем выдано свидетельство о регистрации ТС")]
+		public virtual string DocIssuedOrg {
+			get { return docIssuedOrg; }
+			set { SetField(ref docIssuedOrg, value, () => DocIssuedOrg); }
+		}
+
+		DateTime? docIssuedDate;
+
+		[Display(Name = "Дата выдачи свидетельства о регистрации ТС")]
+		public virtual DateTime? DocIssuedDate {
+			get { return docIssuedDate; }
+			set { SetField(ref docIssuedDate, value, () => DocIssuedDate); }
 		}
 
 		double fuelConsumption;

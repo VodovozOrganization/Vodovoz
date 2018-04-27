@@ -130,6 +130,8 @@ namespace Vodovoz.Domain.Client
 					return new ShortRentAgreementParser();
 				case TemplateType.AgRepair:
 					return new RepairAgreementParser();
+				case TemplateType.CarProxy:
+					return new CarProxyDocumentParser();
 				default:
 					throw new NotImplementedException(String.Format("Тип шаблона {0}, не реализован.", type));
 			}
@@ -151,7 +153,9 @@ namespace Vodovoz.Domain.Client
 		[Display (Name = "Доп. соглашение долгосрочной аренды")]
 		AgLongRent,
 		[Display (Name = "Доп. соглашение на обслуживание")]
-		AgRepair
+		AgRepair,
+		[Display (Name = "Доверенность на ТС")]
+		CarProxy
 	}
 
 	public class TemplateTypeStringType : NHibernate.Type.EnumStringType

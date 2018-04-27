@@ -65,6 +65,25 @@ namespace Vodovoz.Domain
 			set { SetField (ref oGRN, value, () => OGRN); }
 		}
 
+		string oKPO;
+
+		[Display(Name = "ОКПО")]
+		[Digits(ErrorMessage = "ОКПО может содержать только цифры.")]
+		[StringLength(10, MinimumLength = 8, ErrorMessage = "Номер ОКПО не должен превышать 10 цифр.")]
+		public virtual string OKPO {
+			get { return oKPO; }
+			set { SetField(ref oKPO, value, () => OKPO); }
+		}
+
+		string oKVED;
+
+		[Display(Name = "ОКВЭД")]
+		[StringLength(100, ErrorMessage = "Номера ОКВЭД не должны превышать 100 знаков.")]
+		public virtual string OKVED {
+			get { return oKVED; }
+			set { SetField(ref oKVED, value, () => OKVED); }
+		}
+
 		IList<QSContacts.Phone> phones;
 
 		[Display (Name = "Телефоны")]
