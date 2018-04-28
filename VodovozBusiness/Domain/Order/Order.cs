@@ -1111,10 +1111,16 @@ namespace Vodovoz.Domain.Orders
 				return;
 
 			decimal price;
-			if(wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id))
+			//влияющая номенклатура
+			Nomenclature infuentialNomenclature = nomenclature?.DependsOnNomenclature;
+
+			if(wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && infuentialNomenclature == null)) {
 				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id).Price;
-			else
+			} else if(wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == infuentialNomenclature?.Id)) {
+				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == infuentialNomenclature?.Id).Price;
+			} else {
 				price = nomenclature.GetPrice(1);
+			}
 
 			ObservableOrderItems.Add(new OrderItem {
 				Order = this,

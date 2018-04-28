@@ -42,7 +42,7 @@ namespace Vodovoz
 
 		public WaterAgreementDlg(CounterpartyContract contract, DeliveryPoint deliveryPoint) : this(contract)
 		{
-			UoWGeneric.Root.DeliveryPoint = UoW.GetById<DeliveryPoint>(deliveryPoint.Id) ;
+			UoWGeneric.Root.DeliveryPoint = UoW.GetById<DeliveryPoint>(deliveryPoint.Id);
 			ConfigureDlg();
 		}
 
@@ -83,13 +83,13 @@ namespace Vodovoz
 						WaterPricesRepository.GetWaterPricesHeader(UoW),
 						WaterPricesRepository.GetWaterPrices(UoW));
 			}
-			
+
 			templatewidget1.Binding.AddBinding(Entity, e => e.AgreementTemplate, w => w.Template).InitializeFromSource();
 			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 
 			var fixedPricesChanges = HistoryChangesRepository
 				.GetHistoryChanges<WaterSalesAgreementFixedPrice>(UoW, Entity.ObservablFixedPrices.Select(x => x.Id).ToArray());
-			
+
 			ytreeviewFixedPrices.ColumnsConfig = ColumnsConfigFactory.Create<WaterSalesAgreementFixedPrice>()
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
 				.AddColumn("Фиксированная цена").AddNumericRenderer(x => x.Price).Editing().Digits(2)
@@ -112,7 +112,7 @@ namespace Vodovoz
 				var fixedPriceChange = fixedPricesChanges.Where(x => x.ItemId == fixedPrice.Id);
 				if(fixedPriceChange.Any()) {
 					ytreeviewFixedPricesChanges.ItemsDataSource = fixedPriceChange.OrderBy(x => x.ChangeTime).ToList();
-				}else {
+				} else {
 					ytreeviewFixedPricesChanges.ItemsDataSource = null;
 				}
 
@@ -195,7 +195,14 @@ namespace Vodovoz
 
 		void AddNewNomenclature_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			Entity.AddFixedPrice(e.Subject as Nomenclature, 0);
+			Nomenclature nomenclatureToAdd = e.Subject as Nomenclature;
+			decimal price = 0;
+			if(nomenclatureToAdd.DependsOnNomenclature != null)
+				price = Entity.FixedPrices
+							  .Where(p => p.Nomenclature.Id == nomenclatureToAdd.DependsOnNomenclature.Id)
+							  .FirstOrDefault()
+							  .Price;
+			Entity.AddFixedPrice(e.Subject as Nomenclature, price);
 		}
 
 		protected void OnButtonDelClicked(object sender, EventArgs e)

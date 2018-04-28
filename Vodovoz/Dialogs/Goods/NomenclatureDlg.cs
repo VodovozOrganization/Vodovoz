@@ -8,7 +8,9 @@ using QSWidgetLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.JournalFilters;
 using Vodovoz.ServiceDialogs.Database;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -88,6 +90,11 @@ namespace Vodovoz
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			checkIsArchive.Sensitive = QSMain.User.Permissions["can_set_archive"];
 
+			int currNomenclatureOfDependence = (Entity.DependsOnNomenclature == null ? 0 : Entity.DependsOnNomenclature.Id);
+
+			dependsOnNomenclature.RepresentationModel = new NomenclatureDependsFromVM(Entity);
+			dependsOnNomenclature.Binding.AddBinding(Entity, e => e.DependsOnNomenclature, w => w.Subject).InitializeFromSource();
+
 			ConfigureInputs (Entity.Category);
 
 			pricesView.UoWGeneric = UoWGeneric;
@@ -166,6 +173,11 @@ namespace Vodovoz
 		{
 			if (radioEuqpment.Active)
 				notebook1.CurrentPage = 1;
+		}
+
+		protected void OnDependsOnNomenclatureChanged(object sender, EventArgs e)
+		{
+			radioPrice.Sensitive = Entity.DependsOnNomenclature == null;
 		}
 	}
 }

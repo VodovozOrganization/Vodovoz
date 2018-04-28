@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
@@ -8,12 +8,12 @@ using QSHistoryLog;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
-	public class OrderItem: PropertyChangedBase, IDomainObject, IValidatableObject
+	public class OrderItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		#region Свойства
 
@@ -21,39 +21,39 @@ namespace Vodovoz.Domain.Orders
 
 		Order order;
 
-		[Display (Name = "Заказ")]
+		[Display(Name = "Заказ")]
 		public virtual Order Order {
 			get { return order; }
-			set { SetField (ref order, value, () => Order); }
+			set { SetField(ref order, value, () => Order); }
 		}
-			
+
 		AdditionalAgreement additionalAgreement;
 
-		[Display (Name = "Дополнительное соглашение")]
+		[Display(Name = "Дополнительное соглашение")]
 		public virtual AdditionalAgreement AdditionalAgreement {
 			get { return additionalAgreement; }
-			set { SetField (ref additionalAgreement, value, () => AdditionalAgreement); }
+			set { SetField(ref additionalAgreement, value, () => AdditionalAgreement); }
 		}
 
 		Nomenclature nomenclature;
 
-		[Display (Name = "Номенклатура")]
+		[Display(Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
-			set { SetField (ref nomenclature, value, () => Nomenclature); }
+			set { SetField(ref nomenclature, value, () => Nomenclature); }
 		}
 
 		Equipment equipment;
 
-		[Display (Name = "Оборудование")]
+		[Display(Name = "Оборудование")]
 		public virtual Equipment Equipment {
 			get { return equipment; }
-			set { SetField (ref equipment, value, () => Equipment); }
+			set { SetField(ref equipment, value, () => Equipment); }
 		}
 
 		Decimal price;
 
-		[Display (Name = "Цена")]
+		[Display(Name = "Цена")]
 		public virtual Decimal Price {
 			get { return price; }
 			set {
@@ -65,10 +65,9 @@ namespace Vodovoz.Domain.Orders
 						IsUserPrice = false;
 					} else {
 						IsUserPrice = true;
-					}	 
+					}
 				}
-				if(SetField (ref price, value, () => Price))
-				{
+				if(SetField(ref price, value, () => Price)) {
 					RecalculateNDS();
 				}
 			}
@@ -82,16 +81,15 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref isUserPrice, value, () => IsUserPrice); }
 		}
 
-		int count=-1;
+		int count = -1;
 
-		[Display (Name = "Количество")]
+		[Display(Name = "Количество")]
 		public virtual int Count {
 			get {
-				return count; 
+				return count;
 			}
 			set {
-				if(SetField (ref count, value, () => Count))
-				{
+				if(SetField(ref count, value, () => Count)) {
 					Order?.RecalculateItemsPrice();
 					RecalculateNDS();
 				}
@@ -99,37 +97,35 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		int actualCount;
-		public virtual int ActualCount{
-			get{
+		public virtual int ActualCount {
+			get {
 				return actualCount;
 			}
-			set{
+			set {
 				SetField(ref actualCount, value, () => ActualCount);
 			}
 		}
 
 		Decimal includeNDS;
 
-		[Display (Name = "Включая НДС")]
+		[Display(Name = "Включая НДС")]
 		public virtual Decimal IncludeNDS {
 			get { return includeNDS; }
-			set { SetField (ref includeNDS, value, () => IncludeNDS); }
+			set { SetField(ref includeNDS, value, () => IncludeNDS); }
 		}
 
 		private int discount;
 
 		[Display(Name = "Процент скидки на товар")]
-		public virtual int Discount
-		{
+		public virtual int Discount {
 			get { return discount; }
-			set 
-			{
+			set {
 				if(value != discount && value == 0) {
 					DiscountReason = null;
 				}
-				if(SetField(ref discount, value, () => Discount)){
+				if(SetField(ref discount, value, () => Discount)) {
 					RecalculateNDS();
-				} 
+				}
 			}
 		}
 
@@ -145,7 +141,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
 			get { return counterpartyMovementOperation; }
-			set { SetField (ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
+			set { SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
 		}
 
 		FreeRentEquipment freeRentEquipment;
@@ -157,8 +153,7 @@ namespace Vodovoz.Domain.Orders
 
 		PaidRentEquipment paidRentEquipment;
 
-		public virtual PaidRentEquipment PaidRentEquipment
-		{
+		public virtual PaidRentEquipment PaidRentEquipment {
 			get { return paidRentEquipment; }
 			set { SetField(ref paidRentEquipment, value, () => PaidRentEquipment); }
 		}
@@ -182,11 +177,11 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual bool CanShowReturnedCount{
+		public virtual bool CanShowReturnedCount {
 			get {
 				return (Order.OrderStatus >= OrderStatus.OnTheWay
-				        && ReturnedCount > 0
-				        && Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category));
+						&& ReturnedCount > 0
+						&& Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category));
 			}
 		}
 
@@ -232,14 +227,14 @@ namespace Vodovoz.Domain.Orders
 		}
 
 
-		public virtual int ReturnedCount{
-			get{
+		public virtual int ReturnedCount {
+			get {
 				return Count - ActualCount;
 			}
 		}
 
-		public virtual bool IsDelivered{
-			get{
+		public virtual bool IsDelivered {
+			get {
 				return ReturnedCount == 0;
 			}
 		}
@@ -247,15 +242,18 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal? GetWaterFixedPrice()
 		{
 			decimal? result = null;
+			//влияющая номенклатура
+			Nomenclature infuentialNomenclature = Nomenclature?.DependsOnNomenclature;
 			if(Nomenclature.Category == NomenclatureCategory.water) {
 				var waterSalesAgreement = AdditionalAgreement.Self as WaterSalesAgreement;
 				if(waterSalesAgreement == null) {
 					return result;
 				}
-				if(waterSalesAgreement.IsFixedPrice
-					&& waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == Nomenclature.Id)
-				   ) {
+				if(waterSalesAgreement.IsFixedPrice && waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == Nomenclature.Id
+				                                                                           && infuentialNomenclature == null)) {
 					result = waterSalesAgreement.FixedPrices.First(x => x.Nomenclature.Id == Nomenclature.Id).Price;
+				} else if(waterSalesAgreement.IsFixedPrice && waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == infuentialNomenclature?.Id)) {
+					result = waterSalesAgreement.FixedPrices.First(x => x.Nomenclature.Id == infuentialNomenclature.Id).Price;
 				}
 			}
 			return result;
@@ -274,16 +272,24 @@ namespace Vodovoz.Domain.Orders
 
 		private Decimal? GetDefaultPrice()
 		{
-			if(Nomenclature?.Category == NomenclatureCategory.water) {
-				return Nomenclature?.GetPrice(Order.GetTotalWaterCount());
-			} else {
-				return Nomenclature?.GetPrice(Count);
+			if(Nomenclature?.DependsOnNomenclature == null) {
+				if(Nomenclature?.Category == NomenclatureCategory.water) {
+					return Nomenclature?.GetPrice(Order.GetTotalWaterCount());
+				} else {
+					return Nomenclature?.GetPrice(Count);
+				}
+			}else{
+				if(Nomenclature?.Category == NomenclatureCategory.water) {
+					return Nomenclature?.DependsOnNomenclature.GetPrice(Order.GetTotalWaterCount());
+				} else {
+					return Nomenclature?.DependsOnNomenclature.GetPrice(Count);
+				}
 			}
 		}
 
-		public virtual decimal Sum{
-			get{
-				return Price * Count * (1 - (decimal)Discount/100) ;
+		public virtual decimal Sum {
+			get {
+				return Price * Count * (1 - (decimal)Discount / 100);
 			}
 		}
 
@@ -336,23 +342,21 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual CounterpartyMovementOperation UpdateCounterpartyOperation(IUnitOfWork uow)
 		{
-			if(ActualCount == 0)
-			{
-				if (CounterpartyMovementOperation != null && CounterpartyMovementOperation.Id > 0)
-				{
-					uow.Delete (CounterpartyMovementOperation);
+			if(ActualCount == 0) {
+				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Id > 0) {
+					uow.Delete(CounterpartyMovementOperation);
 				}
 				CounterpartyMovementOperation = null;
 				return null;
 			}
 
-			if (Nomenclature == null)
-				throw new InvalidOperationException ("Номенклатура не может быть null");
-		
-			if (CounterpartyMovementOperation == null) {
+			if(Nomenclature == null)
+				throw new InvalidOperationException("Номенклатура не может быть null");
+
+			if(CounterpartyMovementOperation == null) {
 				CounterpartyMovementOperation = new CounterpartyMovementOperation {
 					Nomenclature = Nomenclature,
-					OperationTime = Order.DeliveryDate.Value.Date.AddHours (23).AddMinutes (59),
+					OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 					Amount = ActualCount,
 					Equipment = Equipment,
 					IncomingCounterparty = Order.Client,
@@ -372,8 +376,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void DeleteFreeRentEquipment(IUnitOfWork uow)
 		{
-			if (this.AdditionalAgreement is FreeRentAgreement)
-			{
+			if(this.AdditionalAgreement is FreeRentAgreement) {
 				((FreeRentAgreement)this.AdditionalAgreement).RemoveEquipment(this.FreeRentEquipment);
 			}
 
@@ -384,13 +387,11 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void DeletePaidRentEquipment(IUnitOfWork uow)
 		{
-			if (this.AdditionalAgreement is DailyRentAgreement)
-			{
+			if(this.AdditionalAgreement is DailyRentAgreement) {
 				((DailyRentAgreement)this.AdditionalAgreement).RemoveEquipment(this.PaidRentEquipment);
 			}
 
-			if (this.AdditionalAgreement is NonfreeRentAgreement)
-			{
+			if(this.AdditionalAgreement is NonfreeRentAgreement) {
 				((NonfreeRentAgreement)this.AdditionalAgreement).RemoveEquipment(this.PaidRentEquipment);
 			}
 
@@ -400,10 +401,10 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
-	
+
 		#region IValidatableObject implementation
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			return null;
 		}
@@ -414,11 +415,10 @@ namespace Vodovoz.Domain.Orders
 
 		private void RecalculateNDS()
 		{
-			if (Nomenclature == null || Sum < 0)
+			if(Nomenclature == null || Sum < 0)
 				return;
 
-			switch (Nomenclature.VAT)
-			{
+			switch(Nomenclature.VAT) {
 				case VAT.Vat18:
 					IncludeNDS = Math.Round(Sum - (Sum / 1.18m), 2);
 					break;

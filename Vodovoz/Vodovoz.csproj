@@ -762,7 +762,8 @@
     <Compile Include="ViewWidgets\DeliveryPriceView.cs" />
     <Compile Include="Dialogs\OrderDocumentsPrinter.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderDocumentsPrinter.cs" />
-  </ItemGroup>
+    <Compile Include="Representations\NomenclatureDependsFromVM.cs" />
+</ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
