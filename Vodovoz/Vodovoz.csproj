@@ -760,6 +760,8 @@
     <Compile Include="SidePanel\InfoViews\DeliveryPricePanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.DeliveryPricePanelView.cs" />
     <Compile Include="ViewWidgets\DeliveryPriceView.cs" />
+    <Compile Include="Dialogs\OrderDocumentsPrinter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderDocumentsPrinter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

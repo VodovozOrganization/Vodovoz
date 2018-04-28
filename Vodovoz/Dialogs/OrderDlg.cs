@@ -666,13 +666,10 @@ namespace Vodovoz
 			SaveChanges();
 			UoWGeneric.Save();
 
-			if(Entity.OrderDocuments.Count() > 0) {
-				string whatToPrint = "Распечатать " +
-					Entity.OrderDocuments.Count() + (Entity.OrderDocuments.Count() > 1
-						? " документов?"
-						: " документ?");
-				if(MessageDialogWorks.RunQuestionDialog(whatToPrint)) {
-					PrintDocuments(Entity.OrderDocuments);
+			if(Entity.OrderDocuments.Any()) {
+				if(MessageDialogWorks.RunQuestionDialog("Открыть документы для печати?")) {
+					var documentPrinterDlg = new OrderDocumentsPrinter(Entity.OrderDocuments);
+					TabParent.AddSlaveTab(this, documentPrinterDlg);
 				}
 			}
 
