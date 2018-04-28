@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -8269,7 +8269,6 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanOpenDocument">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">4</property>
@@ -8486,7 +8485,6 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget2">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanOpenDocument">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">3</property>
@@ -8811,7 +8809,6 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanOpenDocument">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">5</property>
@@ -12942,7 +12939,6 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanOpenDocument">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">4</property>
@@ -13320,7 +13316,6 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget3">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanOpenDocument">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">4</property>
@@ -14442,7 +14437,6 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanOpenDocument">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">5</property>
