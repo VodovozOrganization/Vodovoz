@@ -955,4 +955,13 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
+
+	protected void OnAction49Activated(object sender, EventArgs e)
+	{
+		var widget = new OrderStatisticByWeekReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
 }

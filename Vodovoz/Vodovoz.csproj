@@ -747,6 +747,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.EmployeesPremiums.cs" />
     <Compile Include="Dialogs\Employees\CarProxyDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.CarProxyDocumentDlg.cs" />
+    <Compile Include="ReportsParameters\OrderStatisticByWeekReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrderStatisticByWeekReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1183,6 +1185,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Employees\Premiums.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\OrderStatisticByWeek.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
