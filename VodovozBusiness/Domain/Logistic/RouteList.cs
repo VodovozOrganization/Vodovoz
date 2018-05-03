@@ -426,6 +426,15 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
+		public virtual bool FuelOperationHaveDiscrepancy()
+		{
+			var carDiff = FuelDocuments.Select(x => x.Operation).Any(x => x.Car != null && x.Car.Id != Car.Id)
+									   || (FuelOutlayedOperation.Car != null && FuelOutlayedOperation.Car.Id != Car.Id);
+			var driverDiff = FuelDocuments.Select(x => x.Operation).Any(x => x.Driver != null && x.Driver.Id != Driver.Id)
+			                              || (FuelOutlayedOperation.Driver != null && FuelOutlayedOperation.Driver.Id != Driver.Id);
+			return carDiff || driverDiff; 
+		}
+
 		public virtual RouteListItem AddAddressFromOrder(Order order)
 		{
 			if(order.DeliveryPoint == null)
@@ -1211,13 +1220,19 @@ namespace Vodovoz.Domain.Logistic
 			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6)) {
 				return;
 			}
-
+			decimal distance = 0m;
 			//Необходимо для того, чтобы расход топлива не пересчитывался после подтверждения логистами
 			if(Status == RouteListStatus.Closed && MileageCheck){
-				return;
+				distance = ConfirmedDistance;
+			}else {
+				distance = ActualDistance;
 			}
 
-			if(ActualDistance == 0) {
+			foreach(var item in FuelDocuments) {
+				item.UpdateDocument(UoW);
+			}
+
+			if(distance == 0) {
 				if(FuelOutlayedOperation != null) {
 					UoW.Delete(FuelOutlayedOperation);
 					FuelOutlayedOperation = null;
@@ -1226,8 +1241,7 @@ namespace Vodovoz.Domain.Logistic
 				if(FuelOutlayedOperation == null) {
 					FuelOutlayedOperation = new FuelOperation();
 				}
-				decimal litresOutlayed = (decimal)Car.FuelConsumption
-					/ 100 * ActualDistance;
+				decimal litresOutlayed = (decimal)Car.FuelConsumption / 100 * distance;
 
 				Car car = Car;
 				Employee driver = Driver;
@@ -1240,7 +1254,7 @@ namespace Vodovoz.Domain.Logistic
 				FuelOutlayedOperation.Driver = driver;
 				FuelOutlayedOperation.Car = car;
 				FuelOutlayedOperation.Fuel = Car.FuelType;
-				FuelOutlayedOperation.OperationTime = DateTime.Now;
+				FuelOutlayedOperation.OperationTime = Date;
 				FuelOutlayedOperation.LitersOutlayed = litresOutlayed;
 			}
 		}
