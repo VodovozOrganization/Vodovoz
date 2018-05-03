@@ -1835,32 +1835,40 @@ namespace Vodovoz.Domain.Orders
 		public virtual void UpdateDocuments()
 		{
 			List<OrderDocumentType> docTypes = new List<OrderDocumentType>();
-			if(ObservableOrderItems.Count > 0) {
+			if(ObservableOrderItems.Any()) {
 				if(OrderStatus >= OrderStatus.Accepted) {
-					if(paymentType == PaymentType.cashless) {
-						if(this.DocumentType == DefaultDocumentType.upd) {
-							docTypes = new List<OrderDocumentType>() {
-								OrderDocumentType.Bill,
-								OrderDocumentType.UPD,
-								OrderDocumentType.DriverTicket
-							};
-						} else if(this.DocumentType == DefaultDocumentType.torg12) {
-							docTypes = new List<OrderDocumentType>() {
-								OrderDocumentType.Bill,
-								OrderDocumentType.Torg12,
-								OrderDocumentType.ShetFactura,
-								OrderDocumentType.DriverTicket
-							};
-						}
-					} else if(paymentType == PaymentType.cash || PaymentType == PaymentType.ByCard || PaymentType == PaymentType.Internal) {
-						docTypes = new List<OrderDocumentType>() {
-							OrderDocumentType.Invoice
-						};
-					} else if(paymentType == PaymentType.barter) {
-						docTypes = new List<OrderDocumentType>() {
-							OrderDocumentType.InvoiceBarter
-						};
+					docTypes = new List<OrderDocumentType>();
+					switch(paymentType) {
+						case PaymentType.cashless:
+							switch(DocumentType) {
+								case DefaultDocumentType.upd:
+									docTypes.Add(OrderDocumentType.UPD);
+									break;
+								case DefaultDocumentType.torg12:
+									docTypes.Add(OrderDocumentType.Torg12);
+									docTypes.Add(OrderDocumentType.ShetFactura);
+									break;
+								default: break;
+							}
+							docTypes.Add(OrderDocumentType.Bill);
+							docTypes.Add(OrderDocumentType.DriverTicket);
+							break;
+						case PaymentType.cash:
+						case PaymentType.ByCard:
+						case PaymentType.Internal:
+							docTypes.Add(OrderDocumentType.Invoice);
+							break;
+						case PaymentType.barter:
+							docTypes.Add(OrderDocumentType.InvoiceBarter);
+							break;
+						default: break;
 					}
+
+					if(ObservableOrderEquipments.Any(eq => eq.OwnType == OwnTypes.Duty
+													 || (eq.OwnType == OwnTypes.Client && eq.Direction == Direction.PickUp))) {
+						docTypes.Add(OrderDocumentType.EquipmentTransfer);
+					}
+
 					AddDepositDocuments(docTypes);
 					AddEquipmentDocuments(docTypes);
 					CheckAndCreateDocuments(docTypes.ToArray());
@@ -1871,7 +1879,6 @@ namespace Vodovoz.Domain.Orders
 					AddDepositDocuments(docTypes);
 					AddEquipmentDocuments(docTypes);
 					CheckAndCreateDocuments(docTypes.ToArray());
-
 				} else {
 					AddEquipmentDocuments(docTypes);
 					CheckAndCreateDocuments();
