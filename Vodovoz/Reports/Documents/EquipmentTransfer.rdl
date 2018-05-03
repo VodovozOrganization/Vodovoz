@@ -70,7 +70,7 @@ WHERE orders.id = @order_id</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="equipments">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	nomenclature.official_name as nomenclature
@@ -78,7 +78,7 @@ FROM orders
 	LEFT JOIN order_equipment ON order_equipment.order_id = orders.id
 	LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id    
 WHERE 
-	orders.id = 183604
+	orders.id =  @order_id
     AND (
 		order_equipment.own_type = 'Duty'
         
@@ -98,7 +98,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <TypeName>System.String</TypeName>
@@ -450,7 +450,7 @@ WHERE
                         <BorderWidth />
                       </Style>
                       <Value>={nomenclature}</Value>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1451,14 +1451,19 @@ WHERE
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_orders;user=enzogord;password=qwerty;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_temp;user=enzogord;password=qwerty;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>183651</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
