@@ -128,7 +128,7 @@ namespace Vodovoz.JournalViewers
 				return;
 			}
 
-			OrderActivated?.Invoke(this, selectedItem.OrderId);
+			OrderActivated?.Invoke(this, selectedItem.DocumentId);
 		}
 	}
 

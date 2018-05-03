@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QSOrmProject;
+using QSReport;
 using QSTDI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -100,10 +101,11 @@ namespace Vodovoz.Dialogs
 
 		void Orderselectedview1_OrderActivated(object sender, int e)
 		{
-			var dlg = new OrderDlg(UoW.GetById<Domain.Orders.Order>(e));
-			dlg.Show();
-
-			TabParent.AddTab(dlg, this);
+			var doc = UoW.GetById<OrderDocument>(e);
+			if(doc == null) {
+				return;
+			}
+			TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc), this, false);
 		}
 
 		private void OpenOrder()
