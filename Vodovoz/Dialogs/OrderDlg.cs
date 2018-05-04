@@ -1196,6 +1196,10 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
 
+			if(Contract == null) {
+				Entity.CreateDefaultContract();
+			}
+
 			foreach(OrderItem item in UoWGeneric.Root.ObservableOrderItems) {
 				if(item.Nomenclature.Category == NomenclatureCategory.equipment && item.Nomenclature.IsSerial) {
 					int[] alreadyAdded = UoWGeneric.Root.OrderEquipments

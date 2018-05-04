@@ -646,10 +646,6 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("Не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName(o => o.SignatureType) });
 
-					if(Contract == null)
-						yield return new ValidationResult("Не указан договор.",
-							new[] { this.GetPropertyName(o => o.Contract) });
-
 					if(bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water))
 						yield return new ValidationResult("Не указано бутылей на возврат.",
 							new[] { this.GetPropertyName(o => o.Contract) });
@@ -933,6 +929,12 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Функции
+
+		public virtual void CreateDefaultContract()
+		{
+			Contract = FindOrCreateContract(Client);
+			OnChangeContract(false);
+		}
 
 		public virtual void RecalculateItemsPrice()
 		{
