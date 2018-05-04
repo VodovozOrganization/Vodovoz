@@ -1,19 +1,19 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
-  <Width>7.5in</Width>
-  <TopMargin>.25in</TopMargin>
-  <LeftMargin>.25in</LeftMargin>
-  <RightMargin>.25in</RightMargin>
-  <BottomMargin>.25in</BottomMargin>
+  <PageHeight>296.926mm</PageHeight>
+  <PageWidth>209.804mm</PageWidth>
+  <Width>190mm</Width>
+  <TopMargin>10mm</TopMargin>
+  <LeftMargin>10mm</LeftMargin>
+  <RightMargin>10mm</RightMargin>
+  <BottomMargin>10mm</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>select
@@ -301,7 +301,7 @@ order by docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="doc_id">
           <DataField>doc_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -557,7 +557,7 @@ WHERE
       <Textbox Name="Textbox1">
         <Top>7.23pt</Top>
         <Left>7.23pt</Left>
-        <Width>566.12pt</Width>
+        <Width>531.62pt</Width>
         <Height>18.82pt</Height>
         <Value>Акт приема передачи полной и пустой тары, оборудования</Value>
         <Style>
@@ -587,37 +587,37 @@ WHERE
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>13.9pt</Width>
+            <Width>17.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.8pt</Width>
+            <Width>55.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>96.3pt</Width>
+            <Width>85.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.1pt</Width>
+            <Width>40.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.0pt</Width>
+            <Width>38.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>34.9pt</Width>
+            <Width>29.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.6pt</Width>
+            <Width>34.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>58.1pt</Width>
+            <Width>57.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>53.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.0pt</Width>
+            <Width>78.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.5pt</Width>
+            <Width>46.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -637,6 +637,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -653,6 +655,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -669,6 +673,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -685,6 +691,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -701,6 +709,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -717,6 +727,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -733,6 +745,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -749,6 +763,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -765,6 +781,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -781,6 +799,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -797,6 +817,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -826,6 +848,8 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -849,6 +873,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
+                            <FontFamily >Arial</FontFamily>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -862,6 +887,8 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -878,6 +905,8 @@ WHERE
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Right</TextAlign>
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -897,6 +926,8 @@ WHERE
                             <BorderColor />
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -915,6 +946,8 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -933,6 +966,8 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -950,6 +985,8 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -968,6 +1005,8 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -983,6 +1022,8 @@ WHERE
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1001,6 +1042,8 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1019,6 +1062,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
+                            <FontFamily >Arial</FontFamily>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1032,6 +1076,8 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1048,6 +1094,8 @@ WHERE
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Right</TextAlign>
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1066,6 +1114,8 @@ WHERE
                             <BorderColor />
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1084,6 +1134,8 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1102,6 +1154,8 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1120,6 +1174,8 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1138,6 +1194,8 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1153,6 +1211,8 @@ WHERE
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1171,6 +1231,8 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1205,6 +1267,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily >Arial</FontFamily>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1222,6 +1285,8 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <Format>d</Format>
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1238,6 +1303,8 @@ WHERE
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1254,6 +1321,8 @@ WHERE
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1271,6 +1340,8 @@ WHERE
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1285,6 +1356,8 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1301,6 +1374,8 @@ WHERE
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1317,6 +1392,8 @@ WHERE
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1334,6 +1411,8 @@ WHERE
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1350,6 +1429,8 @@ WHERE
                         <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1368,6 +1449,8 @@ WHERE
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1390,6 +1473,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontFamily >Arial</FontFamily>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1403,6 +1487,8 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1419,6 +1505,8 @@ WHERE
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1438,6 +1526,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1456,6 +1546,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1474,6 +1566,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1491,6 +1585,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1509,6 +1605,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1524,6 +1622,8 @@ WHERE
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1542,6 +1642,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1556,7 +1658,7 @@ WHERE
       <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Top>0.80pt</Top>
         <Left>4.00pt</Left>
-        <Width>566.12pt</Width>
+        <Width>533.12pt</Width>
         <Height>18.82pt</Height>
         <Value>= "по контрагенту " + First({full_name}, "Client") + Iif(First({inn}, "Client") != null  and First({inn}, "Client") != "" ,  " (ИНН: " +  First({inn}, "Client")+")" , "") </Value>
         <Style>
@@ -1615,11 +1717,11 @@ ____________(                        )
       </Textbox>
       <Textbox Name="Textbox30">
         <Height>24.01pt</Height>
-        <Width>257.45pt</Width>
+        <Width>228.20pt</Width>
         <Value>=First({full_name}, "Client")</Value>
         <ZIndex>1</ZIndex>
-        <Left>309.1pt</Left>
-        <Top>207.8pt</Top>
+        <Left>309.10pt</Left>
+        <Top>207.80pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1632,8 +1734,8 @@ ____________(                        )
         <Width>210.73pt</Width>
         <Value>Забрать бутылей:</Value>
         <ZIndex>1</ZIndex>
-        <Left>12.0pt</Left>
-        <Top>148.7pt</Top>
+        <Left>12.00pt</Left>
+        <Top>148.70pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1735,7 +1837,7 @@ ____________(                        )
       </Textbox>
       <List Name="List1">
         <Height>15.10pt</Height>
-        <Width>351.50pt</Width>
+        <Width>309.50pt</Width>
         <Left>225.10pt</Left>
         <Top>135.60pt</Top>
         <ReportItems>
@@ -1839,12 +1941,6 @@ ____________(                        )
     </ReportParameter>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>
-          </Value>
-        </Values>
-      </DefaultValue>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1853,12 +1949,6 @@ ____________(                        )
     </ReportParameter>
     <ReportParameter Name="endDate">
       <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>
-          </Value>
-        </Values>
-      </DefaultValue>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
