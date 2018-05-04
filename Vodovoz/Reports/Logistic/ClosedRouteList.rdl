@@ -1610,11 +1610,11 @@ LEFT JOIN
     FROM route_list_addresses) as TransferedAddresses
 ON TransferedAddresses.id = route_list_addresses.transfered_to_id
 
-LEFT JOIN ( 
+/*LEFT JOIN ( 
 SELECT order_id, (count * deposit_sum * IF(payment_type = 'ToClient', -1, 1)) AS deposit 
 FROM order_deposit_items 
 WHERE order_deposit_items.deposit_type = 'Bottles'
-) AS deposit_qry ON deposit_qry.order_id = orders.id
+) AS deposit_qry ON deposit_qry.order_id = orders.id*/
 
 LEFT JOIN (
 #SELECT order_equipment.order_id as order_id, nomenclature.id AS nomenclature_id, nomenclature.name as name, COUNT(nomenclature.id) AS cnt FROM order_equipment 
@@ -1647,7 +1647,7 @@ FROM order_items
 LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
 LEFT JOIN nomenclature_route_column ON nomenclature_route_column.id = nomenclature.route_column_id
 WHERE nomenclature.route_column_id IS NOT NULL
-GROUP BY order_id) AS wt_qry ON wt_qry.order_id = orders.id
+) AS wt_qry ON wt_qry.order_id = orders.id
 
 WHERE route_list_addresses.route_list_id = @route_list_id
 GROUP BY orders.id
