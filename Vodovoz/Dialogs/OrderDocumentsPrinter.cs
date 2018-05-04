@@ -7,6 +7,7 @@ using Gtk;
 using QSOrmProject;
 using QSReport;
 using QSTDI;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Dialogs
@@ -14,17 +15,19 @@ namespace Vodovoz.Dialogs
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderDocumentsPrinter : TdiTabBase
 	{
+		Order currentOrder;
 		MultipleDocumentPrinter multipleDocumentPrinter = new MultipleDocumentPrinter();
 		List<SelectablePrintDocument> printDocuments = new List<SelectablePrintDocument>();
 
-		public OrderDocumentsPrinter(IList<OrderDocument> orderDocuments)
+		public OrderDocumentsPrinter(Order order)
 		{
 			this.Build();
 
 			TabName = "Печать документов заказа";
 
-			foreach(var item in orderDocuments) {
-				printDocuments.Add(new SelectablePrintDocument(item, DefaultCopies(item.Type)));
+			currentOrder = order;
+			foreach(var item in currentOrder.OrderDocuments) {
+				printDocuments.Add(new SelectablePrintDocument(item, DefaultCopies(item.Type)) { Selected = true });
 			}
 
 			Configure();
@@ -54,6 +57,22 @@ namespace Vodovoz.Dialogs
 				.Finish();
 			
 			ytreeviewDocuments.ItemsDataSource = multipleDocumentPrinter.PrintableDocuments;
+
+			DefaultPreviewDocument();
+		}
+
+		protected void DefaultPreviewDocument()
+		{
+			var documents = printDocuments.Where(x => x.Document is OrderDocument)
+			                              .Where(x => (x.Document as OrderDocument).Order.Id == currentOrder.Id);
+			
+			var driverTicket = documents.Where(x => x.Document is DriverTicketDocument).FirstOrDefault();
+			var invoiceDocument = documents.Where(x => x.Document is InvoiceDocument).FirstOrDefault();
+			if(driverTicket != null && currentOrder.PaymentType == Domain.Client.PaymentType.cashless) {
+				PreviewDocument(driverTicket);
+			}else if(invoiceDocument != null){
+				PreviewDocument(invoiceDocument);
+			}
 		}
 
 		void PreviewDocument(SelectablePrintDocument selectedDocument)

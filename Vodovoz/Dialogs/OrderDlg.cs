@@ -668,7 +668,7 @@ namespace Vodovoz
 
 			if(Entity.OrderDocuments.Any()) {
 				if(MessageDialogWorks.RunQuestionDialog("Открыть документы для печати?")) {
-					var documentPrinterDlg = new OrderDocumentsPrinter(Entity.OrderDocuments);
+					var documentPrinterDlg = new OrderDocumentsPrinter(Entity);
 					TabParent.AddSlaveTab(this, documentPrinterDlg);
 				}
 			}
