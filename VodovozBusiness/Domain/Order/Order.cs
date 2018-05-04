@@ -1507,8 +1507,8 @@ namespace Vodovoz.Domain.Orders
 							item => item.AdditionalAgreement?.Id == a.Id &&
 						item.Nomenclature.Id == (IsDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily.Id : paidRentEquipment.PaidRentPackage.RentServiceMonthly.Id)
 							)) != null) {
-						orderItem.Count = paidRentEquipment.Count;
-						orderItem.Price = orderItem.Nomenclature.GetPrice(orderItem.Count);
+						orderItem.Count = paidRentEquipment.Count * RentCount;
+						orderItem.Price = paidRentEquipment.Price;
 						ItemId = ObservableOrderItems.IndexOf(orderItem);
 					} else {
 						Nomenclature nomenclature = IsDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily : paidRentEquipment.PaidRentPackage.RentServiceMonthly;
