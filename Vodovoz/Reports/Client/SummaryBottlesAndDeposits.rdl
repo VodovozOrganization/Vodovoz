@@ -1645,7 +1645,7 @@ ____________(                        )
       <Textbox Name="Textbox20">
         <Height>12.75pt</Height>
         <Width>118.90pt</Width>
-        <Value>=First({bottle_balance}, 'Bottles')</Value>
+        <Value>=Sum(Fields!delivered.Value, 'Data') - Sum(Fields!returned.Value, 'Data') - Sum(Fields!forfeitCount.Value, 'Data')</Value>
         <ZIndex>1</ZIndex>
         <Left>222.5pt</Left>
         <Top>149.0pt</Top>
