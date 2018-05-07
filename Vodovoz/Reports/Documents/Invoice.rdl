@@ -465,6 +465,50 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="deposits">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>30</Timeout>
+        <CommandText>SELECT
+	IF(nomenclature.official_name is NULL,'Бутыли',nomenclature.official_name) as name,
+	order_deposit_items.deposit_sum as deposit,
+	SUM(order_deposit_items.count) as count,
+	SUM(order_deposit_items.deposit_sum * order_deposit_items.count) as sum
+FROM 
+	orders
+	LEFT JOIN
+	order_deposit_items ON order_deposit_items.order_id = orders.id
+	LEFT JOIN
+	nomenclature ON order_deposit_items.equip_nomenclature_id = nomenclature.id
+WHERE
+	orders.id = @order_id
+	AND order_deposit_items.payment_type = 'ToClient'
+GROUP BY name</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="deposit">
+          <DataField>deposit</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="sum">
+          <DataField>sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -967,10 +1011,10 @@ WHERE
         </Visibility>
       </Table>
       <List Name="List2">
-        <Height>384.35pt</Height>
-        <Width>545.11pt</Width>
-        <Left>36.60pt</Left>
-        <Top>274.90pt</Top>
+        <Height>355.85pt</Height>
+        <Width>540.61pt</Width>
+        <Left>36.6pt</Left>
+        <Top>302.9pt</Top>
         <ReportItems>
           <Textbox Name="Textbox32">
             <Height>12.00pt</Height>
@@ -978,7 +1022,7 @@ WHERE
             <Value>Отпуск разрешил:__________________/Сосновцев С.С./</Value>
             <ZIndex>1</ZIndex>
             <Left>86.0pt</Left>
-            <Top>63.2pt</Top>
+            <Top>38.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -992,7 +1036,7 @@ WHERE
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
             <Left>0.2pt</Left>
-            <Top>63.2pt</Top>
+            <Top>38.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1006,7 +1050,7 @@ WHERE
             <Value>Время доставки</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>92.0pt</Top>
+            <Top>67.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1020,7 +1064,7 @@ WHERE
             <Value>Товар получен в полном объеме. К продавцу претензий не имею.     /                                      /</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>115.3pt</Top>
+            <Top>90.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1034,7 +1078,7 @@ WHERE
             <Value>*</Value>
             <ZIndex>1</ZIndex>
             <Left>143.8pt</Left>
-            <Top>92.0pt</Top>
+            <Top>67.2pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -1051,7 +1095,7 @@ WHERE
             <Value>Покупатель сдал</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>146.6pt</Top>
+            <Top>121.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1065,7 +1109,7 @@ WHERE
             <Value>*             (                                    ) бутылей            /                                       /</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
-            <Top>147.3pt</Top>
+            <Top>122.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1079,7 +1123,7 @@ WHERE
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
-            <Top>160.6pt</Top>
+            <Top>135.8pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1099,7 +1143,7 @@ WHERE
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>338.7pt</Left>
-            <Top>128.5pt</Top>
+            <Top>103.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1118,7 +1162,7 @@ WHERE
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>338.4pt</Left>
-            <Top>160.7pt</Top>
+            <Top>135.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1137,7 +1181,7 @@ WHERE
             <Value>='Предполагаемое количеcтво возвратной тары: ' + {bottles_return} + ' бутылей'</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>179.6pt</Top>
+            <Top>154.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1158,7 +1202,7 @@ WHERE
               </BorderWidth>
             </Style>
             <Left>0.0pt</Left>
-            <Top>221.9pt</Top>
+            <Top>197.1pt</Top>
           </Line>
           <Textbox Name="Textbox43">
             <Height>13.50pt</Height>
@@ -1166,7 +1210,7 @@ WHERE
             <Value>Залог за пустую тару</Value>
             <ZIndex>1</ZIndex>
             <Left>16.2pt</Left>
-            <Top>206.7pt</Top>
+            <Top>181.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1181,7 +1225,7 @@ WHERE
             <Value>             (                                    ) бутылей в размере                                   рублей</Value>
             <ZIndex>1</ZIndex>
             <Left>119.3pt</Left>
-            <Top>242.9pt</Top>
+            <Top>218.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1195,7 +1239,7 @@ WHERE
             <Value>Покупатель внес залог за</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>242.7pt</Top>
+            <Top>217.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1209,7 +1253,7 @@ WHERE
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
             <Left>130.0pt</Left>
-            <Top>257.5pt</Top>
+            <Top>232.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1229,7 +1273,7 @@ WHERE
             <Value>(сумма)</Value>
             <ZIndex>1</ZIndex>
             <Left>370.8pt</Left>
-            <Top>256.9pt</Top>
+            <Top>232.1pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1249,7 +1293,7 @@ WHERE
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>370.6pt</Left>
-            <Top>301.0pt</Top>
+            <Top>276.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1268,7 +1312,7 @@ WHERE
             <Value>/                                       /</Value>
             <ZIndex>1</ZIndex>
             <Left>371.5pt</Left>
-            <Top>287.8pt</Top>
+            <Top>263.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1282,7 +1326,7 @@ WHERE
             <Value>Экспедитор принял:                                        /                                        /</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>324.5pt</Top>
+            <Top>299.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1296,7 +1340,7 @@ WHERE
             <Value>(подпись)                   (расшифровка)</Value>
             <ZIndex>1</ZIndex>
             <Left>101.9pt</Left>
-            <Top>335.8pt</Top>
+            <Top>311.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1314,7 +1358,7 @@ WHERE
             <Value>* Поля обязательные к заполнению</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>348.8pt</Top>
+            <Top>324.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1327,8 +1371,8 @@ WHERE
             <Width>145.77pt</Width>
             <Value>='Всего: ' + {total}</Value>
             <ZIndex>1</ZIndex>
-            <Left>354.30pt</Left>
-            <Top>26.40pt</Top>
+            <Left>354.3pt</Left>
+            <Top>1.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1341,7 +1385,7 @@ WHERE
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
             <Left>348.6pt</Left>
-            <Top>116.2pt</Top>
+            <Top>91.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1355,7 +1399,7 @@ WHERE
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
             <Left>348.7pt</Left>
-            <Top>148.2pt</Top>
+            <Top>123.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1371,7 +1415,7 @@ WHERE
             <Value>=Code.SummaString_Val(Convert.ToString({total}))</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>26.4pt</Top>
+            <Top>1.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1379,26 +1423,13 @@ WHERE
               <FontWeight>Bold</FontWeight>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox11">
-            <Height>12.00pt</Height>
-            <Width>360.27pt</Width>
-            <Value>='Предварительно согласованная корректировка суммы: ' + ({total} - Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'))</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>2.7pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-          </Textbox>
           <Textbox Name="Textbox30">
             <Height>15.78pt</Height>
             <Width>536.74pt</Width>
             <Value>=Iif(Fields!order_online_number.IsMissing, '', 'Заказ #' + {order_online_number}+' - онлайн оплата. ') + {order_comment}</Value>
             <ZIndex>1</ZIndex>
-            <Left>1.50pt</Left>
-            <Top>365.70pt</Top>
+            <Left>1.5pt</Left>
+            <Top>340.9pt</Top>
             <CanGrow>true</CanGrow>
             <Style>
               <BorderStyle />
@@ -1559,7 +1590,7 @@ WHERE
           </TableRows>
         </Details>
         <Left>30.0pt</Left>
-        <Top>220.5pt</Top>
+        <Top>211.7pt</Top>
       </Table>
       <Textbox Name="Textbox60" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15pt</Height>
@@ -2080,6 +2111,329 @@ WHERE
           <Hidden>=Iif(First({ord_cnt}, "Orders_count")&lt;=0, 'false', 'true')</Hidden>
         </Visibility>
       </Table>
+      <Table Name="Table5">
+        <DataSetName>deposits</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>25.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>321.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>59.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>45.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>13.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox93">
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Товар</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox82">
+                      <Value>Залог</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox83">
+                      <Value>Кол-во</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox84">
+                      <Value>Сумма</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox94">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox85">
+                      <Value>=Fields!name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox86">
+                      <Value>=Fields!deposit.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox87">
+                      <Value>=Fields!count.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox88">
+                      <Value>=Fields!sum.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox95">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox89">
+                      <Value>
+                      </Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox90">
+                      <Value>Итого,</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox91">
+                      <Value>руб.:</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox92">
+                      <Value>=Sum(Fields!sum.Value)</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+        <Left>32.0pt</Left>
+        <Top>254.4pt</Top>
+        <Visibility >
+          <Hidden>=Iif(Count({deposit}, "deposits")&gt;0, 'false', 'true')</Hidden>
+        </Visibility>
+      </Table>
+      <Textbox Name="Textbox96">
+        <Height>14.27pt</Height>
+        <Width>519.49pt</Width>
+        <Value>Возврат залогов:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>37.20pt</Left>
+        <Top>240.20pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+        </Style>
+        <Visibility>
+          <Hidden>=Iif(Count({deposit}, "deposits")&gt;0, 'false', 'true')</Hidden>
+        </Visibility>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2506,12 +2860,12 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>183649</Value>
+          <Value>183594</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>

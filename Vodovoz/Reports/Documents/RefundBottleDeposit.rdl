@@ -180,13 +180,14 @@
         <Top>11.20pt</Top>
         <ReportItems>
           <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>37.62pt</Height>
-            <Width>247.71pt</Width>
-            <Value>="Акт возврата залога за бутыли 
+            <Height>61.68pt</Height>
+            <Width>525.45pt</Width>
+            <Value>="АКТ
+возврата залога за бутыли №"+{?order_id}+" 
 по договору №" + {contract}</Value>
             <ZIndex>1</ZIndex>
-            <Left>155.2pt</Left>
-            <Top>53.1pt</Top>
+            <Left>0.0pt</Left>
+            <Top>33.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -371,6 +372,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -418,23 +421,44 @@
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >Solid</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign >Right</TextAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>
+                        </Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>
-                      </Value>
+                      <Value>Итого:</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >Solid</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign >Right</TextAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>
+                        </Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -445,9 +469,19 @@
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >Solid</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>
+                        </Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -458,9 +492,19 @@
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >Solid</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>
+                        </Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>

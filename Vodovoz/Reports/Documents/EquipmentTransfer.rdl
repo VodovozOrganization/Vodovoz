@@ -22,7 +22,8 @@
 	counterparty.jur_address AS client_address, 
 	counterparty.inn, counterparty.kpp,
 	GROUP_CONCAT(CONCAT('+7 ', phones.digits_number), ', ') AS phone,
-	delivery_points.compiled_address as delivery_address
+	delivery_points.compiled_address as delivery_address,
+	orders.counterparty_contract_id as contract
 FROM orders 
 	LEFT JOIN counterparty ON orders.client_id = counterparty.id
 	LEFT JOIN delivery_points on delivery_points.id = orders.delivery_point_id
@@ -39,6 +40,10 @@ WHERE orders.id = @order_id</CommandText>
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
+        <Field Name="order_date">
+          <DataField>order_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
         <Field Name="client_name">
           <DataField>client_name</DataField>
           <TypeName>System.String</TypeName>
@@ -47,25 +52,25 @@ WHERE orders.id = @order_id</CommandText>
           <DataField>client_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="order_date">
-          <DataField>order_date</DataField>
+        <Field Name="inn">
+          <DataField>inn</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="kpp">
+          <DataField>kpp</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="phone">
           <DataField>phone</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="INN">
-          <DataField>inn</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="KPP">
-          <DataField>kpp</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="delivery_address">
           <DataField>delivery_address</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contract">
+          <DataField>contract</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -116,19 +121,20 @@ WHERE
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Height>29.61pt</Height>
+        <Height>45pt</Height>
         <Width>511.51pt</Width>
-        <Value>АКТ
-приема-передачи оборудования</Value>
+        <Value>="АКТ
+приема-передачи оборудования №"+{?order_id}+" 
+по договору №" + Max({contract}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>51.20pt</Top>
+        <Left>0.0pt</Left>
+        <Top>43.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
-          <FontSize>14pt</FontSize>
+          <FontSize>12pt</FontSize>
           <TextAlign>Center</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
         </Style>
@@ -146,7 +152,7 @@ WHERE
           <BorderWidth />
           <TextAlign>Justified</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox38">
@@ -164,7 +170,7 @@ WHERE
           <FontWeight>Bold</FontWeight>
           <TextAlign>Center</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
       <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -185,14 +191,18 @@ WHERE
       <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>20.25pt</Height>
         <Width>152.63pt</Width>
-        <Value>=Max({order_date}, "Order")</Value>
+        <Value>="г.Санкт-Петербург
+"+Max({order_date}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>357.2pt</Left>
         <Top>83.9pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
           <TextAlign>Right</TextAlign>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -200,18 +210,18 @@ WHERE
         <Width>289.00pt</Width>
         <Value>=Max({phone}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>138.7pt</Left>
+        <Left>162.7pt</Left>
         <Top>157.1pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <TextAlign>Left</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.25pt</Height>
-        <Width>127.77pt</Width>
+        <Width>140pt</Width>
         <Value>Контактный телефон</Value>
         <ZIndex>1</ZIndex>
         <Left>7.8pt</Left>
@@ -221,14 +231,14 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
           <FontWeight>Bold</FontWeight>
         </Style>
         <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.25pt</Height>
-        <Width>72.27pt</Width>
+        <Width>140pt</Width>
         <Value>Адрес</Value>
         <ZIndex>1</ZIndex>
         <Left>7.8pt</Left>
@@ -238,13 +248,14 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
           <FontWeight>Bold</FontWeight>
         </Style>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.25pt</Height>
-        <Width>73.02pt</Width>
+        <Width>140pt</Width>
         <Value>Клиент</Value>
         <ZIndex>1</ZIndex>
         <Left>7.8pt</Left>
@@ -254,40 +265,8 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
           <FontWeight>Bold</FontWeight>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14.25pt</Height>
-        <Width>77.52pt</Width>
-        <Value>По договору</Value>
-        <ZIndex>1</ZIndex>
-        <Left>7.8pt</Left>
-        <Top>112.1pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14.25pt</Height>
-        <Width>289.00pt</Width>
-        <Value>=Max({order_id}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>138.7pt</Left>
-        <Top>112.1pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Left</TextAlign>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
         </Style>
         <CanGrow>true</CanGrow>
       </Textbox>
@@ -296,8 +275,8 @@ WHERE
         <Width>289.00pt</Width>
         <Value>=Max({client_name}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>138.70pt</Left>
-        <Top>127.10pt</Top>
+        <Left>162.7pt</Left>
+        <Top>127.1pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <BorderStyle />
@@ -305,7 +284,7 @@ WHERE
           <BorderWidth />
           <TextAlign>Left</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -313,13 +292,13 @@ WHERE
         <Width>289.00pt</Width>
         <Value>=Max({delivery_address}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>138.7pt</Left>
+        <Left>162.7pt</Left>
         <Top>142.1pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <TextAlign>Left</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
@@ -337,7 +316,7 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
           <TextDecoration>None</TextDecoration>
           <TextAlign>Center</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
@@ -380,7 +359,7 @@ WHERE
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <FontFamily>Times New Roman</FontFamily>
-                        <FontSize>12pt</FontSize>
+                        <FontSize>10pt</FontSize>
                         <PaddingTop>0pt</PaddingTop>
                       </Style>
                       <Visibility>
@@ -399,7 +378,7 @@ WHERE
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <FontFamily>Times New Roman</FontFamily>
-                        <FontSize>12pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -416,7 +395,7 @@ WHERE
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <FontFamily>Times New Roman</FontFamily>
-                        <FontSize>12pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -448,6 +427,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>10pt</FontSize>
                       </Style>
                       <Value>={nomenclature}</Value>
                       <CanGrow>true</CanGrow>
@@ -461,6 +441,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                       <Value>
                       </Value>
@@ -476,6 +457,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>10pt</FontSize>
                       </Style>
                       <Value>
                       </Value>
@@ -490,15 +472,17 @@ WHERE
       </Table>
       <Textbox Name="Textbox23">
         <Height>14.25pt</Height>
-        <Width>127.77pt</Width>
+        <Width>140pt</Width>
         <Value>Итого сдано в ремонт</Value>
         <ZIndex>1</ZIndex>
         <Left>0.70pt</Left>
         <Top>212.70pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
+        <CanGrow>true</CanGrow>
+        <CanShrink>true</CanShrink>
       </Textbox>
       <Textbox Name="Textbox41">
         <Height>14.25pt</Height>
@@ -506,11 +490,11 @@ WHERE
         <Value>
         </Value>
         <ZIndex>1</ZIndex>
-        <Left>119.90pt</Left>
-        <Top>212.80pt</Top>
+        <Left>131.9pt</Left>
+        <Top>212.8pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
           <BorderStyle>
             <Bottom>Solid</Bottom>
           </BorderStyle>
@@ -523,24 +507,25 @@ WHERE
         <Width>46.02pt</Width>
         <Value>единиц</Value>
         <ZIndex>1</ZIndex>
-        <Left>224.0pt</Left>
+        <Left>236.0pt</Left>
         <Top>213.1pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox43">
         <Height>14.25pt</Height>
-        <Width>387.77pt</Width>
+        <Width>450pt</Width>
         <Value>Клиент принял временный кулер (нужное подчеркнуть)      Да,      Нет</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
         <Top>232.3pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox44" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.31pt</Height>
@@ -554,7 +539,7 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
           <TextDecoration>None</TextDecoration>
           <TextAlign>Center</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
@@ -572,7 +557,7 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
           <TextDecoration>None</TextDecoration>
           <TextAlign>Center</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
@@ -612,7 +597,10 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <FontFamily>Times New Roman</FontFamily>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -626,7 +614,10 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <FontFamily>Times New Roman</FontFamily>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -640,7 +631,10 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <FontFamily>Times New Roman</FontFamily>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -663,6 +657,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -676,6 +671,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -689,6 +685,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -707,6 +704,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -722,6 +720,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -735,6 +734,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -759,6 +759,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -770,6 +771,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                       <Value>
                       </Value>
@@ -783,6 +785,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                       <Value>
                       </Value>
@@ -803,6 +806,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -816,6 +820,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -829,6 +834,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -847,6 +853,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -860,6 +867,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -873,6 +881,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -891,6 +900,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -904,6 +914,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -917,6 +928,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -938,7 +950,7 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -953,13 +965,13 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
         <Width>126.27pt</Width>
-        <Value>/                                     /</Value>
+        <Value>/                                      /</Value>
         <ZIndex>1</ZIndex>
         <Left>345.5pt</Left>
         <Top>540.2pt</Top>
@@ -970,7 +982,7 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -986,13 +998,13 @@ WHERE
           <BorderWidth />
           <TextAlign>Center</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
         <Width>126.27pt</Width>
-        <Value>/                                     /</Value>
+        <Value>/                                      /</Value>
         <ZIndex>1</ZIndex>
         <Left>345.5pt</Left>
         <Top>584.2pt</Top>
@@ -1003,7 +1015,7 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1019,7 +1031,7 @@ WHERE
           <BorderWidth />
           <TextAlign>Center</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
     </ReportItems>
@@ -1461,7 +1473,7 @@ WHERE
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>183651</Value>
+          <Value>183652</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>

@@ -216,13 +216,14 @@
         <Top>12.00pt</Top>
         <ReportItems>
           <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>37.62pt</Height>
-            <Width>247.71pt</Width>
-            <Value>="Акт передачи - возврата бутылей 
+            <Height>57.88pt</Height>
+            <Width>524.68pt</Width>
+            <Value>="АКТ
+передачи-возврата бутылей №"+{?order_id}+" 
 по договору №" + {contract}</Value>
             <ZIndex>1</ZIndex>
-            <Left>155.2pt</Left>
-            <Top>53.1pt</Top>
+            <Left>0.91pt</Left>
+            <Top>32.85pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -265,23 +266,6 @@
               <FontFamily>Times New Roman</FontFamily>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.84pt</Height>
-            <Width>525.62pt</Width>
-            <Value>Клиент вернул, а Фирма приняла бутыли многоразового использования емкостью 19 литров в количестве:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>260.5pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontFamily>Times New Roman</FontFamily>
-              <FontSize>10pt</FontSize>
-              <TextAlign>Justified</TextAlign>
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
           <Textbox Name="Textbox4">
             <Height>85.56pt</Height>
             <Width>526.25pt</Width>
@@ -293,8 +277,8 @@
 3. Отсутствие трещин и деформаций
 4. Отсутствие загрязнений</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>279.50pt</Top>
+            <Left>0.0pt</Left>
+            <Top>291.5pt</Top>
             <CanGrow>true</CanGrow>
             <Style>
               <FontSize>10pt</FontSize>
@@ -304,7 +288,7 @@
           <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>33.10pt</Height>
             <Width>525.51pt</Width>
-            <Value>           Общество   с   ограниченной    ответственностью  "Веселый водовоз"   (ИНН 7816453294),  именуемое  в дальнейшем  Фирма,   в  лице  Генерального директора Сосновцева С.С.,  действующего на основании Устава, с одной стороны, и</Value>
+            <Value>="           Общество   с   ограниченной    ответственностью  \"Веселый водовоз\"   (ИНН 7816453294),  именуемое  в дальнейшем  Фирма,   в  лице  Генерального директора Сосновцева С.С.,  действующего на основании Устава, с одной стороны, и "+{client}</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
             <Top>126.9pt</Top>
@@ -312,37 +296,22 @@
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontFamily>Times New Roman</FontFamily>
+              <FontFamily>Arial</FontFamily>
               <TextAlign>Justified</TextAlign>
-              <FontSize>10pt</FontSize>
+              <FontSize>9pt</FontSize>
               <TextDecoration>None</TextDecoration>
             </Style>
-          </Textbox>
-          <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>33.10pt</Height>
-            <Width>525.51pt</Width>
-            <Value>="                             "+{client}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>149.7pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontFamily>Times New Roman</FontFamily>
-              <TextAlign>Left</TextAlign>
-              <FontSize>10pt</FontSize>
-              <TextDecoration>None</TextDecoration>
-            </Style>
+            <CanGrow>true</CanGrow>
+            <CanShrink>true</CanShrink>
           </Textbox>
           <Textbox Name="Textbox20" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.10pt</Height>
-            <Width>449.01pt</Width>
+            <Width>524.01pt</Width>
             <Value>
             </Value>
             <ZIndex>1</ZIndex>
-            <Left>75.10pt</Left>
-            <Top>147.70pt</Top>
+            <Left>0.0pt</Left>
+            <Top>147.7pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -398,7 +367,7 @@
           <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>16.60pt</Height>
             <Width>524.76pt</Width>
-            <Value>именуемое в дальнейшем Клиент, в лице</Value>
+            <Value>="именуемое в дальнейшем Клиент, в лице"+{clientPost}+", "+{clientFIO}</Value>
             <ZIndex>1</ZIndex>
             <Left>0.00pt</Left>
             <Top>190.80pt</Top>
@@ -428,12 +397,12 @@
           </Textbox>
           <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.35pt</Height>
-            <Width>343.26pt</Width>
+            <Width>303.26pt</Width>
             <Value>
             </Value>
             <ZIndex>1</ZIndex>
-            <Left>180.70pt</Left>
-            <Top>189.20pt</Top>
+            <Left>220.7pt</Left>
+            <Top>189.2pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -466,23 +435,6 @@
               <TextDecoration>Underline</TextDecoration>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>22.60pt</Height>
-            <Width>524.01pt</Width>
-            <Value>="                                                                          "+{clientPost}+","+{clientFIO}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>191.50pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontFamily>Times New Roman</FontFamily>
-              <TextAlign>Left</TextAlign>
-              <FontSize>10pt</FontSize>
-              <TextDecoration>None</TextDecoration>
-            </Style>
-          </Textbox>
           <Textbox Name="Textbox28" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.76pt</Height>
             <Width>524.33pt</Width>
@@ -500,7 +452,7 @@
           <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>16.60pt</Height>
             <Width>524.01pt</Width>
-            <Value>действующего на основании </Value>
+            <Value>="действующего на основании "+{clientBaseOf}</Value>
             <ZIndex>1</ZIndex>
             <Left>0.00pt</Left>
             <Top>222.70pt</Top>
@@ -514,31 +466,14 @@
               <TextDecoration>None</TextDecoration>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox30" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>21.85pt</Height>
-            <Width>524.01pt</Width>
-            <Value>="                                                    "+{clientBaseOf}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>224.4pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontFamily>Times New Roman</FontFamily>
-              <TextAlign>Left</TextAlign>
-              <FontSize>10pt</FontSize>
-              <TextDecoration>None</TextDecoration>
-            </Style>
-          </Textbox>
           <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.35pt</Height>
-            <Width>398.01pt</Width>
+            <Width>368.01pt</Width>
             <Value>
             </Value>
             <ZIndex>1</ZIndex>
-            <Left>126.30pt</Left>
-            <Top>222.10pt</Top>
+            <Left>155.9pt</Left>
+            <Top>222.1pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -591,7 +526,8 @@
           <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.10pt</Height>
             <Width>524.01pt</Width>
-            <Value>с другой стороны, а вместе именуемые Стороны, заключили настоящий договор о нижеследующем:</Value>
+            <Value>="с другой стороны, а вместе именуемые Стороны, заключили настоящий договор о нижеследующем:
+Клиент вернул, а Фирма приняла бутыли многоразового использования емкостью 19 литров в количестве: "+{bottleCount}+" штук."</Value>
             <ZIndex>1</ZIndex>
             <Left>0.00pt</Left>
             <Top>245.50pt</Top>
@@ -604,63 +540,6 @@
               <FontSize>10pt</FontSize>
               <TextDecoration>None</TextDecoration>
             </Style>
-          </Textbox>
-          <Textbox Name="Textbox35" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.13pt</Height>
-            <Width>36.44pt</Width>
-            <Value>={bottleCount}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>462.00pt</Left>
-            <Top>258.90pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>None</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <FontFamily>Times New Roman</FontFamily>
-              <TextAlign>Center</TextAlign>
-              <FontSize>12pt</FontSize>
-              <TextDecoration>None</TextDecoration>
-              <FontWeight>Bold</FontWeight>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox36" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>11.36pt</Height>
-            <Width>33.54pt</Width>
-            <Value>
-            </Value>
-            <ZIndex>1</ZIndex>
-            <Left>463.20pt</Left>
-            <Top>260.10pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <FontFamily>Times New Roman</FontFamily>
-              <TextAlign>Justified</TextAlign>
-              <FontSize>10pt</FontSize>
-              <TextDecoration>Underline</TextDecoration>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox37" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>11.33pt</Height>
-            <Width>29.10pt</Width>
-            <Value>штук.</Value>
-            <ZIndex>1</ZIndex>
-            <Left>496.8pt</Left>
-            <Top>260.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontFamily>Times New Roman</FontFamily>
-              <FontSize>10pt</FontSize>
-              <TextAlign>Justified</TextAlign>
-            </Style>
-            <CanGrow>true</CanGrow>
           </Textbox>
         </ReportItems>
         <DataSetName>Info</DataSetName>

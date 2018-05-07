@@ -180,13 +180,15 @@
         <Top>11.20pt</Top>
         <ReportItems>
           <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>37.62pt</Height>
-            <Width>273.96pt</Width>
-            <Value>="Акт возврата залога за оборудование 
+            <Height>66.93pt</Height>
+            <Width>524.68pt</Width>
+            <Value>="АКТ
+возврата залога за
+оборудование №"+{?order_id}+" 
 по договору №" + {contract}</Value>
             <ZIndex>1</ZIndex>
-            <Left>145.60pt</Left>
-            <Top>53.10pt</Top>
+            <Left>1.03pt</Left>
+            <Top>23.79pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -418,8 +420,14 @@
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -427,13 +435,19 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>
-                      </Value>
+                      <Value>Итого:</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -445,8 +459,14 @@
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -458,8 +478,14 @@
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
