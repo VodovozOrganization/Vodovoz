@@ -428,6 +428,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool FuelOperationHaveDiscrepancy()
 		{
+			if(FuelOutlayedOperation == null) {
+				return false;
+			}
 			var carDiff = FuelDocuments.Select(x => x.Operation).Any(x => x.Car != null && x.Car.Id != Car.Id)
 									   || (FuelOutlayedOperation.Car != null && FuelOutlayedOperation.Car.Id != Car.Id);
 			var driverDiff = FuelDocuments.Select(x => x.Operation).Any(x => x.Driver != null && x.Driver.Id != Driver.Id)
