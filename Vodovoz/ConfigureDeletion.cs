@@ -84,6 +84,8 @@ namespace Vodovoz
 			}.FillFromMetaInfo ()
 			);
 
+			DeleteConfig.AddHibernateDeleteInfo<CarProxyDocument>();
+
 			DeleteConfig.AddHibernateDeleteInfo<Equipment>()
 				.AddDeleteDependence<FreeRentEquipment> (item => item.Equipment)
 				.AddDeleteDependence<IncomingInvoiceItem> (item => item.Equipment)

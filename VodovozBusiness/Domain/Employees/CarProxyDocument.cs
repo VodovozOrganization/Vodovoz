@@ -7,6 +7,9 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Employees
 {
+	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "Доверенность на ТС",
+	    Nominative = "Доверенность на ТС")]
 	public class CarProxyDocument : PropertyChangedBase, IDomainObject, IBusinessObject, IValidatableObject
 	{
 		public virtual IUnitOfWork UoW { set; get; }
