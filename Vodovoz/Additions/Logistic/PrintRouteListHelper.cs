@@ -138,8 +138,8 @@ namespace Vodovoz.Additions.Logistic
 				CellColumnTotal += String.Format (numericCellTemplate, TextBoxNumber++, formula, 0);
 
 				//Запрос..
-				SqlSelect += String.Format (", IFNULL(SUM(wt_qry.Water{0}), 0) AS Water{0}", column.Id.ToString ());
-				SqlSelectSubquery += String.Format (", IF(nomenclature_route_column.id = {0}, order_items.count, 0) AS {1}",
+				SqlSelect += String.Format (", IFNULL(wt_qry.Water{0}, 0) AS Water{0}", column.Id.ToString ());
+				SqlSelectSubquery += String.Format (", SUM(IF(nomenclature_route_column.id = {0}, order_items.count, 0)) AS {1}",
 					column.Id, "Water" + column.Id.ToString ());
 				if(isClosed)
 				{

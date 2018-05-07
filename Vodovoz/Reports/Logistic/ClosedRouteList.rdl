@@ -1643,11 +1643,12 @@ LEFT JOIN (
 SELECT
 order_items.order_id AS order_id
 <!--sql_select_subquery-->
-FROM order_items
+FROM route_list_addresses
+LEFT JOIN order_items ON route_list_addresses.order_id = order_items.order_id
 LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
 LEFT JOIN nomenclature_route_column ON nomenclature_route_column.id = nomenclature.route_column_id
-WHERE nomenclature.route_column_id IS NOT NULL
-) AS wt_qry ON wt_qry.order_id = orders.id
+WHERE route_list_addresses.route_list_id = @route_list_id AND nomenclature.route_column_id IS NOT NULL
+GROUP BY order_id) AS wt_qry ON wt_qry.order_id = orders.id
 
 WHERE route_list_addresses.route_list_id = @route_list_id
 GROUP BY orders.id
