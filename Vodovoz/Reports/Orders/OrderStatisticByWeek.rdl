@@ -1697,7 +1697,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>Среднее:</Value>
+                      <Value>Макс.:</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2252,7 +2252,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox91">
-                      <Value>Макс.:</Value>
+                      <Value>Среднее:</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
