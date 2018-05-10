@@ -197,6 +197,7 @@ namespace Vodovoz
 					: returnsreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
 				if(returned != null) {
 					returned.Amount = (int)item.MovementOperation.Amount;
+					returned.Redhead = item.Redhead;
 					continue;
 				}
 
@@ -224,7 +225,7 @@ namespace Vodovoz
 				}
 
 				logger.Warn("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.MovementOperation.Nomenclature);
-				var newItem = new ReceptionItemNode(item.MovementOperation);
+				var newItem = new ReceptionItemNode(item);
 				if(item.MovementOperation.Equipment != null) {
 					newItem.EquipmentId = item.MovementOperation.Equipment.Id;
 				}
@@ -262,7 +263,8 @@ namespace Vodovoz
 					ReciveType = ReciveTypes.Returnes,
 					NomenclatureId = node.NomenclatureId,
 					EquipmentId = node.EquipmentId,
-					Amount = node.Amount
+					Amount = node.Amount,
+					Redhead = node.Redhead
 				};
 				tempItemList.Add(item);
 			}
@@ -317,13 +319,16 @@ namespace Vodovoz
 						nom,
 						equ,
 						tempItem.Amount,
-						tempItem.ServiceClaim
+						tempItem.ServiceClaim,
+						tempItem.Redhead
 					);
 				} else {
 					if(item.MovementOperation.Amount != tempItem.Amount)
 						item.MovementOperation.Amount = tempItem.Amount;
 					if(item.ServiceClaim != tempItem.ServiceClaim)
 						item.ServiceClaim = tempItem.ServiceClaim;
+					if(item.Redhead != tempItem.Redhead)
+						item.Redhead = tempItem.Redhead;
 				}
 			}
 
@@ -384,6 +389,7 @@ namespace Vodovoz
 			public int EquipmentId;
 
 			public decimal Amount;
+			public string Redhead;
 		}
 	}
 }
