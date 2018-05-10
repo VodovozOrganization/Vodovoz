@@ -40,6 +40,8 @@ namespace Vodovoz.HibernateMapping
 		public BillDocumentMap()
 		{
 			DiscriminatorValue ("Bill");
+
+			Map(x => x.HideSignature).Column("hide_signature");
 		}
 	}
 

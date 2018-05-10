@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using QSReport;
 using QSSupportLib;
 using Vodovoz.Repository;
@@ -24,7 +25,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
 					{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization]) },
-					{ "hide_signature", false }
+					{ "hide_signature", HideSignature }
 				}
 			};
 		}
@@ -37,7 +38,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
 					{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization]) },
-					{ "hide_signature", true }
+					{ "hide_signature", HideSignature }
 				}
 			};
 		}
@@ -57,6 +58,18 @@ namespace Vodovoz.Domain.Orders.Documents
 				return PrinterType.RDL;
 			}
 		}
+
+		#region Свои свойства
+
+		private bool hideSignature;
+
+		[Display(Name = "Без подписей и печати")]
+		public virtual bool HideSignature {
+			get { return hideSignature; }
+			set { SetField(ref hideSignature, value, () => HideSignature); }
+		}
+
+		#endregion
 	}
 }
 
