@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -611,8 +611,7 @@ FROM
 		nomenclature.id,
 		nomenclature.name,
 		SUM(IF(clientEquipPickedUp.client_amount_pickedup &gt; 0, clientEquipPickedUp.client_amount_pickedup, 0)) as client_amount_pickedup,
-		SUM(IF(OurDutyEquipDelivered.duty_amount_delivered &gt; 0, OurDutyEquipDelivered.duty_amount_delivered, 0))
-		+ SUM(IF(OurRentEquipDelivered.rent_amount_delivered &gt; 0, OurRentEquipDelivered.rent_amount_delivered, 0)) as duty_and_rent_amount_delivered
+		SUM(IF(OurDutyRentEquipDelivered.duty_amount_delivered is null, OurDutyRentEquipDelivered.duty_amount_delivered, 0)) as duty_and_rent_amount_delivered
 	FROM
 		orders
 		LEFT JOIN
@@ -635,7 +634,7 @@ FROM
 				WHERE
 					inner_order_equipments.own_type = 'Client') as t
 		) as clientEquipPickedUp ON clientEquipPickedUp.equip_id = order_equipment.id
-	#Дежурное оборудование
+	#Дежурное оборудование и в аренду - с учётом забора и доставки
 		LEFT JOIN
 		(
 			SELECT
@@ -651,26 +650,8 @@ FROM
 					LEFT JOIN
 					order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
 				WHERE
-					inner_order_equipments.own_type = 'Duty') as t
-		) as OurDutyEquipDelivered ON OurDutyEquipDelivered.equip_id = order_equipment.id
-	#Оборудование в аренду
-		LEFT JOIN
-		(
-			SELECT
-                equip_id,
-				ROUND(client_amount_delivered - client_amount_pickedup) as rent_amount_delivered
-			FROM
-				(SELECT
-                    inner_order_equipments.id as equip_id,
-					IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
-					IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
-				FROM
-					counterparty_movement_operations
-					LEFT JOIN
-					order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
-				WHERE
-					inner_order_equipments.own_type = 'Rent') as t
-		) as OurRentEquipDelivered ON OurRentEquipDelivered.equip_id = order_equipment.id
+					inner_order_equipments.own_type = 'Duty' OR inner_order_equipments.own_type = 'Rent') as t
+		) as OurDutyRentEquipDelivered ON OurDutyRentEquipDelivered.equip_id = order_equipment.id
         LEFT JOIN 
 		nomenclature ON nomenclature.id = order_equipment.nomenclature_id
 	WHERE
@@ -2039,21 +2020,12 @@ ____________(                        )
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters>
     <ReportParameter Name="client_id">
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>16293</Value>
+          <Value>9</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2077,12 +2049,6 @@ ____________(                        )
     </ReportParameter>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>
-          </Value>
-        </Values>
-      </DefaultValue>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -2091,12 +2057,6 @@ ____________(                        )
     </ReportParameter>
     <ReportParameter Name="endDate">
       <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>
-          </Value>
-        </Values>
-      </DefaultValue>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -2104,4 +2064,13 @@ ____________(                        )
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_temp;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>
