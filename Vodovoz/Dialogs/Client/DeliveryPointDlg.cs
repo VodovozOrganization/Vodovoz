@@ -71,6 +71,7 @@ namespace Vodovoz
 			ytreeviewResponsiblePersons.ItemsDataSource = Entity.ObservableContacts;
 			ytreeviewResponsiblePersons.Selection.Changed += YtreeviewResponsiblePersons_Selection_Changed;
 
+			ShowResidue();
 
 			entryPhone.ValidationMode = QSWidgetLib.ValidationType.phone;
 			entryPhone.Binding.AddBinding(Entity, e => e.Phone, w => w.Text).InitializeFromSource();
@@ -234,6 +235,16 @@ namespace Vodovoz
 				UpdateMapPosition();
 				UpdateAddressOnMap();
 			}
+
+			if(e.PropertyName == Entity.GetPropertyName(x => x.HaveResidue)) {
+				ShowResidue();
+			}
+		}
+
+		void ShowResidue()
+		{
+			ycheckHaveResidue.Visible = Entity.HaveResidue.HasValue;
+			ycheckHaveResidue.Active = Entity.HaveResidue.HasValue ? Entity.HaveResidue.Value : false;
 		}
 
 		void Rightsidepanel1_PanelHided (object sender, EventArgs e)

@@ -1124,6 +1124,9 @@ namespace Vodovoz
 				return;
 
 			DeliveryPointDlg dlg = new DeliveryPointDlg(Entity.Client, Entity.Address1c, Entity.Address1cCode);
+
+			dlg.Entity.HaveResidue = !string.IsNullOrEmpty(Entity.Comment) && 
+				(Entity.Comment.ToUpper().Contains("ПЕРВЫЙ ЗАКАЗ") || Entity.Comment.ToUpper().Contains("НОВЫЙ АДРЕС"));
 			dlg.EntitySaved += Dlg_EntitySaved;
 			TabParent.AddSlaveTab(this, dlg);
 		}
