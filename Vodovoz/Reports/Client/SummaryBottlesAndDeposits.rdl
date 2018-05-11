@@ -610,8 +610,8 @@ FROM
 	(SELECT
 		nomenclature.id,
 		nomenclature.name,
-		SUM(IF(clientEquipPickedUp.client_amount_pickedup &gt; 0, clientEquipPickedUp.client_amount_pickedup, 0)) as client_amount_pickedup,
-		SUM(IF(OurDutyRentEquipDelivered.duty_amount_delivered is null, OurDutyRentEquipDelivered.duty_amount_delivered, 0)) as duty_and_rent_amount_delivered
+		SUM(clientEquipPickedUp.client_amount_pickedup) as client_amount_pickedup,
+		SUM(OurDutyRentEquipDelivered.duty_amount_delivered) as duty_and_rent_amount_delivered
 	FROM
 		orders
 		LEFT JOIN
