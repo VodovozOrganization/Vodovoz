@@ -1366,7 +1366,12 @@ namespace Vodovoz
 			if(selectedPrintableODTDocuments.Count > 0) {
 				TemplatePrinter.PrintAll(selectedPrintableODTDocuments);
 			}
+		}
 
+		protected void OnBtnOpnPrnDlgClicked(object sender, EventArgs e)
+		{
+			if(Entity.OrderDocuments.Any(doc => doc.PrintType == PrinterType.RDL))
+				TabParent.AddSlaveTab(this, new OrderDocumentsPrinter(Entity));
 		}
 
 		protected void OnTreeServiceClaimRowActivated(object o, RowActivatedArgs args)

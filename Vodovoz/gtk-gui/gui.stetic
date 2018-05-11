@@ -15,7 +15,6 @@
     <widget-library name="../../../QSProjects/Modules/QSContacts/bin/Debug/QSContacts.dll" />
     <widget-library name="../../../QSProjects/QSValidation/bin/Debug/QSValidation.dll" />
     <widget-library name="../../../My-FyiReporting/RdlGtkViewer/RdlGtkViewer/bin/Debug/RdlGtkViewer.exe" />
-    <widget-library name="../../../My-FyiReporting/RdlEngine/bin/x86/Debug/RdlEngine.dll" />
     <widget-library name="../../../QSProjects/QSReport/bin/Debug/QSReport.dll" />
     <widget-library name="../../../GammaBinding/GammaBinding/bin/Debug/GammaBinding.dll" />
     <widget-library name="../../../QSProjects/QSOsm/bin/Debug/QSOsm.dll" />
@@ -26359,7 +26358,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">6</property>
             <child>
               <widget class="Gtk.VBox" id="vboxInfo">
                 <property name="MemberName" />
@@ -28504,7 +28503,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow3">
+                          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
                             <property name="MemberName" />
                             <property name="ShadowType">In</property>
                             <child>
@@ -28547,13 +28546,31 @@
                                 <property name="CanFocus">True</property>
                                 <property name="Type">TextAndIcon</property>
                                 <property name="Icon">stock:gtk-print Menu</property>
-                                <property name="Label" translatable="yes">Печать</property>
+                                <property name="Label" translatable="yes">Печать выделенных</property>
                                 <property name="UseUnderline">True</property>
                                 <signal name="Clicked" handler="OnButtonPrintSelectedClicked" />
                               </widget>
                               <packing>
                                 <property name="PackType">End</property>
                                 <property name="Position">1</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gtk.Button" id="btnOpnPrnDlg">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextAndIcon</property>
+                                <property name="Icon">stock:gtk-print Menu</property>
+                                <property name="Label" translatable="yes">Диалог печати...</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnBtnOpnPrnDlgClicked" />
+                              </widget>
+                              <packing>
+                                <property name="PackType">End</property>
+                                <property name="Position">2</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
