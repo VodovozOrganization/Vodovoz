@@ -15,24 +15,21 @@ using Vodovoz.JournalFilters;
 
 namespace Vodovoz.ViewModel
 {
-	public class NomenclatureForSaleVM:RepresentationModelWithoutEntityBase<NomenclatureForSaleVMNode>
+	public class NomenclatureForSaleVM : RepresentationModelWithoutEntityBase<NomenclatureForSaleVMNode>
 	{
 
-		public NomenclatureRepFilter Filter
-		{
-			get
-			{
+		public NomenclatureRepFilter Filter {
+			get {
 				return RepresentationFilter as NomenclatureRepFilter;
 			}
-			set
-			{
+			set {
 				RepresentationFilter = value as IRepresentationFilter;
 			}
 		}
 
 		#region implemented abstract members of RepresentationModelBase
 
-		public override void UpdateNodes ()
+		public override void UpdateNodes()
 		{
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits unitAlias = null;
@@ -42,55 +39,56 @@ namespace Vodovoz.ViewModel
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
 
-			var subqueryAdded = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
-				.Where (() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where (Restrictions.IsNotNull (Projections.Property<WarehouseMovementOperation> (o => o.IncomingWarehouse)))
-				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
+			var subqueryAdded = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
+				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
+				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
 
 			var subqueryRemoved = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(Restrictions.IsNotNull (Projections.Property<WarehouseMovementOperation> (o => o.WriteoffWarehouse)))
-				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
+				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
+				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
 
-			var subqueryReserved = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias)
-				.JoinAlias (() => orderAlias.OrderItems, () => orderItemsAlias)
-				.Where (()=>orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
+			var subqueryReserved = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias)
+				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
+				.Where(() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.Where(() => nomenclatureAlias.DoNotReserve == false)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
 					   || orderAlias.OrderStatus == OrderStatus.InTravelList
 					   || orderAlias.OrderStatus == OrderStatus.OnLoading)
-				.Select (Projections.Sum (() => orderItemsAlias.Count));
+				.Select(Projections.Sum(() => orderItemsAlias.Count));
 
-			var items = UoW.Session.QueryOver<Nomenclature>(()=>nomenclatureAlias)
-			    .Where(() => !nomenclatureAlias.IsArchive)
-			    .Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category), Filter.SelectedCategories))
-				.JoinAlias(()=>nomenclatureAlias.Unit,()=>unitAlias).Where(()=>!nomenclatureAlias.IsSerial)
-				.SelectList(list=>list
-					.SelectGroup(()=>nomenclatureAlias.Id).WithAlias(()=>resultAlias.Id)
+			var items = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
+				.Where(() => !nomenclatureAlias.IsArchive)
+				.Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category), Filter.SelectedCategories))
+				.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
+				.Where(() => !nomenclatureAlias.IsSerial)
+				.SelectList(list => list
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(()=>nomenclatureAlias.Category).WithAlias(()=>resultAlias.Category)
+					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.Category)
 					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
-					.SelectSubQuery (subqueryAdded).WithAlias(() => resultAlias.Added)
-					.SelectSubQuery (subqueryRemoved).WithAlias(() => resultAlias.Removed)
-					.SelectSubQuery(subqueryReserved).WithAlias(()=>resultAlias.Reserved)
+					.SelectSubQuery(subqueryAdded).WithAlias(() => resultAlias.Added)
+					.SelectSubQuery(subqueryRemoved).WithAlias(() => resultAlias.Removed)
+					.SelectSubQuery(subqueryReserved).WithAlias(() => resultAlias.Reserved)
 				)
 				.TransformUsing(Transformers.AliasToBean<NomenclatureForSaleVMNode>())
 				.List<NomenclatureForSaleVMNode>();
 
 			var equipment = Repository.EquipmentRepository.AvailableEquipmentQuery()
 				.GetExecutableQueryOver(UoW.Session)
-				.Where (eq => !eq.OnDuty)
-				.JoinAlias (eq => eq.Nomenclature, () => nomenclatureAlias)
-			    .Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category), Filter.SelectedCategories))
-				.JoinAlias (() => nomenclatureAlias.Unit, () => unitAlias)
-				.SelectList(list=>list
-					.SelectGroup(()=>nomenclatureAlias.Id).WithAlias(()=>resultAlias.Id)
-					.Select(()=>true).WithAlias(()=>resultAlias.IsEquipmentWithSerial)
-					.SelectSum(()=>(decimal)1).WithAlias(()=>resultAlias.Added)
-					.SelectSubQuery(subqueryReserved).WithAlias(()=>resultAlias.Reserved)
+				.Where(eq => !eq.OnDuty)
+				.JoinAlias(eq => eq.Nomenclature, () => nomenclatureAlias)
+				.Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category), Filter.SelectedCategories))
+				.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
+				.SelectList(list => list
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => true).WithAlias(() => resultAlias.IsEquipmentWithSerial)
+					.SelectSum(() => (decimal)1).WithAlias(() => resultAlias.Added)
+					.SelectSubQuery(subqueryReserved).WithAlias(() => resultAlias.Reserved)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(()=>nomenclatureAlias.Category).WithAlias(()=>resultAlias.Category)
+					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.Category)
 					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
 				)
@@ -99,36 +97,35 @@ namespace Vodovoz.ViewModel
 
 			var services = Repository.NomenclatureRepository.NomenclatureOfServices()
 				.GetExecutableQueryOver(UoW.Session)
-				.SelectList(list=>list
-					.Select(x => x.Id).WithAlias(()=>resultAlias.Id)
+				.SelectList(list => list
+					.Select(x => x.Id).WithAlias(() => resultAlias.Id)
 					.Select(x => x.Name).WithAlias(() => resultAlias.Name)
-					.Select(x => x.Category).WithAlias(()=>resultAlias.Category)
+					.Select(x => x.Category).WithAlias(() => resultAlias.Category)
 				)
 				.TransformUsing(Transformers.AliasToBean<NomenclatureForSaleVMNode>())
 				.List<NomenclatureForSaleVMNode>();
-			
+
 			List<NomenclatureForSaleVMNode> forSale = new List<NomenclatureForSaleVMNode>();
-			forSale.AddRange (items);
-			forSale.AddRange (equipment);
-			if (Filter.SelectedCategories.Contains(NomenclatureCategory.service))
-			{
+			forSale.AddRange(items);
+			forSale.AddRange(equipment);
+			if(Filter.SelectedCategories.Contains(NomenclatureCategory.service)) {
 				forSale.AddRange(services);
 			}
 			forSale.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.CurrentCulture));
-			SetItemsSource (forSale);
+			SetItemsSource(forSale);
 		}
 
-		static Gdk.Color colorBlack = new Gdk.Color (0, 0, 0);
-		static Gdk.Color colorRed = new Gdk.Color (0xff, 0, 0);
+		static Gdk.Color colorBlack = new Gdk.Color(0, 0, 0);
+		static Gdk.Color colorRed = new Gdk.Color(0xff, 0, 0);
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig <NomenclatureForSaleVMNode>.Create ()
-			.AddColumn ("Номенклатура").SetDataProperty (node => node.Name)
-			.AddColumn ("Категория").SetDataProperty (node => node.Category.GetEnumTitle())
-			.AddColumn ("Кол-во").AddTextRenderer (node => node.InStockText)
-			.AddColumn ("Зарезервировано").AddTextRenderer (node => node.ReservedText)
-			.AddColumn ("Доступно").AddTextRenderer (node => node.AvailableText)
-			.AddSetter ((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
-			.Finish ();
+		IColumnsConfig columnsConfig = FluentColumnsConfig<NomenclatureForSaleVMNode>.Create()
+			.AddColumn("Номенклатура").SetDataProperty(node => node.Name)
+			.AddColumn("Категория").SetDataProperty(node => node.Category.GetEnumTitle())
+			.AddColumn("Кол-во").AddTextRenderer(node => node.InStockText)
+			.AddColumn("Зарезервировано").AddTextRenderer(node => node.ReservedText)
+			.AddColumn("Доступно").AddTextRenderer(node => node.AvailableText)
+			.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
+			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {
 			get { return columnsConfig; }
@@ -136,23 +133,23 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public NomenclatureForSaleVM () 
-			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
-		{}
+		public NomenclatureForSaleVM()
+			: this(UnitOfWorkFactory.CreateWithoutRoot())
+		{ }
 
-		public NomenclatureForSaleVM (IUnitOfWork uow) : base(typeof(Nomenclature), typeof(WarehouseMovementOperation))
+		public NomenclatureForSaleVM(IUnitOfWork uow) : base(typeof(Nomenclature), typeof(WarehouseMovementOperation))
 		{
 			this.UoW = uow;
 		}
 
-		public NomenclatureForSaleVM (NomenclatureRepFilter filter) : this(filter.UoW)
+		public NomenclatureForSaleVM(NomenclatureRepFilter filter) : this(filter.UoW)
 		{
 			Filter = filter;
 		}
 
 		#region implemented abstract members of RepresentationModelWithoutEntityBase
 
-		protected override bool NeedUpdateFunc (object updatedSubject)
+		protected override bool NeedUpdateFunc(object updatedSubject)
 		{
 			return true;
 		}
@@ -162,33 +159,33 @@ namespace Vodovoz.ViewModel
 
 	public class NomenclatureForSaleVMNode
 	{
-		public int Id{get;set;}
+		public int Id { get; set; }
 
 		[UseForSearch]
-		public string Name{get;set;}
-		public NomenclatureCategory Category{ get; set; }
-		public decimal InStock{ get{ return Added - Removed; } }
-		public int? Reserved{ get; set; }
-		public decimal Available{get{ return InStock - Reserved.GetValueOrDefault(); }}
-		public decimal Added{ get; set; }
-		public decimal Removed{ get; set; }
-		public string UnitName{ get; set;}
-		public short UnitDigits{ get; set;}
-		public bool IsEquipmentWithSerial{ get; set; }
+		public string Name { get; set; }
+		public NomenclatureCategory Category { get; set; }
+		public decimal InStock { get { return Added - Removed; } }
+		public int? Reserved { get; set; }
+		public decimal Available { get { return InStock - Reserved.GetValueOrDefault(); } }
+		public decimal Added { get; set; }
+		public decimal Removed { get; set; }
+		public string UnitName { get; set; }
+		public short UnitDigits { get; set; }
+		public bool IsEquipmentWithSerial { get; set; }
 		private string Format(decimal value)
 		{
-			return String.Format ("{0:F" + UnitDigits + "} {1}", value, UnitName);
+			return String.Format("{0:F" + UnitDigits + "} {1}", value, UnitName);
 		}
 
-		private bool UsedStock{
-			get{
+		private bool UsedStock {
+			get {
 				return Nomenclature.GetCategoriesForGoods().Contains(Category);
 			}
 		}
 
-		public string InStockText{get{ return UsedStock ? Format(InStock) : String.Empty;} }
-		public string ReservedText{get{ return UsedStock && Reserved.HasValue ? Format(Reserved.Value) : String.Empty;} }
-		public string AvailableText{get{ return UsedStock ? Format(Available) : String.Empty;} }
+		public string InStockText { get { return UsedStock ? Format(InStock) : String.Empty; } }
+		public string ReservedText { get { return UsedStock && Reserved.HasValue ? Format(Reserved.Value) : String.Empty; } }
+		public string AvailableText { get { return UsedStock ? Format(Available) : String.Empty; } }
 	}
 }
 

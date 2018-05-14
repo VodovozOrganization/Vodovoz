@@ -357,7 +357,14 @@ namespace Vodovoz.Domain.Goods
 
 		public static NomenclatureCategory[] GetCategoriesForSale()
 		{
-			return new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water, NomenclatureCategory.disposableBottleWater, NomenclatureCategory.bottle };
+			return new[] {
+				NomenclatureCategory.additional,
+				NomenclatureCategory.equipment,
+				NomenclatureCategory.water,
+				NomenclatureCategory.disposableBottleWater,
+				NomenclatureCategory.bottle,
+				NomenclatureCategory.deposit
+			};
 		}
 
 		public static NomenclatureCategory[] GetCategoriesForMaster()

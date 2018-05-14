@@ -849,46 +849,50 @@ namespace Vodovoz
 				return;
 			}
 
-			if(nomenclature.Category == NomenclatureCategory.equipment) {
-				RunAdditionalAgreementSalesEquipmentDialog(nomenclature);
-			} else if(nomenclature.Category == NomenclatureCategory.water) {
-				CounterpartyContract contract = CounterpartyContractRepository.
-					GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType);
-				if(contract == null) {
-					var result = AskCreateContract();
-					switch(result) {
-						case (int)ResponseType.Yes:
-							RunContractAndWaterAgreementDialog(nomenclature, count);
-							break;
-						case (int)ResponseType.Accept:
-							CreateContractWithAgreement(nomenclature, count);
-							break;
-						default:
-							break;
-					}
-					return;
-				}
-				UoWGeneric.Session.Refresh(contract);
-				WaterSalesAgreement wsa = contract.GetWaterSalesAgreement(UoWGeneric.Root.DeliveryPoint, nomenclature);
-				if(wsa == null) {
-					//Если нет доп. соглашения продажи воды.
-					if(MessageDialogWorks.RunQuestionDialog("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?")) {
-						RunAdditionalAgreementWaterDialog(nomenclature, count);
-					} else
+			switch(nomenclature.Category) {
+				case NomenclatureCategory.equipment://Оборудование
+					RunAdditionalAgreementSalesEquipmentDialog(nomenclature);
+					break;
+				case NomenclatureCategory.water://Вода в многооборотной таре
+					CounterpartyContract contract = CounterpartyContractRepository.
+						GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType);
+					if(contract == null) {
+						var result = AskCreateContract();
+						switch(result) {
+							case (int)ResponseType.Yes:
+								RunContractAndWaterAgreementDialog(nomenclature, count);
+								break;
+							case (int)ResponseType.Accept:
+								CreateContractWithAgreement(nomenclature, count);
+								break;
+							default:
+								break;
+						}
 						return;
-				} else {
-					UoWGeneric.Root.AddWaterForSale(nomenclature, wsa, count);
-					UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
-				}
-			} else
-				UoWGeneric.Root.AddAnyGoodsNomenclatureForSale(nomenclature);
+					}
+					UoWGeneric.Session.Refresh(contract);
+					WaterSalesAgreement wsa = contract.GetWaterSalesAgreement(UoWGeneric.Root.DeliveryPoint, nomenclature);
+					if(wsa == null) {
+						//Если нет доп. соглашения продажи воды.
+						if(MessageDialogWorks.RunQuestionDialog("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?")) {
+							RunAdditionalAgreementWaterDialog(nomenclature, count);
+						} else
+							return;
+					} else {
+						UoWGeneric.Root.AddWaterForSale(nomenclature, wsa, count);
+						UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
+					}
+					break;
+				case NomenclatureCategory.deposit://Залог
+				default://rest
+					UoWGeneric.Root.AddAnyGoodsNomenclatureForSale(nomenclature);
+					break;
+			}
 
 			if(nomenclature.NoDelivey == true)
 				UoWGeneric.Root.IsService = true;
 			else
 				UoWGeneric.Root.IsService = false;
-
-
 		}
 
 		private void AddRentAgreement(OrderAgreementType type)

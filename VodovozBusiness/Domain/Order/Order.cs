@@ -1088,7 +1088,8 @@ namespace Vodovoz.Domain.Orders
 				NomenclatureCategory.bottle,
 				NomenclatureCategory.service,
 				NomenclatureCategory.master,
-				NomenclatureCategory.disposableBottleWater
+				NomenclatureCategory.disposableBottleWater,
+				NomenclatureCategory.deposit
 			};
 			if(!acceptCategories.Contains(nomenclature.Category)) {
 				return;
@@ -1098,7 +1099,8 @@ namespace Vodovoz.Domain.Orders
 				Order = this,
 				AdditionalAgreement = null,
 				Count = (nomenclature.Category == NomenclatureCategory.service
-						 || nomenclature.Category == NomenclatureCategory.master) ? 1 : 0,
+						 || nomenclature.Category == NomenclatureCategory.master
+				         || nomenclature.Category == NomenclatureCategory.deposit) ? 1 : 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)
