@@ -166,29 +166,43 @@ namespace Vodovoz
 						.AddSetter((cell, node) => cell.Visible = node.IsSerialEquipment)
 					.AddNumericRenderer(node => node.ActualCount, false)
 				.AddSetter((cell, node) => {
-					if(node.Nomenclature.Category == NomenclatureCategory.rent 
-				       || node.Nomenclature.Category == NomenclatureCategory.deposit){
+					if(node.Nomenclature.Category == NomenclatureCategory.rent
+					   || node.Nomenclature.Category == NomenclatureCategory.deposit) {
 						cell.Editable = false;
-					}else {
+					} else {
 						cell.Editable = true;
 					}
 				})
 						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
-					.AddNumericRenderer(node=>node.Price)
-						.Adjustment(new Gtk.Adjustment(0,0,99999,1,100,0))
-						.AddSetter((cell,node)=>cell.Editable = node.HasPrice)
-					.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
+					.AddNumericRenderer(node => node.Price)
+						.Adjustment(new Gtk.Adjustment(0, 0, 99999, 1, 100, 0))
+						.AddSetter((cell, node) => cell.Editable = node.HasPrice)
+					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Стоимость")
-					.AddNumericRenderer(node=>node.Sum)
-					.AddTextRenderer(node=>CurrencyWorks.CurrencyShortName)
+					.AddNumericRenderer(node => node.Sum)
+					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName)
 				.AddColumn("")
 				.Finish();
 
 			ytreeFromClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
 				.AddColumn("Название")
 					.AddTextRenderer(node => node.Name)
+				.AddColumn("Кол-во")
+					.AddNumericRenderer(node => node.Count)
+						.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
+					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+				.AddColumn("Кол-во по факту")
+					.AddNumericRenderer(node => node.ActualCount, false)
+					.AddSetter((cell, node) => {
+						cell.Editable = false;
+						foreach(var cat in Nomenclature.GetCategoriesForGoods()) {
+							if(cat == node.Nomenclature.Category) cell.Editable = true;
+						}
+					})
+					.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
+					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Забрано у клиента")
 					.AddToggleRenderer(node => node.IsDelivered)
 				.AddColumn("Причина незабора").AddTextRenderer(x => x.ConfirmedComments).Editable()
@@ -219,13 +233,13 @@ namespace Vodovoz
 		{
 			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Canceled);
 			UpdateButtonsState();
-            this.OnCloseTab(false);
+			this.OnCloseTab(false);
 		}
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
 			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Completed);
-            routeListItem.FirstFillClosing (UoW);
+			routeListItem.FirstFillClosing(UoW);
 			UpdateButtonsState();
 		}
 
@@ -279,87 +293,83 @@ namespace Vodovoz
 		}
 	}
 
-	public class OrderItemReturnsNode{
+	public class OrderItemReturnsNode
+	{
 		OrderItem orderItem;
 		OrderEquipment orderEquipment;
 
-		public OrderItemReturnsNode(OrderItem item){			
+		public OrderItemReturnsNode(OrderItem item)
+		{
 			orderItem = item;
 		}
 
-		public OrderItemReturnsNode(OrderEquipment equipment){			
+		public OrderItemReturnsNode(OrderEquipment equipment)
+		{
 			orderEquipment = equipment;
 		}
 
-		public bool IsEquipment{ 
-			get{
+		public bool IsEquipment {
+			get {
 				return orderEquipment != null;
 			}
 		}
 
-		public bool IsSerialEquipment{
-			get	{
-				return 
-					IsEquipment 
+		public bool IsSerialEquipment {
+			get {
+				return
+					IsEquipment
 					&& orderEquipment.Equipment != null
 					&& orderEquipment.Equipment.Nomenclature.IsSerial;
 			}
 		}
 
-		public bool IsDelivered{
-			get{
+		public bool IsDelivered {
+			get {
 				return ActualCount > 0;
 			}
-			set{
+			set {
 				if(IsEquipment && IsSerialEquipment) {
 					ActualCount = value ? 1 : 0;
 				}
 			}
 		}
-		public int ActualCount{
-			get{
-				if (IsEquipment)
-				{
+		public int ActualCount {
+			get {
+				if(IsEquipment) {
 					if(IsSerialEquipment) {
 						return orderEquipment.Confirmed ? 1 : 0;
 					}
 					return orderEquipment.ActualCount;
-				}
-				else
-				{
+				} else {
 					return orderItem.ActualCount;
 				}
 			}
-			set{
-				if (IsEquipment){
+			set {
+				if(IsEquipment) {
 					if(IsSerialEquipment) {
 						orderEquipment.ActualCount = value > 0 ? 1 : 0;
 					}
 					orderEquipment.ActualCount = value;
-				}
-				else{
+				} else {
 					orderItem.ActualCount = value;
 				}
 
 			}
 		}
-		public Nomenclature Nomenclature{
-			get{
-				if (IsEquipment)
-				{
+		public Nomenclature Nomenclature {
+			get {
+				if(IsEquipment) {
 					if(IsSerialEquipment) {
 						return orderEquipment.Equipment.Nomenclature;
 					}
 					return orderEquipment.Nomenclature;
-				}
-				else
-				{
+				} else {
 					return orderItem.Nomenclature;
 				}
 			}
 		}
-		public int Count{ 
-			get{
+		public int Count {
+			get {
 				if(IsEquipment) {
 					return orderEquipment.Count;
 				}
@@ -367,50 +377,46 @@ namespace Vodovoz
 			}
 		}
 
-		public string Name{
-			get{
+		public string Name {
+			get {
 				return IsEquipment ? orderEquipment.NameString : orderItem.NomenclatureString;
 			}
 		}
 
-		public bool HasPrice{
-			get{
+		public bool HasPrice {
+			get {
 				return !IsEquipment || orderEquipment.OrderItem != null;
 			}
 		}
 
-		public string ConfirmedComments{
-			get{
+		public string ConfirmedComments {
+			get {
 				return IsEquipment ? orderEquipment.ConfirmedComment : null;
 			}
-			set{
-				if (IsEquipment)
+			set {
+				if(IsEquipment)
 					orderEquipment.ConfirmedComment = value;
 			}
 		}
 
-		public decimal Price{
-			get{
-				if (IsEquipment)
-				{
+		public decimal Price {
+			get {
+				if(IsEquipment) {
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.Price : 0;
-				}
-				else
+				} else
 					return orderItem.Price;
 			}
-			set{
-				if (IsEquipment)
-				{
-					if (orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.Price = value;					
-				}
-				else
+			set {
+				if(IsEquipment) {
+					if(orderEquipment.OrderItem != null)
+						orderEquipment.OrderItem.Price = value;
+				} else
 					orderItem.Price = value;
 			}
 		}
-		public decimal Sum{
-			get{ 
-				return Price * ActualCount; 
+		public decimal Sum {
+			get {
+				return Price * ActualCount;
 			}
 		}
 
