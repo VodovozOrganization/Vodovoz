@@ -1083,14 +1083,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature)
 		{
-			var acceptCategories = new NomenclatureCategory[] {
-				NomenclatureCategory.additional,
-				NomenclatureCategory.bottle,
-				NomenclatureCategory.service,
-				NomenclatureCategory.master,
-				NomenclatureCategory.disposableBottleWater,
-				NomenclatureCategory.deposit
-			};
+			var acceptCategories = Nomenclature.GetCategoriesForSale();
 			if(!acceptCategories.Contains(nomenclature.Category)) {
 				return;
 			}

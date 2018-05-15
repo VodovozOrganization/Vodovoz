@@ -284,7 +284,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
-					.AddSetter((c, node) => c.Editable = Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
+				.AddSetter((c, node) => c.Editable = node.CanEditPrice())
 					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) => {
 						c.ForegroundGdk = colorBlack;
 						if(node.AdditionalAgreement == null) {

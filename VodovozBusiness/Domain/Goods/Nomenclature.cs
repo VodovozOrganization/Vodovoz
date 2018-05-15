@@ -363,7 +363,10 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.water,
 				NomenclatureCategory.disposableBottleWater,
 				NomenclatureCategory.bottle,
-				NomenclatureCategory.deposit
+				NomenclatureCategory.deposit,
+				NomenclatureCategory.spare_parts,
+				NomenclatureCategory.rent,
+				NomenclatureCategory.service
 			};
 		}
 

@@ -187,8 +187,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsRentCategory {
 			get {
-				return Nomenclature.Category == NomenclatureCategory.rent
-								   || (RentEquipmentCount > 0);
+				return !IsRentRenewal() && 
+					(Nomenclature.Category == NomenclatureCategory.rent
+				                            || (RentEquipmentCount > 0));
 			}
 		}
 
@@ -308,9 +309,26 @@ namespace Vodovoz.Domain.Orders
 				   || Nomenclature.Category == NomenclatureCategory.deposit) {
 					result = false;
 				}
-
+				if(IsRentRenewal()) {
+					result = true;
+				}
 				return result;
 			}
+		}
+
+		public virtual bool CanEditPrice()
+		{
+			return IsRentRenewal();
+
+			return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
+		}
+
+		//FIXME Для предварительной реализации продления аренды пока не решили как она будет работать
+		private bool IsRentRenewal()
+		{
+			//Определяет что аренда на продажу не связана с дополнительным соглашением и таким образом является 
+			//продлением существующей аренды, на КОТОРУЮ ПОКА НЕТ ССЫЛКИ
+			return Nomenclature.Category == NomenclatureCategory.rent && AdditionalAgreement == null;
 		}
 
 		public virtual string NomenclatureString {
