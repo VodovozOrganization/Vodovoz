@@ -1868,7 +1868,7 @@ namespace Vodovoz.Domain.Orders
 						default: break;
 					}
 
-					if(ObservableOrderEquipments.Any(eq => eq.OwnType == OwnTypes.Duty
+					if(ObservableOrderEquipments.Any(eq => eq.OwnType == OwnTypes.Duty || eq.OwnType == OwnTypes.Rent
 													 || (eq.OwnType == OwnTypes.Client && eq.Direction == Direction.PickUp))) {
 						docTypes.Add(OrderDocumentType.EquipmentTransfer);
 					}
