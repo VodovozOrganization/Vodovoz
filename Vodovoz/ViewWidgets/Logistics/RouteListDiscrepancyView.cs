@@ -104,7 +104,7 @@ namespace Vodovoz
 				if(orderEquip.Direction == Domain.Orders.Direction.Deliver){
 					discrepancy.ClientRejected = orderEquip.Count - orderEquip.ActualCount;
 				}else {
-					discrepancy.PickedUpFromClient = orderEquip.Count;
+					discrepancy.PickedUpFromClient = orderEquip.ActualCount;
 				}
 				discrepancy.Name = orderEquip.Nomenclature.Name;
 				AddDiscrepancy(result, discrepancy);
