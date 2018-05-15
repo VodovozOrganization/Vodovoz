@@ -13,11 +13,11 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
-    DATE_FORMAT(orders.delivery_date, '%d.%m.%y') AS order_date,
+    orders.delivery_date AS order_date,
     orders.bottles_return AS bottles_return,
     orders.sum_to_receive AS total,
     orders.comment AS order_comment,
@@ -82,14 +82,14 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="order_date">
           <DataField>order_date</DataField>
-          <TypeName>System.String</TypeName>
+          <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="bottles_return">
           <DataField>bottles_return</DataField>
@@ -505,14 +505,14 @@ WHERE
     <ReportItems>
       <List Name="List1">
         <Height>176.31pt</Height>
-        <Width>516.09pt</Width>
+        <Width>521.34pt</Width>
         <Left>35.00pt</Left>
-        <Top>0.00pt</Top>
+        <Top>14.40pt</Top>
         <ReportItems>
           <Textbox Name="Textbox1">
             <Height>17.25pt</Height>
             <Width>322.54pt</Width>
-            <Value>='Талон доставки № ' + {order_id} + ' от ' + {order_date} + ' БезНал'</Value>
+            <Value>='Талон доставки № ' + {order_id} + ' от ' + Format({order_date}, "dd.MM.yy") + ' БезНал'</Value>
             <ZIndex>1</ZIndex>
             <Left>76.70pt</Left>
             <Top>33.90pt</Top>
@@ -530,13 +530,14 @@ WHERE
             <Width>154.33pt</Width>
             <Value>= "Исполнитель: " + {author}</Value>
             <ZIndex>1</ZIndex>
-            <Left>180.9pt</Left>
-            <Top>16.6pt</Top>
+            <Left>193.5pt</Left>
+            <Top>12.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontSize>9pt</FontSize>
+              <TextAlign>Right</TextAlign>
             </Style>
           </Textbox>
           <Textbox Name="Textbox3">
@@ -715,24 +716,6 @@ WHERE
             </Style>
             <CanGrow>true</CanGrow>
           </Textbox>
-          <CustomReportItem Name="CustomReportItem1">
-            <Type>BarCode39</Type>
-            <Height>40.50pt</Height>
-            <Width>132.73pt</Width>
-            <CustomProperties>
-              <CustomProperty>
-                <Name>Code</Name>
-                <Value>={order_id}</Value>
-              </CustomProperty>
-            </CustomProperties>
-            <Left>384.3pt</Left>
-            <Top>32.2pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-          </CustomReportItem>
           <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>52.01pt</Width>
@@ -750,19 +733,44 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox36" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15.00pt</Height>
-            <Width>92.59pt</Width>
+            <Width>76.84pt</Width>
             <Value>={daily_number}</Value>
             <ZIndex>1</ZIndex>
-            <Left>405.9pt</Left>
-            <Top>16.0pt</Top>
+            <Left>348.9pt</Left>
+            <Top>12.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
+              <TextAlign>Right</TextAlign>
             </Style>
             <CanGrow>true</CanGrow>
           </Textbox>
+          <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Type>QR Code</Type>
+            <Height>90pt</Height>
+            <Width>90pt</Width>
+            <CustomProperties>
+              <CustomProperty >
+                <Name>QrCode</Name>
+                <Value>="DriverTicket;"+{order_id}+";"+Format({order_date}, "ddMMyyyy")</Value>
+              </CustomProperty>
+            </CustomProperties>
+            <Left>430.9pt</Left>
+            <Top>0.9pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <BackgroundColor>
+              </BackgroundColor>
+              <BackgroundGradientType>None</BackgroundGradientType>
+              <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+              <TextAlign>Left</TextAlign>
+              <PaddingTop>0pt</PaddingTop>
+            </Style>
+          </CustomReportItem>
         </ReportItems>
         <Style>
           <BorderStyle />

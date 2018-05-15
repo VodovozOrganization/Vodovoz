@@ -13,11 +13,11 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
-    DATE_FORMAT(orders.delivery_date, '%d.%m.%y') AS order_date,
+    orders.delivery_date AS order_date,
     orders.bottles_return AS bottles_return,
     delivery_schedule.name AS delivery_schedule,
     counterparty_contract.id AS contract_number,
@@ -66,7 +66,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -242,14 +242,14 @@ payment_type='ToClient'</CommandText>
     <ReportItems>
       <List Name="List1">
         <Height>168.81pt</Height>
-        <Width>562.59pt</Width>
+        <Width>549.84pt</Width>
         <Left>35.00pt</Left>
         <Top>0.00pt</Top>
         <ReportItems>
           <Textbox Name="Textbox1">
             <Height>17.25pt</Height>
             <Width>320.29pt</Width>
-            <Value>='Накладная № ' + {order_id} + ' от ' + {order_date}</Value>
+            <Value>='Накладная № ' + {order_id} + ' от ' + Format({order_date}, "dd.MM.yy")</Value>
             <ZIndex>1</ZIndex>
             <Left>86.30pt</Left>
             <Top>35.50pt</Top>
@@ -266,13 +266,14 @@ payment_type='ToClient'</CommandText>
             <Width>154.33pt</Width>
             <Value>= "Исполнитель: " +{author}</Value>
             <ZIndex>1</ZIndex>
-            <Left>192.1pt</Left>
+            <Left>231.3pt</Left>
             <Top>16.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontSize>9pt</FontSize>
+              <TextAlign>Right</TextAlign>
             </Style>
           </Textbox>
           <Textbox Name="Textbox3">
@@ -463,24 +464,6 @@ payment_type='ToClient'</CommandText>
               <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
-          <CustomReportItem Name="CustomReportItem1">
-            <Type>BarCode39</Type>
-            <Height>40.50pt</Height>
-            <Width>132.73pt</Width>
-            <CustomProperties>
-              <CustomProperty>
-                <Name>Code</Name>
-                <Value>={order_id}</Value>
-              </CustomProperty>
-            </CustomProperties>
-            <Left>375.50pt</Left>
-            <Top>37.80pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-          </CustomReportItem>
           <Textbox Name="Textbox54" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>17.25pt</Height>
             <Width>320.29pt</Width>
@@ -501,17 +484,41 @@ payment_type='ToClient'</CommandText>
             <Width>84.28pt</Width>
             <Value>={daily_number}</Value>
             <ZIndex>1</ZIndex>
-            <Left>406.95pt</Left>
-            <Top>17.10pt</Top>
+            <Left>362.2pt</Left>
+            <Top>17.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontWeight >Bold</FontWeight>
-              <TextAlign >Center</TextAlign>
+              <FontWeight>Bold</FontWeight>
+              <TextAlign>Right</TextAlign>
             </Style>
             <CanGrow>true</CanGrow>
           </Textbox>
+          <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Type>QR Code</Type>
+            <Height>90pt</Height>
+            <Width>90pt</Width>
+            <CustomProperties>
+              <CustomProperty >
+                <Name>QrCode</Name>
+                <Value>="InvoiceBarter;"+{order_id}+";"+Format({order_date}, "ddMMyyyy")</Value>
+              </CustomProperty>
+            </CustomProperties>
+            <Left>448.0pt</Left>
+            <Top>8.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <BackgroundColor>
+              </BackgroundColor>
+              <BackgroundGradientType>None</BackgroundGradientType>
+              <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+              <TextAlign>Left</TextAlign>
+              <PaddingTop>0pt</PaddingTop>
+            </Style>
+          </CustomReportItem>
         </ReportItems>
         <Style>
           <BorderStyle />

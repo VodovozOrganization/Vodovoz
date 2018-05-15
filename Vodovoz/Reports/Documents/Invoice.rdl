@@ -13,11 +13,11 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
-    DATE_FORMAT(orders.delivery_date, '%d.%m.%y') AS order_date,
+    orders.delivery_date AS order_date,
     orders.bottles_return AS bottles_return,
     orders.sum_to_receive AS total,
     orders.comment AS order_comment,
@@ -72,7 +72,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -521,14 +521,14 @@ GROUP BY name</CommandText>
     <ReportItems>
       <List Name="List1">
         <Height>162.06pt</Height>
-        <Width>560.34pt</Width>
+        <Width>540.84pt</Width>
         <Left>35.00pt</Left>
-        <Top>0.80pt</Top>
+        <Top>0.00pt</Top>
         <ReportItems>
           <Textbox Name="Textbox1">
             <Height>17.25pt</Height>
             <Width>320.29pt</Width>
-            <Value>='Товарный чек № ' + {order_id} + ' от ' + {order_date} + ' Нал'</Value>
+            <Value>='Товарный чек № ' + {order_id} + ' от ' + Format({order_date}, "dd.MM.yy") + ' Нал'</Value>
             <ZIndex>1</ZIndex>
             <Left>86.30pt</Left>
             <Top>35.50pt</Top>
@@ -545,13 +545,14 @@ GROUP BY name</CommandText>
             <Width>154.33pt</Width>
             <Value>= "Исполнитель: " + {author}</Value>
             <ZIndex>1</ZIndex>
-            <Left>192.1pt</Left>
+            <Left>232.1pt</Left>
             <Top>16.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontSize>9pt</FontSize>
+              <TextAlign>Right</TextAlign>
             </Style>
           </Textbox>
           <Textbox Name="Textbox3">
@@ -615,8 +616,8 @@ GROUP BY name</CommandText>
             <Width>6in</Width>
             <Value>={org_name} + ' ' + {org_address}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85pt</Left>
-            <Top>80pt</Top>
+            <Left>85.0pt</Left>
+            <Top>80.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -699,24 +700,6 @@ GROUP BY name</CommandText>
               <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
-          <CustomReportItem Name="CustomReportItem1">
-            <Type>BarCode39</Type>
-            <Height>40.50pt</Height>
-            <Width>132.73pt</Width>
-            <CustomProperties>
-              <CustomProperty>
-                <Name>Code</Name>
-                <Value>={order_id}</Value>
-              </CustomProperty>
-            </CustomProperties>
-            <Left>391.5pt</Left>
-            <Top>41.8pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-          </CustomReportItem>
           <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>65.51pt</Width>
@@ -736,13 +719,14 @@ GROUP BY name</CommandText>
             <Width>92.59pt</Width>
             <Value>={daily_number}</Value>
             <ZIndex>1</ZIndex>
-            <Left>416.9pt</Left>
+            <Left>344.9pt</Left>
             <Top>17.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
+              <TextAlign>Right</TextAlign>
             </Style>
             <CanGrow>true</CanGrow>
           </Textbox>
@@ -761,6 +745,30 @@ GROUP BY name</CommandText>
               <TextAlign>Left</TextAlign>
             </Style>
           </Textbox>
+          <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Type>QR Code</Type>
+            <Height>90pt</Height>
+            <Width>90pt</Width>
+            <CustomProperties>
+              <CustomProperty >
+                <Name>QrCode</Name>
+                <Value>="Invoice;"+{order_id}+";"+Format({order_date}, "ddMMyyyy")</Value>
+              </CustomProperty>
+            </CustomProperties>
+            <Left>443.9pt</Left>
+            <Top>6.9pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <BackgroundColor>
+              </BackgroundColor>
+              <BackgroundGradientType>None</BackgroundGradientType>
+              <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+              <TextAlign>Left</TextAlign>
+              <PaddingTop>0pt</PaddingTop>
+            </Style>
+          </CustomReportItem>
         </ReportItems>
         <Style>
           <BorderStyle />
@@ -2118,8 +2126,8 @@ GROUP BY name</CommandText>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -2413,7 +2421,7 @@ GROUP BY name</CommandText>
         </Footer>
         <Left>32.0pt</Left>
         <Top>254.4pt</Top>
-        <Visibility >
+        <Visibility>
           <Hidden>=Iif(Count({deposit}, "deposits")&gt;0, 'false', 'true')</Hidden>
         </Visibility>
       </Table>
