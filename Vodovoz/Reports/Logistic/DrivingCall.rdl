@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>297mm</PageHeight>
-  <PageWidth>210mm</PageWidth>
+  <PageHeight>209.804mm</PageHeight>
+  <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -16,20 +16,22 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-  driver_call_id as callN
-  ,case  when driver_call_type = 'CallFromAddress' then 'C адреса'
-            when driver_call_type = 'CallFromAnywhere' then 'Не с адреса'
-  end as called
-  ,rl.id as ML
- ,CONCAT(emp.last_name, ' ', emp.name, ' ', emp.patronymic) as FIO,
-orders.comment_manager 
-FROM    orders
-  left join route_list_addresses rla on rla.order_id = orders.id
-  left join route_lists rl on rl.id = rla.route_list_id
-  left join employees emp on emp.id = driver_id
-where driver_call_type &lt;&gt; 'NoCall' 
-   and (@startDate = '' or delivery_date &gt;= @startDate) 
-   and (@endDate = '' or delivery_date &lt;= @endDate)</CommandText>
+	driver_call_id AS callN
+	,CASE
+		WHEN driver_call_type = 'CallFromAddress' THEN 'C адреса'
+		WHEN driver_call_type = 'CallFromAnywhere' THEN 'Не с адреса'
+	end AS called
+	,rl.id AS ML
+	,CONCAT(emp.last_name, ' ', emp.name, ' ', emp.patronymic) AS FIO
+	,TRIM(BOTH '\n' FROM orders.comment_manager) AS comment_manager
+	,TRIM(BOTH '\n' FROM orders.information_on_tara) AS information_on_tara
+FROM orders
+	LEFT JOIN route_list_addresses rla ON rla.order_id = orders.id
+	LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
+	LEFT JOIN employees emp ON emp.id = driver_id
+WHERE driver_call_type &lt;&gt; 'NoCall' 
+	AND (@startDate = '' or delivery_date &gt;= @startDate) 
+	AND (@endDate = '' or delivery_date &lt;= @endDate)</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>={?startDate}</Value>
@@ -60,6 +62,10 @@ where driver_call_type &lt;&gt; 'NoCall'
           <DataField>comment_manager</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="information_on_tara">
+          <DataField>information_on_tara</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -85,19 +91,22 @@ where driver_call_type &lt;&gt; 'NoCall'
             <Width>26.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>61.1pt</Width>
+            <Width>43.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>175.3pt</Width>
+            <Width>169.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>109.9pt</Width>
+            <Width>66.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>144.4pt</Width>
+            <Width>219.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>241.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -201,6 +210,22 @@ where driver_call_type &lt;&gt; 'NoCall'
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>Информация по таре</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -247,7 +272,7 @@ where driver_call_type &lt;&gt; 'NoCall'
                   <ReportItems>
                     <Textbox Name="FIO">
                       <Value>={FIO}</Value>
-                      <CanGrow>true</CanGrow>
+                      <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -307,6 +332,22 @@ where driver_call_type &lt;&gt; 'NoCall'
                         <BorderWidth />
                       </Style>
                       <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>={information_on_tara}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -407,6 +448,23 @@ where driver_call_type &lt;&gt; 'NoCall'
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -415,10 +473,10 @@ where driver_call_type &lt;&gt; 'NoCall'
         <Top>57.9pt</Top>
       </Table>
       <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>27.60pt</Top>
+        <Top>29.09pt</Top>
         <Left>1.70pt</Left>
-        <Width>555.50pt</Width>
-        <Height>19.60pt</Height>
+        <Width>806.22pt</Width>
+        <Height>18.11pt</Height>
         <Value>='Звонки водителей' </Value>
         <Style>
           <FontSize>14pt</FontSize>
@@ -463,12 +521,21 @@ where driver_call_type &lt;&gt; 'NoCall'
   </EmbeddedImages>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_test;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-03-01</Value>
+          <Value>2018-04-01</Value>
         </Values>
       </DefaultValue>
       <Nullable>true</Nullable>
@@ -481,7 +548,7 @@ where driver_call_type &lt;&gt; 'NoCall'
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-03-24</Value>
+          <Value>2018-04-01</Value>
         </Values>
       </DefaultValue>
       <Nullable>true</Nullable>
@@ -491,13 +558,4 @@ where driver_call_type &lt;&gt; 'NoCall'
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_temp;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>
