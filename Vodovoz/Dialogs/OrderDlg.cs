@@ -723,6 +723,7 @@ namespace Vodovoz
 		{
 			if(toggleDocuments.Active)
 				notebook1.CurrentPage = 6;
+			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments.Any(doc => doc.PrintType == PrinterType.RDL);
 		}
 
 		#endregion

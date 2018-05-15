@@ -1851,6 +1851,7 @@ namespace Vodovoz.Domain.Orders
 								case DefaultDocumentType.torg12:
 									docTypes.Add(OrderDocumentType.Torg12);
 									docTypes.Add(OrderDocumentType.ShetFactura);
+									docTypes.Add(OrderDocumentType.UPD);
 									break;
 								default: break;
 							}
@@ -1910,6 +1911,7 @@ namespace Vodovoz.Domain.Orders
 					case PaymentType.cashless:
 						docTypes = new List<OrderDocumentType>() {
 							OrderDocumentType.DriverTicket,
+							OrderDocumentType.UPD
 						};
 						if(ObservableOrderDepositItems.Any())
 							docTypes.Add(OrderDocumentType.RefundEquipmentDeposit);

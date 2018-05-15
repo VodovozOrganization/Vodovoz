@@ -39,6 +39,10 @@ namespace Vodovoz.Dialogs
 				case OrderDocumentType.Bill:
 				case OrderDocumentType.DriverTicket:
 					return 1;
+				case OrderDocumentType.UPD:
+				case OrderDocumentType.Torg12:
+				case OrderDocumentType.ShetFactura:
+					return currentOrder.DocumentType == Domain.Client.DefaultDocumentType.torg12 ? 1 : 2;
 				default:
 					return 2;
 			}
@@ -55,7 +59,7 @@ namespace Vodovoz.Dialogs
 					.Adjustment(new Adjustment(0, 0, 10000, 1, 100, 0))
 				.RowCells()
 				.Finish();
-			
+
 			ytreeviewDocuments.ItemsDataSource = multipleDocumentPrinter.PrintableDocuments;
 
 			DefaultPreviewDocument();
@@ -64,13 +68,13 @@ namespace Vodovoz.Dialogs
 		protected void DefaultPreviewDocument()
 		{
 			var documents = printDocuments.Where(x => x.Document is OrderDocument)
-			                              .Where(x => (x.Document as OrderDocument).Order.Id == currentOrder.Id);
-			
+										  .Where(x => (x.Document as OrderDocument).Order.Id == currentOrder.Id);
+
 			var driverTicket = documents.Where(x => x.Document is DriverTicketDocument).FirstOrDefault();
 			var invoiceDocument = documents.Where(x => x.Document is InvoiceDocument).FirstOrDefault();
 			if(driverTicket != null && currentOrder.PaymentType == Domain.Client.PaymentType.cashless) {
 				PreviewDocument(driverTicket);
-			}else if(invoiceDocument != null){
+			} else if(invoiceDocument != null) {
 				PreviewDocument(invoiceDocument);
 			}
 		}
