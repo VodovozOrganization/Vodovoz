@@ -33,6 +33,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.NoDelivey).Column("no_delivery");
 			Map(x => x.IsNewBottle).Column("is_new_bottle");
 			Map(x => x.IsDefectiveBottle).Column("is_defective_bottle");
+			Map(x => x.IsDiler).Column("is_diler");
 
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
 			References(x => x.Unit).Column("unit_id").Not.LazyLoad();

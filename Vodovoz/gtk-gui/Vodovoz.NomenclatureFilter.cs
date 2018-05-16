@@ -8,6 +8,8 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yCheckButton checkShowArchive;
 
+		private global::Gamma.GtkWidgets.yCheckButton chkShowDilers;
+
 		private global::Gamma.Widgets.yEnumComboBox enumcomboType;
 
 		private global::Gtk.Label label1;
@@ -19,8 +21,7 @@ namespace Vodovoz
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.NomenclatureFilter";
 			// Container child Vodovoz.NomenclatureFilter.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(3)), false);
-			this.table1.Name = "table1";
+			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(4)), false);
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -37,6 +38,19 @@ namespace Vodovoz
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.chkShowDilers = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkShowDilers.CanFocus = true;
+			this.chkShowDilers.Name = "chkShowDilers";
+			this.chkShowDilers.Label = global::Mono.Unix.Catalog.GetString("Показывать дилеры");
+			this.chkShowDilers.DrawIndicator = true;
+			this.chkShowDilers.UseUnderline = true;
+			this.table1.Add(this.chkShowDilers);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.chkShowDilers]));
+			w2.LeftAttach = ((uint)(3));
+			w2.RightAttach = ((uint)(4));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.enumcomboType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumcomboType.Name = "enumcomboType";
 			this.enumcomboType.ShowSpecialStateAll = true;
@@ -44,19 +58,19 @@ namespace Vodovoz
 			this.enumcomboType.UseShortTitle = false;
 			this.enumcomboType.DefaultFirst = false;
 			this.table1.Add(this.enumcomboType);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboType]));
-			w2.LeftAttach = ((uint)(1));
-			w2.RightAttach = ((uint)(2));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboType]));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Тип:");
 			this.table1.Add(this.label1);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
@@ -64,6 +78,7 @@ namespace Vodovoz
 			}
 			this.Hide();
 			this.enumcomboType.Changed += new global::System.EventHandler(this.OnEnumcomboTypeChanged);
+			this.chkShowDilers.Toggled += new global::System.EventHandler(this.OnChkShowDilersToggled);
 			this.checkShowArchive.Toggled += new global::System.EventHandler(this.OnCheckShowArchiveToggled);
 		}
 	}

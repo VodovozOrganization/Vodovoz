@@ -11,7 +11,7 @@ namespace Vodovoz.JournalFilters
 	public partial class NomenclatureRepFilter : Gtk.Bin, IRepresentationFilter
 	{
 
-		public NomenclatureRepFilter(IUnitOfWork uow): this()
+		public NomenclatureRepFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
 		}
@@ -29,20 +29,19 @@ namespace Vodovoz.JournalFilters
 
 		void OnRefiltered()
 		{
-			if (Refiltered != null)
+			if(Refiltered != null)
 				Refiltered(this, new EventArgs());
+			if(enumcomboCategory.SelectedItem != null)
+				chkShowDilers.Visible = (NomenclatureCategory)enumcomboCategory.SelectedItem == NomenclatureCategory.water;
 		}
 
 		IUnitOfWork uow;
 
-		public IUnitOfWork UoW
-		{
-			get
-			{
+		public IUnitOfWork UoW {
+			get {
 				return uow;
 			}
-			set
-			{
+			set {
 				uow = value;
 			}
 		}
@@ -67,6 +66,10 @@ namespace Vodovoz.JournalFilters
 				defaultSelectedCategory = value;
 				enumcomboCategory.SelectedItem = value;
 			}
+		}
+
+		public bool ShowDilers {
+			get { return chkShowDilers.Active; }
 		}
 
 		public NomenclatureCategory[] SelectedCategories {
@@ -98,6 +101,10 @@ namespace Vodovoz.JournalFilters
 				return;
 			}
 
+			OnRefiltered();
+		}
+
+		protected void OnChkShowDilersToggled(object sender, EventArgs e) {
 			OnRefiltered();
 		}
 	}

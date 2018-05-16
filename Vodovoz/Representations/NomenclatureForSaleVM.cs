@@ -58,9 +58,13 @@ namespace Vodovoz.ViewModel
 					   || orderAlias.OrderStatus == OrderStatus.OnLoading)
 				.Select(Projections.Sum(() => orderItemsAlias.Count));
 
-			var items = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
-				.Where(() => !nomenclatureAlias.IsArchive)
-				.Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category), Filter.SelectedCategories))
+			var itemsQuery = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
+						   .Where(() => !nomenclatureAlias.IsArchive);
+
+			if(!Filter.ShowDilers)
+				itemsQuery.Where(() => !nomenclatureAlias.IsDiler);
+			
+			itemsQuery = itemsQuery.Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category), Filter.SelectedCategories))
 				.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
 				.Where(() => !nomenclatureAlias.IsSerial)
 				.SelectList(list => list
@@ -73,8 +77,9 @@ namespace Vodovoz.ViewModel
 					.SelectSubQuery(subqueryRemoved).WithAlias(() => resultAlias.Removed)
 					.SelectSubQuery(subqueryReserved).WithAlias(() => resultAlias.Reserved)
 				)
-				.TransformUsing(Transformers.AliasToBean<NomenclatureForSaleVMNode>())
-				.List<NomenclatureForSaleVMNode>();
+				.TransformUsing(Transformers.AliasToBean<NomenclatureForSaleVMNode>());
+			
+			var items = itemsQuery.List<NomenclatureForSaleVMNode>();
 
 			var equipment = Repository.EquipmentRepository.AvailableEquipmentQuery()
 				.GetExecutableQueryOver(UoW.Session)

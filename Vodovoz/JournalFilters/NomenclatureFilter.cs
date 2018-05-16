@@ -53,9 +53,13 @@ namespace Vodovoz
 				return;
 			FiltredCriteria = (ICriteria)BaseCriteria.Clone ();
 
-			if(!checkShowArchive.Active)
-			{
+			if(!checkShowArchive.Active) {
 				FiltredCriteria.Add(Restrictions.Eq(Projections.Property<Nomenclature>(x => x.IsArchive), false));
+				IsFiltred = true;
+			}
+
+			if(!chkShowDilers.Active) {
+				FiltredCriteria.Add(Restrictions.Eq(Projections.Property<Nomenclature>(x => x.IsDiler), false));
 				IsFiltred = true;
 			}
 
@@ -73,6 +77,11 @@ namespace Vodovoz
 		}
 
 		protected void OnCheckShowArchiveToggled(object sender, EventArgs e)
+		{
+			UpdateCreteria();
+		}
+
+		protected void OnChkShowDilersToggled(object sender, EventArgs e)
 		{
 			UpdateCreteria();
 		}
