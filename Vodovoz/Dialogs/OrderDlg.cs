@@ -216,6 +216,7 @@ namespace Vodovoz
 
 			buttonViewDocument.Sensitive = false;
 			buttonDelete1.Sensitive = false;
+			buttonDeleteEquipment.Sensitive = false;
 			//			enumStatus.Sensitive = false;
 			notebook1.ShowTabs = false;
 			notebook1.Page = 0;
@@ -247,6 +248,7 @@ namespace Vodovoz
 			};
 
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
+			treeEquipment.Selection.Changed += TreeEquipment_Selection_Changed;
 			#endregion
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
 			dataSumDifferenceReason.Completion = new EntryCompletion();
@@ -556,6 +558,16 @@ namespace Vodovoz
 														  || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.NonfreeRent);
 		}
 
+		void TreeEquipment_Selection_Changed(object sender, EventArgs e)
+		{
+			object[] items = treeEquipment.GetSelectedObjects();
+
+			if(!items.Any())
+				return;
+
+			buttonDeleteEquipment.Sensitive = items.Any();
+		}
+
 		/// <summary>
 		/// Для хранения состояния, было ли изменено количество оборудования в товарах, 
 		/// для информирования пользователя о том, что изменения сохранятся также и в 
@@ -777,6 +789,9 @@ namespace Vodovoz
 		protected void OnButtonDelete1Clicked(object sender, EventArgs e)
 		{
 			Entity.RemoveItem(UoWGeneric, treeItems.GetSelectedObject() as OrderItem);
+			//при удалении номенклатуры выделение снимается и при последующем удалении exception
+			//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
+			buttonDelete1.Sensitive = treeItems.GetSelectedObject() != null;
 		}
 
 		protected void OnButtonAddMasterClicked(object sender, EventArgs e)
@@ -1834,6 +1849,9 @@ namespace Vodovoz
 		protected void OnButtonDeleteEquipmentClicked(object sender, EventArgs e)
 		{
 			UoWGeneric.Root.DeleteEquipment(treeEquipment.GetSelectedObject() as OrderEquipment);
+			//при удалении номенклатуры выделение снимается и при последующем удалении exception
+			//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
+			buttonDeleteEquipment.Sensitive = treeEquipment.GetSelectedObject() != null;
 		}
 
 		protected void OnEntryBottlesReturnChanged(object sender, EventArgs e)
