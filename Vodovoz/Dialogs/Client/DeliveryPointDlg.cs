@@ -14,17 +14,20 @@ using QSOsm.DTO;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.JournalFilters;
 using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
 	public partial class DeliveryPointDlg : OrmGtkDialogBase<DeliveryPoint>, IDeliveryPointInfoProvider
 	{
-		protected static Logger logger = LogManager.GetCurrentClassLogger ();
-		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get (Gdk.Atom.Intern ("CLIPBOARD", false));
+		protected static Logger logger = LogManager.GetCurrentClassLogger();
+		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
 
 		GMapControl MapWidget;
 		readonly GMapOverlay addressOverlay = new GMapOverlay();
@@ -41,36 +44,36 @@ namespace Vodovoz
 			}
 		}
 
-		public DeliveryPointDlg (Counterparty counterparty)
+		public DeliveryPointDlg(Counterparty counterparty)
 		{
-			this.Build ();
-			UoWGeneric = DeliveryPoint.CreateUowForNew (counterparty);
+			this.Build();
+			UoWGeneric = DeliveryPoint.CreateUowForNew(counterparty);
 			TabName = "Новая точка доставки";
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
-		public DeliveryPointDlg (Counterparty counterparty, string address1c, string code1c)
+		public DeliveryPointDlg(Counterparty counterparty, string address1c, string code1c)
 		{
-			this.Build ();
-			UoWGeneric = DeliveryPoint.CreateUowForNew (counterparty);
+			this.Build();
+			UoWGeneric = DeliveryPoint.CreateUowForNew(counterparty);
 			TabName = "Новая точка доставки";
 			Entity.Address1c = address1c;
 			Entity.Code1c = code1c;
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
-		public DeliveryPointDlg (int id)
+		public DeliveryPointDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<DeliveryPoint> (id);
-			ConfigureDlg ();
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(id);
+			ConfigureDlg();
 		}
 
-		public DeliveryPointDlg (DeliveryPoint sub) : this (sub.Id)
+		public DeliveryPointDlg(DeliveryPoint sub) : this(sub.Id)
 		{
 		}
 
-		private void ConfigureDlg ()
+		private void ConfigureDlg()
 		{
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
@@ -88,8 +91,8 @@ namespace Vodovoz
 			phonesview1.PhonesList = Entity.ObservablePhones;
 
 			comboRoomType.ItemsEnum = typeof(RoomType);
-			comboRoomType.Binding.AddBinding (Entity, entity => entity.RoomType, widget => widget.SelectedItem)
-				.InitializeFromSource ();
+			comboRoomType.Binding.AddBinding(Entity, entity => entity.RoomType, widget => widget.SelectedItem)
+				.InitializeFromSource();
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 			referenceDeliverySchedule.Binding.AddBinding(Entity, e => e.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			entryCity.FocusOutEvent += FocusOut;
@@ -105,22 +108,27 @@ namespace Vodovoz
 
 			yentryAddition.Binding.AddBinding(Entity, e => e.АddressAddition, w => w.Text).InitializeFromSource();
 
-#region Оставлено для корректного отображения старых заказов.
+			var filter = new NomenclatureRepFilter(UoW);
+			filter.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.water };
+			yEntryRefDefWater.RepresentationModel = new NomenclatureDependsFromVM(filter);
+			yEntryRefDefWater.Binding.AddBinding(Entity, e => e.DefaultWaterNomenclature, w => w.Subject).InitializeFromSource();
+
+			#region Оставлено для корректного отображения старых заказов.
 			yentryAddress1c.Binding.AddBinding(Entity, e => e.Address1c, w => w.Text).InitializeFromSource();
 			yentryAddress1c.Binding.AddBinding(Entity, e => e.Address1c, w => w.TooltipText).InitializeFromSource();
 			labelAddress1c.Visible = yentryAddress1c.Visible = !String.IsNullOrWhiteSpace(Entity.Address1c);
 			yentryCode1c.Binding.AddBinding(Entity, e => e.Code1c, w => w.Text).InitializeFromSource();
 			codeLabel.Visible = hboxCode.Visible = !String.IsNullOrWhiteSpace(Entity.Code1c);
-#endregion
+			#endregion
 			spinBottlesReserv.Binding.AddBinding(Entity, e => e.BottleReserv, w => w.ValueAsInt).InitializeFromSource();
 
-			ylabelFoundOnOsm.Binding.AddFuncBinding (Entity, 
-				entity => entity.СoordinatesExist 
+			ylabelFoundOnOsm.Binding.AddFuncBinding(Entity,
+				entity => entity.СoordinatesExist
 				? String.Format("<span foreground='{1}'>{0}</span>", entity.СoordinatesText,
-					(entity.FoundOnOsm ? "green" : "blue")) 
+					(entity.FoundOnOsm ? "green" : "blue"))
 				: "<span foreground='red'>Не найден на карте.</span>",
 				widget => widget.LabelProp)
-				.InitializeFromSource ();
+				.InitializeFromSource();
 			ylabelChangedUser.Binding.AddFuncBinding(Entity,
 				entity => entity.СoordsLastChangeUser != null ? String.Format("Изменено: {0}", entity.СoordsLastChangeUser.Name) : "Никем не изменялись",
 				widget => widget.LabelProp)
@@ -130,40 +138,40 @@ namespace Vodovoz
 
 			entryCity.CitySelected += (sender, e) => {
 				entryStreet.CityId = entryCity.OsmId;
-				entryStreet.Street=string.Empty;
-				entryStreet.StreetDistrict=string.Empty;
+				entryStreet.Street = string.Empty;
+				entryStreet.StreetDistrict = string.Empty;
 			};
 
 			entryStreet.StreetSelected += (sender, e) => {
-				entryBuilding.Street = new OsmStreet (-1, entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
+				entryBuilding.Street = new OsmStreet(-1, entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
 			};
 
 			entryBuilding.CompletionLoaded += EntryBuilding_Changed;
 			entryBuilding.Changed += EntryBuilding_Changed;
 
 			entryCity.Binding
-				.AddSource (Entity)
-				.AddBinding (entity => entity.CityDistrict, widget => widget.CityDistrict)
-				.AddBinding (entity => entity.City, widget => widget.City)
-				.AddBinding (entity => entity.LocalityType, widget => widget.Locality) 
-				.InitializeFromSource ();
+				.AddSource(Entity)
+				.AddBinding(entity => entity.CityDistrict, widget => widget.CityDistrict)
+				.AddBinding(entity => entity.City, widget => widget.City)
+				.AddBinding(entity => entity.LocalityType, widget => widget.Locality)
+				.InitializeFromSource();
 			entryStreet.Binding
-				.AddSource (Entity)
-				.AddBinding (entity => entity.StreetDistrict, widget => widget.StreetDistrict)
-				.AddBinding (entity => entity.Street, widget => widget.Street)
-				.InitializeFromSource ();
+				.AddSource(Entity)
+				.AddBinding(entity => entity.StreetDistrict, widget => widget.StreetDistrict)
+				.AddBinding(entity => entity.Street, widget => widget.Street)
+				.InitializeFromSource();
 			entryBuilding.Binding
-				.AddSource (Entity)
-				.AddBinding (entity => entity.Building, widget => widget.House)
-				.InitializeFromSource ();
+				.AddSource(Entity)
+				.AddBinding(entity => entity.Building, widget => widget.House)
+				.InitializeFromSource();
 
 			//make actions menu
-			var menu = new Gtk.Menu ();
-			var menuItem = new Gtk.MenuItem ("Открыть контрагента");
+			var menu = new Gtk.Menu();
+			var menuItem = new Gtk.MenuItem("Открыть контрагента");
 			menuItem.Activated += OpenCounterparty;
-			menu.Add (menuItem);
+			menu.Add(menuItem);
 			menuActions.Menu = menu;
-			menu.ShowAll ();
+			menu.ShowAll();
 
 			//Configure map
 			MapWidget = new GMap.NET.GtkSharp.GMapControl();
@@ -185,29 +193,25 @@ namespace Vodovoz
 			UpdateAddressOnMap();
 		}
 
-		void YtreeviewResponsiblePersons_Selection_Changed (object sender, EventArgs e)
+		void YtreeviewResponsiblePersons_Selection_Changed(object sender, EventArgs e)
 		{
 			buttonDeleteResponsiblePerson.Sensitive = ytreeviewResponsiblePersons.GetSelectedObjects().Length > 0;
 		}
 
-		void MapWidget_MotionNotifyEvent (object o, Gtk.MotionNotifyEventArgs args)
+		void MapWidget_MotionNotifyEvent(object o, Gtk.MotionNotifyEventArgs args)
 		{
-			if(addressMoving)
-			{
+			if(addressMoving) {
 				addressMarker.Position = MapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
 			}
 		}
 
-		void MapWidget_ButtonReleaseEvent (object o, Gtk.ButtonReleaseEventArgs args)
+		void MapWidget_ButtonReleaseEvent(object o, Gtk.ButtonReleaseEventArgs args)
 		{
-			if(args.Event.Button == 1)
-			{
+			if(args.Event.Button == 1) {
 				addressMoving = false;
 				var newPoint = MapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
-				if(!Entity.ManualCoordinates && Entity.FoundOnOsm)
-				{
-					if (!MessageDialogWorks.RunQuestionDialog("Координаты точки установлены по адресу. Вы уверены что хотите установить новые координаты?"))
-					{
+				if(!Entity.ManualCoordinates && Entity.FoundOnOsm) {
+					if(!MessageDialogWorks.RunQuestionDialog("Координаты точки установлены по адресу. Вы уверены что хотите установить новые координаты?")) {
 						UpdateAddressOnMap();
 						return;
 					}
@@ -220,53 +224,47 @@ namespace Vodovoz
 
 		private bool addressMoving;
 
-		void MapWidget_ButtonPressEvent (object o, Gtk.ButtonPressEventArgs args)
+		void MapWidget_ButtonPressEvent(object o, Gtk.ButtonPressEventArgs args)
 		{
-			if (args.Event.Button == 1)
-			{
+			if(args.Event.Button == 1) {
 				var newPoint = MapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
-				if (addressMarker == null)
-				{
-					addressMarker = new GMarkerGoogle(newPoint,	GMarkerGoogleType.arrow);
+				if(addressMarker == null) {
+					addressMarker = new GMarkerGoogle(newPoint, GMarkerGoogleType.arrow);
 					addressMarker.ToolTipText = Entity.ShortAddress;
 					addressOverlay.Markers.Add(addressMarker);
-				}
-				else
+				} else
 					addressMarker.Position = newPoint;
 				addressMoving = true;
 			}
 		}
 
-		void Entity_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == Entity.GetPropertyName(x => x.Latitude)
-				|| e.PropertyName == Entity.GetPropertyName(x => x.Longitude))
-			{
+				|| e.PropertyName == Entity.GetPropertyName(x => x.Longitude)) {
 				UpdateMapPosition();
 				UpdateAddressOnMap();
 			}
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 		}
 
-		void Rightsidepanel1_PanelHided (object sender, EventArgs e)
+		void Rightsidepanel1_PanelHided(object sender, EventArgs e)
 		{
 			var slider = TabParent as QSTDI.TdiSliderTab;
-			if(slider != null)
-			{
+			if(slider != null) {
 				slider.IsHideJournal = false;
 			}
 		}
 
-		void Rightsidepanel1_PanelOpened (object sender, EventArgs e)
+		void Rightsidepanel1_PanelOpened(object sender, EventArgs e)
 		{
 			var slider = TabParent as QSTDI.TdiSliderTab;
-			if(slider != null)
-			{
+			if(slider != null) {
 				slider.IsHideJournal = true;
 			}
 		}
 
-		void OpenCounterparty (object sender, EventArgs e)
+		void OpenCounterparty(object sender, EventArgs e)
 		{
 			TabParent.OpenTab(
 				OrmMain.GenerateDialogHashName<Counterparty>(Entity.Counterparty.Id),
@@ -274,49 +272,40 @@ namespace Vodovoz
 			);
 		}
 
-		void FocusOut (object o, Gtk.FocusOutEventArgs args)
+		void FocusOut(object o, Gtk.FocusOutEventArgs args)
 		{
-			SetLogisticsArea ();
+			SetLogisticsArea();
 		}
 
-		void EntryBuilding_Changed (object sender, EventArgs e)
+		void EntryBuilding_Changed(object sender, EventArgs e)
 		{
-			if (entryBuilding.OsmCompletion.HasValue)
-			{
+			if(entryBuilding.OsmCompletion.HasValue) {
 				Entity.FoundOnOsm = entryBuilding.OsmCompletion.Value;
 				decimal? latitude, longitude;
 				entryBuilding.GetCoordinates(out longitude, out latitude);
 
-				if (!Entity.ManualCoordinates || (Entity.ManualCoordinates && MessageDialogWorks.RunQuestionDialog("Координаты были установлены вручную, заменить их на коордитаты адреса?")))
-				{
+				if(!Entity.ManualCoordinates || (Entity.ManualCoordinates && MessageDialogWorks.RunQuestionDialog("Координаты были установлены вручную, заменить их на коордитаты адреса?"))) {
 					WriteCoordinates(latitude, longitude);
 					Entity.ManualCoordinates = false;
 				}
 			}
-			if(entryBuilding.OsmHouse != null && !String.IsNullOrWhiteSpace(entryBuilding.OsmHouse.Name))
-			{
+			if(entryBuilding.OsmHouse != null && !String.IsNullOrWhiteSpace(entryBuilding.OsmHouse.Name)) {
 				labelHouseName.Visible = true;
 				labelHouseName.LabelProp = entryBuilding.OsmHouse.Name;
-			}
-			else
-			{
+			} else {
 				labelHouseName.Visible = false;
 			}
 		}
 
 		private void UpdateMapPosition()
 		{
-			if(Entity.Latitude.HasValue && Entity.Longitude.HasValue)
-			{
+			if(Entity.Latitude.HasValue && Entity.Longitude.HasValue) {
 				var position = new PointLatLng((double)Entity.Latitude.Value, (double)Entity.Longitude.Value);
-				if(!MapWidget.ViewArea.Contains(position))
-				{
+				if(!MapWidget.ViewArea.Contains(position)) {
 					MapWidget.Position = position;
 					MapWidget.Zoom = 15;
 				}
-			}
-			else
-			{
+			} else {
 				MapWidget.Position = new PointLatLng(59.93900, 30.31646);
 				MapWidget.Zoom = 9;
 			}
@@ -324,14 +313,12 @@ namespace Vodovoz
 
 		private void UpdateAddressOnMap()
 		{
-			if(addressMarker != null)
-			{
+			if(addressMarker != null) {
 				addressOverlay.Markers.Clear();
 				addressMarker = null;
 			}
 
-			if(Entity.Latitude.HasValue && Entity.Longitude.HasValue)
-			{
+			if(Entity.Latitude.HasValue && Entity.Longitude.HasValue) {
 				addressMarker = new GMarkerGoogle(new PointLatLng((double)Entity.Latitude.Value, (double)Entity.Longitude.Value),
 					GMarkerGoogleType.arrow);
 				addressMarker.ToolTipText = Entity.ShortAddress;
@@ -339,41 +326,39 @@ namespace Vodovoz
 			}
 		}
 
-		public override bool Save ()
+		public override bool Save()
 		{
-			if(!Entity.СoordinatesExist)
-			{
-				if(!MessageDialogWorks.RunQuestionDialog ("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
+			if(!Entity.СoordinatesExist) {
+				if(!MessageDialogWorks.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 					return false;
 			}
 
-			var valid = new QSValidator<DeliveryPoint> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var valid = new QSValidator<DeliveryPoint>(UoWGeneric.Root);
+			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
 			phonesview1.SaveChanges();
-			UoWGeneric.Save ();
+			UoWGeneric.Save();
 			return true;
 		}
 
-		protected void SetLogisticsArea ()
+		protected void SetLogisticsArea()
 		{
-			IList <DeliveryPoint> sameAddress = UoWGeneric.Session.CreateCriteria<DeliveryPoint> ()
-				.Add (Restrictions.Eq ("City", UoWGeneric.Root.City))
-				.Add (Restrictions.Eq ("Street", UoWGeneric.Root.Street))
-				.Add (Restrictions.Eq ("Building", UoWGeneric.Root.Building))
-				.Add (Restrictions.IsNotNull ("LogisticsArea"))
-				.Add (Restrictions.Not (Restrictions.Eq ("Id", UoWGeneric.Root.Id)))
-				.List<DeliveryPoint> ();
-			if (sameAddress.Count > 0) {
-				UoWGeneric.Root.LogisticsArea = sameAddress [0].LogisticsArea;
+			IList<DeliveryPoint> sameAddress = UoWGeneric.Session.CreateCriteria<DeliveryPoint>()
+				.Add(Restrictions.Eq("City", UoWGeneric.Root.City))
+				.Add(Restrictions.Eq("Street", UoWGeneric.Root.Street))
+				.Add(Restrictions.Eq("Building", UoWGeneric.Root.Building))
+				.Add(Restrictions.IsNotNull("LogisticsArea"))
+				.Add(Restrictions.Not(Restrictions.Eq("Id", UoWGeneric.Root.Id)))
+				.List<DeliveryPoint>();
+			if(sameAddress.Count > 0) {
+				UoWGeneric.Root.LogisticsArea = sameAddress[0].LogisticsArea;
 			}
 		}
 
-		protected void OnRadoiInformationToggled (object sender, EventArgs e)
+		protected void OnRadoiInformationToggled(object sender, EventArgs e)
 		{
-			if (radioInformation.Active)
-			{
+			if(radioInformation.Active) {
 				notebook1.CurrentPage = 0;
 			}
 		}
@@ -385,46 +370,43 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnRadioContactsToggled (object sender, EventArgs e)
+		protected void OnRadioContactsToggled(object sender, EventArgs e)
 		{
-			if (radioContacts.Active)
-			{
+			if(radioContacts.Active) {
 				notebook1.CurrentPage = 2;
 			}
 		}
 
-		protected void OnButtonAddResponsiblePersonClicked (object sender, EventArgs e)
+		protected void OnButtonAddResponsiblePersonClicked(object sender, EventArgs e)
 		{
 			var dlg = new ReferenceRepresentation(new ViewModel.ContactsVM(UoW, Entity.Counterparty));
 			dlg.Mode = OrmReferenceMode.MultiSelect;
 			dlg.ObjectSelected += Dlg_ObjectSelected;
-			TabParent.AddSlaveTab (this, dlg);
+			TabParent.AddSlaveTab(this, dlg);
 		}
 
-		void Dlg_ObjectSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
+		void Dlg_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
 			var contacts = UoW.GetById<Contact>(e.GetSelectedIds()).ToList();
 			contacts.ForEach(Entity.AddContact);
 		}
 
-		protected void OnButtonDeleteResponsiblePersonClicked (object sender, EventArgs e)
+		protected void OnButtonDeleteResponsiblePersonClicked(object sender, EventArgs e)
 		{
 			var selected = ytreeviewResponsiblePersons.GetSelectedObjects<Contact>();
-			foreach (var toDelete in selected)
-			{
+			foreach(var toDelete in selected) {
 				Entity.ObservableContacts.Remove(toDelete);
 			}
 		}
 
-		protected void OnButtonInsertFromBufferClicked (object sender, EventArgs e)
+		protected void OnButtonInsertFromBufferClicked(object sender, EventArgs e)
 		{
 			bool error = true;
 
 			string booferCoordinates = clipboard.WaitForText();
 
 			string[] coordinates = booferCoordinates?.Split(',');
-			if (coordinates?.Length == 2)
-			{
+			if(coordinates?.Length == 2) {
 				coordinates[0] = coordinates[0].Replace('.', ',');
 				coordinates[1] = coordinates[1].Replace('.', ',');
 
@@ -432,14 +414,13 @@ namespace Vodovoz
 				bool goodLat = decimal.TryParse(coordinates[0].Trim(), out latitude);
 				bool goodLon = decimal.TryParse(coordinates[1].Trim(), out longitude);
 
-				if (goodLat && goodLon)
-				{
+				if(goodLat && goodLon) {
 					WriteCoordinates(latitude, longitude);
 					error = false;
 					Entity.ManualCoordinates = true;
 				}
 			}
-			if (error)
+			if(error)
 				MessageDialogWorks.RunErrorDialog(
 					"Буфер обмена не содержит координат или содержит неправильные координаты");
 		}

@@ -1180,10 +1180,57 @@ namespace Vodovoz
 			});
 		}
 
+		/// <summary>
+		/// Проверка на наличие воды по умолчанию в заказе для выбранной точки доставки и выдача сообщения о возможном штрафе
+		/// </summary>
+		/// <returns><c>true</c>, если пользователь подтвердил замену воды по умолчанию 
+		/// или если для точки доставки не указана вода по умолчанию 
+		/// или если среди товаров в заказе имеется вода по умолчанию, <c>false</c> если в заказе среди воды нет воды по умолчанию и 
+		/// пользователь не хочет её добавлять в заказ</returns>
+		private bool DefaultWaterCheck()
+		{
+			Nomenclature defaultWater = Entity.DeliveryPoint.DefaultWaterNomenclature;
+			var orderWaters = Entity.ObservableOrderItems.Where(w => w.Nomenclature.Category == NomenclatureCategory.water);
+
+			//Если имеется для точки доставки номенклатура по умолчанию, 
+			//если имеется вода в заказе и ни одна 19 литровая вода в заказе
+			//не совпадает с номенклатурой по умолчанию, то сообщение о штрафе!
+			if(defaultWater != null
+			   && orderWaters.Any()
+			   && !Entity.ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.water
+												   && i.Nomenclature == defaultWater)) {
+				string address = Entity.DeliveryPoint.ShortAddress;
+				string client = Entity.Client.Name;
+				string waterInOrder = "";
+
+				//список вод в заказе за исключением дефолтной для сообщения о штрафе
+				foreach(var item in orderWaters) {
+					if(item.Nomenclature != defaultWater)
+						waterInOrder += String.Format(",\n\t'{0}'", item.Nomenclature.ShortOrFullName);
+				}
+				//waterInOrder = waterInOrder.Remove(0, 1);//удаление первой запятой
+				waterInOrder = waterInOrder.TrimStart(',');
+				string title = "Внимание!";
+				string header = "Есть риск получить <span foreground=\"Red\" size=\"x-large\">ШТРАФ</span>!\n";
+				string text = String.Format("Клиент '{0}' для адреса '{1}' заказывает фиксировано воду \n'{2}'.\nВ заказе же вы указали: {3}. \nДля подтверждения что это не ошибка, нажмите 'Да'.",
+											client,
+											address,
+											defaultWater.ShortOrFullName,
+											waterInOrder);
+				return MessageDialogWorks.RunWarningDialog(title, header + text);
+			}
+			return true;
+		}
+
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
+			if(!DefaultWaterCheck()) {
+				toggleGoods.Activate();
+				return;
+			}
+
 			if(UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder
-			  || UoWGeneric.Root.OrderStatus == OrderStatus.WaitForPayment) {
+			   || UoWGeneric.Root.OrderStatus == OrderStatus.WaitForPayment) {
 				AcceptOrder();
 				UpdateButtonState();
 				return;

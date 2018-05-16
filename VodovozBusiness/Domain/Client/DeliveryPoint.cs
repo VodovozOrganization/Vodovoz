@@ -12,6 +12,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Employees;
 using QSOsm.Osrm;
 using QSContacts;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
 {
@@ -324,6 +325,14 @@ namespace Vodovoz.Domain.Client
 		public virtual int BottleReserv {
 			get { return bottleReserv; }
 			set { SetField(ref bottleReserv, value, () => BottleReserv); }
+		}
+
+		Nomenclature defaultWaterNomenclature;
+
+		[Display(Name = "Вода по умолчанию")]
+		public virtual Nomenclature DefaultWaterNomenclature {
+			get { return defaultWaterNomenclature; }
+			set { SetField(ref defaultWaterNomenclature, value, () => DefaultWaterNomenclature); }
 		}
 
 		User coordsLastChangeUser;
