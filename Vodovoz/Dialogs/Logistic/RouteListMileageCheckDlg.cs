@@ -121,23 +121,17 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			if(Entity.FuelOperationHaveDiscrepancy()) {
-				if(!MessageDialogWorks.RunQuestionDialog("Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений. Продолжить сохранение?")) {
-					return false;
+			if(Entity.Status > RouteListStatus.OnClosing) {
+				if(Entity.FuelOperationHaveDiscrepancy()) {
+					if(!MessageDialogWorks.RunQuestionDialog("Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений. Продолжить сохранение?")) {
+						return false;
+					}
 				}
 				Entity.UpdateFuelOperation();
 			}
 
-			var messages = new List<string>();
-
-			if(Entity.Status > RouteListStatus.OnClosing) {
-				messages.AddRange(Entity.UpdateMovementOperations());
-			}
-
 			UoWGeneric.Save();
 
-			if(messages.Count > 0)
-				MessageDialogWorks.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
 			return true;
 		}
 		#endregion
@@ -180,7 +174,7 @@ namespace Vodovoz
 
 		protected void OnButtonOpenMapClicked(object sender, EventArgs e)
 		{
-			var trackWnd = new TrackOnMapWnd(Entity.Id);
+			var trackWnd = new TrackOnMapWnd(UoWGeneric);
 			trackWnd.Show();
 		}
 

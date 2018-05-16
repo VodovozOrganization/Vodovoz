@@ -36,6 +36,23 @@ namespace Dialogs.Logistic
 
 		#endregion
 
+		/// <summary>
+		/// Создание диалога для трека с используемой в другом диалоге сессией 
+		/// </summary>
+		public TrackOnMapWnd(IUnitOfWorkGeneric<RouteList> uow) : base(Gtk.WindowType.Toplevel)
+		{
+			this.Build();
+
+			UoW = uow;
+			routeList = uow.Root;
+
+			Configure();
+		}
+
+		/// <summary>
+		/// Создание диалога для трека с новой сессией
+		/// НЕ ИСПОЛЬЗОВАТЬ если создается из диалога МЛ.
+		/// </summary>
 		public TrackOnMapWnd(int routeListId) : base(Gtk.WindowType.Toplevel)
 		{
 			this.Build();
@@ -45,14 +62,17 @@ namespace Dialogs.Logistic
 				.Where(rl => rl.Id == routeListId).SingleOrDefault();
 			if (routeList == null)
 				return;
+			
+			Configure();
+		}
 
+		private void Configure()
+		{
 			track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
-			if(track == null)
-			{
+			if(track == null){
 				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = buttonCutTrack.Sensitive = buttonLastAddress.Sensitive = false;
 				MessageDialogWorks.RunInfoDialog($"Маршрутный лист №{routeList.Id}\nТрек не обнаружен");
-			}
-			else if(routeList.Status < RouteListStatus.OnClosing)
+			}else if(routeList.Status < RouteListStatus.OnClosing)
 				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = buttonCutTrack.Sensitive = buttonLastAddress.Sensitive = false;
 
 			ConfigureMap();
