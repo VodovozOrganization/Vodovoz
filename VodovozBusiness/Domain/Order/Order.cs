@@ -642,7 +642,7 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("Не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
 
-					if(PaymentType == PaymentType.cashless && !SignatureType.HasValue)
+					if(PaymentType == PaymentType.cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
 						yield return new ValidationResult("Не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName(o => o.SignatureType) });
 
@@ -1093,7 +1093,7 @@ namespace Vodovoz.Domain.Orders
 				AdditionalAgreement = null,
 				Count = (nomenclature.Category == NomenclatureCategory.service
 						 || nomenclature.Category == NomenclatureCategory.master
-				         || nomenclature.Category == NomenclatureCategory.deposit) ? 1 : 0,
+						 || nomenclature.Category == NomenclatureCategory.deposit) ? 1 : 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)
