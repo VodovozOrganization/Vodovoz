@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Client
 
 		string colorText;
 
-		[Display(Name = "Цвет строка")]
+		[Display(Name = "Цвет строки")]
 		public virtual string ColorText {
 			get { return colorText; }
 			set { SetField(ref colorText, value, () => ColorText); }

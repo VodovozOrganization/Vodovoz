@@ -1,4 +1,6 @@
-﻿using Gamma.ColumnConfig;
+﻿using System;
+using System.Collections.Generic;
+using Gamma.ColumnConfig;
 using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
@@ -31,7 +33,7 @@ namespace Vodovoz.ViewModel
 			CounterpartyVMNode resultAlias = null;
 			QSContacts.Phone phoneAlias = null;
 			DeliveryPoint addressAlias = null;
-			Tag TagAlias = null;
+			Tag tagAlias = null;
 
 			var query = UoW.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
@@ -39,11 +41,8 @@ namespace Vodovoz.ViewModel
 				query.Where(c => !c.IsArchive);
 			}
 
-			if (Filter != null && Filter.Tag != null)
-			{
-				query.Left.JoinQueryOver(() => counterpartyAlias.Tags, () => TagAlias)
-				     .Where(x => x.Id == Filter.Tag.Id);
-			}
+			if(Filter != null && Filter.Tag != null)
+				query.Where(() => tagAlias.Id == Filter.Tag.Id);
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
 				.Where(c => c.Counterparty.Id == counterpartyAlias.Id)
@@ -64,8 +63,10 @@ namespace Vodovoz.ViewModel
 
 			var counterpartyList = query
 				.JoinAlias(c => c.Phones, () => phoneAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(c => c.Tags, () => tagAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList(list => list
 				   .SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)
+				   .SelectGroup(c => c.VodovozInternalId).WithAlias(() => resultAlias.InternalId)
 				   .Select(c => c.Name).WithAlias(() => resultAlias.Name)
 				   .Select(c => c.INN).WithAlias(() => resultAlias.INN)
 				   .Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
@@ -82,7 +83,14 @@ namespace Vodovoz.ViewModel
 					   Projections.Property(() => phoneAlias.DigitsNumber),
 					   Projections.Constant("\n"))
 				   ).WithAlias(() => resultAlias.PhonesDigits)
-				   .SelectSubQuery(addressSubquery).WithAlias(() => resultAlias.Addresses)
+			   .Select(Projections.SqlFunction(
+					   //пробел после "CONCAT('" поставлен специально. Без него первый колобок в таблице отрисовывается почему-то всегда чёрным цветом.
+					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( CONCAT(' <span foreground=\"', ?1, '\">⬤</span>', ?2) SEPARATOR '\n')"),
+					   NHibernateUtil.String,
+					   Projections.Property(() => tagAlias.ColorText),
+					   Projections.Property(() => tagAlias.Name)
+				   ).WithAlias(() => resultAlias.Tags))
+			   .SelectSubQuery(addressSubquery).WithAlias(() => resultAlias.Addresses)
 				)
 				.TransformUsing(Transformers.AliasToBean<CounterpartyVMNode>())
 				.List<CounterpartyVMNode>();
@@ -91,7 +99,10 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<CounterpartyVMNode>.Create()
-		                                                                      .AddColumn("Код").AddTextRenderer(x => x.IdText)
+			.AddColumn("Код").AddTextRenderer(x => x.IdText)
+		    .AddColumn("Вн.номер").AddTextRenderer(x => x.InternalIdText)
+			.AddColumn("Тег").AddTextRenderer()
+			.AddSetter((cell, node) => { cell.Markup = node.Tags; })
 			.AddColumn("Контрагент").AddTextRenderer(node => node.Name).WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 			.AddColumn("Телефоны").AddTextRenderer(x => x.Phones)
 			.AddColumn("ИНН").AddTextRenderer(x => x.INN)
@@ -137,7 +148,13 @@ namespace Vodovoz.ViewModel
 
 		[UseForSearch]
 		[SearchHighlight]
-		public string IdText {get{ return Id.ToString();}}
+		public string IdText { get { return Id.ToString(); } }
+
+		public int InternalId { get; set; }
+
+		[UseForSearch]
+		[SearchHighlight]
+		public string InternalIdText { get { return InternalId.ToString(); } }
 
 		public bool IsArhive { get; set; }
 
@@ -157,6 +174,12 @@ namespace Vodovoz.ViewModel
 		[SearchHighlight]
 		public string Addresses { get; set; }
 
+		[UseForSearch]
+		[SearchHighlight]
+		public string Tags { get; set; }
+
+		public IList<Tag> LstTags { get; set; }
+
 		[SearchHighlight]
 		public string Phones { get; set; }
 
@@ -165,7 +188,7 @@ namespace Vodovoz.ViewModel
 
 		public string RowColor {
 			get {
-				if (IsArhive)
+				if(IsArhive)
 					return "grey";
 				else
 					return "black";

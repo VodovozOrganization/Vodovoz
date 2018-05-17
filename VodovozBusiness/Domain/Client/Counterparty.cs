@@ -134,6 +134,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref fullName, value, () => FullName); }
 		}
 
+		int? vodovozInternalId;
+
+		[Display(Name = "Внутренний номер контрагента")]
+		public virtual int? VodovozInternalId {
+			get { return vodovozInternalId; }
+			set { SetField(ref vodovozInternalId, value, () => VodovozInternalId); }
+		}
+
 		string code1c;
 
 		public virtual string Code1c {

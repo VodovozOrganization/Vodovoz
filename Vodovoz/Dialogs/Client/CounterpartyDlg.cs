@@ -103,6 +103,9 @@ namespace Vodovoz
 
 			ycheckIsArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
+			yEntryVodovozNumber.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			yEntryVodovozNumber.Binding.AddBinding(Entity, e => e.VodovozInternalId, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+
 			var counterpatiesView = new ViewModel.CounterpartyVM(UoW);
 			referenceMainCounterparty.RepresentationModel = counterpatiesView;
 			referenceMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
@@ -302,15 +305,14 @@ namespace Vodovoz
 
 		protected void OnRadioTagsToggled(object sender, EventArgs e)
 		{
-			if (radioTags.Active)
+			if(radioTags.Active)
 				notebook1.CurrentPage = 8;
 		}
 
 		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			var tag = e.Subject as Tag;
-			if (tag == null)
-			{
+			if(tag == null) {
 				return;
 			}
 			Entity.ObservableTags.Add(tag);
@@ -327,13 +329,12 @@ namespace Vodovoz
 		protected void OnButtonDeleteTagClicked(object sender, EventArgs e)
 		{
 			var tag = ytreeviewTags.GetSelectedObject() as Tag;
-			if (tag == null)
-			{
+			if(tag == null) {
 				return;
 			}
 			Entity.ObservableTags.Remove(tag);
 		}
-		
+
 		protected void OnDatalegalname1OwnershipChanged(object sender, EventArgs e)
 		{
 			validatedKPP.Sensitive = Entity.TypeOfOwnership != "ИП";
