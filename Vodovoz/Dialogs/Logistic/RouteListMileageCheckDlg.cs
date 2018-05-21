@@ -152,7 +152,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
 
-			if(Entity.ConfirmedDistance < Entity.ActualDistance) {
+			if(Entity.ConfirmedDistance < Entity.ActualDistance && Entity.Car.TypeOfUse != CarTypeOfUse.Largus) {
 				decimal excessKM = Entity.ActualDistance - Entity.ConfirmedDistance;
 				decimal redundantPayForFuel = Entity.GetLitersOutlayed(excessKM) * Entity.Car.FuelType.Cost;
 				string fineReason = "Перевыплата топлива";
