@@ -193,6 +193,12 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual bool IsDepositCategory {
+			get {
+				return Nomenclature.Category == NomenclatureCategory.deposit;
+			}
+		}
+
 		int RentTime {
 			get {
 				if(AdditionalAgreement == null) {

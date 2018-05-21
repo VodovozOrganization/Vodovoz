@@ -202,7 +202,7 @@ namespace Vodovoz
 				.AddColumn("Залоги за\n бутыли").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.DepositsCollected)
 				.AddColumn("Залоги за\n оборудование").HeaderAlignment(0.5f).EnterToNextCell()
-					.AddNumericRenderer(node => node.EquipmentDepositsCollected)
+					.AddNumericRenderer(node => node.GetEquipmentDepositsCollected)
 				.AddColumn("Итого\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.TotalCash)
 						.AddSetter((cell, node) => cell.Editable = node.Order.PaymentType == PaymentType.cash && 
