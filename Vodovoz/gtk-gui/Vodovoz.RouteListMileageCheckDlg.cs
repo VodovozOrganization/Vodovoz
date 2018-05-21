@@ -42,11 +42,11 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReference referenceCar;
 
-		private global::Gamma.Widgets.yEntryReference referenceDriver;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceDriver;
 
-		private global::Gamma.Widgets.yEntryReference referenceForwarder;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceForwarder;
 
-		private global::Gamma.Widgets.yEntryReference referenceLogistican;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceLogistican;
 
 		private global::Gamma.Widgets.ySpecComboBox speccomboShift;
 
@@ -114,7 +114,6 @@ namespace Vodovoz
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(6)), ((uint)(4)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -288,7 +287,7 @@ namespace Vodovoz
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceDriver = new global::Gamma.Widgets.yEntryReference();
+			this.referenceDriver = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceDriver.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDriver.Name = "referenceDriver";
 			this.table1.Add(this.referenceDriver);
@@ -300,7 +299,7 @@ namespace Vodovoz
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceForwarder = new global::Gamma.Widgets.yEntryReference();
+			this.referenceForwarder = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceForwarder.Events = ((global::Gdk.EventMask)(256));
 			this.referenceForwarder.Name = "referenceForwarder";
 			this.table1.Add(this.referenceForwarder);
@@ -312,7 +311,7 @@ namespace Vodovoz
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceLogistican = new global::Gamma.Widgets.yEntryReference();
+			this.referenceLogistican = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceLogistican.Events = ((global::Gdk.EventMask)(256));
 			this.referenceLogistican.Name = "referenceLogistican";
 			this.table1.Add(this.referenceLogistican);
@@ -337,11 +336,11 @@ namespace Vodovoz
 			w23.XOptions = ((global::Gtk.AttachOptions)(4));
 			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yspinActualDistance = new global::Gamma.GtkWidgets.ySpinButton(0, 10000, 1);
+			this.yspinActualDistance = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000D, 1D);
 			this.yspinActualDistance.CanFocus = true;
 			this.yspinActualDistance.Name = "yspinActualDistance";
-			this.yspinActualDistance.Adjustment.PageIncrement = 10;
-			this.yspinActualDistance.ClimbRate = 1;
+			this.yspinActualDistance.Adjustment.PageIncrement = 10D;
+			this.yspinActualDistance.ClimbRate = 1D;
 			this.yspinActualDistance.Numeric = true;
 			this.yspinActualDistance.ValueAsDecimal = 0m;
 			this.yspinActualDistance.ValueAsInt = 0;
@@ -354,11 +353,11 @@ namespace Vodovoz
 			w24.XOptions = ((global::Gtk.AttachOptions)(4));
 			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yspinConfirmedDistance = new global::Gamma.GtkWidgets.ySpinButton(0, 10000, 1);
+			this.yspinConfirmedDistance = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000D, 1D);
 			this.yspinConfirmedDistance.CanFocus = true;
 			this.yspinConfirmedDistance.Name = "yspinConfirmedDistance";
-			this.yspinConfirmedDistance.Adjustment.PageIncrement = 10;
-			this.yspinConfirmedDistance.ClimbRate = 1;
+			this.yspinConfirmedDistance.Adjustment.PageIncrement = 10D;
+			this.yspinConfirmedDistance.ClimbRate = 1D;
 			this.yspinConfirmedDistance.Numeric = true;
 			this.yspinConfirmedDistance.ValueAsDecimal = 0m;
 			this.yspinConfirmedDistance.ValueAsInt = 0;
@@ -420,7 +419,8 @@ namespace Vodovoz
 			w32.Expand = false;
 			w32.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

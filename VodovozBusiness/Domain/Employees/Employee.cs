@@ -70,6 +70,22 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref passportNumber, value, () => PassportNumber); }
 		}
 
+		string passportIssuedOrg;
+
+		[Display(Name = "Кем выдан паспорт")]
+		public virtual string PassportIssuedOrg {
+			get { return passportIssuedOrg; }
+			set { SetField(ref passportIssuedOrg, value, () => PassportIssuedOrg); }
+		}
+
+		private DateTime? passportIssuedDate;
+
+		[Display(Name = "Дата выдачи паспорта")]
+		public virtual DateTime? PassportIssuedDate {
+			get { return passportIssuedDate; }
+			set { SetField(ref passportIssuedDate, value, () => PassportIssuedDate); }
+		}
+
 		string drivingNumber;
 
 		[Display(Name = "Водительское удостоверение")]
@@ -425,6 +441,8 @@ namespace Vodovoz.Domain.Employees
 		normal,
 		[Display(Name = "Процент от стоимости")]
 		percentage,
+		[Display(Name = "Процент от стоимости (СЦ)")]
+		percentageForService,
 		[Display(Name = "Фиксированная ставка за МЛ")]
 		fixedRoute,
 		[Display(Name = "Фиксированная ставка за день")]

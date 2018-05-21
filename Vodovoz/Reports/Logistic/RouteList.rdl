@@ -60,7 +60,7 @@
           <BorderWidth />
           <TextAlign>Left</TextAlign>
         </Style>
-        <ZIndex >1</ZIndex>
+        <ZIndex>1</ZIndex>
       </Textbox>
     </ReportItems>
   </PageHeader>
@@ -94,6 +94,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -1432,6 +1434,32 @@
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox73">
+        <Height>12.02pt</Height>
+        <Width>183.64pt</Width>
+        <Value>="Грузоподъёмность: " +First({max_weight} , "RouteList") + " кг."</Value>
+        <ZIndex>1</ZIndex>
+        <Left>204.40pt</Left>
+        <Top>157.80pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox74">
+        <Height>12.77pt</Height>
+        <Width>191.13pt</Width>
+        <Value>="Тонаж МЛ: " + Sum({Weight}, "Orders") + " кг."</Value>
+        <ZIndex>1</ZIndex>
+        <Left>204.60pt</Left>
+        <Top>175.60pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -1447,7 +1475,11 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 driver.name AS DriverName, driver.last_name AS DriverLastname, driver_phone.number AS DriverPhone, 
-cars.model AS CarModel, cars.reg_number AS CarRegNumber, cars.fuel_consumption AS FuelConsumption, fuel_types.name AS FuelType, 
+cars.model AS CarModel,
+cars.reg_number AS CarRegNumber,
+cars.fuel_consumption AS FuelConsumption,
+cars.max_weight,
+fuel_types.name AS FuelType, 
 forwarder.name AS ForwarderName, forwarder.last_name AS ForwarderLastname, forwarder_phone.number AS ForwarderPhone, 
 logistican.name AS LogisticanName, logistican.last_name AS LogisticanLastname,
 route_lists.date as Date,
@@ -1493,6 +1525,10 @@ WHERE route_lists.id = @route_list_id;</CommandText>
         <Field Name="FuelConsumption">
           <DataField>FuelConsumption</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="max_weight">
+          <DataField>max_weight</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="FuelType">
           <DataField>FuelType</DataField>
@@ -1543,6 +1579,9 @@ WHERE route_lists.id = @route_list_id;</CommandText>
 SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
 orders.daily_number_1c, route_list_addresses.need_to_reload AS Reloaded,
+(SELECT SUM(order_items.count * nomenclature.weight) FROM order_items
+LEFT JOIN nomenclature ON nomenclature.id=order_items.nomenclature_id
+WHERE order_items.order_id = orders.id) as weight,
 CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
 CONCAT(DATE_FORMAT(route_list_addresses.plan_time_start, '%H:%i'),'-', DATE_FORMAT(route_list_addresses.plan_time_end, '%H:%i')) AS PlanTime,
 orders.bottles_return AS EmptyBottles, IF(orders.payment_type = 'cash', orders.sum_to_receive, 0) AS Total, 
@@ -1610,11 +1649,11 @@ LEFT JOIN
     FROM route_list_addresses) as TransferedAddresses
 ON TransferedAddresses.id = route_list_addresses.transfered_to_id
 
-LEFT JOIN ( 
+/*LEFT JOIN ( 
 SELECT order_id, (count * deposit_sum * IF(payment_type = 'ToClient', -1, 1)) AS deposit 
 FROM order_deposit_items 
 WHERE order_deposit_items.deposit_type = 'Bottles'
-) AS deposit_qry ON deposit_qry.order_id = orders.id
+) AS deposit_qry ON deposit_qry.order_id = orders.id*/
 
 LEFT JOIN (
 #SELECT order_equipment.order_id as order_id, nomenclature.id AS nomenclature_id, nomenclature.name as name, COUNT(nomenclature.id) AS cnt FROM order_equipment 
@@ -1665,10 +1704,11 @@ LEFT JOIN (
 SELECT
 order_items.order_id AS order_id
 <!--sql_select_subquery-->
-FROM order_items
+FROM route_list_addresses
+LEFT JOIN order_items ON route_list_addresses.order_id = order_items.order_id
 LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
 LEFT JOIN nomenclature_route_column ON nomenclature_route_column.id = nomenclature.route_column_id
-WHERE nomenclature.route_column_id IS NOT NULL
+WHERE route_list_addresses.route_list_id = @route_list_id AND nomenclature.route_column_id IS NOT NULL
 GROUP BY order_id) AS wt_qry ON wt_qry.order_id = orders.id
 
 WHERE route_list_addresses.route_list_id = @route_list_id
@@ -1701,6 +1741,10 @@ ORDER BY order_in_route;
         <Field Name="NeedNewBottles">
           <DataField>NeedNewBottles</DataField>
           <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="Weight">
+          <DataField>weight</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="DeliveryTime">
           <DataField>DeliveryTime</DataField>
@@ -1766,7 +1810,7 @@ ORDER BY order_in_route;
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_orders;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

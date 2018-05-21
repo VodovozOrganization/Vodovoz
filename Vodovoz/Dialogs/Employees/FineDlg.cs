@@ -7,6 +7,7 @@ using Vodovoz.Domain;
 using Gamma.Utilities;
 using Vodovoz.Repository;
 using QSProjectsLib;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -70,13 +71,14 @@ namespace Vodovoz
 			yentryFineReasonString.Binding.AddBinding(Entity, e => e.FineReasonString, w => w.Text).InitializeFromSource();
 			fineitemsview1.FineUoW = UoWGeneric;
 
-			var filter = new RouteListsFilter(UoW);
-			filter.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
-			yentryreferenceRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
+			var filterRouteList = new RouteListsFilter(UoW);
+			filterRouteList.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
+			yentryreferenceRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRouteList);
 			yentryreferenceRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 
 			Entity.ObservableItems.ListChanged += ObservableItems_ListChanged;
-            yentryAuthor.SubjectType = typeof(Employee);
+			var filterAuthor = new EmployeeFilter(UoW);
+			yentryAuthor.RepresentationModel = new EmployeesVM(filterAuthor);
             yentryAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.Subject).InitializeFromSource();
 			
             UpdateControlsState();

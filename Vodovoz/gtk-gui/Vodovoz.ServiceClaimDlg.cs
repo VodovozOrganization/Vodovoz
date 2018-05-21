@@ -100,7 +100,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label14;
 
-		private global::Gamma.Widgets.yEntryReference referenceEngineer;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceEngineer;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow4;
 
@@ -668,7 +668,7 @@ namespace Vodovoz
 			w46.XOptions = ((global::Gtk.AttachOptions)(4));
 			w46.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.referenceEngineer = new global::Gamma.Widgets.yEntryReference();
+			this.referenceEngineer = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceEngineer.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEngineer.Name = "referenceEngineer";
 			this.datatable2.Add(this.referenceEngineer);
@@ -879,7 +879,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w73 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
 			w73.Position = 1;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

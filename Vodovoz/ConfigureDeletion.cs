@@ -84,6 +84,8 @@ namespace Vodovoz
 			}.FillFromMetaInfo ()
 			);
 
+			DeleteConfig.AddHibernateDeleteInfo<CarProxyDocument>();
+
 			DeleteConfig.AddHibernateDeleteInfo<Equipment>()
 				.AddDeleteDependence<FreeRentEquipment> (item => item.Equipment)
 				.AddDeleteDependence<IncomingInvoiceItem> (item => item.Equipment)
@@ -511,6 +513,7 @@ namespace Vodovoz
 				.AddDeleteDependence<WarehouseMovementOperation>(x => x.WriteoffWarehouse)
 				.AddDeleteDependence<WriteoffDocument>(x => x.WriteoffWarehouse)
 				.AddDeleteDependence<InventoryDocument>(x => x.Warehouse)
+				.AddDeleteDependence<ShiftChangeWarehouseDocument>(x => x.Warehouse)
 				.AddDeleteDependence<RegradingOfGoodsDocument>(x => x.Warehouse)
 				.AddDeleteDependence<SelfDeliveryDocument>(x => x.Warehouse)
 				.AddClearDependence<Nomenclature>(x => x.Warehouse)

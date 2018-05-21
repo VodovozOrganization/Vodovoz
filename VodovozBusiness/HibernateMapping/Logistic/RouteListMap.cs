@@ -10,6 +10,10 @@ namespace Vodovoz.HibernateMapping
 		{
 			Table ("route_lists");
 
+			OptimisticLock.Version();
+			Version(x => x.Version)
+				.Column("version");
+
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 
 			Map (x => x.ActualDistance).Column ("actual_distance");

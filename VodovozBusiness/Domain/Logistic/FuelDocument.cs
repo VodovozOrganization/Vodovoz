@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -148,7 +149,7 @@ namespace Vodovoz.Domain.Logistic
 			Operation.OperationTime  = Date;
 		}
 
-		public virtual void UpdateFuelCashExpense(IUnitOfWork uow, Employee cashier, int routeListId)
+		public virtual void UpdateFuelCashExpense(IUnitOfWork uow, Employee cashier)
 		{
 			if (PayedForFuel.HasValue) {
 				if (FuelCashExpense == null) {
@@ -159,7 +160,7 @@ namespace Vodovoz.Domain.Logistic
 						Date 			= DateTime.Now,
 						Casher 			= cashier,
 						Employee 		= Driver,
-						Description 	=$"Оплата топлива по МЛ №{routeListId}",
+						Description 	=$"Оплата топлива по МЛ №{RouteList.Id}",
 					};
 				}
 				FuelCashExpense.Money = Math.Round(PayedForFuel.Value, 0, MidpointRounding.AwayFromZero);
@@ -167,6 +168,29 @@ namespace Vodovoz.Domain.Logistic
 			else
 				FuelCashExpense = null;
 		}
+
+		public virtual Employee GetActualCashier(IUnitOfWork uow)
+		{
+			if(RouteList.Cashier == null) {
+				return EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			}
+			return RouteList.Cashier;
+		}
+
+		public virtual void UpdateDocument(IUnitOfWork uow)
+		{
+			Car = RouteList.Car;
+			Driver = RouteList.Driver;
+
+			var cashier = GetActualCashier(uow);
+			if(cashier == null) {
+				return;
+			}
+
+			UpdateFuelCashExpense(uow, cashier);
+			UpdateOperation();
+		}
+
 
 #region IValidatableObject implementation
 

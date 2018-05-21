@@ -14,6 +14,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -119,7 +120,15 @@ namespace Vodovoz
 			counterpartydocumentsview.Config(UoWGeneric, Entity);
 			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
 			referenceDefaultExpense.Binding.AddBinding(Entity, e => e.DefaultExpenseCategory, w => w.Subject).InitializeFromSource();
-			referenceAccountant.SubjectType = referenceBottleManager.SubjectType = referenceSalesManager.SubjectType = typeof(Employee);
+			var filterAccountant = new EmployeeFilter(UoW);
+			filterAccountant.RestrictCategory = EmployeeCategory.office;
+			referenceAccountant.RepresentationModel = new EmployeesVM(filterAccountant);
+			var filterSalesManager = new EmployeeFilter(UoW);
+			filterSalesManager.RestrictCategory = EmployeeCategory.office;
+			referenceSalesManager.RepresentationModel = new EmployeesVM(filterSalesManager);
+			var filterBottleManager = new EmployeeFilter(UoW);
+			filterBottleManager.RestrictCategory = EmployeeCategory.office;
+			referenceBottleManager.RepresentationModel = new EmployeesVM(filterBottleManager);
 			proxiesview1.CounterpartyUoW = UoWGeneric;
 			dataentryMainContact.RepresentationModel = new ViewModel.ContactsVM(UoW, Entity);
 			dataentryMainContact.Binding.AddBinding(Entity, e => e.MainContact, w => w.Subject).InitializeFromSource();

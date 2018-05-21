@@ -16,7 +16,7 @@ namespace Vodovoz.Reports
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
-		private global::Gamma.Widgets.yEntryReference yentryreferenceForwarder;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryreferenceForwarder;
 
 		private global::Gtk.CheckButton checkShowBalance;
 
@@ -73,7 +73,7 @@ namespace Vodovoz.Reports
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yentryreferenceForwarder = new global::Gamma.Widgets.yEntryReference();
+			this.yentryreferenceForwarder = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryreferenceForwarder.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceForwarder.Name = "yentryreferenceForwarder";
 			this.hbox3.Add(this.yentryreferenceForwarder);

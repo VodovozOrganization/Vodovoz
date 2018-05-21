@@ -64,6 +64,7 @@ namespace Vodovoz
 				return false;
 			}
 
+			Entity.DeliveryPoint.HaveResidue = true;
 			Entity.UpdateOperations(UoW);
 
 			var valid = new QSValidator<Residue> (UoWGeneric.Root);

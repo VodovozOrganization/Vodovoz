@@ -3,6 +3,7 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -30,8 +31,10 @@ namespace Vodovoz
 			this.Build ();
 
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
-			yentryAccountable.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery ();
-			yentryAccountable.SetObjectDisplayFunc<Employee> (e => e.ShortName);
+
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictFired = false;
+			yentryAccountable.RepresentationModel = new EmployeesVM(filter);
 		}
 
 		#region IReferenceFilter implementation

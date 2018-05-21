@@ -12,6 +12,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -80,7 +81,8 @@ namespace Vodovoz
 			referenceDeliveryPointFrom.CanEditReference = false;
 			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPointFrom.Binding.AddBinding(Entity, e => e.FromDeliveryPoint, w => w.Subject).InitializeFromSource();
-			referenceEmployee.SubjectType = typeof(Employee);
+			var filterEmployee = new EmployeeFilter(UoW);
+			referenceEmployee.RepresentationModel = new EmployeesVM(filterEmployee);
 			referenceEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
 
 			yentryrefWagon.SubjectType = typeof(MovementWagon);

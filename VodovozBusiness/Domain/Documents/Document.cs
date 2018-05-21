@@ -66,6 +66,8 @@ namespace Vodovoz.Domain.Documents
 					return typeof(CarUnloadDocument);
 				case DocumentType.InventoryDocument:
 					return typeof(InventoryDocument);
+				case DocumentType.ShiftChangeDocument:
+					return typeof(ShiftChangeWarehouseDocument);
 				case DocumentType.RegradingOfGoodsDocument:
 					return typeof(RegradingOfGoodsDocument);
 			}
@@ -77,22 +79,24 @@ namespace Vodovoz.Domain.Documents
 
 	public enum DocumentType
 	{
-		[Display (Name = "Входящая накладная")]
+		[Display(Name = "Входящая накладная")]
 		IncomingInvoice,
-		[Display (Name = "Документ производства")]
+		[Display(Name = "Документ производства")]
 		IncomingWater,
-		[Display (Name = "Документ перемещения")]
+		[Display(Name = "Документ перемещения")]
 		MovementDocument,
-		[Display (Name = "Акт списания")]
+		[Display(Name = "Акт списания")]
 		WriteoffDocument,
-		[Display (Name = "Отпуск самовывоза")]
+		[Display(Name = "Отпуск самовывоза")]
 		SelfDeliveryDocument,
-		[Display (Name = "Талон погрузки")]
+		[Display(Name = "Талон погрузки")]
 		CarLoadDocument,
-		[Display (Name = "Талон разгрузки")]
+		[Display(Name = "Талон разгрузки")]
 		CarUnloadDocument,
-		[Display (Name = "Инвентаризация")]
+		[Display(Name = "Инвентаризация")]
 		InventoryDocument,
+		[Display(Name = "Акт передачи склада")]
+		ShiftChangeDocument,
 		[Display (Name = "Пересортица товаров")]
 		RegradingOfGoodsDocument
 	}

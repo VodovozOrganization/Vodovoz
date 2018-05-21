@@ -51,6 +51,7 @@ namespace Vodovoz
 			this.TabName = "Незакрытые авансы";
 			unclosedadvancesfilter1.Refiltered += Accountableslipfilter1_Refiltered;
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			unclosedadvancesfilter1.UoW = UoW;
 			representationUnclosed.Selection.Changed += RepresentationUnclosed_Selection_Changed;
 		}
 

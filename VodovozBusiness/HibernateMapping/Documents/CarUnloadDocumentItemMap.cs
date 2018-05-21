@@ -15,6 +15,7 @@ namespace Vodovoz
 			References (x => x.Document).Column ("car_unload_document_id");
 			References (x => x.MovementOperation).Column ("warehouse_movement_operation_id").Cascade.All();
 			References (x => x.ServiceClaim).Column ("service_claim_id");
+			Map(x => x.Redhead).Column("redhead");
 		}
 	}
 }

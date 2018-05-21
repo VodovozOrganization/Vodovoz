@@ -566,7 +566,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>83.6pt</Top>
+        <Top>92.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -649,10 +649,10 @@
       <Textbox Name="Textbox32">
         <Height>18.03pt</Height>
         <Width>292.84pt</Width>
-        <Value>="Итого:" + Convert.ToString( Sum(Fields!wage.Value, "DriverInfo") - Sum(Fields!money.Value, "DriverFines") - Sum(Fields!advance.Value, "Advances"))</Value>
+        <Value>="Итого:" + Convert.ToString( Sum(Fields!wage.Value, "DriverInfo") + Sum(Fields!money.Value, "DriverPremiums") - Sum(Fields!money.Value, "DriverFines") - Sum(Fields!advance.Value, "Advances"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>172.8pt</Top>
+        <Top>252.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -797,7 +797,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>132.4pt</Top>
+        <Top>212.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -968,7 +968,7 @@
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>0.0pt</Left>
-        <Top>208.4pt</Top>
+        <Top>288.4pt</Top>
       </Table>
       <Table Name="Table5">
         <DataSetName>UnclosedAdvances</DataSetName>
@@ -1131,15 +1131,15 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>249.6pt</Top>
+        <Top>329.6pt</Top>
       </Table>
       <Textbox Name="Textbox52">
         <Height>13.49pt</Height>
         <Width>128.72pt</Width>
         <Value>Незакрытые авансы:</Value>
         <ZIndex>1</ZIndex>
-        <Left>6.80pt</Left>
-        <Top>233.50pt</Top>
+        <Left>6.8pt</Left>
+        <Top>313.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1151,8 +1151,8 @@
         <Width>167.86pt</Width>
         <Value>Незакрытые маршрутные листы</Value>
         <ZIndex>1</ZIndex>
-        <Left>9.00pt</Left>
-        <Top>278.50pt</Top>
+        <Left>9.0pt</Left>
+        <Top>358.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1289,7 +1289,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>294.0pt</Top>
+        <Top>374.0pt</Top>
       </Table>
       <Table Name="Table7">
         <DataSetName>DriverBalance</DataSetName>
@@ -1345,8 +1345,229 @@
           </TableRows>
         </Details>
         <Left>6.6pt</Left>
-        <Top>326.4pt</Top>
+        <Top>406.4pt</Top>
       </Table>
+      <Table Name="Table8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>DriverPremiums</DataSetName>
+        <NoRows>Премий нет</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>70.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>104.6pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>Дата</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>Премия</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
+                      <Value>Причина</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox65">
+                      <Value>=Format(Fields!date.Value, "dd/MM/yyyy")</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox66">
+                      <Value>=Iif(Fields!money.Value = 0, "" ,Fields!money.Value )</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox67">
+                      <Value>=Fields!reason.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>151.8pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox69">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <Value>Всего:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox70">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum(Fields!money.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox71">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+      <Textbox Name="Textbox73">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>Премии:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>138.7pt</Top>
+      </Textbox>
+      <Textbox Name="Textbox74">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>Авансы:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>199.3pt</Top>
+      </Textbox>
+      <Textbox Name="Textbox75">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>Штрафы:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>79.7pt</Top>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -1455,6 +1676,49 @@ GROUP BY route_lists.id;</CommandText>
         </Field>
         <Field Name="last_name">
           <DataField>last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DriverPremiums">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	premiums.date,
+    money,
+    premiums.premium_reason_string AS reason
+FROM
+    premium_items
+        LEFT JOIN
+    premiums ON premiums.id = premium_items.premium_id        
+WHERE
+    premium_items.employee_id = @driver_id
+        AND premiums.date &gt;= @start_date
+        AND premiums.date &lt;= @end_date
+GROUP BY premiums.id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="driver_id">
+            <Value>=Parameters!driver_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="money">
+          <DataField>money</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="reason">
+          <DataField>reason</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1752,7 +2016,7 @@ GROUP BY
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

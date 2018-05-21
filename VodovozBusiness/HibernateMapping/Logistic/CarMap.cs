@@ -26,9 +26,19 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.MinRouteAddresses)	.Column ("min_route_addresses");
 			Map(x => x.MaxRouteAddresses)	.Column ("max_route_addresses");
 			Map(x => x.IsRaskat)			.Column ("is_raskat");
+			Map(x => x.VIN)					.Column ("VIN");
+			Map(x => x.ManufactureYear)		.Column ("manufacture_year");
+			Map(x => x.MotorNumber)			.Column ("motor_number");
+			Map(x => x.ChassisNumber)		.Column ("chassis_number");
+			Map(x => x.Carcase)				.Column ("carcase");
+			Map(x => x.Color)				.Column ("color");
+			Map(x => x.DocSeries)			.Column ("doc_series");
+			Map(x => x.DocNumber)			.Column ("doc_number");
+			Map(x => x.DocIssuedOrg)		.Column ("doc_issued_org");
+			Map(x => x.DocIssuedDate)		.Column ("doc_issued_date");
 
-			References(x => x.Driver)			.Column ("driver_id");
-			References(x => x.FuelType)			.Column ("fuel_type_id");
+			References(x => x.Driver)		.Column ("driver_id");
+			References(x => x.FuelType)		.Column ("fuel_type_id");
 		}
 	}
 }

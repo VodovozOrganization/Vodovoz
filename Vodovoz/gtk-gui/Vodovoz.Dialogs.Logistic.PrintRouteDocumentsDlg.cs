@@ -40,6 +40,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.CheckButton checkRouteMap;
 
+		private global::Gtk.CheckButton checkLoadSofiyskaya;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -179,13 +181,13 @@ namespace Vodovoz.Dialogs.Logistic
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.checkRoute]));
 			w13.Position = 0;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.spinRoute = new global::Gtk.SpinButton(1, 20, 1);
+			this.spinRoute = new global::Gtk.SpinButton(1D, 20D, 1D);
 			this.spinRoute.CanFocus = true;
 			this.spinRoute.Name = "spinRoute";
-			this.spinRoute.Adjustment.PageIncrement = 10;
-			this.spinRoute.ClimbRate = 1;
+			this.spinRoute.Adjustment.PageIncrement = 10D;
+			this.spinRoute.ClimbRate = 1D;
 			this.spinRoute.Numeric = true;
-			this.spinRoute.Value = 5;
+			this.spinRoute.Value = 5D;
 			this.hbox4.Add(this.spinRoute);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.spinRoute]));
 			w14.Position = 1;
@@ -209,14 +211,27 @@ namespace Vodovoz.Dialogs.Logistic
 			w16.Position = 3;
 			w16.Expand = false;
 			w16.Fill = false;
-			this.hbox3.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox3]));
-			w17.Position = 1;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.checkLoadSofiyskaya = new global::Gtk.CheckButton();
+			this.checkLoadSofiyskaya.CanFocus = true;
+			this.checkLoadSofiyskaya.Name = "checkLoadSofiyskaya";
+			this.checkLoadSofiyskaya.Label = global::Mono.Unix.Catalog.GetString("Погрузка Софийская");
+			this.checkLoadSofiyskaya.Active = true;
+			this.checkLoadSofiyskaya.DrawIndicator = true;
+			this.checkLoadSofiyskaya.UseUnderline = true;
+			this.vbox3.Add(this.checkLoadSofiyskaya);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.checkLoadSofiyskaya]));
+			w17.Position = 4;
 			w17.Expand = false;
 			w17.Fill = false;
+			this.hbox3.Add(this.vbox3);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox3]));
+			w18.Position = 1;
+			w18.Expand = false;
+			w18.Fill = false;
 			this.vbox1.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
-			w18.Position = 2;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
+			w19.Position = 2;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

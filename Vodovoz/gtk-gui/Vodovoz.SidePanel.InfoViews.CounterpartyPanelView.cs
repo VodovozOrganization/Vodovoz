@@ -96,7 +96,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.textviewComment = new global::Gtk.TextView();
-			this.textviewComment.Buffer.Text = "TESTTEST";
 			this.textviewComment.CanFocus = true;
 			this.textviewComment.Name = "textviewComment";
 			this.textviewComment.WrapMode = ((global::Gtk.WrapMode)(3));

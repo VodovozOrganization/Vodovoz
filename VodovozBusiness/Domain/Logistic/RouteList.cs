@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -28,6 +28,13 @@ namespace Vodovoz.Domain.Logistic
 		#region Свойства
 
 		public virtual int Id { get; set; }
+
+		DateTime version;
+		[Display(Name = "Версия")]
+		public virtual DateTime Version {
+			get { return version; }
+			set { SetField(ref version, value, () => Version); }
+		}
 
 		Employee driver;
 
@@ -419,6 +426,18 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
+		public virtual bool FuelOperationHaveDiscrepancy()
+		{
+			if(FuelOutlayedOperation == null) {
+				return false;
+			}
+			var carDiff = FuelDocuments.Select(x => x.Operation).Any(x => x.Car != null && x.Car.Id != Car.Id)
+									   || (FuelOutlayedOperation.Car != null && FuelOutlayedOperation.Car.Id != Car.Id);
+			var driverDiff = FuelDocuments.Select(x => x.Operation).Any(x => x.Driver != null && x.Driver.Id != Driver.Id)
+			                              || (FuelOutlayedOperation.Driver != null && FuelOutlayedOperation.Driver.Id != Driver.Id);
+			return carDiff || driverDiff; 
+		}
+
 		public virtual RouteListItem AddAddressFromOrder(Order order)
 		{
 			if(order.DeliveryPoint == null)
@@ -445,28 +464,6 @@ namespace Vodovoz.Domain.Logistic
 				.ThenBy(x => x.Order.DeliverySchedule.To)
 				.ToList();
 			for(int i = 0; i < ObservableAddresses.Count; i++) {
-				if(orderedList[i] == ObservableAddresses[i])
-					continue;
-
-				ObservableAddresses.Remove(orderedList[i]);
-				ObservableAddresses.Insert(i, orderedList[i]);
-			}
-		}
-
-		//TODO Убрать в будущем когда будет понятно что такая сортировка не нужна.
-		public virtual void ReorderAddressesByDailiNumber()
-		{
-			throw new InvalidOperationException("Вызван метод, который может нарушить последовательность адресов. Убирая этот эксепшен убедитесь что вы хорошо подумали.");
-			var orderedList = Addresses.Where(x => x != null)
-				.OrderBy(x => x.Order?.DailyNumber)
-				.ToList();
-			for(int i = 0; i < ObservableAddresses.Count; i++) {
-				if(ObservableAddresses[i] == null) {
-					ObservableAddresses.RemoveAt(i);
-					i--;
-					continue;
-				}
-
 				if(orderedList[i] == ObservableAddresses[i])
 					continue;
 
@@ -526,12 +523,12 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool ShipIfCan(IUnitOfWork uow)
 		{
 			var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(uow, this);
-			var goodsAndEquips = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(uow, this);
+			var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(uow, this);
 
 			bool closed = true;
-			foreach(var rlItems in goodsAndEquips) {
-				var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == rlItems.NomenclatureId);
-				if(loaded == null || loaded.Amount < rlItems.Amount) {
+			foreach(var good in goods) {
+				var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);
+				if(loaded == null || loaded.Amount < good.Amount) {
 					closed = false;
 					break;
 				}
@@ -702,7 +699,12 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(Driver.WageCalcType == WageCalculationType.fixedDay 
 			  || Driver.WageCalcType == WageCalculationType.fixedRoute) {
-				return FixedDriverWage;
+				//Если все заказы не выполнены, то нет зарплаты
+				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed)) {
+					return FixedDriverWage;
+				}else {
+					return 0m;
+				}
 			}
 			return Addresses.Sum(item => item.DriverWage) + Addresses.Sum(item => item.DriverWageSurcharge);
 		}
@@ -717,7 +719,12 @@ namespace Vodovoz.Domain.Logistic
 			}
 			if(Forwarder.WageCalcType == WageCalculationType.fixedDay
 			  || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
-				return FixedDriverWage;
+				//Если все заказы не выполнены, то нет зарплаты
+				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed)) {
+					return FixedForwarderWage;
+				} else {
+					return 0m;
+				}
 			}
 			return Addresses.Sum(item => item.ForwarderWage);
 		}
@@ -810,10 +817,8 @@ namespace Vodovoz.Domain.Logistic
 			//if(addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
 				//throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
 
-			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments)
-			        .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-			       ) 
-			{
+			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Where(x => x.Equipment != null)
+			        .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Equipment.Nomenclature.Category))) {
 				var operation = orderEquipment.UpdateCounterpartyOperation();
 				if(operation != null)
 					result.Add(operation);
@@ -978,7 +983,6 @@ namespace Vodovoz.Domain.Logistic
 #else
 			var result = new List<DepositOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
-
 			foreach(RouteListItem item in addresesDelivered) {
 				if(item.DepositsCollected != 0) {
 					DepositOperation bottlesOperation;
@@ -997,6 +1001,12 @@ namespace Vodovoz.Domain.Logistic
 						};
 					}
 					result.Add(bottlesOperation);
+				}else {
+					if(item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Bottles).ToList().Count >= 1) {
+						var bottlesOperation = item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Bottles).FirstOrDefault();
+						item.Order.DepositOperations.Remove(bottlesOperation);
+						UoW.Delete(bottlesOperation);
+					}
 				}
 
 				if(item.EquipmentDepositsCollected != 0) {
@@ -1016,6 +1026,12 @@ namespace Vodovoz.Domain.Logistic
 						};
 					}
 					result.Add(equipmentOperation);
+				} else {
+					if(item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Equipment).ToList().Count >= 1) {
+						var equipmentOperation = item.Order.DepositOperations.Where(x => x.DepositType == DepositType.Equipment).FirstOrDefault();
+						item.Order.DepositOperations.Remove(equipmentOperation);
+						UoW.Delete(equipmentOperation);
+					}
 				}
 			}
 #endif
@@ -1185,13 +1201,19 @@ namespace Vodovoz.Domain.Logistic
 			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6)) {
 				return;
 			}
-
+			decimal distance = 0m;
 			//Необходимо для того, чтобы расход топлива не пересчитывался после подтверждения логистами
 			if(Status == RouteListStatus.Closed && MileageCheck){
-				return;
+				distance = ConfirmedDistance;
+			}else {
+				distance = ActualDistance;
 			}
 
-			if(ActualDistance == 0) {
+			foreach(var item in FuelDocuments) {
+				item.UpdateDocument(UoW);
+			}
+
+			if(distance == 0) {
 				if(FuelOutlayedOperation != null) {
 					UoW.Delete(FuelOutlayedOperation);
 					FuelOutlayedOperation = null;
@@ -1200,8 +1222,7 @@ namespace Vodovoz.Domain.Logistic
 				if(FuelOutlayedOperation == null) {
 					FuelOutlayedOperation = new FuelOperation();
 				}
-				decimal litresOutlayed = (decimal)Car.FuelConsumption
-					/ 100 * ActualDistance;
+				decimal litresOutlayed = (decimal)Car.FuelConsumption / 100 * distance;
 
 				Car car = Car;
 				Employee driver = Driver;
@@ -1214,7 +1235,7 @@ namespace Vodovoz.Domain.Logistic
 				FuelOutlayedOperation.Driver = driver;
 				FuelOutlayedOperation.Car = car;
 				FuelOutlayedOperation.Fuel = Car.FuelType;
-				FuelOutlayedOperation.OperationTime = DateTime.Now;
+				FuelOutlayedOperation.OperationTime = Date;
 				FuelOutlayedOperation.LitersOutlayed = litresOutlayed;
 			}
 		}
@@ -1251,8 +1272,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void UpdateWageOperation()
 		{
-			var driverWage = Addresses
-				.Where(item => item.IsDelivered()).Sum(item => item.DriverWageTotal);
+			decimal driverWage = GetDriversTotalWage();
+
 			if(DriverWageOperation == null) {
 				DriverWageOperation = new WagesMovementOperations {
 					OperationTime = this.Date,
@@ -1267,8 +1288,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 			UoW.Save(DriverWageOperation);
 
-			var forwarderWage = Addresses
-				.Where(item => item.IsDelivered()).Sum(item => item.ForwarderWageTotal);
+			decimal forwarderWage = GetForwardersTotalWage();
 
 			if(ForwarderWageOperation == null && forwarderWage > 0) {
 				ForwarderWageOperation = new WagesMovementOperations {

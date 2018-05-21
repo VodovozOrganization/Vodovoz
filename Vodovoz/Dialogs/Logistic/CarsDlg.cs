@@ -4,6 +4,7 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -40,7 +41,21 @@ namespace Vodovoz
 			dataentryModel.Binding.AddBinding(Entity, e => e.Model, w => w.Text).InitializeFromSource();
 			dataentryRegNumber.Binding.AddBinding(Entity, e => e.RegistrationNumber, w => w.Text).InitializeFromSource();
 
-			dataentryreferenceDriver.SubjectType = typeof(Employee);
+			yentryVIN.Binding.AddBinding(Entity, e => e.VIN, w => w.Text).InitializeFromSource();
+			yentryManufactureYear.Binding.AddBinding(Entity, e => e.ManufactureYear, w => w.Text).InitializeFromSource();
+			yentryMotorNumber.Binding.AddBinding(Entity, e => e.MotorNumber, w => w.Text).InitializeFromSource();
+			yentryChassisNumber.Binding.AddBinding(Entity, e => e.ChassisNumber, w => w.Text).InitializeFromSource();
+			yentryCarcaseNumber.Binding.AddBinding(Entity, e => e.Carcase, w => w.Text).InitializeFromSource();
+			yentryColor.Binding.AddBinding(Entity, e => e.Color, w => w.Text).InitializeFromSource();
+			yentryDocSeries.Binding.AddBinding(Entity, e => e.DocSeries, w => w.Text).InitializeFromSource();
+			yentryDocNumber.Binding.AddBinding(Entity, e => e.DocNumber, w => w.Text).InitializeFromSource();
+			yentryDocIssuedOrg.Binding.AddBinding(Entity, e => e.DocIssuedOrg, w => w.Text).InitializeFromSource();
+			ydatepickerDocIssuedDate.Binding.AddBinding(Entity, e => e.DocIssuedDate, w => w.DateOrNull).InitializeFromSource();
+
+
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictCategory = EmployeeCategory.driver;
+			dataentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
 			dataentryreferenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			dataentryFuelType.SubjectType = typeof(FuelType);

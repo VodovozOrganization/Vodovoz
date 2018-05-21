@@ -48,11 +48,11 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yDatePicker ydateDocument;
 
-		private global::Gamma.Widgets.yEntryReference yentryCasher;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryCasher;
 
 		private global::Gamma.Widgets.yEntryReference yentryClient;
 
-		private global::Gamma.Widgets.yEntryReference yentryEmploeey;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryEmployee;
 
 		private global::Gtk.VBox vboxDebts;
 
@@ -131,7 +131,6 @@ namespace Vodovoz
 			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(7)), ((uint)(4)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -196,12 +195,12 @@ namespace Vodovoz
 			this.hbox6.Name = "hbox6";
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton(0, 1000000, 100);
+			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 100D);
 			this.yspinMoney.CanDefault = true;
 			this.yspinMoney.CanFocus = true;
 			this.yspinMoney.Name = "yspinMoney";
-			this.yspinMoney.Adjustment.PageIncrement = 1000;
-			this.yspinMoney.ClimbRate = 1;
+			this.yspinMoney.Adjustment.PageIncrement = 1000D;
+			this.yspinMoney.ClimbRate = 1D;
 			this.yspinMoney.Digits = ((uint)(2));
 			this.yspinMoney.Numeric = true;
 			this.yspinMoney.ValueAsDecimal = 0m;
@@ -331,7 +330,7 @@ namespace Vodovoz
 			w23.XOptions = ((global::Gtk.AttachOptions)(4));
 			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryCasher = new global::Gamma.Widgets.yEntryReference();
+			this.yentryCasher = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryCasher.Sensitive = false;
 			this.yentryCasher.Events = ((global::Gdk.EventMask)(256));
 			this.yentryCasher.Name = "yentryCasher";
@@ -353,11 +352,11 @@ namespace Vodovoz
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryEmploeey = new global::Gamma.Widgets.yEntryReference();
-			this.yentryEmploeey.Events = ((global::Gdk.EventMask)(256));
-			this.yentryEmploeey.Name = "yentryEmploeey";
-			this.table1.Add(this.yentryEmploeey);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryEmploeey]));
+			this.yentryEmployee = new global::Gamma.Widgets.yEntryReferenceVM();
+			this.yentryEmployee.Events = ((global::Gdk.EventMask)(256));
+			this.yentryEmployee.Name = "yentryEmployee";
+			this.table1.Add(this.yentryEmployee);
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryEmployee]));
 			w26.TopAttach = ((uint)(4));
 			w26.BottomAttach = ((uint)(5));
 			w26.LeftAttach = ((uint)(1));
@@ -423,7 +422,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
 			w34.Position = 4;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.comboExpense.Hide();
@@ -431,9 +431,9 @@ namespace Vodovoz
 			this.vboxDebts.Hide();
 			this.Hide();
 			this.buttonPrint.Clicked += new global::System.EventHandler(this.OnButtonPrintClicked);
-			this.yentryEmploeey.Changed += new global::System.EventHandler(this.OnYentryEmploeeyChanged);
-			this.enumcomboOperation.EnumItemSelected += new global::System.EventHandler< Gamma.Widgets.ItemSelectedEventArgs > (this.OnEnumcomboOperationEnumItemSelected);
-			this.comboExpense.ItemSelected += new global::System.EventHandler< Gamma.Widgets.ItemSelectedEventArgs > (this.OnComboExpenseItemSelected);
+			this.yentryEmployee.Changed += new global::System.EventHandler(this.OnYentryEmployeeChanged);
+			this.enumcomboOperation.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumcomboOperationEnumItemSelected);
+			this.comboExpense.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnComboExpenseItemSelected);
 			this.checkNoClose.Toggled += new global::System.EventHandler(this.OnCheckNoCloseToggled);
 		}
 	}

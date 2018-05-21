@@ -28,7 +28,7 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.Label labelDriver;
 
-		private global::Gamma.Widgets.yEntryReference yentryreferenceDriver;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryreferenceDriver;
 
 		private global::Gtk.HBox hboxCar;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.Label labelAuthor;
 
-		private global::Gamma.Widgets.yEntryReference yentryAuthor;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryAuthor;
 
 		private global::Gtk.Button buttonCreateReport;
 
@@ -155,7 +155,7 @@ namespace Vodovoz.Reports
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child hboxDriver.Gtk.Box+BoxChild
-			this.yentryreferenceDriver = new global::Gamma.Widgets.yEntryReference();
+			this.yentryreferenceDriver = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryreferenceDriver.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceDriver.Name = "yentryreferenceDriver";
 			this.hboxDriver.Add(this.yentryreferenceDriver);
@@ -205,7 +205,7 @@ namespace Vodovoz.Reports
 			w16.Expand = false;
 			w16.Fill = false;
 			// Container child hboxAuthor.Gtk.Box+BoxChild
-			this.yentryAuthor = new global::Gamma.Widgets.yEntryReference();
+			this.yentryAuthor = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.yentryAuthor.Name = "yentryAuthor";
 			this.hboxAuthor.Add(this.yentryAuthor);

@@ -8,7 +8,7 @@ namespace Vodovoz
 
 		private global::QSWidgetLib.DatePeriodPicker dateperiodDocs;
 
-		private global::QSOrmProject.EntryReference entryEmployee;
+		private global::QSOrmProject.EntryReferenceVM entryEmployee;
 
 		private global::Gamma.Widgets.yEnumComboBox enumcomboDocumentType;
 
@@ -52,7 +52,7 @@ namespace Vodovoz
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryEmployee = new global::QSOrmProject.EntryReference();
+			this.entryEmployee = new global::QSOrmProject.EntryReferenceVM();
 			this.entryEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.entryEmployee.Name = "entryEmployee";
 			this.table1.Add(this.entryEmployee);
@@ -152,13 +152,14 @@ namespace Vodovoz
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
 			this.yentryIncome.Changed += new global::System.EventHandler(this.OnYentryIncomeChanged);
 			this.yentryExpense.Changed += new global::System.EventHandler(this.OnYentryExpenseChanged);
-			this.enumcomboDocumentType.EnumItemSelected += new global::System.EventHandler< Gamma.Widgets.ItemSelectedEventArgs > (this.OnEnumcomboDocumentTypeEnumItemSelected);
+			this.enumcomboDocumentType.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumcomboDocumentTypeEnumItemSelected);
 			this.entryEmployee.Changed += new global::System.EventHandler(this.OnEntryEmployeeChanged);
 			this.dateperiodDocs.PeriodChanged += new global::System.EventHandler(this.OnDateperiodDocsPeriodChanged);
 		}

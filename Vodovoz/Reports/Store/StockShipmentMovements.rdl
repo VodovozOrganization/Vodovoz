@@ -13,13 +13,14 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    nomenclature.name AS nomenclature,
+    nomenclature.name AS nomenclature_name,
     nomenclature.category,
     measurement_units.digits,
-    IFNULL((SELECT 
+    movements.*,
+        IFNULL((SELECT 
                     SUM(amount)
                 FROM
                     warehouse_movement_operations
@@ -36,201 +37,60 @@
                     warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
                         AND warehouse_movement_operations.nomenclature_id = nomenclature.id
                         AND warehouse_movement_operations.operation_time &lt; @startDate),
-            0) AS before_removed,
-    IFNULL((SELECT 
-                    SUM(amount)
-                FROM
-                    warehouse_movement_operations
-                WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0) AS all_added,
-    IFNULL((SELECT 
-                    SUM(amount)
-                FROM
-                    warehouse_movement_operations
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0) AS all_removed,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        LEFT JOIN
-                    store_car_unload_document_items ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-                WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-                        AND store_car_unload_document_items.id IS NOT NULL),
-            0) AS drivers_added,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        LEFT JOIN
-                    store_car_unload_document_items ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-                        LEFT JOIN
-                    store_car_load_document_items ON store_car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-                        LEFT JOIN
-                    store_car_load_documents ON store_car_load_documents.id = store_car_load_document_items.car_load_document_id
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-                        AND (store_car_unload_document_items.id IS NOT NULL
-                        OR store_car_load_documents.route_list_id IS NOT NULL)),
-            0) AS drivers_removed,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        LEFT JOIN
-                    store_self_delivery_document_returned ON store_self_delivery_document_returned.warehouse_movement_operation_id = warehouse_movement_operations.id
-                WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-                        AND store_self_delivery_document_returned.id IS NOT NULL),
-            0) AS selfdelivery_added,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        LEFT JOIN
-                    store_self_delivery_document_item ON store_self_delivery_document_item.warehouse_movement_operation_id = warehouse_movement_operations.id
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-                        AND store_self_delivery_document_item.id IS NOT NULL),
-            0) AS selfdelivery_removed,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        LEFT JOIN
-                    store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-                        OR store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
-                        LEFT JOIN
-                    store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
-                WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-                        AND store_movement_document.transportation_wagon_id IS NOT NULL),
-            0) AS wagons_added,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        LEFT JOIN
-                    store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-                        OR store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
-                        LEFT JOIN
-                    store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-                        AND store_movement_document.transportation_wagon_id IS NOT NULL),
-            0) AS wagons_removed,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        INNER JOIN
-                    store_incoming_invoice_items ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
-                WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0) AS warehouse_added,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        INNER JOIN
-                    store_writeoff_document_items ON store_writeoff_document_items.writeoff_warehouse_movement_operation_id = warehouse_movement_operations.id
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0) AS warehouse_removed,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        INNER JOIN
-                    store_regrading_of_goods_items ON store_regrading_of_goods_items.warehouse_income_operation_id = warehouse_movement_operations.id
-                WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0) AS regrading_added,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        INNER JOIN
-                    store_regrading_of_goods_items ON store_regrading_of_goods_items.warehouse_writeoff_operation_id = warehouse_movement_operations.id
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0) AS regrading_removed,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        INNER JOIN
-                    store_inventory_item ON store_inventory_item.warehouse_movement_operation_id = warehouse_movement_operations.id
-                WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0) AS inventory_added,
-    IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                        INNER JOIN
-                    store_inventory_item ON store_inventory_item.warehouse_movement_operation_id = warehouse_movement_operations.id
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt;= @startDate
-                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0) AS inventory_removed
+            0) AS before_removed
 FROM
-    (SELECT DISTINCT
-        warehouse_movement_operations.nomenclature_id
+    nomenclature
+        LEFT JOIN
+    (SELECT 
+        warehouse_movement_operations.nomenclature_id,
+            SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id, warehouse_movement_operations.amount, 0)) AS all_added,
+            SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id, warehouse_movement_operations.amount, 0)) AS all_removed,
+            SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                AND store_car_unload_document_items.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS drivers_added,
+            SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                AND (store_car_unload_document_items.id IS NOT NULL
+                OR store_car_load_documents.route_list_id IS NOT NULL), warehouse_movement_operations.amount, 0)) AS drivers_removed,
+            SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                AND store_self_delivery_document_returned.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS selfdelivery_added,
+            SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                AND store_self_delivery_document_item.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS selfdelivery_removed,
+            SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                AND store_movement_document.transportation_wagon_id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS wagons_added,
+            SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                AND store_movement_document.transportation_wagon_id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS wagons_removed,
+            SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                AND store_incoming_invoice_items.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS warehouse_added,
+            SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                AND store_incoming_invoice_items.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS warehouse_removed,
+            SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                AND store_regrading_of_goods_items.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS regrading_added,
+            SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                AND store_regrading_of_goods_items.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS regrading_removed,
+            SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                AND store_inventory_item.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS inventory_added,
+            SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                AND store_inventory_item.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS inventory_removed
     FROM
         warehouse_movement_operations
+    LEFT JOIN store_car_unload_document_items ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+    LEFT JOIN store_car_load_document_items ON store_car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+    LEFT JOIN store_car_load_documents ON store_car_load_documents.id = store_car_load_document_items.car_load_document_id
+    LEFT JOIN store_self_delivery_document_item ON store_self_delivery_document_item.warehouse_movement_operation_id = warehouse_movement_operations.id
+    LEFT JOIN store_self_delivery_document_returned ON store_self_delivery_document_returned.warehouse_movement_operation_id = warehouse_movement_operations.id
+    LEFT JOIN store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+        OR store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
+    LEFT JOIN store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
+    LEFT JOIN store_incoming_invoice_items ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
+    LEFT JOIN store_regrading_of_goods_items ON store_regrading_of_goods_items.warehouse_income_operation_id = warehouse_movement_operations.id
+        OR store_regrading_of_goods_items.warehouse_writeoff_operation_id = warehouse_movement_operations.id
+    LEFT JOIN store_inventory_item ON store_inventory_item.warehouse_movement_operation_id = warehouse_movement_operations.id
     WHERE
-        warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-            OR warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id) moved_nom
-        LEFT JOIN
-    nomenclature ON nomenclature.id = moved_nom.nomenclature_id
+        warehouse_movement_operations.operation_time &gt;= @startDate
+            AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+    GROUP BY warehouse_movement_operations.nomenclature_id) movements ON movements.nomenclature_id = nomenclature.id
         LEFT JOIN
     measurement_units ON measurement_units.id = nomenclature.unit_id
-HAVING  before_added - before_removed &lt;&gt; 0 OR  all_added - all_removed &lt;&gt; 0
+HAVING before_added - before_removed &lt;&gt; 0 OR IFNULL(all_added, 0) &lt;&gt; 0 OR IFNULL(all_removed, 0) &lt;&gt; 0
 ORDER BY nomenclature.category , nomenclature.name</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -244,9 +104,9 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
-          <DataField>nomenclature</DataField>
+          <DataField>nomenclature_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="category">

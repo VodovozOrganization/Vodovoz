@@ -44,8 +44,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 					.AddNumericRenderer(i => i.Amount).Editing().WidthChars(10)
 					.AddSetter((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
 					.AddSetter((c, i) => c.Editable = i.CanEditAmount)
-					.AddSetter((c, i) => c.Adjustment.Upper = (double)i.AmountOnSource)
-					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+					.AddSetter((c, i) => c.Adjustment = new Adjustment(0, 0, (double)i.AmountOnSource, 1, 100, 0))
 					.AddTextRenderer(i => i.Nomenclature.Unit.Name, false)
 					.Finish();
 

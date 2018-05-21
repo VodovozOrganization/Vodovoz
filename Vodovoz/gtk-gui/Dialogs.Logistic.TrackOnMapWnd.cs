@@ -302,7 +302,7 @@ namespace Dialogs.Logistic
 			this.gmapWidget.NegativeMode = false;
 			this.gmapWidget.HasFrame = false;
 			this.gmapWidget.Bearing = 0F;
-			this.gmapWidget.Zoom = 0;
+			this.gmapWidget.Zoom = 0D;
 			this.gmapWidget.RoutesEnabled = true;
 			this.gmapWidget.PolygonsEnabled = false;
 			this.gmapWidget.MarkersEnabled = true;

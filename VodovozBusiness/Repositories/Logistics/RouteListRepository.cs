@@ -186,9 +186,9 @@ namespace Vodovoz.Repository.Logistics
 		}
 
 		/// <summary>
-		/// Возвращает список товаров возвращенного на склад только по 1 номенклатуре
+		/// Возвращает список товаров возвращенного на склад по номенклатурам
 		/// </summary>
-		public static List<ReturnsNode> GetReturnsToWarehouse(IUnitOfWork uow, int routeListId, int nomenclatureId)
+		public static List<ReturnsNode> GetReturnsToWarehouse(IUnitOfWork uow, int routeListId, params int[] nomenclatureIds)
 		{
 			List<ReturnsNode> result = new List<ReturnsNode>();
 			Nomenclature nomenclatureAlias = null;
@@ -203,7 +203,7 @@ namespace Vodovoz.Repository.Logistics
 				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
 				.JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => !nomenclatureAlias.IsSerial)
-			    .Where(() => nomenclatureAlias.Id == nomenclatureId);
+			                         .Where(() => nomenclatureAlias.Id.IsIn(nomenclatureIds));
 			
 
 			var returnableItems =
@@ -223,7 +223,7 @@ namespace Vodovoz.Repository.Logistics
 				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
 				.JoinAlias(() => movementOperationAlias.Equipment, () => equipmentAlias)
 				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Id == nomenclatureId);
+			                                  .Where(() => nomenclatureAlias.Id.IsIn(nomenclatureIds));
 
 			var returnableEquipment =
 				returnableQueryEquipment.SelectList(list => list
@@ -244,6 +244,12 @@ namespace Vodovoz.Repository.Logistics
 			return result;
 		}
 
+		public static IEnumerable<CarLoadDocument> GetCarLoadDocuments(IUnitOfWork uow, int routelistId)
+		{
+			return uow.Session.QueryOver<CarLoadDocument>()
+			   .Where(x => x.RouteList.Id == routelistId)
+			   .List();
+		}
 
 		#region DTO
 

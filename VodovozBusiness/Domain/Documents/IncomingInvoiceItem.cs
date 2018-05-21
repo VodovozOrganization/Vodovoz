@@ -54,13 +54,14 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		decimal price;
-
 		[Min(0)]
 		[Display(Name = "Цена")]
-		public virtual decimal Price {
-			get { return price; }
-			set { SetField(ref price, value, () => Price); }
+		public virtual decimal PrimeCost {
+			get { return IncomeGoodsOperation.PrimeCost; }
+			set {
+				if(value != IncomeGoodsOperation.PrimeCost)
+					IncomeGoodsOperation.PrimeCost = value;
+			}
 		}
 
 		VAT vat;
@@ -71,7 +72,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		public virtual decimal Sum {
-			get { return Price * Amount; }
+			get { return PrimeCost * Amount; }
 		}
 
 		public virtual string Name {
@@ -97,7 +98,7 @@ namespace Vodovoz.Domain.Documents
 			get {
 				return String.Format("[{2}] {0} - {1}",
 					Nomenclature.Name,
-				                     Nomenclature.Unit.MakeAmountShortStr(Amount),
+				    Nomenclature.Unit.MakeAmountShortStr(Amount),
 					Document.Title);
 			}
 		}

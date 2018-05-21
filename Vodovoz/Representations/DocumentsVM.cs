@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModel
 			MovementDocument movementAlias = null;
 			WriteoffDocument writeoffAlias = null;
 			InventoryDocument inventoryAlias = null;
+			ShiftChangeWarehouseDocument shiftchangeAlias = null;
 			SelfDeliveryDocument selfDeliveryAlias = null;
 			RegradingOfGoodsDocument regradingOfGoodsAlias = null;
 			DocumentVMNode resultAlias = null;
@@ -263,6 +264,37 @@ namespace Vodovoz.ViewModel
 				result.AddRange (inventoryList);
 			}
 
+			if((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.ShiftChangeDocument) && Filter.RestrictDriver == null) {
+				var shiftchangeQuery = UoW.Session.QueryOver<ShiftChangeWarehouseDocument>(() => shiftchangeAlias);
+				if(Filter.RestrictWarehouse != null)
+					shiftchangeQuery.Where(x => x.Warehouse.Id == Filter.RestrictWarehouse.Id);
+				if(Filter.RestrictStartDate.HasValue)
+					shiftchangeQuery.Where(o => o.TimeStamp >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					shiftchangeQuery.Where(o => o.TimeStamp < Filter.RestrictEndDate.Value.AddDays(1));
+
+				var shiftchangeList = shiftchangeQuery
+					.JoinQueryOver(() => shiftchangeAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias(() => shiftchangeAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias(() => shiftchangeAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.SelectList(list => list
+					   .Select(() => shiftchangeAlias.Id).WithAlias(() => resultAlias.Id)
+					   .Select(() => shiftchangeAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					   .Select(() => DocumentType.ShiftChangeDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					   .Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					   .Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					   .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					   .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					   .Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					   .Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					   .Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					   .Select(() => shiftchangeAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+					.TransformUsing(Transformers.AliasToBean<DocumentVMNode>())
+					.List<DocumentVMNode>();
+
+				result.AddRange(shiftchangeList);
+			}
+
 			if ((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.RegradingOfGoodsDocument) && Filter.RestrictDriver == null) {
 				var regrandingQuery = UoW.Session.QueryOver<RegradingOfGoodsDocument>(() => regradingOfGoodsAlias);
 				if (Filter.RestrictWarehouse != null)
@@ -471,6 +503,7 @@ namespace Vodovoz.ViewModel
 			typeof(CarLoadDocument),
 			typeof(CarUnloadDocument),
 			typeof(InventoryDocument),
+			typeof(ShiftChangeWarehouseDocument),
 			typeof(RegradingOfGoodsDocument)
 		)
 		{
@@ -522,6 +555,8 @@ namespace Vodovoz.ViewModel
 						return String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber,
 							StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic), RouteListId);
 					case DocumentType.InventoryDocument:
+						return String.Format("По складу: {0}", Warehouse);
+					case DocumentType.ShiftChangeDocument:
 						return String.Format("По складу: {0}", Warehouse);
 					case DocumentType.RegradingOfGoodsDocument:
 						return String.Format("По складу: {0}", Warehouse);

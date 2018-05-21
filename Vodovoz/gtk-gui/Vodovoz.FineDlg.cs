@@ -50,7 +50,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label7;
 
-		private global::Gamma.Widgets.yEntryReference yentryAuthor;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryAuthor;
 
 		private global::Gamma.Widgets.yEntryReferenceVM yentryreferenceRouteList;
 
@@ -311,7 +311,7 @@ namespace Vodovoz
 			w23.RightAttach = ((uint)(5));
 			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.yentryAuthor = new global::Gamma.Widgets.yEntryReference();
+			this.yentryAuthor = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryAuthor.Sensitive = false;
 			this.yentryAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.yentryAuthor.Name = "yentryAuthor";

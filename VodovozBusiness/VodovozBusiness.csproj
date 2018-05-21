@@ -52,11 +52,19 @@
     <Reference Include="FluentNHibernate">
       <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.3.0\lib\net40\FluentNHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <Package>gtk-sharp-2.0</Package>
+    </Reference>
+    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <Package>glib-sharp-2.0</Package>
+    </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <Package>gtk-sharp-2.0</Package>
+    </Reference>
+    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <Package>gtk-sharp-2.0</Package>
+    </Reference>
     <Reference Include="Mono.Posix" />
     <Reference Include="DataAnnotationsExtensions">
       <HintPath>..\..\QSProjects\packages\DataAnnotationsExtensions.5.0.1.20\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
@@ -424,6 +432,19 @@
 	<Compile Include="Domain\Client\Tag.cs" />
     <Compile Include="HibernateMapping\Counterparty\TagMap.cs" />
 	<Compile Include="Tools\Logistic\DeliveryPriceCalculator.cs" />	
+    <Compile Include="Domain\Documents\ShiftChangeWarehouseDocument.cs" />
+    <Compile Include="Domain\Documents\ShiftChangeWarehouseDocumentItem.cs" />
+    <Compile Include="HibernateMapping\Documents\ShiftChangeWarehouseDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\ShiftChangeWarehouseDocumentItemMap.cs" />
+    <Compile Include="Domain\Employees\Premium.cs" />
+    <Compile Include="Domain\Employees\PremiumItem.cs" />
+    <Compile Include="Domain\Employees\PremiumTemplate.cs" />
+    <Compile Include="HibernateMapping\Employees\PremiumMap.cs" />
+    <Compile Include="HibernateMapping\Employees\PremiumItemMap.cs" />
+    <Compile Include="HibernateMapping\Employees\PremiumTemplateMap.cs" />
+    <Compile Include="Domain\Employees\CarProxyDocument.cs" />
+    <Compile Include="DocTemplates\CarProxyDocumentParser.cs" />
+    <Compile Include="HibernateMapping\Employees\CarProxyDocumentMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

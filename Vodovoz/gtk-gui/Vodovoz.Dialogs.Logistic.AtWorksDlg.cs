@@ -359,12 +359,13 @@ namespace Vodovoz.Dialogs.Logistic
 			this.vbox1.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
 			w38.Position = 1;
+			w38.Expand = false;
+			w38.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
-			this.districtpriorityview1.Hide();
 			this.Hide();
 			this.ydateAtWorks.DateChanged += new global::System.EventHandler(this.OnYdateAtWorksDateChanged);
 			this.buttonSaveChanges.Clicked += new global::System.EventHandler(this.OnButtonSaveChangesClicked);

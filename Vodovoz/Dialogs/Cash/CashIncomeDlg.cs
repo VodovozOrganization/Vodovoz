@@ -60,13 +60,15 @@ namespace Vodovoz
 			enumcomboOperation.ItemsEnum = typeof(IncomeType);
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
-			yentryCasher.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeOrderedQuery ();
-			yentryCasher.SetObjectDisplayFunc<Employee> (e => e.ShortName);
-			yentryCasher.Binding.AddBinding (Entity, s => s.Casher, w => w.Subject).InitializeFromSource ();
+			var filterCasher = new EmployeeFilter(UoW);
+			filterCasher.RestrictFired = false;
+			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
+			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
-			yentryEmploeey.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeOrderedQuery ();
-			yentryEmploeey.SetObjectDisplayFunc<Employee> (e => e.ShortName);
-			yentryEmploeey.Binding.AddBinding (Entity, s => s.Employee, w => w.Subject).InitializeFromSource ();
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictFired = false;
+			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filter);
+			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
 
 			yentryClient.ItemsQuery = Repository.CounterpartyRepository.ActiveClientsQuery ();
 			yentryClient.Binding.AddBinding (Entity, s => s.Customer, w => w.Subject).InitializeFromSource ();
@@ -158,7 +160,7 @@ namespace Vodovoz
 			FillDebts ();
 		}
 
-		protected void OnYentryEmploeeyChanged (object sender, EventArgs e)
+		protected void OnYentryEmployeeChanged (object sender, EventArgs e)
 		{			
 			FillDebts ();
 		}
@@ -209,7 +211,7 @@ namespace Vodovoz
 				yspinMoney.ValueAsDecimal = selectableAdvances.Where(x => x.Selected).Sum(x => x.Value.UnclosedMoney);
 			}
 		}
-	}
+}
 
 	public class Selectable<T> {
 

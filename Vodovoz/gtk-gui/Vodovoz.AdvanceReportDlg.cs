@@ -48,9 +48,9 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yDatePicker ydateDocument;
 
-		private global::Gamma.Widgets.yEntryReference yentryCasher;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryCasher;
 
-		private global::Gamma.Widgets.yEntryReference yentryEmploeey;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryEmployee;
 
 		private global::Gtk.Label labelCreating;
 
@@ -115,7 +115,6 @@ namespace Vodovoz
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(6)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -136,11 +135,11 @@ namespace Vodovoz
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton(0, 1000000, 100);
+			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 100D);
 			this.yspinMoney.CanFocus = true;
 			this.yspinMoney.Name = "yspinMoney";
-			this.yspinMoney.Adjustment.PageIncrement = 1000;
-			this.yspinMoney.ClimbRate = 1;
+			this.yspinMoney.Adjustment.PageIncrement = 1000D;
+			this.yspinMoney.ClimbRate = 1D;
 			this.yspinMoney.Digits = ((uint)(2));
 			this.yspinMoney.Numeric = true;
 			this.yspinMoney.ValueAsDecimal = 0m;
@@ -322,7 +321,7 @@ namespace Vodovoz
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryCasher = new global::Gamma.Widgets.yEntryReference();
+			this.yentryCasher = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryCasher.Sensitive = false;
 			this.yentryCasher.Events = ((global::Gdk.EventMask)(256));
 			this.yentryCasher.Name = "yentryCasher";
@@ -332,15 +331,16 @@ namespace Vodovoz
 			w23.RightAttach = ((uint)(6));
 			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryEmploeey = new global::Gamma.Widgets.yEntryReference();
-			this.yentryEmploeey.Events = ((global::Gdk.EventMask)(256));
-			this.yentryEmploeey.Name = "yentryEmploeey";
-			this.table1.Add(this.yentryEmploeey);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryEmploeey]));
+			this.yentryEmployee = new global::Gamma.Widgets.yEntryReferenceVM();
+			this.yentryEmployee.Events = ((global::Gdk.EventMask)(256));
+			this.yentryEmployee.Name = "yentryEmployee";
+			this.table1.Add(this.yentryEmployee);
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryEmployee]));
 			w24.TopAttach = ((uint)(1));
 			w24.BottomAttach = ((uint)(2));
 			w24.LeftAttach = ((uint)(1));
-			w24.RightAttach = ((uint)(4));
+			w24.RightAttach = ((uint)(2));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
 			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
 			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
@@ -404,13 +404,12 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
 			w32.Position = 6;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
-			this.yentryEmploeey.Changed += new global::System.EventHandler(this.OnYentryEmploeeyChanged);
+			this.yentryEmployee.Changed += new global::System.EventHandler(this.OnYentryEmployeeChanged);
 			this.yspinMoney.ValueChanged += new global::System.EventHandler(this.OnYspinMoneyValueChanged);
 			this.comboExpense.Changed += new global::System.EventHandler(this.OnComboExpenseChanged);
 		}

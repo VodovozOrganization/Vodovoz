@@ -18,7 +18,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
-		private global::Gamma.Widgets.yEntryReference yentryreferenceChief;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryreferenceChief;
 
 		protected virtual void Build()
 		{
@@ -28,7 +28,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.SubdivisionDlg";
 			// Container child Vodovoz.SubdivisionDlg.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -103,7 +102,7 @@ namespace Vodovoz
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryreferenceChief = new global::Gamma.Widgets.yEntryReference();
+			this.yentryreferenceChief = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryreferenceChief.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceChief.Name = "yentryreferenceChief";
 			this.table1.Add(this.yentryreferenceChief);
@@ -115,7 +114,8 @@ namespace Vodovoz
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

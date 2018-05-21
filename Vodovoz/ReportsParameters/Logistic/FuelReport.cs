@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Employees;
 using QSProjectsLib;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.Reports
 {
@@ -14,9 +15,13 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			yentryreferenceDriver.SubjectType = typeof(Employee);
+			var filterDriver = new EmployeeFilter(UoW);
+			filterDriver.RestrictCategory = EmployeeCategory.driver;
+			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			yentryreferenceCar.SubjectType = typeof(Car);
-			yentryAuthor.ItemsQuery = Repository.EmployeeRepository.OfficeWorkersQuery();
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictCategory = EmployeeCategory.office;
+			yentryAuthor.RepresentationModel = new EmployeesVM(filter);
 		}
 
 		#region IOrmDialog implementation

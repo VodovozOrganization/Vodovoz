@@ -547,6 +547,9 @@ namespace Vodovoz.Domain.Logistic
 			if(RouteList.Driver.WageCalcType == WageCalculationType.percentage)
 				return this.Order.TotalSum * RouteList.Driver.WageCalcRate / 100;
 
+			if(RouteList.Driver.WageCalcType == WageCalculationType.percentageForService)
+				return this.Order.TotalSumForService * RouteList.Driver.WageCalcRate / 100;
+
 			bool withForwarder = RouteList.Forwarder != null;
 			bool ich = RouteList.Car.IsCompanyHavings && !RouteList.NormalWage;
 			var rates = ich ? Wages.GetDriverRatesWithOurCar(RouteList.Date) : Wages.GetDriverRates(RouteList.Date, withForwarder);
@@ -732,9 +735,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int GetGoodsActualAmountForColumn(int columnId)
 		{
-			return Order.OrderItems.Where(i => i.Nomenclature.RouteListColumn != null)
-				.Where(i => i.Nomenclature.RouteListColumn.Id == columnId)
-				.Sum(i => i.ActualCount);
+			if(Status == RouteListItemStatus.Transfered) {
+				return 0;
+			} else {
+				return Order.OrderItems.Where(i => i.Nomenclature.RouteListColumn != null)
+					.Where(i => i.Nomenclature.RouteListColumn.Id == columnId)
+					.Sum(i => i.ActualCount);
+			}
 		}
 
 

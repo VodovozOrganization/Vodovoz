@@ -6,6 +6,8 @@ using QSTDI;
 using Vodovoz;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Representations;
 using Vodovoz.ViewModel;
 
 public partial class MainWindow : Window
@@ -37,6 +39,8 @@ public partial class MainWindow : Window
 	Action ActionUnclosedAdvances;
 	Action ActionCashFlow;
 	Action ActionFinesJournal;
+	Action ActionPremiumJournal;
+	Action ActionCarProxiesJournal;
 	Action ActionRevision;
 	Action ActionRevisionBottlesAndDeposits;
 	Action ActionReportDebtorsBottles;
@@ -95,6 +99,8 @@ public partial class MainWindow : Window
 		//Кадры
 		ActionEmployeeWorkChart = new Action("ActionEmployeeWorkChart", "График работы сотрудников", null, "table");
 		ActionFinesJournal = new Action("ActionFinesJournal", "Штрафы", null, "table");
+		ActionPremiumJournal = new Action("ActionPremiumJournal", "Премии", null, "table");
+		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Доверенности на ТС", null, "table");
 		ActionScheduleRestrictedDistricts = new Action("ActionScheduleRestrictedDistricts", "Районы с графиками доставки", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
@@ -126,6 +132,8 @@ public partial class MainWindow : Window
 		w1.Add (ActionUnclosedAdvances, null);
 		w1.Add (ActionCashFlow, null);
 		w1.Add (ActionFinesJournal, null);
+		w1.Add (ActionPremiumJournal, null);
+		w1.Add (ActionCarProxiesJournal, null);
 		w1.Add (ActionRevision, null);
 		w1.Add (ActionRevisionBottlesAndDeposits, null);
 		w1.Add (ActionReportDebtorsBottles, null);
@@ -168,6 +176,8 @@ public partial class MainWindow : Window
 		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
 		ActionCashFlow.Activated += ActionCashFlow_Activated;
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
+		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
+		ActionCarProxiesJournal.Activated += ActionCarProxiesJournal_Activated;
 		ActionRevision.Activated += ActionRevision_Activated;
 		ActionRevisionBottlesAndDeposits.Activated += ActionRevisionBottlesAndDeposits_Activated;
 		ActionReportDebtorsBottles.Activated += ActionReportDebtorsBottles_Activated;
@@ -288,6 +298,25 @@ public partial class MainWindow : Window
 			ReferenceRepresentation.GenerateHashName<FinesVM>(),
 			() => new ReferenceRepresentation (new FinesVM ()).CustomTabName("Журнал штрафов")
 			.Buttons(QSMain.User.Permissions["can_delete_fines"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
+		);
+	}
+
+	void ActionPremiumJournal_Activated(object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<PremiumVM>(),
+			() => new ReferenceRepresentation(new PremiumVM()).CustomTabName("Журнал премий")
+			.Buttons(QSMain.User.Permissions["can_delete_fines"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
+		);
+	}
+
+	void ActionCarProxiesJournal_Activated(object sender, System.EventArgs e)
+	{
+		var dlg = new OrmReference(typeof(CarProxyDocument));
+		dlg.ButtonMode = ReferenceButtonMode.CanAll;
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<CarProxyDocument>(),
+			() => dlg
 		);
 	}
 

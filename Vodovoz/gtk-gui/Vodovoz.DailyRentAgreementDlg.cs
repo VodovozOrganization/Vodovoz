@@ -110,6 +110,7 @@ namespace Vodovoz
 			w6.BottomAttach = ((uint)(5));
 			w6.RightAttach = ((uint)(5));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.dateEnd = new global::Gamma.Widgets.yDatePicker();
 			this.dateEnd.Events = ((global::Gdk.EventMask)(256));
@@ -166,11 +167,11 @@ namespace Vodovoz
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.spinRentDays = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
+			this.spinRentDays = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.spinRentDays.CanFocus = true;
 			this.spinRentDays.Name = "spinRentDays";
-			this.spinRentDays.Adjustment.PageIncrement = 10;
-			this.spinRentDays.ClimbRate = 1;
+			this.spinRentDays.Adjustment.PageIncrement = 10D;
+			this.spinRentDays.ClimbRate = 1D;
 			this.spinRentDays.Numeric = true;
 			this.spinRentDays.ValueAsDecimal = 0m;
 			this.spinRentDays.ValueAsInt = 0;
@@ -290,8 +291,6 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 			this.dateStart.DateChanged += new global::System.EventHandler(this.OnDateStartDateChanged);
 			this.dateEnd.DateChanged += new global::System.EventHandler(this.OnDateEndDateChanged);
 		}

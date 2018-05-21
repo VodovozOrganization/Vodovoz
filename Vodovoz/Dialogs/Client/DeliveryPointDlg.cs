@@ -89,6 +89,7 @@ namespace Vodovoz
 
 			phonesview1.UoW = UoW;
 			phonesview1.PhonesList = Entity.ObservablePhones;
+			ShowResidue();
 
 			comboRoomType.ItemsEnum = typeof(RoomType);
 			comboRoomType.Binding.AddBinding(Entity, entity => entity.RoomType, widget => widget.SelectedItem)
@@ -246,6 +247,16 @@ namespace Vodovoz
 				UpdateAddressOnMap();
 			}
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
+
+			if(e.PropertyName == Entity.GetPropertyName(x => x.HaveResidue)) {
+				ShowResidue();
+			}
+		}
+
+		void ShowResidue()
+		{
+			ycheckHaveResidue.Visible = Entity.HaveResidue.HasValue;
+			ycheckHaveResidue.Active = Entity.HaveResidue.HasValue ? Entity.HaveResidue.Value : false;
 		}
 
 		void Rightsidepanel1_PanelHided(object sender, EventArgs e)

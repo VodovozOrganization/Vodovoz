@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using QSDocTemplates;
 using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -39,6 +40,22 @@ namespace Vodovoz.Repository.Client
 				.Where(x => x.ContractType == contractType)
 				.List<DocTemplate>(); ;
 			return templates.FirstOrDefault();
+		}
+
+		public static IList<IDocTemplate> GetAvailableTemplates(IUnitOfWork uow, TemplateType type, Organization org)
+		{
+			return uow.Session.QueryOver<DocTemplate>()
+				.Where(x => x.TemplateType == type)
+				.Where(x => x.Organization == org)
+				      .List<DocTemplate>().OfType<IDocTemplate>().ToList();
+		}
+
+		public static DocTemplate GetFirstAvailableTemplate(IUnitOfWork uow, TemplateType type, Organization org)
+		{
+			return uow.Session.QueryOver<DocTemplate>()
+				.Where(x => x.TemplateType == type)
+				.Where(x => x.Organization == org)
+				.List<DocTemplate>().FirstOrDefault();
 		}
 
 	}

@@ -143,7 +143,7 @@ namespace Vodovoz.Additions.Logistic
 					column.Id, "Water" + column.Id.ToString ());
 				if(isClosed)
 				{
-					SqlSelect += String.Format (", IFNULL(wt_qry.Water_fact{0}, 0) AS Water_fact{0}", column.Id.ToString ());
+					SqlSelect += String.Format (", IF(route_list_addresses.status = 'Transfered', 0, IFNULL(wt_qry.Water_fact{0}, 0)) AS Water_fact{0}", column.Id.ToString ());
 					SqlSelectSubquery += String.Format (", SUM(IF(nomenclature_route_column.id = {0}, order_items.actual_count, 0)) AS {1}",
 						column.Id, "Water_fact" + column.Id.ToString ());
 				}
@@ -255,6 +255,18 @@ namespace Vodovoz.Additions.Logistic
 			};
 		}
 
+		public static ReportInfo GetRDLLoadSofiyskaya(int routeListId)
+		{
+			return new ReportInfo {
+				Title = String.Format("Погрузка Софийская для МЛ № {0}", routeListId),
+				Identifier = "RouteList.CarLoadDocSofiyskaya",
+				Parameters = new Dictionary<string, object> {
+					{ "id", routeListId },
+				},
+				UseUserVariables = true
+			};
+		}
+
 		public static ReportInfo GetRDLFine(RouteList routeList)
 		{
 			
@@ -277,6 +289,8 @@ namespace Vodovoz.Additions.Logistic
 			switch(type) {
 				case RouteListPrintableDocuments.LoadDocument:
 					return GetRDLLoadDocument(routeList.Id);
+				case RouteListPrintableDocuments.LoadSofiyskaya:
+					return GetRDLLoadSofiyskaya(routeList.Id);
 				case RouteListPrintableDocuments.RouteList:
 					return GetRDLRouteList(uow, routeList);
 				case RouteListPrintableDocuments.RouteMap:
@@ -307,6 +321,8 @@ namespace Vodovoz.Additions.Logistic
 		TimeList,
 		[Display (Name = "Документ погрузки")]
 		LoadDocument,
+		[Display(Name = "Погрузка Софийская")]
+		LoadSofiyskaya,
 		[Display(Name = "Отчёт по порядку адресов")]
 		OrderOfAddresses
 	}

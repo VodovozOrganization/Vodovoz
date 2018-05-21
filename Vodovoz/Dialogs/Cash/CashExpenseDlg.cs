@@ -43,14 +43,16 @@ namespace Vodovoz
 			enumcomboOperation.ItemsEnum = typeof(ExpenseType);
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
-			yentryCasher.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeOrderedQuery ();
-			yentryCasher.SetObjectDisplayFunc<Employee> (e => e.ShortName);
-			yentryCasher.Binding.AddBinding (Entity, s => s.Casher, w => w.Subject).InitializeFromSource ();
+			var filterCasher = new EmployeeFilter(UoW);
+			filterCasher.RestrictFired = false;
+			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
+			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
-			yentryEmploeey.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeOrderedQuery ();
-			yentryEmploeey.SetObjectDisplayFunc<Employee> (e => e.ShortName);
-			yentryEmploeey.Binding.AddBinding (Entity, s => s.Employee, w => w.Subject).InitializeFromSource ();
-			yentryEmploeey.ChangedByUser += (sender, e) => UpdateEmployeeBalaceInfo();
+			var filterEmployee = new EmployeeFilter(UoW);
+			filterEmployee.RestrictFired = false;
+			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
+			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
+			yentryEmployee.ChangedByUser += (sender, e) => UpdateEmployeeBalaceInfo();
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
@@ -117,7 +119,7 @@ namespace Vodovoz
 		{
 			currentEmployeeWage = 0;
 			string labelTemplate = "Текущий баланс сотрудника: {0}";
-			Employee employee = yentryEmploeey.Subject as Employee;
+			Employee employee = yentryEmployee.Subject as Employee;
 
 			if (employee != null)
 			{

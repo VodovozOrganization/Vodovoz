@@ -7,6 +7,7 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -46,6 +47,9 @@ namespace Vodovoz
 			dataentryKPP.Binding.AddBinding(Entity, e => e.KPP, w => w.Text).InitializeFromSource();
 			dataentryOGRN.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			dataentryOGRN.Binding.AddBinding(Entity, e => e.OGRN, w => w.Text).InitializeFromSource();
+			dataentryOKPO.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			dataentryOKPO.Binding.AddBinding(Entity, e => e.OKPO, w => w.Text).InitializeFromSource();
+			dataentryOKVED.Binding.AddBinding(Entity, e => e.OKVED, w => w.Text).InitializeFromSource();
 
 			datatextviewAddress.Binding.AddBinding(Entity, e => e.Address, w => w.Buffer.Text).InitializeFromSource();
 			datatextviewJurAddress.Binding.AddBinding(Entity, e => e.JurAddress, w => w.Buffer.Text).InitializeFromSource();
@@ -54,9 +58,11 @@ namespace Vodovoz
 			notebookMain.ShowTabs = false;
 			accountsview1.ParentReference = new ParentReferenceGeneric<Organization, Account> (UoWGeneric, o => o.Accounts);
 
-			referenceBuhgalter.SubjectType = typeof(Employee);
+			var filterBuhgalter = new EmployeeFilter(UoW);
+			referenceBuhgalter.RepresentationModel = new EmployeesVM(filterBuhgalter);
 			referenceBuhgalter.Binding.AddBinding(Entity, e => e.Buhgalter, w => w.Subject).InitializeFromSource();
-			referenceLeader.SubjectType = typeof(Employee);
+			var filterLeader = new EmployeeFilter(UoW);
+			referenceLeader.RepresentationModel = new EmployeesVM(filterLeader);
 			referenceLeader.Binding.AddBinding(Entity, e => e.Leader, w => w.Subject).InitializeFromSource();
 
 			phonesview1.UoW = UoWGeneric;

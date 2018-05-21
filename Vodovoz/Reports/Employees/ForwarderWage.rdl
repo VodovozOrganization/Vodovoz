@@ -244,7 +244,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
+        <Left>0.8pt</Left>
         <Top>43.5pt</Top>
         <Footer>
           <TableRows>
@@ -498,18 +498,18 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>1.5pt</Left>
-        <Top>159.5pt</Top>
+        <Left>0.0pt</Left>
+        <Top>226.7pt</Top>
       </Table>
       <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>18.03pt</Height>
         <Width>292.84pt</Width>
-        <Value>="Итого: " + Convert.ToString( Sum(Fields!wage.Value, "ForwarderWage") - Sum(Fields!advance.Value, "Advances")
+        <Value>="Итого: " + Convert.ToString( Sum(Fields!wage.Value, "ForwarderWage") + Sum(Fields!money.Value, "ForwarderPremiums") - Sum(Fields!advance.Value, "Advances")
 - Sum(Fields!money.Value, "ForwarderFines")
 )</Value>
         <ZIndex>1</ZIndex>
-        <Left>5.90pt</Left>
-        <Top>209.50pt</Top>
+        <Left>5.9pt</Left>
+        <Top>276.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -642,7 +642,7 @@
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>1.5pt</Left>
-        <Top>238.0pt</Top>
+        <Top>305.2pt</Top>
       </Table>
       <Table Name="Table4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>ForwarderFines</DataSetName>
@@ -814,8 +814,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.6pt</Left>
-        <Top>103.7pt</Top>
+        <Left>1.0pt</Left>
+        <Top>108.5pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -895,6 +895,227 @@
           </TableRows>
         </Footer>
       </Table>
+      <Table Name="Table5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>ForwarderPremiums</DataSetName>
+        <NoRows>Премий нет</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>70.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>104.6pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>Дата</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>Премия</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>Причина</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value>=Format(Fields!date.Value, "dd/MM/yyyy")</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value>=Iif(Fields!money.Value = 0, "" ,Fields!money.Value )</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Value>=Fields!reason.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>166.1pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <Value>Всего:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum(Fields!money.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+      <Textbox Name="Textbox56">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>Штрафы:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2.4pt</Left>
+        <Top>95.2pt</Top>
+      </Textbox>
+      <Textbox Name="Textbox57">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>Премии:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>153.1pt</Top>
+      </Textbox>
+      <Textbox Name="Textbox58">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>Авансы:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>213.7pt</Top>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -1070,6 +1291,49 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="ForwarderPremiums">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	premiums.date,
+    money,
+    premiums.premium_reason_string AS reason
+FROM
+    premium_items
+        LEFT JOIN
+    premiums ON premiums.id = premium_items.premium_id        
+WHERE
+    premium_items.employee_id = @forwarder_id
+        AND premiums.date &gt;= @start_date
+        AND premiums.date &lt;= @end_date
+GROUP BY premiums.id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="forwarder_id">
+            <Value>={?forwarder_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="money">
+          <DataField>money</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="reason">
+          <DataField>reason</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
     <DataSet Name="ForwarderFines">
       <Query>
         <DataSourceName>DS1</DataSourceName>
@@ -1182,7 +1446,7 @@ GROUP BY fines.id</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

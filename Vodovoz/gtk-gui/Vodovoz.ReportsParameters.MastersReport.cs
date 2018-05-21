@@ -16,7 +16,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gtk.Label labelDriver;
 
-		private global::Gamma.Widgets.yEntryReference yentryreferenceDriver;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryreferenceDriver;
 
 		private global::Gtk.Button buttonCreateReport;
 
@@ -72,7 +72,7 @@ namespace Vodovoz.ReportsParameters
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hboxDriver.Gtk.Box+BoxChild
-			this.yentryreferenceDriver = new global::Gamma.Widgets.yEntryReference();
+			this.yentryreferenceDriver = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryreferenceDriver.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceDriver.Name = "yentryreferenceDriver";
 			this.hboxDriver.Add(this.yentryreferenceDriver);

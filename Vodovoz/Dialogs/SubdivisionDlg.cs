@@ -4,6 +4,7 @@ using QSOrmProject;
 using NLog;
 using Vodovoz.Domain.Employees;
 using QSValidation;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -35,7 +36,7 @@ namespace Vodovoz
 		{
 			yentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
-			yentryreferenceChief.SubjectType = typeof(Employee);
+			yentryreferenceChief.RepresentationModel = new EmployeesVM(new EmployeeFilter(UoW));
 			yentryreferenceChief.Binding.AddBinding(Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
 		}
 

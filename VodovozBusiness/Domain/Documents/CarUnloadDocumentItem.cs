@@ -42,11 +42,18 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref serviceClaim, value, () => ServiceClaim); }
 		}
 
+		string redhead;
+		[Display(Name = "№ кулера")]
+		public virtual string Redhead {
+			get { return redhead; }
+			set { SetField(ref redhead, value, () => Redhead); }
+		}
+
 		public virtual string Title {
 			get {
 				return String.Format("[{2}] {0} - {1}",
 					MovementOperation.Nomenclature.Name,
-				                     MovementOperation.Nomenclature.Unit.MakeAmountShortStr(MovementOperation.Amount),
+				    MovementOperation.Nomenclature.Unit.MakeAmountShortStr(MovementOperation.Amount),
 					document.Title);
 			}
 		}

@@ -35,6 +35,13 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual int Id { get; set; }
 
+		DateTime version;
+		[Display(Name = "Версия")]
+		public virtual DateTime Version {
+			get { return version; }
+			set { SetField(ref version, value, () => Version); }
+		}
+
 		OrderStatus orderStatus;
 
 		[Display(Name = "Статус заказа")]
@@ -483,8 +490,16 @@ namespace Vodovoz.Domain.Orders
 			get { return onlineOrder; }
 			set { SetField(ref onlineOrder, value, () => OnlineOrder); }
 		}
-
 		#endregion
+
+		public virtual bool CanChangeContractor()
+		{
+			if((NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) && OrderDocuments.Count > 0) ||
+				(NHibernate.NHibernateUtil.IsInitialized(InitialOrderService) && InitialOrderService.Count > 0) ||
+				(NHibernate.NHibernateUtil.IsInitialized(FinalOrderService) && FinalOrderService.Count > 0))
+				return false;
+			return true;
+		}
 
 		[HistoryDeepCloneItems]
 		IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem>();
@@ -638,6 +653,9 @@ namespace Vodovoz.Domain.Orders
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
 				if(newStatus == OrderStatus.Accepted) {
+					if(DeliveryDate == null || DeliveryDate == default(DateTime))
+						yield return new ValidationResult("Не указана дата доставки.",
+							new[] { this.GetPropertyName(o => o.DeliveryDate) });
 					if(!SelfDelivery && DeliverySchedule == null)
 						yield return new ValidationResult("Не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
@@ -802,7 +820,13 @@ namespace Vodovoz.Domain.Orders
 		[IgnoreHistoryTrace]
 		public virtual int TotalDeliveredBottlesSix {
 			get {
-				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.disposableBottleWater).Sum(x => x.Count);
+				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.disposableBottleWater && x.Nomenclature.Weight > 5).Sum(x => x.Count);
+			}
+		}
+
+		public virtual int TotalDeliveredBottlesSmall {
+			get {
+				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.disposableBottleWater && x.Nomenclature.Weight <= 5).Sum(x => x.Count);
 			}
 		}
 
@@ -844,6 +868,14 @@ namespace Vodovoz.Domain.Orders
 						sum -= dep.Deposit * dep.Count;
 				}
 				return sum;
+			}
+		}
+
+		[IgnoreHistoryTrace]
+		public virtual decimal TotalSumForService {
+			get {
+				return ObservableOrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.master)
+											.Sum(i => i.Price * i.ActualCount * (1 - (decimal)i.Discount / 100));
 			}
 		}
 
@@ -985,16 +1017,6 @@ namespace Vodovoz.Domain.Orders
 												   .OfType<WaterSalesAgreement>();
 			return waterSalesAgreementList.Any(x => x.DeliveryPoint == null || x.DeliveryPoint.Id == DeliveryPoint.Id);
 		}
-
-		public virtual bool CanChangeContractor()
-		{
-			if((NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) && OrderDocuments.Count > 0) ||
-				(NHibernate.NHibernateUtil.IsInitialized(InitialOrderService) && InitialOrderService.Count > 0) ||
-				(NHibernate.NHibernateUtil.IsInitialized(FinalOrderService) && FinalOrderService.Count > 0))
-				return false;
-			return true;
-		}
-
 
 		/// <summary>
 		/// Adds the equipment nomenclature for sale.

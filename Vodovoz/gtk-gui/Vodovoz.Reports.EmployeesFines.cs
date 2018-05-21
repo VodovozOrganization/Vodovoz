@@ -22,7 +22,7 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.RadioButton radioCatOffice;
 
-		private global::Gamma.Widgets.yEntryReference yentryDriver;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryDriver;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
@@ -34,7 +34,6 @@ namespace Vodovoz.Reports
 			this.Name = "Vodovoz.Reports.EmployeesFines";
 			// Container child Vodovoz.Reports.EmployeesFines.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(9)), ((uint)(2)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			this.table1.BorderWidth = ((uint)(6));
@@ -144,7 +143,7 @@ namespace Vodovoz.Reports
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryDriver = new global::Gamma.Widgets.yEntryReference();
+			this.yentryDriver = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryDriver.Events = ((global::Gdk.EventMask)(256));
 			this.yentryDriver.Name = "yentryDriver";
 			this.table1.Add(this.yentryDriver);

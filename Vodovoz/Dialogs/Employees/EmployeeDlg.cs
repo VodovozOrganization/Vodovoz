@@ -11,6 +11,7 @@ using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -60,6 +61,8 @@ namespace Vodovoz
 
 			dataentryPassportSeria.Binding.AddBinding(Entity, e => e.PassportSeria, w => w.Text).InitializeFromSource();
 			dataentryPassportNumber.Binding.AddBinding(Entity, e => e.PassportNumber, w => w.Text).InitializeFromSource();
+			ytextviewPassportIssuedOrg.Binding.AddBinding(Entity, e => e.PassportIssuedOrg, w => w.Buffer.Text).InitializeFromSource();
+			ydatePassportIssuedDate.Binding.AddBinding(Entity, e => e.PassportIssuedDate, w => w.DateOrNull).InitializeFromSource();
 			entryAddressCurrent.Binding.AddBinding(Entity, e => e.AddressCurrent, w => w.Text).InitializeFromSource();
 			entryAddressRegistration.Binding.AddBinding(Entity, e => e.AddressRegistration, w => w.Text).InitializeFromSource();
 			entryInn.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
@@ -69,7 +72,9 @@ namespace Vodovoz
 			yentryDeliveryDaySchedule.SubjectType = typeof(DeliveryDaySchedule);
 			yentryDeliveryDaySchedule.Binding.AddBinding(Entity, e => e.DefaultDaySheldule, w => w.Subject).InitializeFromSource();
 
-			yentryDefaultForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery();
+			var filterDefaultForwarder = new EmployeeFilter(UoW);
+			filterDefaultForwarder.RestrictCategory = EmployeeCategory.driver;
+			yentryDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			yentryDefaultForwarder.Binding.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
 
 			referenceNationality.SubjectType = typeof(Nationality);
@@ -241,7 +246,8 @@ namespace Vodovoz
 			    = yspinWageCalcRate.Visible
 				= (WageCalculationType)e.SelectedItem != WageCalculationType.normal;
 
-			if((WageCalculationType)e.SelectedItem == WageCalculationType.percentage)
+			if((WageCalculationType)e.SelectedItem == WageCalculationType.percentage
+			   || (WageCalculationType)e.SelectedItem == WageCalculationType.percentageForService)
 			{
 				yspinWageCalcRate.Adjustment.Upper = 100;
 			}

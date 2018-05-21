@@ -763,7 +763,31 @@
     <Compile Include="Dialogs\OrderDocumentsPrinter.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderDocumentsPrinter.cs" />
     <Compile Include="Representations\NomenclatureDependsFromVM.cs" />
-</ItemGroup>
+    <Compile Include="Dialogs\DocumentDialogs\ShiftChangeWarehouseDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentDlg.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\ShiftChangeWarehouseDocumentItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentItemsView.cs" />
+    <Compile Include="Dialogs\Store\CarUnloadRepository.cs" />
+    <Compile Include="Representations\EmployeesVM.cs" />
+    <Compile Include="ReportsParameters\NotDeliveredOrdersReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NotDeliveredOrdersReport.cs" />
+    <Compile Include="Dialogs\Logistic\RouteListControlDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.RouteListControlDlg.cs" />
+    <Compile Include="Dialogs\Employees\PremiumDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.PremiumDlg.cs" />
+    <Compile Include="Dialogs\Employees\PremiumTemplateDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.PremiumTemplateDlg.cs" />
+    <Compile Include="Representations\PremiumVM.cs" />
+    <Compile Include="JournalFilters\PremiumFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.PremiumFilter.cs" />
+    <Compile Include="Additions\EntityChangedExceptionHelper.cs" />
+    <Compile Include="ReportsParameters\EmployeesPremiums.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.EmployeesPremiums.cs" />
+    <Compile Include="Dialogs\Employees\CarProxyDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.CarProxyDocumentDlg.cs" />
+    <Compile Include="ReportsParameters\OrderStatisticByWeekReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrderStatisticByWeekReport.cs" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
@@ -1202,6 +1226,24 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\BottleTransfer.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\CarLoadDocPallets.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\RouteList\CarLoadDocSofiyskaya.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\ShiftChangeWarehouse.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\NotDeliveredOrders.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Employees\Premiums.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\OrderStatisticByWeek.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

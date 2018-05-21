@@ -50,7 +50,9 @@ namespace Vodovoz.Domain.Operations
 		[Display(Name = "Удержание штрафа")]
 		HoldedFine,
 		[Display(Name = "Начисление зарплаты")]
-		AccrualWage
+		AccrualWage,
+		[Display(Name = "Начисление премии")]
+		PremiumWage
 	}
 
 	public class WagesTypeStringType : NHibernate.Type.EnumStringType

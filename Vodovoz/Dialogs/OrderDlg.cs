@@ -206,9 +206,10 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			referenceAuthor.ItemsQuery = EmployeeRepository.ActiveEmployeeOrderedQuery();
-			referenceAuthor.SetObjectDisplayFunc<Employee>(e => e.ShortName);
-			referenceAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
+			var filterAuthor = new EmployeeFilter(UoW);
+			filterAuthor.RestrictFired = false;
+			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
+			referenceAuthor.Binding.AddBinding (Entity, s => s.Author, w => w.Subject).InitializeFromSource ();
 			referenceAuthor.Sensitive = false;
 
 			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
@@ -1662,6 +1663,9 @@ namespace Vodovoz
 				return;
 
 			DeliveryPointDlg dlg = new DeliveryPointDlg(Entity.Client, Entity.Address1c, Entity.Address1cCode);
+
+			dlg.Entity.HaveResidue = !string.IsNullOrEmpty(Entity.Comment) && 
+				(Entity.Comment.ToUpper().Contains("ПЕРВЫЙ ЗАКАЗ") || Entity.Comment.ToUpper().Contains("НОВЫЙ АДРЕС"));
 			dlg.EntitySaved += Dlg_EntitySaved;
 			TabParent.AddSlaveTab(this, dlg);
 		}

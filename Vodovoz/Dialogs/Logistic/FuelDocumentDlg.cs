@@ -7,6 +7,7 @@ using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -57,7 +58,9 @@ namespace Vodovoz
 		{
 			ydatepicker.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
-			yentrydriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
+			var filterDriver = new EmployeeFilter(UoW);
+			filterDriver.RestrictCategory = EmployeeCategory.driver;
+			yentrydriver.RepresentationModel = new EmployeesVM(filterDriver);
 			yentrydriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			yentryCar.SubjectType = typeof(Car);
@@ -69,6 +72,7 @@ namespace Vodovoz
 			yspinFuelTicketLiters.Binding.AddBinding (Entity, e => e.FuelCoupons, w => w.ValueAsInt).InitializeFromSource ();
 
 			disablespinMoney.Binding.AddBinding(Entity, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
+			spinFuelPrice.Binding.AddBinding(Entity, e => e.LiterCost, w => w.ValueAsDecimal).InitializeFromSource();
 
 			UpdateFuelInfo();
 			UpdateResutlInfo();
@@ -161,8 +165,8 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			Employee cashier;
-			if(!GetCashier(out cashier)) return false;
+			Employee cashier = Entity.GetActualCashier(UoW);
+			if(cashier == null) return false;
 
 			if(Entity.Author == null) {
 				Entity.Author = cashier;
@@ -186,17 +190,6 @@ namespace Vodovoz
 			return true;
 		}
 
-		private bool GetCashier(out Employee cashier)
-		{
-			cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(cashier == null) {
-				MessageDialogWorks.RunErrorDialog(
-					"Ваш пользователь не привязан к действующему сотруднику, Вы не можете выдавать денежные средства, так как некого указывать в качестве кассира.");
-				return false;
-			}
-			return true;
-		}
-
 		protected void OnDisablespinMoneyValueChanged (object sender, EventArgs e)
 		{
 			OnFuelUpdated ();
@@ -204,15 +197,16 @@ namespace Vodovoz
 
 		private void OnFuelUpdated()
 		{
-			Employee cashier;
-			if(RouteListClosing.Cashier != null)
-				cashier = RouteListClosing.Cashier;
-			else {
-				GetCashier(out cashier);
+			Employee cashier = Entity.GetActualCashier(UoW);
+			if(cashier == null) {
+				MessageDialogWorks.RunErrorDialog(
+					"Ваш пользователь не привязан к действующему сотруднику, Вы не можете выдавать денежные средства, так как некого указывать в качестве кассира.");
+				return;
 			}
 
+			Entity.Fuel.Cost = spinFuelPrice.ValueAsDecimal;
 			Entity.UpdateOperation();
-			Entity.UpdateFuelCashExpense(UoW, cashier, RouteListClosing.Id);
+			Entity.UpdateFuelCashExpense(UoW, cashier);
 			UpdateResutlInfo();
 			UpdateFuelCashExpenseInfo();
 		}
@@ -225,6 +219,7 @@ namespace Vodovoz
 
 		private void UpdateFuelCashExpenseInfo()
 		{
+			spinFuelPrice.Sensitive = disablespinMoney.Active;
 			if (Entity.FuelCashExpense == null && !Entity.PayedForFuel.HasValue)
 			{
 				buttonOpenExpense.Sensitive = false;
@@ -250,7 +245,7 @@ namespace Vodovoz
 				/ 100 * RouteListClosing.ActualDistance;
 			litersBalance = FuelBalance + litersGived - spentFuel;
 
-			decimal moneyToPay = -litersBalance * Entity.Fuel.Cost;
+			decimal moneyToPay = -litersBalance * spinFuelPrice.ValueAsDecimal;
 
 			if (Entity.PayedForFuel == null && moneyToPay > 0)
 				Entity.PayedForFuel = 0;
@@ -282,4 +277,3 @@ namespace Vodovoz
 		}
 	}
 }
-

@@ -14,15 +14,17 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonPrint;
 
+		private global::Gtk.HBox hbox3;
+
 		private global::Gtk.Table tableWriteoff;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-
-		private global::Gamma.GtkWidgets.yTextView ytextviewCommnet;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
 		private global::Gamma.GtkWidgets.yTextView ytextviewRouteListInfo;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow4;
+
+		private global::Gamma.GtkWidgets.yTextView ytextviewCommnet;
 
 		private global::Gtk.Label label1;
 
@@ -39,6 +41,14 @@ namespace Vodovoz
 		private global::Gamma.Widgets.yEntryReference yentryrefWarehouse;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDate;
+
+		private global::Gtk.VBox vbox6;
+
+		private global::Gtk.Label GtkLabel9;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow5;
+
+		private global::Gamma.GtkWidgets.yTreeView treeOtherReturns;
 
 		private global::Gtk.HBox hbox4;
 
@@ -114,27 +124,14 @@ namespace Vodovoz
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
+			this.hbox3 = new global::Gtk.HBox();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.tableWriteoff = new global::Gtk.Table(((uint)(3)), ((uint)(4)), false);
 			this.tableWriteoff.Name = "tableWriteoff";
 			this.tableWriteoff.RowSpacing = ((uint)(6));
 			this.tableWriteoff.ColumnSpacing = ((uint)(6));
-			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytextviewCommnet = new global::Gamma.GtkWidgets.yTextView();
-			this.ytextviewCommnet.CanFocus = true;
-			this.ytextviewCommnet.Name = "ytextviewCommnet";
-			this.GtkScrolledWindow.Add(this.ytextviewCommnet);
-			this.tableWriteoff.Add(this.GtkScrolledWindow);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.GtkScrolledWindow]));
-			w9.TopAttach = ((uint)(2));
-			w9.BottomAttach = ((uint)(3));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(4));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -148,10 +145,27 @@ namespace Vodovoz
 			this.ytextviewRouteListInfo.Editable = false;
 			this.GtkScrolledWindow1.Add(this.ytextviewRouteListInfo);
 			this.tableWriteoff.Add(this.GtkScrolledWindow1);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.GtkScrolledWindow1]));
-			w11.TopAttach = ((uint)(1));
-			w11.BottomAttach = ((uint)(2));
-			w11.LeftAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.GtkScrolledWindow1]));
+			w9.TopAttach = ((uint)(1));
+			w9.BottomAttach = ((uint)(2));
+			w9.LeftAttach = ((uint)(3));
+			w9.RightAttach = ((uint)(4));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableWriteoff.Gtk.Table+TableChild
+			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
+			this.GtkScrolledWindow4.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow4.Gtk.Container+ContainerChild
+			this.ytextviewCommnet = new global::Gamma.GtkWidgets.yTextView();
+			this.ytextviewCommnet.CanFocus = true;
+			this.ytextviewCommnet.Name = "ytextviewCommnet";
+			this.GtkScrolledWindow4.Add(this.ytextviewCommnet);
+			this.tableWriteoff.Add(this.GtkScrolledWindow4);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.GtkScrolledWindow4]));
+			w11.TopAttach = ((uint)(2));
+			w11.BottomAttach = ((uint)(3));
+			w11.LeftAttach = ((uint)(1));
 			w11.RightAttach = ((uint)(4));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -243,11 +257,44 @@ namespace Vodovoz
 			w19.RightAttach = ((uint)(2));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vbox4.Add(this.tableWriteoff);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.tableWriteoff]));
-			w20.Position = 1;
+			this.hbox3.Add(this.tableWriteoff);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.tableWriteoff]));
+			w20.Position = 0;
 			w20.Expand = false;
-			w20.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.vbox6 = new global::Gtk.VBox();
+			this.vbox6.Name = "vbox6";
+			this.vbox6.Spacing = 6;
+			// Container child vbox6.Gtk.Box+BoxChild
+			this.GtkLabel9 = new global::Gtk.Label();
+			this.GtkLabel9.Name = "GtkLabel9";
+			this.GtkLabel9.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Возвращено ранее:</b>");
+			this.GtkLabel9.UseMarkup = true;
+			this.vbox6.Add(this.GtkLabel9);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.GtkLabel9]));
+			w21.Position = 0;
+			w21.Expand = false;
+			w21.Fill = false;
+			// Container child vbox6.Gtk.Box+BoxChild
+			this.GtkScrolledWindow5 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow5.Name = "GtkScrolledWindow5";
+			this.GtkScrolledWindow5.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow5.Gtk.Container+ContainerChild
+			this.treeOtherReturns = new global::Gamma.GtkWidgets.yTreeView();
+			this.treeOtherReturns.CanFocus = true;
+			this.treeOtherReturns.Name = "treeOtherReturns";
+			this.GtkScrolledWindow5.Add(this.treeOtherReturns);
+			this.vbox6.Add(this.GtkScrolledWindow5);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.GtkScrolledWindow5]));
+			w23.Position = 1;
+			this.hbox3.Add(this.vbox6);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox6]));
+			w24.Position = 1;
+			this.vbox4.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox3]));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
@@ -261,28 +308,32 @@ namespace Vodovoz
 			this.bottlereceptionview1.Events = ((global::Gdk.EventMask)(256));
 			this.bottlereceptionview1.Name = "bottlereceptionview1";
 			this.vbox1.Add(this.bottlereceptionview1);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.bottlereceptionview1]));
-			w21.Position = 0;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.bottlereceptionview1]));
+			w26.Position = 0;
+			w26.Expand = false;
+			w26.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.nonserialequipmentreceptionview1 = new global::Vodovoz.ViewWidgets.Store.NonSerialEquipmentReceptionView();
-			this.nonserialequipmentreceptionview1.Events = ((global::Gdk.EventMask)(256));
-			this.nonserialequipmentreceptionview1.Name = "nonserialequipmentreceptionview1";
+			this.nonserialequipmentreceptionview1 = null;
 			this.vbox1.Add(this.nonserialequipmentreceptionview1);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.nonserialequipmentreceptionview1]));
-			w22.Position = 1;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.nonserialequipmentreceptionview1]));
+			w27.Position = 1;
+			w27.Expand = false;
+			w27.Fill = false;
 			this.hbox4.Add(this.vbox1);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox1]));
-			w23.Position = 0;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox1]));
+			w28.Position = 0;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.returnsreceptionview1 = new global::Vodovoz.ReturnsReceptionView();
 			this.returnsreceptionview1.Events = ((global::Gdk.EventMask)(256));
 			this.returnsreceptionview1.Name = "returnsreceptionview1";
 			this.hbox4.Add(this.returnsreceptionview1);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.returnsreceptionview1]));
-			w24.Position = 1;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.returnsreceptionview1]));
+			w29.Position = 1;
 			this.vbox4.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox4]));
-			w25.Position = 2;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox4]));
+			w30.Position = 2;
+			w30.Expand = false;
+			w30.Fill = false;
 			this.Add(this.vbox4);
 			if((this.Child != null)) {
 				this.Child.ShowAll();

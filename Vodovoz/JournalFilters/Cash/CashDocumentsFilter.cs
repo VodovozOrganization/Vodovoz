@@ -7,7 +7,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
-	[OrmDefaultIsFiltered (true)]
+	[OrmDefaultIsFiltered(true)]
 	public partial class CashDocumentsFilter : Gtk.Bin, IRepresentationFilter
 	{
 		IUnitOfWork uow;
@@ -19,20 +19,20 @@ namespace Vodovoz
 			set {
 				uow = value;
 				enumcomboDocumentType.ItemsEnum = typeof(CashDocumentType);
+				entryEmployee.RepresentationModel = new ViewModel.EmployeesVM(new EmployeeFilter(uow: UoW, showFired: false));
 			}
 		}
 
-		public CashDocumentsFilter (IUnitOfWork uow) : this()
+		public CashDocumentsFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
 		}
 
-		public CashDocumentsFilter ()
+		public CashDocumentsFilter()
 		{
-			this.Build ();
-			yentryIncome.ItemsQuery = Repository.Cash.CategoryRepository.IncomeCategoriesQuery ();
-			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
-			entryEmployee.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery ();
+			this.Build();
+			yentryIncome.ItemsQuery = Repository.Cash.CategoryRepository.IncomeCategoriesQuery();
+			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
 
 			//Последние 30 дней.
 			dateperiodDocs.StartDateOrNull = DateTime.Today.AddDays(-30);
@@ -43,38 +43,42 @@ namespace Vodovoz
 
 		public event EventHandler Refiltered;
 
-		void OnRefiltered ()
+		void OnRefiltered()
 		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
+			if(Refiltered != null)
+				Refiltered(this, new EventArgs());
 		}
 
 		#endregion
 
 		public CashDocumentType? RestrictDocumentType {
-			get { return enumcomboDocumentType.SelectedItem as CashDocumentType?;}
-			set { enumcomboDocumentType.SelectedItem = value;
+			get { return enumcomboDocumentType.SelectedItem as CashDocumentType?; }
+			set {
+				enumcomboDocumentType.SelectedItem = value;
 				enumcomboDocumentType.Sensitive = false;
 			}
 		}
 
 		public ExpenseCategory RestrictExpenseCategory {
-			get { return yentryExpense.Subject as ExpenseCategory;}
-			set { yentryExpense.Subject = value;
+			get { return yentryExpense.Subject as ExpenseCategory; }
+			set {
+				yentryExpense.Subject = value;
 				yentryExpense.Sensitive = false;
 			}
 		}
 
 		public IncomeCategory RestrictIncomeCategory {
-			get { return yentryIncome.Subject as IncomeCategory;}
-			set { yentryIncome.Subject = value;
+			get { return yentryIncome.Subject as IncomeCategory; }
+			set {
+				yentryIncome.Subject = value;
 				yentryIncome.Sensitive = false;
 			}
 		}
 
 		public Employee RestrictEmployee {
-			get { return entryEmployee.Subject as Employee;}
-			set { entryEmployee.Subject = value;
+			get { return entryEmployee.Subject as Employee; }
+			set {
+				entryEmployee.Subject = value;
 				entryEmployee.Sensitive = false;
 			}
 		}
@@ -95,29 +99,29 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnEnumcomboDocumentTypeEnumItemSelected (object sender, ItemSelectedEventArgs e)
+		protected void OnEnumcomboDocumentTypeEnumItemSelected(object sender, ItemSelectedEventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnDateperiodDocsPeriodChanged (object sender, EventArgs e)
+		protected void OnDateperiodDocsPeriodChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnYentryExpenseChanged (object sender, EventArgs e)
+		protected void OnYentryExpenseChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
-		}
-			
-		protected void OnYentryIncomeChanged (object sender, EventArgs e)
-		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnEntryEmployeeChanged (object sender, EventArgs e)
+		protected void OnYentryIncomeChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
+		}
+
+		protected void OnEntryEmployeeChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
 		}
 	}
 }

@@ -40,7 +40,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelWagon;
 
-		private global::Gamma.Widgets.yEntryReference referenceEmployee;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceEmployee;
 
 		private global::Gamma.Widgets.yEntryReference yentryrefWagon;
 
@@ -278,7 +278,7 @@ namespace Vodovoz
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCommon.Gtk.Table+TableChild
-			this.referenceEmployee = new global::Gamma.Widgets.yEntryReference();
+			this.referenceEmployee = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEmployee.Name = "referenceEmployee";
 			this.tableCommon.Add(this.referenceEmployee);

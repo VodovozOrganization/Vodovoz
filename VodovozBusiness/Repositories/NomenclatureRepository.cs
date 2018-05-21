@@ -111,5 +111,11 @@ namespace Vodovoz.Repository
 				.Where(n => n.Category == NomenclatureCategory.service)
 							.Where(n => !n.IsArchive);
 		}
+
+		public static IList<Nomenclature> NomenclatureOfDefectiveGoods(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<Nomenclature>()
+				.Where(n => n.IsDefectiveBottle).List();
+		}
 	}
 }

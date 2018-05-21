@@ -34,7 +34,7 @@
 		bottles_movement_operations
 	WHERE
 		counterparty_id = clientid) AS debtsum,
-	IF(bottles_residue IS NOT NULL, 1, 0) AS enteredresidue,
+	IF(delivery_points.have_residue = 0, 0, 1) AS enteredresidue,
 	(SELECT 
 		MAX(delivery_date)
 	FROM
@@ -357,7 +357,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>=Iif({enteredresidue} = 1, "да", "нет")</Value>
+                      <Value>=Iif({enteredresidue} = 1, "Да", "Нет")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -564,7 +564,7 @@ ORDER BY
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>1</Value>
+          <Value>0</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>

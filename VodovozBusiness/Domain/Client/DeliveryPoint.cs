@@ -368,6 +368,14 @@ namespace Vodovoz.Domain.Client
 				return observablePhones;
 			}
 		}
+		
+		private bool? haveResidue;
+
+		[Display(Name = "Посчитан ввод остатков")]
+		public virtual bool? HaveResidue {
+			get { return haveResidue; }
+			set { SetField(ref haveResidue, value, () => HaveResidue); }
+		}
 
 		#endregion
 

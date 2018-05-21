@@ -1,6 +1,8 @@
 ﻿<ui>
 	<toolbar name='toolbarSub'>
-		<toolitem name='ActionFinesJournal' action='ActionFinesJournal'/>
+        <toolitem name='ActionFinesJournal' action='ActionFinesJournal'/>
+        <toolitem name='ActionPremiumJournal' action='ActionPremiumJournal'/>
+		<toolitem name='ActionCarProxiesJournal' action='ActionCarProxiesJournal'/>
 		<toolitem name='ActionEmployeeWorkChart' action='ActionEmployeeWorkChart'/>
 	</toolbar>
 </ui>

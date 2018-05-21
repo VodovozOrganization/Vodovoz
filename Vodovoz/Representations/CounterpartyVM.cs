@@ -142,7 +142,7 @@ namespace Vodovoz.ViewModel
 		}
 	}
 
-	public class CounterpartyVMNode
+	public class CounterpartyVMNode : INodeWithEntryFastSelect
 	{
 		public int Id { get; set; }
 
@@ -195,6 +195,8 @@ namespace Vodovoz.ViewModel
 
 			}
 		}
+
+		public string EntityTitle => Name;
 	}
 }
 

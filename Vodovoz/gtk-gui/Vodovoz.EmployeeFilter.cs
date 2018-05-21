@@ -20,7 +20,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.EmployeeFilter";
 			// Container child Vodovoz.EmployeeFilter.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(3)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -28,7 +27,6 @@ namespace Vodovoz
 			this.checkFired.CanFocus = true;
 			this.checkFired.Name = "checkFired";
 			this.checkFired.Label = global::Mono.Unix.Catalog.GetString("Показывать уволенных");
-			this.checkFired.Active = true;
 			this.checkFired.DrawIndicator = true;
 			this.checkFired.UseUnderline = true;
 			this.table1.Add(this.checkFired);
@@ -58,7 +56,8 @@ namespace Vodovoz
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

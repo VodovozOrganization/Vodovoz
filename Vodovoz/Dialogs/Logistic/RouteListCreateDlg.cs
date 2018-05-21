@@ -13,6 +13,7 @@ using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -67,26 +68,27 @@ namespace Vodovoz
 				referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyHavings ? true : false;
 				//Водители на Авто компании катаются без экспедитора
 				Entity.Forwarder = Entity.Car.IsCompanyHavings ? null : Entity.Forwarder;
-				referenceForwarder.Sensitive = !Entity.Car.IsCompanyHavings;
+				referenceForwarder.IsEditable= !Entity.Car.IsCompanyHavings;
 			};
 
-			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
+			var filterDriver = new EmployeeFilter(UoW);
+			filterDriver.RestrictCategory = EmployeeCategory.driver;
+			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
-			referenceDriver.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
-			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictCategory = EmployeeCategory.forwarder;
+			referenceForwarder.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			referenceForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject).InitializeFromSource();
-			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 			referenceForwarder.Changed += (sender, args) =>
 			{
 				createroutelistitemsview1.OnForwarderChanged();
 			};
 
 			referenceLogistican.Sensitive = false;
-			//SubjectType не подхватывается автоматически
-			referenceLogistican.SubjectType = typeof(Employee);
+			var filterLogistican = new EmployeeFilter(UoW);
+			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistican, w => w.Subject).InitializeFromSource();
-			referenceLogistican.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts (UoW);
 			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();
@@ -120,6 +122,19 @@ namespace Vodovoz
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
+			CheckCarLoadDocuments();
+		}
+
+		private void CheckCarLoadDocuments()
+		{
+			if(Entity.Id == 0) {
+				return;
+			}
+
+			var docs = RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id);
+			if(docs.Count() > 0) {
+				IsEditable = false;
+			}
 		}
 
 		private void PrintSelectedDocument (RouteListPrintableDocuments choise)
@@ -257,7 +272,11 @@ namespace Vodovoz
 				return;
 			}
 			if (UoWGeneric.Root.Status == RouteListStatus.InLoading) {
-				UoWGeneric.Root.ChangeStatus(RouteListStatus.New);
+				if(RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any()) {
+					MessageDialogWorks.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначало необходимо удалить их.");
+				}else {
+					UoWGeneric.Root.ChangeStatus(RouteListStatus.New);
+				}
 				UpdateButtonStatus();
 				return;
 			}

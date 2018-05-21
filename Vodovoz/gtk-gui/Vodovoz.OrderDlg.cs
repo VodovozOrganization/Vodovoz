@@ -102,7 +102,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yDatePicker pickerDeliveryDate;
 
-		private global::Gamma.Widgets.yEntryReference referenceAuthor;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceAuthor;
 
 		private global::Gamma.Widgets.yEntryReferenceVM referenceClient;
 
@@ -438,7 +438,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 6;
+			this.notebook1.CurrentPage = 3;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vboxInfo = new global::Gtk.VBox();
 			this.vboxInfo.Name = "vboxInfo";
@@ -856,7 +856,7 @@ namespace Vodovoz
 			w47.XOptions = ((global::Gtk.AttachOptions)(4));
 			w47.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceAuthor = new global::Gamma.Widgets.yEntryReference();
+			this.referenceAuthor = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.referenceAuthor.Name = "referenceAuthor";
 			this.table1.Add(this.referenceAuthor);

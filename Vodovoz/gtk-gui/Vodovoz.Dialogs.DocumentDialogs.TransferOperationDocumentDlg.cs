@@ -26,7 +26,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		private global::Gtk.Label label13;
 
-		private global::Gamma.Widgets.yEntryReference referenceEmployee;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceEmployee;
 
 		private global::Gtk.HBox hbox3;
 
@@ -213,7 +213,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCommon.Gtk.Table+TableChild
-			this.referenceEmployee = new global::Gamma.Widgets.yEntryReference();
+			this.referenceEmployee = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceEmployee.Sensitive = false;
 			this.referenceEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEmployee.Name = "referenceEmployee";
@@ -269,12 +269,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.spinBottles = new global::Gtk.SpinButton(-1000, 1000, 1);
+			this.spinBottles = new global::Gtk.SpinButton(-1000D, 1000D, 1D);
 			this.spinBottles.Sensitive = false;
 			this.spinBottles.CanFocus = true;
 			this.spinBottles.Name = "spinBottles";
-			this.spinBottles.Adjustment.PageIncrement = 10;
-			this.spinBottles.ClimbRate = 1;
+			this.spinBottles.Adjustment.PageIncrement = 10D;
+			this.spinBottles.ClimbRate = 1D;
 			this.spinBottles.Numeric = true;
 			this.hbox2.Add(this.spinBottles);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.spinBottles]));
@@ -409,12 +409,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.spinDepositsBottles = new global::Gtk.SpinButton(-100000, 100000, 1);
+			this.spinDepositsBottles = new global::Gtk.SpinButton(-100000D, 100000D, 1D);
 			this.spinDepositsBottles.Sensitive = false;
 			this.spinDepositsBottles.CanFocus = true;
 			this.spinDepositsBottles.Name = "spinDepositsBottles";
-			this.spinDepositsBottles.Adjustment.PageIncrement = 10;
-			this.spinDepositsBottles.ClimbRate = 1;
+			this.spinDepositsBottles.Adjustment.PageIncrement = 10D;
+			this.spinDepositsBottles.ClimbRate = 1D;
 			this.spinDepositsBottles.Digits = ((uint)(2));
 			this.spinDepositsBottles.Numeric = true;
 			this.hbox5.Add(this.spinDepositsBottles);
@@ -453,12 +453,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.hbox6.Name = "hbox6";
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.spinDepositsEquipment = new global::Gtk.SpinButton(-100000, 100000, 1);
+			this.spinDepositsEquipment = new global::Gtk.SpinButton(-100000D, 100000D, 1D);
 			this.spinDepositsEquipment.Sensitive = false;
 			this.spinDepositsEquipment.CanFocus = true;
 			this.spinDepositsEquipment.Name = "spinDepositsEquipment";
-			this.spinDepositsEquipment.Adjustment.PageIncrement = 10;
-			this.spinDepositsEquipment.ClimbRate = 1;
+			this.spinDepositsEquipment.Adjustment.PageIncrement = 10D;
+			this.spinDepositsEquipment.ClimbRate = 1D;
 			this.spinDepositsEquipment.Digits = ((uint)(2));
 			this.spinDepositsEquipment.Numeric = true;
 			this.hbox6.Add(this.spinDepositsEquipment);

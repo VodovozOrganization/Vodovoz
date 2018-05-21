@@ -13,25 +13,9 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 'income' as direction, warehouses.name as warehouse, store_movement_wagon.name as wagon, store_movement_document.time_stamp as send_time, store_movement_document.delivered_time,
-GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(warehouse_movement_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
-FROM warehouse_movement_operations 
-INNER JOIN store_movement_document_items ON store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
-LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
-LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
-LEFT JOIN store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id 
-LEFT JOIN warehouses ON store_movement_document.warehouse_from_id = warehouses.id
-LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
-WHERE
-warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-AND warehouse_movement_operations.operation_time &gt;= @startDate
-AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-AND store_movement_document.category = 'Transportation'
-GROUP BY store_movement_document.id
-UNION 
-SELECT 'writeoff' as direction, warehouses.name as warehouse, store_movement_wagon.name as wagon, store_movement_document.time_stamp as send_time, store_movement_document.delivered_time,
+        <CommandText>SELECT 'writeoff' as direction, warehouses.name as warehouse, store_movement_wagon.name as wagon, store_movement_document.time_stamp as send_time, store_movement_document.delivered_time,
 GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(warehouse_movement_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
 FROM warehouse_movement_operations 
 INNER JOIN store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
@@ -42,6 +26,22 @@ LEFT JOIN warehouses ON store_movement_document.warehouse_to_id = warehouses.id
 LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
 WHERE
 warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+AND warehouse_movement_operations.operation_time &gt;= @startDate
+AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+AND store_movement_document.category = 'Transportation'
+GROUP BY store_movement_document.id
+UNION 
+SELECT 'income' as direction, warehouses.name as warehouse, store_movement_wagon.name as wagon, store_movement_document.time_stamp as send_time, store_movement_document.delivered_time,
+GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(warehouse_movement_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
+FROM warehouse_movement_operations 
+INNER JOIN store_movement_document_items ON store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
+LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
+LEFT JOIN store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id 
+LEFT JOIN warehouses ON store_movement_document.warehouse_from_id = warehouses.id
+LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
+WHERE
+warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
 AND warehouse_movement_operations.operation_time &gt;= @startDate
 AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
 AND store_movement_document.category = 'Transportation'
@@ -58,7 +58,7 @@ GROUP BY store_movement_document.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="direction">
           <DataField>direction</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -113,6 +113,8 @@ GROUP BY store_movement_document.id</CommandText>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>

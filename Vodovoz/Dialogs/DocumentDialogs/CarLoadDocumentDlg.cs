@@ -1,9 +1,9 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Additions.Store;
-using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
@@ -81,6 +81,8 @@ namespace Vodovoz
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 
+			enumPrint.ItemsEnum = typeof(CarLoadPrintableDocuments);
+
 			UpdateRouteListInfo();
 			Entity.UpdateStockAmount(UoW);
 			Entity.UpdateAlreadyLoaded(UoW);
@@ -152,33 +154,39 @@ namespace Vodovoz
 				carloaddocumentview1.FillItemsByWarehouse();
 		}
 
-		protected void OnButtonPrintClicked(object sender, EventArgs e)
-		{
-			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(CarLoadDocument), "талона"))
-				Save ();
-
-			var reportInfo = new QSReport.ReportInfo
-				{
-					Title = Entity.Title,
-					Identifier = "Store.CarLoadDoc",
-					Parameters = new System.Collections.Generic.Dictionary<string, object>
-					{
-						{ "id",  Entity.Id }
-					}
-				};
-			
-			TabParent.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
-				() => new QSReport.ReportViewDlg(reportInfo),
-				this);
-		}
-
 		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
 		{
 			Entity.UpdateStockAmount(UoW);
 			carloaddocumentview1.UpdateAmounts();
 		}
 
+		protected void OnEnumPrintEnumItemClicked(object sender, EnumItemClickedEventArgs e)
+		{
+			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(CarLoadDocument), "талона"))
+				Save();
+
+			var reportInfo = new QSReport.ReportInfo {
+				Title = Entity.Title,
+				Identifier = CarLoadPrintableDocuments.Common.Equals(e.ItemEnum) ? "Store.CarLoadDoc" : "Store.CarLoadDocPallets",
+				Parameters = new System.Collections.Generic.Dictionary<string, object>
+					{
+						{ "id",  Entity.Id }
+					}
+			};
+
+			TabParent.OpenTab(
+				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
+				() => new QSReport.ReportViewDlg(reportInfo),
+				this);
+		}
+	}
+
+	public enum CarLoadPrintableDocuments
+	{
+		[Display(Name = "Универсальная")]
+		Common,
+		[Display(Name = "С разбивной на поддоны")]
+		WithPallets
 	}
 }
 

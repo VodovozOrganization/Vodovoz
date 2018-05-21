@@ -22,6 +22,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
+using Vodovoz.ReportsParameters;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -288,8 +289,10 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionEmploeyActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(Employee));
-		tdiMain.AddTab(refWin);
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<EmployeesVM>(),
+			() => new ReferenceRepresentation(new EmployeesVM())
+		);
 	}
 
 	protected void OnActionCarsActivated(object sender, EventArgs e)
@@ -940,10 +943,43 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
+	
+	protected void OnActionNotDeliveredOrdersActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.NotDeliveredOrdersReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
 
-	protected void OnAction46Activated(object sender, EventArgs e)
+	protected void OnActionCounterpartyTagsActivated(object sender, EventArgs e)
 	{
 		var refWin = new OrmReference(typeof(Tag));
 		tdiMain.AddTab(refWin);
+	}
+	
+	protected void OnAction47Activated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(PremiumTemplate));
+		tdiMain.AddTab(refWin);
+	}
+
+	protected void OnAction48Activated(object sender, EventArgs e)
+	{
+		var widget = new EmployeesPremiums();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+
+	protected void OnAction49Activated(object sender, EventArgs e)
+	{
+		var widget = new OrderStatisticByWeekReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
 	}
 }

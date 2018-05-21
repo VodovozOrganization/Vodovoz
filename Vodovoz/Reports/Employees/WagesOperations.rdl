@@ -229,7 +229,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>=Switch(Fields!type.Value = 'GivedWage', 'Выдача зарплаты', Fields!type.Value = 'GivedAdvance', 'Выдача аванса', Fields!type.Value = 'HoldedFine', 'Удержание штрафа',Fields!type.Value = 'AccrualWage', 'Начисление зарплаты')</Value>
+                      <Value>=Switch(Fields!type.Value = 'GivedWage', 'Выдача зарплаты', Fields!type.Value = 'GivedAdvance', 'Выдача аванса', Fields!type.Value = 'HoldedFine', 'Удержание штрафа',Fields!type.Value = 'AccrualWage', 'Начисление зарплаты',Fields!type.Value = 'PremiumWage', 'Начисление премии')</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -379,6 +379,10 @@ WHERE
                         ' ',
                         fines.fine_reason_string),
                 fines.fine_reason_string)
+		WHEN
+            premium_items.id IS NOT NULL
+        THEN
+            premiums.premium_reason_string
     END AS details
 FROM
     (SELECT 
@@ -398,6 +402,10 @@ FROM
     fines_items ON fines_items.wages_movement_operations_id = wages_movement_operations.id
         LEFT JOIN
     fines ON fines.id = fines_items.fine_id
+		LEFT JOIN
+    premium_items ON premium_items.wages_movement_operations_id = wages_movement_operations.id
+        LEFT JOIN
+    premiums ON premiums.id = premium_items.premium_id
 WHERE
     wages_movement_operations.employee_id = @employee_id
         AND wages_movement_operations.operation_time &gt;= @start_date
