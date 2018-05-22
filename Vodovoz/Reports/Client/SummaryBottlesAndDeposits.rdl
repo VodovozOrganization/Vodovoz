@@ -13,9 +13,9 @@
   <BottomMargin>10mm</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>120</Timeout>
+        <Timeout>600</Timeout>
         <CommandText>select
 	docs.doc_id,
     docs.doc_date,
@@ -301,7 +301,7 @@ order by docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="doc_id">
           <DataField>doc_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -873,7 +873,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
-                            <FontFamily >Arial</FontFamily>
+                            <FontFamily>Arial</FontFamily>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1062,7 +1062,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
-                            <FontFamily >Arial</FontFamily>
+                            <FontFamily>Arial</FontFamily>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1267,7 +1267,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontFamily >Arial</FontFamily>
+                        <FontFamily>Arial</FontFamily>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1473,7 +1473,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontFamily >Arial</FontFamily>
+                        <FontFamily>Arial</FontFamily>
                       </Style>
                     </Textbox>
                   </ReportItems>
