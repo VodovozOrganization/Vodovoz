@@ -324,7 +324,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanEditPrice()
 		{
-			return IsRentRenewal();
+			if(IsRentRenewal()) {
+				return true;
+			}
 
 			return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
 		}
