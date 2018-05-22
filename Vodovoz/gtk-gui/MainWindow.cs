@@ -257,6 +257,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action Action49;
 
+	private global::Gtk.Action ReportKungolovo;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -682,6 +684,9 @@ public partial class MainWindow
 		this.Action49 = new global::Gtk.Action("Action49", global::Mono.Unix.Catalog.GetString("Статистика по дням недели"), null, null);
 		this.Action49.ShortLabel = global::Mono.Unix.Catalog.GetString("Статистика по дням недели");
 		w1.Add(this.Action49, null);
+		this.ReportKungolovo = new global::Gtk.Action("ReportKungolovo", global::Mono.Unix.Catalog.GetString("Отчёт \"Куньголово\""), null, null);
+		this.ReportKungolovo.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчёт \"Куньголово\"");
+		w1.Add(this.ReportKungolovo, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -768,27 +773,27 @@ public partial class MainWindow
 				"ctionReportsBottles\'><menuitem name=\'ActionBottlesMovementSummaryReport\' action=" +
 				"\'ActionBottlesMovementSummaryReport\'/><menuitem name=\'ActionBottlesMovementRLRep" +
 				"ort\' action=\'ActionBottlesMovementRLReport\'/><menuitem name=\'ActionShortfallBatt" +
-				"les\' action=\'ActionShortfallBattles\'/></menu><separator/><menu name=\'ActionRepor" +
-				"tEmployees\' action=\'ActionReportEmployees\'><menuitem name=\'ActionEmployeeFines\' " +
-				"action=\'ActionEmployeeFines\'/><menuitem name=\'Action48\' action=\'Action48\'/><menu" +
-				"item name=\'ActionWagesOperations\' action=\'ActionWagesOperations\'/><menuitem name" +
-				"=\'ActionForwarderWageReport\' action=\'ActionForwarderWageReport\'/></menu><menu na" +
-				"me=\'ActionReportsDrivers\' action=\'ActionReportsDrivers\'><menuitem name=\'ActionDr" +
-				"iverWages\' action=\'ActionDriverWages\'/><menuitem name=\'ActionFuelReport\' action=" +
-				"\'ActionFuelReport\'/><menuitem name=\'ActionDriversWageBalance\' action=\'ActionDriv" +
-				"ersWageBalance\'/><menuitem name=\'ActionDeliveriesLate\' action=\'ActionDeliveriesL" +
-				"ate\'/><menuitem name=\'ActionRouteListsOnClosing\' action=\'ActionRouteListsOnClosi" +
-				"ng\'/><separator/><menuitem name=\'ActionRoutesListRegister\' action=\'ActionRoutesL" +
-				"istRegister\'/><menuitem name=\'ActionOnLoadTime\' action=\'ActionOnLoadTime\'/><menu" +
-				"item name=\'ActionDeliveryTimeReport\' action=\'ActionDeliveryTimeReport\'/><menuite" +
-				"m name=\'ActionCompanyTrucks\' action=\'ActionCompanyTrucks\'/><menuitem name=\'Actio" +
-				"nShipmentReport\' action=\'ActionShipmentReport\'/><menuitem name=\'ActionMileageRep" +
-				"ort\' action=\'ActionMileageReport\'/><menuitem name=\'ActionDriveingCalls\' action=\'" +
-				"ActionDriveingCalls\'/></menu><separator/><menu name=\'ActionReportService\' action" +
-				"=\'ActionReportService\'><menuitem name=\'Action42\' action=\'Action42\'/><menuitem na" +
-				"me=\'Action41\' action=\'Action41\'/></menu></menu><menu name=\'ActionAbout\' action=\'" +
-				"ActionAbout\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></menu></menubar" +
-				"></ui>");
+				"les\' action=\'ActionShortfallBattles\'/><menuitem name=\'ReportKungolovo\' action=\'R" +
+				"eportKungolovo\'/></menu><separator/><menu name=\'ActionReportEmployees\' action=\'A" +
+				"ctionReportEmployees\'><menuitem name=\'ActionEmployeeFines\' action=\'ActionEmploye" +
+				"eFines\'/><menuitem name=\'Action48\' action=\'Action48\'/><menuitem name=\'ActionWage" +
+				"sOperations\' action=\'ActionWagesOperations\'/><menuitem name=\'ActionForwarderWage" +
+				"Report\' action=\'ActionForwarderWageReport\'/></menu><menu name=\'ActionReportsDriv" +
+				"ers\' action=\'ActionReportsDrivers\'><menuitem name=\'ActionDriverWages\' action=\'Ac" +
+				"tionDriverWages\'/><menuitem name=\'ActionFuelReport\' action=\'ActionFuelReport\'/><" +
+				"menuitem name=\'ActionDriversWageBalance\' action=\'ActionDriversWageBalance\'/><men" +
+				"uitem name=\'ActionDeliveriesLate\' action=\'ActionDeliveriesLate\'/><menuitem name=" +
+				"\'ActionRouteListsOnClosing\' action=\'ActionRouteListsOnClosing\'/><separator/><men" +
+				"uitem name=\'ActionRoutesListRegister\' action=\'ActionRoutesListRegister\'/><menuit" +
+				"em name=\'ActionOnLoadTime\' action=\'ActionOnLoadTime\'/><menuitem name=\'ActionDeli" +
+				"veryTimeReport\' action=\'ActionDeliveryTimeReport\'/><menuitem name=\'ActionCompany" +
+				"Trucks\' action=\'ActionCompanyTrucks\'/><menuitem name=\'ActionShipmentReport\' acti" +
+				"on=\'ActionShipmentReport\'/><menuitem name=\'ActionMileageReport\' action=\'ActionMi" +
+				"leageReport\'/><menuitem name=\'ActionDriveingCalls\' action=\'ActionDriveingCalls\'/" +
+				"></menu><separator/><menu name=\'ActionReportService\' action=\'ActionReportService" +
+				"\'><menuitem name=\'Action42\' action=\'Action42\'/><menuitem name=\'Action41\' action=" +
+				"\'Action41\'/></menu></menu><menu name=\'ActionAbout\' action=\'ActionAbout\'><menuite" +
+				"m name=\'aboutAction\' action=\'aboutAction\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1000,6 +1005,7 @@ public partial class MainWindow
 		this.Action47.Activated += new global::System.EventHandler(this.OnAction47Activated);
 		this.Action48.Activated += new global::System.EventHandler(this.OnAction48Activated);
 		this.Action49.Activated += new global::System.EventHandler(this.OnAction49Activated);
+		this.ReportKungolovo.Activated += new global::System.EventHandler(this.OnReportKungolovoActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QSTDI.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QSTDI.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QSTDI.TabClosedEventArgs>(this.OnTdiMainTabClosed);

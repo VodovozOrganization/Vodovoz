@@ -749,6 +749,8 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.CarProxyDocumentDlg.cs" />
     <Compile Include="ReportsParameters\OrderStatisticByWeekReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrderStatisticByWeekReport.cs" />
+    <Compile Include="ReportsParameters\ReportForBigClient.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ReportForBigClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
