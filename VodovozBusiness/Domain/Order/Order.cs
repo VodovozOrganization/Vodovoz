@@ -1212,6 +1212,26 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
+		/// Удаляет дополнительные документы выделенные пользователем, которые не относятся к текущему заказу.
+		/// </summary>
+		/// <returns>Документы текущего заказа, которые не были удалены.</returns>
+		/// <param name="documents">Список документов для удаления.</param>
+		public virtual List<OrderDocument> RemoveAdditionalDocuments(OrderDocument[] documents)
+		{
+			List<OrderDocument> thisOrderDocuments = null;
+			if(documents != null && documents.Any()) {
+				thisOrderDocuments = new List<OrderDocument>();
+				foreach(OrderDocument doc in documents) {
+					if(doc.Order != this)
+						ObservableOrderDocuments.Remove(doc);
+					else
+						thisOrderDocuments.Add(doc);
+				}
+			}
+			return thisOrderDocuments;
+		}
+
+		/// <summary>
 		/// Добавляет дополнительные документы выбранные пользователем в диалоге,
 		/// с проверкой их наличия в текущем заказе
 		/// </summary>

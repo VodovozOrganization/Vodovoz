@@ -209,7 +209,7 @@ namespace Vodovoz
 			var filterAuthor = new EmployeeFilter(UoW);
 			filterAuthor.RestrictFired = false;
 			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
-			referenceAuthor.Binding.AddBinding (Entity, s => s.Author, w => w.Subject).InitializeFromSource ();
+			referenceAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
 			referenceAuthor.Sensitive = false;
 
 			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
@@ -784,6 +784,7 @@ namespace Vodovoz
 			vboxInfo.Sensitive = CanChange;
 			vboxGoods.Sensitive = CanChange;
 			buttonAddExistingDocument.Sensitive = CanChange;
+			btnRemExistingDocument.Sensitive = CanChange;
 			tableTareControl.Sensitive = Entity.OrderStatus == OrderStatus.OnTheWay || Entity.OrderStatus == OrderStatus.Shipped;
 		}
 
@@ -1664,7 +1665,7 @@ namespace Vodovoz
 
 			DeliveryPointDlg dlg = new DeliveryPointDlg(Entity.Client, Entity.Address1c, Entity.Address1cCode);
 
-			dlg.Entity.HaveResidue = !string.IsNullOrEmpty(Entity.Comment) && 
+			dlg.Entity.HaveResidue = !string.IsNullOrEmpty(Entity.Comment) &&
 				(Entity.Comment.ToUpper().Contains("ПЕРВЫЙ ЗАКАЗ") || Entity.Comment.ToUpper().Contains("НОВЫЙ АДРЕС"));
 			dlg.EntitySaved += Dlg_EntitySaved;
 			TabParent.AddSlaveTab(this, dlg);
@@ -1881,6 +1882,19 @@ namespace Vodovoz
 
 			if(slider != null)
 				slider.IsHideJournal = true;
+		}
+
+		protected void OnBtnRemExistingDocumentClicked(object sender, EventArgs e)
+		{
+			var documents = treeDocuments.GetSelectedObjects<OrderDocument>();
+			var notDeletedDocs = Entity.RemoveAdditionalDocuments(documents);
+			if(notDeletedDocs != null && notDeletedDocs.Any()) {
+				String strDocuments = "";
+				foreach(OrderDocument doc in notDeletedDocs) {
+					strDocuments += String.Format("\n\t{0}", doc.Name);
+				}
+				MessageDialogWorks.RunWarningDialog(String.Format("Документы{0}\nудалены не были, так как относятся к текущему заказу.", strDocuments));
+			}
 		}
 
 		protected void OnButtonAddExistingDocumentClicked(object sender, EventArgs e)
