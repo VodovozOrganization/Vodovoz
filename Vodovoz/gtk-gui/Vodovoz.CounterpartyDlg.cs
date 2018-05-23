@@ -743,7 +743,9 @@ namespace Vodovoz
 			this.table2.RowSpacing = ((uint)(6));
 			this.table2.ColumnSpacing = ((uint)(6));
 			// Container child table2.Gtk.Table+TableChild
-			this.commentsview4 = null;
+			this.commentsview4 = new global::Vodovoz.ViewWidgets.CommentsView();
+			this.commentsview4.Events = ((global::Gdk.EventMask)(256));
+			this.commentsview4.Name = "commentsview4";
 			this.table2.Add(this.commentsview4);
 			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.table2[this.commentsview4]));
 			w51.TopAttach = ((uint)(1));
@@ -768,7 +770,9 @@ namespace Vodovoz
 			this.datatable2.ColumnSpacing = ((uint)(6));
 			this.datatable2.BorderWidth = ((uint)(6));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.contactsview1 = null;
+			this.contactsview1 = new global::Vodovoz.ContactsView();
+			this.contactsview1.Events = ((global::Gdk.EventMask)(256));
+			this.contactsview1.Name = "contactsview1";
 			this.datatable2.Add(this.contactsview1);
 			global::Gtk.Table.TableChild w53 = ((global::Gtk.Table.TableChild)(this.datatable2[this.contactsview1]));
 			w53.TopAttach = ((uint)(5));
@@ -1121,7 +1125,9 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.vbox6, this.label21);
 			this.label21.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.proxiesview1 = null;
+			this.proxiesview1 = new global::Vodovoz.ProxyView();
+			this.proxiesview1.Events = ((global::Gdk.EventMask)(256));
+			this.proxiesview1.Name = "proxiesview1";
 			this.notebook1.Add(this.proxiesview1);
 			global::Gtk.Notebook.NotebookChild w84 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.proxiesview1]));
 			w84.Position = 4;
@@ -1132,7 +1138,9 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.proxiesview1, this.label30);
 			this.label30.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.counterpartyContractsView = null;
+			this.counterpartyContractsView = new global::Vodovoz.CounterpartyContractsView();
+			this.counterpartyContractsView.Events = ((global::Gdk.EventMask)(256));
+			this.counterpartyContractsView.Name = "counterpartyContractsView";
 			this.notebook1.Add(this.counterpartyContractsView);
 			global::Gtk.Notebook.NotebookChild w85 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.counterpartyContractsView]));
 			w85.Position = 5;
@@ -1143,7 +1151,9 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.counterpartyContractsView, this.label34);
 			this.label34.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.counterpartydocumentsview = null;
+			this.counterpartydocumentsview = new global::Vodovoz.ViewWidgets.CounterpartyDocumentsView();
+			this.counterpartydocumentsview.Events = ((global::Gdk.EventMask)(256));
+			this.counterpartydocumentsview.Name = "counterpartydocumentsview";
 			this.notebook1.Add(this.counterpartydocumentsview);
 			global::Gtk.Notebook.NotebookChild w86 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.counterpartydocumentsview]));
 			w86.Position = 6;
@@ -1159,7 +1169,9 @@ namespace Vodovoz
 			this.vbox11.Spacing = 6;
 			this.vbox11.BorderWidth = ((uint)(6));
 			// Container child vbox11.Gtk.Box+BoxChild
-			this.deliveryPointView = null;
+			this.deliveryPointView = new global::Vodovoz.DeliveryPointView();
+			this.deliveryPointView.Events = ((global::Gdk.EventMask)(256));
+			this.deliveryPointView.Name = "deliveryPointView";
 			this.vbox11.Add(this.deliveryPointView);
 			global::Gtk.Box.BoxChild w87 = ((global::Gtk.Box.BoxChild)(this.vbox11[this.deliveryPointView]));
 			w87.Position = 0;
