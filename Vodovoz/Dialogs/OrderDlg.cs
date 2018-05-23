@@ -1241,7 +1241,7 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			if(!DefaultWaterCheck()) {
+			if(UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder && !DefaultWaterCheck()) {
 				toggleGoods.Activate();
 				return;
 			}
