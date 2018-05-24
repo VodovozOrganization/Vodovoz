@@ -1206,6 +1206,8 @@ namespace Vodovoz
 		/// пользователь не хочет её добавлять в заказ</returns>
 		private bool DefaultWaterCheck()
 		{
+			if(Entity.DeliveryPoint == null) 
+				return true;
 			Nomenclature defaultWater = Entity.DeliveryPoint.DefaultWaterNomenclature;
 			var orderWaters = Entity.ObservableOrderItems.Where(w => w.Nomenclature.Category == NomenclatureCategory.water);
 
