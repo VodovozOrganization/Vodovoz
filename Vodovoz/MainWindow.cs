@@ -334,6 +334,9 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionNomenclatureActivated(object sender, EventArgs e)
 	{
 		OrmReference refWin = new OrmReference(typeof(Nomenclature));
+		refWin.ButtonMode = ReferenceButtonMode.CanEdit;
+		refWin.ButtonMode |= QSMain.User.Permissions["can_create_and_arc_nomenclatures"] ? ReferenceButtonMode.CanAdd : ReferenceButtonMode.None;
+		refWin.ButtonMode |= QSMain.User.Permissions["can_delete_nomenclatures"] ? ReferenceButtonMode.CanDelete : ReferenceButtonMode.None;
 		tdiMain.AddTab(refWin);
 	}
 
@@ -346,6 +349,7 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
 		var refWin = new ReferenceRepresentation(new CounterpartyVM());
+		refWin.ButtonMode = QSMain.User.Permissions["can_delete_counterparty_and_deliverypoint"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit);
 		tdiMain.AddTab(refWin);
 	}
 
@@ -563,9 +567,13 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
+		ReferenceButtonMode mode = ReferenceButtonMode.CanEdit;
+		if(QSMain.User.Permissions["can_delete_counterparty_and_deliverypoint"])
+			mode |= ReferenceButtonMode.CanDelete;
+
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<DeliveryPointsVM>(),
-			() => new ReferenceRepresentation(new DeliveryPointsVM()).Buttons(ReferenceButtonMode.CanEdit | ReferenceButtonMode.CanDelete)
+			() => new ReferenceRepresentation(new DeliveryPointsVM()).Buttons(mode)
 		);
 	}
 
@@ -943,7 +951,7 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
-	
+
 	protected void OnActionNotDeliveredOrdersActivated(object sender, EventArgs e)
 	{
 		var widget = new Vodovoz.ReportsParameters.NotDeliveredOrdersReport();
@@ -958,7 +966,7 @@ public partial class MainWindow : Gtk.Window
 		var refWin = new OrmReference(typeof(Tag));
 		tdiMain.AddTab(refWin);
 	}
-	
+
 	protected void OnAction47Activated(object sender, EventArgs e)
 	{
 		OrmReference refWin = new OrmReference(typeof(PremiumTemplate));

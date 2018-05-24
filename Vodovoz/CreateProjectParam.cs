@@ -37,25 +37,29 @@ namespace Vodovoz
 {
 	partial class MainClass
 	{
-		static void CreateProjectParam ()
+		static void CreateProjectParam()
 		{
-			QSMain.ProjectPermission = new Dictionary<string, UserPermission> ();
-			QSMain.ProjectPermission.Add ("max_loan_amount", new UserPermission ("max_loan_amount", "Установка максимального кредита",
+			QSMain.ProjectPermission = new Dictionary<string, UserPermission>();
+			QSMain.ProjectPermission.Add("max_loan_amount", new UserPermission("max_loan_amount", "Установка максимального кредита",
 				"Пользователь имеет права для установки максимальной суммы кредита."));
-			QSMain.ProjectPermission.Add ("logistican", new UserPermission ("logistican", "Логист", "Пользователь является логистом."));
-			QSMain.ProjectPermission.Add ("logistic_admin", new UserPermission("logistic_admin", "Логист- пересчет топлива в закрытых МЛ", "Пользователь может пересчитывать километраж в закрытых МЛ"));
-			QSMain.ProjectPermission.Add ("logistic_changedeliverytime", new UserPermission("logistic_changedeliverytime", "Логистика. Изменение времени доставки при ведении МЛ", "Пользователь может изменять время доставки в диалоге ведения маршрутного листа"));
-			QSMain.ProjectPermission.Add ("money_manage", new UserPermission ("money_manage", "Управление деньгами", "Пользователь имеет доступ к денежным операциям(касса и т.п.)."));
-			QSMain.ProjectPermission.Add ("routelist_unclosing", new UserPermission ("routelist_unclosing", "Касса. Отмена закрытия маршрутных листов", "Пользователь может переводить маршрутные листы из статуса Закрыт в статус Сдается"));
-			QSMain.ProjectPermission.Add ("can_delete", new UserPermission("can_delete", "Удаление заказов и маршрутных листов", "Пользователь может удалять заказы и маршрутные листы в журналах."));
-			QSMain.ProjectPermission.Add ("can_delete_fines", new UserPermission("can_delete_fines", "Удаление штрафов", "Пользователь может удалять штрафы."));
-			QSMain.ProjectPermission.Add ("can_close_orders", new UserPermission("can_close_orders", "Закрытие заказов", "Пользователь может закрывать заказы вручную.") );
-			QSMain.ProjectPermission.Add ("can_edit_wage", new UserPermission("can_edit_wage", "Установка заработной платы ", "Пользователь может устанавливать тип заработной платы и ставку."));
+			QSMain.ProjectPermission.Add("logistican", new UserPermission("logistican", "Логист", "Пользователь является логистом."));
+			QSMain.ProjectPermission.Add("logistic_admin", new UserPermission("logistic_admin", "Логист- пересчет топлива в закрытых МЛ", "Пользователь может пересчитывать километраж в закрытых МЛ"));
+			QSMain.ProjectPermission.Add("logistic_changedeliverytime", new UserPermission("logistic_changedeliverytime", "Логистика. Изменение времени доставки при ведении МЛ", "Пользователь может изменять время доставки в диалоге ведения маршрутного листа"));
+			QSMain.ProjectPermission.Add("money_manage", new UserPermission("money_manage", "Управление деньгами", "Пользователь имеет доступ к денежным операциям(касса и т.п.)."));
+			QSMain.ProjectPermission.Add("routelist_unclosing", new UserPermission("routelist_unclosing", "Касса. Отмена закрытия маршрутных листов", "Пользователь может переводить маршрутные листы из статуса Закрыт в статус Сдается"));
+			QSMain.ProjectPermission.Add("can_delete", new UserPermission("can_delete", "Удаление заказов и маршрутных листов", "Пользователь может удалять заказы и маршрутные листы в журналах."));
+			QSMain.ProjectPermission.Add("can_delete_fines", new UserPermission("can_delete_fines", "Удаление штрафов", "Пользователь может удалять штрафы."));
+			QSMain.ProjectPermission.Add("can_close_orders", new UserPermission("can_close_orders", "Закрытие заказов", "Пользователь может закрывать заказы вручную."));
+			QSMain.ProjectPermission.Add("can_edit_wage", new UserPermission("can_edit_wage", "Установка заработной платы ", "Пользователь может устанавливать тип заработной платы и ставку."));
 			QSMain.ProjectPermission.Add("change_driver_wage", new UserPermission("change_driver_wage", "Изменение типа расчета ЗП в МЛ", "Пользователь может устанавливать для МЛ другой расчет заработной платы."));
-			QSMain.ProjectPermission.Add("can_set_archive", new UserPermission("can_set_archive", "Установка галочки 'Архив'", "Пользователь может устанавливать галочку архивный."));
+			QSMain.ProjectPermission.Add("can_create_and_arc_nomenclatures", new UserPermission("can_create_and_arc_nomenclatures", "Создание и архивирование номенклатур", "Пользователь может создавать номенклатуры и устанавливать галочку архивный."));
+			QSMain.ProjectPermission.Add("can_delete_counterparty_and_deliverypoint", new UserPermission("can_delete_counterparty_and_deliverypoint", "Удаление контрагентов и точек доставки", "Пользователь может удалять контрагентов и точки доставки."));
+			QSMain.ProjectPermission.Add("can_arc_counterparty_and_deliverypoint", new UserPermission("can_arc_counterparty_and_deliverypoint", "Архивирование контрагентов и точек доставки", "Пользователь может устанавливать галочку архивный для контрагентов и точек доставки."));
+			QSMain.ProjectPermission.Add("can_set_common_additionalagreement", new UserPermission("can_set_common_additionalagreement", "Возврат общего доп.соглашения", "Пользователь может нажать кнопку 'Вернуть общий' в доп.соглашении."));
+			QSMain.ProjectPermission.Add("can_delete_nomenclatures", new UserPermission("can_delete_nomenclatures", "Удаление номенклатур", "Пользователь может удалять номенклатуры."));
 
 			UserProperty.PermissionViewsCreator = delegate {
-				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix <WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
+				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
 			};
 		}
 
@@ -66,22 +70,22 @@ namespace Vodovoz
 			QSMain.ConnectionString += ";ConnectionTimeout=120";
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-			                                .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
+											.Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
 						 					.ConnectionString(QSMain.ConnectionString)
-			                                .AdoNetBatchSize(100)
+											.AdoNetBatchSize(100)
 											.ShowSql()
 											.FormatSql();
 
 			// Настройка ORM
-			OrmMain.ConfigureOrm (db_config, new System.Reflection.Assembly[] {
+			OrmMain.ConfigureOrm(db_config, new System.Reflection.Assembly[] {
 				System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSHistoryLog.HistoryMain))
-			}, 
-			                      (cnf) => cnf.DataBaseIntegration(
-				                      dbi => { dbi.BatchSize = 100; dbi.Batcher<MySqlClientBatchingBatcherFactory>();}
-				                     ));
+			},
+								  (cnf) => cnf.DataBaseIntegration(
+									  dbi => { dbi.BatchSize = 100; dbi.Batcher<MySqlClientBatchingBatcherFactory>(); }
+									 ));
 			OrmMain.ClassMappingList = new List<IOrmObjectMapping> {
 				//Простые справочники
 				OrmObjectMapping<CullingCategory>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
@@ -170,28 +174,28 @@ namespace Vodovoz
 				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().DefaultTableView().Column("Название", w=>w.Name).End()
 			};
 
-			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
-			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
+			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
+			OrmMain.ClassMappingList.AddRange(QSContactsMain.GetModuleMaping());
 
 			HistoryMain.ConfigureFromOrmMain();
 
 			//Настройка ParentReference
-			ParentReferenceConfig.AddActions (new ParentReferenceActions<Organization, QSBanks.Account> {
-				AddNewChild = (o, a) => o.AddAccount (a)
+			ParentReferenceConfig.AddActions(new ParentReferenceActions<Organization, QSBanks.Account> {
+				AddNewChild = (o, a) => o.AddAccount(a)
 			});
-			ParentReferenceConfig.AddActions (new ParentReferenceActions<Counterparty, QSBanks.Account> {
-				AddNewChild = (c, a) => c.AddAccount (a)
+			ParentReferenceConfig.AddActions(new ParentReferenceActions<Counterparty, QSBanks.Account> {
+				AddNewChild = (c, a) => c.AddAccount(a)
 			});
-			ParentReferenceConfig.AddActions (new ParentReferenceActions<Employee, QSBanks.Account> {
-				AddNewChild = (c, a) => c.AddAccount (a)
+			ParentReferenceConfig.AddActions(new ParentReferenceActions<Employee, QSBanks.Account> {
+				AddNewChild = (c, a) => c.AddAccount(a)
 			});
 		}
 
 		public static void SetupAppFromBase()
 		{
 			//Устанавливаем код города по умолчанию.
-			if (MainSupport.BaseParameters.All.ContainsKey ("default_city_code"))
-				QSContactsMain.DefaultCityCode = MainSupport.BaseParameters.All ["default_city_code"];
+			if(MainSupport.BaseParameters.All.ContainsKey("default_city_code"))
+				QSContactsMain.DefaultCityCode = MainSupport.BaseParameters.All["default_city_code"];
 		}
 	}
 }

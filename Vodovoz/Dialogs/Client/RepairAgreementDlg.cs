@@ -56,6 +56,7 @@ namespace Vodovoz
 				(Entity.AgreementTemplate.DocParser as RepairAgreementParser).RootObject = Entity;
 			templatewidget2.Binding.AddBinding(Entity, e => e.AgreementTemplate, w => w.Template).InitializeFromSource();
 			templatewidget2.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
+			templatewidget2.CanRevertCommon = QSProjectsLib.QSMain.User.Permissions["can_set_common_additionalagreement"];
 		}
 
 		public override bool Save ()

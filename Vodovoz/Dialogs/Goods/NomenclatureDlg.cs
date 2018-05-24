@@ -89,7 +89,7 @@ namespace Vodovoz
 			yentryShortName.MaxLength = 20;
 
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			checkIsArchive.Sensitive = QSMain.User.Permissions["can_set_archive"];
+			checkIsArchive.Sensitive = QSMain.User.Permissions["can_create_and_arc_nomenclatures"];
 
 			int currNomenclatureOfDependence = (Entity.DependsOnNomenclature == null ? 0 : Entity.DependsOnNomenclature.Id);
 

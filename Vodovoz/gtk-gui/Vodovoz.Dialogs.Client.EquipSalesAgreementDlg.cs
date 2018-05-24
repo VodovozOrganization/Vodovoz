@@ -240,6 +240,7 @@ namespace Vodovoz.Dialogs.Client
 			this.templatewidget1 = new global::QSDocTemplates.TemplateWidget();
 			this.templatewidget1.Events = ((global::Gdk.EventMask)(256));
 			this.templatewidget1.Name = "templatewidget1";
+			this.templatewidget1.CanRevertCommon = false;
 			this.datatable1.Add(this.templatewidget1);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable1[this.templatewidget1]));
 			w19.BottomAttach = ((uint)(4));

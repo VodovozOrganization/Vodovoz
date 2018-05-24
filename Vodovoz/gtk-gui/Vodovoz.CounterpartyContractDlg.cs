@@ -279,6 +279,7 @@ namespace Vodovoz
 			this.templatewidget1 = new global::QSDocTemplates.TemplateWidget();
 			this.templatewidget1.Events = ((global::Gdk.EventMask)(256));
 			this.templatewidget1.Name = "templatewidget1";
+			this.templatewidget1.CanRevertCommon = false;
 			this.datatable5.Add(this.templatewidget1);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatable5[this.templatewidget1]));
 			w21.BottomAttach = ((uint)(6));
