@@ -56,6 +56,10 @@ namespace Vodovoz.Tools.Logistic
 			route.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
 			route.Add(new PointOnEarth(latitude.Value, longitude.Value));
 			var osrmResult = OsrmMain.GetRoute(route, false, GeometryOverview.False);
+			if(osrmResult == null) {
+				result.ErrorMessage = String.Format("Ошибка на сервере расчета расстояний, не возможно расчитать растояние.");
+				return result;
+			}
 			if(osrmResult.Code != "Ok") {
 				result.ErrorMessage = String.Format("Сервер расчета расстояний вернул следующее сообщение: {0}", osrmResult.StatusMessageRus);
 				return result;
