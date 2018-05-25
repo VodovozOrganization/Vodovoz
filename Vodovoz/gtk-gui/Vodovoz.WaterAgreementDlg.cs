@@ -264,7 +264,7 @@ namespace Vodovoz
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;
-			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить");
+			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить фиксу");
 			this.hbox7.Add(this.buttonAdd);
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonAdd]));
 			w22.Position = 0;
@@ -275,7 +275,7 @@ namespace Vodovoz
 			this.buttonDel.CanFocus = true;
 			this.buttonDel.Name = "buttonDel";
 			this.buttonDel.UseUnderline = true;
-			this.buttonDel.Label = global::Mono.Unix.Catalog.GetString("Удалить");
+			this.buttonDel.Label = global::Mono.Unix.Catalog.GetString("Удалить фиксу");
 			this.hbox7.Add(this.buttonDel);
 			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonDel]));
 			w23.Position = 1;

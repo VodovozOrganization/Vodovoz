@@ -1297,6 +1297,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -8490,6 +8491,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">4</property>
@@ -8706,6 +8708,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget2">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">3</property>
@@ -8964,6 +8967,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">4</property>
@@ -9072,7 +9076,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextOnly</property>
-                <property name="Label" translatable="yes">Добавить</property>
+                <property name="Label" translatable="yes">Добавить фиксу</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonAddClicked" />
               </widget>
@@ -9088,7 +9092,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextOnly</property>
-                <property name="Label" translatable="yes">Удалить</property>
+                <property name="Label" translatable="yes">Удалить фиксу</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonDelClicked" />
               </widget>
@@ -13183,6 +13187,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">4</property>
@@ -13558,6 +13563,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget3">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">4</property>
@@ -14745,6 +14751,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">6</property>
@@ -27178,7 +27185,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -50436,6 +50442,7 @@ not tooltip</property>
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">4</property>
@@ -53239,6 +53246,7 @@ not tooltip</property>
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="Position">1</property>
