@@ -22,6 +22,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarProxyDocument>();
+			Entity.Date = DateTime.Now;
 			ConfigureDlg();
 		}
 
