@@ -264,9 +264,10 @@ namespace Vodovoz
 		{
 			labelFIO.Visible = entryFIO.Visible = Entity.PersonType == PersonType.natural;
 			labelShort.Visible = datalegalname1.Visible =
-				labelFullName.Visible = entryFullName.Visible =
+					labelFullName.Visible = entryFullName.Visible =
 					referenceMainCounterparty.Visible = labelMainCounterparty.Visible =
-					radioDetails.Visible = radiobuttonProxies.Visible = Entity.PersonType == PersonType.legal;
+						radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible = 
+							enumPayment.Visible = (Entity.PersonType == PersonType.legal);
 		}
 
 		protected void OnEnumPaymentEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
