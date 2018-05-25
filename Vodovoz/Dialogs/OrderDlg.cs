@@ -49,13 +49,13 @@ namespace Vodovoz
 		LastChosenAction lastChosenAction = LastChosenAction.None;
 
 		/// <summary>
-		/// Ширина колонки "Номенклатура" списка товаров 
+		/// Ширина первой колонки списка товаров или оборудования
 		/// (создано для храннения ширины колонки до автосайза ячейки по 
 		/// содержимому, чтобы отобразить по правильному положению ввод 
 		/// количества при добавлении нового товара)
 		/// </summary>
-		private int treeItemsNomenclatureColWidth;
-
+		int treeAnyGoodsFirstColWidth;
+		
 		private enum LastChosenAction //
 		{
 			None,
@@ -132,12 +132,9 @@ namespace Vodovoz
 										 || UoWGeneric.Root.OrderStatus == OrderStatus.Accepted
 										 || Entity.OrderStatus == OrderStatus.Canceled);
 
-			//		var fixedPrices = GetFixedPriceList(Entity.DeliveryPoint);
-
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
 			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
-			//treeEquipmentFromClient.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
 			treeServiceClaim.ItemsDataSource = UoWGeneric.Root.ObservableInitialOrderService;
 			//TODO FIXME Добавить в таблицу закрывающие заказы.
 
@@ -149,6 +146,8 @@ namespace Vodovoz
 			Entity.ObservableFinalOrderService.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableInitialOrderService.ElementAdded += Entity_UpdateClientCanChange;
 
+			Entity.ObservableOrderItems.ElementAdded += Entity_ObservableOrderItems_ElementAdded;
+			Entity.ObservableOrderEquipments.ElementAdded += Entity_ObservableOrderEquipments_ElementAdded;
 
 			//Подписываемся на изменение товара, для обновления количества оборудования в доп. соглашении
 			Entity.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged_ChangeCount;
@@ -218,7 +217,6 @@ namespace Vodovoz
 			buttonViewDocument.Sensitive = false;
 			buttonDelete1.Sensitive = false;
 			buttonDeleteEquipment.Sensitive = false;
-			//			enumStatus.Sensitive = false;
 			notebook1.ShowTabs = false;
 			notebook1.Page = 0;
 
@@ -329,7 +327,8 @@ namespace Vodovoz
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
 				.AddColumn("Наименование").SetDataProperty(node => node.FullNameString)
 				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
-				.AddColumn("Кол-во").AddNumericRenderer(node => node.Count)
+				.AddColumn("Кол-во")
+				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 				.AddTextRenderer(node => String.Format("({0})", node.ReturnedCount))
 				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
@@ -483,10 +482,18 @@ namespace Vodovoz
 
 		void Entity_ObservableOrderItems_ElementAdded(object aList, int[] aIdx)
 		{
-			treeItemsNomenclatureColWidth = treeItems.Columns.First(x => x.Title == "Номенклатура").Width;
-			treeItems.ExposeEvent += TreeItems_ExposeEvent;
+			treeAnyGoodsFirstColWidth = treeItems.Columns.First(x => x.Title == "Номенклатура").Width;
+			treeItems.ExposeEvent += TreeAnyGoods_ExposeEvent;
 			//Выполнение в случае если размер не поменяется
-			EditItemCountCellOnAdd();
+			EditGoodsCountCellOnAdd(treeItems);
+		}
+
+		void Entity_ObservableOrderEquipments_ElementAdded(object aList, int[] aIdx)
+		{
+			treeAnyGoodsFirstColWidth = treeEquipment.Columns.First(x => x.Title == "Наименование").Width;
+			treeEquipment.ExposeEvent += TreeAnyGoods_ExposeEvent;
+			//Выполнение в случае если размер не поменяется
+			EditGoodsCountCellOnAdd(treeEquipment);
 		}
 
 		void ObservableOrderDocuments_ListChanged(object aList)
@@ -1749,29 +1756,29 @@ namespace Vodovoz
 		/// <summary>
 		/// Активирует редактирование ячейки количества
 		/// </summary>
-		private void EditItemCountCellOnAdd()
+		private void EditGoodsCountCellOnAdd(yTreeView treeView)
 		{
-			int index = treeItems.Model.IterNChildren() - 1;
+			int index = treeView.Model.IterNChildren() - 1;
 			Gtk.TreeIter iter;
 			Gtk.TreePath path;
 
-			treeItems.Model.IterNthChild(out iter, index);
-			path = treeItems.Model.GetPath(iter);
+			treeView.Model.IterNthChild(out iter, index);
+			path = treeView.Model.GetPath(iter);
 
-			var column = treeItems.Columns.First(x => x.Title == "Кол-во");
+			var column = treeView.Columns.First(x => x.Title == "Кол-во");
 			var renderer = column.CellRenderers.First();
 			Application.Invoke(delegate {
-				treeItems.SetCursorOnCell(path, column, renderer, true);
+				treeView.SetCursorOnCell(path, column, renderer, true);
 			});
-			treeItems.GrabFocus();
+			treeView.GrabFocus();
 		}
 
-		void TreeItems_ExposeEvent(object o, ExposeEventArgs args)
+		void TreeAnyGoods_ExposeEvent(object o, ExposeEventArgs args)
 		{
-			var newColWidth = treeItems.Columns.First(x => x.Title == "Номенклатура").Width;
-			if(treeItemsNomenclatureColWidth != newColWidth) {
-				EditItemCountCellOnAdd();
-				treeItems.ExposeEvent -= TreeItems_ExposeEvent;
+			var newColWidth = ((yTreeView)o).Columns.First().Width;
+			if(treeAnyGoodsFirstColWidth != newColWidth) {
+				EditGoodsCountCellOnAdd((yTreeView)o);
+				((yTreeView)o).ExposeEvent -= TreeAnyGoods_ExposeEvent;
 			}
 		}
 
