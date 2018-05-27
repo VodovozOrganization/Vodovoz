@@ -127,6 +127,7 @@ namespace Vodovoz.Dialogs
 				this.Child.ShowAll();
 			}
 			w1.SetUiManager(UIManager);
+			this.buttonPrint.Hide();
 			this.Hide();
 			this.ytreeviewDocuments.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewDocumentsRowActivated);
 			this.buttonPrintAll.Clicked += new global::System.EventHandler(this.OnButtonPrintAllClicked);

@@ -4,7 +4,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
-using QSOrmProject;
 using QSReport;
 using QSTDI;
 using Vodovoz.Domain.Orders;
@@ -81,7 +80,11 @@ namespace Vodovoz.Dialogs
 
 		void PreviewDocument(SelectablePrintDocument selectedDocument)
 		{
-			if(selectedDocument == null) {
+			if(selectedDocument == null)
+				return;
+
+			if(selectedDocument.Document.PrintType != PrinterType.RDL) {
+
 				return;
 			}
 			var reportInfo = selectedDocument.Document.GetReportInfo();
