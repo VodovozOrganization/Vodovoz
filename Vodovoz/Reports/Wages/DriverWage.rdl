@@ -972,7 +972,7 @@
       </Table>
       <Table Name="Table5">
         <DataSetName>UnclosedAdvances</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Незакрытых авансов нет</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1161,7 +1161,7 @@
       </Textbox>
       <Table Name="Table6">
         <DataSetName>UnclosedRouteLists</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Незакрытых МЛ нет</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1798,8 +1798,8 @@ INNER JOIN cash_expense ON cash_expense.wages_movement_operations_id = wages_mov
 WHERE
     wages_movement_operations.operation_type = 'GivedAdvance'
         AND wages_movement_operations.employee_id = @driver_id
-        AND wages_movement_operations.operation_time &gt;= @start_date
-        AND wages_movement_operations.operation_time &lt;= DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
+        AND wages_movement_operations.operation_time &gt;= DATE(@start_date)
+        AND wages_movement_operations.operation_time &lt;= DATE_ADD(DATE(@end_date), INTERVAL 1 DAY);</CommandText>
         <QueryParameters>
           <QueryParameter Name="driver_id">
             <Value>=Parameters!driver_id</Value>
@@ -1960,7 +1960,8 @@ FROM
 	fuel_operations
 WHERE
 	driver_id = @driver_id
-	AND DATE(DATE_ADD(date, INTERVAL -1 DAY)) &lt;= @end_date
+	#AND DATE(DATE_ADD(date, INTERVAL -1 DAY)) &lt;= @end_date
+	AND DATE(date) &lt;= DATE(@end_date)
 GROUP BY
 	driver_id</CommandText>
         <QueryParameters>
@@ -1985,6 +1986,11 @@ GROUP BY
   <ReportParameters>
     <ReportParameter Name="driver_id">
       <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>749</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1993,6 +1999,11 @@ GROUP BY
     </ReportParameter>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-02-28 00:00:00</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -2001,6 +2012,11 @@ GROUP BY
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-02-28 23:59:00</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -2009,6 +2025,11 @@ GROUP BY
     </ReportParameter>
     <ReportParameter Name="showbalance">
       <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
