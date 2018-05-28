@@ -13,7 +13,7 @@
   <BottomMargin>10mm</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>select
@@ -126,7 +126,7 @@ from
 	where
 		not (orders.order_status = 'Canceled' 
 			or orders.order_status = 'DeliveryCanceled'
-			or orders.order_status = 'NorDelivered')
+			or orders.order_status = 'NotDelivered')
 #subselect doc_residue
 	union select
 		doc_residue.id as doc_id,
@@ -259,7 +259,7 @@ order by docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="doc_id">
           <DataField>doc_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
