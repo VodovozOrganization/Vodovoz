@@ -990,4 +990,13 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
+
+	protected void OnReportKungolovoActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.ReportForBigClient();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
 }

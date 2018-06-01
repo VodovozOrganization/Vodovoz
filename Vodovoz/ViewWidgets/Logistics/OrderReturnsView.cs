@@ -174,12 +174,16 @@ namespace Vodovoz
 					}
 				})
 						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
+						.AddSetter((cell, node) => cell.Adjustment = new Gtk.Adjustment(0, 0, node.Count, 1, 1, 0))
+						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
 					.AddNumericRenderer(node => node.Price)
 						.Adjustment(new Gtk.Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("Скидка")
+					.AddTextRenderer(node => String.Format("{0}%",node.Discount))
 				.AddColumn("Стоимость")
 					.AddNumericRenderer(node => node.Sum)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName)
@@ -220,6 +224,15 @@ namespace Vodovoz
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM(deliveryPointFilter);
 			referenceDeliveryPoint.Binding.AddBinding(orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPoint.CanEditReference = false;
+		}
+		
+		void YenumcomboOrderPayment_Changed(object sender, EventArgs e)
+		{
+			routeListItem.RecalculateTotalCash();
+
+			if(routeListItem.Order.PaymentType == PaymentType.cashless && routeListItem.TotalCash != 0) {
+				routeListItem.RecalculateTotalCash();
+			}
 		}
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
@@ -308,11 +321,7 @@ namespace Vodovoz
 			orderEquipment = equipment;
 		}
 
-		public bool IsEquipment {
-			get {
-				return orderEquipment != null;
-			}
-		}
+		public bool IsEquipment => orderEquipment != null;
 
 		public bool IsSerialEquipment {
 			get {
@@ -324,9 +333,7 @@ namespace Vodovoz
 		}
 
 		public bool IsDelivered {
-			get {
-				return ActualCount > 0;
-			}
+			get => ActualCount > 0;
 			set {
 				if(IsEquipment && IsSerialEquipment) {
 					ActualCount = value ? 1 : 0;
@@ -368,31 +375,14 @@ namespace Vodovoz
 				}
 			}
 		}
-		public int Count {
-			get {
-				if(IsEquipment) {
-					return orderEquipment.Count;
-				}
-				return orderItem.Count;
-			}
-		}
+		public int Count => IsEquipment ? 1 : orderItem.Count;
 
-		public string Name {
-			get {
-				return IsEquipment ? orderEquipment.NameString : orderItem.NomenclatureString;
-			}
-		}
+		public string Name => IsEquipment ? orderEquipment.NameString : orderItem.NomenclatureString;
 
-		public bool HasPrice {
-			get {
-				return !IsEquipment || orderEquipment.OrderItem != null;
-			}
-		}
+		public bool HasPrice => !IsEquipment || orderEquipment.OrderItem != null;
 
 		public string ConfirmedComments {
-			get {
-				return IsEquipment ? orderEquipment.ConfirmedComment : null;
-			}
+			get => IsEquipment ? orderEquipment.ConfirmedComment : null;
 			set {
 				if(IsEquipment)
 					orderEquipment.ConfirmedComment = value;
@@ -414,12 +404,19 @@ namespace Vodovoz
 					orderItem.Price = value;
 			}
 		}
-		public decimal Sum {
-			get {
-				return Price * ActualCount;
+		public int Discount {
+			get => IsEquipment ? orderEquipment.OrderItem.Discount : orderItem.Discount;
+			set {
+				if(IsEquipment) {
+					if(orderEquipment.OrderItem != null)
+						orderEquipment.OrderItem.Discount = value;
+				} else
+					orderItem.Discount = value;
 			}
 		}
 
+		public decimal Sum {
+			get => Price * ActualCount * (1 - (decimal)Discount / 100);
+		}
 	}
 }
-

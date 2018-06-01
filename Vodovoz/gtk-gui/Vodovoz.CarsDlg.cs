@@ -414,7 +414,7 @@ namespace Vodovoz
 			this.ydatepickerDocIssuedDate.Name = "ydatepickerDocIssuedDate";
 			this.ydatepickerDocIssuedDate.WithTime = false;
 			this.ydatepickerDocIssuedDate.Date = new global::System.DateTime(0);
-			this.ydatepickerDocIssuedDate.IsEditable = false;
+			this.ydatepickerDocIssuedDate.IsEditable = true;
 			this.ydatepickerDocIssuedDate.AutoSeparation = false;
 			this.hbox10.Add(this.ydatepickerDocIssuedDate);
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.ydatepickerDocIssuedDate]));

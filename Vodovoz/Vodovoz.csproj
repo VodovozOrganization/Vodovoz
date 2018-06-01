@@ -792,6 +792,8 @@
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.ProxyDocumentsView.cs" />
     <Compile Include="Dialogs\Employees\M2ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.M2ProxyDlg.cs" />
+    <Compile Include="ReportsParameters\ReportForBigClient.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ReportForBigClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1249,6 +1251,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Orders\OrderStatisticByWeek.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Client\SummaryBottlesAndDepositsKungolovo.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

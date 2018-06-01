@@ -1,0 +1,1901 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>296.926mm</PageHeight>
+  <PageWidth>209.804mm</PageWidth>
+  <Width>190mm</Width>
+  <TopMargin>10mm</TopMargin>
+  <LeftMargin>10mm</LeftMargin>
+  <RightMargin>10mm</RightMargin>
+  <BottomMargin>10mm</BottomMargin>
+  <DataSets>
+    <DataSet Name="Data">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
+        <CommandText>select
+    docs.doc_id,
+    docs.doc_date,
+    docs.doc_payment_type,
+    ifnull(docs.delivery_point_id, '0') AS delivery_point_id,
+    docs.delivery_point_address,
+    docs.doc_name,
+    docs.doc_status,
+    case
+#sum if it's residue
+		when docs.doc_name = 'Ввод остатков' then
+			(select 
+				debt
+			from
+				doc_residue
+			left join
+				money_movement_operations ON money_movement_operations.id = doc_residue.money_movement_operation_id
+			where
+				doc_residue.id = docs.doc_id)
+#sum if it's order
+		when docs.doc_name = 'Заказ' then
+			(select 
+				sum(order_items.price * order_items.actual_count)
+			from
+				order_items
+			where
+				order_items.order_id = docs.doc_id)
+	end as sum,
+    if(docs.doc_name = 'Заказ',
+		forfeits.forfeit,
+        null) as forfeit,
+	if(docs.doc_name = 'Заказ',
+		forfeits.forfeitCount,
+        null) as forfeitCount,
+	if(docs.doc_name = 'Заказ',
+		ifnull(bottles_movement_operations.delivered, if(docs.doc_status = 'Closed',0,null)),
+		ifnull(bottles_movement_operations.delivered, 0)
+    ) AS delivered,
+    if(docs.doc_name = 'Заказ',
+		ifnull(bottles_movement_operations.returned, if(docs.doc_status = 'Closed',0,null)),
+		ifnull(bottles_movement_operations.returned, 0)
+    ) AS returned,
+    case
+#bottles deposit if it's residue
+		when docs.doc_name = 'Ввод остатков' then
+			(select
+				deposit_residue_bottles
+			from
+				doc_residue
+			where
+				doc_residue.id = docs.doc_id)
+#bottles deposit if it's order
+		when docs.doc_name = 'Заказ' then
+			(ifnull((select 
+				sum(deposit_operations.received_deposit - deposit_operations.refund_deposit)
+			from
+				deposit_operations
+			where
+				deposit_operations.order_id = docs.doc_id
+				and deposit_operations.deposit_type = 'Bottles'), if(docs.doc_status = 'Closed',0,null)) +
+			ifnull((select
+				sum(order_items.price * order_items.actual_count)
+			from
+				order_items
+			where
+				order_items.order_id = docs.doc_id
+				AND order_items.nomenclature_id = 157), if(docs.doc_status = 'Closed',0,null)))
+#bottles deposit if it's transfer
+		else
+			(select
+				case
+					when docs.doc_payment_type = 'out' then
+						sum(out_bd_op.received_deposit - out_bd_op.refund_deposit)
+					when docs.doc_payment_type = 'inc' then
+						sum(inc_bd_op.received_deposit - inc_bd_op.refund_deposit)
+                end
+			from
+				transfer_operations
+			left join
+				deposit_operations as out_bd_op on out_bd_op.id = transfer_operations.outgoing_bottle_deposit_operation
+			left join
+				deposit_operations as inc_bd_op on inc_bd_op.id = transfer_operations.incoming_bottle_deposit_operation
+			where
+				(out_bd_op.deposit_type = 'Bottles' or inc_bd_op.deposit_type = 'Bottles')
+                and transfer_operations.id = docs.doc_id)
+	end as bottles_deposit
+        ,unload_documents.empty_btl AS unl_docs_empty_btls
+        ,unload_documents.deffective AS unl_docs_deffectives
+        ,unload_documents.pallet AS unl_docs_pallets
+        ,unload_documents.gasket AS unl_docs_gaskets
+        ,route_list_addresses.route_list_id AS route_list_id
+from
+#subselect orders
+	(select 
+		orders.id as doc_id,
+		orders.bottles_movement_operation_id,
+		orders.delivery_date as doc_date,
+		orders.payment_type as doc_payment_type,
+		delivery_points.id as delivery_point_id,
+		delivery_points.compiled_address as delivery_point_address,
+		'Заказ' as doc_name,
+        orders.order_status as doc_status,
+        orders.client_id as doc_client_id
+	from
+		orders
+	left join
+		delivery_points on delivery_points.id = orders.delivery_point_id
+	where
+		not (orders.order_status = 'Canceled' 
+			or orders.order_status = 'DeliveryCanceled'
+			or orders.order_status = 'NotDelivered')
+#subselect doc_residue
+	union select
+		doc_residue.id as doc_id,
+		doc_residue.bottles_movement_operation_id,
+		doc_residue.date as doc_date,
+		doc_residue.debt_payment_type as doc_payment_type,
+		doc_residue.delivery_point_id as delivery_point_id,
+		delivery_points.compiled_address as delivery_point_address,
+		'Ввод остатков' as doc_name,
+        '' as doc_status, 
+        doc_residue.client_id as doc_client_id
+	from
+		doc_residue
+	left join
+		delivery_points on delivery_points.id = doc_residue.delivery_point_id
+#subselect transfer_operations: transfer from client
+	union select
+		transfer_operations.id as doc_id,
+        transfer_operations.outgoing_bottle_operation as bottles_movement_operation_id,
+        transfer_operations.operation_time as doc_date,
+        'out' as doc_payment_type,  #crutch
+        transfer_operations.from_delivery_point_id as delivery_point_id,
+        out_delivery_point.compiled_address as delivery_point_address,
+        concat(
+			'Перенесено клиенту ',
+            inc_counterparty.name,
+            ' по адресу ',
+            inc_delivery_point.compiled_address) as doc_name,
+		'' as doc_status, 
+		transfer_operations.from_client_id as doc_client_id
+	from
+		transfer_operations
+	left join
+		delivery_points as out_delivery_point on out_delivery_point.id = transfer_operations.from_delivery_point_id
+	left join
+		delivery_points as inc_delivery_point on inc_delivery_point.id = transfer_operations.to_delivery_point_id
+	left join
+		counterparty as inc_counterparty on inc_counterparty.id = transfer_operations.to_client_id
+#subselect transfer_operations: transfer to client
+    union select
+		transfer_operations.id as transfer_operation_id,
+        transfer_operations.incoming_bottle_operation as bottles_movement_operation_id,
+        transfer_operations.operation_time as doc_date,
+        'inc' as payment_type, #crutch
+        transfer_operations.to_delivery_point_id as delivery_point_id,
+        inc_delivery_point.compiled_address as delivery_point_address,
+        concat(
+			'Перенесено от клиента ',
+            out_counterparty.name,
+            ' с адреса ',
+            out_delivery_point.compiled_address) as doc_name,
+		'' as doc_status, 
+		transfer_operations.to_client_id as doc_client_id
+	from
+		transfer_operations
+	left join
+		delivery_points as inc_delivery_point on inc_delivery_point.id = transfer_operations.to_delivery_point_id
+	left join
+		delivery_points as out_delivery_point on out_delivery_point.id = transfer_operations.from_delivery_point_id
+	left join
+		counterparty as out_counterparty on out_counterparty.id = transfer_operations.from_client_id
+	) as docs
+LEFT JOIN
+	route_list_addresses ON route_list_addresses.order_id=docs.doc_id
+/*some data from store unload documents*/
+LEFT JOIN
+	(
+	SELECT
+		intl_unld_doc.order_id AS order_id,
+		CAST(SUM(IF(intl_unld_doc.nomenclature_id = 38, intl_unld_doc.amount, 0)) AS UNSIGNED) AS empty_btl,
+		CAST(SUM(IF(intl_unld_doc.nomenclature_id = 72, intl_unld_doc.amount, 0)) AS UNSIGNED) AS deffective,
+		CAST(SUM(IF(intl_unld_doc.nomenclature_id = 295, intl_unld_doc.amount, 0)) AS UNSIGNED) AS pallet,
+		CAST(SUM(IF(intl_unld_doc.nomenclature_id = 580, intl_unld_doc.amount, 0)) AS UNSIGNED) AS gasket
+	FROM (
+		SELECT 
+			route_list_addresses.order_id AS order_id,
+			warehouse_movement_operations.amount AS amount,
+			warehouse_movement_operations.nomenclature_id AS nomenclature_id
+		FROM store_car_unload_document_items
+		LEFT JOIN store_car_unload_documents
+		ON store_car_unload_documents.id=store_car_unload_document_items.car_unload_document_id
+		LEFT JOIN warehouse_movement_operations
+		ON warehouse_movement_operations.id=store_car_unload_document_items.warehouse_movement_operation_id
+		LEFT JOIN route_list_addresses
+		ON route_list_addresses.route_list_id=store_car_unload_documents.route_list_id
+		WHERE warehouse_movement_operations.nomenclature_id IN(38,72,295,580)
+	) AS intl_unld_doc
+    GROUP BY order_id
+) AS unload_documents ON docs.doc_id=unload_documents.order_id
+left join
+	bottles_movement_operations on docs.bottles_movement_operation_id = bottles_movement_operations.id
+left join
+	(select 
+		order_items.order_id as order_id,
+		sum(order_items.price * order_items.actual_count) as forfeit,
+        sum(order_items.actual_count) as forfeitCount
+	from
+		order_items
+	where
+		order_items.nomenclature_id in 
+			(select
+				str_value
+			from
+				base_parameters
+			where
+				base_parameters.name = 'forfeit_nomenclature_id'
+				OR  base_parameters.name = 'forfeit1с_nomenclature_id')
+	group by order_items.order_id) as forfeits on forfeits.order_id = docs.doc_id
+where
+	docs.doc_client_id = @client_id
+	and (@delivery_point_id = -1
+		or docs.delivery_point_id = @delivery_point_id)
+	and (@startDate = ''
+		or docs.doc_date &gt;= @startDate)
+	and (@endDate = ''
+		or docs.doc_date &lt;= @endDate)
+order by docs.doc_date;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="client_id">
+            <Value>=Parameters!client_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="delivery_point_id">
+            <Value>=Parameters!delivery_point_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="startDate">
+            <Value>=Parameters!startDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!endDate</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="doc_id">
+          <DataField>doc_id</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
+        </Field>
+        <Field Name="doc_date">
+          <DataField>doc_date</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="doc_payment_type">
+          <DataField>doc_payment_type</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="delivery_point_id">
+          <DataField>delivery_point_id</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="delivery_point_address">
+          <DataField>delivery_point_address</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="doc_name">
+          <DataField>doc_name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="doc_status">
+          <DataField>doc_status</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="sum">
+          <DataField>sum</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="forfeit">
+          <DataField>forfeit</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="forfeitCount">
+          <DataField>forfeitCount</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="delivered">
+          <DataField>delivered</DataField>
+          <rd:TypeName>System.Int64</rd:TypeName>
+        </Field>
+        <Field Name="returned">
+          <DataField>returned</DataField>
+          <rd:TypeName>System.Int64</rd:TypeName>
+        </Field>
+        <Field Name="bottles_deposit">
+          <DataField>bottles_deposit</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="unl_docs_empty_btls">
+          <DataField>unl_docs_empty_btls</DataField>
+          <rd:TypeName>System.UInt64</rd:TypeName>
+        </Field>
+        <Field Name="unl_docs_deffectives">
+          <DataField>unl_docs_deffectives</DataField>
+          <rd:TypeName>System.UInt64</rd:TypeName>
+        </Field>
+        <Field Name="unl_docs_pallets">
+          <DataField>unl_docs_pallets</DataField>
+          <rd:TypeName>System.UInt64</rd:TypeName>
+        </Field>
+        <Field Name="unl_docs_gaskets">
+          <DataField>unl_docs_gaskets</DataField>
+          <rd:TypeName>System.UInt64</rd:TypeName>
+        </Field>
+        <Field Name="route_list_id">
+          <DataField>route_list_id</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Client">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT TRIM(full_name) as full_name, inn 
+FROM counterparty WHERE id = @client_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="full_name">
+          <DataField>full_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="inn">
+          <DataField>inn</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Bottles">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    SUM(CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) - IFNULL((SELECT 
+                    SUM(order_items.actual_count)
+                FROM
+                    order_items
+                        LEFT JOIN
+                    orders ON orders.id = order_items.order_id
+                WHERE
+                    orders.client_id = @client_id
+                    AND(order_items.nomenclature_id = (SELECT 
+                              CAST(str_value AS UNSIGNED)
+                           FROM
+                               base_parameters
+                           WHERE
+                               base_parameters.name = 'forfeit_nomenclature_id')
+	      OR order_items.nomenclature_id = (SELECT 
+                 	     CAST(str_value AS UNSIGNED)
+                	   FROM
+                   	     base_parameters
+              	 	   WHERE
+                   	  base_parameters.name = 'forfeit1с_nomenclature_id'))
+	  GROUP BY client_id),
+            0) AS bottle_balance                    
+FROM
+    bottles_movement_operations
+WHERE
+    counterparty_id = @client_id
+        AND (@delivery_point_id = - 1
+        OR delivery_point_id = @delivery_point_id)</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@delivery_point_id">
+            <Value>={?delivery_point_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="bottle_balance">
+          <DataField>bottle_balance</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="BottleDeposit">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    SUM(CAST(received_deposit AS SIGNED) - CAST(refund_deposit AS SIGNED)) as bottle_deposit
+FROM
+    deposit_operations
+WHERE
+    deposit_type = 'Bottles'
+        AND counterparty_id = @client_id
+        AND (@delivery_point_id = - 1
+        OR delivery_point_id = @delivery_point_id);</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="delivery_point_id">
+            <Value>={?delivery_point_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="bottle_deposit">
+          <DataField>bottle_deposit</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="EquipmentDeposit">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    SUM(CAST(received_deposit AS SIGNED) - CAST(refund_deposit AS SIGNED)) as equipment_deposit
+FROM
+    deposit_operations
+WHERE
+    deposit_type = 'Equipment'
+        AND counterparty_id = @client_id
+        AND (@delivery_point_id = - 1
+        OR delivery_point_id = @delivery_point_id);</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@delivery_point_id">
+            <Value>={?delivery_point_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="equipment_deposit">
+          <DataField>equipment_deposit</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="NotReturnedEquipment">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    nomenclature.id,
+    nomenclature.name,
+    (SELECT 
+            SUM(amount)
+        FROM
+            counterparty_movement_operations
+        WHERE
+            counterparty_movement_operations.nomenclature_id = nomenclature.id
+                AND for_rent = 1
+                AND incoming_counterparty_id = @client_id
+                AND (@delivery_point_id = - 1
+                OR incoming_delivery_point_id = @delivery_point_id)) - IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    counterparty_movement_operations
+                WHERE
+                    counterparty_movement_operations.nomenclature_id = nomenclature.id
+                        AND for_rent = 1
+                        AND writeoff_counterparty_id = @client_id
+                        AND (@delivery_point_id = - 1
+                        OR writeoff_delivery_point_id = @delivery_point_id)),
+            0) AS amount
+FROM
+    nomenclature
+WHERE
+    nomenclature.category = 'equipment'
+        AND EXISTS( SELECT 
+            id
+        FROM
+            counterparty_movement_operations
+        WHERE
+            counterparty_movement_operations.nomenclature_id = nomenclature.id
+                AND for_rent = 1
+                AND incoming_counterparty_id = @client_id
+                AND (@delivery_point_id = - 1
+                OR incoming_delivery_point_id = @delivery_point_id));</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="delivery_point_id">
+            <Value>={?delivery_point_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="amount">
+          <DataField>amount</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>26.6pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>5.01pt</Top>
+        <Left>7.23pt</Left>
+        <Width>532.32pt</Width>
+        <Height>21.04pt</Height>
+        <Value>Акт приема передачи полной и пустой тары</Value>
+        <Style>
+          <FontSize>15pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>Data</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>25.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>55.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>54.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>56.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>34.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>26.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>47.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>53.4pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>23.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>№ п/п</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Дата</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Заказ</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Маршрутн. лист</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Сумма</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Кол. полн.</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Пуст. по кассе</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Value>Пуст. по складу</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>Брак</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>Неустойка (шт.)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>Поддоны</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox65">
+                      <Value>Прокладки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <TableGroups>
+          <TableGroup>
+            <Header>
+              <TableRows>
+                <TableRow>
+                  <Height>12pt</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ColSpan>12</ColSpan>
+                      <ReportItems>
+                        <Textbox Name="Textbox11">
+                          <Value>=Fields!delivery_point_address.Value</Value>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+              <RepeatOnNewPage>true</RepeatOnNewPage>
+            </Header>
+            <Footer>
+              <TableRows>
+                <TableRow>
+                  <Height>12pt</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox12">
+                          <Value>Итого по адресу:</Value>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <FontFamily>Arial</FontFamily>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <TextAlign>Right</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <FontSize>9pt</FontSize>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>4</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="gf_sum">
+                          <Value>=Sum(Fields!sum.Value)</Value>
+                          <CanGrow>false</CanGrow>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="gf_delivered">
+                          <Value>=Sum(Fields!delivered.Value)</Value>
+                          <CanGrow>false</CanGrow>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="gf_returned">
+                          <Value>=Sum(Fields!returned.Value)</Value>
+                          <CanGrow>false</CanGrow>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox55">
+                          <Value>=SUM({unl_docs_empty_btls})</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox58">
+                          <Value>=SUM({unl_docs_deffectives})</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox45">
+                          <Value>=Sum({forfeitCount})</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox63">
+                          <Value>=SUM({unl_docs_pallets})</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox68">
+                          <Value>=SUM({unl_docs_gaskets})</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+                <TableRow>
+                  <Height>12pt</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox38">
+                          <Value>Забрать бутылей:</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <FontFamily>Arial</FontFamily>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <TextAlign>Right</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <FontSize>9pt</FontSize>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>4</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox41">
+                          <Value>=Sum(Fields!delivered.Value) - Sum(Fields!returned.Value) - Sum(Fields!forfeitCount.Value)</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox46">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox47">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox56">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox59">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox48">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox64">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox69">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontFamily>Arial</FontFamily>
+                            <FontSize>9pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+            <Grouping Name="delivery_point_idGroup">
+              <GroupExpressions>
+                <GroupExpression>=Fields!delivery_point_id.Value</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+          </TableGroup>
+        </TableGroups>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>=RowNumber()</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                          <Right>Solid</Right>
+                          <Top>Solid</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="order_id">
+                      <Value>=Fields!doc_date.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>d</Format>
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="doc_date">
+                      <Value>={doc_id}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>={route_list_id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="sum">
+                      <Value>=Fields!sum.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="delivered">
+                      <Value>=Fields!delivered.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="returned">
+                      <Value>=Fields!returned.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Value>={unl_docs_empty_btls}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value>=Iif(Convert.ToString({unl_docs_deffectives})="0" OR Fields!unl_docs_deffectives.IsMissing, "", Convert.ToString({unl_docs_deffectives}))</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>={forfeitCount}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>=Iif(Convert.ToString({unl_docs_pallets})="0" OR Fields!unl_docs_pallets.IsMissing, "", Convert.ToString({unl_docs_pallets}))</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox66">
+                      <Value>=Iif(Convert.ToString({unl_docs_gaskets})="0" OR Fields!unl_docs_gaskets.IsMissing, "", Convert.ToString({unl_docs_gaskets}))</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>Итого:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontFamily>Arial</FontFamily>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>4</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="tf_sum">
+                      <Value>=Sum(Fields!sum.Value)</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="tf_delivered">
+                      <Value>=Sum(Fields!delivered.Value)</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="tf_returned">
+                      <Value>=Sum(Fields!returned.Value)</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value>=SUM({unl_docs_empty_btls})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Value>=SUM({unl_docs_deffectives})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>=Sum({forfeitCount})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>=SUM({unl_docs_pallets})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox67">
+                      <Value>=SUM({unl_docs_gaskets})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+        <Left>0.0pt</Left>
+        <Top>60.6pt</Top>
+      </Table>
+      <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Top>0.82pt</Top>
+        <Left>4.00pt</Left>
+        <Width>533.87pt</Width>
+        <Height>18.04pt</Height>
+        <Value>= "по контрагенту " + First({full_name}, "Client") + Iif(First({inn}, "Client") != null  and First({inn}, "Client") != "" ,  " (ИНН: " +  First({inn}, "Client")+")" , "") </Value>
+        <Style>
+          <FontSize>15pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox27">
+        <Height>13.52pt</Height>
+        <Width>538.42pt</Width>
+        <Value>="Реестр документов с " + Format(CDate({?startDate}), "d") + " по "+ Format(CDate({?endDate}), "d")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>1.50pt</Left>
+        <Top>45.47pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox28">
+        <Height>54.12pt</Height>
+        <Width>202.33pt</Width>
+        <Value>Руководитель
+
+____________(                        )
+м.п.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>24.0pt</Left>
+        <Top>209.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox29">
+        <Height>34.58pt</Height>
+        <Width>157.34pt</Width>
+        <Value>___________(                   )
+м.п.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>312.9pt</Left>
+        <Top>230.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox30">
+        <Height>24.01pt</Height>
+        <Width>228.20pt</Width>
+        <Value>=First({full_name}, "Client")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>309.10pt</Left>
+        <Top>207.80pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox15">
+        <Height>14.25pt</Height>
+        <Width>210.73pt</Width>
+        <Value>Забрать бутылей:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>12.00pt</Left>
+        <Top>148.70pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox20">
+        <Height>12.75pt</Height>
+        <Width>118.90pt</Width>
+        <Value>=Sum(Fields!delivered.Value, 'Data') - Sum(Fields!returned.Value, 'Data') - Sum(Fields!forfeitCount.Value, 'Data')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>222.5pt</Left>
+        <Top>149.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <Format>0 шт.</Format>
+          <TextAlign>Left</TextAlign>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox31">
+        <Height>13.50pt</Height>
+        <Width>222.50pt</Width>
+        <Value>Вернуть залогов за бутыли:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>163.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox32" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.50pt</Height>
+        <Width>130.88pt</Width>
+        <Value>=Sum({bottles_deposit}, 'Data')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>221.3pt</Left>
+        <Top>162.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Left</TextAlign>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <Height>247.7pt</Height>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox21">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_test;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="client_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>486</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="delivery_point_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="startDate">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017-01-01</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="endDate">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-05-25</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>
