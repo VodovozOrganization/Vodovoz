@@ -8282,6 +8282,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">4</property>
@@ -8498,6 +8499,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget2">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">3</property>
@@ -8822,6 +8824,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">5</property>
@@ -12966,6 +12969,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">4</property>
@@ -13343,6 +13347,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget3">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">4</property>
@@ -14464,6 +14469,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">5</property>
@@ -49555,6 +49561,7 @@
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="CanRevertCommon">False</property>
               </widget>
               <packing>
                 <property name="Position">1</property>

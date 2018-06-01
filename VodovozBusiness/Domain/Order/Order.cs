@@ -719,7 +719,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal ActualGoodsTotalSum {
 			get {
-				return OrderItems.Sum(item => item.Price * item.ActualCount);
+				return OrderItems.Sum(item => item.Price * item.ActualCount * (1 - (decimal)item.Discount / 100));
 			}
 		}
 
