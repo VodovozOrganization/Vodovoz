@@ -6,6 +6,7 @@ using NetTopologySuite.Geometries;
 using QSOrmProject;
 using QSOsm;
 using QSOsm.Osrm;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Repository.Logistics;
@@ -16,10 +17,17 @@ namespace Vodovoz.Tools.Logistic
 	{
 		static double fuelCost;
 		static double distance;
+		static DeliveryPoint deliveryPoint;
 
 		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude)
 		{
 			return Calculate(latitude, longitude, null);
+		}
+
+		public static DeliveryPriceNode Calculate(DeliveryPoint point)
+		{
+			deliveryPoint = point;
+			return Calculate(deliveryPoint.Latitude, deliveryPoint.Longitude, null);
 		}
 
 		private static void Calculate()
@@ -52,24 +60,29 @@ namespace Vodovoz.Tools.Logistic
 			}
 
 			//Расчет растояния
-			var route = new List<PointOnEarth>(2);
-			route.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
-			route.Add(new PointOnEarth(latitude.Value, longitude.Value));
-			var osrmResult = OsrmMain.GetRoute(route, false, GeometryOverview.False);
-			if(osrmResult == null) {
-				result.ErrorMessage = String.Format("Ошибка на сервере расчета расстояний, не возможно расчитать растояние.");
-				return result;
+			if(deliveryPoint == null) {
+				var route = new List<PointOnEarth>(2);
+				route.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
+				route.Add(new PointOnEarth(latitude.Value, longitude.Value));
+				var osrmResult = OsrmMain.GetRoute(route, false, GeometryOverview.False);
+				if(osrmResult == null) {
+					result.ErrorMessage = String.Format("Ошибка на сервере расчета расстояний, невозможно расчитать растояние.");
+					return result;
+				}
+				if(osrmResult.Code != "Ok") {
+					result.ErrorMessage = String.Format("Сервер расчета расстояний вернул следующее сообщение: {0}", osrmResult.StatusMessageRus);
+					return result;
+				}
+				distance = osrmResult.Routes[0].TotalDistance / 1000d;
+			} else {
+				distance = (double)deliveryPoint.DistanceFromBaseMeters / 1000d;
 			}
-			if(osrmResult.Code != "Ok") {
-				result.ErrorMessage = String.Format("Сервер расчета расстояний вернул следующее сообщение: {0}", osrmResult.StatusMessageRus);
-				return result;
-			}
-			distance = osrmResult.Routes[0].TotalDistance / 1000d;
+			result.Distance = distance.ToString("N1") + " км";
+
 			result.Prices = Enumerable.Range(1, 100).Select(x => new DeliveryPriceRow {
 				Amount = x,
 				Price = priceByDistance(x).ToString("C2")
 			}).ToList();
-			result.Distance = distance.ToString("N1") + " км.";
 
 			//Расчет цены
 			var point = new Point((double)latitude, (double)longitude);
@@ -92,7 +105,7 @@ namespace Vodovoz.Tools.Logistic
 			result.Schedule = district != null && district.ScheduleRestrictions.Count > 0
 				? String.Join(", ", district.ScheduleRestrictions.Select(x => $"{x.WeekDay.GetEnumTitle()} {x.Schedule?.Name}"))
 				: "любой день";
-			
+
 			return result;
 		}
 
@@ -112,8 +125,8 @@ namespace Vodovoz.Tools.Logistic
 		public bool ByDistance { get; set; }
 		public bool WithPrice { get; set; }
 		private string errorMessage;
-		public string ErrorMessage { 
-			get => errorMessage; 
+		public string ErrorMessage {
+			get => errorMessage;
 			set {
 				ClearValues();
 				errorMessage = value;
@@ -121,7 +134,7 @@ namespace Vodovoz.Tools.Logistic
 		}
 
 		public bool HaveError {
-			get{
+			get {
 				return !String.IsNullOrEmpty(errorMessage);
 			}
 		}

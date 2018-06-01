@@ -43,7 +43,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			var deliveryPrice = DeliveryPriceCalculator.Calculate(DeliveryPoint.Latitude, DeliveryPoint.Longitude);
+			var deliveryPrice = DeliveryPriceCalculator.Calculate(DeliveryPoint);
 			labelError.Visible = deliveryPrice.HaveError;
 			deliverypriceview.Visible = !deliveryPrice.HaveError;
 

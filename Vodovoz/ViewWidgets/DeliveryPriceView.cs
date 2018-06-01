@@ -7,8 +7,7 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DeliveryPriceView : WidgetOnDialogBase
 	{
-
-		DeliveryPriceNode deliveryPrice = new DeliveryPriceNode();
+		DeliveryPriceNode deliveryPrice;
 		public DeliveryPriceNode DeliveryPrice {
 			get {
 				if(deliveryPrice == null) {
@@ -18,7 +17,7 @@ namespace Vodovoz.ViewWidgets
 			}
 			set {
 				deliveryPrice = value;
-				ShowResults(deliveryPrice);
+				ShowResults(DeliveryPrice);
 			}
 		}
 
