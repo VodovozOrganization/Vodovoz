@@ -10,30 +10,30 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
-
 namespace Vodovoz.Dialogs.Employees
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CarProxyDocumentDlg : OrmGtkDialogBase<CarProxyDocument>
+	public partial class CarProxyDlg : OrmGtkDialogBase<CarProxyDocument>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		public CarProxyDocumentDlg()
+		public CarProxyDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarProxyDocument>();
 			Entity.Date = DateTime.Now;
+			TabName = "Новая доверенность на ТС";
 			ConfigureDlg();
 		}
 
-		public CarProxyDocumentDlg(CarProxyDocument sub) : this(sub.Id)
-		{
-		}
+		public CarProxyDlg(CarProxyDocument sub) : this(sub.Id)
+		{}
 
-		public CarProxyDocumentDlg(int id)
+		public CarProxyDlg(int id)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarProxyDocument>(id);
+			TabName = "Изменение доверенности на ТС";
 			ConfigureDlg();
 		}
 
@@ -56,8 +56,8 @@ namespace Vodovoz.Dialogs.Employees
 			yentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
 
 			RefreshParserRootObject();
-			
-			templatewidget.Binding.AddBinding(Entity, e => e.CarProxyDocumentTemplate, w => w.Template).InitializeFromSource();
+
+			templatewidget.Binding.AddBinding(Entity, e => e.ProxyDocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 
 			templatewidget.BeforeOpen += Templatewidget_BeforeOpen;
@@ -71,7 +71,7 @@ namespace Vodovoz.Dialogs.Employees
 				if(MessageDialogWorks.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
 					UoWGeneric.Save();
 					RefreshParserRootObject();
-				}else {
+				} else {
 					templatewidget.CanOpenDocument = false;
 				}
 			}
@@ -79,8 +79,8 @@ namespace Vodovoz.Dialogs.Employees
 
 		void RefreshParserRootObject()
 		{
-			if(Entity.CarProxyDocumentTemplate != null)
-				(Entity.CarProxyDocumentTemplate.DocParser as CarProxyDocumentParser).RootObject = Entity;
+			if(Entity.ProxyDocumentTemplate != null)
+				(Entity.ProxyDocumentTemplate.DocParser as CarProxyDocumentParser).RootObject = Entity;
 		}
 
 		void UpdateStates()

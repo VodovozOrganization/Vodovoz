@@ -30,6 +30,8 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Repository.Client;
 using Vodovoz.Repositories.Client;
+using Vodovoz.Dialogs.Employees;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -55,7 +57,7 @@ namespace Vodovoz
 		/// количества при добавлении нового товара)
 		/// </summary>
 		int treeAnyGoodsFirstColWidth;
-		
+
 		private enum LastChosenAction //
 		{
 			None,
@@ -671,7 +673,6 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-
 			var valid = new QSValidator<Order>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
@@ -1213,7 +1214,7 @@ namespace Vodovoz
 		/// пользователь не хочет её добавлять в заказ</returns>
 		private bool DefaultWaterCheck()
 		{
-			if(Entity.DeliveryPoint == null) 
+			if(Entity.DeliveryPoint == null)
 				return true;
 			Nomenclature defaultWater = Entity.DeliveryPoint.DefaultWaterNomenclature;
 			var orderWaters = Entity.ObservableOrderItems.Where(w => w.Nomenclature.Category == NomenclatureCategory.water);
@@ -1816,7 +1817,7 @@ namespace Vodovoz
 			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.equipment;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Оборудование к клиента";
+			SelectDialog.TabName = "Оборудование к клиенту";
 			SelectDialog.ObjectSelected += NomenclatureToClient;
 			SelectDialog.ShowFilter = true;
 			TabParent.AddSlaveTab(this, SelectDialog);
@@ -1895,6 +1896,7 @@ namespace Vodovoz
 
 		protected void OnBtnRemExistingDocumentClicked(object sender, EventArgs e)
 		{
+			if(!MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите удалить выделенные документы?")) return;
 			var documents = treeDocuments.GetSelectedObjects<OrderDocument>();
 			var notDeletedDocs = Entity.RemoveAdditionalDocuments(documents);
 			if(notDeletedDocs != null && notDeletedDocs.Any()) {
@@ -1903,6 +1905,14 @@ namespace Vodovoz
 					strDocuments += String.Format("\n\t{0}", doc.Name);
 				}
 				MessageDialogWorks.RunWarningDialog(String.Format("Документы{0}\nудалены не были, так как относятся к текущему заказу.", strDocuments));
+			}
+		}
+
+		protected void OnBtnAddM2ProxyForThisOrderClicked(object sender, EventArgs e)
+		{
+			if(!new QSValidator<Order>(UoWGeneric.Root).RunDlgIfNotValid((Window)this.Toplevel)) {
+				var dlgM2 = OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), UoWGeneric);
+				TabParent.AddSlaveTab(this, dlgM2);
 			}
 		}
 
@@ -1969,7 +1979,6 @@ namespace Vodovoz
 		{
 			OnReferenceDeliveryPointChanged(sender, e);
 		}
-
 		#endregion
 	}
 }

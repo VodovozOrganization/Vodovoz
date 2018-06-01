@@ -1267,6 +1267,21 @@ namespace Vodovoz.Domain.Orders
 							});
 						}
 						break;
+					case OrderDocumentType.M2Proxy:
+						OrderM2Proxy m2 = (item as OrderM2Proxy);
+						if(observableOrderDocuments
+						   .OfType<OrderM2Proxy>()
+						   .FirstOrDefault(x => x.M2Proxy == m2.M2Proxy
+										   && x.Order == m2.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new OrderM2Proxy {
+								Id = item.Id,
+								Order = item.Order,
+								AttachedToOrder = this,
+								M2Proxy = m2.M2Proxy
+							});
+						}
+						break;
 					case OrderDocumentType.CoolerWarranty:
 						CoolerWarrantyDocument cwd = (item as CoolerWarrantyDocument);
 						if(observableOrderDocuments

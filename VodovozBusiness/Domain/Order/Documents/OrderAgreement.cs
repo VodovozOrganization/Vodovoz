@@ -41,7 +41,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual void PrepareTemplate(IUnitOfWork uow)
 		{
-			if (AdditionalAgreement.AgreementTemplate == null && AdditionalAgreement.AgreementTemplate != null)
+			if (AdditionalAgreement.AgreementTemplate == null/* && AdditionalAgreement.AgreementTemplate != null*/)
 				AdditionalAgreement.UpdateContractTemplate(uow);
 
 			if (AdditionalAgreement.AgreementTemplate != null)

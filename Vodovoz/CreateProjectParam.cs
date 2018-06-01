@@ -99,7 +99,9 @@ namespace Vodovoz
 				OrmObjectMapping<MovementWagon>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//Остальные справочники
 				OrmObjectMapping<DiscountReason>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
-				OrmObjectMapping<CarProxyDocument>.Create().Dialog<CarProxyDocumentDlg>().DefaultTableView().SearchColumn("Водитель", x => x.Driver != null ? x.Driver.Title : "").End(),
+				//OrmObjectMapping<CarProxyDocument>.Create().Dialog<ProxyDocumentDlg>().DefaultTableView().SearchColumn("Водитель", x => x.Driver != null ? x.Driver.Title : "").End(),
+				OrmObjectMapping<CarProxyDocument>.Create().Dialog<CarProxyDlg>(),
+				OrmObjectMapping<M2ProxyDocument>.Create().Dialog<M2ProxyDlg>(),
 				OrmObjectMapping<CommentTemplate>.Create().Dialog<CommentTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Comment).End(),
 				OrmObjectMapping<FineTemplate>.Create().Dialog<FineTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Reason).End(),
 				OrmObjectMapping<PremiumTemplate>.Create().Dialog<PremiumTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Reason).End(),

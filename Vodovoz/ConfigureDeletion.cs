@@ -85,6 +85,7 @@ namespace Vodovoz
 			);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarProxyDocument>();
+			DeleteConfig.AddHibernateDeleteInfo<M2ProxyDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<Equipment>()
 				.AddDeleteDependence<FreeRentEquipment> (item => item.Equipment)

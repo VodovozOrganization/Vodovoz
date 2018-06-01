@@ -2,38 +2,43 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
+using QSReport;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Employees
 {
 	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Feminine,
-		NominativePlural = "Доверенность на ТС",
-	    Nominative = "Доверенность на ТС")]
-	public class CarProxyDocument : PropertyChangedBase, IDomainObject, IBusinessObject, IValidatableObject
+		NominativePlural = "Доверенности на ТС",
+		Nominative = "Доверенность на ТС")]
+	public class CarProxyDocument : ProxyDocument, IValidatableObject
 	{
-		public virtual IUnitOfWork UoW { set; get; }
-
-		public virtual int Id { get; set; }
-
 		public virtual string Title {
-			get{
+			get {
 				return String.Format("Доверенность на ТС № {0}", Id);
+			}
+		}
+
+		public override ProxyDocumentType Type {
+			get {
+				return ProxyDocumentType.CarProxy;
+			}
+		}
+
+		public override PrinterType PrintType {
+			get {
+				return PrinterType.ODT;
 			}
 		}
 
 		DateTime date;
 		[Display(Name = "Дата доверенности")]
-		public virtual DateTime Date {
-			get { return date; }
-			set { SetField(ref date, value, () => Date); }
-		}
-
-		Organization organization;
-		[Display(Name = "Организация")]
-		public virtual Organization Organization {
-			get { return organization; }
-			set { SetField(ref organization, value, () => Organization); }
+		public override DateTime Date {
+			get => date; 
+			set {
+				SetField(ref date, value, () => Date);
+				ExpirationDate = date.AddYears(1);
+			}
 		}
 
 		Employee driver;
@@ -50,18 +55,10 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref car, value, () => Car); }
 		}
 
-		DocTemplate carProxyDocumentTemplate;
-		[Display(Name = "Шаблон доверенности")]
-		public virtual DocTemplate CarProxyDocumentTemplate {
-			get { return carProxyDocumentTemplate; }
-			protected set { SetField(ref carProxyDocumentTemplate, value, () => CarProxyDocumentTemplate); }
-		}
-
-		byte[] changedTemplateFile;
-		[Display(Name = "Измененная доверенность")]
-		public virtual byte[] ChangedTemplateFile {
-			get { return changedTemplateFile; }
-			set { SetField(ref changedTemplateFile, value, () => ChangedTemplateFile); }
+		DateTime expirationDate;
+		public override DateTime ExpirationDate {
+			get => expirationDate;
+			set { SetField(ref expirationDate, value, () => ExpirationDate); }
 		}
 
 		//Конструкторы
@@ -71,19 +68,12 @@ namespace Vodovoz.Domain.Employees
 			return uow;
 		}
 
-		[Display(Name = "Дата окончания")]
-		public virtual DateTime ExpirationDate {
-			get{
-				return Date.AddYears(1);
-			}
-		}
-
 		public virtual void UpdateCarProxyDocumentTemplate(IUnitOfWork uow)
 		{
 			if(Id > 0 || Organization == null) {
 				return;
 			}
-			carProxyDocumentTemplate = Repository.Client.DocTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.CarProxy, Organization);
+			ProxyDocumentTemplate = Repository.Client.DocTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.CarProxy, Organization);
 		}
 
 		#region IValidatableObject implementation
@@ -95,11 +85,11 @@ namespace Vodovoz.Domain.Employees
 
 			if(Driver == null)
 				yield return new ValidationResult(String.Format("Не выбран водитель"));
-			
+
 			if(Car == null)
 				yield return new ValidationResult(String.Format("Не выбран автомобиль"));
-			
-			if(CarProxyDocumentTemplate == null)
+
+			if(ProxyDocumentTemplate == null)
 				yield return new ValidationResult(String.Format("Не выбран шаблон доверенности"));
 		}
 

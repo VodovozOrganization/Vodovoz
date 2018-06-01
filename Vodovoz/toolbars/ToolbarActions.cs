@@ -7,6 +7,7 @@ using Vodovoz;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Employees;
+using Vodovoz.JournalViewers;
 using Vodovoz.Representations;
 using Vodovoz.ViewModel;
 
@@ -54,99 +55,99 @@ public partial class MainWindow : Window
 	Action ActionTransferOperationJournal;
 	Action ActionScheduleRestrictedDistricts;
 
-	public void BuildToolbarActions ()
+	public void BuildToolbarActions()
 	{
 		#region Creating actions
 		//Заказы
-		ActionOrdersTable = new Action ("ActionOrdersTable", "Журнал заказов", null, "table");
-		ActionAddOrder = new Action ("ActionAddOrder", "Новый заказ", null, "table");
+		ActionOrdersTable = new Action("ActionOrdersTable", "Журнал заказов", null, "table");
+		ActionAddOrder = new Action("ActionAddOrder", "Новый заказ", null, "table");
 		ActionLoadOrders = new Action("ActionLoadOrders", "Загрузить из 1С", null, "table");
 		ActionDeliveryPrice = new Action("ActionDeliveryPrice", "Стоимость доставки", null, null);
 		//Сервис
-		ActionServiceClaims = new Action ("ActionServiceTickets", "Журнал заявок", null, "table");
+		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
 		//Склад
-		ActionWarehouseDocuments = new Action ("ActionWarehouseDocuments", "Журнал документов", null, "table");
-		ActionReadyForShipment = new Action ("ActionReadyForShipment", "Готовые к погрузке", null, "table");
+		ActionWarehouseDocuments = new Action("ActionWarehouseDocuments", "Журнал документов", null, "table");
+		ActionReadyForShipment = new Action("ActionReadyForShipment", "Готовые к погрузке", null, "table");
 		ActionReadyForReception = new Action("ActionReadyForReception", "Готовые к разгрузке", null, "table");
-		ActionWarehouseStock = new Action ("ActionWarehouseStock", "Складские остатки", null, "table");
-		ActionClientBalance = new Action ("ActionClientBalance", "Оборудование у клиентов", null, "table");
+		ActionWarehouseStock = new Action("ActionWarehouseStock", "Складские остатки", null, "table");
+		ActionClientBalance = new Action("ActionClientBalance", "Оборудование у клиентов", null, "table");
 		//Логистика
-		ActionRouteListTable = new Action ("ActionRouteListTable", "Журнал МЛ", null, "table");
+		ActionRouteListTable = new Action("ActionRouteListTable", "Журнал МЛ", null, "table");
 		ActionAtWorks = new Action("ActionAtWorks", "На работе", null, "table");
-		ActionRouteListsAtDay = new Action ("ActionRouteListsAtDay", "Формирование МЛ", null, null);
+		ActionRouteListsAtDay = new Action("ActionRouteListsAtDay", "Формирование МЛ", null, null);
 		ActionRouteListsPrint = new Action("ActionRouteListsPrint", "Печать МЛ", null, "print");
-		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов",null,"table");
-		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин",null,"table");
-		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов",null,"table");
-		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражом",null,"table");
+		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов", null, "table");
+		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин", null, "table");
+		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
+		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражом", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
 		//Касса
-		ActionCashDocuments = new Action ("ActionCashDocuments", "Кассовые документы", null, "table");
-		ActionAccountableDebt = new Action ("ActionAccountableDebt", "Долги сотрудников", null, "table");
-		ActionUnclosedAdvances = new Action ("ActionUnclosedAdvances", "Незакрытые авансы", null, "table");
-		ActionCashFlow = new Action ("ActionCashFlow", "Доходы и расходы", null, "table");
+		ActionCashDocuments = new Action("ActionCashDocuments", "Кассовые документы", null, "table");
+		ActionAccountableDebt = new Action("ActionAccountableDebt", "Долги сотрудников", null, "table");
+		ActionUnclosedAdvances = new Action("ActionUnclosedAdvances", "Незакрытые авансы", null, "table");
+		ActionCashFlow = new Action("ActionCashFlow", "Доходы и расходы", null, "table");
 		//Бухгалтерия
-		ActionTransferBankDocs = new Action ("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
-		ActionExportTo1c = new Action ("ActionExportTo1c", "Выгрузка в 1с", null, "table");
-		ActionAccountingTable = new Action ("ActionAccountingTable", "Операции по счету", null, "table");
-		ActionAccountFlow = new Action ("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
-		ActionRevision = new Action ("ActionRevision", "Акт сверки", null, "table");
+		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
+		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с", null, "table");
+		ActionAccountingTable = new Action("ActionAccountingTable", "Операции по счету", null, "table");
+		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
+		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
 		//Архив
-		ActionReportDebtorsBottles = new Action ("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
-		ActionRevisionBottlesAndDeposits = new Action ("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
+		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
+		ActionRevisionBottlesAndDeposits = new Action("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
 		ActionResidue = new Action("ActionResidue", "Вввод остатков", null, "table");
 		ActionTransferOperationJournal = new Action("ActionTransferOperationJournal", "Переносы между точками доставки", null, "table");
 		//Кадры
 		ActionEmployeeWorkChart = new Action("ActionEmployeeWorkChart", "График работы сотрудников", null, "table");
 		ActionFinesJournal = new Action("ActionFinesJournal", "Штрафы", null, "table");
 		ActionPremiumJournal = new Action("ActionPremiumJournal", "Премии", null, "table");
-		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Доверенности на ТС", null, "table");
+		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Журнал доверенностей", null, "table");
 		ActionScheduleRestrictedDistricts = new Action("ActionScheduleRestrictedDistricts", "Районы с графиками доставки", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup("ToolbarActions");
 		//Заказы
-		w1.Add (ActionOrdersTable, null);
-		w1.Add (ActionAddOrder, null);
-		w1.Add (ActionLoadOrders, null);
+		w1.Add(ActionOrdersTable, null);
+		w1.Add(ActionAddOrder, null);
+		w1.Add(ActionLoadOrders, null);
 		w1.Add(ActionDeliveryPrice, null);
 		//
-		w1.Add (ActionServiceClaims, null);
-		w1.Add (ActionWarehouseDocuments, null);
-		w1.Add (ActionReadyForShipment, null);
-		w1.Add (ActionReadyForReception,null);
-		w1.Add (ActionWarehouseStock, null);
-		w1.Add (ActionClientBalance, null);
+		w1.Add(ActionServiceClaims, null);
+		w1.Add(ActionWarehouseDocuments, null);
+		w1.Add(ActionReadyForShipment, null);
+		w1.Add(ActionReadyForReception, null);
+		w1.Add(ActionWarehouseStock, null);
+		w1.Add(ActionClientBalance, null);
 		//Логистика
-		w1.Add (ActionRouteListTable, null);
+		w1.Add(ActionRouteListTable, null);
 		w1.Add(ActionAtWorks, null);
-		w1.Add (ActionRouteListsAtDay, null);
+		w1.Add(ActionRouteListsAtDay, null);
 		w1.Add(ActionRouteListsPrint, null);
-		w1.Add (ActionRouteListClosingTable, null);
-		w1.Add (ActionRouteListKeeping, null);
-		w1.Add (ActionRouteListTracking, null);
-		w1.Add (ActionRouteListMileageCheck, null);
+		w1.Add(ActionRouteListClosingTable, null);
+		w1.Add(ActionRouteListKeeping, null);
+		w1.Add(ActionRouteListTracking, null);
+		w1.Add(ActionRouteListMileageCheck, null);
 
-		w1.Add (ActionCashDocuments, null);
-		w1.Add (ActionAccountableDebt, null);
-		w1.Add (ActionUnclosedAdvances, null);
-		w1.Add (ActionCashFlow, null);
-		w1.Add (ActionFinesJournal, null);
-		w1.Add (ActionPremiumJournal, null);
-		w1.Add (ActionCarProxiesJournal, null);
-		w1.Add (ActionRevision, null);
-		w1.Add (ActionRevisionBottlesAndDeposits, null);
-		w1.Add (ActionReportDebtorsBottles, null);
-		w1.Add (ActionTransferBankDocs, null);
-		w1.Add (ActionAccountingTable, null);
-		w1.Add (ActionAccountFlow, null);
-		w1.Add (ActionExportTo1c, null);
+		w1.Add(ActionCashDocuments, null);
+		w1.Add(ActionAccountableDebt, null);
+		w1.Add(ActionUnclosedAdvances, null);
+		w1.Add(ActionCashFlow, null);
+		w1.Add(ActionFinesJournal, null);
+		w1.Add(ActionPremiumJournal, null);
+		w1.Add(ActionCarProxiesJournal, null);
+		w1.Add(ActionRevision, null);
+		w1.Add(ActionRevisionBottlesAndDeposits, null);
+		w1.Add(ActionReportDebtorsBottles, null);
+		w1.Add(ActionTransferBankDocs, null);
+		w1.Add(ActionAccountingTable, null);
+		w1.Add(ActionAccountFlow, null);
+		w1.Add(ActionExportTo1c, null);
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
 		w1.Add(ActionRouteListAddressesTransferring, null);
 		w1.Add(ActionTransferOperationJournal, null);
 		w1.Add(ActionScheduleRestrictedDistricts, null);
-		UIManager.InsertActionGroup (w1, 0);
+		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
 		//Заказы
@@ -158,15 +159,15 @@ public partial class MainWindow : Window
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionReadyForShipment.Activated += ActionReadyForShipmentActivated;
-		ActionReadyForReception.Activated+=ActionReadyForReceptionActivated;
+		ActionReadyForReception.Activated += ActionReadyForReceptionActivated;
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
 		//Логистика
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
-		ActionAtWorks.Activated +=ActionAtWorks_Activated;
+		ActionAtWorks.Activated += ActionAtWorks_Activated;
 		ActionRouteListsAtDay.Activated += ActionRouteListsAtDay_Activated;
-		ActionRouteListsPrint.Activated += ActionRouteListsPrint_Activated;;
-		ActionRouteListClosingTable.Activated+= ActionRouteListClosingTable_Activated;
+		ActionRouteListsPrint.Activated += ActionRouteListsPrint_Activated; ;
+		ActionRouteListClosingTable.Activated += ActionRouteListClosingTable_Activated;
 		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
 		ActionRouteListTracking.Activated += ActionRouteListTracking_Activated;
@@ -201,36 +202,36 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionRouteListAddressesTransferring_Activated (object sender, System.EventArgs e)
+	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListAddressesTransferringDlg>(),
-			() => new RouteListAddressesTransferringDlg ()
+			() => new RouteListAddressesTransferringDlg()
 		);
 	}
 
-	void ActionEmployeeWorkChart_Activated (object sender, System.EventArgs e)
+	void ActionEmployeeWorkChart_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<EmployeeWorkChartDlg>(),
-			() => new EmployeeWorkChartDlg ()
-		);
-	}
-		
-	void ActionLoadOrders_Activated (object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<LoadFrom1cDlg>(),
-			() => new LoadFrom1cDlg ()
+			() => new EmployeeWorkChartDlg()
 		);
 	}
 
-	void ActionRevisionBottlesAndDeposits_Activated (object sender, System.EventArgs e)
+	void ActionLoadOrders_Activated(object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<LoadFrom1cDlg>(),
+			() => new LoadFrom1cDlg()
+		);
+	}
+
+	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
 	{
 		var widget = new Vodovoz.Reports.RevisionBottlesAndDeposits();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg (widget)
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
@@ -251,52 +252,52 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionRouteListsAtDay_Activated (object sender, System.EventArgs e)
+	void ActionRouteListsAtDay_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RoutesAtDayDlg>(),
-			() => new RoutesAtDayDlg ()
+			() => new RoutesAtDayDlg()
 		);
 	}
 
-	void ActionAccountingTable_Activated (object sender, System.EventArgs e)
+	void ActionAccountingTable_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AccountingView>(),
-			() => new AccountingView ()
+			() => new AccountingView()
 		);
 	}
-		
-	void ActionUnclosedAdvances_Activated (object sender, System.EventArgs e)
+
+	void ActionUnclosedAdvances_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<UnclosedAdvancesView>(),
-			() => new UnclosedAdvancesView ()
+			() => new UnclosedAdvancesView()
 		);
 	}
 
-	void ActionTransferBankDocs_Activated (object sender, System.EventArgs e)
+	void ActionTransferBankDocs_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<LoadBankTransferDocumentDlg>(),
-			() => new LoadBankTransferDocumentDlg ()
+			() => new LoadBankTransferDocumentDlg()
 		);
 	}
 
-	void ActionCashFlow_Activated (object sender, System.EventArgs e)
+	void ActionCashFlow_Activated(object sender, System.EventArgs e)
 	{
 		var widget = new Vodovoz.Reports.CashFlow();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg (widget)
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
-	void ActionFinesJournal_Activated (object sender, System.EventArgs e)
+	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<FinesVM>(),
-			() => new ReferenceRepresentation (new FinesVM ()).CustomTabName("Журнал штрафов")
+			() => new ReferenceRepresentation(new FinesVM()).CustomTabName("Журнал штрафов")
 			.Buttons(QSMain.User.Permissions["can_delete_fines"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
 		);
 	}
@@ -312,11 +313,9 @@ public partial class MainWindow : Window
 
 	void ActionCarProxiesJournal_Activated(object sender, System.EventArgs e)
 	{
-		var dlg = new OrmReference(typeof(CarProxyDocument));
-		dlg.ButtonMode = ReferenceButtonMode.CanAll;
 		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<CarProxyDocument>(),
-			() => dlg
+			TdiTabBase.GenerateHashName<ProxyDocumentsView>(),
+			() => new ProxyDocumentsView()
 		);
 	}
 
@@ -325,36 +324,36 @@ public partial class MainWindow : Window
 		var widget = new Vodovoz.Reports.Revision();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg (widget)
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
-	void ActionAccountFlow_Activated (object sender, System.EventArgs e)
+	void ActionAccountFlow_Activated(object sender, System.EventArgs e)
 	{
 		var widget = new Vodovoz.Reports.AccountFlow();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg (widget)
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
-		
-	void ActionExportTo1c_Activated (object sender, System.EventArgs e)
+
+	void ActionExportTo1c_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
-			() => new ExportTo1cDialog ()
+			() => new ExportTo1cDialog()
 		);
 	}
 
-	void ActionAccountableDebt_Activated (object sender, System.EventArgs e)
+	void ActionAccountableDebt_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AccountableDebts>(),
-			() => new AccountableDebts ()
+			() => new AccountableDebts()
 		);
 	}
 
-	void ActionRouteListTable_Activated (object sender, System.EventArgs e)
+	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<RouteListsVM>(),
@@ -367,15 +366,15 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListClosingView>(),
-			() => new RouteListClosingView ()
+			() => new RouteListClosingView()
 		);
 	}
 
-	void ActionRouteListTracking_Activated (object sender, System.EventArgs e)
+	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
-			() => new RouteListTrackDlg ()
+			() => new RouteListTrackDlg()
 		);
 	}
 
@@ -383,31 +382,31 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListKeepingView>(),
-			() => new RouteListKeepingView ()
+			() => new RouteListKeepingView()
 		);
 	}
 
-	void ActionRouteListDistanceValidation_Activated (object sender, System.EventArgs e)
+	void ActionRouteListDistanceValidation_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListMileageCheckView>(),
-			() => new RouteListMileageCheckView ()
+			() => new RouteListMileageCheckView()
 		);
 	}
 
-	void ActionCashDocuments_Activated (object sender, System.EventArgs e)
+	void ActionCashDocuments_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<CashDocumentsView>(),
-			() => new CashDocumentsView ()
+			() => new CashDocumentsView()
 		);
 	}
 
-	void ActionReadyForShipmentActivated (object sender, System.EventArgs e)
+	void ActionReadyForShipmentActivated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ReadyForShipmentView>(),
-			() => new ReadyForShipmentView ()
+			() => new ReadyForShipmentView()
 		);
 	}
 
@@ -415,72 +414,72 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ReadyForReceptionView>(),
-			() => new ReadyForReceptionView ()
+			() => new ReadyForReceptionView()
 		);
 	}
 
-	void ActionClientBalance_Activated (object sender, System.EventArgs e)
+	void ActionClientBalance_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<ClientEquipmentBalanceVM>(),
-			() => new ReferenceRepresentation (new ClientEquipmentBalanceVM (), "Оборудование у клиентов")
+			() => new ReferenceRepresentation(new ClientEquipmentBalanceVM(), "Оборудование у клиентов")
 		);
 	}
 
-	void ActionAddOrder_Activated (object sender, System.EventArgs e)
-	{		
+	void ActionAddOrder_Activated(object sender, System.EventArgs e)
+	{
 		tdiMain.OpenTab(
 			OrmMain.GenerateDialogHashName<Vodovoz.Domain.Orders.Order>(0),
-			() => new OrderDlg ()
+			() => new OrderDlg()
 		);
 	}
 
-	void ActionWarehouseStock_Activated (object sender, System.EventArgs e)
+	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<StockBalanceView>(),
-			() => new StockBalanceView ()
+			() => new StockBalanceView()
 		);
 	}
 
-	void ActionWarehouseDocumentsActivated (object sender, System.EventArgs e)
+	void ActionWarehouseDocumentsActivated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<WarehouseDocumentsView>(),
-			() => new WarehouseDocumentsView ()
+			() => new WarehouseDocumentsView()
 		);
 	}
 
-	void ActionServiceClaimsActivated (object sender, System.EventArgs e)
+	void ActionServiceClaimsActivated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ServiceClaimsView>(),
-			() => new ServiceClaimsView ()
+			() => new ServiceClaimsView()
 		);
 	}
 
-	void ActionOrdersTableActivated (object sender, System.EventArgs e)
+	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<OrdersVM>(),
-			() => new ReferenceRepresentation (new OrdersVM ()).CustomTabName("Журнал заказов")
+			() => new ReferenceRepresentation(new OrdersVM()).CustomTabName("Журнал заказов")
 			.Buttons(QSMain.User.Permissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
 		);
 	}
 
-	void ActionResidueActivated (object sender, System.EventArgs e)
+	void ActionResidueActivated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<ResidueVM>(),
-			() => new ReferenceRepresentation (new ResidueVM ()).CustomTabName("Журнал остатков")
+			() => new ReferenceRepresentation(new ResidueVM()).CustomTabName("Журнал остатков")
 		);
 	}
 
-	void ActionTransferOperationJournal_Activated (object sender, System.EventArgs e)
+	void ActionTransferOperationJournal_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<TransferOperationsVM>(),
-			() => new ReferenceRepresentation(new TransferOperationsVM()).CustomTabName("Переносы между точками доставки").Buttons(ReferenceButtonMode.CanAll)		);
+			() => new ReferenceRepresentation(new TransferOperationsVM()).CustomTabName("Переносы между точками доставки").Buttons(ReferenceButtonMode.CanAll));
 	}
 
 	void ActionDeliveryPrice_Activated(object sender, System.EventArgs e)
@@ -491,7 +490,7 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionScheduleRestrictedDistricts_Activated (object sender, System.EventArgs e)
+	void ActionScheduleRestrictedDistricts_Activated(object sender, System.EventArgs e)
 	{
 		var tab = new ScheduleRestrictedDistrictsDlg();
 		tdiMain.AddTab(tab);

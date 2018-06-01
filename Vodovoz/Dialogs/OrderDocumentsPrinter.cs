@@ -37,6 +37,7 @@ namespace Vodovoz.Dialogs
 			switch(orderDocType) {
 				case OrderDocumentType.Bill:
 				case OrderDocumentType.DriverTicket:
+				case OrderDocumentType.M2Proxy:
 					return 1;
 				case OrderDocumentType.UPD:
 				case OrderDocumentType.Torg12:

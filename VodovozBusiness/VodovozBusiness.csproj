@@ -444,7 +444,11 @@
     <Compile Include="HibernateMapping\Employees\PremiumTemplateMap.cs" />
     <Compile Include="Domain\Employees\CarProxyDocument.cs" />
     <Compile Include="DocTemplates\CarProxyDocumentParser.cs" />
-    <Compile Include="HibernateMapping\Employees\CarProxyDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Employees\ProxyDocumentMap.cs" />
+    <Compile Include="Domain\Employees\ProxyDocument.cs" />
+    <Compile Include="Domain\Employees\M2ProxyDocument.cs" />
+    <Compile Include="DocTemplates\M2ProxyDocumentParser.cs" />
+    <Compile Include="Domain\Order\Documents\OrderM2Proxy.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

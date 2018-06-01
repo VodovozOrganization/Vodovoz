@@ -17,6 +17,15 @@ namespace Vodovoz.HibernateMapping
 		}
 	}
 
+	public class OrderM2ProxyMap : SubclassMap<OrderM2Proxy>
+	{
+		public OrderM2ProxyMap()
+		{
+			DiscriminatorValue("M2Proxy");
+			References(x => x.M2Proxy).Column("m2proxy_id");
+		}
+	}
+
 	public class OrderAgreementMap : SubclassMap<OrderAgreement>
 	{
 		public OrderAgreementMap ()

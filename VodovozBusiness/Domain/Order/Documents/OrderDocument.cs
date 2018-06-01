@@ -76,6 +76,8 @@ namespace Vodovoz.Domain.Orders.Documents
 		AdditionalAgreement,
 		[Display(Name = "Договор для заказа")]
 		Contract,
+		[Display(Name = "Доверенность М-2 для заказа")]
+		M2Proxy,
 		[DocumentOfOrder]
 		[Display(Name = "Счет")]
 		Bill,
