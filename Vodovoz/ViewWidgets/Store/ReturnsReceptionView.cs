@@ -111,8 +111,6 @@ namespace Vodovoz
 
 		void FillListReturnsFromRoute()
 		{
-			ReceptionReturnsList.Clear();
-
 			if(Warehouse == null || RouteList == null)
 				return;
 
@@ -166,7 +164,8 @@ namespace Vodovoz
 				.List<ReceptionItemNode>();
 
 			foreach(var item in returnableItems) {
-				ReceptionReturnsList.Add(item);
+				if(!ReceptionReturnsList.Any(i => i.NomenclatureId == item.NomenclatureId))
+					ReceptionReturnsList.Add(item);
 			}
 
 			foreach(var equipment in returnableEquipment) {
