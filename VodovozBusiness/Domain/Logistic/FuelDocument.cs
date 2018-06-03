@@ -155,7 +155,7 @@ namespace Vodovoz.Domain.Logistic
 						ExpenseCategory = Repository.Cash.CategoryRepository.FuelDocumentExpenseCategory(uow),
 						TypeOperation = ExpenseType.Expense,
 						Date = DateTime.Now,
-						Casher = Author ?? cashier,
+						Casher = cashier,
 						Employee = Driver,
 						Description = $"Оплата топлива по МЛ №{RouteList.Id}",
 					};
