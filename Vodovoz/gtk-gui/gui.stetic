@@ -10024,7 +10024,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.DeliveryPointDlg" design-size="1087 774">
+  <widget class="Gtk.Bin" id="Vodovoz.DeliveryPointDlg" design-size="822 574">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -10095,6 +10095,7 @@
                     <property name="Visible">False</property>
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Информация</property>
+                    <property name="Active">True</property>
                     <property name="DrawIndicator">False</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -10179,6 +10180,8 @@
                 <child>
                   <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
                     <property name="MemberName" />
+                    <property name="VscrollbarPolicy">Never</property>
+                    <property name="HscrollbarPolicy">Never</property>
                     <property name="ShadowType">In</property>
                     <child>
                       <widget class="Gtk.Viewport" id="GtkViewport">
