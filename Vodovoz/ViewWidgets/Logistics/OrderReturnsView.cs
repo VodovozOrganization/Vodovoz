@@ -36,7 +36,7 @@ namespace Vodovoz
 			Configure();
 			itemsToClient = new List<OrderItemReturnsNode>();
 			var nomenclatures = routeListItem.Order.OrderItems
-				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+				//.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.Where(item => !item.Nomenclature.IsSerial).ToList();
 			foreach(var item in nomenclatures) {
 				itemsToClient.Add(new OrderItemReturnsNode(item));
@@ -49,12 +49,12 @@ namespace Vodovoz
 				item.PropertyChanged += OnOrderChanged;
 			}
 			//Добавление в список услуг
-			var services = routeListItem.Order.OrderItems
+			/*var services = routeListItem.Order.OrderItems
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.service).ToList();
 			foreach(var item in services) {
 				itemsToClient.Add(new OrderItemReturnsNode(item));
 				item.PropertyChanged += OnOrderChanged;
-			}
+			}*/
 
 			//От клиента
 			equipmentFromClient = new List<OrderItemReturnsNode>();

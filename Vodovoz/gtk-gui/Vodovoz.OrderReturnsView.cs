@@ -218,7 +218,7 @@ namespace Vodovoz
 			this.frame1.Add(this.GtkAlignment4);
 			this.GtkLabel7 = new global::Gtk.Label();
 			this.GtkLabel7.Name = "GtkLabel7";
-			this.GtkLabel7.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Клиенту</b>");
+			this.GtkLabel7.LabelProp = global::Mono.Unix.Catalog.GetString("<b>К клиенту</b>");
 			this.GtkLabel7.UseMarkup = true;
 			this.frame1.LabelWidget = this.GtkLabel7;
 			this.hbox3.Add(this.frame1);
