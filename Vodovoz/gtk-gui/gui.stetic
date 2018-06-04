@@ -26175,13 +26175,13 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.UnclosedAdvancesFilter" design-size="660 31">
+  <widget class="Gtk.Bin" id="Vodovoz.UnclosedAdvancesFilter" design-size="660 36">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
       <widget class="Gtk.Table" id="table1">
         <property name="MemberName" />
-        <property name="NColumns">4</property>
+        <property name="NColumns">6</property>
         <property name="RowSpacing">6</property>
         <property name="ColumnSpacing">6</property>
         <child>
@@ -26212,6 +26212,48 @@
             <property name="LeftAttach">2</property>
             <property name="RightAttach">3</property>
             <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Label" id="label4">
+            <property name="MemberName" />
+            <property name="Xalign">1</property>
+            <property name="LabelProp" translatable="yes">Дата выдачи аванса:</property>
+          </widget>
+          <packing>
+            <property name="LeftAttach">4</property>
+            <property name="RightAttach">5</property>
+            <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gamma.Widgets.yDatePeriodPicker" id="yAdvancePeriod">
+            <property name="MemberName" />
+            <property name="Events">ButtonPressMask</property>
+            <property name="StartDate">0</property>
+            <property name="EndDate">0</property>
+            <signal name="PeriodChanged" handler="OnYAdvancePeriodPeriodChanged" />
+          </widget>
+          <packing>
+            <property name="LeftAttach">5</property>
+            <property name="RightAttach">6</property>
+            <property name="AutoSize">False</property>
             <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">False</property>
