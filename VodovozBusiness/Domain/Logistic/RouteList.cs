@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -559,7 +559,8 @@ namespace Vodovoz.Domain.Logistic
 		{
 			Status = RouteListStatus.Closed;
 			ClosingDate = DateTime.Now;
-			Cashier = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			if(Cashier == null)
+				Cashier = EmployeeRepository.GetEmployeeForCurrentUser(uow);
 		}
 
 		public virtual void ChangeStatus(RouteListStatus newStatus)

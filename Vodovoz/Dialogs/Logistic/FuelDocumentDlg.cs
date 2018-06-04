@@ -178,7 +178,7 @@ namespace Vodovoz
 
 			if (Entity.FuelCashExpense != null)
 			{
-				Entity.FuelCashExpense.Casher = Entity.Author ?? cashier;
+				Entity.FuelCashExpense.Casher = cashier;
 			}
 
 			var valid = new QSValidator<FuelDocument> (UoWGeneric.Root);
