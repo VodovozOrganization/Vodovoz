@@ -10,6 +10,10 @@ namespace Vodovoz
 
 		private global::Gtk.Label label3;
 
+		private global::Gtk.Label label4;
+
+		private global::Gamma.Widgets.yDatePeriodPicker yAdvancePeriod;
+
 		private global::Gamma.Widgets.yEntryReferenceVM yentryAccountable;
 
 		private global::Gamma.Widgets.yEntryReference yentryExpense;
@@ -21,7 +25,7 @@ namespace Vodovoz
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.UnclosedAdvancesFilter";
 			// Container child Vodovoz.UnclosedAdvancesFilter.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(4)), false);
+			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(6)), false);
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -45,25 +49,48 @@ namespace Vodovoz
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.label4 = new global::Gtk.Label();
+			this.label4.Name = "label4";
+			this.label4.Xalign = 1F;
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Дата выдачи аванса:");
+			this.table1.Add(this.label4);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.label4]));
+			w3.LeftAttach = ((uint)(4));
+			w3.RightAttach = ((uint)(5));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yAdvancePeriod = new global::Gamma.Widgets.yDatePeriodPicker();
+			this.yAdvancePeriod.Events = ((global::Gdk.EventMask)(256));
+			this.yAdvancePeriod.Name = "yAdvancePeriod";
+			this.yAdvancePeriod.StartDate = new global::System.DateTime(0);
+			this.yAdvancePeriod.EndDate = new global::System.DateTime(0);
+			this.table1.Add(this.yAdvancePeriod);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.yAdvancePeriod]));
+			w4.LeftAttach = ((uint)(5));
+			w4.RightAttach = ((uint)(6));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.yentryAccountable = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryAccountable.Events = ((global::Gdk.EventMask)(256));
 			this.yentryAccountable.Name = "yentryAccountable";
 			this.table1.Add(this.yentryAccountable);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryAccountable]));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryAccountable]));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryExpense = new global::Gamma.Widgets.yEntryReference();
 			this.yentryExpense.Events = ((global::Gdk.EventMask)(256));
 			this.yentryExpense.Name = "yentryExpense";
 			this.table1.Add(this.yentryExpense);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryExpense]));
-			w4.LeftAttach = ((uint)(3));
-			w4.RightAttach = ((uint)(4));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryExpense]));
+			w6.LeftAttach = ((uint)(3));
+			w6.RightAttach = ((uint)(4));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
@@ -72,6 +99,7 @@ namespace Vodovoz
 			this.Hide();
 			this.yentryExpense.Changed += new global::System.EventHandler(this.OnYentryExpenseChanged);
 			this.yentryAccountable.Changed += new global::System.EventHandler(this.OnYentryAccountableChanged);
+			this.yAdvancePeriod.PeriodChanged += new global::System.EventHandler(this.OnYAdvancePeriodPeriodChanged);
 		}
 	}
 }

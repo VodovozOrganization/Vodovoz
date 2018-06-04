@@ -6,7 +6,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
+	[System.ComponentModel.ToolboxItem(true)]
 	public partial class UnclosedAdvancesFilter : Gtk.Bin, IRepresentationFilter
 	{
 		IUnitOfWork uow;
@@ -23,26 +23,27 @@ namespace Vodovoz
 			}
 		}
 
-		public UnclosedAdvancesFilter (IUnitOfWork uow) : this()
+		public UnclosedAdvancesFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
 		}
 
-		public UnclosedAdvancesFilter ()
+		public UnclosedAdvancesFilter()
 		{
-			this.Build ();
-			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
-
+			this.Build();
+			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
+			yAdvancePeriod.StartDateOrNull = DateTime.Today.AddMonths(-1);
+			yAdvancePeriod.EndDateOrNull = DateTime.Today;
 		}
 
 		#region IReferenceFilter implementation
 
 		public event EventHandler Refiltered;
 
-		void OnRefiltered ()
+		void OnRefiltered()
 		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
+			if(Refiltered != null)
+				Refiltered(this, new EventArgs());
 		}
 
 		#endregion
@@ -61,14 +62,35 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnYentryAccountableChanged (object sender, EventArgs e)
-		{
-			OnRefiltered ();
+		public DateTime? RestrictStartDate {
+			get { return yAdvancePeriod.StartDateOrNull; }
+			set {
+				yAdvancePeriod.StartDateOrNull = value;
+				yAdvancePeriod.Sensitive = false;
+			}
 		}
 
-		protected void OnYentryExpenseChanged (object sender, EventArgs e)
+		public DateTime? RestrictEndDate {
+			get { return yAdvancePeriod.EndDateOrNull; }
+			set {
+				yAdvancePeriod.EndDateOrNull = value;
+				yAdvancePeriod.Sensitive = false;
+			}
+		}
+
+		protected void OnYentryAccountableChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
+		}
+
+		protected void OnYentryExpenseChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnYAdvancePeriodPeriodChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
 		}
 	}
 }
