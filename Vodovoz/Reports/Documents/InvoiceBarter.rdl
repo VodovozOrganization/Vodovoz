@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -28,7 +28,12 @@
     organizations.full_name AS org_name,
     organizations.address AS org_address,
     delivery_points.comment AS delivery_point_comment,
-    (SELECT GROUP_CONCAT(CONCAT('+7 ', phones.number) SEPARATOR '; ') FROM phones WHERE phones.delivery_point_id = delivery_points.id) AS phone,
+    	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', phones.name) SEPARATOR '; ')
+	FROM phones 
+    WHERE phones.delivery_point_id = orders.delivery_point_id) AS delivery_point_contact,
+	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', phones.name) SEPARATOR '; ')
+    FROM phones
+    WHERE phones.counterparty_id = orders.client_id) AS client_contact,
     delivery_points.city AS city,
     delivery_points.street AS street,
     delivery_points.building AS building,
@@ -66,14 +71,14 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="order_date">
           <DataField>order_date</DataField>
-          <TypeName>System.String</TypeName>
+          <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="bottles_return">
           <DataField>bottles_return</DataField>
@@ -111,8 +116,12 @@ WHERE
           <DataField>delivery_point_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="phone">
-          <DataField>phone</DataField>
+        <Field Name="delivery_point_contact">
+          <DataField>delivery_point_contact</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_contact">
+          <DataField>client_contact</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="city">
@@ -400,7 +409,7 @@ payment_type='ToClient'</CommandText>
           <Textbox Name="Textbox12">
             <Height>15.00pt</Height>
             <Width>433.62pt</Width>
-            <Value>={phone}</Value>
+            <Value>=Iif({delivery_point_contact} = null, {client_contact}, {delivery_point_contact})</Value>
             <ZIndex>1</ZIndex>
             <Left>80.20pt</Left>
             <Top>140.00pt</Top>
@@ -500,7 +509,7 @@ payment_type='ToClient'</CommandText>
             <Height>90pt</Height>
             <Width>90pt</Width>
             <CustomProperties>
-              <CustomProperty >
+              <CustomProperty>
                 <Name>QrCode</Name>
                 <Value>="InvoiceBarter;"+{order_id}+";"+Format({order_date}, "ddMMyyyy")</Value>
               </CustomProperty>
@@ -1696,21 +1705,6 @@ payment_type='ToClient'</CommandText>
             End Select
         End If
     End Function</Code>
-  <ReportParameters>
-    <ReportParameter Name="order_id">
-      <DataType>Integer</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>8</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
-    </ReportParameter>
-  </ReportParameters>
   <EmbeddedImages>
     <EmbeddedImage Name="logo">
       <MIMEType>image/png</MIMEType>
@@ -1725,9 +1719,24 @@ payment_type='ToClient'</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_orders;user=OO;password=1;port=3306;server=vod.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_temp;user=OO;password=1;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="order_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>183707</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
 </Report>
