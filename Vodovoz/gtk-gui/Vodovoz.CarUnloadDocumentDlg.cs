@@ -310,8 +310,6 @@ namespace Vodovoz
 			this.vbox1.Add(this.bottlereceptionview1);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.bottlereceptionview1]));
 			w26.Position = 0;
-			w26.Expand = false;
-			w26.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.nonserialequipmentreceptionview1 = new global::Vodovoz.ViewWidgets.Store.NonSerialEquipmentReceptionView();
 			this.nonserialequipmentreceptionview1.Events = ((global::Gdk.EventMask)(256));
@@ -319,8 +317,6 @@ namespace Vodovoz
 			this.vbox1.Add(this.nonserialequipmentreceptionview1);
 			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.nonserialequipmentreceptionview1]));
 			w27.Position = 1;
-			w27.Expand = false;
-			w27.Fill = false;
 			this.hbox4.Add(this.vbox1);
 			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox1]));
 			w28.Position = 0;
@@ -334,10 +330,9 @@ namespace Vodovoz
 			this.vbox4.Add(this.hbox4);
 			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox4]));
 			w30.Position = 2;
-			w30.Expand = false;
-			w30.Fill = false;
 			this.Add(this.vbox4);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
