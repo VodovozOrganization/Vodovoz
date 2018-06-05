@@ -313,7 +313,9 @@ namespace Vodovoz
 			w26.Expand = false;
 			w26.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.nonserialequipmentreceptionview1 = null;
+			this.nonserialequipmentreceptionview1 = new global::Vodovoz.ViewWidgets.Store.NonSerialEquipmentReceptionView();
+			this.nonserialequipmentreceptionview1.Events = ((global::Gdk.EventMask)(256));
+			this.nonserialequipmentreceptionview1.Name = "nonserialequipmentreceptionview1";
 			this.vbox1.Add(this.nonserialequipmentreceptionview1);
 			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.nonserialequipmentreceptionview1]));
 			w27.Position = 1;
