@@ -113,12 +113,6 @@ namespace Vodovoz.Domain.Employees
 			if(ProxyDocumentTemplate == null)
 				yield return new ValidationResult(String.Format("Не выбран шаблон доверенности"));
 
-			if(Employee == null)
-				yield return new ValidationResult(String.Format("Не выбран сотрудник"));
-
-			if(TicketNumber == null)
-				yield return new ValidationResult(String.Format("Не указан номер наряда"));
-
 			if(TicketDate == null)
 				yield return new ValidationResult(String.Format("Не указана дата наряда"));
 		}

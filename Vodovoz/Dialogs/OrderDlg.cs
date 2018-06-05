@@ -690,16 +690,18 @@ namespace Vodovoz
 			SaveChanges();
 			UoWGeneric.Save();
 
+			logger.Info("Ok.");
+			ButtonCloseOrderSensitivity();
+			return true;
+		}
+
+		public void PrintOrderDocuments(){
 			if(Entity.OrderDocuments.Any()) {
 				if(MessageDialogWorks.RunQuestionDialog("Открыть документы для печати?")) {
 					var documentPrinterDlg = new OrderDocumentsPrinter(Entity);
 					TabParent.AddSlaveTab(this, documentPrinterDlg);
 				}
 			}
-
-			logger.Info("Ok.");
-			ButtonCloseOrderSensitivity();
-			return true;
 		}
 
 		#region Toggle buttons
@@ -792,6 +794,7 @@ namespace Vodovoz
 			vboxInfo.Sensitive = CanChange;
 			vboxGoods.Sensitive = CanChange;
 			buttonAddExistingDocument.Sensitive = CanChange;
+			btnAddM2ProxyForThisOrder.Sensitive = CanChange;
 			btnRemExistingDocument.Sensitive = CanChange;
 			tableTareControl.Sensitive = Entity.OrderStatus == OrderStatus.OnTheWay || Entity.OrderStatus == OrderStatus.Shipped;
 		}
@@ -1312,6 +1315,7 @@ namespace Vodovoz
 			treeItems.Selection.UnselectAll();
 			treeEquipment.Selection.UnselectAll();
 			Save();
+			PrintOrderDocuments();
 		}
 
 		private void DailyNumberIncrement()
@@ -1465,7 +1469,7 @@ namespace Vodovoz
 
 		protected void OnButtonAddServiceClaimClicked(object sender, EventArgs e)
 		{
-			if(!SaveOrderBeforeContinue())
+			if(!SaveOrderBeforeContinue<ServiceClaim>())
 				return;
 			var dlg = new ServiceClaimDlg(UoWGeneric.Root);
 			TabParent.AddSlaveTab(this, dlg);
@@ -1473,7 +1477,7 @@ namespace Vodovoz
 
 		protected void OnButtonAddDoneServiceClicked(object sender, EventArgs e)
 		{
-			if(!SaveOrderBeforeContinue())
+			if(!SaveOrderBeforeContinue<ServiceClaim>())
 				return;
 			OrmReference SelectDialog = new OrmReference(typeof(ServiceClaim), UoWGeneric,
 											ServiceClaimRepository.GetDoneClaimsForClient(UoWGeneric.Root)
@@ -1502,10 +1506,10 @@ namespace Vodovoz
 			//TODO Add service nomenclature with price.
 		}
 
-		bool SaveOrderBeforeContinue()
+		bool SaveOrderBeforeContinue<T>()
 		{
 			if(UoWGeneric.IsNew) {
-				if(CommonDialogs.SaveBeforeCreateSlaveEntity(EntityObject.GetType(), typeof(ServiceClaim))) {
+				if(CommonDialogs.SaveBeforeCreateSlaveEntity(EntityObject.GetType(), typeof(T))) {
 					if(!Save())
 						return false;
 				} else
@@ -1910,7 +1914,8 @@ namespace Vodovoz
 
 		protected void OnBtnAddM2ProxyForThisOrderClicked(object sender, EventArgs e)
 		{
-			if(!new QSValidator<Order>(UoWGeneric.Root).RunDlgIfNotValid((Window)this.Toplevel)) {
+			if(!new QSValidator<Order>(UoWGeneric.Root).RunDlgIfNotValid((Window)this.Toplevel)
+			   && SaveOrderBeforeContinue<M2ProxyDocument>()) {
 				var dlgM2 = OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), UoWGeneric);
 				TabParent.AddSlaveTab(this, dlgM2);
 			}
