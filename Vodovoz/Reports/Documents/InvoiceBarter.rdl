@@ -53,10 +53,10 @@ FROM
         LEFT JOIN
     counterparty ON orders.client_id = counterparty.id
         LEFT JOIN
-    organizations ON organizations.id = 12
-        LEFT JOIN
     counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
-        AND counterparty_contract.organization_id = organizations.id
+ AND orders.counterparty_contract_id = counterparty_contract.id
+        LEFT JOIN
+    organizations ON organizations.id = counterparty_contract.organization_id
         LEFT JOIN
     delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
         LEFT JOIN
@@ -158,11 +158,24 @@ WHERE
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
-        <CommandText>SELECT nomenclature.id AS id, nomenclature.official_name AS name, '--' AS unit_code, measurement_units.name AS mu_name, order_items.count AS count, order_items.price AS item_price, order_items.price * order_items.count AS total 
-FROM order_items
-LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
-WHERE order_items.order_id = @order_id;</CommandText>
+        <CommandText>SELECT
+	nomenclature.id AS id,
+	nomenclature.official_name AS name,
+	'--' AS unit_code,
+	measurement_units.name AS mu_name,
+	order_items.count AS count,
+	order_items.price AS item_price,
+	order_items.discount AS item_discount,
+	order_items.price * order_items.count AS total_wo_disc,
+	order_items.price * order_items.count * (1-order_items.discount/100) AS total
+FROM
+	order_items
+LEFT JOIN
+	nomenclature ON order_items.nomenclature_id = nomenclature.id
+LEFT JOIN
+	measurement_units ON nomenclature.unit_id = measurement_units.id
+WHERE
+	order_items.order_id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -196,6 +209,14 @@ WHERE order_items.order_id = @order_id;</CommandText>
         </Field>
         <Field Name="total">
           <DataField>total</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="total_wo_disc">
+          <DataField>total_wo_disc</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="item_discount">
+          <DataField>item_discount</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
@@ -551,10 +572,10 @@ payment_type='ToClient'</CommandText>
             <Width>24.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>305.3pt</Width>
+            <Width>218.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.7pt</Width>
+            <Width>24.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>25.7pt</Width>
@@ -563,7 +584,19 @@ payment_type='ToClient'</CommandText>
             <Width>51.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.8pt</Width>
+            <Width>29.8pt</Width>
+            <Visibility>
+              <Hidden>=Iif(SUM({item_discount}, 'Goods')&gt;0,'false','true')</Hidden>
+            </Visibility>
+          </TableColumn>
+          <TableColumn>
+            <Width>58.6pt</Width>
+            <Visibility>
+              <Hidden>=Iif(SUM({item_discount}, 'Goods')&gt;0,'false','true')</Hidden>
+            </Visibility>
+          </TableColumn>
+          <TableColumn>
+            <Width>58.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -584,6 +617,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Lightgrey</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -601,6 +635,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Lightgrey</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -618,7 +653,13 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Lightgrey</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>
+                        </Hidden>
+                      </Visibility>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -635,6 +676,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Lightgrey</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -652,6 +694,43 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Lightgrey</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Value>Скидка</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Value>Сум.без скидки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -669,6 +748,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Lightgrey</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -694,6 +774,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -708,6 +789,7 @@ payment_type='ToClient'</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -724,7 +806,12 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>
+                        </Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -739,6 +826,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -754,6 +842,40 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <Format># ##0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox56">
+                      <Value>={item_discount}+'%'</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox58">
+                      <Value>={total_wo_disc}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format># ##0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -769,6 +891,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <Format># ##0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -779,6 +902,170 @@ payment_type='ToClient'</CommandText>
         </Details>
         <Left>52.9pt</Left>
         <Top>183.8pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox64">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox65">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=SUM({total_wo_disc})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox66">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <Value>=SUM({total})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
       <List Name="List2">
         <Height>409.78pt</Height>
@@ -1148,7 +1435,7 @@ payment_type='ToClient'</CommandText>
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
-              <Format>0.00</Format>
+              <Format>#,##0.00</Format>
               <TextAlign>Left</TextAlign>
               <FontSize>11pt</FontSize>
             </Style>
@@ -1239,7 +1526,7 @@ payment_type='ToClient'</CommandText>
       <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
         <Width>352.77pt</Width>
-        <Value>=Code.SummaString_Val(Convert.ToString(Sum({total}, 'Goods')))</Value>
+        <Value>=Code.SummaString_Val(Convert.ToString(Sum(Format({total}, '#.##0.00'), 'Goods')))</Value>
         <ZIndex>1</ZIndex>
         <Left>35.00pt</Left>
         <Top>252.80pt</Top>
@@ -1249,22 +1536,6 @@ payment_type='ToClient'</CommandText>
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
         </Style>
-      </Textbox>
-      <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>116.52pt</Width>
-        <Value>='Итого: ' + Sum({total}, 'Goods')</Value>
-        <ZIndex>1</ZIndex>
-        <Left>460.20pt</Left>
-        <Top>215.10pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Normal</FontWeight>
-          <Format># ##0.00</Format>
-        </Style>
-        <CanGrow>true</CanGrow>
       </Textbox>
       <Image Name="Image1">
         <Height>57.44pt</Height>
@@ -1729,7 +2000,7 @@ payment_type='ToClient'</CommandText>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>183707</Value>
+          <Value>183696</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
