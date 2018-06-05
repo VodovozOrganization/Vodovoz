@@ -10095,7 +10095,6 @@
                     <property name="Visible">False</property>
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Информация</property>
-                    <property name="Active">True</property>
                     <property name="DrawIndicator">False</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -27175,7 +27174,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="907 613">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="872 618">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <signal name="Shown" handler="OnShown" />
@@ -27235,6 +27234,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -27364,7 +27364,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">6</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vboxInfo">
                 <property name="MemberName" />
@@ -27373,7 +27373,6 @@
                 <child>
                   <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                     <property name="MemberName" />
-                    <property name="HscrollbarPolicy">Never</property>
                     <property name="ShadowType">In</property>
                     <child>
                       <widget class="Gtk.Viewport" id="GtkViewport1">
@@ -27552,8 +27551,8 @@
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">13</property>
-                                <property name="BottomAttach">14</property>
+                                <property name="TopAttach">14</property>
+                                <property name="BottomAttach">15</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">False</property>
@@ -27581,8 +27580,8 @@
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">14</property>
-                                <property name="BottomAttach">15</property>
+                                <property name="TopAttach">13</property>
+                                <property name="BottomAttach">14</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">False</property>
@@ -27883,8 +27882,8 @@
 к заказу:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">14</property>
-                                <property name="BottomAttach">15</property>
+                                <property name="TopAttach">13</property>
+                                <property name="BottomAttach">14</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -28240,8 +28239,8 @@
 для логиста:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">13</property>
-                                <property name="BottomAttach">14</property>
+                                <property name="TopAttach">14</property>
+                                <property name="BottomAttach">15</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
