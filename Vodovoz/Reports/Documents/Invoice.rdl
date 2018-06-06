@@ -21,6 +21,7 @@
     orders.bottles_return AS bottles_return,
     orders.sum_to_receive AS total,
     orders.comment AS order_comment,
+    orders.payment_type AS order_payment_type,
     orders.online_order AS order_online_number,
     delivery_schedule.name AS delivery_schedule,
     counterparty_contract.id AS contract_number,
@@ -175,6 +176,10 @@ WHERE
         <Field Name="trifle">
           <DataField>trifle</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="order_payment_type">
+          <DataField>order_payment_type</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -462,60 +467,6 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Empty_Goods">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <Timeout>30</Timeout>
-        <CommandText>SELECT  
-	'--' AS id,
-    'Забор - Доставка' AS name,
-    '--' AS unit_code,
-    '--' AS mu_name,
-    '--' AS count,
-    '--' AS item_price,
-    '--' AS total,
-    '--' AS include_nds</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="order_id">
-            <Value>=Parameters!order_id</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="id">
-          <DataField>id</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="name">
-          <DataField>name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="unit_code">
-          <DataField>unit_code</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="mu_name">
-          <DataField>mu_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="count">
-          <DataField>count</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="item_price">
-          <DataField>item_price</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="total">
-          <DataField>total</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="include_nds">
-          <DataField>include_nds</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-      </Fields>
-    </DataSet>
     <DataSet Name="deposits">
       <Query>
         <DataSourceName>DS1</DataSourceName>
@@ -665,7 +616,7 @@ GROUP BY name</CommandText>
           <Textbox Name="Textbox8">
             <Height>15pt</Height>
             <Width>6in</Width>
-            <Value>={org_name} + ' ' + {org_address}</Value>
+            <Value>={org_name} + ' ' + {org_address}+Iif(First({order_payment_type}, "Order")!='ByCard',"","/Тинькофф")</Value>
             <ZIndex>1</ZIndex>
             <Left>85.0pt</Left>
             <Top>80.0pt</Top>
@@ -1214,7 +1165,9 @@ GROUP BY name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Style>
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Left>None</Left>
@@ -1224,8 +1177,6 @@ GROUP BY name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1359,10 +1310,10 @@ GROUP BY name</CommandText>
         </Footer>
       </Table>
       <List Name="List2">
-        <Height>355.85pt</Height>
-        <Width>540.61pt</Width>
-        <Left>36.6pt</Left>
-        <Top>285.3pt</Top>
+        <Height>353.58pt</Height>
+        <Width>541.36pt</Width>
+        <Left>36.60pt</Left>
+        <Top>290.04pt</Top>
         <ReportItems>
           <Textbox Name="Textbox32">
             <Height>12.00pt</Height>
@@ -1370,7 +1321,7 @@ GROUP BY name</CommandText>
             <Value>Отпуск разрешил:__________________/Сосновцев С.С./</Value>
             <ZIndex>1</ZIndex>
             <Left>86.0pt</Left>
-            <Top>38.4pt</Top>
+            <Top>48.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1384,7 +1335,7 @@ GROUP BY name</CommandText>
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
             <Left>0.2pt</Left>
-            <Top>38.4pt</Top>
+            <Top>48.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1398,7 +1349,7 @@ GROUP BY name</CommandText>
             <Value>Время доставки</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>67.2pt</Top>
+            <Top>76.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1412,7 +1363,7 @@ GROUP BY name</CommandText>
             <Value>Товар получен в полном объеме. К продавцу претензий не имею.     /                                      /</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>90.5pt</Top>
+            <Top>100.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1426,7 +1377,7 @@ GROUP BY name</CommandText>
             <Value>*</Value>
             <ZIndex>1</ZIndex>
             <Left>143.8pt</Left>
-            <Top>67.2pt</Top>
+            <Top>76.8pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -1443,7 +1394,7 @@ GROUP BY name</CommandText>
             <Value>Покупатель сдал</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>121.8pt</Top>
+            <Top>131.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1457,7 +1408,7 @@ GROUP BY name</CommandText>
             <Value>*             (                                    ) бутылей            /                                       /</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
-            <Top>122.5pt</Top>
+            <Top>132.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1471,7 +1422,7 @@ GROUP BY name</CommandText>
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
-            <Top>135.8pt</Top>
+            <Top>145.4pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1491,7 +1442,7 @@ GROUP BY name</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>338.7pt</Left>
-            <Top>103.7pt</Top>
+            <Top>113.3pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1510,7 +1461,7 @@ GROUP BY name</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>338.4pt</Left>
-            <Top>135.9pt</Top>
+            <Top>145.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1529,7 +1480,7 @@ GROUP BY name</CommandText>
             <Value>='Предполагаемое количеcтво возвратной тары: ' + {bottles_return} + ' бутылей'</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>154.8pt</Top>
+            <Top>164.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1550,7 +1501,7 @@ GROUP BY name</CommandText>
               </BorderWidth>
             </Style>
             <Left>0.0pt</Left>
-            <Top>197.1pt</Top>
+            <Top>206.7pt</Top>
           </Line>
           <Textbox Name="Textbox43">
             <Height>13.50pt</Height>
@@ -1558,7 +1509,7 @@ GROUP BY name</CommandText>
             <Value>Залог за пустую тару</Value>
             <ZIndex>1</ZIndex>
             <Left>16.2pt</Left>
-            <Top>181.9pt</Top>
+            <Top>191.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1573,7 +1524,7 @@ GROUP BY name</CommandText>
             <Value>             (                                    ) бутылей в размере                                   рублей</Value>
             <ZIndex>1</ZIndex>
             <Left>119.3pt</Left>
-            <Top>218.1pt</Top>
+            <Top>227.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1587,7 +1538,7 @@ GROUP BY name</CommandText>
             <Value>Покупатель внес залог за</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>217.9pt</Top>
+            <Top>227.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1601,7 +1552,7 @@ GROUP BY name</CommandText>
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
             <Left>130.0pt</Left>
-            <Top>232.7pt</Top>
+            <Top>242.3pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1621,7 +1572,7 @@ GROUP BY name</CommandText>
             <Value>(сумма)</Value>
             <ZIndex>1</ZIndex>
             <Left>370.8pt</Left>
-            <Top>232.1pt</Top>
+            <Top>241.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1641,7 +1592,7 @@ GROUP BY name</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>370.6pt</Left>
-            <Top>276.2pt</Top>
+            <Top>285.8pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1660,7 +1611,7 @@ GROUP BY name</CommandText>
             <Value>/                                       /</Value>
             <ZIndex>1</ZIndex>
             <Left>371.5pt</Left>
-            <Top>263.0pt</Top>
+            <Top>272.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1669,12 +1620,12 @@ GROUP BY name</CommandText>
             </Style>
           </Textbox>
           <Textbox Name="Textbox50">
-            <Height>12.00pt</Height>
-            <Width>406.02pt</Width>
+            <Height>12.75pt</Height>
+            <Width>350.35pt</Width>
             <Value>Экспедитор принял:                                        /                                        /</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>299.7pt</Top>
+            <Left>0.00pt</Left>
+            <Top>295.75pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1688,7 +1639,7 @@ GROUP BY name</CommandText>
             <Value>(подпись)                   (расшифровка)</Value>
             <ZIndex>1</ZIndex>
             <Left>101.9pt</Left>
-            <Top>311.0pt</Top>
+            <Top>307.8pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1706,7 +1657,7 @@ GROUP BY name</CommandText>
             <Value>* Поля обязательные к заполнению</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>324.0pt</Top>
+            <Top>320.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1717,10 +1668,16 @@ GROUP BY name</CommandText>
           <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>145.77pt</Width>
-            <Value>='Всего: '+Format(Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),'#,##0.00')</Value>
+            <Value>=Format(
+    Iif(First({order_payment_type}, "Order")!='ByCard',
+        Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
+        0
+    )
+    ,'#,##0.00'
+)</Value>
             <ZIndex>1</ZIndex>
             <Left>354.3pt</Left>
-            <Top>1.6pt</Top>
+            <Top>18.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1734,7 +1691,7 @@ GROUP BY name</CommandText>
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
             <Left>348.6pt</Left>
-            <Top>91.4pt</Top>
+            <Top>101.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1748,7 +1705,7 @@ GROUP BY name</CommandText>
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
             <Left>348.7pt</Left>
-            <Top>123.4pt</Top>
+            <Top>133.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1761,10 +1718,17 @@ GROUP BY name</CommandText>
           <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>352.77pt</Width>
-            <Value>=Code.SummaString_Val(Convert.ToString(Sum(Format({total}, '#.##0.00'), 'Goods')))</Value>
+            <Value>=Code.SummaString_Val(
+    Convert.ToString(
+        Iif(First({order_payment_type}, "Order")!='ByCard',
+            Sum(Format({total}, '#.##0.00'), 'Goods'),
+            0
+        )
+    )
+)</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>1.6pt</Top>
+            <Top>18.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1778,13 +1742,28 @@ GROUP BY name</CommandText>
             <Value>=Iif(Fields!order_online_number.IsMissing, '', 'Заказ #' + {order_online_number}+' - онлайн оплата. ') + {order_comment}</Value>
             <ZIndex>1</ZIndex>
             <Left>1.5pt</Left>
-            <Top>340.9pt</Top>
+            <Top>337.7pt</Top>
             <CanGrow>true</CanGrow>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox29">
+            <Height>14.45pt</Height>
+            <Width>244.65pt</Width>
+            <Value>Всего получить от клиента:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>8.40pt</Left>
+            <Top>2.26pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+              <FontSize>12pt</FontSize>
             </Style>
           </Textbox>
         </ReportItems>
@@ -1940,10 +1919,10 @@ GROUP BY name</CommandText>
         </Style>
       </Textbox>
       <Rectangle Name="Rectangle1">
-        <Height>73.72pt</Height>
-        <Width>541.29pt</Width>
-        <Left>30.8pt</Left>
-        <Top>699.6pt</Top>
+        <Height>66.97pt</Height>
+        <Width>540.54pt</Width>
+        <Left>30.80pt</Left>
+        <Top>698.00pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1990,7 +1969,7 @@ GROUP BY name</CommandText>
             <Value>1. Веселый водовоз PREMIUM "СЕМИОЗЕРЬЕ" - с синей пробкой!</Value>
             <ZIndex>1</ZIndex>
             <Left>4.0pt</Left>
-            <Top>14.7pt</Top>
+            <Top>17.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2007,7 +1986,7 @@ GROUP BY name</CommandText>
             <Value>2. Веселый водовоз PREMIUM "Кислородная" - с синей пробкой и желтым защитным термоколпачком!</Value>
             <ZIndex>1</ZIndex>
             <Left>4.0pt</Left>
-            <Top>31.3pt</Top>
+            <Top>34.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2024,7 +2003,7 @@ GROUP BY name</CommandText>
             <Value>3. Веселый водовоз PREMIUM "Снятогорская" - с белой пробкой и защитным термоколпачком!</Value>
             <ZIndex>1</ZIndex>
             <Left>4.0pt</Left>
-            <Top>48.1pt</Top>
+            <Top>51.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2044,7 +2023,7 @@ GROUP BY name</CommandText>
         <Height>29.47pt</Height>
         <Width>540.51pt</Width>
         <Left>31.2pt</Left>
-        <Top>646.3pt</Top>
+        <Top>643.9pt</Top>
         <ReportItems>
           <Textbox Name="Textbox65">
             <Height>27.76pt</Height>
@@ -2126,7 +2105,7 @@ GROUP BY name</CommandText>
             <Width>210.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>238.2pt</Width>
+            <Width>236.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -2179,7 +2158,7 @@ GROUP BY name</CommandText>
           </TableRows>
         </Details>
         <Left>115.7pt</Left>
-        <Top>681.2pt</Top>
+        <Top>676.4pt</Top>
         <Visibility>
           <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
         </Visibility>
@@ -2190,7 +2169,7 @@ GROUP BY name</CommandText>
         <Value>Доверенности:</Value>
         <ZIndex>1</ZIndex>
         <Left>37.4pt</Left>
-        <Top>680.5pt</Top>
+        <Top>675.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2524,6 +2503,29 @@ GROUP BY name</CommandText>
           <Hidden>=Iif(Count({deposit}, "deposits")&gt;0, 'false', 'true')</Hidden>
         </Visibility>
       </Textbox>
+      <Rectangle Name="Rectangle2">
+        <Height>34.64pt</Height>
+        <Width>536.74pt</Width>
+        <Left>30.9pt</Left>
+        <Top>289.8pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>3pt</Default>
+            <Left>3pt</Left>
+            <Right>3pt</Right>
+            <Top>3pt</Top>
+            <Bottom>3pt</Bottom>
+          </BorderWidth>
+        </Style>
+      </Rectangle>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2955,7 +2957,7 @@ GROUP BY name</CommandText>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>183704</Value>
+          <Value>183696</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
