@@ -138,7 +138,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReferenceVM referenceSalesManager;
 
-		private global::Gtk.Label label20;
+		private global::Gtk.Label lblContacts;
 
 		private global::Gtk.VBox vbox6;
 
@@ -378,7 +378,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 1;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -939,11 +939,11 @@ namespace Vodovoz
 			global::Gtk.Notebook.NotebookChild w68 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.datatable2]));
 			w68.Position = 2;
 			// Notebook tab
-			this.label20 = new global::Gtk.Label();
-			this.label20.Name = "label20";
-			this.label20.LabelProp = global::Mono.Unix.Catalog.GetString("Контакты");
-			this.notebook1.SetTabLabel(this.datatable2, this.label20);
-			this.label20.ShowAll();
+			this.lblContacts = new global::Gtk.Label();
+			this.lblContacts.Name = "lblContacts";
+			this.lblContacts.LabelProp = global::Mono.Unix.Catalog.GetString("Контакты");
+			this.notebook1.SetTabLabel(this.datatable2, this.lblContacts);
+			this.lblContacts.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox6 = new global::Gtk.VBox();
 			this.vbox6.Name = "vbox6";

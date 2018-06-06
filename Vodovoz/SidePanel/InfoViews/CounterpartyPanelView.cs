@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QSOrmProject;
 using QSProjectsLib;
+using QSTDI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
@@ -84,6 +86,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			var currentOrders = OrderRepository.GetCurrentOrders(InfoProvider.UoW, Counterparty);
 			ytreeCurrentOrders.SetItemsSource<Order>(currentOrders);
 			vboxCurrentOrders.Visible = currentOrders.Count > 0;
+
+			labelPhone.LabelProp = String.Join(";\n", Counterparty.Phones.Select(ph => ph.LongText));
+			if(Counterparty.Phones.Count <= 0)
+				labelPhone.Text = "[+] чтоб добавить -->";
 		}
 
 		public bool VisibleOnPanel
@@ -109,6 +115,16 @@ namespace Vodovoz.SidePanel.InfoViews
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();
 			}
+		}
+
+		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
+		{
+			var dlg = new CounterpartyDlg(Counterparty.Id);
+			dlg.ActivateContactsTab();
+			TDIMain.MainNotebook.OpenTab(
+				OrmMain.GenerateDialogHashName<Counterparty>(Counterparty.Id),
+				() => dlg
+			);
 		}
 		#endregion
 	}

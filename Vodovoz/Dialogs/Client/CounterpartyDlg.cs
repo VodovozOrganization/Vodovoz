@@ -15,13 +15,13 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
+using QSWidgetLib;
 
 namespace Vodovoz
 {
 	public partial class CounterpartyDlg : OrmGtkDialogBase<Counterparty>, ICounterpartyInfoProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
-
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		public PanelViewType[] InfoWidgets {
@@ -54,8 +54,7 @@ namespace Vodovoz
 		}
 
 		public CounterpartyDlg(Counterparty sub) : this(sub.Id)
-		{
-		}
+		{}
 
 		private void ConfigureDlg()
 		{
@@ -148,7 +147,7 @@ namespace Vodovoz
 			ytreeviewTags.ColumnsConfig = ColumnsConfigFactory.Create<Tag>()
 				.AddColumn("Название").AddTextRenderer(node => node.Name)
 				.AddColumn("Цвет").AddTextRenderer()
-				.AddSetter((cell, node) => { cell.Markup = String.Format("<span foreground=\"{0}\">⬤</span>", node.ColorText); })
+				.AddSetter((cell, node) => { cell.Markup = String.Format("<span foreground=\" {0}\">⬤</span>", node.ColorText); })
 				.AddColumn("")
 				.Finish();
 
@@ -162,6 +161,12 @@ namespace Vodovoz
 			menuActions.Menu = menu;
 			menu.ShowAll();
 			menuActions.Sensitive = !UoWGeneric.IsNew;
+		}
+
+		public void ActivateContactsTab()
+		{
+			if(radioContacts.Sensitive)
+				radioContacts.Active = true;
 		}
 
 		void AllOrders_Activated(object sender, EventArgs e)

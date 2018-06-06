@@ -4,6 +4,7 @@ using Gamma.GtkWidgets;
 using Gtk;
 using QSOrmProject;
 using QSProjectsLib;
+using QSTDI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
@@ -16,7 +17,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DeliveryPointPanelView : Gtk.Bin, IPanelView
 	{
-		DeliveryPoint DeliveryPoint{get;set;}
+		DeliveryPoint DeliveryPoint { get; set; }
 
 		public DeliveryPointPanelView()
 		{
@@ -38,12 +39,10 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddColumn("Дата")
 				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : String.Empty)
 				.Finish();
-
-
 		}
 
 		#region IPanelView implementation
-		public IInfoProvider InfoProvider{ get; set;}
+		public IInfoProvider InfoProvider { get; set; }
 
 		public void Refresh()
 		{
@@ -54,8 +53,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 			buttonSaveComment.Sensitive = true;
 			labelAddress.Text = DeliveryPoint.CompiledAddress;
-			labelPhone.LabelProp = String.Join(";", DeliveryPoint.Phones.Select(ph => ph.LongText)) ;
-			labelPhone.Visible = labelPhoneText.Visible = DeliveryPoint.Phones.Count > 0;
+			labelPhone.LabelProp = String.Join(";\n", DeliveryPoint.Phones.Select(ph => ph.LongText));
+			if(DeliveryPoint.Phones.Count <= 0)
+				labelPhone.Text = "[+] чтоб добавить -->";
 
 			var bottlesAtDeliveryPoint = BottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			var bottlesAvgDeliveryPoint = DeliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);
@@ -69,10 +69,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			vboxLastOrders.Visible = currentOrders.Count > 0;
 		}
 
-		public bool VisibleOnPanel
-		{
-			get
-			{
+		public bool VisibleOnPanel {
+			get {
 				return DeliveryPoint != null;
 			}
 		}
@@ -80,8 +78,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		public void OnCurrentObjectChanged(object changedObject)
 		{
 			var deliveryPoint = changedObject as DeliveryPoint;
-			if (deliveryPoint != null)
-			{
+			if(deliveryPoint != null) {
 				DeliveryPoint = deliveryPoint;
 				Refresh();
 			}
@@ -91,13 +88,12 @@ namespace Vodovoz.SidePanel.InfoViews
 		void OnOrdersRowActivated(object sender, RowActivatedArgs args)
 		{
 			var order = ytreeLastOrders.GetSelectedObject() as Order;
-			if (InfoProvider is OrderDlg)
-			{
+			if(InfoProvider is OrderDlg) {
 				(InfoProvider as OrderDlg)?.FillOrderItems(order);
 			}
 		}
 
-		void OnOrdersSelectionChanged (object sender, EventArgs args)
+		void OnOrdersSelectionChanged(object sender, EventArgs args)
 		{
 			var order = ytreeLastOrders.GetSelectedObject() as Order;
 			GenerateTooltip(order);
@@ -107,14 +103,12 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			ytreeLastOrders.HasTooltip = false;
 
-			if(order == null)
-			{
+			if(order == null) {
 				return;
 			}
 			string tooltip = "Заказ №" + order.Id + ":";
 
-			foreach(OrderItem orderItem in order.OrderItems)
-			{
+			foreach(OrderItem orderItem in order.OrderItems) {
 				tooltip += "\n" + orderItem.Nomenclature.Name + ": " + orderItem.Count;
 			}
 
@@ -128,6 +122,14 @@ namespace Vodovoz.SidePanel.InfoViews
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();
 			}
+		}
+
+		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
+		{
+			TDIMain.MainNotebook.OpenTab(
+				OrmMain.GenerateDialogHashName<DeliveryPoint>(DeliveryPoint.Id),
+				() => new DeliveryPointDlg(DeliveryPoint.Id)
+			);
 		}
 	}
 }
