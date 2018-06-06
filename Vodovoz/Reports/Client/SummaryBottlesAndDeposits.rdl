@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>select
@@ -347,7 +347,7 @@ order by docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="doc_id">
           <DataField>doc_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -601,7 +601,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="StoredEquipments">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	GROUP_CONCAT(IF(client_amount_pickedup &gt; 0, CONCAT(name, ': ', client_amount_pickedup, 'шт'), NULL) SEPARATOR ', ') as we_have_clients_equip,
@@ -667,7 +667,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="we_have_clients_equip">
           <DataField>we_have_clients_equip</DataField>
           <TypeName>System.String</TypeName>
@@ -724,7 +724,7 @@ WHERE
             <Width>119.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.1pt</Width>
+            <Width>44.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>51.0pt</Width>
@@ -1425,7 +1425,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="delivery_point_address">
                       <Value>= Switch({doc_payment_type} = "cash", "нал.", {doc_payment_type} = "cashless", "безнал.", {doc_payment_type} = "barter", "бартер")</Value>
-                      <CanGrow>true</CanGrow>
+                      <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2020,12 +2020,21 @@ ____________(                        )
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_orders;user=OO;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="client_id">
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>9</Value>
+          <Value>7252</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2049,6 +2058,11 @@ ____________(                        )
     </ReportParameter>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017-01-01</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -2057,6 +2071,11 @@ ____________(                        )
     </ReportParameter>
     <ReportParameter Name="endDate">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-07-01</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -2064,13 +2083,4 @@ ____________(                        )
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_temp;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

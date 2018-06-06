@@ -818,8 +818,9 @@ namespace Vodovoz.Domain.Logistic
 			//if(addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
 				//throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
 
-			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Where(x => x.Equipment != null)
-			        .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Equipment.Nomenclature.Category))) {
+			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments)
+					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+				   ) {
 				var operation = orderEquipment.UpdateCounterpartyOperation();
 				if(operation != null)
 					result.Add(operation);
