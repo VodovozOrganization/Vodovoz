@@ -605,7 +605,7 @@ GROUP BY name</CommandText>
             <Value>Телефон:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>135.2pt</Top>
+            <Top>136.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -614,12 +614,12 @@ GROUP BY name</CommandText>
             </Style>
           </Textbox>
           <Textbox Name="Textbox8">
-            <Height>15pt</Height>
-            <Width>6in</Width>
-            <Value>={org_name} + ' ' + {org_address}+Iif(First({order_payment_type}, "Order")!='ByCard',"","/Тинькофф")</Value>
+            <Height>15.00pt</Height>
+            <Width>365.09pt</Width>
+            <Value>=Iif(First({order_payment_type}, "Order")!='ByCard',"","Тинькоф\\") + {org_name} + ' ' + {org_address}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85.0pt</Left>
-            <Top>80.0pt</Top>
+            <Left>85.00pt</Left>
+            <Top>80.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -663,8 +663,8 @@ GROUP BY name</CommandText>
             <Width>433.62pt</Width>
             <Value>=Iif({delivery_point_contact} = null, {client_contact}, {delivery_point_contact})</Value>
             <ZIndex>1</ZIndex>
-            <Left>85.00pt</Left>
-            <Top>135.20pt</Top>
+            <Left>85.0pt</Left>
+            <Top>136.8pt</Top>
             <Style>
               <FontWeight>Bold</FontWeight>
               <BorderStyle />
@@ -678,8 +678,8 @@ GROUP BY name</CommandText>
             <Width>72.27pt</Width>
             <Value>={delivery_schedule}</Value>
             <ZIndex>1</ZIndex>
-            <Left>262.20pt</Left>
-            <Top>147.20pt</Top>
+            <Left>262.2pt</Left>
+            <Top>148.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -694,7 +694,7 @@ GROUP BY name</CommandText>
             <Value>='Договор: ' + {contract_number} + ' от ' + {contract_date}</Value>
             <ZIndex>1</ZIndex>
             <Left>366.9pt</Left>
-            <Top>148.0pt</Top>
+            <Top>149.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -708,7 +708,7 @@ GROUP BY name</CommandText>
             <Value>Время дост.:</Value>
             <ZIndex>1</ZIndex>
             <Left>208.0pt</Left>
-            <Top>148.5pt</Top>
+            <Top>150.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -733,12 +733,12 @@ GROUP BY name</CommandText>
             <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox58">
-            <Height>12pt</Height>
-            <Width>1in</Width>
+            <Height>12.76pt</Height>
+            <Width>125.71pt</Width>
             <Value>={trifle}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85.2pt</Left>
-            <Top>121.7pt</Top>
+            <Left>84.5pt</Left>
+            <Top>122.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -771,6 +771,20 @@ GROUP BY name</CommandText>
               <PaddingTop>0pt</PaddingTop>
             </Style>
           </CustomReportItem>
+          <Textbox Name="Textbox54">
+            <Height>12pt</Height>
+            <Width>1in</Width>
+            <Value>Сдача:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>7.8pt</Left>
+            <Top>122.9pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Right</TextAlign>
+            </Style>
+          </Textbox>
         </ReportItems>
         <Style>
           <BorderStyle />
@@ -803,10 +817,10 @@ GROUP BY name</CommandText>
             <Width>28.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.3pt</Width>
+            <Width>49.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>29.9pt</Width>
+            <Width>34.7pt</Width>
             <Visibility>
               <Hidden>=Iif(SUM({item_discount}, 'Goods')&gt;0,'false','true')</Hidden>
             </Visibility>
@@ -892,6 +906,7 @@ GROUP BY name</CommandText>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -909,13 +924,14 @@ GROUP BY name</CommandText>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox72">
-                      <Value>Скидка</Value>
+                      <Value>Скид-ка</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -931,7 +947,8 @@ GROUP BY name</CommandText>
                         <Hidden>
                         </Hidden>
                       </Visibility>
-                      <CanShrink>true</CanShrink>
+                      <CanShrink>false</CanShrink>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -973,7 +990,7 @@ GROUP BY name</CommandText>
                         <VerticalAlign>Middle</VerticalAlign>
                         <Direction>RTL</Direction>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
@@ -1312,8 +1329,8 @@ GROUP BY name</CommandText>
       <List Name="List2">
         <Height>353.58pt</Height>
         <Width>541.36pt</Width>
-        <Left>36.60pt</Left>
-        <Top>290.04pt</Top>
+        <Left>36.6pt</Left>
+        <Top>258.1pt</Top>
         <ReportItems>
           <Textbox Name="Textbox32">
             <Height>12.00pt</Height>
@@ -1788,141 +1805,11 @@ GROUP BY name</CommandText>
         <Value>logo</Value>
         <Sizing>FitProportional</Sizing>
       </Image>
-      <Table Name="Table2">
-        <DataSetName>ResponsiblePerson</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>194.8pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>102.2pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Header>
-          <TableRows>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox54">
-                      <Value>Ответственное лицо</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox55">
-                      <Value>Телефон</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-          <RepeatOnNewPage>true</RepeatOnNewPage>
-        </Header>
-        <Details>
-          <TableRows>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox56">
-                      <Value>=Fields!responsible_person_name.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox57">
-                      <Value>=Fields!responsible_person_phone.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
-        <Left>30.0pt</Left>
-        <Top>210.1pt</Top>
-      </Table>
-      <Textbox Name="Textbox60" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>15pt</Height>
-        <Width>80pt</Width>
-        <Value>Сдача:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>35.3pt</Left>
-        <Top>121.5pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Right</TextAlign>
-        </Style>
-      </Textbox>
       <Rectangle Name="Rectangle1">
         <Height>66.97pt</Height>
         <Width>540.54pt</Width>
-        <Left>30.80pt</Left>
-        <Top>698.00pt</Top>
+        <Left>30.8pt</Left>
+        <Top>654.0pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -2023,7 +1910,7 @@ GROUP BY name</CommandText>
         <Height>29.47pt</Height>
         <Width>540.51pt</Width>
         <Left>31.2pt</Left>
-        <Top>643.9pt</Top>
+        <Top>610.3pt</Top>
         <ReportItems>
           <Textbox Name="Textbox65">
             <Height>27.76pt</Height>
@@ -2158,7 +2045,7 @@ GROUP BY name</CommandText>
           </TableRows>
         </Details>
         <Left>115.7pt</Left>
-        <Top>676.4pt</Top>
+        <Top>638.8pt</Top>
         <Visibility>
           <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
         </Visibility>
@@ -2169,7 +2056,7 @@ GROUP BY name</CommandText>
         <Value>Доверенности:</Value>
         <ZIndex>1</ZIndex>
         <Left>37.4pt</Left>
-        <Top>675.7pt</Top>
+        <Top>638.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2481,7 +2368,7 @@ GROUP BY name</CommandText>
           </TableRows>
         </Footer>
         <Left>32.0pt</Left>
-        <Top>248.0pt</Top>
+        <Top>219.2pt</Top>
         <Visibility>
           <Hidden>=Iif(Count({deposit}, "deposits")&gt;0, 'false', 'true')</Hidden>
         </Visibility>
@@ -2492,7 +2379,7 @@ GROUP BY name</CommandText>
         <Value>Возврат залогов:</Value>
         <ZIndex>1</ZIndex>
         <Left>37.2pt</Left>
-        <Top>233.8pt</Top>
+        <Top>205.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2507,7 +2394,7 @@ GROUP BY name</CommandText>
         <Height>34.64pt</Height>
         <Width>536.74pt</Width>
         <Left>30.9pt</Left>
-        <Top>289.8pt</Top>
+        <Top>257.0pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
