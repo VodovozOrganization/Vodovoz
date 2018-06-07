@@ -86,6 +86,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			RefreshParserRootObject();
 
+			templatewidget.CanRevertCommon = QSMain.User.Permissions["can_set_common_additionalagreement"];
 			templatewidget.Binding.AddBinding(Entity, e => e.ProxyDocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 
