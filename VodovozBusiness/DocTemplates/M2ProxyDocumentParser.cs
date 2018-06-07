@@ -21,8 +21,8 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.Id, "НомерДоверенности", PatternFieldType.FString);
 			AddField(x => x.Date.ToString("dd.MM.yyyy"), "ДатаДоверенности", PatternFieldType.FString);
 			AddField(x => x.ExpirationDate.ToString("dd.MM.yyyy"), "ДатаОкончания", PatternFieldType.FString);
-			AddField(x => x.TicketDate.ToString("dd.MM.yyyy"), "ДатаНаряда", PatternFieldType.FString);
-			AddField(x => x.TicketNumber, "НомерНаряда", PatternFieldType.FString);
+			AddField(x => x.TicketDate.Year == 1 ? "\t" : x.TicketDate.ToString("dd.MM.yyyy"), "ДатаНаряда", PatternFieldType.FString);
+			AddField(x => x.TicketNumber ?? "\t", "НомерНаряда", PatternFieldType.FString);
 
 			AddField(x => x.Organization.Name, PatternFieldType.FString);
 			AddField(x => x.Organization.FullName, PatternFieldType.FString);
@@ -57,13 +57,15 @@ namespace Vodovoz.DocTemplates
 
 		public void AddTableEquipmentFromClient(List<OrderEquipment> list)
 		{
+			if(list == null)
+				return;
 			List<M2ProxyDocumentParserNode> result = new List<M2ProxyDocumentParserNode>();
 			foreach(var item in list) {
 				var node = new M2ProxyDocumentParserNode();
 				node.FullNameString = item.FullNameString;
 				node.Units = "шт.";//оборудование только в штуках
 				node.Count = item.Count.ToString();
-				node.CountString = RusNumber.Str(item.Count, true, "", "", "").Trim();
+				node.CountString = String.Format("{0} ({1})", node.Count, RusNumber.Str(item.Count, true, "", "", "").Trim());
 				result.Add(node);
 			}
 			AddCustomTable<M2ProxyDocumentParserNode>("ОборудованиеОтКлиента", result)
