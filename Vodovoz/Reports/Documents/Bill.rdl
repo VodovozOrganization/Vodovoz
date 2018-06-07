@@ -16,16 +16,26 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, 
-counterparty.full_name AS client_name, counterparty.jur_address AS client_address, 
-counterparty.inn, counterparty.kpp,
-CONCAT('+7 ', phones.number) AS phone,
-CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) as author
-FROM orders 
-LEFT JOIN counterparty ON orders.client_id = counterparty.id
-LEFT JOIN phones ON counterparty.id = phones.counterparty_id
-LEFT JOIN employees ON employees.id = orders.author_employee_id
-WHERE orders.id = @order_id;</CommandText>
+	orders.id AS order_id,
+	DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date,
+	counterparty.full_name AS client_name,
+	delivery_points.compiled_address AS client_address,
+	counterparty.inn,
+	counterparty.kpp,
+	GROUP_CONCAT(CONCAT('+7 ', phones.number) SEPARATOR '; ') AS phone,
+	CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author
+FROM 
+	orders 
+LEFT JOIN 
+	counterparty ON orders.client_id = counterparty.id
+LEFT JOIN 
+	delivery_points ON delivery_points.id = orders.delivery_point_id
+LEFT JOIN 
+	phones ON counterparty.id = phones.counterparty_id
+LEFT JOIN 
+	employees ON employees.id = orders.author_employee_id
+WHERE 
+	orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -37,6 +47,10 @@ WHERE orders.id = @order_id;</CommandText>
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
+        <Field Name="order_date">
+          <DataField>order_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
         <Field Name="client_name">
           <DataField>client_name</DataField>
           <TypeName>System.String</TypeName>
@@ -45,20 +59,16 @@ WHERE orders.id = @order_id;</CommandText>
           <DataField>client_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="order_date">
-          <DataField>order_date</DataField>
+        <Field Name="inn">
+          <DataField>inn</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="kpp">
+          <DataField>kpp</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="phone">
           <DataField>phone</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="INN">
-          <DataField>inn</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="KPP">
-          <DataField>kpp</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="author">
@@ -628,7 +638,7 @@ Iif({email} = null, '', ' E-mail: ') + {email}</Value>
         <Height>15.00pt</Height>
         <Width>420.00pt</Width>
         <Value>=First({client_name}, 'Order') + 
-', ИНН ' + First({INN}, 'Order') + ', КПП ' + First({KPP}, 'Order')
+', ИНН ' + First({inn}, 'Order') + ', КПП ' + First({kpp}, 'Order')
 + '\n' +
 First({client_address}, 'Order')</Value>
         <ZIndex>1</ZIndex>
@@ -878,7 +888,7 @@ First({client_address}, 'Order')</Value>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >N2</Format>
+                        <Format>N2</Format>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -1767,7 +1777,7 @@ First({client_address}, 'Order')</Value>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>95961</Value>
+          <Value>183694</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
