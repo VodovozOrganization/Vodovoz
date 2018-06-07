@@ -569,7 +569,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		ReferenceButtonMode mode = ReferenceButtonMode.CanEdit;
 		if(QSMain.User.Permissions["can_delete_counterparty_and_deliverypoint"])
-			mode |= ReferenceButtonMode.CanDelete;
+			mode |= ReferenceButtonMode.CanAll;
 
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<DeliveryPointsVM>(),
