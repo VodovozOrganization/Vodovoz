@@ -75,7 +75,7 @@ namespace Vodovoz.Tools.Logistic
 				}
 				distance = osrmResult.Routes[0].TotalDistance / 1000d;
 			} else {
-				distance = (double)deliveryPoint.DistanceFromBaseMeters / 1000d;
+				distance = (double)(deliveryPoint.DistanceFromBaseMeters ?? 0) / 1000d;
 			}
 			result.Distance = distance.ToString("N1") + " км";
 
