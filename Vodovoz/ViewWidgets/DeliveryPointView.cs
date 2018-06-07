@@ -60,6 +60,7 @@ namespace Vodovoz
 
 			ITdiDialog dlg = new DeliveryPointDlg(DeliveryPointUoW.Root);
 			MyTab.TabParent.AddSlaveTab(MyTab, dlg);
+			treeDeliveryPoints.RepresentationModel.UpdateNodes();
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
