@@ -16,6 +16,8 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using QSWidgetLib;
+using Vodovoz.Repository;
+using FluentNHibernate.Data;
 
 namespace Vodovoz
 {
@@ -43,6 +45,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			Entity.VodovozInternalId = CounterpartyRepository.GetMaximalInternalID(UoW) + 1;
 			ConfigureDlg();
 		}
 

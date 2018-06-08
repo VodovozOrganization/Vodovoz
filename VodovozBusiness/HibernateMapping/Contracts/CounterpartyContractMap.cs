@@ -13,7 +13,8 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.MaxDelay).Column ("max_delay");
 			Map (x => x.IssueDate).Column ("issue_date");
 			Map (x => x.IsArchive).Column ("is_archive");
-			Map (x => x.OnCancellation).Column ("on_cancellation");
+			Map(x => x.OnCancellation).Column("on_cancellation");
+			Map(x => x.ContractSubNumber).Column("subnumber");
 			Map(x => x.ChangedTemplateFile).Column("doc_changed_template").LazyLoad();
 			Map(x => x.ContractType).Column("contract_type").CustomType<ContractTypeStringType>();
 			References(x => x.ContractTemplate).Column("doc_template_id");

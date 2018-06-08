@@ -718,7 +718,7 @@ namespace Vodovoz
 			this.yEntryVodovozNumber = new global::Gamma.Widgets.yValidatedEntry();
 			this.yEntryVodovozNumber.CanFocus = true;
 			this.yEntryVodovozNumber.Name = "yEntryVodovozNumber";
-			this.yEntryVodovozNumber.IsEditable = true;
+			this.yEntryVodovozNumber.IsEditable = false;
 			this.yEntryVodovozNumber.InvisibleChar = '•';
 			this.table1.Add(this.yEntryVodovozNumber);
 			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.table1[this.yEntryVodovozNumber]));

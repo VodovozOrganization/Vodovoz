@@ -7178,7 +7178,7 @@
                           <widget class="Gamma.Widgets.yValidatedEntry" id="yEntryVodovozNumber">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
-                            <property name="IsEditable">True</property>
+                            <property name="IsEditable">False</property>
                             <property name="InvisibleChar">•</property>
                           </widget>
                           <packing>

@@ -26,7 +26,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		}
 
 		public override string Name {
-			get { return String.Format ("Договор №{0}", contract.Number); }
+			get { return String.Format ("Договор №{0}", contract.ContractFullNumber); }
 		}
 
 		public override DateTime? DocumentDate {

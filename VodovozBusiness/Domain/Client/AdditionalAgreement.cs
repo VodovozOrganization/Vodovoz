@@ -99,7 +99,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Полный номер")]
 		public virtual string FullNumberText {
 			get{
-				return String.Format("{0}-{1}{2}", Contract.Id, GetTypePrefix(Type), AgreementNumber);
+				return String.Format("{0}-{1}/{2}{3}", Contract.Counterparty.VodovozInternalId, Contract.ContractSubNumber, GetTypePrefix(Type), AgreementNumber);
 			}
 		}
 	

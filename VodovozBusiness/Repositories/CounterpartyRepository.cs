@@ -66,6 +66,14 @@ namespace Vodovoz.Repository
 				.List<string>();
 		}
 
+		public static int GetMaximalInternalID(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<Counterparty>().Select(
+				Projections.Max(
+					Projections.Property<Counterparty>(x => x.VodovozInternalId)
+				)
+			).SingleOrDefault<int>();
+		}
 	}
 }
 

@@ -219,7 +219,7 @@ namespace Vodovoz.ViewWidgets
 		public string Number {
 			get {
 				if(Document is CounterpartyContract) {
-					return (Document as CounterpartyContract).Id.ToString();
+					return (Document as CounterpartyContract).ContractFullNumber;
 				}
 
 				if(Document is AdditionalAgreement) {

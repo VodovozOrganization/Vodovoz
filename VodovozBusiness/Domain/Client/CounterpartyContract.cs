@@ -7,10 +7,11 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Goods;
+using NHibernate.Criterion;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject (
+	[OrmSubject(
 		Gender = GrammaticalGender.Masculine,
 		NominativePlural = "договоры контрагента",
 		Nominative = "договор",
@@ -23,7 +24,7 @@ namespace Vodovoz.Domain.Client
 
 		private IList<AdditionalAgreement> agreements { get; set; }
 
-		[Display (Name = "Дополнительные соглашения")]
+		[Display(Name = "Дополнительные соглашения")]
 		public virtual IList<AdditionalAgreement> AdditionalAgreements {
 			get { return agreements; }
 			set { agreements = value; }
@@ -33,8 +34,8 @@ namespace Vodovoz.Domain.Client
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<AdditionalAgreement> ObservableAdditionalAgreements {
 			get {
-				if (observableAdditionalAgreements == null)
-					observableAdditionalAgreements = new GenericObservableList<AdditionalAgreement> (AdditionalAgreements);
+				if(observableAdditionalAgreements == null)
+					observableAdditionalAgreements = new GenericObservableList<AdditionalAgreement>(AdditionalAgreements);
 				return observableAdditionalAgreements;
 			}
 		}
@@ -43,55 +44,63 @@ namespace Vodovoz.Domain.Client
 
 		int maxDelay;
 
-		[Display (Name = "Максимальный срок отсрочки")]
+		[Display(Name = "Максимальный срок отсрочки")]
 		public virtual int MaxDelay {
 			get { return maxDelay; }
-			set { SetField (ref maxDelay, value, () => MaxDelay); }
+			set { SetField(ref maxDelay, value, () => MaxDelay); }
 		}
 
 		bool isArchive;
 
-		[Display (Name = "Архивный")]
+		[Display(Name = "Архивный")]
 		public virtual bool IsArchive {
 			get { return isArchive; }
-			set { SetField (ref isArchive, value, () => IsArchive); }
+			set { SetField(ref isArchive, value, () => IsArchive); }
 		}
 
 		bool onCancellation;
 
-		[Display (Name = "На расторжении")]
+		[Display(Name = "На расторжении")]
 		public virtual bool OnCancellation {
 			get { return onCancellation; }
-			set { SetField (ref onCancellation, value, () => OnCancellation); }
+			set { SetField(ref onCancellation, value, () => OnCancellation); }
 		}
 
-		[Display (Name = "Номер")]
-		public virtual string Number { get { return Id > 0 ? Id.ToString () : "Не определен"; } set { } }
+		[Display(Name = "Номер")]
+		public virtual string Number { get { return Id > 0 ? Id.ToString() : "Не определен"; } set { } }
 
 		DateTime issueDate;
 
-		[Display (Name = "Дата подписания")]
+		[Display(Name = "Дата подписания")]
 		public virtual DateTime IssueDate {
 			get { return issueDate; }
-			set { SetField (ref issueDate, value, () => IssueDate); }
+			set { SetField(ref issueDate, value, () => IssueDate); }
 		}
 
 		Organization organization;
 
 		[Required(ErrorMessage = "Организация должна быть заполнена.")]
-		[Display (Name = "Организация")]
+		[Display(Name = "Организация")]
 		public virtual Organization Organization {
 			get { return organization; }
-			set { SetField (ref organization, value, () => Organization); }
+			set { SetField(ref organization, value, () => Organization); }
 		}
 
 		Counterparty counterparty;
 
 		[Required(ErrorMessage = "Контрагент должен быть указан.")]
-		[Display (Name = "Контрагент")]
+		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty {
 			get { return counterparty; }
-			protected set { SetField (ref counterparty, value, () => Counterparty); }
+			protected set { SetField(ref counterparty, value, () => Counterparty); }
+		}
+
+		int contractSubNumber;
+
+		[Display(Name = "Номер договора внутренний")]
+		public virtual int ContractSubNumber {
+			get { return contractSubNumber; }
+			set { SetField(ref contractSubNumber, value, () => ContractSubNumber); }
 		}
 
 		ContractType contractType;
@@ -104,25 +113,31 @@ namespace Vodovoz.Domain.Client
 
 		DocTemplate contractTemplate;
 
-		[Display (Name = "Шаблон договора")]
+		[Display(Name = "Шаблон договора")]
 		public virtual DocTemplate ContractTemplate {
 			get { return contractTemplate; }
-			protected set { SetField (ref contractTemplate, value, () => ContractTemplate); }
+			protected set { SetField(ref contractTemplate, value, () => ContractTemplate); }
 		}
 
 		byte[] changedTemplateFile;
 
-		[Display (Name = "Измененный договор")]
+		[Display(Name = "Измененный договор")]
 		//[PropertyChangedAlso("FileSize")]
 		public virtual byte[] ChangedTemplateFile {
 			get { return changedTemplateFile; }
-			set { SetField (ref changedTemplateFile, value, () => ChangedTemplateFile); }
+			set { SetField(ref changedTemplateFile, value, () => ChangedTemplateFile); }
+		}
+
+		[Display(Name = "Полный номер договора")]
+		public virtual string ContractFullNumber {
+			get => String.Format("{0}-{1}", Counterparty.VodovozInternalId, ContractSubNumber);
+			set { }
 		}
 
 		#endregion
 
 		public virtual string Title { 
-			get { return String.Format ("Договор №{0} от {1:d}", Id, IssueDate); }
+			get { return String.Format ("Договор №{0}-{1} от {2:d}", Counterparty.VodovozInternalId, ContractSubNumber, IssueDate); }
 		}
 
 		#region IValidatableObject implementation
@@ -131,7 +146,6 @@ namespace Vodovoz.Domain.Client
 		{
 			if (!IsArchive && !OnCancellation)
 			{
-				
 				var contracts = Repository.CounterpartyContractRepository.GetActiveContractsWithOrganization(UnitOfWorkFactory.CreateWithoutRoot(), Counterparty, Organization, ContractType);
 				if (contracts.Any(c => c.Id != Id))
 					yield return new ValidationResult(
@@ -142,11 +156,24 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
+		/// <summary>
+		/// Вычисляет номер для нового договора.
+		/// </summary>
+		/// <returns>Максимальный внутренний номер договора у передаваемого клиента</returns>
+		/// <param name="counterparty">Клиент</param>
+		public static int GenerateSubNumber(Counterparty counterparty)
+		{
+			if(counterparty.CounterpartyContracts.Any())
+				return counterparty.CounterpartyContracts.Max(c => c.ContractSubNumber) + 1;
+			return 1;
+		}
+
 		//Конструкторы
 		public static IUnitOfWorkGeneric<CounterpartyContract> Create (Counterparty counterparty)
 		{
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<CounterpartyContract> ();
 			uow.Root.Counterparty = counterparty;
+			uow.Root.ContractSubNumber = GenerateSubNumber(counterparty);
 			return uow;
 		}
 

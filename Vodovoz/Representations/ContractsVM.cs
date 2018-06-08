@@ -65,7 +65,9 @@ namespace Vodovoz.ViewModel
 				.Where (() => counterpartyAlias.Id == Counterparty.Id)
 				.SelectList(list => list
 					.Select(() => contractAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => contractAlias.IssueDate).WithAlias(() => resultAlias.IssueDate)
+			        .Select(() => counterpartyAlias.VodovozInternalId).WithAlias(() => resultAlias.CounterpartyInternalNumber)
+			        .Select(() => contractAlias.ContractSubNumber).WithAlias(() => resultAlias.ContractSubNumber)
+			        .Select(() => contractAlias.IssueDate).WithAlias(() => resultAlias.IssueDate)
 					.Select(() => contractAlias.IsArchive).WithAlias(() => resultAlias.IsArchive)
 					.Select(() => contractAlias.OnCancellation).WithAlias(() => resultAlias.OnCancellation)
 					.Select(() => organizationAlias.Name).WithAlias(() => resultAlias.Organization)
@@ -142,8 +144,12 @@ namespace Vodovoz.ViewModel
 
 		public bool OnCancellation{ get; set;}
 
+		public int CounterpartyInternalNumber{ get; set; }
+
+		public int ContractSubNumber{ get; set; }
+
 		public string Title {
-			get { return String.Format ("{0} от {1:d}", Id, IssueDate); }
+			get { return String.Format("{0}-{1} от {2:d}", CounterpartyInternalNumber, ContractSubNumber, IssueDate); }
 		}
 			
 		public string Organization { get; set;}
