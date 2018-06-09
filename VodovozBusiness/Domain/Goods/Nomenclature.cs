@@ -273,18 +273,22 @@ namespace Vodovoz.Domain.Goods
 			get { return dependsOnNomenclature; }
 			set { SetField(ref dependsOnNomenclature, value, () => DependsOnNomenclature); }
 		}
+		
+		private double percentForMaster;
+
+		[Display(Name = "Процент зарплаты мастера")]
+		public virtual double PercentForMaster {
+			get { return percentForMaster; }
+			set { SetField(ref percentForMaster, value, () => PercentForMaster); }
+		}
 
 		#endregion
 
 		#region Рассчетные
 
-		public virtual string CategoryString { get { return Category.GetEnumTitle(); } }
+		public virtual string CategoryString => Category.GetEnumTitle();
 
-		public virtual string ShortOrFullName {
-			get {
-				return String.IsNullOrWhiteSpace(ShortName) ? Name : ShortName;
-			}
-		}
+		public virtual string ShortOrFullName => String.IsNullOrWhiteSpace(ShortName) ? Name : ShortName;
 
 		#endregion
 

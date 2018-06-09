@@ -242,12 +242,11 @@ namespace Vodovoz
 
 		protected void OnComboWageCalcTypeEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			labelWageCalcRate.Visible 
-			    = yspinWageCalcRate.Visible
-				= (WageCalculationType)e.SelectedItem != WageCalculationType.normal;
+			labelWageCalcRate.Visible = yspinWageCalcRate.Visible
+				= ((WageCalculationType)e.SelectedItem != WageCalculationType.normal 
+				   && (WageCalculationType)e.SelectedItem != WageCalculationType.percentageForService);
 
-			if((WageCalculationType)e.SelectedItem == WageCalculationType.percentage
-			   || (WageCalculationType)e.SelectedItem == WageCalculationType.percentageForService)
+			if((WageCalculationType)e.SelectedItem == WageCalculationType.percentage)
 			{
 				yspinWageCalcRate.Adjustment.Upper = 100;
 			}

@@ -468,16 +468,15 @@ namespace Vodovoz.Domain.Logistic
 			if(!IsDelivered())
 				return 0;
 
-			if(RouteList.Driver.WageCalcType == WageCalculationType.fixedDay || RouteList.Driver.WageCalcType == WageCalculationType.fixedRoute) {
-				return 0;
+			switch(RouteList.Driver.WageCalcType) {
+				case WageCalculationType.fixedDay:
+				case WageCalculationType.fixedRoute: return 0;
+				case WageCalculationType.percentage: return Order.TotalSum * RouteList.Driver.WageCalcRate / 100;
+				case WageCalculationType.percentageForService: return Order.MoneyForMaster;
+				case WageCalculationType.normal:
+				default:
+				break;
 			}
-
-			if(RouteList.Driver.WageCalcType == WageCalculationType.percentage)
-				return this.Order.TotalSum * RouteList.Driver.WageCalcRate / 100;
-
-			if(RouteList.Driver.WageCalcType == WageCalculationType.percentageForService)
-				return this.Order.TotalSumForService * RouteList.Driver.WageCalcRate / 100;
-
 			bool withForwarder = RouteList.Forwarder != null;
 			bool ich = RouteList.Car.IsCompanyHavings && !RouteList.NormalWage;
 			var rates = ich ? Wages.GetDriverRatesWithOurCar(RouteList.Date) : Wages.GetDriverRates(RouteList.Date, withForwarder);
@@ -493,12 +492,15 @@ namespace Vodovoz.Domain.Logistic
 			if(!IsDelivered())
 				return 0;
 
-			if(RouteList.Forwarder.WageCalcType == WageCalculationType.fixedDay || RouteList.Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
-				return 0;
+			switch(RouteList.Forwarder.WageCalcType) {
+				case WageCalculationType.fixedDay:
+				case WageCalculationType.fixedRoute: return 0;
+				case WageCalculationType.percentage: return Order.TotalSum * RouteList.Forwarder.WageCalcRate / 100;
+				case WageCalculationType.percentageForService:
+				case WageCalculationType.normal:
+				default:
+					break;
 			}
-
-			if(RouteList.Forwarder.WageCalcType == WageCalculationType.percentage)
-				return this.Order.TotalSum * RouteList.Forwarder.WageCalcRate / 100;
 
 			var rates = Wages.GetForwarderRates();
 

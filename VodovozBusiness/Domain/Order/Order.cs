@@ -872,19 +872,12 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[IgnoreHistoryTrace]
-		public virtual decimal TotalSumForService {
-			get {
-				return ObservableOrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.master)
-											.Sum(i => i.Price * i.ActualCount * (1 - (decimal)i.Discount / 100));
-			}
-		}
+		public virtual decimal MoneyForMaster =>
+		ObservableOrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.master)
+							.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount * i.Price);
 
-		[IgnoreHistoryTrace]
-		public virtual decimal ActualGoodsTotalSum {
-			get {
-				return OrderItems.Sum(item => item.Price * item.ActualCount * (1 - (decimal)item.Discount / 100));
-			}
-		}
+		public virtual decimal ActualGoodsTotalSum =>
+		OrderItems.Sum(item => item.Price * item.ActualCount * (1 - (decimal)item.Discount / 100));
 
 		/// <summary>
 		/// Количество 19л бутылей в заказе
