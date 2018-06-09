@@ -36,7 +36,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>166.8pt</Height>
+    <Height>172.6pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table1">
@@ -51,37 +51,40 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>53.2pt</Width>
+            <Width>50.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.0pt</Width>
+            <Width>38.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>156.3pt</Width>
+            <Width>143.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>149.7pt</Width>
+            <Width>127.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>85.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>46.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.2pt</Width>
+            <Width>26.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.1pt</Width>
+            <Width>50.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.3pt</Width>
+            <Width>53.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.1pt</Width>
+            <Width>46.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.3pt</Width>
+            <Width>48.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.3pt</Width>
+            <Width>39.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -101,6 +104,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -117,6 +121,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -133,6 +138,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -149,6 +155,24 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>ТМЦ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -165,6 +189,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -181,6 +206,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -197,6 +223,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -213,6 +240,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -229,6 +257,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -245,6 +274,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -261,6 +291,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -284,6 +315,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>dd.MM.yy</Format>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -299,6 +335,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -312,6 +350,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -325,7 +367,28 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>={entry_nomenclatures}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -338,6 +401,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -353,6 +421,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -368,6 +438,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format>#,##0</Format>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -383,6 +456,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format>#,##0</Format>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -396,6 +472,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -409,6 +490,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -416,12 +502,17 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>=Fields!entry_advance.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <Format>#,##0</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -435,6 +526,7 @@
             <Grouping Name="TableGroupGroup1">
               <GroupExpressions>
                 <GroupExpression>={date}</GroupExpression>
+                <GroupExpression>={rl_id}</GroupExpression>
               </GroupExpressions>
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
@@ -451,7 +543,14 @@
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
+                              <Left>None</Left>
+                              <Bottom>None</Bottom>
+                              <Right>None</Right>
                             </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
                           </Style>
                           <Value>
                           </Value>
@@ -464,7 +563,14 @@
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
+                              <Left>None</Left>
+                              <Bottom>None</Bottom>
+                              <Right>None</Right>
                             </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
                           </Style>
                           <Value>
                           </Value>
@@ -477,7 +583,14 @@
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
+                              <Left>None</Left>
+                              <Bottom>None</Bottom>
+                              <Right>None</Right>
                             </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
                           </Style>
                           <Value>
                           </Value>
@@ -490,10 +603,37 @@
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
+                              <Left>None</Left>
+                              <Bottom>None</Bottom>
+                              <Right>None</Right>
                             </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
                           </Style>
                           <Value>
                           </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox30">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Left>None</Left>
+                              <Bottom>None</Bottom>
+                              <Right>None</Right>
+                            </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -503,10 +643,14 @@
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
+                              <Left>None</Left>
+                              <Bottom>None</Bottom>
+                              <Right>None</Right>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Right</TextAlign>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>Итого:</Value>
                         </Textbox>
@@ -521,6 +665,8 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>=Sum({entry_count})</Value>
                         </Textbox>
@@ -535,6 +681,9 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
+                            <Format>#,##0</Format>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>=Sum(Iif({entry_payment_type} = "cashless", {entry_sum}, 0))</Value>
                         </Textbox>
@@ -547,6 +696,11 @@
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
+                            <Format>#,##0</Format>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>=Sum(Iif({entry_payment_type} = "cash", {entry_sum}, 0))</Value>
                         </Textbox>
@@ -559,8 +713,13 @@
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
+                            <Format>#,##0</Format>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
-                          <Value>=Sum(Fields!entry_wage.Value)</Value>
+                          <Value>=Iif(Sum(Fields!entry_wage.Value)&gt;0,Sum(Fields!entry_wage.Value),{wage_from_operations})</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -571,6 +730,11 @@
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
+                            <Format>#,##0</Format>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>=Sum(Fields!entry_profit.Value)</Value>
                         </Textbox>
@@ -583,8 +747,185 @@
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
+                            <Format>#,##0</Format>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
-                          <Value>=Sum(Fields!entry_advance.Value)</Value>
+                          <Value>
+                          </Value>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+                <TableRow>
+                  <Height>23.9pt</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox31">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>None</Default>
+                              <Left>None</Left>
+                              <Right>None</Right>
+                              <Top>None</Top>
+                              <Bottom>None</Bottom>
+                            </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox32">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>None</Default>
+                              <Left>None</Left>
+                              <Right>None</Right>
+                              <Top>None</Top>
+                              <Bottom>None</Bottom>
+                            </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox33">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>None</Default>
+                              <Left>None</Left>
+                              <Right>None</Right>
+                              <Top>None</Top>
+                              <Bottom>None</Bottom>
+                            </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox34">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>None</Default>
+                              <Left>None</Left>
+                              <Right>None</Right>
+                              <Top>None</Top>
+                              <Bottom>None</Bottom>
+                            </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox57">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>None</Default>
+                              <Left>None</Left>
+                              <Right>None</Right>
+                              <Top>None</Top>
+                              <Bottom>None</Bottom>
+                            </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox58">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>None</Default>
+                              <Left>None</Left>
+                              <Right>None</Right>
+                              <Top>None</Top>
+                              <Bottom>None</Bottom>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>1</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox64">
+                          <Value>=Iif({expense_advance_desc}=null, "Аванс к МЛ №"+{rl_id}+" не выдавался", {expense_advance_desc}+":")</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Left>None</Left>
+                              <Right>None</Right>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <VerticalAlign>Top</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>5</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox39">
+                          <Value>={expense_advance}</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Left>None</Left>
+                              <Right>None</Right>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <Format>#,##0</Format>
+                          </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -594,7 +935,7 @@
             </Footer>
           </TableGroup>
         </TableGroups>
-        <Left>0.0pt</Left>
+        <Left>0.8pt</Left>
         <Top>38.8pt</Top>
         <Footer>
           <TableRows>
@@ -606,8 +947,16 @@
                     <Textbox Name="Textbox35">
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Bottom>None</Bottom>
+                          <Right>None</Right>
+                          <Top>None</Top>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <Value>
                       </Value>
@@ -619,8 +968,16 @@
                     <Textbox Name="Textbox36">
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Bottom>None</Bottom>
+                          <Right>None</Right>
+                          <Top>None</Top>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <Value>
                       </Value>
@@ -632,8 +989,16 @@
                     <Textbox Name="Textbox37">
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Bottom>None</Bottom>
+                          <Right>None</Right>
+                          <Top>None</Top>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <Value>
                       </Value>
@@ -645,8 +1010,16 @@
                     <Textbox Name="Textbox38">
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Bottom>None</Bottom>
+                          <Right>None</Right>
+                          <Top>None</Top>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <Value>
                       </Value>
@@ -655,16 +1028,23 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox39">
-                      <Style>
+                    <Textbox Name="Textbox29">
+                      <Value>Итого по отчёту:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Bottom>None</Bottom>
+                          <Top>None</Top>
                         </BorderStyle>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -673,6 +1053,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <Value>=Sum({entry_count})</Value>
                     </Textbox>
@@ -685,6 +1069,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <Format>#,##0</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum(Iif({entry_payment_type} = "cashless", {entry_sum}, 0))</Value>
                     </Textbox>
@@ -697,6 +1086,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <Format>#,##0</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum(Iif({entry_payment_type} = "cash", {entry_sum}, 0))</Value>
                     </Textbox>
@@ -711,6 +1105,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format>#,##0</Format>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum(Fields!entry_wage.Value)</Value>
                     </Textbox>
@@ -723,6 +1120,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <Format>#,##0</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum(Fields!entry_profit.Value)</Value>
                     </Textbox>
@@ -737,8 +1139,11 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format>#,##0</Format>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Value>=Sum(Fields!entry_advance.Value)</Value>
+                      <Value>=Sum({expense_advance}, "total_advance")</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -765,7 +1170,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>11</ColSpan>
+                  <ColSpan>12</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -775,7 +1180,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>Итого к выдаче сотруднику:</Value>
+                      <Value>Итого к выдаче сотруднику, р:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -788,6 +1193,7 @@
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontSize>11pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -795,8 +1201,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox69">
-                      <Value>=Sum(Fields!entry_wage.Value) - Sum(Fields!entry_advance.Value)</Value>
+                    <Textbox Name="Textbox60">
+                      <Value>=Sum({entry_wage}, "data") - Sum({expense_advance}, "total_advance")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -807,10 +1213,14 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Left</TextAlign>
                         <FontSize>11pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -857,96 +1267,87 @@
     <DataSet Name="data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>select
+        <CommandText>SELECT
 	route_lists.date,
-	concat(employees.last_name, ' ', employees.name) as driver,
+	CONCAT(employees.last_name, ' ', employees.name) AS driver,
+	wages_movement_operations.money AS wage_from_operations,
 	entries.*
-from
+	,cash_expense.money AS expense_advance
+	,cash_expense.description AS expense_advance_desc
+FROM
 	route_lists
-right join
-	(select * from 
+RIGHT JOIN
+	(SELECT * FROM 
  (
-     select 
-        innerTab.rl_id,
-        innerTab.entry_name,
-        innerTab.entry_address,
-        innerTab.entry_price,
-        innerTab.entry_count,
-        innerTab.entry_payment_type,
-        innerTab.entry_sum,
-        innerTab.entry_wage,
-        innerTab.entry_profit,
-        innerTab.entry_advance
-       from
-        (select
-                delivery_points.id,
-                route_list_addresses.route_list_id as rl_id,
-                counterparty.name as entry_name,
-                delivery_points.compiled_address as entry_address,
-                order_items.price as entry_price,
-                  order_items.count as entry_count,
-                  orders.payment_type as entry_payment_type,
-                  sum(order_items.price * order_items.count) as entry_sum,
-                  route_list_addresses.driver_wage as entry_wage,
-                 sum(order_items.price * order_items.count - route_list_addresses.driver_wage) as entry_profit
-                 , 0 as entry_advance
-            from
-                route_list_addresses
-            left join
-                orders on orders.id = route_list_addresses.order_id
-            left join
-                counterparty on counterparty.id = orders.client_id
-            left join
-                delivery_points on delivery_points.id = orders.delivery_point_id
-            left join
-                order_items on order_items.order_id = orders.id
-            left join
-                nomenclature on nomenclature.id = order_items.nomenclature_id
-            left join
-                order_equipment on order_equipment.order_id = orders.id
-            where
-                nomenclature.category in ('master', 'service')
-                #Исключатся недовозы, частичные недовозы и отмены
-                AND (
-                    (orders.order_status NOT IN ('NotDelivered', 'Canceled'))  
-                    OR NOT (
-                        # Частичные недовозы
-                        route_list_addresses.status = 'Completed' 
-                        AND                     
-                        (
-                            nomenclature.category in ('master', 'service')
-                            AND nomenclature.serial = false                 
-                            AND order_items.count != order_items.actual_count
-                        )
-                        OR order_equipment.confirmed = false    
-                    )
-                )
-           group by delivery_points.id, route_list_addresses.route_list_id
-                ) innerTab
-     union all
-        select
-         cash_expense.route_list_id as rl_id,
-            cash_expense.description as entry_name,
-            '' as entry_address,
-            0 as entry_price,
-            0 as entry_count,
-            0 as entry_payment_type,
-            0 as entry_sum,
-            0 as entry_wage,
-            0 as entry_profit,
-            cash_expense.money as entry_advance
-        from
-            cash_expense
-        where
-            cash_expense.money  &lt;&gt; 0 
-    ) innerExpense ) as entries on entries.rl_id = route_lists.id
-left join
-	employees on employees.id = route_lists.driver_id
-where
+	 SELECT 
+		innerTab.rl_id,
+		innerTab.entry_name,
+		innerTab.entry_address,
+		innerTab.entry_price,
+		innerTab.entry_count,
+		innerTab.entry_payment_type,
+		innerTab.entry_sum,
+		innerTab.entry_wage,
+		innerTab.entry_profit,
+		innerTab.entry_nomenclatures
+		FROM
+		(SELECT
+				delivery_points.id,
+				route_list_addresses.route_list_id AS rl_id,
+				counterparty.name AS entry_name,
+				delivery_points.compiled_address_short AS entry_address,
+				order_items.price AS entry_price,
+				order_items.count AS entry_count,
+				orders.payment_type AS entry_payment_type,
+				order_items.price * order_items.count AS entry_sum,
+				order_items.price * order_items.count * nomenclature.percent_for_master * 0.01 AS entry_wage,
+				order_items.price * order_items.count * (1 - nomenclature.percent_for_master * 0.01) AS entry_profit,
+				IFNULL(nomenclature.short_name, nomenclature.name) AS entry_nomenclatures
+			FROM
+				route_list_addresses
+			LEFT JOIN
+				orders ON orders.id = route_list_addresses.order_id
+			LEFT JOIN
+				counterparty ON counterparty.id = orders.client_id
+			LEFT JOIN
+				delivery_points ON delivery_points.id = orders.delivery_point_id
+			LEFT JOIN
+				order_items ON order_items.order_id = orders.id
+			LEFT JOIN
+				nomenclature ON nomenclature.id = order_items.nomenclature_id
+			LEFT JOIN
+				order_equipment ON order_equipment.order_id = orders.id
+			WHERE
+				nomenclature.category in ('master', 'service')
+				#Исключатся недовозы, частичные недовозы и отмены
+				AND (
+					(orders.order_status NOT IN ('NotDelivered', 'Canceled'))  
+					OR NOT (
+						# Частичные недовозы
+						route_list_addresses.status = 'Completed' 
+						AND					 
+						(
+							nomenclature.category in ('master', 'service')
+							AND nomenclature.serial = false				 
+							AND order_items.count != order_items.actual_count
+						)
+						OR order_equipment.confirmed = false	
+					)
+				)
+				) innerTab
+
+	) innerExpense ) AS entries ON entries.rl_id = route_lists.id
+LEFT JOIN
+	employees ON employees.id = route_lists.driver_id
+LEFT JOIN
+	wages_movement_operations ON wages_movement_operations.id = route_lists.driver_wages_movement_operations_id
+LEFT JOIN
+	cash_expense ON cash_expense.route_list_id = route_lists.id
+WHERE
 	route_lists.date &gt;= @start_date
-	and route_lists.date &lt; date_add(@end_date, interval 1 day)
-	and route_lists.driver_id = @driver_id
-order by route_lists.date, route_lists.id</CommandText>
+	AND route_lists.date &lt; date_add(@end_date, INTERVAL 1 DAY)
+	AND route_lists.driver_id = @driver_id
+ORDER BY route_lists.date, route_lists.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -1004,8 +1405,58 @@ order by route_lists.date, route_lists.id</CommandText>
           <DataField>entry_profit</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="entry_advance">
-          <DataField>entry_advance</DataField>
+        <Field Name="expense_advance">
+          <DataField>expense_advance</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="entry_nomenclatures">
+          <DataField>entry_nomenclatures</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="wage_from_operations">
+          <DataField>wage_from_operations</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="expense_advance_desc">
+          <DataField>expense_advance_desc</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="total_advance">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>30</Timeout>
+        <CommandText>SELECT
+	cash_expense.route_list_id,
+	IFNULL(cash_expense.money, 0) AS expense_advance
+FROM
+	route_lists
+LEFT JOIN
+	cash_expense ON cash_expense.route_list_id = route_lists.id
+WHERE
+	route_lists.date &gt;= @start_date
+	AND route_lists.date &lt; date_add(@end_date, INTERVAL 1 DAY)
+	AND route_lists.driver_id = @driver_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="driver_id">
+            <Value>={?driver_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="route_list_id">
+          <DataField>route_list_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="expense_advance">
+          <DataField>expense_advance</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
@@ -1017,7 +1468,7 @@ order by route_lists.date, route_lists.id</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=admey;password=41142;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_test;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -1027,7 +1478,7 @@ order by route_lists.date, route_lists.id</CommandText>
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-02-07</Value>
+          <Value>2018-02-22</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1040,7 +1491,7 @@ order by route_lists.date, route_lists.id</CommandText>
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-02-07</Value>
+          <Value>2018-02-22</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
