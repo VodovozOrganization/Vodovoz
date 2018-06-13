@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.id,
@@ -83,7 +83,10 @@
                     nomenclature ON nomenclature.id = order_items.nomenclature_id
                 WHERE
                     order_items.order_id = route_list_addresses.order_id
-                        AND nomenclature.category = 'disposableBottleWater')),
+                        AND nomenclature.category = 'disposableBottleWater'
+                        AND nomenclature.weight BETWEEN 5 AND 7
+                        )
+					),
             0) AS water6_amount,
     SUM(IF((SELECT 
                 SUM(order_items.count)
@@ -122,7 +125,7 @@ FROM
         LEFT JOIN
     cars ON route_lists.car_id = cars.id
 WHERE
-    (route_lists.`date` BETWEEN @start_date AND @end_date)
+    (route_lists.date BETWEEN @start_date AND @end_date)
         AND ((cars.is_company_havings = 1 AND cars.type_of_use = 'Largus') OR cars.is_raskat = 1)
 GROUP BY route_lists.id
 ORDER BY driver_name</CommandText>
@@ -135,7 +138,7 @@ ORDER BY driver_name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -199,7 +202,7 @@ ORDER BY driver_name</CommandText>
         <Left>0.80pt</Left>
         <Width>800.26pt</Width>
         <Height>18.09pt</Height>
-        <Value>="Сводная таблица по загрузке: Ларгусы " + CDate({?start_date}) + " по " + CDate({?end_date})</Value>
+        <Value>="Сводная таблица по загрузке: Ларгусы " + Format(CDate({?start_date}), 'dd.MM.yyyy') + " по " +  Format(CDate({?end_date}), 'dd.MM.yyyy')</Value>
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
@@ -245,19 +248,22 @@ ORDER BY driver_name</CommandText>
             <Width>121.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.7pt</Width>
+            <Width>31.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>42.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.7pt</Width>
+            <Width>34.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>34.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>32.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.9pt</Width>
+            <Width>34.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.0pt</Width>
@@ -385,7 +391,7 @@ ORDER BY driver_name</CommandText>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -523,6 +529,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -539,6 +546,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -546,6 +554,23 @@ ORDER BY driver_name</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox33">
                       <Value>Кол-во 19 л.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Кол-во 6 л.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -571,6 +596,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -587,6 +613,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -766,6 +793,22 @@ ORDER BY driver_name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>={water6_amount}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="water6_amount">
                       <Value>=Fields!water19_absent.Value</Value>
                       <CanGrow>false</CanGrow>
@@ -801,7 +844,22 @@ ORDER BY driver_name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="formula">
-                      <Value>=Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 10 + {water6_amount} * 1.4 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 10 + {water6_amount} * 1.4 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5))</Value>
+                      <Value>=Iif(
+    {status} = 'Закрыт' OR {status} = 'Проверка километража', 
+    {wages},
+    Iif(
+        (({address_count} * 30) + ({water19_amount} + {water19_absent}) * 10 + {water6_amount} * 1.4 + 
+            Iif(
+                ({water19_amount} - 5) &lt;0,
+                0,
+            ({water19_amount} - 5)) * 5) &lt; 0, 
+            0,
+            ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 10 + {water6_amount} * 1.4 +
+            Iif(
+                ({water19_amount} - 5) &lt;0,
+                0,
+                ({water19_amount} - 5)) * 5)
+        )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -959,6 +1017,24 @@ ORDER BY driver_name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bolder</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox53">
                       <Value>
                       </Value>
@@ -1047,7 +1123,7 @@ ORDER BY driver_name</CommandText>
                           </Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>12</ColSpan>
+                      <ColSpan>13</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -1150,6 +1226,21 @@ ORDER BY driver_name</CommandText>
                             <FontWeight>Normal</FontWeight>
                           </Style>
                           <Value>=Sum(Fields!water19_amount.Value)</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox38">
+                          <Value>=Sum({water6_amount})</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Normal</FontWeight>
+                          </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -1640,7 +1731,7 @@ ORDER BY driver_name</CommandText>
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017.06.01</Value>
+          <Value>2018.03.30</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1653,7 +1744,7 @@ ORDER BY driver_name</CommandText>
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017.06.02</Value>
+          <Value>2018.03.30</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
