@@ -406,6 +406,21 @@ namespace Vodovoz.Domain.Goods
 			};
 		}
 
+		/// <summary>
+		/// Категории товаров. Товары могут хранится на складе без учёта 19л воды.
+		/// </summary>
+		public static NomenclatureCategory[] GetCategoriesForGoodsWithoutEmptyBottles()
+		{
+			return new[] {
+				NomenclatureCategory.water,
+				NomenclatureCategory.additional,
+				NomenclatureCategory.equipment,
+				NomenclatureCategory.material,
+				NomenclatureCategory.spare_parts,
+				NomenclatureCategory.disposableBottleWater
+			};
+		}
+
 		public static NomenclatureCategory[] GetCategoriesWithEditablePrice()
 		{
 			return new[] {

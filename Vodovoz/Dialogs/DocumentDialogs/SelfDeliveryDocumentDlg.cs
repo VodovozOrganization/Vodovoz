@@ -1,38 +1,39 @@
 ﻿using System;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.ColumnConfig;
+using Gamma.Utilities;
+using NHibernate.Transform;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
 	public partial class SelfDeliveryDocumentDlg : OrmGtkDialogBase<SelfDeliveryDocument>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		public override bool HasChanges
-		{
-			get
-			{
-				if (bottlereceptionview1.Items.Sum(x => x.Amount) > 0)
-					return true;
-				return base.HasChanges;
-			}
-		}
+		public override bool HasChanges => BottlesReceptionList.Sum(x => x.Amount) >= 0 
+		                                                       || GoodsReceptionList.Sum(x => x.Amount) >= 0 
+		                                                       || base.HasChanges;
+
+		GenericObservableList<GoodsReceptionVMNode> BottlesReceptionList;
+		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
 		public SelfDeliveryDocumentDlg()
 		{
 			this.Build();
 
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument> ();
-			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
-			if(Entity.Author == null)
-			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
+			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(Entity.Author == null) {
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
@@ -40,18 +41,18 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public SelfDeliveryDocumentDlg (int id)
+		public SelfDeliveryDocumentDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument> (id);
-			ConfigureDlg ();
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
+			ConfigureDlg();
 		}
 
-		public SelfDeliveryDocumentDlg (SelfDeliveryDocument sub) : this (sub.Id)
+		public SelfDeliveryDocumentDlg(SelfDeliveryDocument sub) : this(sub.Id)
 		{
 		}
 
-		void ConfigureDlg ()
+		void ConfigureDlg()
 		{
 			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
@@ -60,7 +61,7 @@ namespace Vodovoz
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse);
 			yentryrefOrder.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
-			selfdeliverydocumentitemsview1.Sensitive = bottlereceptionview1.Sensitive = editing;
+			selfdeliverydocumentitemsview1.Sensitive = vBoxBottles.Sensitive = editing;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.SelfDeliveryEdit);
@@ -76,51 +77,110 @@ namespace Vodovoz
 			Entity.UpdateStockAmount(UoW);
 			Entity.UpdateAlreadyUnloaded(UoW);
 			selfdeliverydocumentitemsview1.DocumentUoW = UoWGeneric;
-			bottlereceptionview1.UoW = UoW;
+			//bottlereceptionview1.UoW = UoW;
 			UpdateWidgets();
-			if (Entity.ReturnedItems.Count > 0)
+
+			IColumnsConfig bottlesColumnsConfig = FluentColumnsConfig<GoodsReceptionVMNode>.Create()
+				.AddColumn("Номенклатура").AddTextRenderer(node => node.Name)
+				.AddColumn("Кол-во").AddNumericRenderer(node => node.Amount).WidthChars(3)
+				.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 100, 0))
+				.Editing(true)
+				.AddColumn("")
+				.Finish();
+			yTreeBottles.ColumnsConfig = bottlesColumnsConfig;
+			FillTrees();
+
+			IColumnsConfig goodsColumnsConfig = FluentColumnsConfig<GoodsReceptionVMNode>.Create()
+				.AddColumn("Номенклатура").AddTextRenderer(node => node.Name)
+				.AddColumn("Кол-во").AddNumericRenderer(node => node.Amount)
+				.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 100, 0))
+				.Editing(true)
+				.AddColumn("Категория").AddTextRenderer(node => node.Category.GetEnumTitle())
+				.AddColumn("")
+				.Finish();
+			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
+			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
+		}
+
+		void FillTrees()
+		{
+			GoodsReceptionVMNode resultAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			var orderBottles = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
+								  .Where(n => n.Category == NomenclatureCategory.bottle)
+								  .SelectList(list => list
+											  .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+											  .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+											 ).TransformUsing(Transformers.AliasToBean<GoodsReceptionVMNode>())
+								  .List<GoodsReceptionVMNode>();
+			BottlesReceptionList = new GenericObservableList<GoodsReceptionVMNode>(orderBottles);
+			yTreeBottles.ItemsDataSource = BottlesReceptionList;
+
+			if(Entity.ReturnedItems.Any())
 				LoadReturned();
 		}
 
-		public override bool Save ()
+		void LoadReturned()
 		{
-			var valid = new QSValidation.QSValidator<SelfDeliveryDocument> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			foreach(GoodsReceptionVMNode item in BottlesReceptionList) {
+				var returned = Entity.ReturnedItems.FirstOrDefault(x => x.Nomenclature.Id == item.NomenclatureId);
+				item.Amount = returned != null ? (int)returned.Amount : 0;
+			}
+
+			GoodsReceptionList.Clear();
+			foreach(var item in Entity.ReturnedItems) {
+				if(item.Nomenclature.Category != NomenclatureCategory.bottle)
+					GoodsReceptionList.Add(new GoodsReceptionVMNode {
+						NomenclatureId = item.Nomenclature.Id,
+						Name = item.Nomenclature.Name,
+						Category = item.Nomenclature.Category,
+						Amount = (int)item.Amount
+					});
+			}
+		}
+
+		public override bool Save()
+		{
+			var valid = new QSValidation.QSValidator<SelfDeliveryDocument>(UoWGeneric.Root);
+			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditor == null)
-			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+			if(Entity.LastEditor == null) {
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
 			Entity.UpdateOperations(UoW);
-			var returnes = bottlereceptionview1.Items.ToDictionary(x => x.NomenclatureId, x => (decimal)x.Amount);
-			Entity.UpdateReturnedOperations(UoW, returnes);
-			if (Entity.FullyShiped(UoW))
+			foreach(GoodsReceptionVMNode item in BottlesReceptionList) {
+				Entity.UpdateReturnedOperation(UoW, item.NomenclatureId, item.Amount);
+			}
+			foreach(GoodsReceptionVMNode item in GoodsReceptionList) {
+				Entity.UpdateReturnedOperation(UoW, item.NomenclatureId, item.Amount);
+			}
+			if(Entity.FullyShiped(UoW))
 				MessageDialogWorks.RunInfoDialog("Заказ отгружен полностью.");
 
-			logger.Info ("Сохраняем документ самовывоза...");
-			UoWGeneric.Save ();
-			logger.Info ("Ok.");
+			logger.Info("Сохраняем документ самовывоза...");
+			UoWGeneric.Save();
+			logger.Info("Ok.");
 			return true;
 		}
 
 		void UpdateOrderInfo()
 		{
-			if(Entity.Order == null)
-			{
+			if(Entity.Order == null) {
 				ytextviewOrderInfo.Buffer.Text = String.Empty;
 				return;
 			}
 
-			string text = String.Format("Клиент: {0}\nБутылей на возврат: {1}\nАвтор заказа:{2}", 
-				              Entity.Order.Client.Name,
-				              Entity.Order.BottlesReturn,
-				              Entity.Order.Author?.ShortName
-			              );
+			string text = String.Format("Клиент: {0}\nБутылей на возврат: {1}\nАвтор заказа:{2}",
+							  Entity.Order.Client.Name,
+							  Entity.Order.BottlesReturn,
+							  Entity.Order.Author?.ShortName
+						  );
 			ytextviewOrderInfo.Buffer.Text = text;
 		}
 
@@ -142,13 +202,12 @@ namespace Vodovoz
 
 		void UpdateAmounts()
 		{
-			foreach(var item in Entity.Items)
-			{
-				if (item.OrderItem != null)
+			foreach(var item in Entity.Items) {
+				if(item.OrderItem != null)
 					item.Amount = item.OrderItem.Count - item.AmountUnloaded;
 				else
 					item.Amount = 1;
-				if (item.Amount > item.AmountInStock)
+				if(item.Amount > item.AmountInStock)
 					item.Amount = item.AmountInStock;
 			}
 		}
@@ -156,17 +215,41 @@ namespace Vodovoz
 		void UpdateWidgets()
 		{
 			bool bottles = Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;
-			bottlereceptionview1.Visible = bottles;
+			bool goods = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
+			vBoxBottles.Visible = bottles;
+			vBoxOtherGoods.Visible = goods;
 		}
 
-		void LoadReturned()
+		protected void OnBtnAddOtherGoodsClicked(object sender, EventArgs e)
 		{
-			foreach(var item in bottlereceptionview1.Items)
-			{
-				var returned = Entity.ReturnedItems.FirstOrDefault(x => x.Nomenclature.Id == item.NomenclatureId);
-				item.Amount = returned != null ? (int)returned.Amount : 0;
+			OrmReference refWin = new OrmReference(NomenclatureRepository.NomenclatureOfGoodsWithoutEmptyBottlesQuery());
+			refWin.FilterClass = null;
+			refWin.Mode = OrmReferenceMode.Select;
+			refWin.ObjectSelected += RefWin_ObjectSelected;
+			this.TabParent.AddTab(refWin, this);
+		}
+
+		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			Nomenclature nomenclature = (e.Subject as Nomenclature);
+			if(nomenclature == null) {
+				return;
 			}
+			var node = new GoodsReceptionVMNode() {
+				Category = nomenclature.Category,
+				NomenclatureId = nomenclature.Id,
+				Name = nomenclature.Name
+			};
+			if(!GoodsReceptionList.Any(n => n.NomenclatureId == node.NomenclatureId))
+				GoodsReceptionList.Add(node);
 		}
 	}
-}
 
+	public class GoodsReceptionVMNode
+	{
+		public int NomenclatureId { get; set; }
+		public string Name { get; set; }
+		public int Amount { get; set; }
+		public NomenclatureCategory Category { get; set; }
+	}
+}

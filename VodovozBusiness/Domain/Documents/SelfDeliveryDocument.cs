@@ -5,9 +5,9 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QSOrmProject;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -198,27 +198,26 @@ namespace Vodovoz.Domain.Documents
 		{
 			foreach(var returned in returnedNomenclatures)
 			{
-				var item = ReturnedItems.FirstOrDefault(x => x.Nomenclature.Id == returned.Key);
-				if(item == null && returned.Value != 0)
-				{
-					item = new SelfDeliveryDocumentReturned()
-					{
-						Amount = returned.Value,
-						Document = this,
-						Nomenclature = uow.GetById<Nomenclature>(returned.Key)
-					};
-					item.CreateOperation(Warehouse, TimeStamp);
-					ReturnedItems.Add(item);
-				}
-				else if(item != null && returned.Value == 0)
-				{
-					ReturnedItems.Remove(item);
-				}
-				else if(item != null && returned.Value != 0)
-				{
-					item.Amount = returned.Value;
-					item.UpdateOperation(Warehouse);
-				}
+				UpdateReturnedOperation(uow, returned.Key, returned.Value);
+			}
+		}
+
+		public virtual void UpdateReturnedOperation(IUnitOfWork uow, int returnedNomenclaureId, decimal returnedNomenclaureQuantity)
+		{
+			var item = ReturnedItems.FirstOrDefault(x => x.Nomenclature.Id == returnedNomenclaureId);
+			if(item == null && returnedNomenclaureQuantity != 0) {
+				item = new SelfDeliveryDocumentReturned() {
+					Amount = returnedNomenclaureQuantity,
+					Document = this,
+					Nomenclature = uow.GetById<Nomenclature>(returnedNomenclaureId)
+				};
+				item.CreateOperation(Warehouse, TimeStamp);
+				ReturnedItems.Add(item);
+			} else if(item != null && returnedNomenclaureQuantity == 0) {
+				ReturnedItems.Remove(item);
+			} else if(item != null && returnedNomenclaureQuantity != 0) {
+				item.Amount = returnedNomenclaureQuantity;
+				item.UpdateOperation(Warehouse);
 			}
 		}
 
@@ -228,7 +227,7 @@ namespace Vodovoz.Domain.Documents
 			bool closed = Items.All(x => (x.OrderItem != null ? x.OrderItem.Count : 1) == x.Amount + x.AmountUnloaded);
 			if(closed) {
 				return Order.TryCloseSelfDeliveryOrder(uow, this);
-			}else {
+			} else {
 				return false;
 			}
 		}

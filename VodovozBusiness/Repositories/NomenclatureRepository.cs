@@ -48,6 +48,13 @@ namespace Vodovoz.Repository
 							.Where(n => !n.IsArchive);
 		}
 
+		public static QueryOver<Nomenclature> NomenclatureOfGoodsWithoutEmptyBottlesQuery()
+		{
+			return QueryOver.Of<Nomenclature>()
+				            .Where(n => n.Category.IsIn(Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles()))
+							.Where(n => !n.IsArchive);
+		}
+
 		public static QueryOver<Nomenclature> NomenclatureWaterOnlyQuery()
 		{
 			return QueryOver.Of<Nomenclature>()
