@@ -698,7 +698,7 @@ namespace Vodovoz
 		public void PrintOrderDocuments(){
 			if(Entity.OrderDocuments.Any()) {
 				if(MessageDialogWorks.RunQuestionDialog("Открыть документы для печати?")) {
-					var documentPrinterDlg = new OrderDocumentsPrinter(Entity);
+					var documentPrinterDlg = new OrderDocumentsPrinterDlg(Entity);
 					TabParent.AddSlaveTab(this, documentPrinterDlg);
 				}
 			}
@@ -1454,7 +1454,7 @@ namespace Vodovoz
 		protected void OnBtnOpnPrnDlgClicked(object sender, EventArgs e)
 		{
 			if(Entity.OrderDocuments.Any(doc => doc.PrintType == PrinterType.RDL))
-				TabParent.AddSlaveTab(this, new OrderDocumentsPrinter(Entity));
+				TabParent.AddSlaveTab(this, new OrderDocumentsPrinterDlg(Entity));
 		}
 
 		protected void OnTreeServiceClaimRowActivated(object o, RowActivatedArgs args)

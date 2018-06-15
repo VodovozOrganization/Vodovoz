@@ -4,21 +4,23 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using QSProjectsLib;
 using QSReport;
 using QSTDI;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrderDocumentsPrinter : TdiTabBase
+	public partial class OrderDocumentsPrinterDlg : TdiTabBase
 	{
 		Order currentOrder;
 		MultipleDocumentPrinter multipleDocumentPrinter = new MultipleDocumentPrinter();
 		List<SelectablePrintDocument> printDocuments = new List<SelectablePrintDocument>();
 
-		public OrderDocumentsPrinter(Order order)
+		public OrderDocumentsPrinterDlg(Order order)
 		{
 			this.Build();
 
@@ -26,7 +28,30 @@ namespace Vodovoz.Dialogs
 
 			currentOrder = order;
 			foreach(var item in currentOrder.OrderDocuments) {
-				printDocuments.Add(new SelectablePrintDocument(item, DefaultCopies(item.Type)) { Selected = true });
+				////var contract = item as OrderContract;
+				//bool b1 = item is IHavingTemplateDocument;
+				//var d = (item as IHavingTemplateDocument);
+				//bool b2 = d.DocumentTemplate == null;
+
+				//var document = ((OrderContract)item);
+				//switch(item.Type) {
+				//	case OrderDocumentType.AdditionalAgreement:
+						
+				//	case OrderDocumentType.Contract:
+						
+				//		break;
+				//	default:
+				//		break;
+				//}
+
+				//if(item is IHavingTemplateDocument && ((IHavingTemplateDocument)item).DocumentTemplate == null){
+				//	MessageDialogWorks.RunWarningDialog(
+				//		String.Format("Документ '{0}' в комплект печати добавлен не был, т.к. " +
+				//		              "для него не установлен шаблон документа"), item.Name
+				//	);
+				//	continue;
+				//}
+					printDocuments.Add(new SelectablePrintDocument(item, DefaultCopies(item.Type)) { Selected = true });
 			}
 
 			Configure();
@@ -56,7 +81,7 @@ namespace Vodovoz.Dialogs
 				.AddColumn("✓").AddToggleRenderer(x => x.Selected)
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.Name)
 				.AddColumn("Копий").AddNumericRenderer(x => x.Copies).Editing()
-					.Adjustment(new Adjustment(0, 0, 10000, 1, 100, 0))
+					   .Adjustment(new Adjustment(0, 0, 10000, 1, 100, 0))
 				.RowCells()
 				.Finish();
 
