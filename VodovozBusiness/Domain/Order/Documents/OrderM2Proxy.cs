@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using QSDocTemplates;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
+using Vodovoz.DocTemplates;
+using System.Linq;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -41,8 +43,11 @@ namespace Vodovoz.Domain.Orders.Documents
 			if(M2Proxy.DocumentTemplate == null)
 				M2Proxy.UpdateM2ProxyDocumentTemplate(uow);
 
-			if(M2Proxy.DocumentTemplate != null)
+			if(M2Proxy.DocumentTemplate != null) {
 				M2Proxy.DocumentTemplate.DocParser.SetDocObject(M2Proxy);
+				var parser = (M2Proxy.DocumentTemplate.DocParser as M2ProxyDocumentParser);
+				parser.AddTableEquipmentFromClient(Order.ObservableOrderEquipments.Where(eq => eq.Direction == Domain.Orders.Direction.PickUp).ToList<OrderEquipment>());
+			}
 		}
 
 		public virtual IDocTemplate GetTemplate()

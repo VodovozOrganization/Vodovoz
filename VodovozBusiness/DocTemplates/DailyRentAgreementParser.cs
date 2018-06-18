@@ -15,8 +15,8 @@ namespace Vodovoz.DocTemplates
 			fieldsList.Clear();
 			//Сам договор
 			AddField(x => x.Contract.IssueDate, PatternFieldType.FDate);
-			AddField(x => x.Contract.Counterparty.FullName,  PatternFieldType.FString);
-			AddField(x => x.Contract.Counterparty.SignatoryBaseOf,  PatternFieldType.FString);
+			AddField(x => x.Contract.Counterparty.FullName, PatternFieldType.FString);
+			AddField(x => x.Contract.Counterparty.SignatoryBaseOf, PatternFieldType.FString);
 			AddField(x => x.Contract.Number, PatternFieldType.FString);
 			AddField(x => x.Contract.Counterparty.SignatoryFIO, PatternFieldType.FString);
 			AddField(x => x.Contract.Counterparty.SignatoryPost, PatternFieldType.FString);
@@ -29,7 +29,7 @@ namespace Vodovoz.DocTemplates
 			SortFields();
 		}
 
-	public void AddTableNomenclatures(List<PaidRentEquipment> list)
+		public void AddTableNomenclatures(List<PaidRentEquipment> list)
 		{
 			List<Nomenclature> result = new List<Nomenclature>();
 			foreach(var item in list) {
@@ -39,7 +39,7 @@ namespace Vodovoz.DocTemplates
 			}
 			AddCustomTable<Nomenclature>("СписокОборудования", result)
 				.AddColumn(x => x.OfficialName, PatternFieldType.FString);
-				SortFields();
+			SortFields();
 		}
 
 		public void AddTableEquipmentTypes(List<PaidRentEquipment> list)

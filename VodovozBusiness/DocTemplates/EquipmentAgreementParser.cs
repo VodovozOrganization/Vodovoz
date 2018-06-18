@@ -56,6 +56,7 @@ namespace Vodovoz.DocTemplates
 			summaryNode.Sum = sumSum.ToString();
 			result.Add(summaryNode);
 
+			customTablesList.Clear();
 			AddCustomTable("Оборудование", result)
 				.AddColumn(x => x.Number, PatternFieldType.FString)
 				.AddColumn(x => x.Name, PatternFieldType.FString)

@@ -37,6 +37,7 @@ namespace Vodovoz.DocTemplates
 
 		public void AddPricesTable(List<WaterPriceNode> header, List<WaterPriceNode> priceNodes)
 		{
+			customTablesList.Clear();
 			AddCustomTable("ЦеныНаВодуШапка", header)
 				.AddColumn(x => x.Count, PatternFieldType.FString)
 				.AddColumn(x => x.Water1, PatternFieldType.FString)

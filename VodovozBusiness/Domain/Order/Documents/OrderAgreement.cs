@@ -4,6 +4,9 @@ using Vodovoz.Domain.Client;
 using QSReport;
 using QSDocTemplates;
 using QSOrmProject;
+using Vodovoz.DocTemplates;
+using System.Linq;
+using Vodovoz.Repositories.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -44,8 +47,40 @@ namespace Vodovoz.Domain.Orders.Documents
 			if (AdditionalAgreement.DocumentTemplate == null)
 				AdditionalAgreement.UpdateContractTemplate(uow);
 
-			if (AdditionalAgreement.DocumentTemplate != null)
+			if(AdditionalAgreement.DocumentTemplate != null) {
 				AdditionalAgreement.DocumentTemplate.DocParser.SetDocObject(AdditionalAgreement.Self);
+
+				switch(AdditionalAgreement.Type) {
+					case AgreementType.NonfreeRent:
+						var nonFreeRentAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as NonFreeRentAgreementParser);
+						nonFreeRentAgreementParser.AddTableNomenclatures((AdditionalAgreement.Self as NonfreeRentAgreement).PaidRentEquipments.ToList());
+						nonFreeRentAgreementParser.AddTableEquipmentTypes((AdditionalAgreement.Self as NonfreeRentAgreement).PaidRentEquipments.ToList());
+						break;
+					case AgreementType.DailyRent:
+						var dailyRentAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as DailyRentAgreementParser);
+						dailyRentAgreementParser.AddTableNomenclatures((AdditionalAgreement.Self as DailyRentAgreement).Equipment.ToList());
+						dailyRentAgreementParser.AddTableEquipmentTypes((AdditionalAgreement.Self as DailyRentAgreement).Equipment.ToList());
+						break;
+					case AgreementType.FreeRent:
+						break;
+					case AgreementType.WaterSales:
+						var waterAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as WaterAgreementParser);
+						waterAgreementParser.AddPricesTable(
+							WaterPricesRepository.GetWaterPricesHeader(uow), 
+							WaterPricesRepository.GetWaterPrices(uow)
+						);
+						break;
+					case AgreementType.EquipmentSales:
+						var equipmentAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as EquipmentAgreementParser);
+						equipmentAgreementParser.AddPricesTable((AdditionalAgreement.Self as SalesEquipmentAgreement).SalesEqipments.ToList());
+					break;
+					case AgreementType.Repair:
+						break;
+					default:
+						break;
+				}
+
+			}
 		}
 
 		public virtual IDocTemplate GetTemplate()

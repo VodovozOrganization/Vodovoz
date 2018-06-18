@@ -68,6 +68,8 @@ namespace Vodovoz.DocTemplates
 				node.CountString = String.Format("{0} ({1})", node.Count, RusNumber.Str(item.Count, true, "", "", "").Trim());
 				result.Add(node);
 			}
+
+			customTablesList.Clear();
 			AddCustomTable<M2ProxyDocumentParserNode>("ОборудованиеОтКлиента", result)
 				.AddColumn(x => x.FullNameString, PatternFieldType.FString)
 				.AddColumn(x => x.Count, PatternFieldType.FString)
