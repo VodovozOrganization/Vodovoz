@@ -90,20 +90,20 @@ namespace Vodovoz
 
 			dateEnd.Date = UoWGeneric.Root.StartDate.AddDays (UoWGeneric.Root.RentDays);
 
-			if (Entity.AgreementTemplate == null && Entity.Contract != null)
+			if (Entity.DocumentTemplate == null && Entity.Contract != null)
 				Entity.UpdateContractTemplate(UoW);
 
-			if(Entity.AgreementTemplate != null) {
-				(Entity.AgreementTemplate.DocParser as DailyRentAgreementParser).RootObject = Entity;
+			if(Entity.DocumentTemplate != null) {
+				(Entity.DocumentTemplate.DocParser as DailyRentAgreementParser).RootObject = Entity;
 			}
 
 			templatewidget3.BeforeOpen += (sender, e) => {
-				if(Entity.AgreementTemplate != null) {
-					(Entity.AgreementTemplate.DocParser as DailyRentAgreementParser).AddTableEquipmentTypes(Entity.Equipment.ToList());
-					(Entity.AgreementTemplate.DocParser as DailyRentAgreementParser).AddTableNomenclatures(Entity.Equipment.ToList());
+				if(Entity.DocumentTemplate != null) {
+					(Entity.DocumentTemplate.DocParser as DailyRentAgreementParser).AddTableEquipmentTypes(Entity.Equipment.ToList());
+					(Entity.DocumentTemplate.DocParser as DailyRentAgreementParser).AddTableNomenclatures(Entity.Equipment.ToList());
 				}
 			};
-			templatewidget3.Binding.AddBinding(Entity, e => e.AgreementTemplate, w => w.Template).InitializeFromSource();
+			templatewidget3.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget3.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 			templatewidget3.CanRevertCommon = QSProjectsLib.QSMain.User.Permissions["can_set_common_additionalagreement"];
 		}

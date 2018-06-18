@@ -73,7 +73,7 @@ namespace Vodovoz.Domain.Employees
 			if(Id > 0 || Organization == null) {
 				return;
 			}
-			ProxyDocumentTemplate = Repository.Client.DocTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.CarProxy, Organization);
+			DocumentTemplate = Repository.Client.DocTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.CarProxy, Organization);
 		}
 
 		#region IValidatableObject implementation
@@ -89,7 +89,7 @@ namespace Vodovoz.Domain.Employees
 			if(Car == null)
 				yield return new ValidationResult(String.Format("Не выбран автомобиль"));
 
-			if(ProxyDocumentTemplate == null)
+			if(DocumentTemplate == null)
 				yield return new ValidationResult(String.Format("Не выбран шаблон доверенности"));
 		}
 

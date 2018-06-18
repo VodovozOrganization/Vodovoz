@@ -95,12 +95,12 @@ namespace Vodovoz.Domain.Employees
 			return uow;
 		}
 
-		public virtual void UpdateM2ProxyDocumentTemplate(IUnitOfWork uow)
+		public virtual bool UpdateM2ProxyDocumentTemplate(IUnitOfWork uow)
 		{
-			if(Id > 0 || Organization == null) {
-				return;
-			}
-			ProxyDocumentTemplate = Repository.Client.DocTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.M2Proxy, Organization);
+			if(Id > 0 || Organization == null)
+				return false;
+			DocumentTemplate = Repository.Client.DocTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.M2Proxy, Organization);
+			return DocumentTemplate != null;
 		}
 
 		#region IValidatableObject implementation
@@ -110,7 +110,7 @@ namespace Vodovoz.Domain.Employees
 			if(Organization == null)
 				yield return new ValidationResult(String.Format("Не выбрана организация"));
 
-			if(ProxyDocumentTemplate == null)
+			if(DocumentTemplate == null)
 				yield return new ValidationResult(String.Format("Не выбран шаблон доверенности"));
 
 			if(TicketDate == null)

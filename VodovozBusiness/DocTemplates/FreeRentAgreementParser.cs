@@ -12,7 +12,10 @@ namespace Vodovoz.DocTemplates
 
 		public override void UpdateFields()
 		{
+			tablesList.Clear();
+			customTablesList.Clear();
 			fieldsList.Clear();
+
 			//Сам договор
 			AddField(x => x.Contract.IssueDate, PatternFieldType.FDate);
 			AddField(x => x.Contract.Counterparty.FullName,  PatternFieldType.FString);

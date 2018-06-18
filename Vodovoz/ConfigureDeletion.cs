@@ -490,8 +490,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<DriverTicketDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<DocTemplate>()
-				.AddClearDependence<AdditionalAgreement>(x => x.AgreementTemplate)
-				.AddClearDependence<CounterpartyContract>(x => x.ContractTemplate);
+				.AddClearDependence<AdditionalAgreement>(x => x.DocumentTemplate)
+				.AddClearDependence<CounterpartyContract>(x => x.DocumentTemplate);
 
 			DeleteConfig.AddHibernateDeleteInfo<ShetFacturaDocument>();
 

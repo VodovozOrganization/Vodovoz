@@ -114,9 +114,9 @@ namespace Vodovoz.Domain.Client
 		DocTemplate contractTemplate;
 
 		[Display(Name = "Шаблон договора")]
-		public virtual DocTemplate ContractTemplate {
+		public virtual DocTemplate DocumentTemplate {
 			get { return contractTemplate; }
-			protected set { SetField(ref contractTemplate, value, () => ContractTemplate); }
+			protected set { SetField(ref contractTemplate, value, () => DocumentTemplate); }
 		}
 
 		byte[] changedTemplateFile;
@@ -260,27 +260,34 @@ namespace Vodovoz.Domain.Client
 			return AdditionalAgreements.Any (a => a.Type == AgreementType.Repair && !a.IsCancelled);
 		}
 
-		public virtual void UpdateContractTemplate(IUnitOfWork uow)
+		/// <summary>
+		/// Updates template for the contract.
+		/// </summary>
+		/// <returns><c>true</c>, in case of successful update, <c>false</c> if template for the contract was not found.</returns>
+		/// <param name="uow">Unit of Work.</param>
+		public virtual bool UpdateContractTemplate(IUnitOfWork uow)
 		{
 			if (Organization == null)
 			{
-				ContractTemplate = null;
+				DocumentTemplate = null;
 				ChangedTemplateFile = null;
 			}
 			else
 			{
 				var newTemplate = Repository.Client.DocTemplateRepository.GetTemplate(uow, TemplateType.Contract, Organization, ContractType);
 				if(newTemplate == null) {
-					ContractTemplate = null;
+					DocumentTemplate = null;
 					ChangedTemplateFile = null;
-					return;
+					return false;
 				}
-				if(!DomainHelper.EqualDomainObjects(newTemplate, ContractTemplate))
+				if(!DomainHelper.EqualDomainObjects(newTemplate, DocumentTemplate))
 				{
-					ContractTemplate = newTemplate;
+					DocumentTemplate = newTemplate;
 					ChangedTemplateFile = null;
+					return true;
 				}
 			}
+			return false;
 		}
 
 		#endregion

@@ -76,13 +76,13 @@ namespace Vodovoz
 			referenceOrganization.Binding.AddBinding (Entity, e => e.Organization, w => w.Subject).InitializeFromSource ();
 			additionalagreementsview1.AgreementUoW = UoWGeneric;
 
-			if (Entity.ContractTemplate == null && Entity.Organization != null)
+			if (Entity.DocumentTemplate == null && Entity.Organization != null)
 				Entity.UpdateContractTemplate(UoW);
 
-			if (Entity.ContractTemplate != null)
-				(Entity.ContractTemplate.DocParser as ContractParser).RootObject = Entity;
+			if (Entity.DocumentTemplate != null)
+				(Entity.DocumentTemplate.DocParser as ContractParser).RootObject = Entity;
 
-			templatewidget1.Binding.AddBinding(Entity, e => e.ContractTemplate, w => w.Template).InitializeFromSource();
+			templatewidget1.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 			templatewidget1.CanRevertCommon = QSMain.User.Permissions["can_set_common_additionalagreement"];
 		}

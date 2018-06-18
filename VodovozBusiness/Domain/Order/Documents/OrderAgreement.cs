@@ -41,16 +41,16 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual void PrepareTemplate(IUnitOfWork uow)
 		{
-			if (AdditionalAgreement.AgreementTemplate == null/* && AdditionalAgreement.AgreementTemplate != null*/)
+			if (AdditionalAgreement.DocumentTemplate == null)
 				AdditionalAgreement.UpdateContractTemplate(uow);
 
-			if (AdditionalAgreement.AgreementTemplate != null)
-				AdditionalAgreement.AgreementTemplate.DocParser.SetDocObject(AdditionalAgreement);
+			if (AdditionalAgreement.DocumentTemplate != null)
+				AdditionalAgreement.DocumentTemplate.DocParser.SetDocObject(AdditionalAgreement.Self);
 		}
 
 		public virtual IDocTemplate GetTemplate()
 		{
-			return AdditionalAgreement.AgreementTemplate;
+			return AdditionalAgreement.DocumentTemplate;
 		}
 	}
 }

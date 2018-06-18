@@ -49,12 +49,12 @@ namespace Vodovoz
 			dateIssue.Binding.AddBinding (Entity, e => e.IssueDate, w => w.Date).InitializeFromSource ();
 			dateStart.Binding.AddBinding (Entity, e => e.StartDate, w => w.Date).InitializeFromSource ();
 
-			if (Entity.AgreementTemplate == null && Entity.Contract != null)
+			if (Entity.DocumentTemplate == null && Entity.Contract != null)
 				Entity.UpdateContractTemplate(UoW);
 
-			if (Entity.AgreementTemplate != null)
-				(Entity.AgreementTemplate.DocParser as RepairAgreementParser).RootObject = Entity;
-			templatewidget2.Binding.AddBinding(Entity, e => e.AgreementTemplate, w => w.Template).InitializeFromSource();
+			if (Entity.DocumentTemplate != null)
+				(Entity.DocumentTemplate.DocParser as RepairAgreementParser).RootObject = Entity;
+			templatewidget2.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget2.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 			templatewidget2.CanRevertCommon = QSProjectsLib.QSMain.User.Permissions["can_set_common_additionalagreement"];
 		}

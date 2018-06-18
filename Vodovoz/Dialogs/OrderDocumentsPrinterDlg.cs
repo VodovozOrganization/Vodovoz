@@ -4,6 +4,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using QSDocTemplates;
+using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using QSTDI;
@@ -27,31 +29,42 @@ namespace Vodovoz.Dialogs
 			TabName = "Печать документов заказа";
 
 			currentOrder = order;
+			bool? successfulUpdate = null;
 			foreach(var item in currentOrder.OrderDocuments) {
-				////var contract = item as OrderContract;
-				//bool b1 = item is IHavingTemplateDocument;
-				//var d = (item as IHavingTemplateDocument);
-				//bool b2 = d.DocumentTemplate == null;
-
-				//var document = ((OrderContract)item);
-				//switch(item.Type) {
-				//	case OrderDocumentType.AdditionalAgreement:
-						
-				//	case OrderDocumentType.Contract:
-						
-				//		break;
-				//	default:
-				//		break;
-				//}
-
-				//if(item is IHavingTemplateDocument && ((IHavingTemplateDocument)item).DocumentTemplate == null){
-				//	MessageDialogWorks.RunWarningDialog(
-				//		String.Format("Документ '{0}' в комплект печати добавлен не был, т.к. " +
-				//		              "для него не установлен шаблон документа"), item.Name
-				//	);
-				//	continue;
-				//}
-					printDocuments.Add(new SelectablePrintDocument(item, DefaultCopies(item.Type)) { Selected = true });
+				if(item is ITemplatePrntDoc) {
+					switch(item.Type) {
+						case OrderDocumentType.AdditionalAgreement:
+							if((item as ITemplatePrntDoc).GetTemplate() == null)
+								successfulUpdate = (item as OrderAgreement).AdditionalAgreement.UpdateContractTemplate(currentOrder.UoW);
+							(item as OrderAgreement).PrepareTemplate(currentOrder.UoW);
+							break;
+						case OrderDocumentType.Contract:
+							if((item as ITemplatePrntDoc).GetTemplate() == null)
+								successfulUpdate = (item as OrderContract).Contract.UpdateContractTemplate(currentOrder.UoW);
+							(item as OrderContract).PrepareTemplate(currentOrder.UoW);
+							break;
+						case OrderDocumentType.M2Proxy:
+							if((item as ITemplatePrntDoc).GetTemplate() == null)
+								successfulUpdate = (item as OrderM2Proxy).M2Proxy.UpdateM2ProxyDocumentTemplate(currentOrder.UoW);
+							(item as OrderM2Proxy).PrepareTemplate(currentOrder.UoW);
+							break;
+						default:
+							throw new NotImplementedException("Документ не поддерживается");
+					}
+					if(successfulUpdate == false) {
+						MessageDialogWorks.RunWarningDialog(
+							String.Format("Документ '{0}' в комплект печати добавлен не был, т.к. " +
+										  "для него не установлен шаблон документа и не удалось найти подходящий.", item.Name)
+						);
+						continue;
+					} else if(successfulUpdate == true) {
+						MessageDialogWorks.RunInfoDialog(
+							String.Format("Для документа '{0}' успешно подобран шаблон, который был добавлен в комплект печати. " +
+										  "Для сохранения шаблона документа необходимо нажать кнопку 'Сохранить' в заказе.", item.Name)
+						);
+					}
+				}
+				printDocuments.Add(new SelectablePrintDocument(item, DefaultCopies(item.Type)) { Selected = true });
 			}
 
 			Configure();

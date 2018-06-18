@@ -79,21 +79,21 @@ namespace Vodovoz.Dialogs.Client
 			referenceDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 
-			if (Entity.AgreementTemplate == null && Entity.Contract != null)
+			if (Entity.DocumentTemplate == null && Entity.Contract != null)
 				Entity.UpdateContractTemplate(UoW);
 
-			if (Entity.AgreementTemplate != null)
+			if (Entity.DocumentTemplate != null)
 			{
-				(Entity.AgreementTemplate.DocParser as EquipmentAgreementParser).RootObject = Entity;
+				(Entity.DocumentTemplate.DocParser as EquipmentAgreementParser).RootObject = Entity;
 			}
 			templatewidget1.BeforeOpen += (sender, e) =>
 			{
-				if (Entity.AgreementTemplate != null)
+				if (Entity.DocumentTemplate != null)
 				{
-					(Entity.AgreementTemplate.DocParser as EquipmentAgreementParser).AddPricesTable(Entity.SalesEqipments.ToList());
+					(Entity.DocumentTemplate.DocParser as EquipmentAgreementParser).AddPricesTable(Entity.SalesEqipments.ToList());
 				}
 			};
-			templatewidget1.Binding.AddBinding(Entity, e => e.AgreementTemplate, w => w.Template).InitializeFromSource();
+			templatewidget1.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 			templatewidget1.CanRevertCommon = QSProjectsLib.QSMain.User.Permissions["can_set_common_additionalagreement"];
 		}

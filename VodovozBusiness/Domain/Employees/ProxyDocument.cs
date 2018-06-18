@@ -39,9 +39,9 @@ namespace Vodovoz.Domain.Employees
 
 		DocTemplate proxyDocumentTemplate;
 		[Display(Name = "Шаблон доверенности")]
-		public virtual DocTemplate ProxyDocumentTemplate {
+		public virtual DocTemplate DocumentTemplate {
 			get { return proxyDocumentTemplate; }
-			protected set { SetField(ref proxyDocumentTemplate, value, () => ProxyDocumentTemplate); }
+			protected set { SetField(ref proxyDocumentTemplate, value, () => DocumentTemplate); }
 		}
 
 		byte[] changedTemplateFile;

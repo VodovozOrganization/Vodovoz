@@ -19,7 +19,7 @@ namespace Vodovoz.HibernateMapping
 
 			References (x => x.Contract).Column ("counterparty_contract_id");
 			References (x => x.DeliveryPoint).Column ("delivery_point_id");
-			References(x => x.AgreementTemplate).Column("template_id");
+			References(x => x.DocumentTemplate).Column("template_id");
 		}
 	}
 
