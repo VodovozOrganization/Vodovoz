@@ -18,11 +18,21 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.Dialogs.Employees
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class M2ProxyDlg : OrmGtkDialogBase<M2ProxyDocument>
+	public partial class M2ProxyDlg : OrmGtkDialogBase<M2ProxyDocument>, IEditableDialog
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private List<OrderEquipment> equipmentList;
 		public IUnitOfWorkGeneric<Order> UoWOrder { get; private set; }
+
+		bool isEditable = true;
+
+		public bool IsEditable {
+			get => isEditable;
+			set {
+				isEditable = value;
+			}
+		}
+
 
 		public M2ProxyDlg()
 		{

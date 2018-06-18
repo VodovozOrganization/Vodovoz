@@ -15,6 +15,7 @@ using QSReport;
 using QSTDI;
 using QSValidation;
 using Vodovoz.Dialogs;
+using Vodovoz.Dialogs.Client;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -24,14 +25,10 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.JournalFilters;
+using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
-using Vodovoz.Dialogs.Client;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.Repository.Client;
-using Vodovoz.Repositories.Client;
-using Vodovoz.Dialogs.Employees;
-using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -1040,6 +1037,9 @@ namespace Vodovoz
 				} else if(treeDocuments.GetSelectedObjects()[0] is OrderContract) {
 					var contract = (treeDocuments.GetSelectedObjects()[0] as OrderContract).Contract;
 					dlg = OrmMain.CreateObjectDialog(contract);
+				} else if(treeDocuments.GetSelectedObjects()[0] is OrderM2Proxy){
+					var m2Proxy = (treeDocuments.GetSelectedObjects()[0] as OrderM2Proxy).M2Proxy;
+					dlg = OrmMain.CreateObjectDialog(m2Proxy);
 				}
 
 				if(dlg != null) {
