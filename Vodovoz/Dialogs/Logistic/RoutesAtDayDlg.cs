@@ -863,7 +863,7 @@ namespace Vodovoz
 
 		void AddToRLItem_Activated(object sender, EventArgs e)
 		{
-			bool recalculeteLoading = false;
+			bool recalculateLoading = false;
 			var selectedOrders = GetSelectedOrders();
 
 			var route = ((MenuItemId<RouteList>)sender).ID;
@@ -877,22 +877,28 @@ namespace Vodovoz
 						continue;
 					var toRemoveAddress = alreadyIn.Addresses.First(x => x.Order.Id == order.Id);
 					if(toRemoveAddress.IndexInRoute == 0)
-						recalculeteLoading = true;
+						recalculateLoading = true;
 					alreadyIn.RemoveAddress(toRemoveAddress);
 					uow.Save(alreadyIn);
 				}
 				var item = route.AddAddressFromOrder(order);
 				if(item.IndexInRoute == 0)
-					recalculeteLoading = true;
+					recalculateLoading = true;
 			}
 			route.RecalculatePlanTime(distanceCalculator);
 			route.RecalculatePlanedDistance(distanceCalculator);
 			uow.Save(route);
 			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
-			if(recalculeteLoading)
+			if(recalculateLoading)
 				RecalculateOnLoadTime();
 			UpdateAddressesOnMap();
 			RoutesWasUpdated();
+
+			if(route.HasOverweight()){
+				MessageDialogWorks.RunWarningDialog(
+					String.Format("Автомобиль '{0}' в МЛ №{1} перегружен на {2} кг.", route.Car.Title, route.Id, route.Overweight())
+				);
+			}
 		}
 
 		void RecalculateOnLoadTime()

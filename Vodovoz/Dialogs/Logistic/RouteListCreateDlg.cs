@@ -64,11 +64,13 @@ namespace Vodovoz
 			referenceCar.SubjectType = typeof(Car);
 			referenceCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			referenceCar.ChangedByUser += (sender, e) => {
-				Entity.Driver = Entity.Car.Driver;
-				referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyHavings ? true : false;
-				//Водители на Авто компании катаются без экспедитора
-				Entity.Forwarder = Entity.Car.IsCompanyHavings ? null : Entity.Forwarder;
-				referenceForwarder.IsEditable= !Entity.Car.IsCompanyHavings;
+				if(Entity.Car != null) {
+					Entity.Driver = Entity.Car.Driver;
+					referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyHavings;
+					//Водители на Авто компании катаются без экспедитора
+					Entity.Forwarder = Entity.Car.IsCompanyHavings ? null : Entity.Forwarder;
+					referenceForwarder.IsEditable = !Entity.Car.IsCompanyHavings;
+				}
 			};
 
 			var filterDriver = new EmployeeFilter(UoW);
@@ -199,6 +201,28 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked (object sender, EventArgs e)
 		{
+			if(buttonAccept.Label == "Подтвердить" && Entity.HasOverweight()) {
+				if(QSMain.User.Permissions["can_confirm_routelist_with_overweight"]) {
+					if(
+						!MessageDialogWorks.RunQuestionDialog(
+						String.Format(
+							"Вы перегрузили '{0}' на {1} кг.\nВы уверены что хотите подтвердить маршрутный лист?",
+							Entity.Car.Title,
+							Entity.Overweight()
+							)
+						)
+					  ) return;
+				} else {
+					MessageDialogWorks.RunWarningDialog(
+						String.Format(
+							"Вы перегрузили '{0}' на {1} кг.\nПодтвердить маршрутный лист нельзя.",
+							Entity.Car.Title,
+							Entity.Overweight()
+						)
+					);
+					return;
+				}
+			}
 
 			if (UoWGeneric.Root.Status == RouteListStatus.New) {
 				var valid = new QSValidator<RouteList>(UoWGeneric.Root,
@@ -273,13 +297,18 @@ namespace Vodovoz
 			}
 			if (UoWGeneric.Root.Status == RouteListStatus.InLoading) {
 				if(RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any()) {
-					MessageDialogWorks.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначало необходимо удалить их.");
+					MessageDialogWorks.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
 				}else {
 					UoWGeneric.Root.ChangeStatus(RouteListStatus.New);
 				}
 				UpdateButtonStatus();
 				return;
 			}
+		}
+
+		protected void OnReferenceCarChanged(object sender, EventArgs e)
+		{
+			createroutelistitemsview1.UpdateWeightInfo();
 		}
 	}
 }

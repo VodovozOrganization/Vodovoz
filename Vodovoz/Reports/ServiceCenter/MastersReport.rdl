@@ -719,7 +719,7 @@
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                           </Style>
-                          <Value>=Iif(Sum(Fields!entry_wage.Value)&gt;0,Sum(Fields!entry_wage.Value),{wage_from_operations})</Value>
+                          <Value>=Iif(Sum(Fields!entry_wage.Value)&gt;=0,Sum(Fields!entry_wage.Value),{wage_from_operations})</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -1253,7 +1253,7 @@
         <Left>10pt</Left>
         <Height>12pt</Height>
         <Width>3in</Width>
-        <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
         <Style>
           <FontSize>10pt</FontSize>
           <FontWeight>Normal</FontWeight>
@@ -1297,11 +1297,11 @@ RIGHT JOIN
 				counterparty.name AS entry_name,
 				delivery_points.compiled_address_short AS entry_address,
 				order_items.price AS entry_price,
-				order_items.count AS entry_count,
+				order_items.actual_count AS entry_count,
 				orders.payment_type AS entry_payment_type,
-				order_items.price * order_items.count AS entry_sum,
-				order_items.price * order_items.count * nomenclature.percent_for_master * 0.01 AS entry_wage,
-				order_items.price * order_items.count * (1 - nomenclature.percent_for_master * 0.01) AS entry_profit,
+				order_items.price * order_items.actual_count AS entry_sum,
+				order_items.price * order_items.actual_count * nomenclature.percent_for_master * 0.01 AS entry_wage,
+				order_items.price * order_items.actual_count * (1 - nomenclature.percent_for_master * 0.01) AS entry_profit,
 				IFNULL(nomenclature.short_name, nomenclature.name) AS entry_nomenclatures
 			FROM
 				route_list_addresses
@@ -1318,21 +1318,18 @@ RIGHT JOIN
 			LEFT JOIN
 				order_equipment ON order_equipment.order_id = orders.id
 			WHERE
-				nomenclature.category in ('master', 'service')
 				#Исключатся недовозы, частичные недовозы и отмены
-				AND (
-					(orders.order_status NOT IN ('NotDelivered', 'Canceled'))  
-					OR NOT (
-						# Частичные недовозы
-						route_list_addresses.status = 'Completed' 
-						AND					 
-						(
-							nomenclature.category in ('master', 'service')
-							AND nomenclature.serial = false				 
-							AND order_items.count != order_items.actual_count
-						)
-						OR order_equipment.confirmed = false	
+				(orders.order_status NOT IN ('NotDelivered', 'Canceled', 'DeliveryCanceled'))  
+				OR NOT (
+					# Частичные недовозы
+					route_list_addresses.status = 'Completed' 
+					AND					 
+					(
+						nomenclature.category in ('master', 'service')
+						AND nomenclature.serial = false				 
+						AND order_items.count != order_items.actual_count
 					)
+					OR order_equipment.confirmed = false	
 				)
 				) innerTab
 
@@ -1464,21 +1461,12 @@ WHERE
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_test;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-02-22</Value>
+          <Value>2018-04-05</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1491,7 +1479,7 @@ WHERE
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-02-22</Value>
+          <Value>2018-04-06</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1504,7 +1492,7 @@ WHERE
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>194</Value>
+          <Value>1077</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1514,4 +1502,13 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_test;user=OO;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

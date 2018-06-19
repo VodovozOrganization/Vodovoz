@@ -236,6 +236,19 @@ namespace Vodovoz
 				.Sum(i => i.Count);
 
 			labelSum.LabelProp = String.Format("Всего бутылей: {0}", total);
+			UpdateWeightInfo();
+		}
+
+		public virtual void UpdateWeightInfo(){
+			if(RouteListUoW != null && RouteListUoW.Root.Car != null) {
+				string maxWeight = RouteListUoW.Root.Car.MaxWeight > 0
+								   ? RouteListUoW.Root.Car.MaxWeight.ToString()
+								   : " ?";
+				string weight = RouteListUoW.Root.HasOverweight()
+											? String.Format("<span foreground = \"red\">Перегруз на {0} кг.</span>", RouteListUoW.Root.Overweight())
+											: String.Format("<span foreground = \"blue\">Вес груза: {0}/{1} кг.</span>", RouteListUoW.Root.GetTotalWeight(), maxWeight);
+				lblWeight.LabelProp = weight;
+			}
 		}
 
 		protected void OnButtonOpenOrderClicked(object sender, EventArgs e)

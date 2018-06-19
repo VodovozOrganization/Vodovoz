@@ -57,6 +57,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("can_arc_counterparty_and_deliverypoint", new UserPermission("can_arc_counterparty_and_deliverypoint", "Архивирование контрагентов и точек доставки", "Пользователь может устанавливать галочку архивный для контрагентов и точек доставки."));
 			QSMain.ProjectPermission.Add("can_set_common_additionalagreement", new UserPermission("can_set_common_additionalagreement", "Возврат общего доп.соглашения", "Пользователь может нажать кнопку 'Вернуть общий' в доп.соглашении."));
 			QSMain.ProjectPermission.Add("can_delete_nomenclatures", new UserPermission("can_delete_nomenclatures", "Удаление номенклатур", "Пользователь может удалять номенклатуры."));
+			QSMain.ProjectPermission.Add("can_confirm_routelist_with_overweight", new UserPermission("can_confirm_routelist_with_overweight", "Подтверждение МЛ с перегрузом", "Пользователь может подтверждать МЛ, суммарный вес товаров и оборудования в котором превышает грузоподъемность автомобиля."));
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };

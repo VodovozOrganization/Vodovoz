@@ -2314,6 +2314,22 @@ namespace Vodovoz.Domain.Orders
 			return bottles / atTime + (bottles % atTime > 0 ? 1 : 0);
 		}
 
+		/// <summary>
+		/// Расчёт веса товаров и оборудования к клиенту для этого заказа
+		/// </summary>
+		/// <returns>Вес</returns>
+		/// <param name="includeGoods">Если <c>true</c>, то в расчёт веса будут включены товары.</param>
+		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт веса будет включено оборудование.</param>
+		public virtual double GetWeight(bool includeGoods = true, bool includeEquipment = true){
+			double weight = 0;
+			if(includeGoods)
+				weight += OrderItems.Sum(x => x.Nomenclature.Weight * x.Count);
+			if(includeEquipment)
+				weight += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
+				                         .Sum(x => x.Nomenclature.Weight * x.Count);
+			return weight;
+		} 
+
 		#endregion
 	}
 }
