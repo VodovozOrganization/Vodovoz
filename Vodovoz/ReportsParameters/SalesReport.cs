@@ -77,9 +77,9 @@ namespace Vodovoz.Reports
 			public void Unselect()
 			{
 				if(HaveSelected) {
-					if(list.Where(x => x.Selected).Count() > 0) {
-						list.ToList().ForEach((obj) => { obj.Selected = false; });
-					}
+					ObservableList.ElementChanged -= ObservableList_ElementChanged_Unselect;
+					list.Where(x => x.Selected).ToList().ForEach((obj) => { obj.Selected = false; });
+					ObservableList.ElementChanged += ObservableList_ElementChanged_Unselect;
 				}
 			}
 
@@ -88,19 +88,27 @@ namespace Vodovoz.Reports
 				list = sourceFunction.Invoke(FilteredId);
 				ObservableList = new GenericObservableList<SalesReportNode>(list);
 
-				ObservableList.ElementChanged += (aList, aIdx) => {
-					if(UnselectRelation.Any()) {
-						UnselectRelation.ForEach(x => x.Unselect());
-					}
-					Changed?.Invoke(SumSelected());
-				};
+				ObservableList.ElementChanged -= ObservableList_ElementChanged_Unselect;
+				ObservableList.ElementChanged += ObservableList_ElementChanged_Unselect;
 
-				ObservableList.ElementChanged += (aList, aIdx) => {
-					FilteringRelation.ForEach(x => x.Unselect());
-					FilteringRelation.ForEach(x => x.FilteredId = ObservableList.Where(o => o.Selected).Select(o => o.Id).ToArray());
-					FilteringRelation.ForEach(x => x.RefreshItems());
-					Changed?.Invoke(SumSelected());
-				};
+				ObservableList.ElementChanged -= ObservableList_ElementChanged_Filtering;
+				ObservableList.ElementChanged += ObservableList_ElementChanged_Filtering;
+			}
+
+			void ObservableList_ElementChanged_Unselect(object aList, int[] aIdx)
+			{
+				if(UnselectRelation.Any()) {
+					UnselectRelation.ForEach(x => x.Unselect());
+				}
+				Changed?.Invoke(SumSelected());
+			}
+
+			void ObservableList_ElementChanged_Filtering(object aList, int[] aIdx)
+			{
+				FilteringRelation.ForEach(x => x.Unselect());
+				FilteringRelation.ForEach(x => x.FilteredId = ObservableList.Where(o => o.Selected).Select(o => o.Id).ToArray());
+				FilteringRelation.ForEach(x => x.RefreshItems());
+				Changed?.Invoke(SumSelected());
 			}
 
 			public Criterion(Func<int[], List<SalesReportNode>> sourceFunc)
@@ -422,6 +430,7 @@ namespace Vodovoz.Reports
 			criterions[FilterTypes.NomenclatureTypeInclude].SubcribeWithClearOld((string obj) => {
 				ylabelNomType.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
+			labelTableTitle.Text = "Включаемые категории номенклатуры";
 		}
 
 		protected void OnButtonNomenSelectClicked(object sender, EventArgs e)
@@ -430,6 +439,7 @@ namespace Vodovoz.Reports
 			criterions[FilterTypes.NomenclatureInclude].SubcribeWithClearOld((string obj) => {
 				ylabelNomen.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
+			labelTableTitle.Text = "Включаемые номенклатуры";
 		}
 
 		protected void OnButtonNomTypeUnselectClicked(object sender, EventArgs e)
@@ -438,6 +448,7 @@ namespace Vodovoz.Reports
 			criterions[FilterTypes.NomenclatureTypeExclude].SubcribeWithClearOld((string obj) => {
 				ylabelNomType.Text = String.Format("Искл.: {0} елем.", obj);
 			});
+			labelTableTitle.Text = "Исключаемые категории номенклатуры";
 		}
 
 		protected void OnButtonNomenUnselectClicked(object sender, EventArgs e)
@@ -446,6 +457,7 @@ namespace Vodovoz.Reports
 			criterions[FilterTypes.NomenclatureExclude].SubcribeWithClearOld((string obj) => {
 				ylabelNomen.Text = String.Format("Искл.: {0} елем.", obj);
 			});
+			labelTableTitle.Text = "Исключаемые номенклатуры";
 		}
 
 		protected void OnButtonClientSelectClicked(object sender, EventArgs e)
@@ -454,6 +466,7 @@ namespace Vodovoz.Reports
 			criterions[FilterTypes.ClientInclude].SubcribeWithClearOld((string obj) => {
 				ylabelClient.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
+			labelTableTitle.Text = "Включаемые номенклатуры";
 		}
 
 		protected void OnButtonClientUnselectClicked(object sender, EventArgs e)
@@ -462,6 +475,7 @@ namespace Vodovoz.Reports
 			criterions[FilterTypes.ClientExclude].SubcribeWithClearOld((string obj) => {
 				ylabelClient.Text = String.Format("Искл.: {0} елем.", obj);
 			});
+			labelTableTitle.Text = "Исключаемые контрагенты";
 		}
 
 		protected void OnButtonOrgSelectClicked(object sender, EventArgs e)
@@ -470,6 +484,7 @@ namespace Vodovoz.Reports
 			criterions[FilterTypes.OrganizationInclude].SubcribeWithClearOld((string obj) => {
 				ylabelOrg.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
+			labelTableTitle.Text = "Включаемые номенклатуры";
 		}
 
 		protected void OnButtonOrgUnselectClicked(object sender, EventArgs e)
@@ -478,6 +493,7 @@ namespace Vodovoz.Reports
 			criterions[FilterTypes.OrganizationExclude].SubcribeWithClearOld((string obj) => {
 				ylabelOrg.Text = String.Format("Искл.: {0} елем.", obj);
 			});
+			labelTableTitle.Text = "Исключаемые поставщики";
 		}
 
 		protected void OnButtonDiscountReasonSelectClicked(object sender, EventArgs e)
@@ -486,6 +502,7 @@ namespace Vodovoz.Reports
 			criterions[FilterTypes.DiscountReasonInclude].SubcribeWithClearOld((string obj) => {
 				ylabelDiscountReason.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
+			labelTableTitle.Text = "Включаемые номенклатуры";
 		}
 
 		protected void OnButtonDiscountReasonUnselectClicked(object sender, EventArgs e)
@@ -494,6 +511,7 @@ namespace Vodovoz.Reports
 			criterions[FilterTypes.DiscountReasonExclude].SubcribeWithClearOld((string obj) => {
 				ylabelDiscountReason.Text = String.Format("Искл.: {0} елем.", obj);
 			});
+			labelTableTitle.Text = "Исключаемые основания скидок";
 		}
 
 		protected void OnButtonSelectAllClicked(object sender, EventArgs e)
