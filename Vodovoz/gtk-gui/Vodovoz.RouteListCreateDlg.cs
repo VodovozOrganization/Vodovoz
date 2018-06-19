@@ -356,6 +356,7 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.referenceCar.Changed += new global::System.EventHandler(this.OnReferenceCarChanged);
 			this.buttonAccept.Clicked += new global::System.EventHandler(this.OnButtonAcceptClicked);
 		}
 	}

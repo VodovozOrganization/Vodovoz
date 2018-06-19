@@ -1509,6 +1509,23 @@ namespace Vodovoz.Domain.Logistic
 			return result.ToArray();
 		}
 
+		/// <summary>
+		/// Полный вес товаров и оборудования в маршрутном листе
+		/// </summary>
+		/// <returns>Вес в килограммах</returns>
+		public virtual double GetTotalWeight() => Addresses.Where(item => item.Status != RouteListItemStatus.Transfered)
+		                                                   .Sum(item => item.Order.GetWeight());
+		/// <summary>
+		/// Проверка на перегруз автомобиля
+		/// </summary>
+		/// <returns><c>true</c>, если автомобиль "Ларгус" или "раскат" и имеется его перегруз, <c>false</c> в остальных случаях.</returns>
+		public virtual bool HasOverweight() => Car != null && (Car.IsRaskat || Car.TypeOfUse == CarTypeOfUse.Largus) && Car.MaxWeight <= GetTotalWeight();
+
+		/// <summary>
+		/// Перегруз в килограммах
+		/// </summary>
+		/// <returns>Возрат значения перегруза в килограммах.</returns>
+		public virtual double Overweight() => HasOverweight() ? GetTotalWeight() - Car.MaxWeight : 0;
 		#endregion
 	}
 
