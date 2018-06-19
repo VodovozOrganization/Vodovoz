@@ -349,6 +349,7 @@ namespace Vodovoz.Reports
 			this.hboxDiscountReason.Spacing = 6;
 			// Container child hboxDiscountReason.Gtk.Box+BoxChild
 			this.ylabel7 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel7.Sensitive = false;
 			this.ylabel7.Name = "ylabel7";
 			this.ylabel7.Xalign = 0F;
 			this.ylabel7.LabelProp = global::Mono.Unix.Catalog.GetString("Основания скидок: ");
@@ -366,6 +367,7 @@ namespace Vodovoz.Reports
 			w28.Position = 1;
 			// Container child hboxDiscountReason.Gtk.Box+BoxChild
 			this.buttonDiscountReasonSelect = new global::Gtk.Button();
+			this.buttonDiscountReasonSelect.Sensitive = false;
 			this.buttonDiscountReasonSelect.CanFocus = true;
 			this.buttonDiscountReasonSelect.Name = "buttonDiscountReasonSelect";
 			this.buttonDiscountReasonSelect.UseUnderline = true;
@@ -377,6 +379,7 @@ namespace Vodovoz.Reports
 			w29.Fill = false;
 			// Container child hboxDiscountReason.Gtk.Box+BoxChild
 			this.buttonDiscountReasonUnselect = new global::Gtk.Button();
+			this.buttonDiscountReasonUnselect.Sensitive = false;
 			this.buttonDiscountReasonUnselect.CanFocus = true;
 			this.buttonDiscountReasonUnselect.Name = "buttonDiscountReasonUnselect";
 			this.buttonDiscountReasonUnselect.UseUnderline = true;

@@ -388,12 +388,12 @@ WHERE
 			(counterparty_contract.organization_id NOT IN (@org_exclude) AND 0 IN (@org_include)))
 			OR (0 IN (@org_include) AND 0 IN (@org_exclude))
         )
-	AND ( 
+/*	AND ( 
 			((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
 			OR
 			(order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
 			OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
-        )
+        )*/
 GROUP BY nomenclature_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -478,7 +478,7 @@ GROUP BY nomenclature_id</CommandText>
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>

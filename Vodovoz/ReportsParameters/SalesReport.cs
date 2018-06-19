@@ -133,9 +133,9 @@ namespace Vodovoz.Reports
 			ClientInclude,
 			ClientExclude,
 			OrganizationInclude,
-			OrganizationExclude,
+			OrganizationExclude/*,
 			DiscountReasonInclude,
-			DiscountReasonExclude
+			DiscountReasonExclude*/
 		}
 
 		Dictionary<FilterTypes, Criterion> criterions = new Dictionary<FilterTypes, Criterion>();
@@ -262,7 +262,7 @@ namespace Vodovoz.Reports
 			});
 
 			// Основания скидок
-			Criterion discountReasonIncludeCrit = new Criterion((arg) => {
+			/*Criterion discountReasonIncludeCrit = new Criterion((arg) => {
 				SalesReportNode alias = null;
 				var query = UoW.Session.QueryOver<DiscountReason>();
 				var queryResult = query.SelectList(list => list
@@ -283,7 +283,7 @@ namespace Vodovoz.Reports
 				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
 				.List<SalesReportNode>();
 				return queryResult.ToList();
-			});
+			});*/
 
 			//Задание связей по фильтрации и снятию выделения между критериями
 			//Номенклатура
@@ -307,8 +307,8 @@ namespace Vodovoz.Reports
 			organizationIncludeCrit.UnselectRelation.Add(organizationExcludeCrit);
 			organizationExcludeCrit.UnselectRelation.Add(organizationIncludeCrit);
 			//Основания для скидок
-			discountReasonIncludeCrit.UnselectRelation.Add(discountReasonExcludeCrit);
-			discountReasonExcludeCrit.UnselectRelation.Add(discountReasonIncludeCrit);
+			/*discountReasonIncludeCrit.UnselectRelation.Add(discountReasonExcludeCrit);
+			discountReasonExcludeCrit.UnselectRelation.Add(discountReasonIncludeCrit);*/
 
 			//Сохранение фильтров для использования
 			criterions.Add(FilterTypes.NomenclatureInclude, nomenclatureIncludeCrit);
@@ -319,8 +319,11 @@ namespace Vodovoz.Reports
 			criterions.Add(FilterTypes.ClientExclude, clientExcludeCrit);
 			criterions.Add(FilterTypes.OrganizationInclude, organizationIncludeCrit);
 			criterions.Add(FilterTypes.OrganizationExclude, organizationExcludeCrit);
-			criterions.Add(FilterTypes.DiscountReasonInclude, discountReasonIncludeCrit);
-			criterions.Add(FilterTypes.DiscountReasonExclude, discountReasonExcludeCrit);
+			/*criterions.Add(FilterTypes.DiscountReasonInclude, discountReasonIncludeCrit);
+			criterions.Add(FilterTypes.DiscountReasonExclude, discountReasonExcludeCrit);*/
+			ylabelDiscountReason.TooltipText = buttonDiscountReasonSelect.TooltipText
+				= buttonDiscountReasonUnselect.TooltipText = ylabel7.TooltipText
+				= "Скоро будет доступно. \nЖдите большого обновления!";
 		}
 
 		private IColumnsConfig columnsConfig = ColumnsConfigFactory
@@ -404,10 +407,10 @@ namespace Vodovoz.Reports
 						{ "client_exclude", GetResultIds(criterions[FilterTypes.ClientExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 						//поставщики (наши организации)
 						{ "org_include", GetResultIds(criterions[FilterTypes.OrganizationInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						{ "org_exclude", GetResultIds(criterions[FilterTypes.OrganizationExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+						{ "org_exclude", GetResultIds(criterions[FilterTypes.OrganizationExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }/*,
 						//основания для скидок
 						{ "discountreason_include", GetResultIds(criterions[FilterTypes.DiscountReasonInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						{ "discountreason_exclude", GetResultIds(criterions[FilterTypes.DiscountReasonExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
+						{ "discountreason_exclude", GetResultIds(criterions[FilterTypes.DiscountReasonExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }*/
 					}
 			};
 		}
@@ -498,20 +501,20 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonDiscountReasonSelectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.DiscountReasonInclude].ObservableList;
+			/*ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.DiscountReasonInclude].ObservableList;
 			criterions[FilterTypes.DiscountReasonInclude].SubcribeWithClearOld((string obj) => {
 				ylabelDiscountReason.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
-			labelTableTitle.Text = "Включаемые номенклатуры";
+			labelTableTitle.Text = "Включаемые номенклатуры";*/
 		}
 
 		protected void OnButtonDiscountReasonUnselectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.DiscountReasonExclude].ObservableList;
+			/*ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.DiscountReasonExclude].ObservableList;
 			criterions[FilterTypes.DiscountReasonExclude].SubcribeWithClearOld((string obj) => {
 				ylabelDiscountReason.Text = String.Format("Искл.: {0} елем.", obj);
 			});
-			labelTableTitle.Text = "Исключаемые основания скидок";
+			labelTableTitle.Text = "Исключаемые основания скидок";*/
 		}
 
 		protected void OnButtonSelectAllClicked(object sender, EventArgs e)
