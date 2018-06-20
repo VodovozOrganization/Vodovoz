@@ -326,6 +326,59 @@ namespace Vodovoz
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
 				.AddColumn("Наименование").SetDataProperty(node => node.FullNameString)
 				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
+				.AddColumn("Причина").AddEnumRenderer(
+					node => node.DirectionReason
+					, true
+				).AddSetter((c, n) => {
+					if(n.Direction == Domain.Orders.Direction.Deliver){
+						switch(n.DirectionReason) {
+							case DirectionReason.Rent:
+								c.Text = "В аренду";
+								break;
+							case DirectionReason.Repair:
+								c.Text = "Из ремонта";
+								break;
+							case DirectionReason.Cleaning:
+								c.Text = "После санобработки";
+								break;
+							case DirectionReason.RepairAndCleaning:
+								c.Text = "Из ремонта и санобработки";
+								break;
+							default:
+								break;
+						}
+					} else {
+						switch(n.DirectionReason) {
+							case DirectionReason.Rent:
+								c.Text = "Закрытие аренды";
+								break;
+							case DirectionReason.Repair:
+								c.Text = "В ремонт";
+								break;
+							case DirectionReason.Cleaning:
+								c.Text = "На санобработку";
+								break;
+							case DirectionReason.RepairAndCleaning:
+								c.Text = "В ремонт и санобработку";
+								break;
+							default:
+								break;
+						}
+					}
+			}).HideCondition(HideItemFromDirectionReasonComboInEquipment)
+				.AddSetter((c, n) => {
+					c.Editable = false;
+					c.Editable = n.Nomenclature?.Category == NomenclatureCategory.equipment && n.Reason != Reason.Rent;
+				})
+				.AddSetter((c, n) => {
+					c.BackgroundGdk = (n.Nomenclature?.Category == NomenclatureCategory.equipment
+									   && n.DirectionReason == DirectionReason.None)
+						? colorLightRed
+						: colorWhite;
+				})
+
+
+
 				.AddColumn("Кол-во")
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
@@ -404,6 +457,21 @@ namespace Vodovoz
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
 
 			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += WaterSalesAgreement_ObjectUpdatedGeneric;
+		}
+
+		public virtual bool HideItemFromDirectionReasonComboInEquipment(OrderEquipment node, DirectionReason item)
+		{
+			switch(item) {
+				case DirectionReason.None:
+					return true;
+				case DirectionReason.Rent:
+					return node.Direction == Domain.Orders.Direction.Deliver;
+				case DirectionReason.Repair:
+				case DirectionReason.Cleaning:
+				case DirectionReason.RepairAndCleaning:
+				default:
+					return false;
+			}
 		}
 
 		void WaterSalesAgreement_ObjectUpdatedGeneric(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<WaterSalesAgreement> e)

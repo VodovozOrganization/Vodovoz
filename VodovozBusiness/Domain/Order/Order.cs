@@ -779,6 +779,10 @@ namespace Vodovoz.Domain.Orders
 			   .Any(x => x.OwnType == OwnTypes.None))
 				yield return new ValidationResult("У оборудования обязательно должна быть выбрана принадлежность.");
 
+			if(ObservableOrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
+			   .Any(x => x.DirectionReason == DirectionReason.None))
+				yield return new ValidationResult("У оборудования должна быть указана причина забор-доставки.");
+
 			if(ObservableOrderDepositItems.Any(x => x.Total < 0)) {
 				yield return new ValidationResult("В возврате залогов необходимо вводить положительную сумму.");
 			}
@@ -1588,6 +1592,7 @@ namespace Vodovoz.Domain.Orders
 							Equipment = paidRentEquipment.Equipment,
 							Nomenclature = paidRentEquipment.Nomenclature,
 							Reason = Reason.Rent,
+							DirectionReason = DirectionReason.Rent,
 							OrderItem = ObservableOrderItems[ItemId],
 							OwnType = OwnTypes.Rent
 						}
@@ -1622,6 +1627,7 @@ namespace Vodovoz.Domain.Orders
 							Equipment = equipment.Equipment,
 							Nomenclature = equipment.Nomenclature,
 							Reason = Reason.Rent,
+							DirectionReason = DirectionReason.Rent,
 							OrderItem = ObservableOrderItems[ItemId],
 							OwnType = OwnTypes.Rent
 						}
