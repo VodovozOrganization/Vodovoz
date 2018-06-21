@@ -450,6 +450,7 @@
     <Compile Include="DocTemplates\M2ProxyDocumentParser.cs" />
     <Compile Include="Domain\Order\Documents\OrderM2Proxy.cs" />
     <Compile Include="Domain\Order\KeyToDocumentsSet.cs" />
+    <Compile Include="Repositories\OrderDocumentRulesRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
