@@ -79,14 +79,11 @@ namespace Vodovoz.Domain.Orders.Documents
 					default:
 						break;
 				}
-
 			}
 		}
+		public virtual IDocTemplate GetTemplate() => AdditionalAgreement.DocumentTemplate;
 
-		public virtual IDocTemplate GetTemplate()
-		{
-			return AdditionalAgreement.DocumentTemplate;
-		}
+		public override PrinterType PrintType => PrinterType.ODT;
 	}
 }
 

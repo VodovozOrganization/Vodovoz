@@ -48,6 +48,8 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return Contract.DocumentTemplate;
 		}
+
+		public override PrinterType PrintType => PrinterType.ODT;
 	}
 
 }

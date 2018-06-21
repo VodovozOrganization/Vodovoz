@@ -811,7 +811,8 @@ namespace Vodovoz
 		{
 			if(toggleDocuments.Active)
 				notebook1.CurrentPage = 6;
-			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments.Any(doc => doc.PrintType == PrinterType.RDL);
+			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments.Any(doc => doc.PrintType == PrinterType.RDL
+															   || doc.PrintType == PrinterType.ODT);
 		}
 
 		#endregion
@@ -1521,7 +1522,7 @@ namespace Vodovoz
 
 		protected void OnBtnOpnPrnDlgClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderDocuments.Any(doc => doc.PrintType == PrinterType.RDL))
+			if(Entity.OrderDocuments.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT))
 				TabParent.AddSlaveTab(this, new OrderDocumentsPrinterDlg(Entity));
 		}
 
