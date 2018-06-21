@@ -449,6 +449,7 @@
     <Compile Include="Domain\Employees\M2ProxyDocument.cs" />
     <Compile Include="DocTemplates\M2ProxyDocumentParser.cs" />
     <Compile Include="Domain\Order\Documents\OrderM2Proxy.cs" />
+    <Compile Include="Domain\Order\KeyToDocumentsSet.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

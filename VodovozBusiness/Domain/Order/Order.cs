@@ -31,6 +31,13 @@ namespace Vodovoz.Domain.Orders
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+		static Dictionary<KeyToDocumentsSet, OrderDocumentType[]> RulesForOrderDocumentsColecting;
+
+		static Order()
+		{
+			
+		}
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
