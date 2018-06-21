@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Orders
 {
 	public class KeyToDocumentsSet
 	{
-		public KeyToDocumentsSet(){}
+		public KeyToDocumentsSet() { }
 
 		public KeyToDocumentsSet(Order order)
 		{
@@ -54,6 +54,7 @@ namespace Vodovoz.Domain.Orders
 			this.PaymentType = Order.PaymentType;
 		}
 
+		#region после добавления любого свойства или поля, которые учавствуют в формировании ключа для нового правила, обязательно добавить эти поля в переопределение методов Equals, ==, !=, GetHashCode
 		public override bool Equals(object obj)
 		{
 			if(obj == null || this.GetType() != obj.GetType())
@@ -73,12 +74,12 @@ namespace Vodovoz.Domain.Orders
 		public static bool operator ==(KeyToDocumentsSet x, KeyToDocumentsSet y)
 		{
 			bool result = x.HasOrderItems == y.HasOrderItems
-			               && x.HasOrderEquipment == y.HasOrderEquipment
-			               && x.NeedToRefundDepositFromClient == y.NeedToRefundDepositFromClient
-			               && x.NeedToReturnBottles == y.NeedToReturnBottles
-			               && x.IsPriceOfAllOrderItemsZero == y.IsPriceOfAllOrderItemsZero
-			               && x.PaymentType == y.PaymentType
-			               && x.DefaultDocumentType == y.DefaultDocumentType;
+						   && x.HasOrderEquipment == y.HasOrderEquipment
+						   && x.NeedToRefundDepositFromClient == y.NeedToRefundDepositFromClient
+						   && x.NeedToReturnBottles == y.NeedToReturnBottles
+						   && x.IsPriceOfAllOrderItemsZero == y.IsPriceOfAllOrderItemsZero
+						   && x.PaymentType == y.PaymentType
+						   && x.DefaultDocumentType == y.DefaultDocumentType;
 			return result;
 		}
 
@@ -99,5 +100,6 @@ namespace Vodovoz.Domain.Orders
 			result += 31 * result + this.DefaultDocumentType.GetHashCode();
 			return result;
 		}
+		#endregion
 	}
 }
