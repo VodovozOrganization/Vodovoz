@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
@@ -8,7 +7,6 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -68,7 +66,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private void UpdateLists()
 		{
 			var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(UoW, Entity);
-			var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(UoW, Entity);
+			var goods = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(UoW, Entity);
 			List<RouteListControlNotLoadedNode> notLoadedNomenclatures = new List<RouteListControlNotLoadedNode>();
 			foreach(var good in goods) {
 				var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);

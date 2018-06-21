@@ -523,7 +523,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool ShipIfCan(IUnitOfWork uow)
 		{
 			var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(uow, this);
-			var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(uow, this);
+			var goods = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(uow, this);
 
 			bool closed = true;
 			foreach(var good in goods) {
