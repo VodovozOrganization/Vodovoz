@@ -96,53 +96,85 @@ namespace Vodovoz.Repositories
 
 		static bool GetConditionForInvoice(KeyToDocumentsSet keys) =>
 		(
-			((keys.PaymentType == PaymentType.cashless
-			 && keys.IsPriceOfAllOrderItemsZero)
-			 //&& !keys.NeedToReturnBottles)
-			 || keys.PaymentType != PaymentType.cashless)
+			(
+				(
+					(
+						keys.PaymentType == PaymentType.cashless
+						&& keys.IsPriceOfAllOrderItemsZero
+					)
+					&&
+					(
+						!keys.NeedToRefundDepositToClient
+						|| keys.NeedToReturnBottles
+					)
+				)
+				||
+				(
+					keys.PaymentType == PaymentType.ByCard
+					&& keys.HasOrderItems
+				)
+				|| keys.PaymentType == PaymentType.cash
+			)
 			&& keys.OrderStatus >= OrderStatus.Accepted
 		);
 
 		static bool GetConditionForBarterInvoice(KeyToDocumentsSet keys) =>
 		(
-			keys.PaymentType == PaymentType.ByCard
+			keys.PaymentType == PaymentType.barter
 			&& keys.OrderStatus >= OrderStatus.Accepted
 		);
 
 
 		static bool GetConditionForEquipmentTransfer(KeyToDocumentsSet keys) =>
 		(
-			(keys.HasOrderEquipment
-			 || keys.NeedMaster)
+			(
+				(
+					keys.HasOrderEquipment
+					&& keys.PaymentType == PaymentType.cash
+					|| keys.PaymentType == PaymentType.barter
+				)
+				||
+				(
+					keys.HasOrderEquipment
+					&& keys.PaymentType == PaymentType.ByCard
+					&& !keys.IsPriceOfAllOrderItemsZero
+				)
+				||
+				(
+					keys.HasOrderEquipment
+					&& keys.PaymentType == PaymentType.cashless
+					&& !keys.NeedToRefundDepositToClient
+				)
+				|| keys.NeedMaster
+			)
 			&& keys.OrderStatus >= OrderStatus.Accepted
 		);
 
 		static bool GetConditionForDriverTicket(KeyToDocumentsSet keys) =>
 		(
-			keys.PaymentType == PaymentType.cashless
-			&& !keys.IsPriceOfAllOrderItemsZero
+			GetConditionForBill(keys)
 			&& !keys.IsSelfDelivery
 			&& keys.OrderStatus >= OrderStatus.Accepted
 		);
 
 		static bool GetConditionForUPD(KeyToDocumentsSet keys) =>
 		(
-			keys.PaymentType == PaymentType.cashless
-			 && !keys.IsPriceOfAllOrderItemsZero
+			GetConditionForBill(keys)
 			&& keys.OrderStatus >= OrderStatus.Accepted
 		);
 
 		static bool GetConditionForBill(KeyToDocumentsSet keys) =>
 		(
 			keys.PaymentType == PaymentType.cashless
-			 && !keys.IsPriceOfAllOrderItemsZero
+			&& !keys.IsPriceOfAllOrderItemsZero
+			&& !keys.NeedToRefundDepositToClient
+			&& keys.HasOrderItems
 		);
 
 		static bool GetConditionForTORG12(KeyToDocumentsSet keys) =>
 		(
-			keys.PaymentType == PaymentType.cashless
+			GetConditionForUPD(keys)
 			&& keys.DefaultDocumentType == DefaultDocumentType.torg12
-			&& keys.OrderStatus >= OrderStatus.Accepted
 		);
 
 		public static Dictionary<KeyToDocumentsSet, OrderDocumentType[]> GetAllRulesForDocumetsCollecting()
