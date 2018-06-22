@@ -17,6 +17,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -31,12 +32,9 @@ namespace Vodovoz.Domain.Orders
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		static Dictionary<KeyToDocumentsSet, OrderDocumentType[]> RulesForOrderDocumentsColecting;
+		//static Dictionary<KeyToDocumentsSet, OrderDocumentType[]> RulesForOrderDocumentsColecting;
 
-		static Order()
-		{
-			
-		}
+		static Order(){		}
 
 		#region Cвойства
 
@@ -1894,8 +1892,14 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateDocuments()
 		{
-			List<OrderDocumentType> docTypes = new List<OrderDocumentType>();
-			if(ObservableOrderItems.Any()) {
+			var key = new KeyToDocumentsSet(this);
+
+			OrderDocumentType[] typesArray = OrderDocumentRulesRepository.GetSetOfDocumets(key);
+
+			List<OrderDocumentType> docTypes = new List<OrderDocumentType>(typesArray);
+
+
+			/*if(ObservableOrderItems.Any()) {
 				if(OrderStatus >= OrderStatus.Accepted) {
 					docTypes = new List<OrderDocumentType>();
 					switch(paymentType) {
@@ -1982,7 +1986,7 @@ namespace Vodovoz.Domain.Orders
 				AddEquipmentDocuments(docTypes);
 				CheckAndCreateDocuments(docTypes.ToArray());
 			}
-			CreateWarrantyDocuments();
+			CreateWarrantyDocuments();*/
 		}
 
 		private void AddDepositDocuments(List<OrderDocumentType> list)

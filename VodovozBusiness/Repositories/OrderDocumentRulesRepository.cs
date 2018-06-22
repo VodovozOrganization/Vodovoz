@@ -2,11 +2,149 @@
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using System;
+using System.Linq;
 
 namespace Vodovoz.Repositories
 {
+	class Rule
+	{
+		public Func<KeyToDocumentsSet, bool> Condition;
+		public OrderDocumentType[] Documents;
+
+		public Rule(Func<KeyToDocumentsSet, bool> condition, OrderDocumentType[] documents)
+		{
+			Condition = condition;
+			Documents = documents;
+		}
+	}
+
 	public static class OrderDocumentRulesRepository
 	{
+		static List<Rule> rules = new List<Rule>();
+
+		public static OrderDocumentType[] GetSetOfDocumets(KeyToDocumentsSet keys) =>
+		rules.Where(r => r.Condition(keys)).SelectMany(r => r.Documents).Distinct().ToArray();
+
+		static OrderDocumentRulesRepository()
+		{
+			//Invoice
+			rules.Add(
+				new Rule(
+					keys => GetConditionForInvoice(keys),
+					new[] {
+						OrderDocumentType.Invoice
+					}
+				)
+			);
+			//InvoiceBarter
+			rules.Add(
+				new Rule(
+					keys => GetConditionForBarterInvoice(keys),
+					new[] {
+						OrderDocumentType.InvoiceBarter
+					}
+				)
+			);
+			//EquipmentTransfer
+			rules.Add(
+				new Rule(
+					keys => GetConditionForEquipmentTransfer(keys),
+					new[] {
+						OrderDocumentType.EquipmentTransfer
+					}
+				)
+			);
+			//DriverTicket
+			rules.Add(
+				new Rule(
+					keys => GetConditionForDriverTicket(keys),
+					new[] {
+						OrderDocumentType.DriverTicket
+					}
+				)
+			);
+			//UPD
+			rules.Add(
+				new Rule(
+					keys => GetConditionForUPD(keys),
+					new[] {
+						OrderDocumentType.UPD
+					}
+				)
+			);
+			//Bill
+			rules.Add(
+				new Rule(
+					keys => GetConditionForBill(keys),
+					new[] {
+						OrderDocumentType.Bill
+					}
+				)
+			);
+			//TORG12+SF
+			rules.Add(
+				new Rule(
+					keys => GetConditionForTORG12(keys),
+					new[] {
+						OrderDocumentType.Torg12,
+						OrderDocumentType.ShetFactura
+					}
+				)
+			);
+		}
+
+		static bool GetConditionForInvoice(KeyToDocumentsSet keys) =>
+		(
+			((keys.PaymentType == PaymentType.cashless
+			 && keys.IsPriceOfAllOrderItemsZero)
+			 //&& !keys.NeedToReturnBottles)
+			 || keys.PaymentType != PaymentType.cashless)
+			&& keys.OrderStatus >= OrderStatus.Accepted
+		);
+
+		static bool GetConditionForBarterInvoice(KeyToDocumentsSet keys) =>
+		(
+			keys.PaymentType == PaymentType.ByCard
+			&& keys.OrderStatus >= OrderStatus.Accepted
+		);
+
+
+		static bool GetConditionForEquipmentTransfer(KeyToDocumentsSet keys) =>
+		(
+			(keys.HasOrderEquipment
+			 || keys.NeedMaster)
+			&& keys.OrderStatus >= OrderStatus.Accepted
+		);
+
+		static bool GetConditionForDriverTicket(KeyToDocumentsSet keys) =>
+		(
+			keys.PaymentType == PaymentType.cashless
+			&& !keys.IsPriceOfAllOrderItemsZero
+			&& !keys.IsSelfDelivery
+			&& keys.OrderStatus >= OrderStatus.Accepted
+		);
+
+		static bool GetConditionForUPD(KeyToDocumentsSet keys) =>
+		(
+			keys.PaymentType == PaymentType.cashless
+			 && !keys.IsPriceOfAllOrderItemsZero
+			&& keys.OrderStatus >= OrderStatus.Accepted
+		);
+
+		static bool GetConditionForBill(KeyToDocumentsSet keys) =>
+		(
+			keys.PaymentType == PaymentType.cashless
+			 && !keys.IsPriceOfAllOrderItemsZero
+		);
+
+		static bool GetConditionForTORG12(KeyToDocumentsSet keys) =>
+		(
+			keys.PaymentType == PaymentType.cashless
+			&& keys.DefaultDocumentType == DefaultDocumentType.torg12
+			&& keys.OrderStatus >= OrderStatus.Accepted
+		);
+
 		public static Dictionary<KeyToDocumentsSet, OrderDocumentType[]> GetAllRulesForDocumetsCollecting()
 		{
 			Dictionary<KeyToDocumentsSet, OrderDocumentType[]> rulesForOrderDocumentsColecting
@@ -195,7 +333,7 @@ namespace Vodovoz.Repositories
 					PaymentType = PaymentType.cash,
 					HasOrderItems = true,
 					HasOrderEquipment = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] {
 					OrderDocumentType.Invoice,
@@ -208,7 +346,7 @@ namespace Vodovoz.Repositories
 					PaymentType = PaymentType.barter,
 					HasOrderItems = true,
 					HasOrderEquipment = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] {
 					OrderDocumentType.InvoiceBarter,
@@ -221,7 +359,7 @@ namespace Vodovoz.Repositories
 					PaymentType = PaymentType.ByCard,
 					HasOrderItems = true,
 					HasOrderEquipment = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] {
 					OrderDocumentType.Invoice,
@@ -234,7 +372,7 @@ namespace Vodovoz.Repositories
 					PaymentType = PaymentType.cashless,
 					HasOrderItems = true,
 					HasOrderEquipment = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] { }
 			);
@@ -245,7 +383,7 @@ namespace Vodovoz.Repositories
 					IsPriceOfAllOrderItemsZero = true,
 					HasOrderItems = true,
 					HasOrderEquipment = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] { }
 			);
@@ -255,7 +393,7 @@ namespace Vodovoz.Repositories
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.cash,
 					HasOrderItems = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] {
 					OrderDocumentType.Invoice
@@ -266,7 +404,7 @@ namespace Vodovoz.Repositories
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.barter,
 					HasOrderItems = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] {
 					OrderDocumentType.InvoiceBarter
@@ -277,7 +415,7 @@ namespace Vodovoz.Repositories
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.ByCard,
 					HasOrderItems = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] {
 					OrderDocumentType.Invoice
@@ -288,7 +426,7 @@ namespace Vodovoz.Repositories
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.cashless,
 					HasOrderItems = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] { }
 			);
@@ -298,7 +436,7 @@ namespace Vodovoz.Repositories
 					PaymentType = PaymentType.cashless,
 					IsPriceOfAllOrderItemsZero = true,
 					HasOrderItems = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] { }
 			);
@@ -358,7 +496,7 @@ namespace Vodovoz.Repositories
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.cash,
 					HasOrderEquipment = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] {
 					OrderDocumentType.Invoice,
@@ -370,7 +508,7 @@ namespace Vodovoz.Repositories
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.barter,
 					HasOrderEquipment = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] {
 					OrderDocumentType.InvoiceBarter,
@@ -382,7 +520,7 @@ namespace Vodovoz.Repositories
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.ByCard,
 					HasOrderEquipment = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] { }
 			);
@@ -391,7 +529,7 @@ namespace Vodovoz.Repositories
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.cashless,
 					HasOrderEquipment = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] { }
 			);
@@ -401,7 +539,7 @@ namespace Vodovoz.Repositories
 					PaymentType = PaymentType.cashless,
 					IsPriceOfAllOrderItemsZero = true,
 					HasOrderEquipment = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] { }
 			);
@@ -410,7 +548,7 @@ namespace Vodovoz.Repositories
 			rulesForOrderDocumentsColecting.Add(
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.cash,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] {
 					OrderDocumentType.Invoice
@@ -420,7 +558,7 @@ namespace Vodovoz.Repositories
 			rulesForOrderDocumentsColecting.Add(
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.barter,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] {
 					OrderDocumentType.InvoiceBarter
@@ -430,7 +568,7 @@ namespace Vodovoz.Repositories
 			rulesForOrderDocumentsColecting.Add(
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.ByCard,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] { }
 			);
@@ -438,7 +576,7 @@ namespace Vodovoz.Repositories
 			rulesForOrderDocumentsColecting.Add(
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.cashless,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] { }
 			);
@@ -447,7 +585,7 @@ namespace Vodovoz.Repositories
 				new KeyToDocumentsSet {
 					PaymentType = PaymentType.cashless,
 					IsPriceOfAllOrderItemsZero = true,
-					NeedToRefundDepositFromClient = true
+					NeedToRefundDepositToClient = true
 				},
 				new OrderDocumentType[] { }
 			);

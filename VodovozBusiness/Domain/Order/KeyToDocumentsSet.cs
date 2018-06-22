@@ -22,16 +22,25 @@ namespace Vodovoz.Domain.Orders
 		public bool HasOrderEquipment { get; set; } = false;
 
 		[Display(Name = "Нужен ли возврат залога от клиента?")]
-		public bool NeedToRefundDepositFromClient { get; set; } = false;
+		public bool NeedToRefundDepositToClient { get; set; } = false;
 
 		[Display(Name = "Есть ли возврат тары?")]
-		public bool? NeedToReturnBottles { get; set; } = null;
+		public bool NeedToReturnBottles { get; set; } = false;
 
 		[Display(Name = "Стоимость товаров заказа равна нулю?")]
 		public bool IsPriceOfAllOrderItemsZero { get; set; } = false;
 
 		[Display(Name = "Тип документа 'ТОРГ12 + Счёт-фактура'?")]
 		private bool IsDocTypeTORG12 { get; set; } = false;
+
+		[Display(Name = "Есть выезд мастера?")]
+		public bool NeedMaster { get; set; } = false;
+
+		[Display(Name = "Самовывоз?")]
+		public bool IsSelfDelivery { get; set; } = false;
+
+		[Display(Name = "Статус заказа")]
+		public OrderStatus OrderStatus { get; set; } = OrderStatus.NewOrder;
 
 		[Display(Name = "Тип оплаты")]
 		public PaymentType PaymentType { get; set; }
@@ -48,13 +57,17 @@ namespace Vodovoz.Domain.Orders
 			this.IsDocTypeTORG12 = DefaultDocumentType.HasValue && DefaultDocumentType == Client.DefaultDocumentType.torg12;
 			this.HasOrderEquipment = Order.ObservableOrderEquipments.Any();
 			this.HasOrderItems = Order.ObservableOrderItems.Any();
-			this.IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.Price * i.Discount) <= 0m;
+			this.IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.Price * (1 - (decimal)i.Discount / 100)) <= 0m;
 			this.NeedToReturnBottles = Order.BottlesReturn > 0;
-			this.NeedToRefundDepositFromClient = Order.ObservableOrderDepositItems.Any(x => x.PaymentDirection == PaymentDirection.FromClient);
+			this.NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any(x => x.PaymentDirection == PaymentDirection.ToClient);
 			this.PaymentType = Order.PaymentType;
+			this.NeedMaster = Order.OrderItems.Any(i => i.Nomenclature.Category == Goods.NomenclatureCategory.master);
+			this.IsSelfDelivery = Order.SelfDelivery;
+			this.OrderStatus = Order.OrderStatus;
 		}
 
 		#region после добавления любого свойства или поля, которые учавствуют в формировании ключа для нового правила, обязательно добавить эти поля в переопределение методов Equals, ==, !=, GetHashCode
+		/*
 		public override bool Equals(object obj)
 		{
 			if(obj == null || this.GetType() != obj.GetType())
@@ -99,7 +112,7 @@ namespace Vodovoz.Domain.Orders
 			result += 31 * result + this.PaymentType.GetHashCode();
 			result += 31 * result + this.DefaultDocumentType.GetHashCode();
 			return result;
-		}
+		}*/
 		#endregion
 	}
 }
