@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>297mm</PageHeight>
-  <PageWidth>210mm</PageWidth>
+  <PageHeight>296.926mm</PageHeight>
+  <PageWidth>209.804mm</PageWidth>
   <Width>210mm</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -16,87 +16,88 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    route_lists.id,
-    route_lists.date,
-    route_lists.driver_id,
-    route_lists.forwarder_id,
-    CASE route_lists.status
-        WHEN 'New' THEN 'Новый'
-        WHEN 'InLoading' THEN 'На погрузке'
-        WHEN 'EnRoute' THEN 'В пути'
-        WHEN 'OnClosing' THEN 'Сдаётся'
-        WHEN 'NotDelivered' THEN 'Не сдан'
-        WHEN 'MileageCheck' THEN 'Проверка километража'
-        WHEN 'Closed' THEN 'Закрыт'
-    END AS status,
-    CONCAT_WS(
-            ' ',
-            employees.last_name,
-            IF(employees.name = '',
-                NULL,
-                employees.name),
-            IF(employees.patronymic = '',
-                NULL,
-                employees.patronymic),
+	route_lists.id,
+	route_lists.date,
+	route_lists.driver_id,
+	route_lists.forwarder_id,
+	CASE route_lists.status
+		WHEN 'New' THEN 'Новый'
+		WHEN 'InLoading' THEN 'На погрузке'
+		WHEN 'EnRoute' THEN 'В пути'
+		WHEN 'OnClosing' THEN 'Сдаётся'
+		WHEN 'NotDelivered' THEN 'Не сдан'
+		WHEN 'MileageCheck' THEN 'Проверка километража'
+		WHEN 'Closed' THEN 'Закрыт'
+	END AS status,
+	CONCAT_WS(
+			' ',
+			employees.last_name,
+			IF(employees.name = '',
+				NULL,
+				employees.name),
+			IF(employees.patronymic = '',
+				NULL,
+				employees.patronymic),
 
-            /* Автомобили в МЛ, в случае если их несколько, перечисление через запятую */ 
-            ' (',
-            TRIM(BOTH '\n' FROM GROUP_CONCAT(DISTINCT route_list_cars.car SEPARATOR ', ')),
-            ')'
-            ) AS driver_name,
-    forwarders.last_name AS forwarder_name,
-    COUNT(route_list_addresses.id) AS address_count,
-    SUM((SELECT 
-            SUM(order_items.count)
-        FROM
-            order_items
-                LEFT JOIN
-            nomenclature ON nomenclature.id = order_items.nomenclature_id
-        WHERE
-            order_items.order_id = route_list_addresses.order_id
-                AND nomenclature.category = 'water')) AS water19_amount,
-    SUM((SELECT 
-            SUM(order_items.count)
-        FROM
-            order_items
-                LEFT JOIN
-            nomenclature ON nomenclature.id = order_items.nomenclature_id
-        WHERE
-            order_items.order_id = route_list_addresses.order_id
-                AND nomenclature.category = 'disposableBottleWater')) AS water6_amount,
-	     GROUP_CONCAT(DISTINCT ' ',
-        (SELECT 
-                logistics_area.name
-            FROM
-                orders
-                    LEFT JOIN
-                delivery_points ON orders.delivery_point_id = delivery_points.id
-                    LEFT JOIN
-                logistics_area ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')),
-                        logistics_district)
-            WHERE
-                orders.id = route_list_addresses.order_id
-                 )) AS street_district
+			/* Автомобили в МЛ, в случае если их несколько, перечисление через запятую */ 
+			' (',
+			TRIM(BOTH '\n' FROM GROUP_CONCAT(DISTINCT route_list_cars.car SEPARATOR ', ')),
+			')'
+			) AS driver_name,
+	forwarders.last_name AS forwarder_name,
+	COUNT(route_list_addresses.id) AS address_count,
+	SUM((SELECT 
+			SUM(order_items.count)
+		FROM
+			order_items
+				LEFT JOIN
+			nomenclature ON nomenclature.id = order_items.nomenclature_id
+		WHERE
+			order_items.order_id = route_list_addresses.order_id
+				AND nomenclature.category = 'water')) AS water19_amount,
+	SUM((SELECT 
+			SUM(order_items.count)
+		FROM
+			order_items
+				LEFT JOIN
+			nomenclature ON nomenclature.id = order_items.nomenclature_id
+		WHERE
+			order_items.order_id = route_list_addresses.order_id
+				AND nomenclature.category = 'disposableBottleWater')) AS water6_amount,
+		 GROUP_CONCAT(DISTINCT ' ',
+		(SELECT 
+				logistics_area.name
+			FROM
+				orders
+					LEFT JOIN
+				delivery_points ON orders.delivery_point_id = delivery_points.id
+					LEFT JOIN
+				logistics_area ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')),
+						logistics_district)
+			WHERE
+				orders.id = route_list_addresses.order_id
+				 )) AS street_district
 FROM
-    route_lists
-        LEFT JOIN
-    employees ON employees.id = route_lists.driver_id
-        LEFT JOIN
-    employees AS forwarders ON forwarders.id = route_lists.forwarder_id
-        LEFT JOIN
-    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-        LEFT JOIN
-    orders ON route_list_addresses.order_id = orders.id
+	route_lists
+		LEFT JOIN
+	employees ON employees.id = route_lists.driver_id
+		LEFT JOIN
+	employees AS forwarders ON forwarders.id = route_lists.forwarder_id
+		LEFT JOIN
+	route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+		LEFT JOIN
+	orders ON route_list_addresses.order_id = orders.id
 	LEFT JOIN
-    delivery_points ON orders.delivery_point_id = delivery_points.id
+	delivery_points ON orders.delivery_point_id = delivery_points.id
 	LEFT JOIN
-    logistics_area 
-    ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), logistics_district)
-    LEFT JOIN
-    (SELECT id, CONCAT_WS(' - ', model, reg_number) as car FROM cars) as route_list_cars
-    ON route_list_cars.id = route_lists.car_id
+	logistics_area 
+	ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), logistics_district)
+	LEFT JOIN
+	(SELECT id, CONCAT_WS(' - ', model, reg_number) as car FROM cars) as route_list_cars
+	ON route_list_cars.id = route_lists.car_id
 WHERE
-    route_lists.`date` BETWEEN @start_date AND @end_date
+	route_lists.`date` BETWEEN @start_date AND @end_date
+	AND employees.visiting_master IN(@is_driver_master ,1) 
 GROUP BY route_lists.id
 ORDER BY route_lists.date;</CommandText>
         <QueryParameters>
@@ -105,6 +106,9 @@ ORDER BY route_lists.date;</CommandText>
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_driver_master">
+            <Value>=Parameters!is_driver_master</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -164,7 +168,7 @@ ORDER BY route_lists.date;</CommandText>
         <Left>0.80pt</Left>
         <Width>557.87pt</Width>
         <Height>20.32pt</Height>
-        <Value>="Реестр маршрутных листов с " + CDate({?start_date}) + " по " + CDate({?end_date})</Value>
+        <Value>="Реестр маршрутных листов с " + Format(CDate({?start_date}), "dd.MM.yyyy") + " по " + Format(CDate({?end_date}), "dd.MM.yyyy")</Value>
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
@@ -892,7 +896,7 @@ ORDER BY route_lists.date;</CommandText>
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017-05-31</Value>
+          <Value>2017-05-11</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -900,6 +904,18 @@ ORDER BY route_lists.date;</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_driver_master">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
   <DataElementName>Report</DataElementName>
