@@ -12,6 +12,8 @@ namespace Vodovoz.Reports.Logistic
 
 		private global::QSWidgetLib.DatePeriodPicker dateperiodpicker;
 
+		private global::Gtk.CheckButton chkMasters;
+
 		private global::Gtk.Button buttonCreateReport;
 
 		protected virtual void Build()
@@ -52,18 +54,31 @@ namespace Vodovoz.Reports.Logistic
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.chkMasters = new global::Gtk.CheckButton();
+			this.chkMasters.CanFocus = true;
+			this.chkMasters.Name = "chkMasters";
+			this.chkMasters.Label = global::Mono.Unix.Catalog.GetString("Выездные мастера");
+			this.chkMasters.DrawIndicator = true;
+			this.chkMasters.UseUnderline = true;
+			this.vbox1.Add(this.chkMasters);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.chkMasters]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w4.Position = 2;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w5.Position = 3;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

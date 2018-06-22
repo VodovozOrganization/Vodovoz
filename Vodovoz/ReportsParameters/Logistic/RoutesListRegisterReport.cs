@@ -7,9 +7,9 @@ namespace Vodovoz.Reports.Logistic
 {
 	public partial class RoutesListRegisterReport : Gtk.Bin, IParametersWidget
 	{
-		public RoutesListRegisterReport ()
+		public RoutesListRegisterReport()
 		{
-			this.Build ();
+			this.Build();
 		}
 
 		#region IParametersWidget implementation
@@ -24,32 +24,33 @@ namespace Vodovoz.Reports.Logistic
 
 		#endregion
 
-		void OnUpdate (bool hide = false)
+		void OnUpdate(bool hide = false)
 		{
-			if (LoadReport != null) {
-				LoadReport (this, new LoadReportEventArgs (GetReportInfo (), hide));
+			if(LoadReport != null) {
+				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
 			}
 		}
 
-		private ReportInfo GetReportInfo ()
+		private ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
 				Identifier = "Logistic.RoutesListRegister",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull }
+					{ "end_date", dateperiodpicker.EndDateOrNull },
+					{ "is_driver_master", chkMasters.Active ? 1 : 0 }
 				}
 			};
 		}
 
-		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
+		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
-			if (dateperiodpicker.StartDateOrNull == null) {
-				MessageDialogWorks.RunErrorDialog ("Необходимо выбрать дату");
+			if(dateperiodpicker.StartDateOrNull == null) {
+				MessageDialogWorks.RunErrorDialog("Необходимо выбрать дату");
 				return;
 			}
-			OnUpdate (true);
+			OnUpdate(true);
 		}
 	}
 }
