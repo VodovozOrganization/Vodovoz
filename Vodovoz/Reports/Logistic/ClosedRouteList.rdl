@@ -1679,7 +1679,7 @@ LEFT JOIN (
 		order_equipment.order_id as order_id, 
         nomenclature.id AS nomenclature_id,
 		IFNULL(nomenclature.short_name, nomenclature.name) as name, 
-        SUM(order_equipment.count) AS cnt 
+        SUM(order_equipment.actual_count) AS cnt 
     FROM order_equipment 
 		LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
 	WHERE order_equipment.direction = 'PickUp' AND nomenclature.hide = 0
