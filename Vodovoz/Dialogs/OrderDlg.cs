@@ -746,7 +746,6 @@ namespace Vodovoz
 				if(!MessageDialogWorks.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
 					return false;
 			}
-			Entity.UpdateDocuments();
 
 			if(OrderItemEquipmentCountHasChanges) {
 				MessageDialogWorks.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
