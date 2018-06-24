@@ -10,6 +10,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using QSOrmProject;
+using Vodovoz.ViewWidgets.Logistics;
 
 namespace Vodovoz
 {
@@ -44,7 +45,7 @@ namespace Vodovoz
 				}
 			}
 
-			private Order BaseOrder { get; set; }
+			public Order BaseOrder { get; set; }
 
 			public OrderNode(Order order)
 			{
@@ -304,6 +305,12 @@ namespace Vodovoz
 		{
 			AcceptOrderChange();
 		}
+
+		protected void OnButton33Clicked(object sender, EventArgs e)
+		{
+			var dlgOrder = new EditOrderDlg(orderNode.BaseOrder);
+			TabParent.AddSlaveTab(this, dlgOrder);
+		}
 	}
 
 	public class OrderItemReturnsNode
@@ -405,7 +412,11 @@ namespace Vodovoz
 			}
 		}
 		public int Discount {
-			get => IsEquipment ? orderEquipment.OrderItem.Discount : orderItem.Discount;
+			get { 
+				if(IsEquipment)
+					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.Discount : 0;
+				return orderItem.Discount;
+			}
 			set {
 				if(IsEquipment) {
 					if(orderEquipment.OrderItem != null)
