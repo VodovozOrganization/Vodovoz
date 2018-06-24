@@ -7,6 +7,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Repository

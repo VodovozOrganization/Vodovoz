@@ -17,6 +17,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -75,7 +76,7 @@ namespace Vodovoz.Domain.Orders
 				SetField(ref client, value, () => Client);
 				if(DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id)) {
 					//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
-					logger.Warn("Очишаем точку доставки, при установке клиента. Возможно это не нужно.");
+					logger.Warn("Очищаем точку доставки, при установке клиента. Возможно это не нужно.");
 					DeliveryPoint = null;
 				}
 			}
@@ -1118,7 +1119,7 @@ namespace Vodovoz.Domain.Orders
 				Price = nomenclature.GetPrice(1)
 			});
 
-			UpdateDocuments();
+			//UpdateDocuments();
 		}
 
 		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count)
@@ -1146,7 +1147,7 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				Price = price
 			});
-			UpdateDocuments();
+			//UpdateDocuments();
 		}
 
 		#region test_methods_for_sidebar
@@ -1179,7 +1180,7 @@ namespace Vodovoz.Domain.Orders
 					Price = orderItem.Price
 				});
 			}
-			UpdateDocuments();
+			//UpdateDocuments();
 		}
 
 		/// <summary>
@@ -1199,7 +1200,7 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = orderItem.Nomenclature,
 				Price = orderItem.Price
 			});
-			UpdateDocuments();
+			//UpdateDocuments();
 		}
 
 		public virtual void ClearOrderItemsList()
@@ -1887,97 +1888,18 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateDocuments()
 		{
-			List<OrderDocumentType> docTypes = new List<OrderDocumentType>();
-			if(ObservableOrderItems.Any()) {
-				if(OrderStatus >= OrderStatus.Accepted) {
-					docTypes = new List<OrderDocumentType>();
-					switch(paymentType) {
-						case PaymentType.cashless:
-							switch(DocumentType) {
-								case DefaultDocumentType.upd:
-									docTypes.Add(OrderDocumentType.UPD);
-									break;
-								case DefaultDocumentType.torg12:
-									docTypes.Add(OrderDocumentType.Torg12);
-									docTypes.Add(OrderDocumentType.ShetFactura);
-									docTypes.Add(OrderDocumentType.UPD);
-									break;
-								default: break;
-							}
-							docTypes.Add(OrderDocumentType.Bill);
-							docTypes.Add(OrderDocumentType.DriverTicket);
-							break;
-						case PaymentType.cash:
-						case PaymentType.ByCard:
-						case PaymentType.Internal:
-							docTypes.Add(OrderDocumentType.Invoice);
-							break;
-						case PaymentType.barter:
-							docTypes.Add(OrderDocumentType.InvoiceBarter);
-							break;
-						default: break;
-					}
+			//создаём объект-ключ на основе текущего заказа. Этот ключ содержит набор свойств, 
+			//по которым будет происходить подбор правила для создания набора документов
+			var key = new KeyToDocumentsSet(this);
 
-					if(ObservableOrderEquipments.Any(eq => eq.OwnType == OwnTypes.Duty || eq.OwnType == OwnTypes.Rent
-													 || (eq.OwnType == OwnTypes.Client && eq.Direction == Direction.PickUp))) {
-						docTypes.Add(OrderDocumentType.EquipmentTransfer);
-					}
+			//обращение к хранилищу правил для получения массива типов документов по ключу
+			OrderDocumentType[] typesArray = OrderDocumentRulesRepository.GetSetOfDocumets(key);
 
-					AddDepositDocuments(docTypes);
-					AddEquipmentDocuments(docTypes);
-					CheckAndCreateDocuments(docTypes.ToArray());
-				} else if(PaymentType == PaymentType.cashless) {
-					docTypes = new List<OrderDocumentType>() {
-						OrderDocumentType.Bill
-					};
-					AddDepositDocuments(docTypes);
-					AddEquipmentDocuments(docTypes);
-					CheckAndCreateDocuments(docTypes.ToArray());
-				} else {
-					AddEquipmentDocuments(docTypes);
-					CheckAndCreateDocuments();
-				}
-			} else if(!this.ObservableOrderEquipments.Any()
-					   && BottlesReturn.HasValue
-					   && BottlesReturn.Value > 0) {
-				docTypes = new List<OrderDocumentType>() {
-					OrderDocumentType.DriverTicket,
-					OrderDocumentType.BottleTransfer
-				};
-				AddDepositDocuments(docTypes);
-				CheckAndCreateDocuments(docTypes.ToArray());
-			} else {
-				switch(paymentType) {
-					case PaymentType.cash:
-					case PaymentType.Internal:
-					case PaymentType.ByCard:
-						docTypes = new List<OrderDocumentType>() {
-							OrderDocumentType.Invoice,
-						};
-						if(ObservableOrderEquipments.Any())
-							docTypes.Add(OrderDocumentType.EquipmentTransfer);
-						break;
-					case PaymentType.cashless:
-						docTypes = new List<OrderDocumentType>() {
-							OrderDocumentType.DriverTicket,
-							OrderDocumentType.UPD
-						};
-						if(ObservableOrderDepositItems.Any())
-							docTypes.Add(OrderDocumentType.RefundEquipmentDeposit);
-						if(ObservableOrderEquipments.Any())
-							docTypes.Add(OrderDocumentType.EquipmentTransfer);
-						if(BottlesReturn.HasValue && BottlesReturn.Value > 0)
-							docTypes.Add(OrderDocumentType.BottleTransfer);
-						break;
-					default:
-						break;
-				}
-				AddEquipmentDocuments(docTypes);
-				CheckAndCreateDocuments(docTypes.ToArray());
-			}
+			CheckAndCreateDocuments(typesArray);
 			CreateWarrantyDocuments();
 		}
 
+		[Obsolete("Метод устарел после внедрения функционала в рамках задачи I-1173", true)]
 		private void AddDepositDocuments(List<OrderDocumentType> list)
 		{
 			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles
@@ -1991,6 +1913,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		[Obsolete("Метод устарел после внедрения функционала в рамках задачи I-1173", true)]
 		private void AddEquipmentDocuments(List<OrderDocumentType> list)
 		{
 			//Доставка оборудования в собственности клиента после обслуживания
@@ -2291,6 +2214,7 @@ namespace Vodovoz.Domain.Orders
 		void ObservableOrderItems_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(TotalSum));
+			UpdateDocuments();
 		}
 
 		#endregion
