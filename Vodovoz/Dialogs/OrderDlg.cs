@@ -326,11 +326,27 @@ namespace Vodovoz
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
 				.AddColumn("Наименование").SetDataProperty(node => node.FullNameString)
 				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
+				.AddColumn("Кол-во")
+				.AddNumericRenderer(node => node.Count).WidthChars(10)
+				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
+				.AddTextRenderer(node => String.Format("({0})", node.ReturnedCount))
+				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
+				.AddSetter((c, n) => {
+					c.Editable = false;
+					c.Editable = n.Nomenclature?.Category == NomenclatureCategory.equipment;
+				})
+				.AddSetter((c, n) => {
+					c.BackgroundGdk = colorWhite;
+					if(n.Nomenclature?.Category == NomenclatureCategory.equipment
+					  && n.OwnType == OwnTypes.None) {
+						c.BackgroundGdk = colorLightRed;
+					}
+				})
 				.AddColumn("Причина").AddEnumRenderer(
 					node => node.DirectionReason
 					, true
 				).AddSetter((c, n) => {
-					if(n.Direction == Domain.Orders.Direction.Deliver){
+					if(n.Direction == Domain.Orders.Direction.Deliver) {
 						switch(n.DirectionReason) {
 							case DirectionReason.Rent:
 								c.Text = "В аренду";
@@ -365,7 +381,7 @@ namespace Vodovoz
 								break;
 						}
 					}
-			}).HideCondition(HideItemFromDirectionReasonComboInEquipment)
+				}).HideCondition(HideItemFromDirectionReasonComboInEquipment)
 				.AddSetter((c, n) => {
 					c.Editable = false;
 					c.Editable = n.Nomenclature?.Category == NomenclatureCategory.equipment && n.Reason != Reason.Rent;
@@ -375,25 +391,6 @@ namespace Vodovoz
 									   && n.DirectionReason == DirectionReason.None)
 						? colorLightRed
 						: colorWhite;
-				})
-
-
-
-				.AddColumn("Кол-во")
-				.AddNumericRenderer(node => node.Count).WidthChars(10)
-				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
-				.AddTextRenderer(node => String.Format("({0})", node.ReturnedCount))
-				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
-				.AddSetter((c, n) => {
-					c.Editable = false;
-					c.Editable = n.Nomenclature?.Category == NomenclatureCategory.equipment;
-				})
-				.AddSetter((c, n) => {
-					c.BackgroundGdk = colorWhite;
-					if(n.Nomenclature?.Category == NomenclatureCategory.equipment
-					  && n.OwnType == OwnTypes.None) {
-						c.BackgroundGdk = colorLightRed;
-					}
 				})
 				.AddColumn("")
 				.Finish();
@@ -760,7 +757,8 @@ namespace Vodovoz
 			return true;
 		}
 
-		public void PrintOrderDocuments(){
+		public void PrintOrderDocuments()
+		{
 			if(Entity.OrderDocuments.Any()) {
 				if(MessageDialogWorks.RunQuestionDialog("Открыть документы для печати?")) {
 					var documentPrinterDlg = new OrderDocumentsPrinterDlg(Entity);
@@ -1106,7 +1104,7 @@ namespace Vodovoz
 				} else if(treeDocuments.GetSelectedObjects()[0] is OrderContract) {
 					var contract = (treeDocuments.GetSelectedObjects()[0] as OrderContract).Contract;
 					dlg = OrmMain.CreateObjectDialog(contract);
-				} else if(treeDocuments.GetSelectedObjects()[0] is OrderM2Proxy){
+				} else if(treeDocuments.GetSelectedObjects()[0] is OrderM2Proxy) {
 					var m2Proxy = (treeDocuments.GetSelectedObjects()[0] as OrderM2Proxy).M2Proxy;
 					dlg = OrmMain.CreateObjectDialog(m2Proxy);
 				}
