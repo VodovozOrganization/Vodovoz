@@ -47,6 +47,9 @@ namespace Vodovoz.ViewWidgets.Logistics
 
 		public void ConfigureDlg()
 		{
+			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
+			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
+
 			/*Entity.ObservableOrderItems.ElementAdded += Entity_ObservableOrderItems_ElementAdded;
 			Entity.ObservableOrderEquipments.ElementAdded += Entity_ObservableOrderEquipments_ElementAdded;
 
