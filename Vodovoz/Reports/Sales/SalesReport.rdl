@@ -331,7 +331,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	counterparty.name as counterparty,
@@ -382,13 +382,16 @@ WHERE
 			(orders.client_id NOT IN (@client_exclude) AND 0 IN (@client_include)))
 			OR (0 IN (@client_include) AND 0 IN (@client_exclude))
         )
-	AND (
+    AND	(
+			orders.payment_type IN (@pay_types)
+		)
+/*	AND (
 			((counterparty_contract.organization_id IN (@org_include) AND 0 IN (@org_exclude) )
 			OR
 			(counterparty_contract.organization_id NOT IN (@org_exclude) AND 0 IN (@org_include)))
 			OR (0 IN (@org_include) AND 0 IN (@org_exclude))
         )
-/*	AND ( 
+	AND ( 
 			((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
 			OR
 			(order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
@@ -432,9 +435,12 @@ GROUP BY nomenclature_id</CommandText>
           <QueryParameter Name="client_exclude">
             <Value>=Parameters!client_exclude</Value>
           </QueryParameter>
+          <QueryParameter Name="pay_types">
+            <Value>=Parameters!pay_types</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -478,7 +484,7 @@ GROUP BY nomenclature_id</CommandText>
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -571,6 +577,14 @@ GROUP BY nomenclature_id</CommandText>
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="pay_types">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>true</MultiValue>
       <Prompt>
       </Prompt>

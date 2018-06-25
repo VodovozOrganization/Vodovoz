@@ -1,17 +1,19 @@
-﻿﻿﻿using System;
-using QSOrmProject;
-using QSReport;
-using Vodovoz.Domain.Goods;
+﻿//не мержить. переехал из заказов урезанным и изменённым﻿﻿
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Domain;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
+using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using NHibernate.Transform;
-using System.ComponentModel.DataAnnotations;
+using QSOrmProject;
+using QSReport;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Reports
 {
@@ -23,11 +25,13 @@ namespace Vodovoz.Reports
 
 			public string Name { get; set; }
 
+			public object Value { get; set; }
+
 			private bool selected;
 
-			public bool Selected { 
-				get{ return selected; }
-				set{ SetField(ref selected, value, () => Selected); }
+			public bool Selected {
+				get { return selected; }
+				set { SetField(ref selected, value, () => Selected); }
 			}
 		}
 
@@ -66,12 +70,12 @@ namespace Vodovoz.Reports
 
 			public void SubcribeWithClearOld(Action<string> action)
 			{
-				Changed = delegate {};
+				Changed = delegate { };
 				Changed += action;
 			}
 
-			public bool HaveSelected{
-				get{ return list.Any(x => x.Selected); }
+			public bool HaveSelected {
+				get { return list.Any(x => x.Selected); }
 			}
 
 			public void Unselect()
@@ -138,6 +142,9 @@ namespace Vodovoz.Reports
 			DiscountReasonExclude*/
 		}
 
+		List<PaymentType> listPaymentType = Enum.GetValues(typeof(PaymentType)).Cast<PaymentType>().ToList();
+		List<SalesReportNode> salesReportNodes = new List<SalesReportNode>();
+
 		Dictionary<FilterTypes, Criterion> criterions = new Dictionary<FilterTypes, Criterion>();
 
 		public SalesReport()
@@ -151,6 +158,16 @@ namespace Vodovoz.Reports
 
 		private void ConfigureFilters()
 		{
+			foreach(var item in listPaymentType) {
+				salesReportNodes.Add(
+					new SalesReportNode {
+						Id = (int)item,
+						Name = item.GetEnumTitle(),
+						Value = item.ToString(),
+						Selected = true
+					}
+				);
+			}
 			//Номенклатура
 			Criterion nomenclatureIncludeCrit = new Criterion((arg) => {
 				SalesReportNode alias = null;
@@ -322,7 +339,8 @@ namespace Vodovoz.Reports
 			/*criterions.Add(FilterTypes.DiscountReasonInclude, discountReasonIncludeCrit);
 			criterions.Add(FilterTypes.DiscountReasonExclude, discountReasonExcludeCrit);*/
 			ylabelDiscountReason.TooltipText = buttonDiscountReasonSelect.TooltipText
-				= buttonDiscountReasonUnselect.TooltipText = ylabel7.TooltipText
+				= buttonDiscountReasonUnselect.TooltipText = ylabel7.TooltipText = ylabel6.TooltipText
+				= buttonOrgSelect.TooltipText = buttonOrgUnselect.TooltipText = ylabelOrg.TooltipText
 				= "Скоро будет доступно. \nЖдите большого обновления!";
 		}
 
@@ -389,7 +407,7 @@ namespace Vodovoz.Reports
 			}else {
 				identifier = "Sales.SalesReport";
 			}
-
+			var payToReport = salesReportNodes.Where(p => p.Selected).Select(p => p.Value.ToString()).ToArray();
 			return new ReportInfo {
 				Identifier = identifier,
 				Parameters = new Dictionary<string, object>
@@ -406,8 +424,10 @@ namespace Vodovoz.Reports
 						{ "client_include", GetResultIds(criterions[FilterTypes.ClientInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 						{ "client_exclude", GetResultIds(criterions[FilterTypes.ClientExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 						//поставщики (наши организации)
+						{ "pay_types", payToReport.Count() > 0 ? payToReport : new string[] { "none" } }/*,
+						//поставщики (наши организации)
 						{ "org_include", GetResultIds(criterions[FilterTypes.OrganizationInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						{ "org_exclude", GetResultIds(criterions[FilterTypes.OrganizationExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }/*,
+						{ "org_exclude", GetResultIds(criterions[FilterTypes.OrganizationExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 						//основания для скидок
 						{ "discountreason_include", GetResultIds(criterions[FilterTypes.DiscountReasonInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 						{ "discountreason_exclude", GetResultIds(criterions[FilterTypes.DiscountReasonExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }*/
@@ -480,6 +500,13 @@ namespace Vodovoz.Reports
 			});
 			labelTableTitle.Text = "Исключаемые контрагенты";
 		}
+
+		protected void OnBtnPayTypeSelectClicked(object sender, EventArgs e)
+		{
+			ytreeviewSelectedList.ItemsDataSource = salesReportNodes;
+			labelTableTitle.Text = "Включаемые номенклатуры";
+		}
+
 
 		protected void OnButtonOrgSelectClicked(object sender, EventArgs e)
 		{
