@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Gamma.GtkWidgets;
+using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using QSOrmProject;
-using Vodovoz.ViewWidgets.Logistics;
 
 namespace Vodovoz
 {
@@ -45,7 +44,7 @@ namespace Vodovoz
 				}
 			}
 
-			public Order BaseOrder { get; set; }
+			private Order BaseOrder { get; set; }
 
 			public OrderNode(Order order)
 			{
@@ -81,6 +80,7 @@ namespace Vodovoz
 			set {
 				uow = value;
 				depositrefunditemsview1.Configure(uow, routeListItem.Order, true);
+				orderEquipmentItemsView.Configure(uow, routeListItem.Order, true);
 			}
 		}
 		OrderNode orderNode;
@@ -152,7 +152,8 @@ namespace Vodovoz
 			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceClient.Binding.AddBinding(orderNode, s => s.Client, w => w.Subject).InitializeFromSource();
 			referenceClient.CanEditReference = false;
-
+			orderEquipmentItemsView.UoW = UoW;
+			orderEquipmentItemsView.Order = routeListItem.Order;
 			ConfigureDeliveryPointRefference(orderNode.Client);
 
 			ytreeToClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
@@ -304,12 +305,6 @@ namespace Vodovoz
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
 		{
 			AcceptOrderChange();
-		}
-
-		protected void OnButton33Clicked(object sender, EventArgs e)
-		{
-			var dlgOrder = new EditOrderDlg(orderNode.BaseOrder);
-			TabParent.AddSlaveTab(this, dlgOrder);
 		}
 	}
 

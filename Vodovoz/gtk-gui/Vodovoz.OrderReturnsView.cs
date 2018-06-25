@@ -30,7 +30,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReferenceVM referenceDeliveryPoint;
 
-		private global::Gtk.Button button33;
+		private global::Vodovoz.ViewWidgets.OrderEquipmentItemsView orderEquipmentItemsView;
 
 		private global::Gtk.HBox hbox3;
 
@@ -205,16 +205,12 @@ namespace Vodovoz
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.button33 = new global::Gtk.Button();
-			this.button33.CanFocus = true;
-			this.button33.Name = "button33";
-			this.button33.UseUnderline = true;
-			this.button33.Label = global::Mono.Unix.Catalog.GetString("PressMe");
-			this.vbox1.Add(this.button33);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.button33]));
+			this.orderEquipmentItemsView = new global::Vodovoz.ViewWidgets.OrderEquipmentItemsView();
+			this.orderEquipmentItemsView.Events = ((global::Gdk.EventMask)(256));
+			this.orderEquipmentItemsView.Name = "orderEquipmentItemsView";
+			this.vbox1.Add(this.orderEquipmentItemsView);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.orderEquipmentItemsView]));
 			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
@@ -317,7 +313,6 @@ namespace Vodovoz
 			this.buttonDelivered.Clicked += new global::System.EventHandler(this.OnButtonDeliveredClicked);
 			this.buttonNotDelivered.Clicked += new global::System.EventHandler(this.OnButtonNotDeliveredClicked);
 			this.buttonDeliveryCanceled.Clicked += new global::System.EventHandler(this.OnButtonDeliveryCanseledClicked);
-			this.button33.Clicked += new global::System.EventHandler(this.OnButton33Clicked);
 		}
 	}
 }

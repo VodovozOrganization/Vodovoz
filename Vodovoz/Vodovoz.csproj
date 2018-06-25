@@ -794,7 +794,6 @@
     <Compile Include="ReportsParameters\ReportForBigClient.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ReportForBigClient.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderDocumentsPrinterDlg.cs" />
-    <Compile Include="ViewWidgets\Logistics\EditOrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.EditOrderDlg.cs" />
     <Compile Include="ViewWidgets\OrderEquipmentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.OrderEquipmentItemsView.cs" />

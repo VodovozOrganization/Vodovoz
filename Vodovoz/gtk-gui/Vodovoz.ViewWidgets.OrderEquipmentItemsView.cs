@@ -90,6 +90,9 @@ namespace Vodovoz.ViewWidgets
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.buttonAddEquipmentToClient.Clicked += new global::System.EventHandler(this.OnButtonAddEquipmentToClientClicked);
+			this.buttonAddEquipmentFromClient.Clicked += new global::System.EventHandler(this.OnButtonAddEquipmentFromClientClicked);
+			this.buttonDeleteEquipment.Clicked += new global::System.EventHandler(this.OnButtonDeleteEquipmentClicked);
 		}
 	}
 }

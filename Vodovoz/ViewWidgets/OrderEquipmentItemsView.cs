@@ -111,9 +111,6 @@ namespace Vodovoz.ViewWidgets
 						? colorLightRed
 						: colorWhite;
 				})
-
-
-
 				.AddColumn("Кол-во")
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
@@ -213,17 +210,22 @@ namespace Vodovoz.ViewWidgets
 
 		void NomenclatureToClient(object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
-			AddNomenclatureToClient(UoWGeneric.Session.Get<Nomenclature>(e.ObjectId));
+			AddNomenclatureToClient(UoW.Session.Get<Nomenclature>(e.ObjectId));
+		}
+
+		void AddNomenclatureToClient(Nomenclature nomenclature)
+		{
+			Order.AddEquipmentNomenclatureToClient(nomenclature, UoW);
 		}
 
 		protected void OnButtonAddEquipmentFromClientClicked(object sender, EventArgs e)
 		{
-			if(UoWGeneric.Root.Client == null) {
+			if(Order.Client == null) {
 				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
 				return;
 			}
 
-			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
 			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.equipment;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
@@ -231,29 +233,17 @@ namespace Vodovoz.ViewWidgets
 			SelectDialog.TabName = "Оборудование от клиента";
 			SelectDialog.ObjectSelected += NomenclatureFromClient;
 			SelectDialog.ShowFilter = true;
-			TabParent.AddSlaveTab(this, SelectDialog);
+			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
 		}
 
+		void NomenclatureFromClient(object sender, ReferenceRepresentationSelectedEventArgs e)
+		{
+			AddNomenclatureFromClient(UoW.Session.Get<Nomenclature>(e.ObjectId));
+		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		void AddNomenclatureFromClient(Nomenclature nomenclature)
+		{
+			Order.AddEquipmentNomenclatureFromClient(nomenclature, UoW);
+		}
 	}
 }
