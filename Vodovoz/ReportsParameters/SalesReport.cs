@@ -143,7 +143,7 @@ namespace Vodovoz.Reports
 		}
 
 		List<PaymentType> listPaymentType = Enum.GetValues(typeof(PaymentType)).Cast<PaymentType>().ToList();
-		List<SalesReportNode> salesReportNodes = new List<SalesReportNode>();
+		GenericObservableList<SalesReportNode> salesReportNodes = new GenericObservableList<SalesReportNode>();
 
 		Dictionary<FilterTypes, Criterion> criterions = new Dictionary<FilterTypes, Criterion>();
 
@@ -503,10 +503,14 @@ namespace Vodovoz.Reports
 
 		protected void OnBtnPayTypeSelectClicked(object sender, EventArgs e)
 		{
+			ylblPayType.Text = String.Format("Вкл.: {0} елем.", 3);
 			ytreeviewSelectedList.ItemsDataSource = salesReportNodes;
+			salesReportNodes.ElementChanged += (aList, aIdx) => {
+				int cnt = salesReportNodes.Where(n => n.Selected).Count();
+				ylblPayType.Text = String.Format("Вкл.: {0} елем.", cnt);
+			};
 			labelTableTitle.Text = "Включаемые номенклатуры";
 		}
-
 
 		protected void OnButtonOrgSelectClicked(object sender, EventArgs e)
 		{
