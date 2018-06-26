@@ -782,6 +782,8 @@
     <Compile Include="ReportsParameters\ReportForBigClient.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ReportForBigClient.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderDocumentsPrinterDlg.cs" />
+    <Compile Include="ViewWidgets\OrderEquipmentItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.OrderEquipmentItemsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

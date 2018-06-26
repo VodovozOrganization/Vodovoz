@@ -131,9 +131,9 @@ namespace Vodovoz
 										 || UoWGeneric.Root.OrderStatus == OrderStatus.Accepted
 										 || Entity.OrderStatus == OrderStatus.Canceled);
 
+			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
-			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
 			treeServiceClaim.ItemsDataSource = UoWGeneric.Root.ObservableInitialOrderService;
 			//TODO FIXME Добавить в таблицу закрывающие заказы.
 
@@ -146,7 +146,6 @@ namespace Vodovoz
 			Entity.ObservableInitialOrderService.ElementAdded += Entity_UpdateClientCanChange;
 
 			Entity.ObservableOrderItems.ElementAdded += Entity_ObservableOrderItems_ElementAdded;
-			Entity.ObservableOrderEquipments.ElementAdded += Entity_ObservableOrderEquipments_ElementAdded;
 
 			//Подписываемся на изменение товара, для обновления количества оборудования в доп. соглашении
 			Entity.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged_ChangeCount;
@@ -215,7 +214,6 @@ namespace Vodovoz
 
 			buttonViewDocument.Sensitive = false;
 			buttonDelete1.Sensitive = false;
-			buttonDeleteEquipment.Sensitive = false;
 			notebook1.ShowTabs = false;
 			notebook1.Page = 0;
 
@@ -246,7 +244,6 @@ namespace Vodovoz
 			};
 
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
-			treeEquipment.Selection.Changed += TreeEquipment_Selection_Changed;
 			#endregion
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
 			dataSumDifferenceReason.Completion = new EntryCompletion();
@@ -321,78 +318,6 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.AgreementString)
 				.RowCells()
 					.XAlign(0.5f)
-				.Finish();
-
-			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
-				.AddColumn("Наименование").SetDataProperty(node => node.FullNameString)
-				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
-				.AddColumn("Кол-во")
-				.AddNumericRenderer(node => node.Count).WidthChars(10)
-				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
-				.AddTextRenderer(node => String.Format("({0})", node.ReturnedCount))
-				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
-				.AddSetter((c, n) => {
-					c.Editable = false;
-					c.Editable = n.Nomenclature?.Category == NomenclatureCategory.equipment;
-				})
-				.AddSetter((c, n) => {
-					c.BackgroundGdk = colorWhite;
-					if(n.Nomenclature?.Category == NomenclatureCategory.equipment
-					  && n.OwnType == OwnTypes.None) {
-						c.BackgroundGdk = colorLightRed;
-					}
-				})
-				.AddColumn("Причина").AddEnumRenderer(
-					node => node.DirectionReason
-					, true
-				).AddSetter((c, n) => {
-					if(n.Direction == Domain.Orders.Direction.Deliver) {
-						switch(n.DirectionReason) {
-							case DirectionReason.Rent:
-								c.Text = "В аренду";
-								break;
-							case DirectionReason.Repair:
-								c.Text = "Из ремонта";
-								break;
-							case DirectionReason.Cleaning:
-								c.Text = "После санобработки";
-								break;
-							case DirectionReason.RepairAndCleaning:
-								c.Text = "Из ремонта и санобработки";
-								break;
-							default:
-								break;
-						}
-					} else {
-						switch(n.DirectionReason) {
-							case DirectionReason.Rent:
-								c.Text = "Закрытие аренды";
-								break;
-							case DirectionReason.Repair:
-								c.Text = "В ремонт";
-								break;
-							case DirectionReason.Cleaning:
-								c.Text = "На санобработку";
-								break;
-							case DirectionReason.RepairAndCleaning:
-								c.Text = "В ремонт и санобработку";
-								break;
-							default:
-								break;
-						}
-					}
-				}).HideCondition(HideItemFromDirectionReasonComboInEquipment)
-				.AddSetter((c, n) => {
-					c.Editable = false;
-					c.Editable = n.Nomenclature?.Category == NomenclatureCategory.equipment && n.Reason != Reason.Rent;
-				})
-				.AddSetter((c, n) => {
-					c.BackgroundGdk = (n.Nomenclature?.Category == NomenclatureCategory.equipment
-									   && n.DirectionReason == DirectionReason.None)
-						? colorLightRed
-						: colorWhite;
-				})
-				.AddColumn("")
 				.Finish();
 
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument>()
@@ -552,14 +477,6 @@ namespace Vodovoz
 			EditGoodsCountCellOnAdd(treeItems);
 		}
 
-		void Entity_ObservableOrderEquipments_ElementAdded(object aList, int[] aIdx)
-		{
-			treeAnyGoodsFirstColWidth = treeEquipment.Columns.First(x => x.Title == "Наименование").Width;
-			treeEquipment.ExposeEvent += TreeAnyGoods_ExposeEvent;
-			//Выполнение в случае если размер не поменяется
-			EditGoodsCountCellOnAdd(treeEquipment);
-		}
-
 		void ObservableOrderDocuments_ListChanged(object aList)
 		{
 			ShowOrderColumnInDocumentsList();
@@ -628,16 +545,6 @@ namespace Vodovoz
 														  || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.DailyRent
 														  || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.FreeRent
 														  || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.NonfreeRent);
-		}
-
-		void TreeEquipment_Selection_Changed(object sender, EventArgs e)
-		{
-			object[] items = treeEquipment.GetSelectedObjects();
-
-			if(!items.Any())
-				return;
-
-			buttonDeleteEquipment.Sensitive = items.Any();
 		}
 
 		/// <summary>
@@ -1368,7 +1275,7 @@ namespace Vodovoz
 							Equipment = equipmentToAdd[i],
 							OrderItem = item,
 							Reason = Reason.Sale
-						});
+						}); 
 					}
 					for(; equipmentCount > item.Count; equipmentCount--) {
 						UoWGeneric.Root.ObservableOrderEquipments.Remove(
@@ -1380,7 +1287,6 @@ namespace Vodovoz
 			DailyNumberIncrement();
 			Entity.ChangeStatus(OrderStatus.Accepted);
 			treeItems.Selection.UnselectAll();
-			treeEquipment.Selection.UnselectAll();
 			Save();
 			PrintOrderDocuments();
 		}
@@ -1930,14 +1836,6 @@ namespace Vodovoz
 		void AddNomenclatureFromClient(Nomenclature nomenclature)
 		{
 			UoWGeneric.Root.AddEquipmentNomenclatureFromClient(nomenclature, UoWGeneric);
-		}
-
-		protected void OnButtonDeleteEquipmentClicked(object sender, EventArgs e)
-		{
-			UoWGeneric.Root.DeleteEquipment(treeEquipment.GetSelectedObject() as OrderEquipment);
-			//при удалении номенклатуры выделение снимается и при последующем удалении exception
-			//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
-			buttonDeleteEquipment.Sensitive = treeEquipment.GetSelectedObject() != null;
 		}
 
 		protected void OnEntryBottlesReturnChanged(object sender, EventArgs e)
