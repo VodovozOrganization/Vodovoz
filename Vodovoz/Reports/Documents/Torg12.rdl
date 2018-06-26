@@ -17,27 +17,33 @@
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
-    nomenclature.id AS id,
-    nomenclature.official_name as name,
-    measurement_units.okei AS unit_code,
-    measurement_units.name AS mu_name,
-    order_items.count AS count,
-    order_items.price AS item_price,
-    order_items.include_nds,
-    order_items.discount AS item_discount,
-    CASE nomenclature.vat
-        WHEN 'No' THEN 1
-        WHEN 'Vat10' THEN 1.1
-        WHEN 'Vat18' THEN 1.18
-    END AS vat
+	nomenclature.id AS id,
+	nomenclature.official_name as name,
+	measurement_units.okei AS unit_code,
+	measurement_units.name AS mu_name,
+	IF(
+		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
+		actual_count,
+		count
+	) AS count,
+	order_items.price AS item_price,
+	order_items.include_nds,
+	order_items.discount AS item_discount,
+	CASE nomenclature.vat
+		WHEN 'No' THEN 1
+		WHEN 'Vat10' THEN 1.1
+		WHEN 'Vat18' THEN 1.18
+	END AS vat
 FROM
-    order_items
-        LEFT JOIN
-    nomenclature ON order_items.nomenclature_id = nomenclature.id
-        LEFT JOIN
-    measurement_units ON nomenclature.unit_id = measurement_units.id
+	order_items
+LEFT JOIN
+	nomenclature ON order_items.nomenclature_id = nomenclature.id
+LEFT JOIN
+	measurement_units ON nomenclature.unit_id = measurement_units.id
+LEFT JOIN
+	orders ON orders.id = order_items.order_id
 WHERE
-    order_items.order_id = @order_id;</CommandText>
+	order_items.order_id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -1317,7 +1323,7 @@ AND orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
-                      <Value>=(Fields!item_price.Value * Fields!count.Value - Fields!include_nds.Value)  * (1 - Fields!item_discount.Value /100)</Value>
+                      <Value>=(Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds},0))  * (1 - Fields!item_discount.Value /100)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1353,7 +1359,7 @@ AND orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox107">
-                      <Value>=Fields!include_nds.Value  * (1 - Fields!item_discount.Value /100)</Value>
+                      <Value>=Iif({count}&gt;0,{include_nds},0)  * (1 - Fields!item_discount.Value /100)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1489,7 +1495,7 @@ AND orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox208">
-                      <Value>=Sum(({item_price} * {count} - {include_nds}) * (1 - {item_discount}/100))</Value>
+                      <Value>=Sum(({item_price} * {count} - Iif({count}&gt;0,{include_nds},0)) * (1 - {item_discount}/100))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1524,7 +1530,7 @@ AND orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox408">
-                      <Value>=Sum({include_nds} * (1 - {item_discount}/100))</Value>
+                      <Value>=Sum(Iif({count}&gt;0,{include_nds},0) * (1 - {item_discount}/100))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -4688,21 +4694,12 @@ Public Function SummaString_Val(ByVal Summa As String) As String
             End If
         End If
     End Function</Code>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_temp;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>183688</Value>
+          <Value>183378</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -4712,4 +4709,13 @@ Public Function SummaString_Val(ByVal Summa As String) As String
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

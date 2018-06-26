@@ -18,6 +18,7 @@ using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
+using NHibernate.Criterion;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -228,7 +229,10 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Наличных к получению")]
 		public virtual Decimal SumToReceive {
 			get {
-				return PaymentType == PaymentType.cash ? TotalSum + ExtraMoney : 0;
+				decimal money = TotalSum;
+				if(OrderStatus.IsIn(OrderRepository.GetNotDeliveredOrderStatuses()))
+					money = ActualTotalSum;
+				return PaymentType == PaymentType.cash ? money + ExtraMoney : 0;
 			}
 			protected set {; }
 		}
@@ -850,8 +854,12 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal TotalSum {
 			get {
 				Decimal sum = 0;
-				foreach(OrderItem item in ObservableOrderItems) {
-					sum += item.Price * item.Count * (1 - (decimal)item.Discount / 100);
+				if(false && OrderStatus.IsIn(OrderRepository.GetNotDeliveredOrderStatuses())) {
+					foreach(OrderItem item in ObservableOrderItems)
+						sum += item.Price * item.ActualCount * (1 - (decimal)item.Discount / 100);
+				} else {
+					foreach(OrderItem item in ObservableOrderItems)
+						sum += item.Price * item.Count * (1 - (decimal)item.Discount / 100);
 				}
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
 					if(dep.PaymentDirection == PaymentDirection.ToClient)

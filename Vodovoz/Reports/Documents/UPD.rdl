@@ -17,27 +17,33 @@
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
-    nomenclature.id AS id,
-    nomenclature.official_name as name,
-    measurement_units.okei AS unit_code,
-    measurement_units.name AS mu_name,
-    order_items.count AS count,
-    order_items.price AS item_price,
-    order_items.include_nds,
-    order_items.discount AS item_discount,
-    CASE nomenclature.vat
-        WHEN 'No' THEN 1
-        WHEN 'Vat10' THEN 1.1
-        WHEN 'Vat18' THEN 1.18
-    END AS vat
+	nomenclature.id AS id,
+	nomenclature.official_name as name,
+	measurement_units.okei AS unit_code,
+	measurement_units.name AS mu_name,
+	IF(
+		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
+		actual_count,
+		count
+	) AS count,
+	order_items.price AS item_price,
+	order_items.include_nds,
+	order_items.discount AS item_discount,
+	CASE nomenclature.vat
+		WHEN 'No' THEN 1
+		WHEN 'Vat10' THEN 1.1
+		WHEN 'Vat18' THEN 1.18
+	END AS vat
 FROM
-    order_items
-        LEFT JOIN
-    nomenclature ON order_items.nomenclature_id = nomenclature.id
-        LEFT JOIN
-    measurement_units ON nomenclature.unit_id = measurement_units.id
+	order_items
+LEFT JOIN
+	nomenclature ON order_items.nomenclature_id = nomenclature.id
+LEFT JOIN
+	measurement_units ON nomenclature.unit_id = measurement_units.id
+LEFT JOIN
+	orders ON orders.id = order_items.order_id
 WHERE
-    order_items.order_id = @order_id;</CommandText>
+	order_items.order_id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -903,7 +909,7 @@ WHERE
             <Height>90pt</Height>
             <Width>90pt</Width>
             <CustomProperties>
-              <CustomProperty >
+              <CustomProperty>
                 <Name>QrCode</Name>
                 <Value>="UPD;"+{order_id}+";"+Format({order_date}, "ddMMyyyy")</Value>
               </CustomProperty>
@@ -2047,7 +2053,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>=((Fields!item_price * Fields!count) -  Fields!include_nds)  * (1 - Fields!item_discount/100)</Value>
+                      <Value>=((Fields!item_price * Fields!count) -  Iif({count}&gt;0,{include_nds},0))  * (1 - Fields!item_discount/100)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2103,7 +2109,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>=Fields!include_nds * (1 - Fields!item_discount/100)</Value>
+                      <Value>=Iif({count}&gt;0,{include_nds},0) * (1 - Fields!item_discount/100)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2239,7 +2245,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>=Sum(((Fields!item_price * Fields!count) -  Fields!include_nds) * (1 - Fields!item_discount/100))</Value>
+                      <Value>=Sum(((Fields!item_price * Fields!count) -  Iif({count}&gt;0,{include_nds},0)) * (1 - Fields!item_discount/100))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2277,7 +2283,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>=Sum(Fields!include_nds * (1 - Fields!item_discount/100))</Value>
+                      <Value>=Sum(Iif({count}&gt;0,{include_nds},0) * (1 - Fields!item_discount/100))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -3504,30 +3510,6 @@ WHERE
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_temp;user=andrey;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
-  <ReportParameters>
-    <ReportParameter Name="order_id">
-      <DataType>Integer</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>95964</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
-    </ReportParameter>
-  </ReportParameters>
   <EmbeddedImages>
     <EmbeddedImage Name="logo">
       <MIMEType>image/png</MIMEType>
@@ -3538,4 +3520,28 @@ WHERE
       <ImageData>iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAB5SURBVHhe7c9RDYAwEEAxhOyLTA5mEYaHBRvvmtRAr2/tUf7w/T5DCNcJ1wnXCdcJ1wnXCdcJ1wnXCdcJ1wnXCdcJ1wnXCdcJ1wnXCdcJ1wnXCdcJ1wnXCdcJ1wnXCdcJ1wnXCdcJ1wnXCdcJ1wnXCdcJ100ND7L2AbUnGe1tOFmfAAAAAElFTkSuQmCC</ImageData>
     </EmbeddedImage>
   </EmbeddedImages>
+  <ReportParameters>
+    <ReportParameter Name="order_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>183378</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

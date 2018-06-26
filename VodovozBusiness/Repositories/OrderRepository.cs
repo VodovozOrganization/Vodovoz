@@ -120,6 +120,18 @@ namespace Vodovoz.Repository
 				OrderStatus.Closed
 			};
 		}
+
+		public static OrderStatus[] GetNotDeliveredOrderStatuses()
+		{
+			return new OrderStatus[]{
+				OrderStatus.Canceled,
+				OrderStatus.Closed,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.NotDelivered,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock
+			};
+		}
 	}
 }
 
