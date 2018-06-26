@@ -14,10 +14,10 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
+using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
-using Vodovoz.Repositories;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -655,27 +655,27 @@ namespace Vodovoz.Domain.Orders
 				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
 				if(newStatus == OrderStatus.Accepted) {
 					if(DeliveryDate == null || DeliveryDate == default(DateTime))
-						yield return new ValidationResult("Не указана дата доставки.",
+						yield return new ValidationResult("В заказе не указана дата доставки.",
 							new[] { this.GetPropertyName(o => o.DeliveryDate) });
 					if(!SelfDelivery && DeliverySchedule == null)
-						yield return new ValidationResult("Не указано время доставки.",
+						yield return new ValidationResult("В заказе не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
 
 					if(PaymentType == PaymentType.cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
-						yield return new ValidationResult("Не указано как будут подписаны документы.",
+						yield return new ValidationResult("В заказе не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName(o => o.SignatureType) });
 
 					if(bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water))
-						yield return new ValidationResult("Не указано бутылей на возврат.",
+						yield return new ValidationResult("В заказе не указано бутылей на возврат.",
 							new[] { this.GetPropertyName(o => o.Contract) });
 					if(trifle == null && PaymentType == PaymentType.cash && this.TotalSum > 0m)
-						yield return new ValidationResult("Не указана сдача.",
+						yield return new ValidationResult("В заказе не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
-						yield return new ValidationResult("Должно быть указано количество во всех позициях товара и оборудования");
+						yield return new ValidationResult("В заказе должно быть указано количество во всех позициях товара и оборудования");
 
 					// Проверка соответствия цен в заказе ценам в номенклатуре
-					string priceResult = "Неверно указаны цены на следующие товары:\n";
+					string priceResult = "В заказе неверно указаны цены на следующие товары:\n";
 					List<string> incorrectPriceItems = new List<string>();
 					foreach(OrderItem item in ObservableOrderItems) {
 						decimal fixedPrice = GetFixedPrice(item);
@@ -703,7 +703,7 @@ namespace Vodovoz.Domain.Orders
 					// Конец проверки цен
 
 					if(ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
-						yield return new ValidationResult("Если указана скидка на товар, обязательно должно быть заполнено основание");
+						yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 #if !SHORT
 					//Проверка товаров
 					var itemsWithBlankWarehouse = OrderItems
@@ -763,29 +763,29 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
-				yield return new ValidationResult("Не указана дата доставки.",
+				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
 			if(!SelfDelivery && DeliveryPoint == null)
-				yield return new ValidationResult("Необходимо заполнить точку доставки.",
+				yield return new ValidationResult("В заказе необходимо заполнить точку доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
 			if(Client == null)
-				yield return new ValidationResult("Необходимо заполнить поле \"клиент\".",
+				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
 			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
-				yield return new ValidationResult("Если выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
+				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 
 			if(ObservableOrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
 			   .Any(x => x.OwnType == OwnTypes.None))
-				yield return new ValidationResult("У оборудования обязательно должна быть выбрана принадлежность.");
+				yield return new ValidationResult("У оборудования в заказе должна быть выбрана принадлежность.");
 
 			if(ObservableOrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
 			   .Any(x => x.DirectionReason == DirectionReason.None))
-				yield return new ValidationResult("У оборудования должна быть указана причина забор-доставки.");
+				yield return new ValidationResult("У оборудования в заказе должна быть указана причина забор-доставки.");
 
 			if(ObservableOrderDepositItems.Any(x => x.Total < 0)) {
-				yield return new ValidationResult("В возврате залогов необходимо вводить положительную сумму.");
+				yield return new ValidationResult("В возврате залогов в заказе необходимо вводить положительную сумму.");
 			}
 
 			if(ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water) &&

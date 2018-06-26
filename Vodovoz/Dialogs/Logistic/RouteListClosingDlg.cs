@@ -16,6 +16,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Logistics;
@@ -538,6 +539,10 @@ namespace Vodovoz
 		{
 			var valid = new QSValidator<RouteList>(Entity);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+				return false;
+			
+			var orderValidator = new QSValidator<Order>(Entity.Addresses.FirstOrDefault().Order);
+			if(orderValidator.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
 			var messages = new List<string>();

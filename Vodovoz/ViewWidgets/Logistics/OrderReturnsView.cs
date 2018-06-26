@@ -80,7 +80,6 @@ namespace Vodovoz
 			set {
 				uow = value;
 				depositrefunditemsview1.Configure(uow, routeListItem.Order, true);
-				orderEquipmentItemsView.Configure(uow, routeListItem.Order, true);
 			}
 		}
 		OrderNode orderNode;
@@ -100,7 +99,7 @@ namespace Vodovoz
 				routeListItem.Status != RouteListItemStatus.Transfered;
 
 			ytreeToClient.Sensitive = routeListItem.IsDelivered();
-			ytreeFromClient.Sensitive = routeListItem.IsDelivered();
+			orderEquipmentItemsView.Sensitive = routeListItem.IsDelivered();
 			Configure();
 			itemsToClient = new List<OrderItemReturnsNode>();
 			var nomenclatures = routeListItem.Order.OrderItems
@@ -110,32 +109,9 @@ namespace Vodovoz
 				itemsToClient.Add(new OrderItemReturnsNode(item));
 				item.PropertyChanged += OnOrderChanged;
 			}
-			var equipments = routeListItem.Order.OrderEquipments
-				.Where(item => item.Direction == Vodovoz.Domain.Orders.Direction.Deliver);
-			foreach(var item in equipments) {
-				itemsToClient.Add(new OrderItemReturnsNode(item));
-				item.PropertyChanged += OnOrderChanged;
-			}
-			//Добавление в список услуг
-			/*var services = routeListItem.Order.OrderItems
-				.Where(item => item.Nomenclature.Category == NomenclatureCategory.service).ToList();
-			foreach(var item in services) {
-				itemsToClient.Add(new OrderItemReturnsNode(item));
-				item.PropertyChanged += OnOrderChanged;
-			}*/
-
-			//От клиента
-			equipmentFromClient = new List<OrderItemReturnsNode>();
-			var fromClient = routeListItem.Order.OrderEquipments
-				.Where(equipment => equipment.Direction == Vodovoz.Domain.Orders.Direction.PickUp).ToList();
-			foreach(var item in fromClient) {
-				var newOrderEquipmentNode = new OrderItemReturnsNode(item);
-				equipmentFromClient.Add(newOrderEquipmentNode);
-			}
 			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualGoodsTotalSum);
 
 			ytreeToClient.ItemsDataSource = itemsToClient;
-			ytreeFromClient.ItemsDataSource = equipmentFromClient;
 			UpdateButtonsState();
 		}
 
@@ -152,8 +128,7 @@ namespace Vodovoz
 			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceClient.Binding.AddBinding(orderNode, s => s.Client, w => w.Subject).InitializeFromSource();
 			referenceClient.CanEditReference = false;
-			orderEquipmentItemsView.UoW = UoW;
-			orderEquipmentItemsView.Order = routeListItem.Order;
+			orderEquipmentItemsView.Configure(UoW, routeListItem.Order);
 			ConfigureDeliveryPointRefference(orderNode.Client);
 
 			ytreeToClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
@@ -190,28 +165,6 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.Sum)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName)
 				.AddColumn("")
-				.Finish();
-
-			ytreeFromClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
-				.AddColumn("Название")
-					.AddTextRenderer(node => node.Name)
-				.AddColumn("Кол-во")
-					.AddNumericRenderer(node => node.Count)
-						.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
-					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
-				.AddColumn("Кол-во по факту")
-					.AddNumericRenderer(node => node.ActualCount, false)
-					.AddSetter((cell, node) => {
-						cell.Editable = false;
-						foreach(var cat in Nomenclature.GetCategoriesForGoods()) {
-							if(cat == node.Nomenclature.Category) cell.Editable = true;
-						}
-					})
-					.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
-					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
-				.AddColumn("Забрано у клиента")
-					.AddToggleRenderer(node => node.IsDelivered)
-				.AddColumn("Причина незабора").AddTextRenderer(x => x.ConfirmedComments).Editable()
 				.Finish();
 
 			var order = routeListItem.Order;
