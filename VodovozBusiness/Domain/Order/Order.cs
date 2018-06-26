@@ -230,7 +230,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual Decimal SumToReceive {
 			get {
 				decimal money = TotalSum;
-				if(OrderStatus.IsIn(OrderRepository.GetNotDeliveredOrderStatuses()))
+				if(OrderRepository.GetNotDeliveredOrderStatuses().Contains(OrderStatus))
 					money = ActualTotalSum;
 				return PaymentType == PaymentType.cash ? money + ExtraMoney : 0;
 			}
@@ -971,6 +971,11 @@ namespace Vodovoz.Domain.Orders
 		public virtual void CreateDefaultContract()
 		{
 			Contract = FindOrCreateContract(Client);
+			/*ObservableOrderDocuments.Add(new OrderContract {
+				Order = this,
+				AttachedToOrder = this,
+				Contract = Contract
+			});*/
 			OnChangeContract(false);
 		}
 
