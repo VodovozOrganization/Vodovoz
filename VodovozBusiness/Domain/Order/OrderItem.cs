@@ -303,21 +303,20 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool CanEditAmount {
 			get {
 				bool result = false;
-				if(AdditionalAgreement == null) {
+				if(AdditionalAgreement == null) 
 					result = true;
-				}
+				
 				if(AdditionalAgreement?.Type == AgreementType.WaterSales
 				   || AdditionalAgreement?.Type == AgreementType.NonfreeRent
-				   || AdditionalAgreement?.Type == AgreementType.DailyRent) {
+				   || AdditionalAgreement?.Type == AgreementType.DailyRent) 
 					result = true;
-				}
-				if(Nomenclature.Category == NomenclatureCategory.rent
-				   || Nomenclature.Category == NomenclatureCategory.deposit) {
+				
+				if(Nomenclature.Category == NomenclatureCategory.rent)
 					result = false;
-				}
-				if(IsRentRenewal()) {
+				
+				if(IsRentRenewal())
 					result = true;
-				}
+				
 				return result;
 			}
 		}
