@@ -916,6 +916,12 @@
         <property name="ShortLabel" translatable="yes">Отчёт "Куньголово"</property>
         <signal name="Activated" handler="OnReportKungolovoActivated" />
       </action>
+      <action id="ActionLoad1cCounterpartyAndDeliveryPoints">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Загрузка 1с</property>
+        <property name="ShortLabel" translatable="yes">Загрузка 1с</property>
+        <signal name="Activated" handler="On1ActionActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -945,6 +951,7 @@
                       <node type="Menuitem" action="ActionAddressDuplicetes" />
                       <node type="Menuitem" action="ActionDistanceFromCenter" />
                       <node type="Menuitem" action="ActionOrdersWithoutBottlesOperation" />
+                      <node type="Menuitem" action="ActionLoad1cCounterpartyAndDeliveryPoints" />
                     </node>
                     <node type="Separator" />
                     <node type="Menuitem" action="quitAction" />
@@ -6462,6 +6469,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -6615,7 +6623,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">3</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
                 <property name="MemberName" />
@@ -54486,7 +54494,7 @@ not tooltip</property>
         <property name="MemberName" />
         <property name="Spacing">6</property>
         <child>
-          <widget class="Gtk.FileChooserButton" id="filechooserXML">
+          <widget class="Gtk.FileChooserButton" id="filechooser">
             <property name="MemberName" />
             <property name="Title" translatable="yes">Выберите XML файл с данными из 1с</property>
             <signal name="SelectionChanged" handler="OnFilechooserXMLSelectionChanged" />
@@ -54524,6 +54532,25 @@ not tooltip</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="button1">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Save</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButton1Clicked" />
+          </widget>
+          <packing>
+            <property name="Position">3</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder />
         </child>
       </widget>
     </child>

@@ -242,6 +242,15 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref phones, value, () => Phones); }
 		}
 
+		string ringUpPhone;
+
+		[Display(Name = "Телефон для обзвона")]
+		public virtual string RingUpPhone {
+			get { return ringUpPhone; }
+			set { SetField(ref ringUpPhone, value, () => RingUpPhone); }
+		}
+
+
 		IList<Email> emails;
 
 		[Display(Name = "E-mail адреса")]

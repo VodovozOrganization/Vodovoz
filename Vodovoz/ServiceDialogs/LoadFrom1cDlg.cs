@@ -468,7 +468,8 @@ namespace Vodovoz
 				{
 					var ac1c = AccountsList.Find (a => a.DomainAccount.Code1c == accountNode.InnerText);
 					if(!ac1c.DomainAccount.Inactive)
-						counterparty.DefaultAccount = ac1c.DomainAccount;
+						ac1c.DomainAccount.IsDefault = true;
+						//counterparty.DefaultAccount = ac1c.DomainAccount;
 				}
 
 				var commentNode = node.SelectSingleNode ("Свойство[@Имя='Комментарий']/Значение");
