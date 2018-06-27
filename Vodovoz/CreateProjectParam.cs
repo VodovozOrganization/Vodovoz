@@ -4,6 +4,7 @@ using Gamma.Binding;
 using Gamma.Utilities;
 using NHibernate.AdoNet;
 using NHibernate.Cfg;
+using QS.HistoryLog;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
 using QSContacts;
@@ -96,7 +97,8 @@ namespace Vodovoz
 				System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain)),
-				System.Reflection.Assembly.GetAssembly (typeof(QSHistoryLog.HistoryMain))
+				System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
+				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap))
 			},
 								  (cnf) => cnf.DataBaseIntegration(
 									  dbi => { dbi.BatchSize = 100; dbi.Batcher<MySqlClientBatchingBatcherFactory>(); }
@@ -211,7 +213,7 @@ namespace Vodovoz
 
 			#endregion
 
-			//HistoryMain.ConfigureFromOrmMain();
+			HistoryMain.ConfigureFromOrmMain();
 			TemplatePrinter.InitPrinter();
 
 			//Настройка ParentReference

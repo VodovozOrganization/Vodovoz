@@ -891,8 +891,8 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionHistoryLogActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<QSHistoryLog.HistoryView>(),
-			() => new QSHistoryLog.HistoryView()
+			TdiTabBase.GenerateHashName<QS.HistoryLog.Dialogs.HistoryView>(),
+			() => new QS.HistoryLog.Dialogs.HistoryView()
 		);
 	}
 

@@ -581,6 +581,10 @@
     <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
       <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
       <Name>GammaBinding</Name>
+	</ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
+      <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
+      <Name>QS.Project</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

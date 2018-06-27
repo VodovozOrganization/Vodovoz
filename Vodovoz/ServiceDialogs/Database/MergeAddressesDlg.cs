@@ -6,7 +6,7 @@ using DiffPlex;
 using DiffPlex.DiffBuilder;
 using Gamma.ColumnConfig;
 using NHibernate.Criterion;
-using QSHistoryLog;
+using QS.HistoryLog;
 using QSOrmProject;
 using QSOrmProject.Deletion;
 using QSProjectsLib;
