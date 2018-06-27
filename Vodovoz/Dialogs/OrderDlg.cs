@@ -29,6 +29,7 @@ using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using NHibernate.Util;
 
 namespace Vodovoz
 {
@@ -226,7 +227,7 @@ namespace Vodovoz
 				buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows() > 0;
 			};
 
-			treeDocuments.RowActivated += (o, args) => { PrintDocument(); };
+			treeDocuments.RowActivated += (o, args) => { OrderDocumentsOpener(); };
 
 			enumAddRentButton.ItemsEnum = typeof(OrderAgreementType);
 			enumAddRentButton.EnumItemClicked += (sender, e) => AddRentAgreement((OrderAgreementType)e.ItemEnum);
@@ -987,12 +988,13 @@ namespace Vodovoz
 
 		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
 		{
-			PrintDocument();
+			OrderDocumentsOpener();
 		}
 
 		/// <summary>
 		/// Открывает печатную форму документа в отдельной вкладке
 		/// </summary>
+		[Obsolete("Метод устарел после внедрения функционала в рамках задачи I-1173", true)]
 		void PrintDocument()
 		{
 			if(treeDocuments.GetSelectedObjects().GetLength(0) > 0) {
@@ -1033,6 +1035,59 @@ namespace Vodovoz
 				selectedPrintableDocuments.ForEach(
 					doc => TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc), this, false)
 				);
+			}
+		}
+
+		/// <summary>
+		/// Открытие соответствующего документу заказа окна.
+		/// </summary>
+		void OrderDocumentsOpener(){
+			if(treeDocuments.GetSelectedObjects().Any()){
+				var rdlDocs = treeDocuments.GetSelectedObjects()
+										   .Cast<OrderDocument>()
+										   .Where(d => d.PrintType == PrinterType.RDL).ToList();
+				if(rdlDocs.Any()){
+					string whatToPrint = rdlDocs.Count > 1
+					                            ? "документов"
+					                            : "документа \"" + rdlDocs.First().Type.GetEnumTitle() + "\"";
+					if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
+						UoWGeneric.Save();
+					rdlDocs.ForEach(
+						doc => TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc), this, false)
+					);
+				}
+
+				var odtDocs = treeDocuments.GetSelectedObjects()
+				                           .Cast<OrderDocument>()
+				                           .Where(d => d.PrintType == PrinterType.ODT).ToList();
+				if(odtDocs.Any()){
+					foreach(var doc in odtDocs) {
+						ITdiDialog dlg = null;
+						if(doc is OrderAgreement) {
+							var agreement = (doc as OrderAgreement).AdditionalAgreement;
+							var type = NHibernateProxyHelper.GuessClass(agreement);
+							var dialog = OrmMain.CreateObjectDialog(type, agreement.Id);
+							if(dialog is IAgreementSaved) {
+								(dialog as IAgreementSaved).AgreementSaved += AgreementSaved;
+							}
+							TabParent.OpenTab(
+								OrmMain.GenerateDialogHashName(type, agreement.Id),
+								() => dialog
+							);
+						} else if(doc is OrderContract) {
+							var contract = (doc as OrderContract).Contract;
+							dlg = OrmMain.CreateObjectDialog(contract);
+						} else if(doc is OrderM2Proxy) {
+							var m2Proxy = (doc as OrderM2Proxy).M2Proxy;
+							dlg = OrmMain.CreateObjectDialog(m2Proxy);
+						}
+						if(dlg != null) {
+							(dlg as IEditableDialog).IsEditable = false;
+							TabParent.AddSlaveTab(this, dlg);
+						}
+					}
+				}
+
 			}
 		}
 

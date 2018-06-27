@@ -971,11 +971,11 @@ namespace Vodovoz.Domain.Orders
 		public virtual void CreateDefaultContract()
 		{
 			Contract = FindOrCreateContract(Client);
-			/*ObservableOrderDocuments.Add(new OrderContract {
+			ObservableOrderDocuments.Add(new OrderContract {
 				Order = this,
 				AttachedToOrder = this,
 				Contract = Contract
-			});*/
+			});
 			OnChangeContract(false);
 		}
 
