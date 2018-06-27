@@ -38,7 +38,7 @@
 #sum if it's order
 		when docs.doc_name = 'Заказ' then
 			(select 
-				sum(order_items.price * order_items.actual_count)
+				ROUND(sum(order_items.price * order_items.actual_count * (1 - order_items.discount/100)))
 			from
 				order_items
 			where
@@ -730,13 +730,13 @@ WHERE
     </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>26.6pt</Height>
+    <Height>18.9pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Top>7.23pt</Top>
-        <Left>7.23pt</Left>
-        <Width>566.12pt</Width>
-        <Height>18.82pt</Height>
+        <Top>0.00pt</Top>
+        <Left>0.00pt</Left>
+        <Width>808.07pt</Width>
+        <Height>17.59pt</Height>
         <Value>Акт приема передачи полной и пустой тары, оборудования</Value>
         <Style>
           <FontSize>15pt</FontSize>
@@ -745,6 +745,7 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
     </ReportItems>
@@ -1815,10 +1816,10 @@ WHERE
         <Top>60.6pt</Top>
       </Table>
       <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>0.80pt</Top>
-        <Left>4.00pt</Left>
-        <Width>566.12pt</Width>
-        <Height>18.82pt</Height>
+        <Top>0.00pt</Top>
+        <Left>2.40pt</Left>
+        <Width>805.47pt</Width>
+        <Height>18.07pt</Height>
         <Value>= "по контрагенту " + First({full_name}, "Client") + Iif(First({inn}, "Client") != null  and First({inn}, "Client") != "" ,  " (ИНН: " +  First({inn}, "Client")+")" , "") </Value>
         <Style>
           <FontSize>15pt</FontSize>
@@ -1827,6 +1828,7 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox27">
@@ -2075,7 +2077,7 @@ ____________(                        )
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>27</Value>
+          <Value>4068</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2088,7 +2090,7 @@ ____________(                        )
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>9037</Value>
+          <Value>-1</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2101,7 +2103,7 @@ ____________(                        )
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017-01-01</Value>
+          <Value>2018-06-01</Value>
         </Values>
       </DefaultValue>
       <Nullable>true</Nullable>
