@@ -19,6 +19,7 @@ using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 using NHibernate.Criterion;
+using NHibernate.Util;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -677,6 +678,9 @@ namespace Vodovoz.Domain.Orders
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
 						yield return new ValidationResult("В заказе должно быть указано количество во всех позициях товара и оборудования");
+					//если ни у точки доставки, ни у контрагента нет ни одного номера телефона
+					if(!(DeliveryPoint.Phones.Any() || Client.Phones.Any()))
+						yield return new ValidationResult("Ни для контрагента, ни для точки доставки заказа не указано ни одного номера телефона.");
 
 					// Проверка соответствия цен в заказе ценам в номенклатуре
 					string priceResult = "В заказе неверно указаны цены на следующие товары:\n";
