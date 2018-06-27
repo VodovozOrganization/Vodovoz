@@ -18,13 +18,13 @@
         <Timeout>600</Timeout>
         <CommandText>select
 	docs.doc_id,
-    docs.doc_date,
-    docs.doc_payment_type,
-    ifnull(docs.delivery_point_id, '0') AS delivery_point_id,
-    docs.delivery_point_address,
-    docs.doc_name,
-    docs.doc_status,
-    case
+	docs.doc_date,
+	docs.doc_payment_type,
+	ifnull(docs.delivery_point_id, '0') AS delivery_point_id,
+	docs.delivery_point_address,
+	docs.doc_name,
+	docs.doc_status,
+	case
 #sum if it's residue
 		when docs.doc_name = 'Ввод остатков' then
 			(select 
@@ -44,21 +44,21 @@
 			where
 				order_items.order_id = docs.doc_id)
 	end as sum,
-    if(docs.doc_name = 'Заказ',
+	if(docs.doc_name = 'Заказ',
 		forfeits.forfeit,
-        null) as forfeit,
+		null) as forfeit,
 	if(docs.doc_name = 'Заказ',
 		forfeits.forfeitCount,
-        null) as forfeitCount,
+		null) as forfeitCount,
 	if(docs.doc_name = 'Заказ',
 		ifnull(bottles_movement_operations.delivered, if(docs.doc_status = 'Closed',0,null)),
 		ifnull(bottles_movement_operations.delivered, 0)
-    ) AS delivered,
-    if(docs.doc_name = 'Заказ',
+	) AS delivered,
+	if(docs.doc_name = 'Заказ',
 		ifnull(bottles_movement_operations.returned, if(docs.doc_status = 'Closed',0,null)),
 		ifnull(bottles_movement_operations.returned, 0)
-    ) AS returned,
-    case
+	) AS returned,
+	case
 #bottles deposit if it's residue
 		when docs.doc_name = 'Ввод остатков' then
 			(select
@@ -91,7 +91,7 @@
 						sum(out_bd_op.received_deposit - out_bd_op.refund_deposit)
 					when docs.doc_payment_type = 'inc' then
 						sum(inc_bd_op.received_deposit - inc_bd_op.refund_deposit)
-                end
+				end
 			from
 				transfer_operations
 			left join
@@ -100,9 +100,9 @@
 				deposit_operations as inc_bd_op on inc_bd_op.id = transfer_operations.incoming_bottle_deposit_operation
 			where
 				(out_bd_op.deposit_type = 'Bottles' or inc_bd_op.deposit_type = 'Bottles')
-                and transfer_operations.id = docs.doc_id)
+				and transfer_operations.id = docs.doc_id)
 	end as bottles_deposit,
-        case
+		case
 #equipment deposit if it's residue
 		when docs.doc_name = 'Ввод остатков' then
 			(select
@@ -136,7 +136,7 @@ INNER JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
 						sum(out_ed_op.received_deposit - out_ed_op.refund_deposit)
 					when docs.doc_payment_type = 'inc' then
 						sum(inc_ed_op.received_deposit - inc_ed_op.refund_deposit)
-                end
+				end
 			from
 				transfer_operations
 			left join
@@ -145,7 +145,7 @@ INNER JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
 				deposit_operations as inc_ed_op on inc_ed_op.id = transfer_operations.incoming_equipment_deposit_operation
 			where
 				(out_ed_op.deposit_type = 'Equipment' or inc_ed_op.deposit_type = 'Equipment')
-                and transfer_operations.id = docs.doc_id)
+				and transfer_operations.id = docs.doc_id)
 	end as equipment_deposit,
 
 		if(docs.doc_name = 'Заказ',
@@ -180,40 +180,90 @@ INNER JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
 					)
 			),
 			null
-        ) as equipment_to_client,
-        
-        if(docs.doc_name = 'Заказ',
+		) as equipment_to_client,
+		
+		if(docs.doc_name = 'Заказ',
 			#Если в заказе оборудование записано в старом виде (строки) то выводим только его
 			if(docs.from_client_text IS NOT NULL,
 				#IF TRUE #старое поле со списком оборудования в виде строки
 				docs.from_client_text,
 				#IF FALSE #новый список оборудования
-				(select 
-					group_concat(
-						concat(
-							nomenclature.name, ' ',
-							case
-								when order_equipment.own_type = 'Rent' then '(Аренда)'
-								when order_equipment.own_type = 'Client' then '(Собст. клиента)'
-								when order_equipment.own_type = 'Duty' then '(Дежурный)'
-								else ''
-							end, ' - ',
-							ROUND(amount),
-							'шт')
-						separator ',\n')
-				from
-					counterparty_movement_operations
-				left join
-					order_equipment on order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
-				left join
-					nomenclature on nomenclature.id = order_equipment.nomenclature_id
-				where
-					order_equipment.order_id = docs.doc_id
-					and order_equipment.direction = 'PickUp'
-					and nomenclature.category = 'equipment')
-            ),
+				(
+				TRIM(',\n' FROM CONCAT(
+						(select 
+							IF(
+								group_concat(
+									concat(
+										nomenclature.name, ' ',
+										case
+											when order_equipment.own_type = 'Rent' then '(Аренда)'
+											when order_equipment.own_type = 'Client' then '(Собст. клиента)'
+											when order_equipment.own_type = 'Duty' then '(Дежурный)'
+											else ''
+										end, ' - ',
+										ROUND(amount),
+										'шт')
+									separator ',\n') IS NULL,
+									'',
+									group_concat(
+										concat(
+											nomenclature.name, ' ',
+											case
+												when order_equipment.own_type = 'Rent' then '(Аренда)'
+												when order_equipment.own_type = 'Client' then '(Собст. клиента)'
+												when order_equipment.own_type = 'Duty' then '(Дежурный)'
+												else ''
+											end, ' - ',
+											ROUND(amount),
+											'шт')
+										separator ',\n')
+								) AS eq
+						from
+							counterparty_movement_operations
+						left join
+							order_equipment on order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
+						left join
+							nomenclature on nomenclature.id = order_equipment.nomenclature_id
+						where
+							order_equipment.order_id = docs.doc_id
+							and order_equipment.direction = 'PickUp'
+							and nomenclature.category NOT IN('water','bottle','disposableBottleWater','master')
+#equipment from client from store_self_delivery_document
+						),
+						',\n',
+						(SELECT
+							GROUP_CONCAT(
+								CONCAT(
+									IF(nomenclature.short_name IS NULL, nomenclature.name, nomenclature.short_name),
+									': ',
+									ROUND(warehouse_movement_operations.amount),
+									' шт')
+								SEPARATOR ',\n') AS eq
+						FROM
+							orders
+						LEFT JOIN
+							store_self_delivery_document ON orders.id = store_self_delivery_document.order_id
+						LEFT JOIN
+							store_self_delivery_document_returned ON store_self_delivery_document.id = store_self_delivery_document_returned.store_self_delivery_document_id
+						LEFT JOIN
+							warehouse_movement_operations ON warehouse_movement_operations.id = store_self_delivery_document_returned.warehouse_movement_operation_id
+						LEFT JOIN
+							nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+						LEFT JOIN
+							delivery_points ON delivery_points.id = orders.delivery_point_id
+						LEFT JOIN
+							counterparty ON counterparty.id = orders.client_id
+						WHERE 
+							nomenclature.category NOT IN('water','bottle','disposableBottleWater','master')
+							AND orders.id = docs.doc_id
+						)
+					))
+				
+				)
+				
+			),
 			null
-        ) as equipment_from_client
+		) as equipment_from_client
 from
 #subselect orders
 	(select 
@@ -224,10 +274,10 @@ from
 		delivery_points.id as delivery_point_id,
 		delivery_points.compiled_address as delivery_point_address,
 		'Заказ' as doc_name,
-        orders.order_status as doc_status,
-        orders.client_id as doc_client_id,
-        orders.to_client_text as to_client_text,
-        orders.from_client_text as from_client_text
+		orders.order_status as doc_status,
+		orders.client_id as doc_client_id,
+		orders.to_client_text as to_client_text,
+		orders.from_client_text as from_client_text
 	from
 		orders
 	left join
@@ -245,10 +295,10 @@ from
 		doc_residue.delivery_point_id as delivery_point_id,
 		delivery_points.compiled_address as delivery_point_address,
 		'Ввод остатков' as doc_name,
-        '' as doc_status, 
-        doc_residue.client_id as doc_client_id,
-        '' as to_client_text,
-        '' as from_client_text
+		'' as doc_status, 
+		doc_residue.client_id as doc_client_id,
+		'' as to_client_text,
+		'' as from_client_text
 	from
 		doc_residue
 	left join
@@ -256,20 +306,20 @@ from
 #subselect transfer_operations: transfer from client
 	union select
 		transfer_operations.id as doc_id,
-        transfer_operations.outgoing_bottle_operation as bottles_movement_operation_id,
-        transfer_operations.operation_time as doc_date,
-        'out' as doc_payment_type,  #crutch
-        transfer_operations.from_delivery_point_id as delivery_point_id,
-        out_delivery_point.compiled_address as delivery_point_address,
-        concat(
+		transfer_operations.outgoing_bottle_operation as bottles_movement_operation_id,
+		transfer_operations.operation_time as doc_date,
+		'out' as doc_payment_type,  #crutch
+		transfer_operations.from_delivery_point_id as delivery_point_id,
+		out_delivery_point.compiled_address as delivery_point_address,
+		concat(
 			'Перенесено клиенту ',
-            inc_counterparty.name,
-            ' по адресу ',
-            inc_delivery_point.compiled_address) as doc_name,
+			inc_counterparty.name,
+			' по адресу ',
+			inc_delivery_point.compiled_address) as doc_name,
 		'' as doc_status, 
 		transfer_operations.from_client_id as doc_client_id,
-        '' as to_client_text,
-        '' as from_client_text
+		'' as to_client_text,
+		'' as from_client_text
 	from
 		transfer_operations
 	left join
@@ -279,22 +329,22 @@ from
 	left join
 		counterparty as inc_counterparty on inc_counterparty.id = transfer_operations.to_client_id
 #subselect transfer_operations: transfer to client
-    union select
+	union select
 		transfer_operations.id as transfer_operation_id,
-        transfer_operations.incoming_bottle_operation as bottles_movement_operation_id,
-        transfer_operations.operation_time as doc_date,
-        'inc' as payment_type, #crutch
-        transfer_operations.to_delivery_point_id as delivery_point_id,
-        inc_delivery_point.compiled_address as delivery_point_address,
-        concat(
+		transfer_operations.incoming_bottle_operation as bottles_movement_operation_id,
+		transfer_operations.operation_time as doc_date,
+		'inc' as payment_type, #crutch
+		transfer_operations.to_delivery_point_id as delivery_point_id,
+		inc_delivery_point.compiled_address as delivery_point_address,
+		concat(
 			'Перенесено от клиента ',
-            out_counterparty.name,
-            ' с адреса ',
-            out_delivery_point.compiled_address) as doc_name,
+			out_counterparty.name,
+			' с адреса ',
+			out_delivery_point.compiled_address) as doc_name,
 		'' as doc_status, 
 		transfer_operations.to_client_id as doc_client_id,
-        '' as to_client_text,
-        '' as from_client_text
+		'' as to_client_text,
+		'' as from_client_text
 	from
 		transfer_operations
 	left join
@@ -310,7 +360,7 @@ left join
 	(select 
 		order_items.order_id as order_id,
 		sum(order_items.price * order_items.actual_count) as forfeit,
-        sum(order_items.actual_count) as forfeitCount
+		sum(order_items.actual_count) as forfeitCount
 	from
 		order_items
 	where
@@ -2020,21 +2070,12 @@ ____________(                        )
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_orders;user=OO;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters>
     <ReportParameter Name="client_id">
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>7252</Value>
+          <Value>27</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2047,7 +2088,7 @@ ____________(                        )
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>-1</Value>
+          <Value>9037</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2083,4 +2124,13 @@ ____________(                        )
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>
