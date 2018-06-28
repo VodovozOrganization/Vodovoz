@@ -287,10 +287,12 @@ namespace Vodovoz
 			w24.Expand = false;
 			w24.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.referenceDeliveryPoint.ChangedByUser += new global::System.EventHandler(this.OnReferenceDeliveryPointChangedByUser);
 			this.buttonAdd.Clicked += new global::System.EventHandler(this.OnButtonAddClicked);
 			this.buttonDel.Clicked += new global::System.EventHandler(this.OnButtonDelClicked);
 		}

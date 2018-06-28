@@ -5,6 +5,7 @@ using QSOrmProject;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Goods;
 using QSHistoryLog;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Client
 {
@@ -68,6 +69,44 @@ namespace Vodovoz.Domain.Client
 			};
 
 			ObservablFixedPrices.Add(nomenculaturePrice);
+		}
+
+		/// <summary>
+		/// Заполняет фиксированные цены на воду из цен в точке доставки, 
+		/// которые были выгружены из 1с при переходе приема заказов из 1с.
+		/// ID номенклатур воды берутся из параметров в базе.
+		/// </summary>
+		public virtual void FillFixedPricesFromDeliveryPoint(IUnitOfWork uow)
+		{
+			if(DeliveryPoint != null) {
+				ObservablFixedPrices.Clear();
+
+				//Семиозерье
+				if(DeliveryPoint.FixPrice1 > 0) {
+					Nomenclature nom1 = NomenclatureRepository.GetWaterSemiozerie(uow);
+					AddFixedPrice(nom1, DeliveryPoint.FixPrice1);
+				}
+				//Кислородная
+				if(DeliveryPoint.FixPrice2 > 0) {
+					Nomenclature nom2 = NomenclatureRepository.GetWaterKislorodnaya(uow);
+					AddFixedPrice(nom2, DeliveryPoint.FixPrice2);
+				}
+				//Снятогорская
+				if(DeliveryPoint.FixPrice3 > 0) {
+					Nomenclature nom3 = NomenclatureRepository.GetWaterSnyatogorskaya(uow);
+					AddFixedPrice(nom3, DeliveryPoint.FixPrice3);
+				}
+				//Стройка
+				if(DeliveryPoint.FixPrice4 > 0) {
+					Nomenclature nom4 = NomenclatureRepository.GetWaterStroika(uow);
+					AddFixedPrice(nom4, DeliveryPoint.FixPrice4);
+				}
+				//С ручками
+				if(DeliveryPoint.FixPrice5 > 0) {
+					Nomenclature nom5 = NomenclatureRepository.GetWaterRuchki(uow);
+					AddFixedPrice(nom5, DeliveryPoint.FixPrice5);
+				}
+			}
 		}
 
 		public static IUnitOfWorkGeneric<WaterSalesAgreement> Create (CounterpartyContract contract)

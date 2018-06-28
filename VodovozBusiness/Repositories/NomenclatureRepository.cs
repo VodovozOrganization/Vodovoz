@@ -124,5 +124,49 @@ namespace Vodovoz.Repository
 			return uow.Session.QueryOver<Nomenclature>()
 				.Where(n => n.IsDefectiveBottle).List();
 		}
+
+		#region Получение номенклатур воды
+
+		public static Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
+		{
+			var bottleDepositParameter = "nomenclature_semiozerie_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Семиозерье");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
+		}
+
+		public static Nomenclature GetWaterKislorodnaya(IUnitOfWork uow)
+		{
+			var bottleDepositParameter = "nomenclature_kislorodnaya_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Кислородная");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
+		}
+
+		public static Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow)
+		{
+			var bottleDepositParameter = "nomenclature_snyatogorskaya_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Снятогорская");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
+		}
+
+		public static Nomenclature GetWaterStroika(IUnitOfWork uow)
+		{
+			var bottleDepositParameter = "nomenclature_stroika_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Стройка");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
+		}
+
+		public static Nomenclature GetWaterRuchki(IUnitOfWork uow)
+		{
+			var bottleDepositParameter = "nomenclature_ruchki_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды С ручками");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
+		}
+
+		#endregion
 	}
 }

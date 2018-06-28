@@ -51,6 +51,7 @@ namespace Vodovoz
 			if(date.HasValue)
 				UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = date.Value;
 			ConfigureDlg();
+			Entity.FillFixedPricesFromDeliveryPoint(UoW);
 		}
 
 		public WaterAgreementDlg(WaterSalesAgreement sub) : this(sub.Id)
@@ -211,6 +212,11 @@ namespace Vodovoz
 			var item = ytreeviewFixedPrices.GetSelectedObject<WaterSalesAgreementFixedPrice>();
 			Entity.ObservablFixedPrices.Remove(item);
 			UoW.Delete(item);
+		}
+
+		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
+		{
+			Entity.FillFixedPricesFromDeliveryPoint(UoW);
 		}
 	}
 }

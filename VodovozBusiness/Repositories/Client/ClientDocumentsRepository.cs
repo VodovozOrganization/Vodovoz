@@ -42,6 +42,7 @@ namespace Vodovoz.Repositories.Client
 			WaterSalesAgreement result = null;
 			using(var uow = WaterSalesAgreement.Create(contract)) {
 				uow.Root.DeliveryPoint = deliveryPoint;
+				uow.Root.FillFixedPricesFromDeliveryPoint(uow);
 				if(deliveryDate.HasValue) {
 					uow.Root.IssueDate = deliveryDate.Value;
 					uow.Root.StartDate = deliveryDate.Value;
