@@ -23,6 +23,7 @@ using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using Vodovoz.ReportsParameters;
+using Vodovoz.ServiceDialogs;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -998,5 +999,11 @@ public partial class MainWindow : Gtk.Window
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg(widget)
 		);
+	}
+
+	protected void OnActionLoad1cCounterpartyAndDeliveryPointsActivated(object sender, EventArgs e)
+	{
+		var widget = new LoadFrom1cClientsAndDeliveryPoints();
+		tdiMain.AddTab(widget);
 	}
 }

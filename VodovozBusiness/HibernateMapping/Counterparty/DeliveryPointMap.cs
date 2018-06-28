@@ -41,6 +41,12 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.DistanceFromBaseMeters)	.Column("distance_from_center_meters");
 			Map(x => x.HaveResidue)				.Column("have_residue");
 
+			Map(x => x.FixPrice1)				.Column("fix_price1");
+			Map(x => x.FixPrice2)				.Column("fix_price2");
+			Map(x => x.FixPrice3)				.Column("fix_price3");
+			Map(x => x.FixPrice4)				.Column("fix_price4");
+			Map(x => x.FixPrice5)				.Column("fix_price5");
+
 			References(x => x.Counterparty)				.Column("counterparty_id");
 			References(x => x.LogisticsArea)			.Column("logistic_area_id");
 			References(x => x.DeliverySchedule)			.Column("delivery_schedule_id");
