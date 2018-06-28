@@ -42,11 +42,13 @@ namespace Vodovoz.ViewModel
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
-				.Where(c => c.Counterparty.Id == counterpartyAlias.Id)
+			    .Left.JoinAlias(c => c.Counterparty, () => counterpartyAliasForSubquery)
+			    .Where(() => counterpartyAlias.Id == counterpartyAliasForSubquery.Id)
 				.Select(Projections.SqlFunction(
-											new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+											new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( CONCAT(?2,' - ',?1) SEPARATOR ?3)"),
 											NHibernateUtil.String,
-											Projections.Property(() => contractAlias.ContractSubNumber),//id
+											Projections.Property(() => contractAlias.ContractSubNumber),
+											Projections.Property(() => counterpartyAliasForSubquery.VodovozInternalId),
 											Projections.Constant("\n")));
 
 			var addressSubquery = QueryOver.Of<DeliveryPoint>(() => addressAlias)
