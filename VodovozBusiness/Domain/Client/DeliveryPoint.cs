@@ -377,6 +377,61 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref haveResidue, value, () => HaveResidue); }
 		}
 
+		#region Временные поля для хранения фиксированных цен из 1с
+
+		private decimal fixPrice1;
+		/// <summary>
+		/// Фикса Семиозерье из 1с
+		/// </summary>
+		[Display(Name = "Фикса Семиозерье из 1с")]
+		public virtual decimal FixPrice1 {
+			get { return fixPrice1; }
+			set { SetField(ref fixPrice1, value, () => FixPrice1); }
+		}
+
+		private decimal fixPrice2;
+		/// <summary>
+		/// Фикса Семиозерье из 1с
+		/// </summary>
+		[Display(Name = "Фикса Кислородная из 1с")]
+		public virtual decimal FixPrice2 {
+			get { return fixPrice2; }
+			set { SetField(ref fixPrice2, value, () => FixPrice2); }
+		}
+
+		private decimal fixPrice3;
+		/// <summary>
+		/// Фикса Семиозерье из 1с
+		/// </summary>
+		[Display(Name = "Фикса Снятогорская из 1с")]
+		public virtual decimal FixPrice3 {
+			get { return fixPrice3; }
+			set { SetField(ref fixPrice3, value, () => FixPrice3); }
+		}
+
+		private decimal fixPrice4;
+		/// <summary>
+		/// Фикса Семиозерье из 1с
+		/// </summary>
+		[Display(Name = "Фикса Стройка из 1с")]
+		public virtual decimal FixPrice4 {
+			get { return fixPrice4; }
+			set { SetField(ref fixPrice4, value, () => FixPrice4); }
+		}
+
+		private decimal fixPrice5;
+		/// <summary>
+		/// Фикса Семиозерье из 1с
+		/// </summary>
+		[Display(Name = "Фикса С Ручками из 1с")]
+		public virtual decimal FixPrice5 {
+			get { return fixPrice5; }
+			set { SetField(ref fixPrice5, value, () => FixPrice5); }
+		}
+
+		#endregion
+
+
 		#endregion
 
 		#region Расчетные

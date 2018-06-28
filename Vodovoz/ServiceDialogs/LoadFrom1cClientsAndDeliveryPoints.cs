@@ -29,8 +29,8 @@ namespace Vodovoz.ServiceDialogs
 		List<Account1c> AccountsList = new List<Account1c>();
 		List<Bank1c> Banks1cList = new List<Bank1c>();
 
-		List<string> missingCounterparties = new List<string>();
-		List<string> missingDeliveryPoints = new List<string>();
+		Nomenclature nomStroika = null;
+		Nomenclature nomRuchki = null;
 
 		List<string> errorLog = new List<string>();
 
@@ -44,9 +44,9 @@ namespace Vodovoz.ServiceDialogs
 			Filter.AddPattern("*.xml");
 			filechooser.Filter = Filter;
 
-
+			nomStroika = UoW.GetById<Nomenclature>(15);
+			nomRuchki = UoW.GetById<Nomenclature>(7);
 		}
-
 
 		#region Свойства
 		private IList<Bank> banks;
@@ -59,39 +59,96 @@ namespace Vodovoz.ServiceDialogs
 				return banks;
 			}
 		}
+		#endregion
 
-		int totalCounterparty = 0;
+		#region Label свойства
 
+		int totalCounterparty;
 		public int TotalCounterparty {
-			get {
-				return totalCounterparty;
-			}
+			get { return totalCounterparty; }
 			set {
 				totalCounterparty = value;
-				//labelTotalCounterparty.LabelProp = totalCounterparty.ToString();
+				labelCounterpartyTotalValue.LabelProp = totalCounterparty.ToString();
 				QSMain.WaitRedraw();
 			}
 		}
 
-		int skipedCounterparty = 0;
-
+		int skipedCounterparty;
 		public int SkipedCounterparty {
-			get {
-				return skipedCounterparty;
-			}
+			get { return skipedCounterparty; }
 			set {
 				skipedCounterparty = value;
-				//labelSkipedCounterparty.LabelProp = SkipedCounterparty.ToString();
+				labelCounterpartyFailsValue.LabelProp = skipedCounterparty.ToString();
+				QSMain.WaitRedraw();
+			}
+		}
+
+		int errorsCounterparty;
+		public int ErrorsCounterparty {
+			get { return errorsCounterparty; }
+			set {
+				errorsCounterparty = value;
+				labelCounterpartyErrorsValue.LabelProp = errorsCounterparty.ToString();
+				QSMain.WaitRedraw();
+			}
+		}
+
+		int successCounterparty;
+		public int SuccessCounterparty {
+			get { return successCounterparty; }
+			set {
+				successCounterparty = value;
+				labelCounterpartySuccessValue.LabelProp = successCounterparty.ToString();
+				QSMain.WaitRedraw();
+			}
+		}
+
+		int totalDP;
+		public int TotalDP {
+			get { return totalDP; }
+			set {
+				totalDP = value;
+				labelDPTotalValue.LabelProp = totalDP.ToString();
+				QSMain.WaitRedraw();
+			}
+		}
+
+		int skipedDP;
+		public int SkipedDP {
+			get { return skipedDP; }
+			set {
+				skipedDP = value;
+				labelDPFailsValue.LabelProp = skipedDP.ToString();
+				QSMain.WaitRedraw();
+			}
+		}
+
+		int errorsDP;
+		public int ErrorsDP {
+			get { return errorsDP; }
+			set {
+				errorsDP = value;
+				labelDPErrorsValue.LabelProp = errorsDP.ToString();
+				QSMain.WaitRedraw();
+			}
+		}
+
+		int successDP;
+		public int SuccessDP {
+			get { return successDP; }
+			set {
+				successDP = value;
+				labelDPSuccessValue.LabelProp = successDP.ToString();
 				QSMain.WaitRedraw();
 			}
 		}
 
 		#endregion
 
+
 		private string GetINN(string innkpp)
 		{
-			if(innkpp.Contains('\\'))
-			{
+			if(innkpp.Contains('\\')) {
 				return innkpp.Split('\\').FirstOrDefault();
 			}
 			if(innkpp.Contains('/')) {
@@ -137,6 +194,7 @@ namespace Vodovoz.ServiceDialogs
 
 		void ParseCounterparty(XmlNode node)
 		{
+			bool error = false;
 			Counterparty counterparty = null;
 			var codeAttr = node.Attributes["Код"];
 			if(codeAttr == null) {
@@ -148,8 +206,8 @@ namespace Vodovoz.ServiceDialogs
 							  .Where(x => x.Code1c == code1c).List()
 							  .FirstOrDefault();
 			if(counterparty == null) {
-				missingCounterparties.Add(code1c);
 				errorLog.Add(string.Format("Не найден контрагент Код1с: {0}", code1c));
+				SkipedCounterparty++;
 				return;
 			}
 
@@ -173,27 +231,30 @@ namespace Vodovoz.ServiceDialogs
 				string innStr = GetINN(innkppAttr.Value);
 				if(counterparty.TypeOfOwnership == "ИП" ? Regex.IsMatch(innStr, "^[0-9]{12,12}$") : Regex.IsMatch(innStr, "^[0-9]{10,10}$")) {
 					counterparty.INN = innStr;
-				}else {
+				} else if(!string.IsNullOrEmpty(innStr)) {
 					errorLog.Add(string.Format("Не корректный ИНН: {0} [Контрагент: {1}]", innStr, code1c));
+					error = true;
 				}
 
 				string kppStr = GetKPP(innkppAttr.Value);
 				if(Regex.IsMatch(kppStr, "^[0-9]{9,9}$")) {
 					counterparty.KPP = kppStr;
-				} else {
+				} else if(!string.IsNullOrEmpty(kppStr)) {
 					errorLog.Add(string.Format("Не корректный КПП: {0} [Контрагент: {1}]", kppStr, code1c));
+					error = true;
 				}
 			}
 
 			var personTypeAttr = node.Attributes["ВидКонтрагента"];
 			if(personTypeAttr != null) {
-				counterparty.PersonType = personTypeAttr.Value == "ЮрЛица" ? PersonType.legal : PersonType.natural;
-				counterparty.PaymentMethod = personTypeAttr.Value == "ЮрЛица" ? PaymentType.cashless : PaymentType.cash;
+				var isJur = personTypeAttr.Value == "ЮрЛица" || personTypeAttr.Value == "СвоиЮрЛица";
+				counterparty.PersonType = isJur ? PersonType.legal : PersonType.natural;
+				counterparty.PaymentMethod = isJur ? PaymentType.cashless : PaymentType.cash;
 			}
 
 			var phonesAttr = node.Attributes["Телефоны"];
 			if(phonesAttr != null) {
-				counterparty.Comment += string.Format("{0}\n", phonesAttr.Value);;
+				counterparty.Comment += string.Format("{0}\n", phonesAttr.Value);
 			}
 
 			var addressAttr = node.Attributes["ФактАдрес"];
@@ -241,11 +302,11 @@ namespace Vodovoz.ServiceDialogs
 				if(account == null) {
 					if(!Regex.IsMatch(bik, "^[0-9]{9,9}$")) {
 						errorLog.Add(string.Format("Не корректный БИК: {0} [Контрагент: {1}]", bik, code1c));
-						//БИК не корректный
+						error = true;
 					}
-					if(!Regex.IsMatch(accountNumber, "^[0-9]{20,25}$")) {
+					if(!Regex.IsMatch(accountNumber, "^[0-9]{20,25}$") && !string.IsNullOrEmpty(accountNumber)) {
 						errorLog.Add(string.Format("Не корректный счет: {0} [Контрагент: {1}]", accountNumber, code1c));
-						//Номер счета не корректный
+						error = true;
 					} else {
 						Bank bank = Banks.FirstOrDefault(b => b.Bik == bik);
 						account = new Account {
@@ -261,11 +322,17 @@ namespace Vodovoz.ServiceDialogs
 					}
 				}
 			}
+			if(error) {
+				ErrorsCounterparty++;
+			}else {
+				SuccessCounterparty++;
+			}
 			CounterpatiesList.Add(counterparty);
 		}
 
 		void ParseDeliveryPoint(XmlNode node)
 		{
+			bool error = false;
 			var codeAttr = node.Attributes["Код"];
 			if(codeAttr == null) {
 				return;
@@ -278,6 +345,7 @@ namespace Vodovoz.ServiceDialogs
 			var codeClientAttr = node.Attributes["КодКонтрагента"];
 			if(codeClientAttr == null) {
 				errorLog.Add(string.Format("Точка доставки без контрагента. Точка доставки: {0}", code));
+				SkipedDP++;
 				return;
 			}
 
@@ -285,6 +353,7 @@ namespace Vodovoz.ServiceDialogs
 			counterparty = CounterpatiesList.FirstOrDefault(x => x.Code1c == counterpartyCode);
 			if(counterparty == null) {
 				errorLog.Add(string.Format("Не найден контрагент для точки доставки: {0} [Контрагент: {1}]", code, counterpartyCode));
+				SkipedDP++;
 				return;
 			}
 
@@ -292,6 +361,7 @@ namespace Vodovoz.ServiceDialogs
 			var deliveryPoint = counterparty.DeliveryPoints.FirstOrDefault(x => x.Code1c == code);
 			if(deliveryPoint == null) {
 				errorLog.Add(string.Format("У контрагента: VodovozId:{0} не существует точки доставки с кодом 1с: {1}", counterparty.Id, code));
+				SkipedDP++;
 				return;
 			}
 
@@ -301,14 +371,12 @@ namespace Vodovoz.ServiceDialogs
 			}
 
 			var defWaterAttr = node.Attributes["Вид"];
-			if(defWaterAttr != null) { 
-				Nomenclature defaultWater = null;
+			if(defWaterAttr != null) {
 				if(defWaterAttr.Value == "Ручка") {
-					defaultWater = UoW.GetById<Nomenclature>(15);
+					deliveryPoint.DefaultWaterNomenclature = nomStroika;
 				} else if(defWaterAttr.Value == "Стройка") {
-					defaultWater = UoW.GetById<Nomenclature>(7);
+					deliveryPoint.DefaultWaterNomenclature = nomRuchki;
 				}
-				deliveryPoint.DefaultWaterNomenclature = defaultWater;
 			}
 
 			var commentAttr = node.Attributes["Комментариий"];
@@ -316,100 +384,58 @@ namespace Vodovoz.ServiceDialogs
 				deliveryPoint.Comment = commentAttr.Value;
 			}
 
-			var waterAgreements = UoW.Session.QueryOver<WaterSalesAgreement>()
-								   .Where(Restrictions.Or
-										  (
-											  Restrictions.IsNull(Projections.Property<WaterSalesAgreement>(x => x.DeliveryPoint)),
-											  Restrictions.Where<WaterSalesAgreement>(x => x.DeliveryPoint.Id == deliveryPoint.Id)
-										  )
-										 ).List();
 
-			var waterAgreement = waterAgreements.FirstOrDefault(x => x.DeliveryPoint == deliveryPoint);
-			if(waterAgreement == null) {
-				waterAgreement = waterAgreements.FirstOrDefault(x => x.DeliveryPoint == null);
-			}
 			decimal price;
-			if(waterAgreement != null) {
-				//Семиозерье id 1
-				var price1 = node.Attributes["Цена1"];
-				if(price1 == null) {
-					price = 0m;
-					Nomenclature nomenclature1 = UoW.GetById<Nomenclature>(1);
-					if(decimal.TryParse(price1.Value, out price) && nomenclature1 != null) {
-						var fixPrice = waterAgreement.FixedPrices.FirstOrDefault(x => x.Nomenclature.Id == nomenclature1.Id);
-						if(fixPrice == null) {
-							waterAgreement.AddFixedPrice(nomenclature1, price);
-						} else if(price > 0 && fixPrice.Price != price) {
-							fixPrice.Price = price;
-						}
-					}
+			//Семиозерье id 1
+			var price1 = node.Attributes["Цена1"];
+			if(price1 != null) {
+				price = 0m;
+				if(decimal.TryParse(price1.Value, out price) && price > 0) {
+					deliveryPoint.FixPrice1 = price;
 				}
-
-				//Кислородная id 12
-				var price2 = node.Attributes["Цена2"];
-				if(price2 != null) {
-					price = 0m;
-					Nomenclature nomenclature2 = UoW.GetById<Nomenclature>(12);
-					if(decimal.TryParse(price2.Value, out price) && nomenclature2 != null) {
-						var fixPrice = waterAgreement.FixedPrices.FirstOrDefault(x => x.Nomenclature.Id == nomenclature2.Id);
-						if(fixPrice == null) {
-							waterAgreement.AddFixedPrice(nomenclature2, price);
-						} else if(price > 0 && fixPrice.Price != price) {
-							fixPrice.Price = price;
-						}
-					}
-				}
-
-				//Снятогорская id 2
-				var price3 = node.Attributes["Цена3"];
-				if(price3 != null) {
-					price = 0m;
-					Nomenclature nomenclature3 = UoW.GetById<Nomenclature>(2);
-					if(decimal.TryParse(price3.Value, out price) && nomenclature3 != null) {
-						var fixPrice = waterAgreement.FixedPrices.FirstOrDefault(x => x.Nomenclature.Id == nomenclature3.Id);
-						if(fixPrice == null) {
-							waterAgreement.AddFixedPrice(nomenclature3, price);
-						} else if(price > 0 && fixPrice.Price != price) {
-							fixPrice.Price = price;
-						}
-					}
-				}
-
-				//Стройка id 7
-				var price4 = node.Attributes["Цена4"];
-				if(price4 != null) {
-					price = 0m;
-					Nomenclature nomenclature4 = UoW.GetById<Nomenclature>(7);
-					if(decimal.TryParse(price4.Value, out price) && nomenclature4 != null) {
-						var fixPrice = waterAgreement.FixedPrices.FirstOrDefault(x => x.Nomenclature.Id == nomenclature4.Id);
-						if(fixPrice == null) {
-							waterAgreement.AddFixedPrice(nomenclature4, price);
-						} else if(price > 0 && fixPrice.Price != price) {
-							fixPrice.Price = price;
-						}
-					}
-				}
-
-				//Ручки id 15
-				var price5 = node.Attributes["Цена5"];
-				if(price5 != null) {
-					price = 0m;
-					Nomenclature nomenclature5 = UoW.GetById<Nomenclature>(15);
-					if(decimal.TryParse(price5.Value, out price) && nomenclature5 != null) {
-						var fixPrice = waterAgreement.FixedPrices.FirstOrDefault(x => x.Nomenclature.Id == nomenclature5.Id);
-						if(fixPrice == null) {
-							waterAgreement.AddFixedPrice(nomenclature5, price);
-						} else if(price > 0 && fixPrice.Price != price) {
-							fixPrice.Price = price;
-						}
-					}
-				}
-			} else {
-				errorLog.Add(string.Format("Нет доп соглашения на воду для установки фиксы: Контрагент VodovozId:{0}, Точка доставки с кодом 1с: {1}", counterparty.Id, code));
-				return;
 			}
-			//UoW.Save<DeliveryPoint>(deliveryPoint);
-			//DeliveryPointsList.Add(deliveryPoint);
+
+			//Кислородная id 12
+			var price2 = node.Attributes["Цена2"];
+			if(price2 != null) {
+				price = 0m;
+				if(decimal.TryParse(price2.Value, out price) && price > 0) {
+					deliveryPoint.FixPrice2 = price;
+				}
+			}
+
+			//Снятогорская id 2
+			var price3 = node.Attributes["Цена3"];
+			if(price3 != null) {
+				price = 0m;
+				if(decimal.TryParse(price3.Value, out price) && price > 0) {
+					deliveryPoint.FixPrice3 = price;
+				}
+			}
+
+			//Стройка id 7
+			var price4 = node.Attributes["Цена4"];
+			if(price4 != null) {
+				price = 0m;
+				if(decimal.TryParse(price4.Value, out price) && price > 0) {
+					deliveryPoint.FixPrice4 = price;
+				}
+			}
+
+			//Ручки id 15
+			var price5 = node.Attributes["Цена5"];
+			if(price5 != null) {
+				price = 0m;
+				if(decimal.TryParse(price5.Value, out price) && price > 0) {
+					deliveryPoint.FixPrice5 = price;
+				}
+			}
+
+			if(error) {
+				ErrorsDP++;
+			} else {
+				SuccessDP++;
+			}
 		}
 
 
@@ -420,31 +446,59 @@ namespace Vodovoz.ServiceDialogs
 
 		protected void OnButtonLoadClicked(object sender, EventArgs e)
 		{
-			XmlDocument content = new XmlDocument();
-			content.Load(filechooser.Filename);
-			var counterPartyNodes = content.SelectNodes("/root/Контрагент");
-			var counterpartyCounter = 0;
-			progressbar.Adjustment.Upper = counterPartyNodes.Count;
+			Clear();
+
+			XmlDocument xmlDoc = new XmlDocument();
+			xmlDoc.Load(filechooser.Filename);
+
+			var counterPartyNodes = xmlDoc.SelectNodes("/root/Контрагент");
+			TotalCounterparty = counterPartyNodes.Count;
+
+			var deliveryPointsNodes = xmlDoc.SelectNodes("/root/Адрес");
+			TotalDP = deliveryPointsNodes.Count;
+
+			var progressCounter = 0;
+			var totalCount = counterPartyNodes.Count + deliveryPointsNodes.Count;
+			progressbar.Adjustment.Upper = totalCount;
+
 			foreach(XmlNode node in counterPartyNodes) {
 				ParseCounterparty(node);
-				progressbar.Text = string.Format("Контрагенты: {0} из {1}", counterpartyCounter, counterPartyNodes.Count);
-				progressbar.Adjustment.Value = counterpartyCounter;
+				progressCounter++;
+
+				progressbar.Text = string.Format("Элемент: {0} из {1}", progressCounter, totalCount);
+				progressbar.Adjustment.Value = progressCounter;
 				QSMain.WaitRedraw();
-				counterpartyCounter++;
 			}
 
-			foreach(XmlNode node in content.SelectNodes("/root/Адрес")) {
+			foreach(XmlNode node in deliveryPointsNodes) {
 				ParseDeliveryPoint(node);
-			}
+				progressCounter++;
 
+				progressbar.Text = string.Format("Элемент: {0} из {1}", progressCounter, totalCount);
+				progressbar.Adjustment.Value = progressCounter;
+				QSMain.WaitRedraw();
+			}
 			File.WriteAllLines("ImportLog.txt", errorLog);
 			progressbar.Text = "Выполнено. Лог ошибок в файле ImportLog.txt в каталоге с программой";
+		}
+
+		private void Clear()
+		{
+			TotalCounterparty = 0;
+			ErrorsCounterparty = 0;
+			SkipedCounterparty = 0;
+			SuccessCounterparty = 0;
+			TotalDP = 0;
+			ErrorsDP = 0;
+			SkipedDP = 0;
+			SuccessDP = 0;
 		}
 
 		protected void OnButton1Clicked(object sender, EventArgs e)
 		{
 			foreach(var item in CounterpatiesList) {
 				UoW.Save<Counterparty>(item);
+				UoW.Commit();
 			}
 		}
 	}
