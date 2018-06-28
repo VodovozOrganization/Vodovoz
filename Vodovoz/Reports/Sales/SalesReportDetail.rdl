@@ -17,11 +17,11 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>127.8pt</Height>
+    <Height>125.8pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Height>24.05pt</Height>
-        <Width>568.40pt</Width>
+        <Height>20.29pt</Height>
+        <Width>816.07pt</Width>
         <Value>='Отчет по продажам ' + Iif(Parameters!start_date = Parameters!end_date, 'за ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy"), 'с ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy") + ' по ' + Format(CDate(Parameters!end_date), "dd/MM/yyyy"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
@@ -32,6 +32,7 @@
           <BorderWidth />
           <FontSize>16pt</FontSize>
           <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Table Name="Table1">
@@ -81,6 +82,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <Visibility>
                       </Visibility>
@@ -100,6 +102,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -107,7 +110,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>Заказ</Value>
+                      <Value>Заказ/ Автор</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -116,7 +119,9 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -132,6 +137,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -148,6 +154,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -164,6 +171,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -209,13 +217,17 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>=Fields!order_id.Value</Value>
+                      <Value>={ord_details}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -404,7 +416,19 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox28">
-                          <Value>=Switch(Fields!category.Value = 'rent', 'Аренда кулеров', Fields!category.Value = 'water', 'Вода в многооборотной таре', Fields!category.Value = 'deposit', 'Залог',Fields!category.Value = 'spare_parts', 'Запчасти',Fields!category.Value = 'equipment', 'Оборудование', Fields!category.Value = 'additional', 'Товары', Fields!category.Value = 'service', 'Услуга', Fields!category.Value = 'bottle', 'Тара', Fields!category.Value = 'material', 'Сырьё', Fields!category.Value = 'disposableBottleWater', 'Вода в одноразовой таре')</Value>
+                          <Value>=Switch(
+    Fields!category.Value = 'rent', 'Аренда кулеров',
+    Fields!category.Value = 'water', 'Вода в многооборотной таре',
+    Fields!category.Value = 'deposit', 'Залог',
+    Fields!category.Value = 'spare_parts', 'Запчасти',
+    Fields!category.Value = 'equipment', 'Оборудование',
+    Fields!category.Value = 'additional', 'Товары',
+    Fields!category.Value = 'service', 'Услуга',
+    Fields!category.Value = 'bottle', 'Тара',
+    Fields!category.Value = 'material', 'Сырьё',
+    Fields!category.Value = 'disposableBottleWater', 'Вода в одноразовой таре',
+    Fields!category.Value = 'master', 'Выезд мастера'
+)</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -413,6 +437,7 @@
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
                             <FontSize>11pt</FontSize>
+                            <VerticalAlign >Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -548,80 +573,136 @@
           </TableGroup>
         </TableGroups>
       </Table>
+      <Textbox Name="Textbox11" >
+        <Height>13.51pt</Height>
+        <Width>223.58pt</Width>
+        <Value>=First({criterions}, "Criterions")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>589.10pt</Left>
+        <Top>108.50pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <CanShrink>true</CanShrink>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
-    <Height>0.0pt</Height>
+    <Height>13.6pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
+    <ReportItems >
+      <Textbox Name="Textbox18">
+        <Height>12.00pt</Height>
+        <Width>815.31pt</Width>
+        <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>0.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <CanShrink>true</CanShrink>
+      </Textbox>
+    </ReportItems>
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	counterparty.name as counterparty,
-    delivery_points.compiled_address as delivery_point,
-    orders.id as order_id,
-    nomenclature.official_name AS name,
-    SUM(order_items.count) AS total_count,
-    truncate(SUM(order_items.count * (order_items.price * (100 - (cast(order_items.discount as decimal(2))))/100)),2) AS total_sum,
-    nomenclature.category,
-    nomenclature.id as nomenclature_id
+	delivery_points.compiled_address as delivery_point,
+	orders.id as order_id,
+	IF(
+		employees.name IS NULL OR employees.last_name IS NULL,
+		'',
+		CONCAT(SUBSTR(employees.name,1,1),'.',employees.last_name)
+	) AS order_author,
+	CONCAT(
+		orders.id,
+		IF(
+			employees.name IS NULL OR employees.last_name IS NULL,
+			'',
+			CONCAT('\n',SUBSTR(employees.name,1,1),'.',employees.last_name)
+		)
+	) AS ord_details,
+	nomenclature.official_name AS name,
+	SUM(order_items.count) AS total_count,
+	truncate(SUM(order_items.count * (order_items.price * (100 - (cast(order_items.discount as decimal(2))))/100)),2) AS total_sum,
+	nomenclature.category,
+	nomenclature.id as nomenclature_id
 FROM
-    order_items
-        LEFT JOIN
-    orders ON order_id = orders.id
-        LEFT JOIN
-    nomenclature ON order_items.nomenclature_id = nomenclature.id
+	order_items
 		LEFT JOIN
-    counterparty ON orders.client_id = counterparty.id
+	orders ON order_id = orders.id
 		LEFT JOIN
-    delivery_points ON orders.delivery_point_id = delivery_points.id
-        LEFT JOIN
-    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+	nomenclature ON order_items.nomenclature_id = nomenclature.id
+		LEFT JOIN
+	counterparty ON orders.client_id = counterparty.id
+		LEFT JOIN
+	delivery_points ON orders.delivery_point_id = delivery_points.id
+		LEFT JOIN
+	counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+		LEFT JOIN
+	employees ON orders.author_employee_id = employees.id
 WHERE
-    (order_status = 'Accepted'
-        OR order_status = 'InTravelList'
-        OR order_status = 'OnLoading'
-        OR order_status = 'OnTheWay'
-        OR order_status = 'Shipped'
-        OR order_status = 'UnloadingOnStock'
-        OR order_status = 'Closed')
-        AND (delivery_date &gt;= @start_date
-        AND delivery_date &lt;= @end_date)
-    AND (
+	(order_status = 'Accepted'
+		OR order_status = 'InTravelList'
+		OR order_status = 'OnLoading'
+		OR order_status = 'OnTheWay'
+		OR order_status = 'Shipped'
+		OR order_status = 'UnloadingOnStock'
+		OR order_status = 'Closed')
+		AND (delivery_date &gt;= @start_date
+		AND delivery_date &lt;= @end_date)
+	AND (
 			((nomenclature.id IN (@nomen_include) AND 0 IN (@nomen_exclude) )
 			OR
 			(nomenclature.id NOT IN (@nomen_exclude) AND 0 IN (@nomen_include)))
 			OR (0 IN (@nomen_include) AND 0 IN (@nomen_exclude))
-        )
+		)
 	AND (
 			((nomenclature.category IN (@nomtype_include) AND '0' IN (@nomtype_exclude) )
 			OR
 			(nomenclature.category NOT IN (@nomtype_exclude) AND '0' IN (@nomtype_include)))
 			OR ('0' IN (@nomtype_include) AND '0' IN (@nomtype_exclude))
-        )
+		)
 	AND (
 			((orders.client_id IN (@client_include) AND 0 IN (@client_exclude) )
 			OR
 			(orders.client_id NOT IN (@client_exclude) AND 0 IN (@client_include)))
 			OR (0 IN (@client_include) AND 0 IN (@client_exclude))
-        )
+		)
 	AND (
 			((counterparty_contract.organization_id IN (@org_include) AND 0 IN (@org_exclude) )
 			OR
 			(counterparty_contract.organization_id NOT IN (@org_exclude) AND 0 IN (@org_include)))
 			OR (0 IN (@org_include) AND 0 IN (@org_exclude))
-        )
+		)
 	AND ( 
 			((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
 			OR
 			(order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
 			OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
-        )
-GROUP BY counterparty.id, delivery_points.id, orders.id</CommandText>
+		)
+	AND (
+			((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude) )
+			OR
+			(IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@orderauthor_exclude) AND 0 IN (@orderauthor_include)))
+			OR (0 IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude))
+		)
+GROUP BY counterparty.id, delivery_points.id, orders.id, orders.author_employee_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -659,9 +740,15 @@ GROUP BY counterparty.id, delivery_points.id, orders.id</CommandText>
           <QueryParameter Name="client_exclude">
             <Value>=Parameters!client_exclude</Value>
           </QueryParameter>
+          <QueryParameter Name="orderauthor_include">
+            <Value>=Parameters!orderauthor_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="orderauthor_exclude">
+            <Value>=Parameters!orderauthor_exclude</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -690,6 +777,177 @@ GROUP BY counterparty.id, delivery_points.id, orders.id</CommandText>
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
+        <Field Name="order_author">
+          <DataField>order_author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="ord_details">
+          <DataField>ord_details</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Criterions">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>30</Timeout>
+        <CommandText>SELECT
+	CONCAT(
+		(IF(included_noms!=0,
+		CONCAT('Вкл.ном: ',included_noms,'\n'),
+		'')),
+		(IF(excluded_noms!=0,
+		CONCAT('Искл.ном: ',excluded_noms,'\n'),
+		'')),
+		(IF(included_nomtypes!=0,
+		CONCAT('Вкл.типов ном: ',included_nomtypes,'\n'),
+		'')),
+		(IF(excluded_nomtypes!=0,
+		CONCAT('Искл.типов ном: ',excluded_nomtypes,'\n'),
+		'')),
+		(IF(included_client!=0,
+		CONCAT('Вкл.клиентов: ',included_client,'\n'),
+		'')),
+		(IF(excluded_client!=0,
+		CONCAT('Искл.клиентов: ',excluded_client,'\n'),
+		'')),
+		(IF(included_org!=0,
+		CONCAT('Вкл.орг: ',included_org,'\n'),
+		'')),
+		(IF(excluded_org!=0,
+		CONCAT('Искл.орг: ',excluded_org,'\n'),
+		'')),
+		(IF(included_orderauthor!=0,
+		CONCAT('Вкл.авторов заказов: ',included_orderauthor,'\n'),
+		'')),
+		(IF(excluded_orderauthor!=0,
+		CONCAT('Искл.авторов заказов: ',excluded_orderauthor,'\n'),
+		'')),
+		(IF(included_discountreason!=0,
+		CONCAT('Вкл.причин скидок: ',included_discountreason,'\n'),
+		'')),
+		(IF(excluded_discountreason!=0,
+		CONCAT('Искл.причин скидок: ',excluded_discountreason,'\n'),
+		''))
+	) AS criterions
+FROM
+	(SELECT
+		IF(
+			0 NOT IN (@nomen_include),
+			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@nomen_include)),
+			0
+		) AS included_noms,
+		IF(
+			0 NOT IN (@nomen_exclude),
+			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@nomen_exclude)),
+			0
+		) AS excluded_noms,
+		
+		IF(
+			'0' NOT IN (@nomtype_include),
+			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomtype_include) GROUP BY nomenclature.category) AS q),
+			0
+		) AS included_nomtypes,
+		IF(
+			'0' NOT IN (@nomtype_exclude),
+			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomtype_exclude) GROUP BY nomenclature.category) AS q),
+			0
+		) AS excluded_nomtypes,
+		
+		IF(
+			0 NOT IN (@client_include),
+			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@client_include)),
+			0
+		) AS included_client,
+		IF(
+			0 NOT IN (@client_exclude),
+			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@client_exclude)),
+			0
+		) AS excluded_client,
+		
+		IF(
+			0 NOT IN (@org_include),
+			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@org_include)),
+			0
+		) AS included_org,
+		IF(
+			0 NOT IN (@org_exclude),
+			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@org_exclude)),
+			0
+		) AS excluded_org,
+		
+		IF(
+			0 NOT IN (@orderauthor_include),
+			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@orderauthor_include)),
+			0
+		) AS included_orderauthor,
+		IF(
+			0 NOT IN (@orderauthor_exclude),
+			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@orderauthor_exclude)),
+			0
+		) AS excluded_orderauthor,
+		
+		IF(
+			0 NOT IN (@discountreason_include),
+			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@discountreason_include)),
+			0
+		) AS included_discountreason,
+		IF(
+			0 NOT IN (@discountreason_exclude),
+			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@discountreason_exclude)),
+			0
+		) AS excluded_discountreason
+	) AS tbl;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomen_include">
+            <Value>=Parameters!nomen_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomen_exclude">
+            <Value>=Parameters!nomen_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomtype_include">
+            <Value>=Parameters!nomtype_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomtype_exclude">
+            <Value>=Parameters!nomtype_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="discountreason_include">
+            <Value>=Parameters!discountreason_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="discountreason_exclude">
+            <Value>=Parameters!discountreason_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="org_include">
+            <Value>=Parameters!org_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="org_exclude">
+            <Value>=Parameters!org_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="client_include">
+            <Value>=Parameters!client_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="client_exclude">
+            <Value>=Parameters!client_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="orderauthor_include">
+            <Value>=Parameters!orderauthor_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="orderauthor_exclude">
+            <Value>=Parameters!orderauthor_exclude</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="criterions">
+          <DataField>criterions</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -705,7 +963,7 @@ GROUP BY counterparty.id, delivery_points.id, orders.id</CommandText>
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -801,6 +1059,20 @@ GROUP BY counterparty.id, delivery_points.id, orders.id</CommandText>
       <MultiValue>true</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="orderauthor_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="orderauthor_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

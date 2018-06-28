@@ -1,17 +1,21 @@
-﻿﻿﻿using System;
-using QSOrmProject;
-using QSReport;
-using Vodovoz.Domain.Goods;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Domain;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
+using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using System.ComponentModel.DataAnnotations;
+using QSOrmProject;
+using QSReport;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Reports
 {
@@ -135,7 +139,9 @@ namespace Vodovoz.Reports
 			OrganizationInclude,
 			OrganizationExclude,
 			DiscountReasonInclude,
-			DiscountReasonExclude
+			DiscountReasonExclude,
+			OrderAuthorInclude,
+			OrderAuthorExclude
 		}
 
 		Dictionary<FilterTypes, Criterion> criterions = new Dictionary<FilterTypes, Criterion>();
@@ -147,6 +153,8 @@ namespace Vodovoz.Reports
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 			ConfigureFilters();
 			ytreeviewSelectedList.ColumnsConfig = columnsConfig;
+			hboxOrderAuthor.Sensitive = ycheckbuttonDetail.Active;
+			hboxOrderAuthor.TooltipText = "Доступно для подробного отчёта";
 		}
 
 		private void ConfigureFilters()
@@ -284,6 +292,45 @@ namespace Vodovoz.Reports
 				.List<SalesReportNode>();
 				return queryResult.ToList();
 			});
+			// Авторы заказов
+			Criterion orderAuthorIncludeCrit = new Criterion((arg) => {
+				SalesReportNode alias = null;
+				Employee employeeAlias = null;
+				var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
+				var queryResult = query.SelectList(list => list
+				                                   .Select(x => x.Id).WithAlias(() => alias.Id)
+				                                   .Select(
+					                                   Projections.SqlFunction(
+						                                   new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?2,' ',SUBSTR(?1,1,1))"),
+						                                   NHibernateUtil.String,
+						                                   Projections.Property(() => employeeAlias.Name),
+														   Projections.Property(() => employeeAlias.LastName)
+						                                  )
+					                                  ).WithAlias(() => alias.Name)
+				                                  ).OrderBy(o => o.LastName).Asc
+				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
+				.List<SalesReportNode>();
+				return queryResult.ToList();
+			});
+			Criterion orderAuthorExcludeCrit = new Criterion((arg) => {
+				SalesReportNode alias = null;
+				Employee employeeAlias = null;
+				var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
+				var queryResult = query.SelectList(list => list
+												   .Select(x => x.Id).WithAlias(() => alias.Id)
+												   .Select(
+													   Projections.SqlFunction(
+														   new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?2,' ',SUBSTR(?1,1,1))"),
+														   NHibernateUtil.String,
+														   Projections.Property(() => employeeAlias.Name),
+														   Projections.Property(() => employeeAlias.LastName)
+														  )
+													  ).WithAlias(() => alias.Name)
+												  ).OrderBy(o => o.LastName).Asc
+				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
+				.List<SalesReportNode>();
+				return queryResult.ToList();
+			});
 
 			//Задание связей по фильтрации и снятию выделения между критериями
 			//Номенклатура
@@ -309,6 +356,9 @@ namespace Vodovoz.Reports
 			//Основания для скидок
 			discountReasonIncludeCrit.UnselectRelation.Add(discountReasonExcludeCrit);
 			discountReasonExcludeCrit.UnselectRelation.Add(discountReasonIncludeCrit);
+			//Авторы заказов
+			orderAuthorIncludeCrit.UnselectRelation.Add(orderAuthorExcludeCrit);
+			orderAuthorExcludeCrit.UnselectRelation.Add(orderAuthorIncludeCrit);
 
 			//Сохранение фильтров для использования
 			criterions.Add(FilterTypes.NomenclatureInclude, nomenclatureIncludeCrit);
@@ -321,6 +371,8 @@ namespace Vodovoz.Reports
 			criterions.Add(FilterTypes.OrganizationExclude, organizationExcludeCrit);
 			criterions.Add(FilterTypes.DiscountReasonInclude, discountReasonIncludeCrit);
 			criterions.Add(FilterTypes.DiscountReasonExclude, discountReasonExcludeCrit);
+			criterions.Add(FilterTypes.OrderAuthorInclude, orderAuthorIncludeCrit);
+			criterions.Add(FilterTypes.OrderAuthorExclude, orderAuthorExcludeCrit);
 		}
 
 		private IColumnsConfig columnsConfig = ColumnsConfigFactory
@@ -387,6 +439,30 @@ namespace Vodovoz.Reports
 				identifier = "Sales.SalesReport";
 			}
 
+			var Parameters = new Dictionary<string, object>
+					{
+						{ "start_date", dateperiodpicker.StartDateOrNull },
+						{ "end_date", dateperiodpicker.EndDateOrNull },
+						//тип номенклатур
+						{ "nomtype_include", includeCategories },
+						{ "nomtype_exclude", excludeCategories },
+						//номенклатуры
+						{ "nomen_include", GetResultIds(criterions[FilterTypes.NomenclatureInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id))},
+						{ "nomen_exclude", GetResultIds(criterions[FilterTypes.NomenclatureExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id))},
+						//клиенты
+						{ "client_include", GetResultIds(criterions[FilterTypes.ClientInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+						{ "client_exclude", GetResultIds(criterions[FilterTypes.ClientExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+						//поставщики (наши организации)
+						{ "org_include", GetResultIds(criterions[FilterTypes.OrganizationInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+						{ "org_exclude", GetResultIds(criterions[FilterTypes.OrganizationExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+						//основания для скидок
+						{ "discountreason_include", GetResultIds(criterions[FilterTypes.DiscountReasonInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+						{ "discountreason_exclude", GetResultIds(criterions[FilterTypes.DiscountReasonExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+						//основания для скидок
+						{ "orderauthor_include", GetResultIds(criterions[FilterTypes.OrderAuthorInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+						{ "orderauthor_exclude", GetResultIds(criterions[FilterTypes.OrderAuthorExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
+					};
+
 			return new ReportInfo {
 				Identifier = identifier,
 				Parameters = new Dictionary<string, object>
@@ -407,7 +483,10 @@ namespace Vodovoz.Reports
 						{ "org_exclude", GetResultIds(criterions[FilterTypes.OrganizationExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 						//основания для скидок
 						{ "discountreason_include", GetResultIds(criterions[FilterTypes.DiscountReasonInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						{ "discountreason_exclude", GetResultIds(criterions[FilterTypes.DiscountReasonExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
+						{ "discountreason_exclude", GetResultIds(criterions[FilterTypes.DiscountReasonExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+						//основания для скидок
+						{ "orderauthor_include", GetResultIds(criterions[FilterTypes.OrderAuthorInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+						{ "orderauthor_exclude", GetResultIds(criterions[FilterTypes.OrderAuthorExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
 					}
 			};
 		}
@@ -502,7 +581,7 @@ namespace Vodovoz.Reports
 			criterions[FilterTypes.DiscountReasonInclude].SubcribeWithClearOld((string obj) => {
 				ylabelDiscountReason.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
-			labelTableTitle.Text = "Включаемые номенклатуры";
+			labelTableTitle.Text = "Включаемые основания скидок";
 		}
 
 		protected void OnButtonDiscountReasonUnselectClicked(object sender, EventArgs e)
@@ -512,6 +591,24 @@ namespace Vodovoz.Reports
 				ylabelDiscountReason.Text = String.Format("Искл.: {0} елем.", obj);
 			});
 			labelTableTitle.Text = "Исключаемые основания скидок";
+		}
+
+		protected void OnBtnOrderAuthorSelectClicked(object sender, EventArgs e)
+		{
+			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.OrderAuthorInclude].ObservableList;
+			criterions[FilterTypes.OrderAuthorInclude].SubcribeWithClearOld((string obj) => {
+				yLblOrderAuthor.Text = String.Format("Вкл.: {0} елем.", obj);
+			});
+			labelTableTitle.Text = "Включаемые авторы заказа";
+		}
+
+		protected void OnBtnOrderAuthorDeselectClicked(object sender, EventArgs e)
+		{
+			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.OrderAuthorExclude].ObservableList;
+			criterions[FilterTypes.OrderAuthorExclude].SubcribeWithClearOld((string obj) => {
+				yLblOrderAuthor.Text = String.Format("Искл.: {0} елем.", obj);
+			});
+			labelTableTitle.Text = "Исключаемые авторы заказа";
 		}
 
 		protected void OnButtonSelectAllClicked(object sender, EventArgs e)
@@ -532,6 +629,12 @@ namespace Vodovoz.Reports
 					item.Selected = false;
 				}
 			}
+		}
+
+		protected void OnYcheckbuttonDetailToggled(object sender, EventArgs e)
+		{
+			hboxOrderAuthor.Sensitive = ycheckbuttonDetail.Active;
+			hboxOrderAuthor.TooltipText = ycheckbuttonDetail.Active ? "" : "Доступно для подробного отчёта";
 		}
 	}
 }
