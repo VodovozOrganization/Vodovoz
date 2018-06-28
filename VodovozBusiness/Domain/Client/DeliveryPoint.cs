@@ -391,7 +391,7 @@ namespace Vodovoz.Domain.Client
 
 		private decimal fixPrice2;
 		/// <summary>
-		/// Фикса Семиозерье из 1с
+		/// Фикса Кислородная из 1с
 		/// </summary>
 		[Display(Name = "Фикса Кислородная из 1с")]
 		public virtual decimal FixPrice2 {
@@ -401,7 +401,7 @@ namespace Vodovoz.Domain.Client
 
 		private decimal fixPrice3;
 		/// <summary>
-		/// Фикса Семиозерье из 1с
+		/// Фикса Снятогорская из 1с
 		/// </summary>
 		[Display(Name = "Фикса Снятогорская из 1с")]
 		public virtual decimal FixPrice3 {
@@ -411,7 +411,7 @@ namespace Vodovoz.Domain.Client
 
 		private decimal fixPrice4;
 		/// <summary>
-		/// Фикса Семиозерье из 1с
+		/// Фикса Стройка из 1с
 		/// </summary>
 		[Display(Name = "Фикса Стройка из 1с")]
 		public virtual decimal FixPrice4 {
@@ -421,7 +421,7 @@ namespace Vodovoz.Domain.Client
 
 		private decimal fixPrice5;
 		/// <summary>
-		/// Фикса Семиозерье из 1с
+		/// Фикса С Ручками из 1с
 		/// </summary>
 		[Display(Name = "Фикса С Ручками из 1с")]
 		public virtual decimal FixPrice5 {
