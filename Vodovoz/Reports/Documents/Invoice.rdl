@@ -1725,7 +1725,7 @@ GROUP BY name</CommandText>
             <Value>=Iif(Fields!order_online_number.IsMissing, '', 'Заказ #' + {order_online_number}+' - онлайн оплата. ') + {order_comment}</Value>
             <ZIndex>1</ZIndex>
             <Left>1.5pt</Left>
-            <Top>322.5pt</Top>
+            <Top>320.9pt</Top>
             <CanGrow>true</CanGrow>
             <Style>
               <BorderStyle />
@@ -1840,7 +1840,7 @@ Format(
         <Height>66.97pt</Height>
         <Width>540.54pt</Width>
         <Left>30.8pt</Left>
-        <Top>654.0pt</Top>
+        <Top>697.2pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1937,73 +1937,6 @@ Format(
           <Hidden>={?without_advertising}</Hidden>
         </Visibility>
       </Rectangle>
-      <List Name="List3">
-        <Height>29.47pt</Height>
-        <Width>540.51pt</Width>
-        <Left>31.2pt</Left>
-        <Top>610.3pt</Top>
-        <ReportItems>
-          <Textbox Name="Textbox65">
-            <Height>27.76pt</Height>
-            <Width>77.70pt</Width>
-            <Value>Оборудование
-к клиенту: </Value>
-            <ZIndex>1</ZIndex>
-            <Left>2.4pt</Left>
-            <Top>0.7pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox66">
-            <Height>24.00pt</Height>
-            <Width>187.73pt</Width>
-            <Value>=Fields!equipment_to.Value</Value>
-            <ZIndex>1</ZIndex>
-            <Left>83.40pt</Left>
-            <Top>1.20pt</Top>
-            <CanGrow>true</CanGrow>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox67">
-            <Height>24.00pt</Height>
-            <Width>79.77pt</Width>
-            <Value>Оборудование
- от клиента:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>265.9pt</Left>
-            <Top>2.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox68">
-            <Height>21.80pt</Height>
-            <Width>187.47pt</Width>
-            <Value>=Fields!equipment_from.Value</Value>
-            <ZIndex>1</ZIndex>
-            <Left>348.20pt</Left>
-            <Top>2.70pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-        </ReportItems>
-        <DataSetName>Equipments</DataSetName>
-      </List>
       <Table Name="Table3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Proxies</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -2020,6 +1953,9 @@ Format(
         </Style>
         <TableColumns>
           <TableColumn>
+            <Width>75.9pt</Width>
+          </TableColumn>
+          <TableColumn>
             <Width>210.0pt</Width>
           </TableColumn>
           <TableColumn>
@@ -2031,6 +1967,27 @@ Format(
             <TableRow>
               <Height>16.8pt</Height>
               <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Value>Доверенности:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
@@ -2047,6 +2004,8 @@ Format(
                         <BorderColor />
                         <BorderWidth />
                         <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2067,6 +2026,8 @@ Format(
                         <BorderColor />
                         <BorderWidth />
                         <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2075,29 +2036,13 @@ Format(
             </TableRow>
           </TableRows>
         </Details>
-        <Left>115.7pt</Left>
-        <Top>638.8pt</Top>
+        <Left>37.3pt</Left>
+        <Top>677.2pt</Top>
         <Visibility>
           <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
         </Visibility>
-      </Table>
-      <Textbox Name="Textbox69" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>13.57pt</Height>
-        <Width>77.15pt</Width>
-        <Value>Доверенности:</Value>
         <ZIndex>1</ZIndex>
-        <Left>37.4pt</Left>
-        <Top>638.1pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Left</TextAlign>
-        </Style>
-        <Visibility>
-          <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
-        </Visibility>
-      </Textbox>
+      </Table>
       <Table Name="Table5">
         <DataSetName>deposits</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -2421,6 +2366,127 @@ Format(
           <Hidden>=Iif(Count({deposit}, "deposits")&gt;0, 'false', 'true')</Hidden>
         </Visibility>
       </Textbox>
+      <Table Name="Table2">
+        <DataSetName>Equipments</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>76.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>176.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>96.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>180.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>21.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox99">
+                      <Value>Оборудование
+к клиенту: </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>=Fields!equipment_to.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox97">
+                      <Value>Оборудование от клиента:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox69">
+                      <Value>=Fields!equipment_from.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>37.9pt</Left>
+        <Top>654.8pt</Top>
+      </Table>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2861,7 +2927,7 @@ Format(
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
