@@ -278,293 +278,6 @@ payment_type='ToClient'</CommandText>
     <Height>671.9pt</Height>
     <Columns>1</Columns>
     <ReportItems>
-      <List Name="List1">
-        <Height>168.81pt</Height>
-        <Width>549.84pt</Width>
-        <Left>35.00pt</Left>
-        <Top>0.00pt</Top>
-        <ReportItems>
-          <Textbox Name="Textbox1">
-            <Height>17.25pt</Height>
-            <Width>320.29pt</Width>
-            <Value>='Накладная № ' + {order_id} + ' от ' + Format({order_date}, "dd.MM.yy")</Value>
-            <ZIndex>1</ZIndex>
-            <Left>86.30pt</Left>
-            <Top>35.50pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>14pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox2">
-            <Height>13.50pt</Height>
-            <Width>154.33pt</Width>
-            <Value>= "Исполнитель: " +{author}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>231.3pt</Left>
-            <Top>16.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>9pt</FontSize>
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox3">
-            <Height>12.00pt</Height>
-            <Width>80pt</Width>
-            <Value>Поставщик:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0pt</Left>
-            <Top>80pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox4">
-            <Height>15.00pt</Height>
-            <Width>80.00pt</Width>
-            <Value>Адрес:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>125.00pt</Top>
-            <Style>
-              <BorderStyle>
-                <Left>None</Left>
-                <Top>None</Top>
-                <Right>None</Right>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox6">
-            <Height>12.75pt</Height>
-            <Width>80pt</Width>
-            <Value>Покупатель:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>95.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox7">
-            <Height>15.00pt</Height>
-            <Width>80.00pt</Width>
-            <Value>Телефон:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>140.00pt</Top>
-            <Style>
-              <BorderStyle>
-                <Left>None</Left>
-                <Bottom>None</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-              <PaddingRight>0pt</PaddingRight>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox8">
-            <Height>15pt</Height>
-            <Width>6in</Width>
-            <Value>={org_name} + ' ' + {org_address}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>80.2pt</Left>
-            <Top>80.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <PaddingLeft>4pt</PaddingLeft>
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-          <Textbox Name="Textbox9">
-            <Height>25.50pt</Height>
-            <Width>433.62pt</Width>
-            <Value>={client_name}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>80.20pt</Left>
-            <Top>95.00pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <PaddingLeft>4pt</PaddingLeft>
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-          <Textbox Name="Textbox10">
-            <Height>15.00pt</Height>
-            <Width>433.62pt</Width>
-            <Value>={del_point_address} + '\n' + {delivery_point_comment}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>80.20pt</Left>
-            <Top>125.00pt</Top>
-            <Style>
-              <BorderStyle>
-                <Right>Solid</Right>
-                <Top>Solid</Top>
-                <Left>Solid</Left>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth>
-                <Left>2pt</Left>
-                <Right>2pt</Right>
-                <Top>2pt</Top>
-              </BorderWidth>
-              <FontWeight>Bold</FontWeight>
-              <PaddingLeft>4pt</PaddingLeft>
-              <PaddingTop>1.5pt</PaddingTop>
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-          <Textbox Name="Textbox12">
-            <Height>15.00pt</Height>
-            <Width>433.62pt</Width>
-            <Value>=Iif({delivery_point_contact} = null, {client_contact}, {delivery_point_contact})</Value>
-            <ZIndex>1</ZIndex>
-            <Left>80.20pt</Left>
-            <Top>140.00pt</Top>
-            <Style>
-              <FontWeight>Bold</FontWeight>
-              <BorderStyle>
-                <Right>Solid</Right>
-                <Bottom>Solid</Bottom>
-                <Left>Solid</Left>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth>
-                <Left>2pt</Left>
-                <Right>2pt</Right>
-                <Bottom>2pt</Bottom>
-              </BorderWidth>
-              <PaddingLeft>4pt</PaddingLeft>
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-          <Textbox Name="Textbox14">
-            <Height>12pt</Height>
-            <Width>1in</Width>
-            <Value>={delivery_schedule}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>213.4pt</Left>
-            <Top>156.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>10pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox15">
-            <Height>12.00pt</Height>
-            <Width>65.51pt</Width>
-            <Value>Время дост.:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>157.4pt</Left>
-            <Top>157.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>8pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox18">
-            <Height>12.00pt</Height>
-            <Width>186.27pt</Width>
-            <Value>='Договор: ' + {contract_number} + ' от ' + {contract_date}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>318.1pt</Left>
-            <Top>157.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>8pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox54" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>17.25pt</Height>
-            <Width>320.29pt</Width>
-            <Value>Безденежно</Value>
-            <ZIndex>1</ZIndex>
-            <Left>94.6pt</Left>
-            <Top>55.2pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>14pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox13">
-            <Height>15.76pt</Height>
-            <Width>84.28pt</Width>
-            <Value>={daily_number}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>362.2pt</Left>
-            <Top>17.1pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <TextAlign>Right</TextAlign>
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-          <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Type>QR Code</Type>
-            <Height>90pt</Height>
-            <Width>90pt</Width>
-            <CustomProperties>
-              <CustomProperty>
-                <Name>QrCode</Name>
-                <Value>="InvoiceBarter;"+{order_id}+";"+Format({order_date}, "ddMMyyyy")</Value>
-              </CustomProperty>
-            </CustomProperties>
-            <Left>448.0pt</Left>
-            <Top>8.8pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <BackgroundColor>
-              </BackgroundColor>
-              <BackgroundGradientType>None</BackgroundGradientType>
-              <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
-              <TextAlign>Left</TextAlign>
-              <PaddingTop>0pt</PaddingTop>
-            </Style>
-          </CustomReportItem>
-        </ReportItems>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <DataSetName>Order</DataSetName>
-      </List>
       <Table Name="Table1">
         <DataSetName>Goods</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -909,7 +622,7 @@ payment_type='ToClient'</CommandText>
           </TableRows>
         </Details>
         <Left>52.9pt</Left>
-        <Top>183.8pt</Top>
+        <Top>190.2pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1087,7 +800,7 @@ payment_type='ToClient'</CommandText>
             <Value>Отпуск разрешил:__________________/Сосновцев С.С./</Value>
             <ZIndex>1</ZIndex>
             <Left>85.2pt</Left>
-            <Top>54.4pt</Top>
+            <Top>60.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1101,7 +814,7 @@ payment_type='ToClient'</CommandText>
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>54.4pt</Top>
+            <Top>60.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1115,7 +828,7 @@ payment_type='ToClient'</CommandText>
             <Value>Время доставки</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>83.2pt</Top>
+            <Top>89.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1128,8 +841,8 @@ payment_type='ToClient'</CommandText>
             <Width>518.44pt</Width>
             <Value>Товар получен в полном объеме. К продавцу претензий не имею.     /                                      /</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>106.50pt</Top>
+            <Left>0.0pt</Left>
+            <Top>112.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1143,7 +856,7 @@ payment_type='ToClient'</CommandText>
             <Value>*</Value>
             <ZIndex>1</ZIndex>
             <Left>143.8pt</Left>
-            <Top>83.2pt</Top>
+            <Top>89.6pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -1160,7 +873,7 @@ payment_type='ToClient'</CommandText>
             <Value>Покупатель сдал</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>137.8pt</Top>
+            <Top>144.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1174,7 +887,7 @@ payment_type='ToClient'</CommandText>
             <Value>*             (                                    ) бутылей            /                                       /</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
-            <Top>138.5pt</Top>
+            <Top>144.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1188,7 +901,7 @@ payment_type='ToClient'</CommandText>
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
-            <Top>151.8pt</Top>
+            <Top>158.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1208,7 +921,7 @@ payment_type='ToClient'</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>338.7pt</Left>
-            <Top>119.7pt</Top>
+            <Top>126.1pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1227,7 +940,7 @@ payment_type='ToClient'</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>338.4pt</Left>
-            <Top>151.9pt</Top>
+            <Top>158.3pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1245,8 +958,8 @@ payment_type='ToClient'</CommandText>
             <Width>243.42pt</Width>
             <Value>Предполагаемое количетво возвратной тары:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>170.80pt</Top>
+            <Left>0.0pt</Left>
+            <Top>177.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1267,7 +980,7 @@ payment_type='ToClient'</CommandText>
               </BorderWidth>
             </Style>
             <Left>0.0pt</Left>
-            <Top>213.1pt</Top>
+            <Top>219.5pt</Top>
           </Line>
           <Textbox Name="Textbox43">
             <Height>13.50pt</Height>
@@ -1275,7 +988,7 @@ payment_type='ToClient'</CommandText>
             <Value>Залог за пустую тару</Value>
             <ZIndex>1</ZIndex>
             <Left>16.2pt</Left>
-            <Top>197.9pt</Top>
+            <Top>204.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1290,7 +1003,7 @@ payment_type='ToClient'</CommandText>
             <Value>             (                                    ) бутылей в размере                                   рублей</Value>
             <ZIndex>1</ZIndex>
             <Left>119.3pt</Left>
-            <Top>234.1pt</Top>
+            <Top>240.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1304,7 +1017,7 @@ payment_type='ToClient'</CommandText>
             <Value>Покупатель внес залог за</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>233.9pt</Top>
+            <Top>240.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1318,7 +1031,7 @@ payment_type='ToClient'</CommandText>
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
             <Left>130.0pt</Left>
-            <Top>248.7pt</Top>
+            <Top>255.1pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1338,7 +1051,7 @@ payment_type='ToClient'</CommandText>
             <Value>(сумма)</Value>
             <ZIndex>1</ZIndex>
             <Left>370.8pt</Left>
-            <Top>248.1pt</Top>
+            <Top>254.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1358,7 +1071,7 @@ payment_type='ToClient'</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>370.6pt</Left>
-            <Top>292.2pt</Top>
+            <Top>298.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1377,7 +1090,7 @@ payment_type='ToClient'</CommandText>
             <Value>/                                       /</Value>
             <ZIndex>1</ZIndex>
             <Left>371.5pt</Left>
-            <Top>279.0pt</Top>
+            <Top>285.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1391,7 +1104,7 @@ payment_type='ToClient'</CommandText>
             <Value>Экспедитор принял:                                        /                                        /</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>324.5pt</Top>
+            <Top>330.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1405,7 +1118,7 @@ payment_type='ToClient'</CommandText>
             <Value>(подпись)                   (расшифровка)</Value>
             <ZIndex>1</ZIndex>
             <Left>101.9pt</Left>
-            <Top>335.8pt</Top>
+            <Top>342.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1423,7 +1136,7 @@ payment_type='ToClient'</CommandText>
             <Value>* Поля обязательные к заполнению</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>365.6pt</Top>
+            <Top>372.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1437,7 +1150,7 @@ payment_type='ToClient'</CommandText>
             <Value>=(Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'))</Value>
             <ZIndex>1</ZIndex>
             <Left>410.2pt</Left>
-            <Top>15.3pt</Top>
+            <Top>21.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1454,7 +1167,7 @@ payment_type='ToClient'</CommandText>
             <Value>Всего:</Value>
             <ZIndex>1</ZIndex>
             <Left>370.4pt</Left>
-            <Top>15.4pt</Top>
+            <Top>21.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1467,7 +1180,7 @@ payment_type='ToClient'</CommandText>
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
             <Left>348.3pt</Left>
-            <Top>107.8pt</Top>
+            <Top>114.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1481,7 +1194,7 @@ payment_type='ToClient'</CommandText>
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
             <Left>348.5pt</Left>
-            <Top>139.4pt</Top>
+            <Top>145.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1497,7 +1210,7 @@ payment_type='ToClient'</CommandText>
             <Value>={trifle}</Value>
             <ZIndex>1</ZIndex>
             <Left>410.0pt</Left>
-            <Top>29.2pt</Top>
+            <Top>35.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1513,8 +1226,8 @@ payment_type='ToClient'</CommandText>
             <Width>50.57pt</Width>
             <Value>Сдача с:</Value>
             <ZIndex>1</ZIndex>
-            <Left>360.60pt</Left>
-            <Top>29.40pt</Top>
+            <Left>360.6pt</Left>
+            <Top>35.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1528,8 +1241,8 @@ payment_type='ToClient'</CommandText>
             <Width>45.97pt</Width>
             <Value>={bottles_return}</Value>
             <ZIndex>1</ZIndex>
-            <Left>246.90pt</Left>
-            <Top>170.20pt</Top>
+            <Left>246.9pt</Left>
+            <Top>176.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1546,7 +1259,7 @@ payment_type='ToClient'</CommandText>
             <Value>бутылей.</Value>
             <ZIndex>1</ZIndex>
             <Left>312.5pt</Left>
-            <Top>170.1pt</Top>
+            <Top>176.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1568,8 +1281,8 @@ payment_type='ToClient'</CommandText>
         <Width>352.77pt</Width>
         <Value>=Code.SummaString_Val(Convert.ToString((Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'))))</Value>
         <ZIndex>1</ZIndex>
-        <Left>35.00pt</Left>
-        <Top>252.80pt</Top>
+        <Left>35.0pt</Left>
+        <Top>259.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1577,25 +1290,11 @@ payment_type='ToClient'</CommandText>
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Image Name="Image1">
-        <Height>57.44pt</Height>
-        <Width>80.87pt</Width>
-        <Left>44.30pt</Left>
-        <Top>12.30pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Embedded</Source>
-        <Value>logo</Value>
-        <Sizing>FitProportional</Sizing>
-      </Image>
       <Subreport Name="Subreport1">
         <Height>11.26pt</Height>
         <Width>598.34pt</Width>
         <Left>0.0pt</Left>
-        <Top>231.4pt</Top>
+        <Top>237.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1609,6 +1308,294 @@ payment_type='ToClient'</CommandText>
           </Parameter>
         </Parameters>
       </Subreport>
+      <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Type>QR Code</Type>
+        <Height>115.54pt</Height>
+        <Width>117.06pt</Width>
+        <CustomProperties>
+          <CustomProperty >
+            <Name>QrCode</Name>
+            <Value>="InvoiceBarter;"+Max({order_id}, "Order")+";"+Format(Max({order_date}, "Order"), "ddMMyyyy")</Value>
+          </CustomProperty>
+        </CustomProperties>
+        <Left>469.10pt</Left>
+        <Top>4.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <BackgroundColor>
+          </BackgroundColor>
+          <BackgroundGradientType>None</BackgroundGradientType>
+          <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+          <TextAlign>Left</TextAlign>
+          <PaddingTop>0pt</PaddingTop>
+        </Style>
+      </CustomReportItem>
+      <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>67.94pt</Height>
+        <Width>95.13pt</Width>
+        <Left>19.9pt</Left>
+        <Top>11.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Embedded</Source>
+        <Value>logo</Value>
+        <Sizing>FitProportional</Sizing>
+      </Image>
+      <Textbox Name="Textbox68" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>80.00pt</Width>
+        <Value>Поставщик:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>34.9pt</Left>
+        <Top>85.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox69" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.00pt</Height>
+        <Width>80.00pt</Width>
+        <Value>Адрес:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>34.9pt</Left>
+        <Top>131.7pt</Top>
+        <Style>
+          <BorderStyle>
+            <Left>None</Left>
+            <Top>None</Top>
+            <Right>None</Right>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox70" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.75pt</Height>
+        <Width>80pt</Width>
+        <Value>Покупатель:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>34.9pt</Left>
+        <Top>101.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox71" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.00pt</Height>
+        <Width>80.00pt</Width>
+        <Value>Телефон:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>34.9pt</Left>
+        <Top>146.7pt</Top>
+        <Style>
+          <BorderStyle>
+            <Left>None</Left>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+          <PaddingRight>0pt</PaddingRight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox72" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.00pt</Height>
+        <Width>343.62pt</Width>
+        <Value>=Max({org_name}, "Order") + ' ' + Max({org_address}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>115.2pt</Left>
+        <Top>86.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <PaddingLeft>4pt</PaddingLeft>
+        </Style>
+        <CanGrow>true</CanGrow>
+      </Textbox>
+      <Textbox Name="Textbox73" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>25.50pt</Height>
+        <Width>343.62pt</Width>
+        <Value>=Max({client_name}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>115.2pt</Left>
+        <Top>101.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <PaddingLeft>4pt</PaddingLeft>
+        </Style>
+        <CanGrow>true</CanGrow>
+      </Textbox>
+      <Textbox Name="Textbox74" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.00pt</Height>
+        <Width>433.62pt</Width>
+        <Value>=Max({del_point_address}, "Order") + '\n' + Max({delivery_point_comment}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>115.2pt</Left>
+        <Top>131.4pt</Top>
+        <Style>
+          <BorderStyle>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Left>Solid</Left>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>2pt</Top>
+          </BorderWidth>
+          <FontWeight>Bold</FontWeight>
+          <PaddingLeft>4pt</PaddingLeft>
+          <PaddingTop>1.5pt</PaddingTop>
+        </Style>
+        <CanGrow>true</CanGrow>
+      </Textbox>
+      <Textbox Name="Textbox75" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.00pt</Height>
+        <Width>433.62pt</Width>
+        <Value>=Iif(Max({delivery_point_contact}, "Order") = null, Max({client_contact}, "Order"), Max({delivery_point_contact}, "Order"))</Value>
+        <ZIndex>1</ZIndex>
+        <Left>115.2pt</Left>
+        <Top>146.4pt</Top>
+        <Style>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle>
+            <Right>Solid</Right>
+            <Bottom>Solid</Bottom>
+            <Left>Solid</Left>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Bottom>2pt</Bottom>
+          </BorderWidth>
+          <PaddingLeft>4pt</PaddingLeft>
+        </Style>
+        <CanGrow>true</CanGrow>
+      </Textbox>
+      <Textbox Name="Textbox76" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>69.27pt</Width>
+        <Value>=Max({delivery_schedule}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>257.2pt</Left>
+        <Top>164.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox77" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>65.51pt</Width>
+        <Value>Время дост.:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>190.8pt</Left>
+        <Top>164.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>10pt</FontSize>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox78" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>186.27pt</Width>
+        <Value>='Договор: ' + Max({contract_number}, "Order") + ' от ' + Max({contract_date}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>329.1pt</Left>
+        <Top>164.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox79" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>17.25pt</Height>
+        <Width>335.29pt</Width>
+        <Value>='Накладная № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>121.60pt</Left>
+        <Top>35.70pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>14pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox80" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.50pt</Height>
+        <Width>154.33pt</Width>
+        <Value>= "Исполнитель: " +Max({author}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>224.8pt</Left>
+        <Top>17.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox81" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>17.25pt</Height>
+        <Width>324.79pt</Width>
+        <Value>Безденежно</Value>
+        <ZIndex>1</ZIndex>
+        <Left>129.90pt</Left>
+        <Top>55.40pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>14pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox82" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.50pt</Height>
+        <Width>36.28pt</Width>
+        <Value>=Max({daily_number}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>384.5pt</Left>
+        <Top>17.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Left</TextAlign>
+        </Style>
+        <CanGrow>false</CanGrow>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2041,7 +2028,7 @@ payment_type='ToClient'</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
