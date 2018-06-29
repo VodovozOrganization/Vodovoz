@@ -94,11 +94,11 @@ namespace Vodovoz
 
 			// Настройка ORM
 			OrmMain.ConfigureOrm(db_config, new System.Reflection.Assembly[] {
+				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain)),
 				System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
-				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap))
 			},
 								  (cnf) => cnf.DataBaseIntegration(
 									  dbi => { dbi.BatchSize = 100; dbi.Batcher<MySqlClientBatchingBatcherFactory>(); }
