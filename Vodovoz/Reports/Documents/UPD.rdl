@@ -2343,8 +2343,8 @@ WHERE
       <List Name="List4">
         <Height>231.29pt</Height>
         <Width>792.25pt</Width>
-        <Left>2.3pt</Left>
-        <Top>261.6pt</Top>
+        <Left>2.30pt</Left>
+        <Top>261.60pt</Top>
         <ReportItems>
           <Textbox Name="Textbox131">
             <Height>15.03pt</Height>
@@ -2392,12 +2392,12 @@ WHERE
             </Style>
           </Textbox>
           <Textbox Name="Textbox135">
-            <Height>15.03pt</Height>
-            <Width>322.95pt</Width>
+            <Height>15.77pt</Height>
+            <Width>248.40pt</Width>
             <Value>Товар (груз) передал / услуги, результаты работ, права сдал</Value>
             <ZIndex>1</ZIndex>
-            <Left>7.7pt</Left>
-            <Top>102.2pt</Top>
+            <Left>7.70pt</Left>
+            <Top>102.20pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -3402,6 +3402,68 @@ WHERE
               <FontSize>7pt</FontSize>
             </Style>
           </Textbox>
+          <Textbox Name="Textbox186">
+            <Height>12.75pt</Height>
+            <Width>109.93pt</Width>
+            <Value>={leader_name}+'.'+{leader_patronymic}+'.'+{leader_last_name}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>259.4pt</Left>
+            <Top>109.1pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Right</TextAlign>
+              <VerticalAlign>Middle</VerticalAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox187">
+            <Height>12.76pt</Height>
+            <Width>98.62pt</Width>
+            <Value>={leader_name}+'.'+{leader_patronymic}+'.'+{leader_last_name}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>276.3pt</Left>
+            <Top>173.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Right</TextAlign>
+              <VerticalAlign>Middle</VerticalAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox188">
+            <Height>10.50pt</Height>
+            <Width>97.09pt</Width>
+            <Value>Генеральный директор</Value>
+            <ZIndex>1</ZIndex>
+            <Left>9.0pt</Left>
+            <Top>112.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+              <VerticalAlign>Middle</VerticalAlign>
+              <FontSize>8pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox189">
+            <Height>9.00pt</Height>
+            <Width>96.32pt</Width>
+            <Value>Генеральный директор</Value>
+            <ZIndex>1</ZIndex>
+            <Left>10.00pt</Left>
+            <Top>177.70pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8pt</FontSize>
+              <TextAlign>Center</TextAlign>
+              <VerticalAlign>Middle</VerticalAlign>
+            </Style>
+          </Textbox>
         </ReportItems>
         <Style>
           <BorderStyle />
@@ -3525,7 +3587,7 @@ WHERE
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>183378</Value>
+          <Value>185629</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
