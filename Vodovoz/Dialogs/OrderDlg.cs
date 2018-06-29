@@ -380,6 +380,7 @@ namespace Vodovoz
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
 
 			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += WaterSalesAgreement_ObjectUpdatedGeneric;
+			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());
 		}
 
 		public virtual bool HideItemFromDirectionReasonComboInEquipment(OrderEquipment node, DirectionReason item)
@@ -1956,8 +1957,19 @@ namespace Vodovoz
 
 		protected void OnButtonDepositsClicked(object sender, EventArgs e)
 		{
-			depositrefunditemsview.Visible = !depositrefunditemsview.Visible;
-			labelDeposit1.Visible = !labelDeposit1.Visible;
+			ToggleVisibilityOfDeposits();
+		}
+
+		/// <summary>
+		/// Переключает видимость элементов управления депозитами
+		/// </summary>
+		/// <param name="visibly"><see langword="true"/>если хотим принудительно сделать видимым;
+		/// <see langword="false"/>если хотим принудительно сделать невидимым;
+		/// <see langword="null"/>переключает видимость с невидимого на видимый и обратно.</param>
+		private void ToggleVisibilityOfDeposits(bool? visibly = null)
+		{
+			depositrefunditemsview.Visible = visibly.HasValue ? visibly.Value : !depositrefunditemsview.Visible;
+			labelDeposit1.Visible = visibly.HasValue ? visibly.Value : !labelDeposit1.Visible;
 		}
 
 		#region Создание договоров, доп соглашений
