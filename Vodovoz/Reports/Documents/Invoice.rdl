@@ -520,285 +520,6 @@ GROUP BY name</CommandText>
     <Height>869.7pt</Height>
     <Columns>1</Columns>
     <ReportItems>
-      <List Name="List1">
-        <Height>162.06pt</Height>
-        <Width>540.84pt</Width>
-        <Left>35.00pt</Left>
-        <Top>0.00pt</Top>
-        <ReportItems>
-          <Textbox Name="Textbox1">
-            <Height>17.25pt</Height>
-            <Width>320.29pt</Width>
-            <Value>='Товарный чек № ' + {order_id} + ' от ' + Format({order_date}, "dd.MM.yy") + ' Нал'</Value>
-            <ZIndex>1</ZIndex>
-            <Left>86.30pt</Left>
-            <Top>35.50pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>14pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox2">
-            <Height>13.50pt</Height>
-            <Width>154.33pt</Width>
-            <Value>= "Исполнитель: " + {author}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>232.1pt</Left>
-            <Top>16.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>9pt</FontSize>
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox3">
-            <Height>12.00pt</Height>
-            <Width>80pt</Width>
-            <Value>Поставщик:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0pt</Left>
-            <Top>80pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox4">
-            <Height>15pt</Height>
-            <Width>80pt</Width>
-            <Value>Адрес:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>108.2pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox6">
-            <Height>12.75pt</Height>
-            <Width>80pt</Width>
-            <Value>Покупатель:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>95.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox7">
-            <Height>12.00pt</Height>
-            <Width>80pt</Width>
-            <Value>Телефон:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>136.8pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox8">
-            <Height>15.00pt</Height>
-            <Width>365.09pt</Width>
-            <Value>=Iif(First({order_payment_type}, "Order")!='ByCard',"","Тинькоф\\") + {org_name} + ' ' + {org_address}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>85.00pt</Left>
-            <Top>80.00pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-          <Textbox Name="Textbox9">
-            <Height>15pt</Height>
-            <Width>6in</Width>
-            <Value>={client_name}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>85pt</Left>
-            <Top>95.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-          <Textbox Name="Textbox10">
-            <Height>15.00pt</Height>
-            <Width>433.62pt</Width>
-            <Value>=Iif(
-        Fields!logistics_area.IsMissing, 
-        "",
-        "["+ {logistics_area} + "]"
-    )
-    + {del_point_address}
-    + '\n'
-    + {delivery_point_comment}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>85.0pt</Left>
-            <Top>108.2pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-          <Textbox Name="Textbox12">
-            <Height>12.00pt</Height>
-            <Width>433.62pt</Width>
-            <Value>=Iif({delivery_point_contact} = null, {client_contact}, {delivery_point_contact})</Value>
-            <ZIndex>1</ZIndex>
-            <Left>85.0pt</Left>
-            <Top>136.8pt</Top>
-            <Style>
-              <FontWeight>Bold</FontWeight>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-          <Textbox Name="Textbox14">
-            <Height>12.00pt</Height>
-            <Width>72.27pt</Width>
-            <Value>={delivery_schedule}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>191.0pt</Left>
-            <Top>148.8pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>10pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox18">
-            <Height>12.00pt</Height>
-            <Width>186.27pt</Width>
-            <Value>='Договор: ' + {contract_number} + ' от ' + {contract_date}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>305.3pt</Left>
-            <Top>149.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>8pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>65.51pt</Width>
-            <Value>Время дост.:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>136.8pt</Left>
-            <Top>150.1pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>8pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox59" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>15.00pt</Height>
-            <Width>92.59pt</Width>
-            <Value>={daily_number}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>344.9pt</Left>
-            <Top>17.1pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <TextAlign>Right</TextAlign>
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-          <Textbox Name="Textbox58">
-            <Height>12.76pt</Height>
-            <Width>125.71pt</Width>
-            <Value>={trifle}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>84.5pt</Left>
-            <Top>122.5pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <TextAlign>Left</TextAlign>
-            </Style>
-          </Textbox>
-          <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Type>QR Code</Type>
-            <Height>90pt</Height>
-            <Width>90pt</Width>
-            <CustomProperties>
-              <CustomProperty>
-                <Name>QrCode</Name>
-                <Value>="Invoice;"+{order_id}+";"+Format({order_date}, "ddMMyyyy")</Value>
-              </CustomProperty>
-            </CustomProperties>
-            <Left>443.9pt</Left>
-            <Top>6.9pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <BackgroundColor>
-              </BackgroundColor>
-              <BackgroundGradientType>None</BackgroundGradientType>
-              <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
-              <TextAlign>Left</TextAlign>
-              <PaddingTop>0pt</PaddingTop>
-            </Style>
-          </CustomReportItem>
-          <Textbox Name="Textbox54">
-            <Height>12pt</Height>
-            <Width>1in</Width>
-            <Value>Сдача:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>7.8pt</Left>
-            <Top>122.9pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Right</TextAlign>
-            </Style>
-          </Textbox>
-        </ReportItems>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <DataSetName>Order</DataSetName>
-      </List>
       <Table Name="Table1">
         <DataSetName>Goods</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -1158,7 +879,7 @@ GROUP BY name</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>31.4pt</Left>
+        <Left>33.0pt</Left>
         <Top>171.8pt</Top>
         <Visibility>
           <Hidden>
@@ -1338,7 +1059,7 @@ GROUP BY name</CommandText>
         <Height>338.58pt</Height>
         <Width>540.61pt</Width>
         <Left>36.6pt</Left>
-        <Top>272.5pt</Top>
+        <Top>225.3pt</Top>
         <ReportItems>
           <Textbox Name="Textbox32">
             <Height>12.00pt</Height>
@@ -1825,8 +1546,8 @@ Format(
       <Image Name="Image1">
         <Height>57.44pt</Height>
         <Width>80.87pt</Width>
-        <Left>44.30pt</Left>
-        <Top>12.30pt</Top>
+        <Left>33.9pt</Left>
+        <Top>12.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1840,7 +1561,7 @@ Format(
         <Height>66.97pt</Height>
         <Width>540.54pt</Width>
         <Left>30.8pt</Left>
-        <Top>697.2pt</Top>
+        <Top>633.2pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -2037,335 +1758,12 @@ Format(
           </TableRows>
         </Details>
         <Left>37.3pt</Left>
-        <Top>677.2pt</Top>
+        <Top>611.6pt</Top>
         <Visibility>
           <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
         </Visibility>
         <ZIndex>1</ZIndex>
       </Table>
-      <Table Name="Table5">
-        <DataSetName>deposits</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>25.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>321.5pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>59.6pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>45.5pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>1in</Width>
-          </TableColumn>
-        </TableColumns>
-        <Header>
-          <TableRows>
-            <TableRow>
-              <Height>13.6pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox93">
-                      <Value>№</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value>Товар</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox82">
-                      <Value>Залог</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox83">
-                      <Value>Кол-во</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox84">
-                      <Value>Сумма</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-          <RepeatOnNewPage>true</RepeatOnNewPage>
-        </Header>
-        <Details>
-          <TableRows>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox94">
-                      <Value>=RowNumber()</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox85">
-                      <Value>=Fields!name.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox86">
-                      <Value>=Fields!deposit.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox87">
-                      <Value>=Fields!count.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox88">
-                      <Value>=Fields!sum.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
-        <Footer>
-          <TableRows>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox95">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>Solid</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox89">
-                      <Value>
-                      </Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>Solid</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox90">
-                      <Value>Итого,</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>Solid</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox91">
-                      <Value>руб.:</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>Solid</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Left</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox92">
-                      <Value>=Sum(Fields!sum.Value)</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>Solid</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Left</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Footer>
-        <Left>32.0pt</Left>
-        <Top>226.4pt</Top>
-        <Visibility>
-          <Hidden>=Iif(Count({deposit}, "deposits")&gt;0, 'false', 'true')</Hidden>
-        </Visibility>
-      </Table>
-      <Textbox Name="Textbox96">
-        <Height>14.27pt</Height>
-        <Width>519.49pt</Width>
-        <Value>Возврат залогов:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>37.2pt</Left>
-        <Top>212.2pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-        </Style>
-        <Visibility>
-          <Hidden>=Iif(Count({deposit}, "deposits")&gt;0, 'false', 'true')</Hidden>
-        </Visibility>
-      </Textbox>
       <Table Name="Table2">
         <DataSetName>Equipments</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -2485,7 +1883,388 @@ Format(
           </TableRows>
         </Details>
         <Left>37.9pt</Left>
-        <Top>654.8pt</Top>
+        <Top>589.2pt</Top>
+      </Table>
+      <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>17.25pt</Height>
+        <Width>320.29pt</Width>
+        <Value>='Накладная № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>111.1pt</Left>
+        <Top>35.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>14pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox56" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.50pt</Height>
+        <Width>154.33pt</Width>
+        <Value>= "Исполнитель: " + First({author}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>256.9pt</Left>
+        <Top>16.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox85" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>72.27pt</Width>
+        <Value>=First({delivery_schedule}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>227.8pt</Left>
+        <Top>155.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox86" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>186.27pt</Width>
+        <Value>='Договор: ' + First({contract_number}, "Order") + ' от ' + First({contract_date}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>342.1pt</Left>
+        <Top>155.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox87" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>65.51pt</Width>
+        <Value>Время дост.:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>173.6pt</Left>
+        <Top>156.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox88" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.00pt</Height>
+        <Width>92.59pt</Width>
+        <Value>=First({daily_number}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>369.7pt</Left>
+        <Top>16.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Right</TextAlign>
+        </Style>
+        <CanGrow>true</CanGrow>
+      </Textbox>
+      <CustomReportItem Name="CustomReportItem3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Type>QR Code</Type>
+        <Height>130pt</Height>
+        <Width>130pt</Width>
+        <CustomProperties>
+          <CustomProperty>
+            <Name>QrCode</Name>
+            <Value>="Invoice;"+Max({order_id}, "Order")+";"+Format(Max({order_date}, "Order"), "ddMMyyyy")</Value>
+          </CustomProperty>
+        </CustomProperties>
+        <Left>465.5pt</Left>
+        <Top>1.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <BackgroundColor>
+          </BackgroundColor>
+          <BackgroundGradientType>None</BackgroundGradientType>
+          <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+          <TextAlign>Left</TextAlign>
+          <PaddingTop>0pt</PaddingTop>
+        </Style>
+      </CustomReportItem>
+      <Subreport Name="Subreport1">
+        <Height>6.81pt</Height>
+        <Width>598.48pt</Width>
+        <Left>0.00pt</Left>
+        <Top>213.20pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>InvoiceDepositRefundTable</ReportName>
+        <MergeTransactions>false</MergeTransactions>
+        <Parameters>
+          <Parameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </Parameter>
+        </Parameters>
+      </Subreport>
+      <Table Name="Table4">
+        <DataSetName>Order</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>73.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>344.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <Visibility>
+                <Hidden>=Iif(Fields!order_id.Value = Nothing, true, false)</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Поставщик:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Value>=Iif(
+    {order_payment_type} != 'ByCard',
+    "",
+    "Тинькоф\\"
+) + {org_name} + ' ' + {org_address}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <Visibility>
+                <Hidden>=Iif(Fields!order_date.Value = Nothing, true, false)</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Покупатель:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>={client_name}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <Visibility>
+                <Hidden>=Iif(Fields!bottles_return.Value = Nothing, true, false)</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>Адрес:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>=Iif(
+        {logistics_area} = null, 
+        "",
+        "["+ {logistics_area} + "]"
+    )
+    + {del_point_address}
+    + '\n'
+    + {delivery_point_comment}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <Visibility>
+                <Hidden>=Iif(Fields!total.Value = Nothing, true, false)</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>Сдача:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>={trifle}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <Visibility>
+                <Hidden>=Iif(Fields!order_comment.Value = Nothing, true, false)</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>Телефон:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>=Iif(
+    {delivery_point_contact} = null,
+    {client_contact},
+    {delivery_point_contact}
+)</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>20.7pt</Left>
+        <Top>86.5pt</Top>
       </Table>
     </ReportItems>
   </Body>
@@ -2909,7 +2688,7 @@ Format(
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>183378</Value>
+          <Value>184626</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2927,7 +2706,7 @@ Format(
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

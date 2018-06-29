@@ -13,32 +13,35 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="DepositRefund">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	deposit_sum,
-	count AS deposit_count,
-CASE
-	deposit_type 
-	WHEN 'None' THEN '-'
-	WHEN 'Bottles' THEN 'Залог за бутыли'
-	WHEN 'Equipment' THEN 'Залог за оборудование' 
-END AS deposit_type
+	IF(
+		nomenclature.official_name is NULL,
+		'Бутыли',
+		nomenclature.official_name
+	) as deposit_type,
+	order_deposit_items.deposit_sum as deposit_price,
+	SUM(order_deposit_items.count) as deposit_count,
+	SUM(order_deposit_items.deposit_sum * order_deposit_items.count) as deposit_sum
 FROM
 	order_deposit_items
+	LEFT JOIN
+	nomenclature ON order_deposit_items.equip_nomenclature_id = nomenclature.id
 WHERE
 	order_id = @order_id
-AND 
-	payment_type='ToClient';</CommandText>
+	AND order_deposit_items.payment_type = 'ToClient'
+GROUP BY
+	name;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="deposit_price">
-          <DataField>deposit_sum</DataField>
+          <DataField>deposit_price</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="deposit_type">
@@ -49,6 +52,10 @@ AND
           <DataField>deposit_count</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
+        <Field Name="deposit_sum">
+          <DataField>deposit_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -58,28 +65,9 @@ AND
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>47.9pt</Height>
+    <Height>38.4pt</Height>
     <Columns>1</Columns>
     <ReportItems>
-      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>27.75pt</Height>
-        <Width>133.77pt</Width>
-        <Value>='Итого: ' + Sum({deposit_price}*{deposit_count}, 'DepositRefund')</Value>
-        <ZIndex>1</ZIndex>
-        <Left>460.2pt</Left>
-        <Top>29.6pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <Format># ##0.00</Format>
-        </Style>
-        <Visibility>
-          <Hidden>=Count({deposit_type}, 'DepositRefund') &lt; 1</Hidden>
-          <ToggleItem>
-          </ToggleItem>
-        </Visibility>
-      </Textbox>
       <Table Name="Table1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>DepositRefund</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -127,6 +115,7 @@ AND
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -143,6 +132,7 @@ AND
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -159,6 +149,7 @@ AND
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -175,6 +166,7 @@ AND
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -191,6 +183,7 @@ AND
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -207,6 +200,7 @@ AND
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -232,6 +226,7 @@ AND
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -246,6 +241,7 @@ AND
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -262,6 +258,7 @@ AND
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -278,6 +275,7 @@ AND
                         <BorderWidth />
                         <Format># ##0.00</Format>
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -293,6 +291,7 @@ AND
                         <BorderColor />
                         <BorderWidth />
                         <Format># ##0.00</Format>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -308,6 +307,7 @@ AND
                         <BorderColor />
                         <BorderWidth />
                         <Format># ##0.00</Format>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -316,8 +316,130 @@ AND
             </TableRow>
           </TableRows>
         </Details>
-        <Left>52.9pt</Left>
-        <Top>0pt</Top>
+        <Left>32.9pt</Left>
+        <Top>0.0pt</Top>
+        <Footer >
+          <TableRows>
+            <TableRow>
+              <Height>12.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum({deposit_price}*{deposit_count})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
     </ReportItems>
   </Body>
@@ -737,7 +859,7 @@ AND
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>8</Value>
+          <Value>185626</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
