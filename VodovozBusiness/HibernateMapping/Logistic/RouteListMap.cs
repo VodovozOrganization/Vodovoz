@@ -1,5 +1,5 @@
-﻿using DataAccess.NhibernateFixes;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
+using NHibernate.Type;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.HibernateMapping
@@ -26,8 +26,8 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.LastCallTime).Column ("last_call_time");
 			Map (x => x.DifferencesConfirmed).Column ("differences_confirmed");
 			Map (x => x.IsManualAccounting).Column("is_manual_accounting");
-			Map(x => x.OnLoadTimeStart).Column("on_load_start").CustomType<TimeAsTimeSpanTypeClone>();
-			Map(x => x.OnLoadTimeEnd).Column("on_load_end").CustomType<TimeAsTimeSpanTypeClone>();
+			Map(x => x.OnLoadTimeStart).Column("on_load_start").CustomType<TimeAsTimeSpanType>();
+			Map(x => x.OnLoadTimeEnd).Column("on_load_end").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.OnLoadGate).Column("on_load_gate");
 			Map(x => x.OnloadTimeFixed).Column("on_load_time_fixed");
 			Map(x => x.PlanedDistance).Column("plan_distance");

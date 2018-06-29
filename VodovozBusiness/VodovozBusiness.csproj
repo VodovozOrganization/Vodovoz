@@ -340,7 +340,6 @@
     <Compile Include="Repositories\Store\WarehouseRepository.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
     <Compile Include="DocTemplates\ContractParser.cs" />
-    <Compile Include="TimeAsTimeSpanTypeClone.cs" />
     <Compile Include="Attributes\Code1c.cs" />
     <Compile Include="Attributes\Value1c.cs" />
     <Compile Include="Domain\Logistic\Track.cs" />
