@@ -528,7 +528,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox17" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
-            <Width>404.00pt</Width>
+            <Width>387.50pt</Width>
             <Value>=Fields!org_name.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
@@ -545,7 +545,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>404.00pt</Width>
+            <Width>387.50pt</Width>
             <Value>=Fields!org_address.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
@@ -561,7 +561,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>404.00pt</Width>
+            <Width>387.50pt</Width>
             <Value>=Fields!org_kpp.Value + '\\' + Fields!org_kpp.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
@@ -577,7 +577,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox20" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>404.00pt</Width>
+            <Width>387.50pt</Width>
             <Value>он же</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
@@ -593,7 +593,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>404.00pt</Width>
+            <Width>387.50pt</Width>
             <Value>=Fields!client_name.Value + ' ' + Fields!client_address.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
@@ -609,7 +609,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox22" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>404.00pt</Width>
+            <Width>387.50pt</Width>
             <Value>
             </Value>
             <ZIndex>1</ZIndex>
@@ -626,7 +626,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>404.00pt</Width>
+            <Width>387.50pt</Width>
             <Value>=Fields!client_name.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
@@ -642,7 +642,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox24" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>493.25pt</Width>
+            <Width>387.50pt</Width>
             <Value>=Fields!client_address.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
@@ -658,7 +658,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>493.25pt</Width>
+            <Width>387.50pt</Width>
             <Value>=Fields!client_inn.Value + '\\' + Fields!client_kpp.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
@@ -906,16 +906,16 @@ WHERE
           </Textbox>
           <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Type>QR Code</Type>
-            <Height>90pt</Height>
-            <Width>90pt</Width>
+            <Height>130pt</Height>
+            <Width>130pt</Width>
             <CustomProperties>
               <CustomProperty>
                 <Name>QrCode</Name>
                 <Value>="UPD;"+{order_id}+";"+Format({order_date}, "ddMMyyyy")</Value>
               </CustomProperty>
             </CustomProperties>
-            <Left>560.7pt</Left>
-            <Top>31.6pt</Top>
+            <Left>537.1pt</Left>
+            <Top>29.0pt</Top>
             <Style>
               <BorderStyle>
                 <Default>None</Default>
@@ -3597,7 +3597,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

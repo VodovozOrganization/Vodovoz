@@ -13,7 +13,7 @@
   <BottomMargin>10mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id, 
@@ -35,7 +35,7 @@ WHERE orders.id = @order_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -112,13 +112,13 @@ WHERE
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>49.11pt</Height>
-        <Width>338.26pt</Width>
+        <Width>288.76pt</Width>
         <Value>="АКТ
 выполненных работ №"+{?order_id}+" 
 по договору №" + Max({contract}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>87.2pt</Left>
-        <Top>54.9pt</Top>
+        <Left>104.4pt</Left>
+        <Top>95.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -135,7 +135,7 @@ WHERE
         <Value>Произведенные работы</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>260.9pt</Top>
+        <Top>292.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -153,7 +153,7 @@ WHERE
         <Value>Оборудование принято, претензий не имею</Value>
         <ZIndex>1</ZIndex>
         <Left>24.5pt</Left>
-        <Top>429.7pt</Top>
+        <Top>461.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -168,7 +168,7 @@ WHERE
         <Value>Оборудование передано клиенту</Value>
         <ZIndex>1</ZIndex>
         <Left>24.5pt</Left>
-        <Top>473.7pt</Top>
+        <Top>505.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -183,7 +183,7 @@ WHERE
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
         <Left>357.5pt</Left>
-        <Top>429.7pt</Top>
+        <Top>461.7pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -200,7 +200,7 @@ WHERE
         <Value>Подпись клиента</Value>
         <ZIndex>1</ZIndex>
         <Left>362.3pt</Left>
-        <Top>441.5pt</Top>
+        <Top>473.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -216,7 +216,7 @@ WHERE
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
         <Left>357.5pt</Left>
-        <Top>473.7pt</Top>
+        <Top>505.7pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -233,7 +233,7 @@ WHERE
         <Value>Подпись водителя</Value>
         <ZIndex>1</ZIndex>
         <Left>362.3pt</Left>
-        <Top>485.5pt</Top>
+        <Top>517.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -249,7 +249,7 @@ WHERE
         <Value>Итого:</Value>
         <ZIndex>1</ZIndex>
         <Left>24.8pt</Left>
-        <Top>390.1pt</Top>
+        <Top>422.1pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
           <FontSize>12pt</FontSize>
@@ -262,7 +262,7 @@ WHERE
         </Value>
         <ZIndex>1</ZIndex>
         <Left>63.6pt</Left>
-        <Top>390.3pt</Top>
+        <Top>422.3pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -277,7 +277,7 @@ WHERE
         <Height>92.84pt</Height>
         <Width>127.53pt</Width>
         <Left>5.7pt</Left>
-        <Top>28.2pt</Top>
+        <Top>12.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -453,7 +453,7 @@ WHERE
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>282.1pt</Top>
+        <Top>314.1pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -769,7 +769,7 @@ WHERE
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>212.6pt</Top>
+        <Top>244.6pt</Top>
       </Table>
       <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.25pt</Height>
@@ -777,7 +777,7 @@ WHERE
         <Value>=Max({phone}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>184.3pt</Left>
-        <Top>180.6pt</Top>
+        <Top>212.6pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <TextAlign>Left</TextAlign>
@@ -791,7 +791,7 @@ WHERE
         <Value>Контактный телефон</Value>
         <ZIndex>1</ZIndex>
         <Left>7.8pt</Left>
-        <Top>180.6pt</Top>
+        <Top>212.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -808,7 +808,7 @@ WHERE
         <Value>Адрес</Value>
         <ZIndex>1</ZIndex>
         <Left>7.8pt</Left>
-        <Top>165.6pt</Top>
+        <Top>197.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -824,7 +824,7 @@ WHERE
         <Value>Клиент</Value>
         <ZIndex>1</ZIndex>
         <Left>7.8pt</Left>
-        <Top>150.6pt</Top>
+        <Top>182.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -840,7 +840,7 @@ WHERE
         <Value>=Max({client_name}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>184.3pt</Left>
-        <Top>150.6pt</Top>
+        <Top>182.6pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <BorderStyle />
@@ -857,7 +857,7 @@ WHERE
         <Value>=Max({delivery_address}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>184.3pt</Left>
-        <Top>165.6pt</Top>
+        <Top>197.6pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <TextAlign>Left</TextAlign>
@@ -875,7 +875,7 @@ WHERE
 "+Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
         <ZIndex>1</ZIndex>
         <Left>357.2pt</Left>
-        <Top>106.6pt</Top>
+        <Top>146.6pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
           <FontSize>12pt</FontSize>
@@ -887,16 +887,16 @@ WHERE
       </Textbox>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
-        <Height>90pt</Height>
-        <Width>90pt</Width>
+        <Height>130pt</Height>
+        <Width>130pt</Width>
         <CustomProperties>
-          <CustomProperty >
+          <CustomProperty>
             <Name>QrCode</Name>
             <Value>="DoneWork;"+Max({order_id}, "Order")+";"+Format(Max({order_date}, "Order"), "ddMMyyyy")</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>417.4pt</Left>
-        <Top>3.8pt</Top>
+        <Left>381.4pt</Left>
+        <Top>0.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />

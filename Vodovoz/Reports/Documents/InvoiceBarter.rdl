@@ -1310,16 +1310,16 @@ payment_type='ToClient'</CommandText>
       </Subreport>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
-        <Height>115.54pt</Height>
-        <Width>117.06pt</Width>
+        <Height>130pt</Height>
+        <Width>130pt</Width>
         <CustomProperties>
-          <CustomProperty >
+          <CustomProperty>
             <Name>QrCode</Name>
             <Value>="InvoiceBarter;"+Max({order_id}, "Order")+";"+Format(Max({order_date}, "Order"), "ddMMyyyy")</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>469.10pt</Left>
-        <Top>4.00pt</Top>
+        <Left>457.5pt</Left>
+        <Top>4.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />

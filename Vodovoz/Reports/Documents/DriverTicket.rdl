@@ -484,7 +484,7 @@ WHERE
     <ReportItems>
       <List Name="List1">
         <Height>176.31pt</Height>
-        <Width>521.34pt</Width>
+        <Width>545.34pt</Width>
         <Left>35.00pt</Left>
         <Top>14.40pt</Top>
         <ReportItems>
@@ -509,8 +509,8 @@ WHERE
             <Width>154.33pt</Width>
             <Value>= "Исполнитель: " + {author}</Value>
             <ZIndex>1</ZIndex>
-            <Left>193.5pt</Left>
-            <Top>12.5pt</Top>
+            <Left>131.3pt</Left>
+            <Top>8.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -577,11 +577,11 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox8">
             <Height>14.25pt</Height>
-            <Width>433.62pt</Width>
+            <Width>301.62pt</Width>
             <Value>={org_name} + ' ' + {org_address}</Value>
             <ZIndex>1</ZIndex>
-            <Left>73.00pt</Left>
-            <Top>79.20pt</Top>
+            <Left>72.2pt</Left>
+            <Top>79.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -607,10 +607,10 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox10">
             <Height>13.50pt</Height>
-            <Width>433.62pt</Width>
+            <Width>318.87pt</Width>
             <Value>=Iif(Fields!logistics_area.IsMissing, "", "["+ {logistics_area} + "]") + {city} + ' ' + {street} + ' д.' + {building} + ' ' + {room} + '\n' + {delivery_point_comment}</Value>
             <ZIndex>1</ZIndex>
-            <Left>73.0pt</Left>
+            <Left>71.4pt</Left>
             <Top>111.4pt</Top>
             <Style>
               <BorderStyle />
@@ -715,8 +715,8 @@ WHERE
             <Width>76.84pt</Width>
             <Value>={daily_number}</Value>
             <ZIndex>1</ZIndex>
-            <Left>348.9pt</Left>
-            <Top>12.0pt</Top>
+            <Left>286.7pt</Left>
+            <Top>8.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -728,15 +728,15 @@ WHERE
           </Textbox>
           <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Type>QR Code</Type>
-            <Height>90pt</Height>
-            <Width>90pt</Width>
+            <Height>130pt</Height>
+            <Width>130pt</Width>
             <CustomProperties>
               <CustomProperty>
                 <Name>QrCode</Name>
                 <Value>="DriverTicket;"+{order_id}+";"+Format({order_date}, "ddMMyyyy")</Value>
               </CustomProperty>
             </CustomProperties>
-            <Left>430.9pt</Left>
+            <Left>414.9pt</Left>
             <Top>0.9pt</Top>
             <Style>
               <BorderStyle />
@@ -1753,7 +1753,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
