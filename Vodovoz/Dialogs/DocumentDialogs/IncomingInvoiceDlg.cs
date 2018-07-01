@@ -6,7 +6,7 @@ using QSValidation;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Store;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -64,8 +64,8 @@ namespace Vodovoz
 			counterpartyFilter.RestrictIncludeSupplier = true;
 			counterpartyFilter.RestrictIncludeCustomer = false;
 			counterpartyFilter.RestrictIncludePartner = false;
-			referenceContractor.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
-			referenceContractor.Binding.AddBinding(Entity, e => e.Contractor, w => w.Subject);
+			referenceContractor.RepresentationModel = new CounterpartyVM(new CounterpartyFilter(UoW));
+			referenceContractor.Binding.AddBinding(Entity, e => e.Contractor, w => w.Subject).InitializeFromSource();
 
 			incominginvoiceitemsview1.DocumentUoW = UoWGeneric;
 			ytextviewComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
