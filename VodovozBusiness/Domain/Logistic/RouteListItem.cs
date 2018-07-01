@@ -470,6 +470,7 @@ namespace Vodovoz.Domain.Logistic
 
 			switch(RouteList.Driver.WageCalcType) {
 				case WageCalculationType.fixedDay:
+				case WageCalculationType.withoutPayment:
 				case WageCalculationType.fixedRoute: return 0;
 				case WageCalculationType.percentage: return Order.TotalSum * RouteList.Driver.WageCalcRate / 100;
 				case WageCalculationType.percentageForService: return Order.MoneyForMaster;
@@ -494,6 +495,7 @@ namespace Vodovoz.Domain.Logistic
 
 			switch(RouteList.Forwarder.WageCalcType) {
 				case WageCalculationType.fixedDay:
+				case WageCalculationType.withoutPayment:
 				case WageCalculationType.fixedRoute: return 0;
 				case WageCalculationType.percentage: return Order.TotalSum * RouteList.Forwarder.WageCalcRate / 100;
 				case WageCalculationType.percentageForService:
