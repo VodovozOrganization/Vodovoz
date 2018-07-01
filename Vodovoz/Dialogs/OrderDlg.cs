@@ -7,6 +7,7 @@ using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gtk;
 using NHibernate.Proxy;
+using NHibernate.Util;
 using NLog;
 using QSDocTemplates;
 using QSOrmProject;
@@ -29,7 +30,6 @@ using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
-using NHibernate.Util;
 
 namespace Vodovoz
 {
@@ -55,6 +55,8 @@ namespace Vodovoz
 		/// количества при добавлении нового товара)
 		/// </summary>
 		int treeAnyGoodsFirstColWidth;
+
+		//OrderStatus lastStatus;
 
 		private enum LastChosenAction //
 		{
@@ -130,6 +132,7 @@ namespace Vodovoz
 			hboxStatusButtons.Visible = (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder
 										 || UoWGeneric.Root.OrderStatus == OrderStatus.WaitForPayment
 										 || UoWGeneric.Root.OrderStatus == OrderStatus.Accepted
+			                             || (Entity.OrderStatus == OrderStatus.OnTheWay && QSMain.User.Permissions["can_edit_on_the_way_order"])
 										 || Entity.OrderStatus == OrderStatus.Canceled);
 
 			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
@@ -188,6 +191,8 @@ namespace Vodovoz
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
 			labelTaraComments.Visible = GtkScrolledWindowTaraComments.Visible = !String.IsNullOrWhiteSpace(Entity.InformationOnTara);
 			#endregion
+
+			txtOnRouteEditReason.Binding.AddBinding(Entity, e => e.OnRouteEditReason, w => w.Buffer.Text).InitializeFromSource();
 
 			entryDiscountOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
 
@@ -370,7 +375,7 @@ namespace Vodovoz
 			}
 
 			if(UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
-				IsUIEditable(true);
+				IsUIEditable(CanChange);
 
 			OrderItemEquipmentCountHasChanges = false;
 			ShowOrderColumnInDocumentsList();
@@ -759,16 +764,17 @@ namespace Vodovoz
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
 			entryDiscountOrder.Visible = buttonSetDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
-			ChangeOrderEditable();
+			tblOnRouteEditReason.Sensitive = val;
+			ChangeOrderEditable(val);
 		}
 
-		void ChangeOrderEditable()
+		void ChangeOrderEditable(bool val)
 		{
-			vboxInfo.Sensitive = CanChange;
-			vboxGoods.Sensitive = CanChange;
-			buttonAddExistingDocument.Sensitive = CanChange;
-			btnAddM2ProxyForThisOrder.Sensitive = CanChange;
-			btnRemExistingDocument.Sensitive = CanChange;
+			vboxInfo.Sensitive = val;
+			vboxGoods.Sensitive = val;
+			buttonAddExistingDocument.Sensitive = val;
+			btnAddM2ProxyForThisOrder.Sensitive = val;
+			btnRemExistingDocument.Sensitive = val;
 			tableTareControl.Sensitive = Entity.OrderStatus == OrderStatus.OnTheWay || Entity.OrderStatus == OrderStatus.Shipped;
 		}
 
@@ -1284,7 +1290,30 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			if(UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder && !DefaultWaterCheck()) {
+			if(UoWGeneric.Root.OrderStatus == OrderStatus.OnTheWay){
+				if(buttonAccept.Label == "Редактировать") {
+					IsUIEditable(true);
+					var icon = new Image();
+					icon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu);
+					buttonAccept.Image = icon;
+					buttonAccept.Label = "Подтвердить";
+					buttonSave.Sensitive = false;
+				} else if(buttonAccept.Label == "Подтвердить") {
+					if(AcceptOrder()) {
+						IsUIEditable(false);
+						var icon = new Image();
+						icon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu);
+						buttonAccept.Image = icon;
+						buttonAccept.Label = "Редактировать";
+						buttonSave.Sensitive = true;
+					}
+				}
+				return;
+			}
+
+			if((UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder
+			    || UoWGeneric.Root.OrderStatus == OrderStatus.WaitForPayment)
+			   && !DefaultWaterCheck()) {
 				toggleGoods.Activate();
 				return;
 			}
@@ -1295,21 +1324,22 @@ namespace Vodovoz
 				UpdateButtonState();
 				return;
 			}
-			if(Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled) {
+			if(Entity.OrderStatus == OrderStatus.Accepted 
+			   || Entity.OrderStatus == OrderStatus.Canceled) {
 				Entity.ChangeStatus(OrderStatus.NewOrder);
 				UpdateButtonState();
 				return;
 			}
 		}
 
-		private void AcceptOrder()
+		private bool AcceptOrder()
 		{
 			var valid = new QSValidator<Order>(UoWGeneric.Root,
 								new Dictionary<object, object> {
 						{ "NewStatus", OrderStatus.Accepted }
 					});
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
-				return;
+				return false;
 
 			if(Contract == null) {
 				Entity.CreateDefaultContract();
@@ -1340,11 +1370,15 @@ namespace Vodovoz
 					}
 				}
 			}
-			DailyNumberIncrement();
-			Entity.ChangeStatus(OrderStatus.Accepted);
+			if(Entity.OrderStatus == OrderStatus.NewOrder
+			   || UoWGeneric.Root.OrderStatus == OrderStatus.WaitForPayment){
+				DailyNumberIncrement();
+				Entity.ChangeStatus(OrderStatus.Accepted);
+			}
 			treeItems.Selection.UnselectAll();
-			Save();
+			var successfullySaved = Save();
 			PrintOrderDocuments();
+			return successfullySaved;
 		}
 
 		private void DailyNumberIncrement()
@@ -1372,7 +1406,7 @@ namespace Vodovoz
 		void UpdateButtonState()
 		{
 			IsUIEditable(Entity.OrderStatus == OrderStatus.NewOrder);
-			if(Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled) {
+			if(Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled || Entity.OrderStatus == OrderStatus.OnTheWay) {
 				var icon = new Image();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;

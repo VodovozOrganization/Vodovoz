@@ -449,6 +449,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref informationOnTara, value, () => InformationOnTara); }
 		}
 
+		string onRouteEditReason;
+
+		[Display(Name = "Причина редактирования заказа")]
+		public virtual string OnRouteEditReason {
+			get { return onRouteEditReason; }
+			set { SetField(ref onRouteEditReason, value, () => OnRouteEditReason); }
+		}
+
 		ReasonType resonType;
 
 		[Display(Name = "Тип причины")]
@@ -682,6 +690,12 @@ namespace Vodovoz.Domain.Orders
 					if(!(DeliveryPoint.Phones.Any() || Client.Phones.Any()))
 						yield return new ValidationResult("Ни для контрагента, ни для точки доставки заказа не указано ни одного номера телефона.");
 
+					//В случае, если редактируется заказ "В пути", то должен быть оставлен комментарий, поясняющий причину редактирования.
+					//Если заказ "В пути" редактируется больше одного раза, то комментарий должен отличаться от предыдущего.
+					var order = UnitOfWorkFactory.CreateWithoutRoot().GetById<Order>(Id);
+					if((order == null && OnRouteEditReason == null) || (order != null && order.OnRouteEditReason == OnRouteEditReason))
+						yield return new ValidationResult("При изменении заказа в статусе 'В пути' необходимо указывать причину редактирования",
+														  new[] { this.GetPropertyName(o => o.OnRouteEditReason) });
 					// Проверка соответствия цен в заказе ценам в номенклатуре
 					string priceResult = "В заказе неверно указаны цены на следующие товары:\n";
 					List<string> incorrectPriceItems = new List<string>();

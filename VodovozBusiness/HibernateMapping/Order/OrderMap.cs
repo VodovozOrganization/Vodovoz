@@ -36,6 +36,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.CommentManager)		.Column("comment_manager");
 			Map(x => x.ReturnedTare)		.Column("returned_tare");
 			Map(x => x.InformationOnTara)	.Column("information_on_tara");
+			Map(x => x.OnRouteEditReason)	.Column("on_route_edit_reason");
 			Map(x => x.DriverCallId)		.Column("driver_call_id");
 			Map(x => x.IsService)			.Column("service");
 			Map(x => x.Trifle)				.Column("trifle");
