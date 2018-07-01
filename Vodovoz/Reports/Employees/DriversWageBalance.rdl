@@ -693,6 +693,7 @@
         </Style>
       </Textbox>
     </ReportItems>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -717,21 +718,22 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
-    SUM(wages_movement_operations.money) AS balance,
-    employees.category
+	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+	SUM(wages_movement_operations.money) AS balance,
+	employees.category
 FROM
-    wages_movement_operations
-        LEFT JOIN
-    employees ON employees.id = wages_movement_operations.employee_id
+	wages_movement_operations
+LEFT JOIN
+	employees ON employees.id = wages_movement_operations.employee_id
 		LEFT JOIN
-    cars ON employees.id = cars.driver_id
+	cars ON employees.id = cars.driver_id
 WHERE
-    wages_movement_operations.operation_time &lt;= @date
-        AND wages_movement_operations.employee_id IN (@drivers)
+	wages_movement_operations.operation_time &lt;= @date
+	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
-	AND employees.largus_driver = false    
-    AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
+	AND employees.wage_calc_type != 'withoutPayment'
+	AND employees.largus_driver = false
+	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
 ORDER BY driver</CommandText>
@@ -763,16 +765,17 @@ ORDER BY driver</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
-    SUM(wages_movement_operations.money) AS balance,
-    employees.category
+	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+	SUM(wages_movement_operations.money) AS balance,
+	employees.category
 FROM
-    wages_movement_operations
-        LEFT JOIN
-    employees ON employees.id = wages_movement_operations.employee_id
+	wages_movement_operations
+LEFT JOIN
+	employees ON employees.id = wages_movement_operations.employee_id
 WHERE
-    wages_movement_operations.operation_time &lt;= @date
-        AND wages_movement_operations.employee_id IN (@drivers)
+	wages_movement_operations.operation_time &lt;= @date
+	AND wages_movement_operations.employee_id IN (@drivers)
+	AND employees.wage_calc_type != 'withoutPayment'
 	AND employees.category = 'forwarder'
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
@@ -805,21 +808,22 @@ ORDER BY driver</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
-    SUM(wages_movement_operations.money) AS balance,
-    employees.category
+	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+	SUM(wages_movement_operations.money) AS balance,
+	employees.category
 FROM
-    wages_movement_operations
-        LEFT JOIN
-    employees ON employees.id = wages_movement_operations.employee_id
-		LEFT JOIN
-    cars ON employees.id = cars.driver_id
+	wages_movement_operations
+LEFT JOIN
+	employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN
+	cars ON employees.id = cars.driver_id
 WHERE
-    wages_movement_operations.operation_time &lt;= @date
-        AND wages_movement_operations.employee_id IN (@drivers)
+	wages_movement_operations.operation_time &lt;= @date
+	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
+	AND employees.wage_calc_type != 'withoutPayment'
 	AND employees.largus_driver = true
-    AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
+	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
 ORDER BY driver</CommandText>
@@ -851,14 +855,15 @@ ORDER BY driver</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    SUM(wages_movement_operations.money) AS balance
+	SUM(wages_movement_operations.money) AS balance
 FROM
-    wages_movement_operations
+	wages_movement_operations
 LEFT JOIN
-    employees ON employees.id = wages_movement_operations.employee_id
+	employees ON employees.id = wages_movement_operations.employee_id
 WHERE
-    wages_movement_operations.operation_time &lt;= @date
-        AND wages_movement_operations.employee_id IN (@drivers)
+	wages_movement_operations.operation_time &lt;= @date
+	AND employees.wage_calc_type != 'withoutPayment'
+	AND wages_movement_operations.employee_id IN (@drivers)
 HAVING balance &lt;&gt; 0</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
@@ -880,20 +885,21 @@ HAVING balance &lt;&gt; 0</CommandText>
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
-    SUM(wages_movement_operations.money) AS balance,
-    employees.category
+	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+	SUM(wages_movement_operations.money) AS balance,
+	employees.category
 FROM
-    wages_movement_operations
-        LEFT JOIN
-    employees ON employees.id = wages_movement_operations.employee_id
-		LEFT JOIN
-    cars ON employees.id = cars.driver_id
+	wages_movement_operations
+LEFT JOIN
+	employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN
+	cars ON employees.id = cars.driver_id
 WHERE
-    wages_movement_operations.operation_time &lt;= @date
-        AND wages_movement_operations.employee_id IN (@drivers)
+	wages_movement_operations.operation_time &lt;= @date
+	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'  
-    AND cars.is_raskat = true
+	AND employees.wage_calc_type != 'withoutPayment'
+	AND cars.is_raskat = true
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
 ORDER BY driver</CommandText>

@@ -244,17 +244,23 @@ namespace Vodovoz
 		{
 			labelWageCalcRate.Visible = yspinWageCalcRate.Visible
 				= ((WageCalculationType)e.SelectedItem != WageCalculationType.normal 
-				   && (WageCalculationType)e.SelectedItem != WageCalculationType.percentageForService);
+				   && (WageCalculationType)e.SelectedItem != WageCalculationType.percentageForService
+				   && (WageCalculationType)e.SelectedItem != WageCalculationType.withoutPayment);
 
 			if((WageCalculationType)e.SelectedItem == WageCalculationType.percentage)
 			{
 				yspinWageCalcRate.Adjustment.Upper = 100;
+				Entity.WageCalcRate = Entity.WageCalcRate > 100 ? 100 : Entity.WageCalcRate;
 			}
 
 			if((WageCalculationType)e.SelectedItem == WageCalculationType.fixedDay
 			   || (WageCalculationType)e.SelectedItem == WageCalculationType.fixedRoute)
 			{
 				yspinWageCalcRate.Adjustment.Upper = 100000;
+			}
+
+			if((WageCalculationType)e.SelectedItem == WageCalculationType.withoutPayment) {
+				Entity.WageCalcRate = 0;
 			}
 		}
 	}

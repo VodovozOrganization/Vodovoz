@@ -438,6 +438,8 @@ namespace Vodovoz.Domain.Employees
 	{
 		[Display(Name = "Обычный")]
 		normal,
+		[Display(Name = "Без оплаты (Разовый водитель)")]
+		withoutPayment,
 		[Display(Name = "Процент от стоимости")]
 		percentage,
 		[Display(Name = "Процент от стоимости (СЦ)")]
