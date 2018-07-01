@@ -6,7 +6,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
@@ -69,6 +69,15 @@ namespace Vodovoz
 			filter.RestrictFired = false;
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
+
+			var filterRL = new RouteListsFilter(UoW);
+			filterRL.OnlyStatuses = new RouteListStatus[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing };
+			yEntryRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRL);
+			yEntryRouteList.Binding.AddBinding(Entity, s => s.RouteListClosing, w => w.Subject).InitializeFromSource();
+
+			yEntryRouteList.Hidden += YEntryRouteList_ValueOrVisibilityChanged;
+			yEntryRouteList.Shown += YEntryRouteList_ValueOrVisibilityChanged;
+			yEntryRouteList.ChangedByUser += YEntryRouteList_ValueOrVisibilityChanged;
 
 			yentryClient.ItemsQuery = Repository.CounterpartyRepository.ActiveClientsQuery ();
 			yentryClient.Binding.AddBinding (Entity, s => s.Customer, w => w.Subject).InitializeFromSource ();
@@ -158,6 +167,13 @@ namespace Vodovoz
 			yspinMoney.ValueAsDecimal = 0;
 
 			FillDebts ();
+			CheckOperation((IncomeType)e.SelectedItem);
+		}
+
+		void CheckOperation(IncomeType incomeType)
+		{
+			lblRouteList.Visible = yEntryRouteList.Visible
+				= incomeType == IncomeType.DriverReport;
 		}
 
 		protected void OnYentryEmployeeChanged (object sender, EventArgs e)
@@ -211,7 +227,17 @@ namespace Vodovoz
 				yspinMoney.ValueAsDecimal = selectableAdvances.Where(x => x.Selected).Sum(x => x.Value.UnclosedMoney);
 			}
 		}
-}
+
+		void YEntryRouteList_ValueOrVisibilityChanged(object sender, EventArgs e)
+		{
+			if(yEntryRouteList.Visible && Entity.RouteListClosing != null) {
+				Entity.Description = $"Приход по МЛ №{Entity.RouteListClosing.Id} от {Entity.RouteListClosing.Date:d}";
+			} else {
+				Entity.Description = "";
+				Entity.RouteListClosing = null;
+			}
+		}
+	}
 
 	public class Selectable<T> {
 
