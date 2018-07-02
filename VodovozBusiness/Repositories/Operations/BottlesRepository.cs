@@ -3,6 +3,7 @@ using System.Linq;
 using NHibernate.Transform;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -17,7 +18,7 @@ namespace Vodovoz.Repository.Operations
 			var queryResult = UoW.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
 				.Where(() => operationAlias.Counterparty.Id == counterparty.Id);
 			if (before.HasValue)
-				queryResult.Where(() => operationAlias.OperationTime < before);			
+				queryResult.Where(() => operationAlias.OperationTime < before);
 			
 			var bottles =  queryResult.SelectList(list => list
 					.SelectSum(() => operationAlias.Delivered).WithAlias(() => result.Delivered)
@@ -43,6 +44,16 @@ namespace Vodovoz.Repository.Operations
 				.TransformUsing(Transformers.AliasToBean<BottlesBalanceQueryResult>()).List<BottlesBalanceQueryResult>()
 				.FirstOrDefault()?.BottlesDebt ?? 0;
 			return bottles;
+		}
+
+		public static int GetEmptyBottlesFromClientByOrder(IUnitOfWork uow, Order order)
+		{
+			RouteListItem routeListItemAlias = null;
+
+			var quantity = uow.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
+							  .Where(() => routeListItemAlias.Order == order)
+							  .List().Sum(q => q.BottlesReturned);
+			return quantity;
 		}
 
 		class BottlesBalanceQueryResult

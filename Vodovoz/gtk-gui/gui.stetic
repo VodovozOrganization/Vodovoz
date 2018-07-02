@@ -27291,7 +27291,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="872 618">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="860 618">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <signal name="Shown" handler="OnShown" />
@@ -27351,6 +27351,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -28982,7 +28983,7 @@
                                   <widget class="Gtk.Label" id="label7">
                                     <property name="MemberName" />
                                     <property name="Xalign">1</property>
-                                    <property name="LabelProp" translatable="yes">Бутылей на возврат:</property>
+                                    <property name="LabelProp" translatable="yes">Планируемая тара:</property>
                                   </widget>
                                   <packing>
                                     <property name="Position">0</property>
@@ -28992,10 +28993,11 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="Gamma.Widgets.yValidatedEntry" id="entryBottlesReturn">
+                                  <widget class="Gamma.Widgets.yValidatedEntry" id="entryBottlesToReturn">
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
                                     <property name="IsEditable">True</property>
+                                    <property name="WidthChars">4</property>
                                     <property name="InvisibleChar">●</property>
                                     <signal name="Changed" handler="OnEntryBottlesReturnChanged" />
                                   </widget>
@@ -29007,11 +29009,44 @@
                                   </packing>
                                 </child>
                                 <child>
+                                  <widget class="Gtk.Label" id="lblTareReturned">
+                                    <property name="MemberName" />
+                                    <property name="Visible">False</property>
+                                    <property name="Xalign">1</property>
+                                    <property name="LabelProp" translatable="yes">Фактически возвращённая тара:</property>
+                                    <property name="UseMarkup">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">2</property>
+                                    <property name="AutoSize">True</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gamma.Widgets.yValidatedEntry" id="entryTareReturned">
+                                    <property name="MemberName" />
+                                    <property name="Visible">False</property>
+                                    <property name="Sensitive">False</property>
+                                    <property name="CanFocus">True</property>
+                                    <property name="IsEditable">True</property>
+                                    <property name="WidthChars">4</property>
+                                    <property name="InvisibleChar">●</property>
+                                    <signal name="Changed" handler="OnEntryBottlesReturnChanged" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">3</property>
+                                    <property name="AutoSize">True</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
                                   <widget class="Gtk.VSeparator" id="vseparatorDiscont">
                                     <property name="MemberName" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">2</property>
+                                    <property name="Position">4</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -29023,7 +29058,7 @@
                                     <property name="LabelProp" translatable="yes">Скидка на все:</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">3</property>
+                                    <property name="Position">5</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -29034,12 +29069,13 @@
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
                                     <property name="IsEditable">True</property>
+                                    <property name="WidthChars">3</property>
                                     <property name="InvisibleChar">•</property>
                                     <signal name="Changed" handler="OnEntryDiscountOrderChanged" />
                                     <signal name="KeyReleaseEvent" handler="OnEntryDiscountOrderKeyReleaseEvent" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">4</property>
+                                    <property name="Position">6</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -29057,7 +29093,7 @@
                                     <property name="ShowSpecialStateNot">False</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">5</property>
+                                    <property name="Position">7</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -29073,7 +29109,7 @@
                                     <signal name="Clicked" handler="OnButtonSetDiscountClicked" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">6</property>
+                                    <property name="Position">8</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -29085,9 +29121,8 @@
                               </widget>
                               <packing>
                                 <property name="Position">3</property>
-                                <property name="AutoSize">True</property>
+                                <property name="AutoSize">False</property>
                                 <property name="Expand">False</property>
-                                <property name="Fill">False</property>
                               </packing>
                             </child>
                             <child>

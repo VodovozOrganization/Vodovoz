@@ -28,6 +28,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
+using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 
@@ -174,8 +175,13 @@ namespace Vodovoz
 			checkSelfDelivery.Binding.AddBinding(Entity, s => s.SelfDelivery, w => w.Active).InitializeFromSource();
 			checkDelivered.Binding.AddBinding(Entity, s => s.Shipped, w => w.Active).InitializeFromSource();
 
-			entryBottlesReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			entryBottlesReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			entryBottlesToReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+
+			if(Entity.OrderStatus == OrderStatus.Closed){
+				entryTareReturned.Text = BottlesRepository.GetEmptyBottlesFromClientByOrder(UoW, Entity).ToString();
+				entryTareReturned.Visible = lblTareReturned.Visible = true;
+			}
 
 			entryTrifle.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryTrifle.Binding.AddBinding(Entity, e => e.Trifle, w => w.Text, new IntToStringConverter()).InitializeFromSource();
@@ -1931,7 +1937,7 @@ namespace Vodovoz
 		protected void OnEntryBottlesReturnChanged(object sender, EventArgs e)
 		{
 			int result = 0;
-			if(Int32.TryParse(entryBottlesReturn.Text, out result)) {
+			if(Int32.TryParse(entryBottlesToReturn.Text, out result)) {
 				Entity.BottlesReturn = result;
 			}
 		}
