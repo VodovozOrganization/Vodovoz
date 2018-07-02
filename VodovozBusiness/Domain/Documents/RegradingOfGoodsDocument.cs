@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Gamma.Utilities;
 using QSOrmProject;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
@@ -104,6 +104,12 @@ namespace Vodovoz.Domain.Documents
 				if(item.Amount > item.AmountInStock)
 					yield return new ValidationResult (String.Format("На складе недостаточное количество <{0}>", item.NomenclatureOld.Name),
 						new[] { this.GetPropertyName (o => o.Items) });
+
+				if(item.NomenclatureOld.Category == NomenclatureCategory.bottle
+				   && item.NomenclatureNew.Category == NomenclatureCategory.water
+				   && item.Amount > 39)
+					yield return new ValidationResult(String.Format("Пересортица из {0} ед. '{1}' в {0} ед. '{2}' невозможна!", item.Amount, item.NomenclatureOld, item.NomenclatureNew), 
+					                                  new[] { this.GetPropertyName(o => o.Items) });
 			}
 		}
 
