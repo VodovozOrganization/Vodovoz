@@ -1976,16 +1976,16 @@ Format(
       </Textbox>
       <CustomReportItem Name="CustomReportItem3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
-        <Height>130pt</Height>
-        <Width>130pt</Width>
+        <Height>90pt</Height>
+        <Width>90pt</Width>
         <CustomProperties>
           <CustomProperty>
             <Name>QrCode</Name>
             <Value>="Invoice;"+Max({order_id}, "Order")+";"+Format(Max({order_date}, "Order"), "ddMMyyyy")</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>465.5pt</Left>
-        <Top>1.6pt</Top>
+        <Left>475.9pt</Left>
+        <Top>5.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2706,7 +2706,7 @@ Format(
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

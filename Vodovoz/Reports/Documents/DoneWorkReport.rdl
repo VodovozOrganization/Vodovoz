@@ -274,10 +274,10 @@ WHERE
         </Style>
       </Textbox>
       <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>92.84pt</Height>
-        <Width>127.53pt</Width>
-        <Left>5.7pt</Left>
-        <Top>12.2pt</Top>
+        <Height>83.09pt</Height>
+        <Width>117.78pt</Width>
+        <Left>11.9pt</Left>
+        <Top>20.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -887,16 +887,16 @@ WHERE
       </Textbox>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
-        <Height>130pt</Height>
-        <Width>130pt</Width>
+        <Height>90pt</Height>
+        <Width>90pt</Width>
         <CustomProperties>
           <CustomProperty>
             <Name>QrCode</Name>
             <Value>="DoneWork;"+Max({order_id}, "Order")+";"+Format(Max({order_date}, "Order"), "ddMMyyyy")</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>381.4pt</Left>
-        <Top>0.0pt</Top>
+        <Left>407.8pt</Left>
+        <Top>22.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />

@@ -128,8 +128,8 @@ WHERE
 приема-передачи оборудования №"+{?order_id}+" 
 по договору №" + Max({contract}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>113.5pt</Left>
-        <Top>72.8pt</Top>
+        <Left>123.9pt</Left>
+        <Top>83.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -175,10 +175,10 @@ WHERE
         </Style>
       </Textbox>
       <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>92.84pt</Height>
-        <Width>127.53pt</Width>
-        <Left>4.0pt</Left>
-        <Top>45.2pt</Top>
+        <Height>78.59pt</Height>
+        <Width>115.53pt</Width>
+        <Left>16.8pt</Left>
+        <Top>7.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1037,8 +1037,8 @@ WHERE
       </Textbox>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
-        <Height>130pt</Height>
-        <Width>130pt</Width>
+        <Height>90.00pt</Height>
+        <Width>90.00pt</Width>
         <CustomProperties>
           <CustomProperty>
             <Name>QrCode</Name>
@@ -1047,8 +1047,8 @@ WHERE
 +Format(Max({order_date}, "Order"), "ddMMyyyy")</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>378.6pt</Left>
-        <Top>3.1pt</Top>
+        <Left>410.2pt</Left>
+        <Top>3.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />

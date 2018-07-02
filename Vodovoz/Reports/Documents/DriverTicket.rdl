@@ -728,16 +728,16 @@ WHERE
           </Textbox>
           <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Type>QR Code</Type>
-            <Height>130pt</Height>
-            <Width>130pt</Width>
+            <Height>90pt</Height>
+            <Width>90pt</Width>
             <CustomProperties>
               <CustomProperty>
                 <Name>QrCode</Name>
                 <Value>="DriverTicket;"+{order_id}+";"+Format({order_date}, "ddMMyyyy")</Value>
               </CustomProperty>
             </CustomProperties>
-            <Left>414.9pt</Left>
-            <Top>0.9pt</Top>
+            <Left>455.7pt</Left>
+            <Top>0.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
