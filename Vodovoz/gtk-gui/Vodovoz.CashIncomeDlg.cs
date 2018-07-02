@@ -456,7 +456,6 @@ namespace Vodovoz
 			}
 			this.comboExpense.Hide();
 			this.labelExpenseTitle.Hide();
-			this.lblRouteList.Hide();
 			this.vboxDebts.Hide();
 			this.Hide();
 			this.buttonPrint.Clicked += new global::System.EventHandler(this.OnButtonPrintClicked);

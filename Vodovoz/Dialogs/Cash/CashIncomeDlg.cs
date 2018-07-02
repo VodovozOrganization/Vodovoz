@@ -174,6 +174,10 @@ namespace Vodovoz
 		{
 			lblRouteList.Visible = yEntryRouteList.Visible
 				= incomeType == IncomeType.DriverReport;
+
+			if(incomeType == IncomeType.DriverReport){
+				Entity.IncomeCategory = UoW.GetById<IncomeCategory>(1);
+			}
 		}
 
 		protected void OnYentryEmployeeChanged (object sender, EventArgs e)
@@ -232,9 +236,11 @@ namespace Vodovoz
 		{
 			if(yEntryRouteList.Visible && Entity.RouteListClosing != null) {
 				Entity.Description = $"Приход по МЛ №{Entity.RouteListClosing.Id} от {Entity.RouteListClosing.Date:d}";
+				Entity.Employee = Entity.RouteListClosing.Driver;
 			} else {
 				Entity.Description = "";
 				Entity.RouteListClosing = null;
+				Entity.Employee = null;
 			}
 		}
 	}
