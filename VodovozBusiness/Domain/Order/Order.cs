@@ -2279,17 +2279,32 @@ namespace Vodovoz.Domain.Orders
 		/// <returns>Вес</returns>
 		/// <param name="includeGoods">Если <c>true</c>, то в расчёт веса будут включены товары.</param>
 		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт веса будет включено оборудование.</param>
-		public virtual double GetWeight(bool includeGoods = true, bool includeEquipment = true){
+		public virtual double GetWeight(bool includeGoods = true, bool includeEquipment = true)
+		{
 			double weight = 0;
 			if(includeGoods)
 				weight += OrderItems.Sum(x => x.Nomenclature.Weight * x.Count);
 			if(includeEquipment)
 				weight += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
-				                         .Sum(x => x.Nomenclature.Weight * x.Count);
+										 .Sum(x => x.Nomenclature.Weight * x.Count);
 			return weight;
-		} 
+		}
 
 		#endregion
+
+		#region Статические
+
+		public static OrderStatus[] StatusesToExport1c => new[] {
+			OrderStatus.Accepted,
+			OrderStatus.Closed,
+			OrderStatus.InTravelList,
+			OrderStatus.OnLoading,
+			OrderStatus.OnTheWay,
+			OrderStatus.Shipped,
+			OrderStatus.UnloadingOnStock
+		};
+
+  		#endregion
 	}
 }
 

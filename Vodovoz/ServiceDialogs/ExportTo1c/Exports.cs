@@ -25,7 +25,7 @@ namespace Vodovoz.ExportTo1c
 		public static ExportData GetSalesFor(DateTime dateStart, DateTime dateEnd)
 		{
 			var UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var orders = OrderRepository.GetCompleteOrdersBetweenDates(UoW, dateStart, dateEnd, Domain.Client.PaymentType.cashless);
+			var orders = OrderRepository.GetOrdersToExport1c8(UoW, dateStart, dateEnd);
 			var exportData = new ExportData(UoW,dateStart,dateEnd);
 
 			foreach (var order in orders)

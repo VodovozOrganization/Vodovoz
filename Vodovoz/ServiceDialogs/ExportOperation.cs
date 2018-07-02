@@ -28,7 +28,7 @@ namespace Vodovoz.ExportTo1c
 		{				
 			worker.OperationName = "Подготовка данных";
 			worker.ReportProgress(0, "Загрузка заказов");
-			this.orders = OrderRepository.GetCompleteOrdersBetweenDates(uow, start, end, Domain.Client.PaymentType.cashless);
+			this.orders = OrderRepository.GetOrdersToExport1c8(uow, start, end);
 			worker.OperationName = "Выгрузка реализаций и счетов-фактур";
 			worker.StepsCount = this.orders.Count;
 			Result = new ExportData(uow, start, end);

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gtk;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
@@ -73,13 +75,32 @@ namespace Vodovoz.Repository
 				.List();
 		}
 
-		public static IList<VodovozOrder> GetCompleteOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate, PaymentType payment)
+		public static IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork UoW, DateTime startDate, DateTime endDate)
 		{
 			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+
+			var subquerySum = QueryOver.Of<OrderItem>(() => orderItemAlias)
+			                           .Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+			                           .Select(Projections.Sum(
+				                           Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
+				                                                   NHibernateUtil.Decimal,
+				                                                   Projections.Property<OrderItem>(x => x.ActualCount),
+				                                                   Projections.Property<OrderItem>(x => x.Price),
+				                                                   Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( 1 - ?1 / 100 )"),
+				                                                                           NHibernateUtil.Decimal,
+				                                                                           Projections.Property<OrderItem>(x => x.Discount)
+				                                                                          )
+				                                                  )
+				                          ))
+			                           ;
+
 			return UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
-				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
-				.Where(o => o.PaymentType == payment)
-				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate).List();
+				      .Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
+					  .Where(o => o.PaymentType == PaymentType.cashless)
+					  .Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
+				      .Where(Subqueries.Le(0.01, subquerySum.DetachedCriteria))
+					  .List();
 		}
 
 		public static IList<VodovozOrder> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)

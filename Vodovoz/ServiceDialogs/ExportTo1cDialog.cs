@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using Gtk;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain.Orders;
 using Vodovoz.ExportTo1c;
 
 namespace Vodovoz
@@ -73,7 +71,9 @@ namespace Vodovoz
 				"Отмена",ResponseType.Cancel,
 				"Сохранить",ResponseType.Accept
 			);
-			fileChooser.CurrentName = "Выгрузка 1с на " + exportData.EndPeriodDate.ToShortDateString()+".xml";
+			var dateText = exportData.EndPeriodDate.ToShortDateString().Replace(System.IO.Path.DirectorySeparatorChar, '-');
+
+			fileChooser.CurrentName = $"Выгрузка 1с на {dateText}.xml";
 			var filter = new FileFilter();
 			filter.AddPattern("*.xml");
 			fileChooser.Filter = filter;
