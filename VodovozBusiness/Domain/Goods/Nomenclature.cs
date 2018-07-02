@@ -69,6 +69,14 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref code1c, value, () => Code1c); }
 		}
 
+		private Folder1c folder1;
+
+		[Display(Name = "Папка в 1с")]
+		public virtual Folder1c Folder1C {
+			get { return folder1; }
+			set { SetField(ref folder1, value, () => Folder1C); }
+		}
+
 		string model;
 
 		[Display(Name = "Модель оборудования")]

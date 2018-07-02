@@ -1006,4 +1006,12 @@ public partial class MainWindow : Gtk.Window
 		var widget = new LoadFrom1cClientsAndDeliveryPoints();
 		tdiMain.AddTab(widget);
 	}
+
+	protected void OnActionFolders1cActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<Folder1c>(),
+			() => new OrmReference(typeof(Folder1c))
+		);
+	}
 }

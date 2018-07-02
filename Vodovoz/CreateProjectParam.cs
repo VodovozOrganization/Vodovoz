@@ -4,22 +4,19 @@ using Gamma.Binding;
 using Gamma.Utilities;
 using NHibernate.AdoNet;
 using NHibernate.Cfg;
-using QS.DomainModel;
-using QS.DomainModel.Tracking;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
 using QSContacts;
-using QSHistoryLog;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSOrmProject.Permissions;
 using QSProjectsLib;
 using QSSupportLib;
-using Vodovoz.Dialogs.Client;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;
+using Vodovoz.Dialogs.Goods;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
@@ -88,6 +85,8 @@ namespace Vodovoz
 								  (cnf) => cnf.DataBaseIntegration(
 									  dbi => { dbi.BatchSize = 100; dbi.Batcher<MySqlClientBatchingBatcherFactory>(); }
 									 ));
+#region Dialogs mapping
+
 			OrmMain.ClassMappingList = new List<IOrmObjectMapping> {
 				//Простые справочники
 				OrmObjectMapping<CullingCategory>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
@@ -148,7 +147,6 @@ namespace Vodovoz
 					OrmObjectMapping<CarLoadDocument>.Create().Dialog<CarLoadDocumentDlg>(),
 					OrmObjectMapping<CarUnloadDocument>.Create().Dialog<CarUnloadDocumentDlg>(),
 				//Справочники с фильтрами
-				OrmObjectMapping<Nomenclature>.Create().Dialog<NomenclatureDlg>().JournalFilter<NomenclatureFilter>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).Column("Тип", x => x.CategoryString).End(),
 				OrmObjectMapping<Equipment>.Create().Dialog<EquipmentDlg>().JournalFilter<EquipmentFilter>()
 					.DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Номенклатура", x => x.NomenclatureName).Column("Тип", x => x.Nomenclature.Type.Name).SearchColumn("Серийный номер", x => x.Serial).Column("Дата последней обработки", x => x.LastServiceDate.ToShortDateString ()).End(),
 				OrmObjectMapping<Employee>.Create().Dialog<EmployeeDlg>()//.JournalFilter<EmployeeFilter>()
@@ -178,8 +176,15 @@ namespace Vodovoz
 				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().DefaultTableView().Column("Название", w=>w.Name).End()
 			};
 
+#region Goods
+			OrmMain.AddObjectDescription<Nomenclature>().Dialog<NomenclatureDlg>().JournalFilter<NomenclatureFilter>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).Column("Тип", x => x.CategoryString).End();
+			OrmMain.AddObjectDescription<Folder1c>().Dialog<Folder1cDlg>().DefaultTableView().SearchColumn("Код 1С", x => x.Code1c).SearchColumn("Название", x => x.Name).End();
+#endregion
+
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 			OrmMain.ClassMappingList.AddRange(QSContactsMain.GetModuleMaping());
+
+#endregion
 
 			//HistoryMain.ConfigureFromOrmMain();
 
