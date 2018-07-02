@@ -693,7 +693,9 @@ namespace Vodovoz.Domain.Orders
 					//В случае, если редактируется заказ "В пути", то должен быть оставлен комментарий, поясняющий причину редактирования.
 					//Если заказ "В пути" редактируется больше одного раза, то комментарий должен отличаться от предыдущего.
 					var order = UnitOfWorkFactory.CreateWithoutRoot().GetById<Order>(Id);
-					if((order == null && OnRouteEditReason == null) || (order != null && order.OnRouteEditReason == OnRouteEditReason))
+					if(OrderStatus == OrderStatus.OnTheWay && 
+					   (order == null && OnRouteEditReason == null
+					    || order != null && order.OnRouteEditReason == OnRouteEditReason))
 						yield return new ValidationResult("При изменении заказа в статусе 'В пути' необходимо указывать причину редактирования",
 														  new[] { this.GetPropertyName(o => o.OnRouteEditReason) });
 					// Проверка соответствия цен в заказе ценам в номенклатуре
