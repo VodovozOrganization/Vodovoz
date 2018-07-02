@@ -28,13 +28,29 @@ namespace Vodovoz
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.NomenclatureOld.Unit.MakeAmountShortStr(x.AmountInStock))
 				.AddColumn("Новая номенклатура").AddTextRenderer(x => x.NomenclatureNew.Name)
 				.AddColumn("Кол-во пересортицы").AddNumericRenderer(x => x.Amount).Editing()
-				.AddSetter((w, x) => w.Adjustment = new Gtk.Adjustment(0, 0, (double)x.AmountInStock, 1, 10, 10))
+				.AddSetter(
+					(w, x) => w.Adjustment = new Gtk.Adjustment(
+						0,
+						0,
+						GetMaxValueForAdjustmentSetting(x),
+						1,
+						10,
+						10
+					)
+				)
 				.AddSetter((w, x) => w.Digits = (uint)x.NomenclatureNew.Unit.Digits)
 				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
 				.Finish();
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+		}
+
+		double GetMaxValueForAdjustmentSetting(RegradingOfGoodsDocumentItem item){
+			if(item.NomenclatureOld.Category == NomenclatureCategory.bottle
+			   && item.NomenclatureNew.Category == NomenclatureCategory.water)
+				return 39;
+			return (double)item.AmountInStock;
 		}
 
 		void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
