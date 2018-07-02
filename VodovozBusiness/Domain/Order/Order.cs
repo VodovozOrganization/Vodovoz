@@ -872,12 +872,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal TotalSum {
 			get {
 				Decimal sum = 0;
-				if(false && OrderStatus.IsIn(OrderRepository.GetNotDeliveredOrderStatuses())) {
-					foreach(OrderItem item in ObservableOrderItems)
-						sum += item.Price * item.ActualCount * (1 - (decimal)item.Discount / 100);
-				} else {
-					foreach(OrderItem item in ObservableOrderItems)
-						sum += item.Price * item.Count * (1 - (decimal)item.Discount / 100);
+				foreach(OrderItem item in ObservableOrderItems) {
+					sum += item.Price * item.Count * (1 - (decimal)item.Discount / 100);
 				}
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
 					if(dep.PaymentDirection == PaymentDirection.ToClient)
