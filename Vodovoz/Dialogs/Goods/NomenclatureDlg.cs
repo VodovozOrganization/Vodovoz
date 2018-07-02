@@ -73,6 +73,8 @@ namespace Vodovoz
 			ycheckDefectiveBottle.Binding.AddBinding(Entity, e => e.IsDefectiveBottle, w => w.Active).InitializeFromSource();
 			chkIsDiler.Binding.AddBinding(Entity, e => e.IsDiler, w => w.Active).InitializeFromSource();
 
+			yentryFolder1c.SubjectType = typeof(Folder1c);
+			yentryFolder1c.Binding.AddBinding(Entity, e => e.Folder1C, w => w.Subject).InitializeFromSource();
 			referenceUnit.SubjectType = typeof (MeasurementUnits);
 			referenceUnit.Binding.AddBinding (Entity, n => n.Unit, w => w.Subject).InitializeFromSource ();
 			yentryrefEqupmentType.SubjectType = typeof(EquipmentType);
