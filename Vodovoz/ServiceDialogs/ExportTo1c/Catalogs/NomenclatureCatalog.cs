@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ExportTo1c.Catalogs
@@ -100,7 +101,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					Common1cTypes.Boolean
 				)
 			);
-			var isService = nomenclature.Category == NomenclatureCategory.service;
+			var isService = !Nomenclature.GetCategoriesForGoods().Contains(nomenclature.Category);
 			if (isService)
 				properties.Add(
 					new PropertyNode("Услуга",
@@ -117,7 +118,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			properties.Add(
 				new PropertyNode("НаименованиеПолное",
 					Common1cTypes.String,
-					nomenclature.Name
+				                 nomenclature.OfficialName
 				)
 			);
 			return properties.ToArray();
