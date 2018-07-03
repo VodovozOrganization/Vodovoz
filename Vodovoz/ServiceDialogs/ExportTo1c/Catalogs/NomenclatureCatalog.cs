@@ -18,34 +18,19 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		public override ReferenceNode CreateReferenceTo(Nomenclature nomenclature)
 		{
 			int id = GetReferenceId(nomenclature);
-			//Если id<=0 то этот объект загружался не из базы -> выгружаем как группу для 1с
-			bool isGroup = nomenclature.Id <= 0;
-			if (isGroup)
-			{
-				return new ReferenceNode(id,
-					new PropertyNode("Код",
-						Common1cTypes.String,
-						nomenclature.Code1c
-					),
-					new PropertyNode("ЭтоГруппа",
-						Common1cTypes.Boolean,
-						"true"
-					)
-				);
-			}
-			else
-			{
-				var code1c = String.IsNullOrWhiteSpace(nomenclature.Code1c) ? nomenclature.Id.ToString() : nomenclature.Code1c;
-				return new ReferenceNode(id,
-					new PropertyNode("Код",
-						Common1cTypes.String,
-						code1c
-					),
-					new PropertyNode("ЭтоГруппа",
-						Common1cTypes.Boolean
-					)
-				);
-			}
+
+			if(String.IsNullOrWhiteSpace(nomenclature.Code1c))
+				exportData.Errors.Add($"Для номенклатуры {nomenclature.Id} - '{nomenclature.Name}' не заполнен код 1с.");
+
+			return new ReferenceNode(id,
+				new PropertyNode("Код",
+					Common1cTypes.String,
+			                     nomenclature.Code1c
+				),
+				new PropertyNode("ЭтоГруппа",
+					Common1cTypes.Boolean
+				)
+			);
 		}
 
 		protected override PropertyNode[] GetProperties(Nomenclature nomenclature)
@@ -57,26 +42,18 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					nomenclature.Name
 				)
 			);
-			Nomenclature parentNomenclature;
-			//Если id<=0 то этот объект загружался не из базы -> выгружаем как группу для 1с
-			bool isGroup = nomenclature.Id <=0;
-			if (exportData.CategoryToNomenclatureMap.TryGetValue(nomenclature.Category, out parentNomenclature) && !isGroup)
-			{
+
+			if(nomenclature.Folder1C == null)
+				exportData.Errors.Add($"Для номенклатуры {nomenclature.Id} - '{nomenclature.Name}' не заполнена папка 1с.");
+			else {
 				properties.Add(
 					new PropertyNode("Родитель",
 						Common1cTypes.ReferenceNomenclature,	
-						exportData.NomenclatureCatalog.CreateReferenceTo(parentNomenclature)
+					                 exportData.NomenclatureGroupCatalog.CreateReferenceTo(nomenclature.Folder1C)
 					)
 				);
 			}
-			else
-			{
-				properties.Add(
-					new PropertyNode("Родитель",
-						Common1cTypes.ReferenceNomenclature
-					)
-				);
-			}
+
 			if (nomenclature.Unit != null)
 			{
 				properties.Add(
@@ -104,25 +81,15 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					"СправочникСсылка.НомераГТД"
 				)
 			);
-			if (!isGroup)
-			{
-				var vat = nomenclature.VAT.GetAttribute<Value1c>().Value;
-				properties.Add(
-					new PropertyNode("СтавкаНДС",
-						Common1cTypes.EnumVAT,
-						vat
-					)
-				);
-			}
-			else
-			{
-				var vat = nomenclature.VAT.GetAttribute<Value1c>().Value;
-				properties.Add(
-					new PropertyNode("СтавкаНДС",
-						Common1cTypes.EnumVAT
-					)
-				);
-			}
+
+			var vat = nomenclature.VAT.GetAttribute<Value1c>().Value;
+			properties.Add(
+				new PropertyNode("СтавкаНДС",
+					Common1cTypes.EnumVAT,
+					vat
+				)
+			);
+
 			properties.Add(
 				new PropertyNode("СтранаПроисхождения",
 					Common1cTypes.ReferenceCountry

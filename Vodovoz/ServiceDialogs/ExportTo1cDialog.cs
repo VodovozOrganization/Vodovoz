@@ -53,7 +53,13 @@ namespace Vodovoz
 				.OfType<InvoiceDocumentNode>()
 				.Count()
 				.ToString();
-			buttonSave.Sensitive = exportData != null;
+
+			labelErrors.Visible = exportData.Errors.Count > 0;
+			labelErrors.Markup = "<span foreground=\"red\">" + 
+				String.Join("\n", exportData.Errors)
+				+ "</span>";
+
+			buttonSave.Sensitive = exportData != null && exportData.Errors.Count == 0;
 		}			
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)

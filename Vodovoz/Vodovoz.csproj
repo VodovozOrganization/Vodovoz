@@ -788,6 +788,7 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.OrderEquipmentItemsView.cs" />
     <Compile Include="Dialogs\Goods\Folder1cDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.Folder1cDlg.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\NomenclatureGroupCatalog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

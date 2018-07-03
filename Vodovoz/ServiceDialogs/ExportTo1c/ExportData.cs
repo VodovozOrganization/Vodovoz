@@ -23,6 +23,7 @@ namespace Vodovoz.ExportTo1c
 		public string DestinationName{get;set;}
 		public string ConversionRulesId{get;set;}
 		public string Comment{ get; set;}
+		public List<string> Errors = new List<string>();
 			
 		public List<ObjectNode> Objects{ get; private set; }
 		public RulesNode ExchangeRules{ get; set; }
@@ -38,10 +39,10 @@ namespace Vodovoz.ExportTo1c
 		public CurrencyCatalog CurrencyCatalog { get; private set;}
 		public MeasurementUnitsCatalog MeasurementUnitCatalog { get; private set;}
 		public NomenclatureCatalog NomenclatureCatalog { get; private set;}
+		public NomenclatureGroupCatalog NomenclatureGroupCatalog { get; private set; }
 		public OrganizationCatalog OrganizationCatalog { get; private set;}
 		public WarehouseCatalog WarehouseCatalog { get; private set;}
 
-		public Dictionary<NomenclatureCategory, Nomenclature> CategoryToNomenclatureMap;
 		public Organization CashlessOrganization { get; private set;}
 
 		public ExportData(IUnitOfWork uow, DateTime dateStart, DateTime dateEnd)
@@ -65,25 +66,10 @@ namespace Vodovoz.ExportTo1c
 			this.CurrencyCatalog = new CurrencyCatalog(this);
 			this.MeasurementUnitCatalog = new MeasurementUnitsCatalog(this);
 			this.NomenclatureCatalog = new NomenclatureCatalog(this);
+			this.NomenclatureGroupCatalog = new NomenclatureGroupCatalog(this);
 			this.OrganizationCatalog = new OrganizationCatalog(this);
 			this.WarehouseCatalog = new WarehouseCatalog(this);
 			this.CashlessOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PersonType.legal, PaymentType.cashless);
-			this.CategoryToNomenclatureMap = new Dictionary<NomenclatureCategory, Nomenclature>();
-			// для реализации группировки по категориям 
-			// для каждой категории создадим экземпляр номенклатуры-группы с отрицательным id( других таких быть не может
-			// т.к. NHibernate загружает их с id>=0)
-			// в дальнейшем(при добавлении справочника номенклатуры) из CategoryToNomenclatureMap получим экземпляр 
-			// номенклатуры-группы для указания в качестве родителя,
-			// а по отрицательному id поймем что это номенклатура-группа
-			int i = 0;
-			foreach (NomenclatureCategory category in Enum.GetValues(typeof(NomenclatureCategory)).OfType<NomenclatureCategory>())
-			{
-				var nomenclature = new Nomenclature();
-				nomenclature.Id = --i;
-				nomenclature.Name = category.GetAttribute<DisplayAttribute>().Name;
-				nomenclature.Code1c = category.GetAttribute<Code1c>().Code;
-				this.CategoryToNomenclatureMap.Add(category, nomenclature);
-			}
 			this.ExchangeRules = new RulesNode();
 		}
 
