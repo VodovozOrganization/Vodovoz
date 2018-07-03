@@ -15,6 +15,7 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>300</Timeout>
         <CommandText>SELECT 
 	nomenclature.name AS nomenclature_name,
 	nomenclature.category,
