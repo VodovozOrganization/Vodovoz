@@ -246,54 +246,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual decimal? GetWaterFixedPrice()
-		{
-			decimal? result = null;
-			//влияющая номенклатура
-			Nomenclature infuentialNomenclature = Nomenclature?.DependsOnNomenclature;
-			if(Nomenclature.Category == NomenclatureCategory.water) {
-				var waterSalesAgreement = AdditionalAgreement.Self as WaterSalesAgreement;
-				if(waterSalesAgreement == null) {
-					return result;
-				}
-				if(waterSalesAgreement.IsFixedPrice && waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == Nomenclature.Id
-				                                                                           && infuentialNomenclature == null)) {
-					result = waterSalesAgreement.FixedPrices.First(x => x.Nomenclature.Id == Nomenclature.Id).Price;
-				} else if(waterSalesAgreement.IsFixedPrice && waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == infuentialNomenclature?.Id)) {
-					result = waterSalesAgreement.FixedPrices.First(x => x.Nomenclature.Id == infuentialNomenclature.Id).Price;
-				}
-			}
-			return result;
-		}
-
-		public virtual void RecalculatePrice()
-		{
-			if(isUserPrice) {
-				return;
-			}
-			var defaultPrice = GetDefaultPrice();
-			if(defaultPrice.HasValue) {
-				Price = defaultPrice.Value;
-			}
-		}
-
-		private Decimal? GetDefaultPrice()
-		{
-			if(Nomenclature?.DependsOnNomenclature == null) {
-				if(Nomenclature?.Category == NomenclatureCategory.water) {
-					return Nomenclature?.GetPrice(Order.GetTotalWaterCount());
-				} else {
-					return Nomenclature?.GetPrice(Count);
-				}
-			}else{
-				if(Nomenclature?.Category == NomenclatureCategory.water) {
-					return Nomenclature?.DependsOnNomenclature.GetPrice(Order.GetTotalWaterCount());
-				} else {
-					return Nomenclature?.DependsOnNomenclature.GetPrice(Count);
-				}
-			}
-		}
-
 		public virtual decimal Sum {
 			get {
 				return Price * Count * (1 - (decimal)Discount / 100);
@@ -321,23 +273,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual bool CanEditPrice()
-		{
-			if(IsRentRenewal()) {
-				return true;
-			}
-
-			return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
-		}
-
-		//FIXME Для предварительной реализации продления аренды пока не решили как она будет работать
-		private bool IsRentRenewal()
-		{
-			//Определяет что аренда на продажу не связана с дополнительным соглашением и таким образом является 
-			//продлением существующей аренды, на КОТОРУЮ ПОКА НЕТ ССЫЛКИ
-			return Nomenclature.Category == NomenclatureCategory.rent && AdditionalAgreement == null;
-		}
-
 		public virtual string NomenclatureString {
 			get { return Nomenclature != null ? Nomenclature.Name : ""; }
 		}
@@ -362,8 +297,72 @@ namespace Vodovoz.Domain.Orders
 		}
 		#endregion
 
-		#region Функции
+		#region Методы
 
+		public virtual bool CanEditPrice()
+		{
+			if(IsRentRenewal()) {
+				return true;
+			}
+
+			return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
+		}
+
+		//FIXME Для предварительной реализации продления аренды пока не решили как она будет работать
+		private bool IsRentRenewal()
+		{
+			//Определяет что аренда на продажу не связана с дополнительным соглашением и таким образом является 
+			//продлением существующей аренды, на КОТОРУЮ ПОКА НЕТ ССЫЛКИ
+			return Nomenclature.Category == NomenclatureCategory.rent && AdditionalAgreement == null;
+		}
+
+		public virtual decimal? GetWaterFixedPrice()
+		{
+			decimal? result = null;
+			//влияющая номенклатура
+			Nomenclature infuentialNomenclature = Nomenclature?.DependsOnNomenclature;
+			if(Nomenclature.Category == NomenclatureCategory.water) {
+				var waterSalesAgreement = AdditionalAgreement.Self as WaterSalesAgreement;
+				if(waterSalesAgreement == null) {
+					return result;
+				}
+				if(waterSalesAgreement.IsFixedPrice && waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == Nomenclature.Id
+																						   && infuentialNomenclature == null)) {
+					result = waterSalesAgreement.FixedPrices.First(x => x.Nomenclature.Id == Nomenclature.Id).Price;
+				} else if(waterSalesAgreement.IsFixedPrice && waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == infuentialNomenclature?.Id)) {
+					result = waterSalesAgreement.FixedPrices.First(x => x.Nomenclature.Id == infuentialNomenclature.Id).Price;
+				}
+			}
+			return result;
+		}
+
+		public virtual void RecalculatePrice()
+		{
+			if(isUserPrice) {
+				return;
+			}
+			var defaultPrice = GetDefaultPrice();
+			if(defaultPrice.HasValue) {
+				Price = defaultPrice.Value;
+			}
+		}
+
+		private Decimal? GetDefaultPrice()
+		{
+			if(Nomenclature?.DependsOnNomenclature == null) {
+				if(Nomenclature?.Category == NomenclatureCategory.water) {
+					return Nomenclature?.GetPrice(Order.GetTotalWaterCount());
+				} else {
+					return Nomenclature?.GetPrice(Count);
+				}
+			} else {
+				if(Nomenclature?.Category == NomenclatureCategory.water) {
+					return Nomenclature?.DependsOnNomenclature.GetPrice(Order.GetTotalWaterCount());
+				} else {
+					return Nomenclature?.DependsOnNomenclature.GetPrice(Count);
+				}
+			}
+		}
 
 		public virtual CounterpartyMovementOperation UpdateCounterpartyOperation(IUnitOfWork uow)
 		{
