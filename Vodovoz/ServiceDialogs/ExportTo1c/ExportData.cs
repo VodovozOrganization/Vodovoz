@@ -318,7 +318,7 @@ namespace Vodovoz.ExportTo1c
 			record.Properties.Add(
 				new PropertyNode("Количество",
 					Common1cTypes.Numeric,
-					orderItem.ActualCount
+				                 orderItem.CurrentCount
 				)
 			);
 			record.Properties.Add(
@@ -330,7 +330,7 @@ namespace Vodovoz.ExportTo1c
 			record.Properties.Add(
 				new PropertyNode("Сумма",
 					Common1cTypes.Numeric,
-					orderItem.ActualCount*orderItem.Price
+				                 orderItem.Sum
 				)
 			);
 
@@ -344,7 +344,7 @@ namespace Vodovoz.ExportTo1c
 			record.Properties.Add(
 				new PropertyNode("СуммаНДС",
 					Common1cTypes.Numeric,
-					orderItem.ActualCount*orderItem.Price*0.18M
+				                 orderItem.IncludeNDS
 				)
 			);
 			record.Properties.Add(

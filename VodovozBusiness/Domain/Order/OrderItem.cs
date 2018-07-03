@@ -102,7 +102,8 @@ namespace Vodovoz.Domain.Orders
 				return actualCount;
 			}
 			set {
-				SetField(ref actualCount, value, () => ActualCount);
+				if(SetField(ref actualCount, value, () => ActualCount))
+					RecalculateNDS();
 			}
 		}
 
@@ -246,9 +247,21 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		/// <summary>
+		/// Свойство возвращает подходяшее значение Count или ActualCount в зависимости от статуса заказа.
+		/// </summary>
+		public int CurrentCount{
+			get{
+				if(Order == null || Repository.OrderRepository.GetNotDeliveredOrderStatuses().Contains(Order.OrderStatus))
+					return Count;
+				else
+					return ActualCount;
+			}
+		}
+
 		public virtual decimal Sum {
 			get {
-				return Price * Count * (1 - (decimal)Discount / 100);
+				return Price * CurrentCount * (1 - (decimal)Discount / 100);
 			}
 		}
 
