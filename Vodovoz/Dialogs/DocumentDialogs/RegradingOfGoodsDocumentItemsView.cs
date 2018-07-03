@@ -39,6 +39,11 @@ namespace Vodovoz
 					)
 				)
 				.AddSetter((w, x) => w.Digits = (uint)x.NomenclatureNew.Unit.Digits)
+				.AddSetter(
+					(w, x) => x.Amount = x.Amount > (decimal)GetMaxValueForAdjustmentSetting(x)
+					? (decimal)GetMaxValueForAdjustmentSetting(x)
+					: x.Amount
+				)
 				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
