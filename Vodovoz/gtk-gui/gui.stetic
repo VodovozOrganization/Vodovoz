@@ -41182,7 +41182,6 @@ not tooltip</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Toggled" handler="OnYcheckbuttonDetailToggled" />
               </widget>
               <packing>
                 <property name="Position">1</property>

@@ -153,8 +153,6 @@ namespace Vodovoz.Reports
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 			ConfigureFilters();
 			ytreeviewSelectedList.ColumnsConfig = columnsConfig;
-			hboxOrderAuthor.Sensitive = ycheckbuttonDetail.Active;
-			hboxOrderAuthor.TooltipText = "Доступно для подробного отчёта";
 		}
 
 		private void ConfigureFilters()
@@ -439,30 +437,6 @@ namespace Vodovoz.Reports
 				identifier = "Sales.SalesReport";
 			}
 
-			var Parameters = new Dictionary<string, object>
-					{
-						{ "start_date", dateperiodpicker.StartDateOrNull },
-						{ "end_date", dateperiodpicker.EndDateOrNull },
-						//тип номенклатур
-						{ "nomtype_include", includeCategories },
-						{ "nomtype_exclude", excludeCategories },
-						//номенклатуры
-						{ "nomen_include", GetResultIds(criterions[FilterTypes.NomenclatureInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id))},
-						{ "nomen_exclude", GetResultIds(criterions[FilterTypes.NomenclatureExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id))},
-						//клиенты
-						{ "client_include", GetResultIds(criterions[FilterTypes.ClientInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						{ "client_exclude", GetResultIds(criterions[FilterTypes.ClientExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						//поставщики (наши организации)
-						{ "org_include", GetResultIds(criterions[FilterTypes.OrganizationInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						{ "org_exclude", GetResultIds(criterions[FilterTypes.OrganizationExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						//основания для скидок
-						{ "discountreason_include", GetResultIds(criterions[FilterTypes.DiscountReasonInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						{ "discountreason_exclude", GetResultIds(criterions[FilterTypes.DiscountReasonExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						//основания для скидок
-						{ "orderauthor_include", GetResultIds(criterions[FilterTypes.OrderAuthorInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						{ "orderauthor_exclude", GetResultIds(criterions[FilterTypes.OrderAuthorExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
-					};
-
 			return new ReportInfo {
 				Identifier = identifier,
 				Parameters = new Dictionary<string, object>
@@ -484,7 +458,7 @@ namespace Vodovoz.Reports
 						//основания для скидок
 						{ "discountreason_include", GetResultIds(criterions[FilterTypes.DiscountReasonInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 						{ "discountreason_exclude", GetResultIds(criterions[FilterTypes.DiscountReasonExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						//основания для скидок
+						//авторы заказа
 						{ "orderauthor_include", GetResultIds(criterions[FilterTypes.OrderAuthorInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 						{ "orderauthor_exclude", GetResultIds(criterions[FilterTypes.OrderAuthorExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
 					}
@@ -629,12 +603,6 @@ namespace Vodovoz.Reports
 					item.Selected = false;
 				}
 			}
-		}
-
-		protected void OnYcheckbuttonDetailToggled(object sender, EventArgs e)
-		{
-			hboxOrderAuthor.Sensitive = ycheckbuttonDetail.Active;
-			hboxOrderAuthor.TooltipText = ycheckbuttonDetail.Active ? "" : "Доступно для подробного отчёта";
 		}
 	}
 }

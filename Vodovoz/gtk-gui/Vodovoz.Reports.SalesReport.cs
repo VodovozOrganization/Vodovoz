@@ -523,7 +523,6 @@ namespace Vodovoz.Reports
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.ycheckbuttonDetail.Toggled += new global::System.EventHandler(this.OnYcheckbuttonDetailToggled);
 			this.buttonNomTypeSelect.Clicked += new global::System.EventHandler(this.OnButtonNomTypeSelectClicked);
 			this.buttonNomTypeUnselect.Clicked += new global::System.EventHandler(this.OnButtonNomTypeUnselectClicked);
 			this.buttonNomenSelect.Clicked += new global::System.EventHandler(this.OnButtonNomenSelectClicked);
