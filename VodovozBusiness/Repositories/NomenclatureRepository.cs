@@ -125,6 +125,24 @@ namespace Vodovoz.Repository
 				.Where(n => n.IsDefectiveBottle).List();
 		}
 
+		public static string GetNextCode1c(IUnitOfWork uow)
+		{
+			var lastCode1c = uow.Query<Nomenclature>()
+								.Where(n => n.Code1c.IsLike(Nomenclature.PrefixOfCode1c, MatchMode.Start))
+								.OrderBy(n => n.Code1c).Desc
+			                    .Select(n => n.Code1c)
+			                    .Take(1)
+			                    .SingleOrDefault<string>();
+			int id = 0;
+			if(!String.IsNullOrEmpty(lastCode1c))
+			{
+				id = int.Parse(lastCode1c.Replace(Nomenclature.PrefixOfCode1c, ""));//Тут специально падаем в эксепшен если не смогли распарсить, подума 5 раз, пережде чем заменить на TryParse
+			}
+			id++;
+			string format = new String('0', Nomenclature.LengthOfCode1c - Nomenclature.PrefixOfCode1c.Length);
+			return Nomenclature.PrefixOfCode1c + id.ToString(format);
+		}
+
 		#region Получение номенклатур воды
 
 		public static Nomenclature GetWaterSemiozerie(IUnitOfWork uow)

@@ -8,7 +8,7 @@ using QSWidgetLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using Vodovoz.JournalFilters;
+using Vodovoz.Repository;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModel;
 
@@ -128,6 +128,11 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
+			if(String.IsNullOrWhiteSpace(Entity.Code1c))
+			{
+				Entity.Code1c = NomenclatureRepository.GetNextCode1c(UoW);
+			}
+
 			var valid = new QSValidator<Nomenclature> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;

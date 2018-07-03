@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using QSBusinessCommon.Domain;
 using QSOrmProject;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -65,6 +66,7 @@ namespace Vodovoz.Domain.Goods
 		string code1c;
 		[Display(Name = "Код 1с")]
 		[Required(ErrorMessage = "Код 1с должен быть заполнен.")]
+		[StringLength(11)]
 		public virtual string Code1c {
 			get { return code1c; }
 			set { SetField(ref code1c, value, () => Code1c); }
@@ -360,11 +362,31 @@ namespace Vodovoz.Domain.Goods
 						              DependsOnNomenclature.ShortOrFullName, DependsOnNomenclature.DependsOnNomenclature.ShortOrFullName),
 						new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
 			}
+
+			if(Code1c != null && Code1c.StartsWith(PrefixOfCode1c))
+			{
+				if(Code1c.Length != LengthOfCode1c)
+					yield return new ValidationResult(
+						String.Format("Код 1с с префиксом автоформирования '{0}', должен содержать {1}-символов.",
+						              PrefixOfCode1c, LengthOfCode1c),
+						new[] { this.GetPropertyName(o => o.Code1c) });
+
+				var next = NomenclatureRepository.GetNextCode1c(UoW);
+				if(String.Compare(Code1c, next) > 0)
+					yield return new ValidationResult(
+						String.Format("Код 1с использует префикс автоматического формирования кодов '{0}'. При этом пропускает некоторое количество значений. Используйте в качестве следующего кода {1} или оставьте это поле пустым для автозаполенения.",
+						              PrefixOfCode1c, next),
+						new[] { this.GetPropertyName(o => o.Code1c) });
+
+			}
 		}
 
 		#endregion
 
 		#region statics
+
+		public static string PrefixOfCode1c = "ДВ";
+		public static int LengthOfCode1c = 10;
 
 		public static NomenclatureCategory[] GetCategoriesForShipment()
 		{

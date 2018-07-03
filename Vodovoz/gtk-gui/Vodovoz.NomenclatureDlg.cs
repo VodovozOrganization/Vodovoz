@@ -368,6 +368,7 @@ namespace Vodovoz
 			this.entryCode1c.CanFocus = true;
 			this.entryCode1c.Name = "entryCode1c";
 			this.entryCode1c.IsEditable = true;
+			this.entryCode1c.MaxLength = 11;
 			this.entryCode1c.InvisibleChar = '●';
 			this.datatable1.Add(this.entryCode1c);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryCode1c]));
