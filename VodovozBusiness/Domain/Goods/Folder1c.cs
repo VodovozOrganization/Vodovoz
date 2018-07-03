@@ -25,6 +25,7 @@ namespace Vodovoz.Domain.Goods
 
 		string code1c;
 		[Display(Name = "Код 1с")]
+		[Required(ErrorMessage = "Код 1с должен быть заполнен.")]
 		public virtual string Code1c {
 			get { return code1c; }
 			set { SetField(ref code1c, value, () => Code1c); }

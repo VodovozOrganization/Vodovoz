@@ -64,6 +64,7 @@ namespace Vodovoz.Domain.Goods
 
 		string code1c;
 		[Display(Name = "Код 1с")]
+		[Required(ErrorMessage = "Код 1с должен быть заполнен.")]
 		public virtual string Code1c {
 			get { return code1c; }
 			set { SetField(ref code1c, value, () => Code1c); }
@@ -72,6 +73,7 @@ namespace Vodovoz.Domain.Goods
 		private Folder1c folder1;
 
 		[Display(Name = "Папка в 1с")]
+		[Required(ErrorMessage = "Папка 1с обязательна для заполнения.")]
 		public virtual Folder1c Folder1C {
 			get { return folder1; }
 			set { SetField(ref folder1, value, () => Folder1C); }
@@ -450,37 +452,26 @@ namespace Vodovoz.Domain.Goods
 	public enum NomenclatureCategory
 	{
 		[Display(Name = "Аренда кулеров")]
-		[Code1c("00001301")]
 		rent,
 		[Display(Name = "Вода в многооборотной таре")]
-		[Code1c("790070")]
 		water,
 		[Display(Name = "Залог")]
-		[Code1c("00000312")]
 		deposit,
 		[Display(Name = "Запчасти")]
-		[Code1c("00000939")]
 		spare_parts,
 		[Display(Name = "Оборудование")]
-		[Code1c("00000959")]
 		equipment,
 		[Display(Name = "Товары")]
-		[Code1c("00000310")]
 		additional,
 		[Display(Name = "Услуга")]
-		[Code1c("00000311")]
 		service,
 		[Display(Name = "Тара")]
-		[Code1c("00000000010")]
 		bottle,
 		[Display(Name = "Сырьё")]
-		[Code1c("002077")]
 		material,
 		[Display(Name = "Вода в одноразовой таре")]
-		[Code1c("0790070")]
 		disposableBottleWater,
 		[Display(Name = "Выезд мастера")]
-		[Code1c("790930")] //Придуман в 1с такого кода не было
 		master
 	}
 
