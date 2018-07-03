@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Goods
 	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "номенклатуры",
 		Nominative = "номенклатура")]
-	public class Nomenclature : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -346,12 +346,19 @@ namespace Vodovoz.Domain.Goods
 					new[] { this.GetPropertyName(o => o.Type) });
 
 			//Проверка зависимостей номенклатур #1: если есть зависимые
-			IList<Nomenclature> dependedNomenclatures = Repository.NomenclatureRepository.GetDependedNomenclatures(UnitOfWorkFactory.CreateWithoutRoot(), this);
-			if(dependedNomenclatures.Any()) {
-				string dependedNomenclaturesText = String.Format("Цена данной номенклатуры не может зависеть от цены другой номенклатуры, т.к. от \"{0}\" зависят цены следующих номенклатур:\n", DependsOnNomenclature.ShortOrFullName);
-				foreach(Nomenclature n in dependedNomenclatures)
-					dependedNomenclaturesText += String.Format("{0}: {1} ({2})\n", n.Id, n.OfficialName, n.CategoryString);
-				yield return new ValidationResult(dependedNomenclaturesText);
+			if(DependsOnNomenclature != null) {
+				IList<Nomenclature> dependedNomenclatures = Repository.NomenclatureRepository.GetDependedNomenclatures(UoW, this);
+				if(dependedNomenclatures.Any()) {
+					string dependedNomenclaturesText = "Цена данной номенклатуры не может зависеть от другой номенклатуры, т.к. от данной номенклатуры зависят цены следующих номенклатур:\n";
+					foreach(Nomenclature n in dependedNomenclatures)
+						dependedNomenclaturesText += String.Format("{0}: {1} ({2})\n", n.Id, n.OfficialName, n.CategoryString);
+					yield return new ValidationResult(dependedNomenclaturesText, new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
+				}
+				if(DependsOnNomenclature.DependsOnNomenclature != null)
+					yield return new ValidationResult(
+						String.Format("Номенклатура '{0}' указанная в качеcтве основной для цен этой номеклатуры, сама зависить от '{1}'",
+						              DependsOnNomenclature.ShortOrFullName, DependsOnNomenclature.DependsOnNomenclature.ShortOrFullName),
+						new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
 			}
 		}
 
