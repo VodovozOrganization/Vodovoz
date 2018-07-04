@@ -609,18 +609,6 @@ WHERE
 			(orders.client_id NOT IN (@client_exclude) AND 0 IN (@client_include)))
 			OR (0 IN (@client_include) AND 0 IN (@client_exclude))
         )
-	AND (
-			((counterparty_contract.organization_id IN (@org_include) AND 0 IN (@org_exclude) )
-			OR
-			(counterparty_contract.organization_id NOT IN (@org_exclude) AND 0 IN (@org_include)))
-			OR (0 IN (@org_include) AND 0 IN (@org_exclude))
-        )
-/*	AND ( 
-			((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
-			OR
-			(order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
-			OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
-        )*/
 GROUP BY counterparty.id, delivery_points.id, orders.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
