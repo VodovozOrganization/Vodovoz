@@ -322,6 +322,12 @@ namespace Vodovoz.ExportTo1c
 				)
 			);
 			record.Properties.Add(
+				new PropertyNode("Коэффициент",
+					Common1cTypes.Numeric,
+								 1
+				)
+			);
+			record.Properties.Add(
 				new PropertyNode("Цена",
 					Common1cTypes.Numeric,
 					orderItem.Price.ToString()
