@@ -144,7 +144,7 @@ namespace Vodovoz
 			datalegalname1.Binding.AddSource(Entity)
 				.AddBinding(s => s.Name, t => t.OwnName)
 				.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
-				.AddBinding(s => s.FullName, t => t.FullName)
+				//.AddBinding(s => s.FullName, t => t.FullName)
 				.InitializeFromSource();
 
 			ytreeviewTags.ColumnsConfig = ColumnsConfigFactory.Create<Tag>()
