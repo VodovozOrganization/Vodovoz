@@ -24,7 +24,7 @@
     orders.payment_type AS order_payment_type,
     orders.online_order AS order_online_number,
     delivery_schedule.name AS delivery_schedule,
-    counterparty_contract.id AS contract_number,
+    CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,
             '%d.%m.%y') AS contract_date,
     counterparty.full_name AS client_name,
@@ -2156,8 +2156,11 @@ Format(
         "["+ {logistics_area} + "]"
     )
     + {del_point_address}
-    + '\n'
-    + {delivery_point_comment}</Value>
+    + Iif(
+            {delivery_point_comment} != '',
+            '\n' + {delivery_point_comment},
+            ''
+        )</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2688,7 +2691,7 @@ Format(
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>184626</Value>
+          <Value>185641</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2710,7 +2713,7 @@ Format(
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_orders;user=OO;password=1;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
