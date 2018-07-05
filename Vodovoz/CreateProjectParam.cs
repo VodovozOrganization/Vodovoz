@@ -35,15 +35,14 @@ namespace Vodovoz
 		static void CreateProjectParam ()
 		{
 			QSMain.ProjectPermission = new Dictionary<string, UserPermission>();
-			QSMain.ProjectPermission.Add("max_loan_amount", new UserPermission("max_loan_amount", "Установка максимального кредита",
-				"Пользователь имеет права для установки максимальной суммы кредита."));
+			QSMain.ProjectPermission.Add("max_loan_amount", new UserPermission("max_loan_amount", "Установка максимального кредита", "Пользователь имеет права для установки максимальной суммы кредита."));
 			QSMain.ProjectPermission.Add("logistican", new UserPermission("logistican", "Логист", "Пользователь является логистом."));
 			QSMain.ProjectPermission.Add("logistic_admin", new UserPermission("logistic_admin", "Логист- пересчет топлива в закрытых МЛ", "Пользователь может пересчитывать километраж в закрытых МЛ"));
 			QSMain.ProjectPermission.Add("logistic_changedeliverytime", new UserPermission("logistic_changedeliverytime", "Логистика. Изменение времени доставки при ведении МЛ", "Пользователь может изменять время доставки в диалоге ведения маршрутного листа"));
 			QSMain.ProjectPermission.Add("money_manage", new UserPermission("money_manage", "Управление деньгами", "Пользователь имеет доступ к денежным операциям(касса и т.п.)."));
 			QSMain.ProjectPermission.Add("routelist_unclosing", new UserPermission("routelist_unclosing", "Касса. Отмена закрытия маршрутных листов", "Пользователь может переводить маршрутные листы из статуса Закрыт в статус Сдается"));
 			QSMain.ProjectPermission.Add("can_delete", new UserPermission("can_delete", "Удаление заказов и маршрутных листов", "Пользователь может удалять заказы и маршрутные листы в журналах."));
-			QSMain.ProjectPermission.Add("can_delete_fines", new UserPermission("can_delete_fines", "Удаление штрафов", "Пользователь может удалять штрафы."));
+			QSMain.ProjectPermission.Add("can_delete_fines", new UserPermission("can_delete_fines", "Удаление и изменение штрафов", "Пользователь может удалять и изменять штрафы."));
 			QSMain.ProjectPermission.Add("can_close_orders", new UserPermission("can_close_orders", "Закрытие заказов", "Пользователь может закрывать заказы вручную."));
 			QSMain.ProjectPermission.Add("can_edit_wage", new UserPermission("can_edit_wage", "Установка заработной платы ", "Пользователь может устанавливать тип заработной платы и ставку."));
 			QSMain.ProjectPermission.Add("change_driver_wage", new UserPermission("change_driver_wage", "Изменение типа расчета ЗП в МЛ", "Пользователь может устанавливать для МЛ другой расчет заработной платы."));
