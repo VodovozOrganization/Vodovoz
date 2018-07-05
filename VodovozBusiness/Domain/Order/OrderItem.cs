@@ -261,7 +261,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal Sum {
 			get {
-				return Price * CurrentCount * (1 - (decimal)Discount / 100);
+				//FIXME Count -- CurrentCount
+				return Price * Count * (1 - (decimal)Discount / 100);
 			}
 		}
 
