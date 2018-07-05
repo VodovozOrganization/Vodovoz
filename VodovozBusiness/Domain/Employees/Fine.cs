@@ -289,6 +289,10 @@ namespace Vodovoz.Domain.Employees
 			if(FineType == FineTypes.FuelOverspending && RouteList == null) {
 				yield return new ValidationResult(String.Format("Не выбран маршрутный лист, при типе штрафа \"{0}\"", FineType.GetEnumTitle()));
 			}
+
+			if(!QSMain.User.Permissions["can_delete_fines"]){
+				yield return new ValidationResult(String.Format("Недостаточно прав для изменения штрафа!"));
+			}
 		}
 
 
