@@ -97,7 +97,7 @@ SELECT
     orders.id AS order_id,
     orders.delivery_date AS order_date,
     author.last_name AS author,
-    counterparty_contract.id AS contract_number,
+    CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,
             '%d.%m.%y') AS contract_date,
     counterparty.full_name AS client_name,
@@ -3577,7 +3577,7 @@ WHERE
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>185619</Value>
+          <Value>185644</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -3587,7 +3587,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
