@@ -764,7 +764,9 @@ namespace Vodovoz
 					Address1cCode 		= addressCodeNode?.InnerText,
 					PaymentType 		= paymentType,
 					ClientPhone			= clientPhone?.InnerText,
-				    ReasonType 			= reasonType
+				    ReasonType 			= reasonType,
+					ToClientText 		= toClient?.InnerText,
+					FromClientText 		= fromClient?.InnerText
 				};
 
 			if(!String.IsNullOrWhiteSpace(dailyNumber1c?.InnerText)) {
