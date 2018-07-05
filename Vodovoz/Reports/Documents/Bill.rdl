@@ -327,80 +327,6 @@ WHERE
           <FontSize>8pt</FontSize>
         </Style>
       </Textbox>
-      <List Name="List1">
-        <Height>55.03pt</Height>
-        <Width>557.41pt</Width>
-        <Left>40.00pt</Left>
-        <Top>208.60pt</Top>
-        <ReportItems>
-          <Textbox Name="Textbox15">
-            <Height>15.75pt</Height>
-            <Width>213.27pt</Width>
-            <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({order_date}, 'Order')</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>11.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>12pt</FontSize>
-            </Style>
-          </Textbox>
-          <Line Name="Line1">
-            <Height>0.00pt</Height>
-            <Width>500pt</Width>
-            <Style>
-              <BorderStyle>
-                <Default>Solid</Default>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth>
-                <Default>2pt</Default>
-              </BorderWidth>
-            </Style>
-            <Left>0.00pt</Left>
-            <Top>30.50pt</Top>
-          </Line>
-          <Textbox Name="Textbox16">
-            <Height>12.00pt</Height>
-            <Width>80pt</Width>
-            <Value>Поставщик:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>40.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox17">
-            <Height>15.00pt</Height>
-            <Width>420.00pt</Width>
-            <Value>={full_name} + ', ИНН ' + {INN} + ', КПП ' + {KPP} + '\n' + {address} + 
-Iif({phone} = null, '', '\nтел. ') + {phone} + 
-Iif({email} = null, '', ' E-mail: ') + {email}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>80.00pt</Left>
-            <Top>40.00pt</Top>
-            <Style>
-              <FontWeight>Bold</FontWeight>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-        </ReportItems>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <DataSetName>Organization</DataSetName>
-      </List>
       <List Name="List2">
         <Height>105.57pt</Height>
         <Width>597.65pt</Width>
@@ -648,14 +574,14 @@ Iif({email} = null, '', ' E-mail: ') + {email}</Value>
       </List>
       <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15.00pt</Height>
-        <Width>420.00pt</Width>
+        <Width>432.00pt</Width>
         <Value>=First({client_name}, 'Order') + 
 ', ИНН ' + First({inn}, 'Order') + ', КПП ' + First({kpp}, 'Order')
 + '\n' +
 First({client_address}, 'Order')</Value>
         <ZIndex>1</ZIndex>
-        <Left>120.0pt</Left>
-        <Top>273.8pt</Top>
+        <Left>106.40pt</Left>
+        <Top>273.80pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -665,12 +591,12 @@ First({client_address}, 'Order')</Value>
         <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>15pt</Height>
-        <Width>80pt</Width>
+        <Height>15.00pt</Height>
+        <Width>59.75pt</Width>
         <Value>Покупатель:</Value>
         <ZIndex>1</ZIndex>
-        <Left>40.0pt</Left>
-        <Top>273.8pt</Top>
+        <Left>40.00pt</Left>
+        <Top>273.80pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1350,6 +1276,66 @@ First({client_address}, 'Order')</Value>
         </ReportItems>
         <DataSetName>Order</DataSetName>
       </List>
+      <Textbox Name="Textbox16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>58.25pt</Width>
+        <Value>Поставщик:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>40.50pt</Left>
+        <Top>245.50pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox17" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.00pt</Height>
+        <Width>438.75pt</Width>
+        <Value>=First({full_name}, 'Organization') + ', ИНН ' + First({INN}, 'Organization') + ', КПП ' + First({KPP}, 'Organization') + '\n' + First({address}, 'Organization') + 
+Iif(First({phone}, 'Organization') = null, '', '\nтел. ') + First({phone}, 'Organization') + 
+Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Organization')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>106.10pt</Left>
+        <Top>245.50pt</Top>
+        <Style>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <CanGrow>true</CanGrow>
+      </Textbox>
+      <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.75pt</Height>
+        <Width>213.27pt</Width>
+        <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({order_date}, 'Order')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>39.2pt</Left>
+        <Top>216.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Line Name="Line1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>0.00pt</Height>
+        <Width>500.00pt</Width>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>2pt</Default>
+          </BorderWidth>
+        </Style>
+        <Left>40.7pt</Left>
+        <Top>235.5pt</Top>
+      </Line>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -1803,7 +1789,7 @@ First({client_address}, 'Order')</Value>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
