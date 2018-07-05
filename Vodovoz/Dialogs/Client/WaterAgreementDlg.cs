@@ -89,14 +89,15 @@ namespace Vodovoz
 			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 			templatewidget1.CanRevertCommon = QSProjectsLib.QSMain.User.Permissions["can_set_common_additionalagreement"];
 
-			var fixedPricesChanges = HistoryChangesRepository
-				.GetHistoryChanges<WaterSalesAgreementFixedPrice>(UoW, Entity.ObservablFixedPrices.Select(x => x.Id).ToArray());
-
 			ytreeviewFixedPrices.ColumnsConfig = ColumnsConfigFactory.Create<WaterSalesAgreementFixedPrice>()
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
 				.AddColumn("Фиксированная цена").AddNumericRenderer(x => x.Price).Editing().Digits(2)
 					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
 				.Finish();
+
+			//FIXME андрей поправит в середине месяца. не забыть сделать соответствующую таблицу сенситив
+			/*var fixedPricesChanges = HistoryChangesRepository
+				.GetHistoryChanges<WaterSalesAgreementFixedPrice>(UoW, Entity.ObservablFixedPrices.Select(x => x.Id).ToArray());
 
 			ytreeviewFixedPricesChanges.ColumnsConfig = ColumnsConfigFactory.Create<HistoryChangeSet>()
 				.AddColumn("Время изменения").AddTextRenderer(x => x.ChangeTimeText)
@@ -118,7 +119,7 @@ namespace Vodovoz
 					ytreeviewFixedPricesChanges.ItemsDataSource = null;
 				}
 
-			};
+			};*/
 
 			ytreeviewFixedPrices.ItemsDataSource = Entity.ObservablFixedPrices;
 			ytreeviewFixedPrices.Selection.Changed += YtreeviewFixedPrices_Selection_Changed;
