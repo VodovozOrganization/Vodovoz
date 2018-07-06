@@ -94,42 +94,45 @@ WHERE
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SET lc_time_names = 'ru_RU';
 SELECT 
-    orders.id AS order_id,
-    orders.delivery_date AS order_date,
-    author.last_name AS author,
-    CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
-    DATE_FORMAT(counterparty_contract.issue_date,
-            '%d.%m.%y') AS contract_date,
-    counterparty.full_name AS client_name,
-    counterparty.jur_address AS client_address,
-    counterparty.inn AS client_inn,
-    counterparty.kpp AS client_kpp,
-    organizations.full_name AS org_name,
-    organizations.jur_address AS org_address,
-    organizations.INN AS org_inn,
-    organizations.KPP AS org_kpp,
-    buhgalter.last_name AS buh_last_name,
-    LEFT(buhgalter.name, 1) AS buh_name,
-    LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
-    leader.last_name AS leader_last_name,
-    LEFT(leader.name, 1) AS leader_name,
-    LEFT(leader.patronymic, 1) AS leader_patronymic
+	orders.id AS order_id,
+	orders.delivery_date AS order_date,
+	author.last_name AS author,
+	CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
+	DATE_FORMAT(counterparty_contract.issue_date,
+			'%d.%m.%y') AS contract_date,
+	counterparty.full_name AS client_name,
+	counterparty.jur_address AS client_address,
+	counterparty.inn AS client_inn,
+	counterparty.kpp AS client_kpp,
+	organizations.full_name AS org_name,
+	organizations.jur_address AS org_address,
+	delivery_points.compiled_address_short AS del_point_address,
+	organizations.INN AS org_inn,
+	organizations.KPP AS org_kpp,
+	buhgalter.last_name AS buh_last_name,
+	LEFT(buhgalter.name, 1) AS buh_name,
+	LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
+	leader.last_name AS leader_last_name,
+	LEFT(leader.name, 1) AS leader_name,
+	LEFT(leader.patronymic, 1) AS leader_patronymic
 FROM
-    orders
-        LEFT JOIN
-    counterparty ON orders.client_id = counterparty.id
-        LEFT JOIN
-    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
-        LEFT JOIN
-    organizations ON organizations.id = counterparty_contract.organization_id
-        LEFT JOIN
-    employees leader ON leader.id = organizations.leader_id
-        LEFT JOIN
-    employees buhgalter ON buhgalter.id = organizations.buhgalter_id
-        LEFT JOIN
-    employees author ON author.id = orders.author_employee_id
+	orders
+		LEFT JOIN
+	counterparty ON orders.client_id = counterparty.id
+		LEFT JOIN
+	counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+		LEFT JOIN
+	organizations ON organizations.id = counterparty_contract.organization_id
+		LEFT JOIN
+	delivery_points ON orders.delivery_point_id = delivery_points.id
+		LEFT JOIN
+	employees leader ON leader.id = organizations.leader_id
+		LEFT JOIN
+	employees buhgalter ON buhgalter.id = organizations.buhgalter_id
+		LEFT JOIN
+	employees author ON author.id = orders.author_employee_id
 WHERE
-    orders.id = @order_id;</CommandText>
+	orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -211,6 +214,10 @@ WHERE
         </Field>
         <Field Name="leader_patronymic">
           <DataField>leader_patronymic</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="del_point_address">
+          <DataField>del_point_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -594,7 +601,7 @@ WHERE
           <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>411.50pt</Width>
-            <Value>=Fields!client_name.Value + ' ' + Fields!client_address.Value</Value>
+            <Value>=Fields!client_name.Value + ', ' + {del_point_address}</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
             <Top>76.60pt</Top>
@@ -643,7 +650,7 @@ WHERE
           <Textbox Name="Textbox24" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>493.25pt</Width>
-            <Value>=Fields!client_address.Value</Value>
+            <Value>={del_point_address}</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
             <Top>112.20pt</Top>

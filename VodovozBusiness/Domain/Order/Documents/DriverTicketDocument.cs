@@ -43,7 +43,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			get
 			{
-				return DocumentOrientation.Landscape;
+				return DocumentOrientation.Portrait;
 			}
 		}
 	}

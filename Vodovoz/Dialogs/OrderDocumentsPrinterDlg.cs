@@ -58,10 +58,10 @@ namespace Vodovoz.Dialogs
 						);
 						continue;
 					} else if(successfulUpdate == true) {
-						MessageDialogWorks.RunInfoDialog(
+						/*MessageDialogWorks.RunInfoDialog(
 							String.Format("Для документа '{0}' успешно подобран шаблон, который был добавлен в комплект печати. " +
 										  "Для сохранения шаблона документа необходимо нажать кнопку 'Сохранить' в заказе.", item.Name)
-						);
+						);*/
 					}
 				}
 				printDocuments.Add(new SelectablePrintDocument(item, DefaultCopies(item.Type)) { Selected = true });

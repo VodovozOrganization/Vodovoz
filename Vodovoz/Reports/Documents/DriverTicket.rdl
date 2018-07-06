@@ -32,12 +32,15 @@
     organizations.address AS org_address,
     delivery_points.comment AS delivery_point_comment,
     
-    IF(COUNT(delivery_points_phones.number) &gt; 0, 
-		GROUP_CONCAT(CONCAT(delivery_points_phones.number, ' - ', delivery_points_phones.name ) SEPARATOR ', '),
-		GROUP_CONCAT(CONCAT(counterparty_phones.number, ' - ', delivery_points_phones.name ) SEPARATOR ', ')
-	) AS phones,
+	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.name IS NULL,'',phones.name)) SEPARATOR '; ')
+	FROM phones 
+    WHERE phones.delivery_point_id = orders.delivery_point_id) AS delivery_point_contact,
+	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.name IS NULL,'',phones.name)) SEPARATOR '; ')
+    FROM phones
+    WHERE phones.counterparty_id = orders.client_id) AS client_contact,
     
     logistics_area.name AS logistics_area,
+    delivery_points.compiled_address_short AS del_point_address,
     delivery_points.city AS city,
     delivery_points.street AS street,
     delivery_points.building AS building,
@@ -139,8 +142,8 @@ WHERE
           <DataField>delivery_point_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="phones">
-          <DataField>phones</DataField>
+        <Field Name="client_contact">
+          <DataField>client_contact</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="logistics_area">
@@ -182,6 +185,14 @@ WHERE
         <Field Name="daily_number">
           <DataField>daily_number</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="delivery_point_contact">
+          <DataField>delivery_point_contact</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="del_point_address">
+          <DataField>del_point_address</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1062,20 +1073,20 @@ WHERE
           <TableColumn>
             <Width>70.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>59.2pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>48.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>86.6pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>27.9pt</Width>
           </TableColumn>
-          <TableColumn >
-            <Width>99.9pt</Width>
+          <TableColumn>
+            <Width>73.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -1118,7 +1129,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >6</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1161,7 +1172,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
                       <Value>
@@ -1179,7 +1190,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox85">
                       <Value>
@@ -1197,7 +1208,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox94">
                       <Value>
@@ -1215,7 +1226,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
                       <Value>
@@ -1233,7 +1244,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox103">
                       <Value>
@@ -1293,7 +1304,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >6</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1337,7 +1348,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >6</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1367,7 +1378,17 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
-                      <Value>=Iif(Fields!logistics_area.IsMissing, "", "["+ {logistics_area} + "]") + {city} + ' ' + {street} + ' д.' + {building} + ' ' + {room} + '\n' + {delivery_point_comment}</Value>
+                      <Value>=Iif(
+        {logistics_area} = null, 
+        "",
+        "["+ {logistics_area} + "]"
+    )
+    + {del_point_address}
+    + Iif(
+            {delivery_point_comment} != '',
+            '\n' + {delivery_point_comment},
+            ''
+        )</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1381,7 +1402,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >6</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1425,7 +1446,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >6</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1455,7 +1476,11 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
-                      <Value>={phones}</Value>
+                      <Value>=Iif(
+    {delivery_point_contact} = null,
+    {client_contact},
+    {delivery_point_contact}
+)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1469,7 +1494,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >6</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1511,7 +1536,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>
@@ -1528,7 +1553,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox91">
                       <Value>
@@ -1545,7 +1570,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox100">
                       <Value>
@@ -1562,7 +1587,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox82">
                       <Value>
@@ -1579,7 +1604,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox109">
                       <Value>
@@ -1626,10 +1651,10 @@ WHERE
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
@@ -1642,17 +1667,17 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
                       <Value>={delivery_schedule}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
@@ -1661,22 +1686,22 @@ WHERE
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Left</TextAlign>
                         <PaddingLeft>0pt</PaddingLeft>
-                        <FontWeight >Bold</FontWeight>
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox92">
                       <Value>Договор:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
@@ -1689,17 +1714,17 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox101">
                       <Value>={contract_number}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
@@ -1708,22 +1733,22 @@ WHERE
                         <VerticalAlign>Top</VerticalAlign>
                         <TextAlign>Left</TextAlign>
                         <PaddingLeft>0pt</PaddingLeft>
-                        <FontWeight >Bold</FontWeight>
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox83">
                       <Value>от</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
@@ -1736,17 +1761,17 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox110">
                       <Value>={contract_date}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
@@ -1755,7 +1780,7 @@ WHERE
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Left</TextAlign>
                         <PaddingLeft>0pt</PaddingLeft>
-                        <FontWeight >Bold</FontWeight>
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1764,7 +1789,7 @@ WHERE
             </TableRow>
           </TableRows>
         </Details>
-        <Left>4.9pt</Left>
+        <Left>28.1pt</Left>
         <Top>36.1pt</Top>
       </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1854,7 +1879,7 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>General</TextAlign>
-                        <FontWeight >Bold</FontWeight>
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2278,7 +2303,7 @@ WHERE
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>185644</Value>
+          <Value>185684</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
