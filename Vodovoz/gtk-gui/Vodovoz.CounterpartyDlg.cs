@@ -44,7 +44,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yCheckButton chkNeedNewBottles;
 
-		private global::QSOrmProject.yLegalName datalegalname1;
+		private global::QSOrmProject.yLegalNameAlternative datalegalname1;
 
 		private global::Gamma.GtkWidgets.yEntry entryFIO;
 
@@ -378,7 +378,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 3;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -409,7 +409,7 @@ namespace Vodovoz
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.datalegalname1 = new global::QSOrmProject.yLegalName();
+			this.datalegalname1 = new global::QSOrmProject.yLegalNameAlternative();
 			this.datalegalname1.Events = ((global::Gdk.EventMask)(256));
 			this.datalegalname1.Name = "datalegalname1";
 			this.table1.Add(this.datalegalname1);
@@ -418,7 +418,6 @@ namespace Vodovoz
 			w21.BottomAttach = ((uint)(4));
 			w21.LeftAttach = ((uint)(1));
 			w21.RightAttach = ((uint)(4));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryFIO = new global::Gamma.GtkWidgets.yEntry();
@@ -643,7 +642,8 @@ namespace Vodovoz
 			this.labelShort = new global::Gtk.Label();
 			this.labelShort.Name = "labelShort";
 			this.labelShort.Xalign = 1F;
-			this.labelShort.LabelProp = global::Mono.Unix.Catalog.GetString("Наименование:");
+			this.labelShort.LabelProp = global::Mono.Unix.Catalog.GetString("Форма собственности:\n\nНаименование:");
+			this.labelShort.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.labelShort);
 			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.table1[this.labelShort]));
 			w41.TopAttach = ((uint)(3));
