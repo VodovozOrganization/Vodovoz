@@ -127,11 +127,15 @@ namespace Vodovoz.ViewWidgets
 				}).HideCondition(HideItemFromDirectionReasonComboInEquipment)
 				.AddSetter((c, n) => {
 					c.Editable = false;
-					c.Editable = n.Nomenclature?.Category == NomenclatureCategory.equipment && n.Reason != Reason.Rent;
+					c.Editable =
+						n.Nomenclature?.Category == NomenclatureCategory.equipment
+						&& n.Reason != Reason.Rent
+						&& n.OwnType != OwnTypes.Duty;
 				})
 				.AddSetter((c, n) => {
 					c.BackgroundGdk = (n.Nomenclature?.Category == NomenclatureCategory.equipment
-									   && n.DirectionReason == DirectionReason.None)
+									   && n.DirectionReason == DirectionReason.None
+				                       && n.OwnType != OwnTypes.Duty)
 						? colorLightRed
 						: colorWhite;
 				})
@@ -223,11 +227,15 @@ namespace Vodovoz.ViewWidgets
 				}).HideCondition(HideItemFromDirectionReasonComboInEquipment)
 				.AddSetter((c, n) => {
 					c.Editable = false;
-					c.Editable = n.Nomenclature?.Category == NomenclatureCategory.equipment && n.Reason != Reason.Rent;
+					c.Editable =
+						n.Nomenclature?.Category == NomenclatureCategory.equipment
+						&& n.Reason != Reason.Rent
+						&& n.OwnType != OwnTypes.Duty;
 				})
 				.AddSetter((c, n) => {
 					c.BackgroundGdk = (n.Nomenclature?.Category == NomenclatureCategory.equipment
-									   && n.DirectionReason == DirectionReason.None)
+									   && n.DirectionReason == DirectionReason.None
+				                       && n.OwnType != OwnTypes.Duty)
 						? colorLightRed
 						: colorWhite;
 				})

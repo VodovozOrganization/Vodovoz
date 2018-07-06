@@ -805,7 +805,7 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("У оборудования в заказе должна быть выбрана принадлежность.");
 
 			if(ObservableOrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
-			   .Any(x => x.DirectionReason == DirectionReason.None))
+			   .Any(x => x.DirectionReason == DirectionReason.None && x.OwnType != OwnTypes.Duty))
 				yield return new ValidationResult("У оборудования в заказе должна быть указана причина забор-доставки.");
 
 			if(ObservableOrderDepositItems.Any(x => x.Total < 0)) {
