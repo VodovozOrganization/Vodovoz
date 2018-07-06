@@ -25,12 +25,15 @@ namespace Vodovoz.ServiceDialogs
 
 		List<Counterparty> VodovozCounterparties = new List<Counterparty>();
 		List<Counterparty> CounterpatiesList = new List<Counterparty>();
+		List<Counterparty> CounterpatiesInternalDuplicateList = new List<Counterparty>();
 		List<DeliveryPoint> DeliveryPointsList = new List<DeliveryPoint>();
 		List<Account1c> AccountsList = new List<Account1c>();
 		List<Bank1c> Banks1cList = new List<Bank1c>();
 
 		Nomenclature nomStroika = null;
 		Nomenclature nomRuchki = null;
+
+		Dictionary<int, int> internalNumbers = new Dictionary<int, int>();
 
 		List<string> errorLog = new List<string>();
 
@@ -48,6 +51,14 @@ namespace Vodovoz.ServiceDialogs
 
 			nomStroika = UoW.GetById<Nomenclature>(15);
 			nomRuchki = UoW.GetById<Nomenclature>(7);
+
+			internalNumbers = UoW.Session.QueryOver<Counterparty>()
+								 .WhereRestrictionOn(x => x.VodovozInternalId).IsNotNull
+								 .SelectList( list => list
+			                                 .Select(x => x.Id)
+			                                 .Select(x => x.VodovozInternalId)			                                
+			                                )
+			                     .List<object[]>().ToDictionary(x => (int)x[0], x => (int)x[1]);
 		}
 
 		#region Свойства
@@ -197,6 +208,7 @@ namespace Vodovoz.ServiceDialogs
 		void ParseCounterparty(XmlNode node)
 		{
 			bool error = false;
+			bool isVodInternalDuplicate = false;
 			Counterparty counterparty = null;
 			var codeAttr = node.Attributes["Код"];
 			if(codeAttr == null) {
@@ -211,6 +223,24 @@ namespace Vodovoz.ServiceDialogs
 				errorLog.Add(string.Format("Не найден контрагент Код1с: {0}", code1c));
 				SkipedCounterparty++;
 				return;
+			}
+
+			var internalNumberAttr = node.Attributes["ВремНомер"];
+			int internalNumber = 0;
+			if(internalNumberAttr != null && int.TryParse(internalNumberAttr.Value, out internalNumber)) {
+				var sdfsd = internalNumbers.Where(x => x.Key != counterparty.Id);
+				var sdfgsdfdf = sdfsd.ToDictionary(x => x.Key, x => x.Value);
+
+				if(sdfgsdfdf.ContainsValue(internalNumber)) {
+					isVodInternalDuplicate = true;
+					//Записываем номер для того чтобы отобразить его в логе
+					counterparty.VodovozInternalId = internalNumber;
+				}else {
+					if(!internalNumbers.ContainsKey(counterparty.Id)) {
+						internalNumbers.Add(counterparty.Id, internalNumber);
+					}
+					counterparty.VodovozInternalId = internalNumber;
+				}
 			}
 
 			var nameAttr = node.Attributes["Наименование"];
@@ -254,11 +284,6 @@ namespace Vodovoz.ServiceDialogs
 				counterparty.PaymentMethod = isJur ? PaymentType.cashless : PaymentType.cash;
 			}
 
-			var phonesAttr = node.Attributes["Телефоны"];
-			if(phonesAttr != null) {
-				counterparty.Comment += string.Format("{0}\n", phonesAttr.Value);
-			}
-
 			var addressAttr = node.Attributes["ФактАдрес"];
 			if(addressAttr != null) {
 				counterparty.Address = addressAttr.Value;
@@ -267,12 +292,6 @@ namespace Vodovoz.ServiceDialogs
 			var JurAddressAttr = node.Attributes["ЮрАдрес"];
 			if(JurAddressAttr != null) {
 				counterparty.JurAddress = JurAddressAttr.Value;
-			}
-
-			var internalNumberAttr = node.Attributes["ВремНомер"];
-			int internalNumber = 0;
-			if(internalNumberAttr != null && int.TryParse(internalNumberAttr.Value, out internalNumber)) {
-				counterparty.VodovozInternalId = internalNumber;
 			}
 
 			var ringupPhoneAttr = node.Attributes["ТелДляОбзвона"];
@@ -289,10 +308,27 @@ namespace Vodovoz.ServiceDialogs
 					}
 				}
 			}
-
+			string comment = null;
 			var commentAttr = node.Attributes["Комментариий"];
 			if(commentAttr != null) {
-				counterparty.Comment += string.Format("{0}\n", commentAttr.Value);
+				if(string.IsNullOrEmpty(comment)){
+					comment = string.Format("\n{0}", commentAttr.Value);
+				} else {
+					comment += string.Format("\n{0}", commentAttr.Value);
+				}
+			}
+
+			var phonesAttr = node.Attributes["Телефоны"];
+			if(phonesAttr != null) {
+				if(string.IsNullOrEmpty(comment)){
+					comment = string.Format("\n{0}", phonesAttr.Value);
+				}else {
+					comment += string.Format("\n{0}", phonesAttr.Value);
+				}
+			}
+
+			if(!string.IsNullOrEmpty(comment)){
+				counterparty.Comment = comment;
 			}
 
 			var accountAttr = node.Attributes["НомерСчета"];
@@ -324,11 +360,18 @@ namespace Vodovoz.ServiceDialogs
 					}
 				}
 			}
+
 			if(error) {
 				ErrorsCounterparty++;
 			}else {
 				SuccessCounterparty++;
 			}
+
+			if(isVodInternalDuplicate) {
+				CounterpatiesInternalDuplicateList.Add(counterparty);
+				return;
+			}
+
 			CounterpatiesList.Add(counterparty);
 		}
 
@@ -383,7 +426,7 @@ namespace Vodovoz.ServiceDialogs
 
 			var commentAttr = node.Attributes["Комментариий"];
 			if(commentAttr != null) {
-				deliveryPoint.Comment = commentAttr.Value;
+				deliveryPoint.АddressAddition = commentAttr.Value;
 			}
 
 
@@ -440,6 +483,21 @@ namespace Vodovoz.ServiceDialogs
 			}
 		}
 
+		private void GenerateNewVodInternalNumbers()
+		{
+			int maxInternal = internalNumbers.Max(x => x.Value);
+
+			foreach(var item in CounterpatiesInternalDuplicateList) {
+				var oldNumber = item.VodovozInternalId;
+				var newNumber = maxInternal + 1;
+				errorLog.Add(string.Format("Контрагент (Код1с: {0}) с дублирующимся временным номером: старый номер: {1}, новый номер: {2}", 
+				                           item.Code1c, oldNumber, newNumber));
+				item.VodovozInternalId = newNumber;
+				CounterpatiesList.Add(item);
+				maxInternal = newNumber;
+			}
+		}
+
 
 		protected void OnFilechooserXMLSelectionChanged(object sender, EventArgs e)
 		{
@@ -471,6 +529,8 @@ namespace Vodovoz.ServiceDialogs
 				progressbar.Adjustment.Value = progressCounter;
 				QSMain.WaitRedraw();
 			}
+
+			GenerateNewVodInternalNumbers();
 
 			foreach(XmlNode node in deliveryPointsNodes) {
 				ParseDeliveryPoint(node);
