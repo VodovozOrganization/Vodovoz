@@ -1060,7 +1060,22 @@ WHERE
             <Width>73.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>377.6pt</Width>
+            <Width>70.0pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>59.2pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>48.0pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>86.6pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>27.9pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>99.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -1103,6 +1118,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan >6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1130,6 +1146,96 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox85">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox94">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox76">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox103">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1187,6 +1293,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan >6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1230,6 +1337,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan >6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1273,6 +1381,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan >6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1316,6 +1425,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan >6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1359,6 +1469,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan >6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1400,6 +1511,91 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox91">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox100">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox82">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox109">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
             <TableRow>
@@ -1426,10 +1622,84 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>='Время дост.: &lt;b&gt;' + {delivery_schedule} + '&lt;/b&gt;  Договор: &lt;b&gt;' + {contract_number} + '&lt;/b&gt; от &lt;b&gt;' + {contract_date} + '&lt;/b&gt;'</Value>
+                      <Value>Время дост.:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <PaddingLeft>0pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>={delivery_schedule}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <FontWeight >Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox92">
+                      <Value>Договор:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <PaddingLeft>0pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox101">
+                      <Value>={contract_number}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
@@ -1437,8 +1707,55 @@ WHERE
                         </BorderWidth>
                         <VerticalAlign>Top</VerticalAlign>
                         <TextAlign>Left</TextAlign>
-                        <Format>html</Format>
                         <PaddingLeft>0pt</PaddingLeft>
+                        <FontWeight >Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox83">
+                      <Value>от</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>0pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox110">
+                      <Value>={contract_date}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <FontWeight >Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1524,7 +1841,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>='&lt;b&gt;' + {daily_number} + '&lt;/b&gt;'</Value>
+                      <Value>={daily_number}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1536,8 +1853,8 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>html</Format>
                         <TextAlign>General</TextAlign>
+                        <FontWeight >Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1971,7 +2288,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
