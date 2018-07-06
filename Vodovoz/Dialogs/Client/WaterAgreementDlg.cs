@@ -200,11 +200,12 @@ namespace Vodovoz
 		{
 			Nomenclature nomenclatureToAdd = e.Subject as Nomenclature;
 			decimal price = 0;
-			if(nomenclatureToAdd.DependsOnNomenclature != null)
-				price = Entity.FixedPrices
-							  .Where(p => p.Nomenclature.Id == nomenclatureToAdd.DependsOnNomenclature.Id)
-							  .FirstOrDefault()
-							  .Price;
+			if(nomenclatureToAdd.DependsOnNomenclature != null) {
+				var fixPrice = Entity.FixedPrices
+									 .Where(p => p.Nomenclature.Id == nomenclatureToAdd.DependsOnNomenclature.Id)
+									 .FirstOrDefault();
+				price = fixPrice == null ? 0 : fixPrice.Price;
+			}
 			Entity.AddFixedPrice(e.Subject as Nomenclature, price);
 		}
 
