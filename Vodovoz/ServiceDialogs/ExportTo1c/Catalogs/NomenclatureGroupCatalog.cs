@@ -41,11 +41,24 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					folder.Name
 				)
 			);
-			properties.Add(
-				new PropertyNode("Родитель",
-					Common1cTypes.ReferenceNomenclature
-				)
-			);
+
+			if(folder.Parent != null)
+			{
+				properties.Add(
+					new PropertyNode("Родитель",
+						Common1cTypes.ReferenceNomenclature,
+					                 exportData.NomenclatureGroupCatalog.CreateReferenceTo(folder.Parent)
+					)
+				);
+			}
+			else
+			{
+				properties.Add(
+					new PropertyNode("Родитель",
+						Common1cTypes.ReferenceNomenclature
+					)
+				);
+			}
 			properties.Add(
 				new PropertyNode("БазоваяЕдиницаИзмерения",
 					Common1cTypes.ReferenceMeasurementUnit

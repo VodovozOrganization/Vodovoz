@@ -32,6 +32,9 @@ namespace Vodovoz.Dialogs.Goods
 
 			yentryCode1c.Binding
 			            .AddBinding(Entity, e => e.Code1c, w => w.Text).InitializeFromSource();
+
+			yentryParent.SubjectType = typeof(Folder1c);
+			yentryParent.Binding.AddBinding(Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase

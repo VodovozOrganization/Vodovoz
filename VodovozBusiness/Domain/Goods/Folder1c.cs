@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Basis;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Goods
@@ -7,11 +8,9 @@ namespace Vodovoz.Domain.Goods
 	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Feminine,
 	NominativePlural = "папки номенклатуры в 1с",
 	Nominative = "папка номенклатуры в 1с")]
-	public class Folder1c : PropertyChangedBase, IDomainObject
+	public class Folder1c : DomainTreeNodeBase<Folder1c>
 	{
 		#region Свойства
-
-		public virtual int Id { get; set; }
 
 		string name;
 
@@ -31,7 +30,7 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref code1c, value, () => Code1c); }
 		}
 
-#endregion
+		#endregion
 
 		public Folder1c()
 		{
