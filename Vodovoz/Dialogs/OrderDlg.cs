@@ -1390,9 +1390,9 @@ namespace Vodovoz
 		private void DailyNumberIncrement()
 		{
 			var todayLastNumber = UoW.Session.QueryOver<Order>()
-													 .Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DailyNumber))
-													 .Where(d => d.DeliveryDate == DateTime.Now.Date)
-													 .SingleOrDefault<int>();
+			                         .Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DailyNumber))
+			                         .Where(d => d.DeliveryDate == Entity.DeliveryDate)
+			                         .SingleOrDefault<int>();
 
 
 			if(Entity.DailyNumber == null) {
