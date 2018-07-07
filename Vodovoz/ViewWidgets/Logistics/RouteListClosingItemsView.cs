@@ -378,7 +378,7 @@ namespace Vodovoz
 			               && x.Nomenclature.Category != NomenclatureCategory.water
 			               && x.Direction == Domain.Orders.Direction.Deliver);
 			foreach(OrderEquipment orderEquip in equipList) {
-				stringParts.Add(string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.Count));
+				stringParts.Add(string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount));
 			}
 
 			//Если это старый заказ со старой записью оборудования в виде строки, то выводим только его

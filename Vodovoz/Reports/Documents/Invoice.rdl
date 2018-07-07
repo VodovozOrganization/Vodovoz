@@ -175,7 +175,7 @@ WHERE
     (SELECT 
             GROUP_CONCAT(CONCAT(nomenclature.name,
                             ' - ',
-                            order_equipment.count)
+                            order_equipment.actual_count)
                     SEPARATOR '\n')
         FROM
             `order_equipment`
@@ -187,7 +187,7 @@ WHERE
     (SELECT 
             GROUP_CONCAT(CONCAT(nomenclature.name,
                             ' - ',
-                            order_equipment.count)
+                            order_equipment.actual_count)
                     SEPARATOR '\n')
         FROM
             `order_equipment`
@@ -535,7 +535,16 @@ GROUP BY name</CommandText>
             <Width>24.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>227.2pt</Width>
+            <Width>72.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>45.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>57.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>28.7pt</Width>
@@ -564,6 +573,229 @@ GROUP BY name</CommandText>
         </TableColumns>
         <Header>
           <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Время дост.:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>=First({delivery_schedule}, "Order")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox64">
+                      <Value>Договор:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value>=First({contract_number}, "Order")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>от</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>1</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox67">
+                      <Value>=First({contract_date}, "Order")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox58">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingRight>0pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Direction>RTL</Direction>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
@@ -600,6 +832,7 @@ GROUP BY name</CommandText>
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -765,6 +998,7 @@ GROUP BY name</CommandText>
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -880,7 +1114,7 @@ GROUP BY name</CommandText>
           </TableRows>
         </Details>
         <Left>33.0pt</Left>
-        <Top>208.6pt</Top>
+        <Top>198.2pt</Top>
         <Visibility>
           <Hidden>
           </Hidden>
@@ -911,6 +1145,60 @@ GROUP BY name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox65">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox66">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1535,6 +1823,20 @@ Format(
               <FontWeight>Bold</FontWeight>
             </Style>
           </Textbox>
+          <Image Name="Image11">
+            <Height>48.26pt</Height>
+            <Width>94.16pt</Width>
+            <Left>380.9pt</Left>
+            <Top>284.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Sizing>Fit</Sizing>
+            <Source>Embedded</Source>
+            <Value>embeddedimage2</Value>
+          </Image>
         </ReportItems>
         <Style>
           <BorderStyle />
@@ -1814,49 +2116,6 @@ Format(
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox85" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>72.27pt</Width>
-        <Value>=First({delivery_schedule}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>227.8pt</Left>
-        <Top>192.3pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox86" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>186.27pt</Width>
-        <Value>='Договор: ' + First({contract_number}, "Order") + ' от ' + First({contract_date}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>342.1pt</Left>
-        <Top>192.3pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontSize>8pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox87" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>65.51pt</Width>
-        <Value>Время дост.:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>173.6pt</Left>
-        <Top>192.8pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontSize>8pt</FontSize>
-        </Style>
-      </Textbox>
       <Textbox Name="Textbox88" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15.00pt</Height>
         <Width>92.59pt</Width>
@@ -2007,7 +2266,7 @@ Format(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>={client_name}</Value>
+                      <Value>=Trim({client_name})</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2168,62 +2427,6 @@ Format(
         <Left>20.7pt</Left>
         <Top>87.3pt</Top>
       </Table>
-      <Image Name="Image4">
-        <Height>38.27pt</Height>
-        <Width>55.65pt</Width>
-        <Left>416.7pt</Left>
-        <Top>108.5pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Embedded</Source>
-        <Value>embeddedimage</Value>
-        <Sizing>FitProportional</Sizing>
-      </Image>
-      <Image Name="Image5">
-        <Height>26.27pt</Height>
-        <Width>55.65pt</Width>
-        <Left>416.7pt</Left>
-        <Top>149.1pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Embedded</Source>
-        <Value>Visa_Inc</Value>
-        <Sizing>FitProportional</Sizing>
-      </Image>
-      <Image Name="Image6">
-        <Height>35.65pt</Height>
-        <Width>73.91pt</Width>
-        <Left>482.2pt</Left>
-        <Top>146.2pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Embedded</Source>
-        <Value>embeddedimage1</Value>
-        <Sizing>FitProportional</Sizing>
-      </Image>
-      <Image Name="Image7">
-        <Height>40.90pt</Height>
-        <Width>78.41pt</Width>
-        <Left>430.6pt</Left>
-        <Top>554.9pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Embedded</Source>
-        <Value>embeddedimage2</Value>
-        <Sizing>FitProportional</Sizing>
-      </Image>
       <Image Name="Image8">
         <Height>47.78pt</Height>
         <Width>86.00pt</Width>
@@ -2252,20 +2455,76 @@ Format(
         <Value>embeddedimage4</Value>
         <Sizing>FitProportional</Sizing>
       </Image>
-      <Image Name="Image10">
-        <Height>40.90pt</Height>
-        <Width>73.91pt</Width>
-        <Left>482.0pt</Left>
-        <Top>102.0pt</Top>
+      <List Name="List1">
+        <Height>79.05pt</Height>
+        <Width>138.50pt</Width>
+        <Left>411.3pt</Left>
+        <Top>113.8pt</Top>
+        <ReportItems>
+          <Image Name="Image7">
+            <Height>39.23pt</Height>
+            <Width>58.78pt</Width>
+            <Left>0.00pt</Left>
+            <Top>0.00pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Embedded</Source>
+            <Value>embeddedimage</Value>
+            <Sizing>Fit</Sizing>
+          </Image>
+          <Image Name="Image12">
+            <Height>22.62pt</Height>
+            <Width>58.02pt</Width>
+            <Left>0.0pt</Left>
+            <Top>51.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Embedded</Source>
+            <Value>Visa_Inc</Value>
+            <Sizing>Fit</Sizing>
+          </Image>
+          <Image Name="Image13">
+            <Height>41.43pt</Height>
+            <Width>76.07pt</Width>
+            <Left>63.30pt</Left>
+            <Top>0.00pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Embedded</Source>
+            <Value>VIP</Value>
+            <Sizing>FitProportional</Sizing>
+          </Image>
+          <Image Name="Image14">
+            <Height>34.70pt</Height>
+            <Width>72.33pt</Width>
+            <Left>65.6pt</Left>
+            <Top>43.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Embedded</Source>
+            <Value>embeddedimage1</Value>
+            <Sizing>FitProportional</Sizing>
+          </Image>
+        </ReportItems>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
         </Style>
-        <Source>Embedded</Source>
-        <Value>VIP</Value>
-        <Sizing>FitProportional</Sizing>
-      </Image>
+        <DataSetName>Order</DataSetName>
+      </List>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2716,7 +2975,7 @@ Format(
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>185684</Value>
+          <Value>185699</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2734,7 +2993,7 @@ Format(
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
