@@ -1318,6 +1318,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -41136,7 +41137,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Reports.SalesReport" design-size="377 432">
+  <widget class="Gtk.Bin" id="Vodovoz.Reports.SalesReport" design-size="377 485">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -41624,12 +41625,36 @@ not tooltip</property>
           </packing>
         </child>
         <child>
+          <widget class="Gtk.HSeparator" id="hseparator1">
+            <property name="MemberName" />
+          </widget>
+          <packing>
+            <property name="Position">8</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
           <widget class="Gtk.Label" id="labelTableTitle">
             <property name="MemberName" />
             <property name="Xalign">0</property>
           </widget>
           <packing>
-            <property name="Position">8</property>
+            <property name="Position">9</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="QSWidgetLib.SearchEntity" id="searchEntityInSelectedList">
+            <property name="MemberName" />
+            <property name="Events">ButtonPressMask</property>
+            <signal name="TextChanged" handler="OnSearchEntityInSelectedListTextChanged" />
+          </widget>
+          <packing>
+            <property name="Position">10</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
@@ -41716,7 +41741,7 @@ not tooltip</property>
             </child>
           </widget>
           <packing>
-            <property name="Position">9</property>
+            <property name="Position">11</property>
             <property name="AutoSize">False</property>
           </packing>
         </child>
@@ -41731,7 +41756,7 @@ not tooltip</property>
           </widget>
           <packing>
             <property name="PackType">End</property>
-            <property name="Position">10</property>
+            <property name="Position">12</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>

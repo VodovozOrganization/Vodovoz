@@ -125,7 +125,6 @@ namespace Vodovoz.Reports
 			{
 				return ObservableList.Where(x => x.Selected).Count().ToString();
 			}
-
 		}
 
 		enum FilterTypes
@@ -477,9 +476,12 @@ namespace Vodovoz.Reports
 			}
 		}
 
+		GenericObservableList<SalesReportNode> treeNodes;
+
 		protected void OnButtonNomTypeSelectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.NomenclatureTypeInclude].ObservableList;
+			treeNodes = criterions[FilterTypes.NomenclatureTypeInclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.NomenclatureTypeInclude].SubcribeWithClearOld((string obj) => {
 				ylabelNomType.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
@@ -488,7 +490,8 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonNomenSelectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.NomenclatureInclude].ObservableList;
+			treeNodes = criterions[FilterTypes.NomenclatureInclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.NomenclatureInclude].SubcribeWithClearOld((string obj) => {
 				ylabelNomen.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
@@ -497,7 +500,8 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonNomTypeUnselectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.NomenclatureTypeExclude].ObservableList;
+			treeNodes = criterions[FilterTypes.NomenclatureTypeExclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.NomenclatureTypeExclude].SubcribeWithClearOld((string obj) => {
 				ylabelNomType.Text = String.Format("Искл.: {0} елем.", obj);
 			});
@@ -506,7 +510,8 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonNomenUnselectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.NomenclatureExclude].ObservableList;
+			treeNodes = criterions[FilterTypes.NomenclatureExclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.NomenclatureExclude].SubcribeWithClearOld((string obj) => {
 				ylabelNomen.Text = String.Format("Искл.: {0} елем.", obj);
 			});
@@ -515,7 +520,8 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonClientSelectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.ClientInclude].ObservableList;
+			treeNodes = criterions[FilterTypes.ClientInclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.ClientInclude].SubcribeWithClearOld((string obj) => {
 				ylabelClient.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
@@ -524,7 +530,8 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonClientUnselectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.ClientExclude].ObservableList;
+			treeNodes = criterions[FilterTypes.ClientExclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.ClientExclude].SubcribeWithClearOld((string obj) => {
 				ylabelClient.Text = String.Format("Искл.: {0} елем.", obj);
 			});
@@ -533,7 +540,8 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonOrgSelectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.OrganizationInclude].ObservableList;
+			treeNodes = criterions[FilterTypes.OrganizationInclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.OrganizationInclude].SubcribeWithClearOld((string obj) => {
 				ylabelOrg.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
@@ -542,7 +550,8 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonOrgUnselectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.OrganizationExclude].ObservableList;
+			treeNodes = criterions[FilterTypes.OrganizationExclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.OrganizationExclude].SubcribeWithClearOld((string obj) => {
 				ylabelOrg.Text = String.Format("Искл.: {0} елем.", obj);
 			});
@@ -551,7 +560,8 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonDiscountReasonSelectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.DiscountReasonInclude].ObservableList;
+			treeNodes = criterions[FilterTypes.DiscountReasonInclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.DiscountReasonInclude].SubcribeWithClearOld((string obj) => {
 				ylabelDiscountReason.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
@@ -560,7 +570,8 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonDiscountReasonUnselectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.DiscountReasonExclude].ObservableList;
+			treeNodes = criterions[FilterTypes.DiscountReasonExclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.DiscountReasonExclude].SubcribeWithClearOld((string obj) => {
 				ylabelDiscountReason.Text = String.Format("Искл.: {0} елем.", obj);
 			});
@@ -569,7 +580,8 @@ namespace Vodovoz.Reports
 
 		protected void OnBtnOrderAuthorSelectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.OrderAuthorInclude].ObservableList;
+			treeNodes = criterions[FilterTypes.OrderAuthorInclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.OrderAuthorInclude].SubcribeWithClearOld((string obj) => {
 				yLblOrderAuthor.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
@@ -578,7 +590,8 @@ namespace Vodovoz.Reports
 
 		protected void OnBtnOrderAuthorDeselectClicked(object sender, EventArgs e)
 		{
-			ytreeviewSelectedList.ItemsDataSource = criterions[FilterTypes.OrderAuthorExclude].ObservableList;
+			treeNodes = criterions[FilterTypes.OrderAuthorExclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.OrderAuthorExclude].SubcribeWithClearOld((string obj) => {
 				yLblOrderAuthor.Text = String.Format("Искл.: {0} елем.", obj);
 			});
@@ -603,6 +616,26 @@ namespace Vodovoz.Reports
 					item.Selected = false;
 				}
 			}
+		}
+
+		protected void OnSearchEntityInSelectedListTextChanged(object sender, EventArgs e)
+		{
+			if(searchEntityInSelectedList.Text.Length > 0)
+				ytreeviewSelectedList.ItemsDataSource = new GenericObservableList<SalesReportNode>(
+					treeNodes
+					.Where(
+						n => n.Name
+						.ToLower()
+						.Contains(
+							searchEntityInSelectedList
+							.Text
+							.ToLower()
+						)
+					)
+					.ToList()
+				);
+			else
+				ytreeviewSelectedList.ItemsDataSource = treeNodes;
 		}
 	}
 }
