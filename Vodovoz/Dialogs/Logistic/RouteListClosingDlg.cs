@@ -936,6 +936,21 @@ namespace Vodovoz
 
 			var points = new List<long>();
 			points.Add(CachedDistance.BaseHash);
+
+			#region если нет координат хотя бы у одной точки доставки
+			bool hasError = false;
+			string ErMsg = "Пересчёт километража невозможен, т.к. не найдены координаты для следующих точек доставки:\n";
+			foreach(RouteListItem address in Entity.Addresses.Where(p => p.Order.DeliveryPoint.Latitude == null
+			                                                        || p.Order.DeliveryPoint.Longitude == null)){
+				hasError = true;
+				ErMsg += String.Format("\tЗаказ №{0} - {1}\n", address.Order.Id, address.Order.DeliveryPoint.ShortAddress);
+			}
+			ErMsg += "Перейдите в указанные точки доставки и добавьте (проверьте) их координаты.";
+			if(hasError) {
+				MessageDialogWorks.RunWarningDialog(ErMsg);
+				return;
+			}
+			#endregion
 			foreach(RouteListItem address in Entity.Addresses.OrderBy(x => x.StatusLastUpdate)) {
 				if(address.Status == RouteListItemStatus.Completed) {
 					points.Add(address.Order.DeliveryPoint.СoordinatesHash);
