@@ -674,20 +674,20 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("В заказе не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
 
-					if(PaymentType == PaymentType.cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
+					if(!IsLoadedFrom1C && PaymentType == PaymentType.cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
 						yield return new ValidationResult("В заказе не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName(o => o.SignatureType) });
 
-					if(bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water))
+					if(!IsLoadedFrom1C && bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water))
 						yield return new ValidationResult("В заказе не указано бутылей на возврат.",
 							new[] { this.GetPropertyName(o => o.Contract) });
-					if(trifle == null && PaymentType == PaymentType.cash && this.TotalSum > 0m)
+					if(!IsLoadedFrom1C && trifle == null && PaymentType == PaymentType.cash && this.TotalSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
 						yield return new ValidationResult("В заказе должно быть указано количество во всех позициях товара и оборудования");
 					//если ни у точки доставки, ни у контрагента нет ни одного номера телефона
-					if(!(DeliveryPoint.Phones.Any() || Client.Phones.Any()))
+					if(!IsLoadedFrom1C && !((DeliveryPoint != null && DeliveryPoint.Phones.Any()) || Client.Phones.Any()))
 						yield return new ValidationResult("Ни для контрагента, ни для точки доставки заказа не указано ни одного номера телефона.");
 
 					//В случае, если редактируется заказ "В пути", то должен быть оставлен комментарий, поясняющий причину редактирования.
@@ -812,11 +812,10 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В возврате залогов в заказе необходимо вводить положительную сумму.");
 			}
 
-			if(ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water) &&
+			if(!IsLoadedFrom1C && ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water) &&
 			   //Если нету ни одного допсоглашения на воду подходящего на точку доставку в заказе 
 			   //(или без точки доставки если относится на все точки)
-			   !HaveActualWaterSaleAgreementByDeliveryPoint()
-			  ) {
+			   !HaveActualWaterSaleAgreementByDeliveryPoint() ) {
 				yield return new ValidationResult("В заказе выбрана точка доставки для которой нет актуального дополнительного соглашения по доставке воды");
 			}
 #if !SHORT
@@ -829,6 +828,13 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Вычисляемые
+
+		public virtual bool IsLoadedFrom1C
+		{
+			get{
+				return !string.IsNullOrEmpty(Code1c);
+			}
+		}
 
 		public override string ToString()
 		{

@@ -772,6 +772,8 @@ namespace Vodovoz
 			entryDiscountOrder.Visible = buttonSetDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			tblOnRouteEditReason.Sensitive = val;
 			ChangeOrderEditable(val);
+
+			buttonAddForSale.Sensitive = referenceContract.Sensitive = buttonAddMaster.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 		}
 
 		void ChangeOrderEditable(bool val)
@@ -851,6 +853,10 @@ namespace Vodovoz
 
 		void AddNomenclature(Nomenclature nomenclature, int count = 0)
 		{
+			if(Entity.IsLoadedFrom1C) {
+				return;
+			}
+
 			if(UoWGeneric.Root.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
 			   && nomenclature.Category == NomenclatureCategory.master) {
 				MessageDialogWorks.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
@@ -915,6 +921,10 @@ namespace Vodovoz
 		private void AddRentAgreement(OrderAgreementType type)
 		{
 			ITdiDialog dlg = null;
+
+			if(Entity.IsLoadedFrom1C) {
+				return;
+			}
 
 			if(UoWGeneric.Root.Client == null || UoWGeneric.Root.DeliveryPoint == null) {
 				MessageDialogWorks.RunWarningDialog("Для добавления оборудования должна быть выбрана точка доставки.");
@@ -1350,7 +1360,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
 
-			if(Contract == null) {
+			if(Contract == null && !Entity.IsLoadedFrom1C) {
 				Entity.CreateDefaultContract();
 			}
 

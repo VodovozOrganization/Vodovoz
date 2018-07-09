@@ -325,6 +325,10 @@ namespace Vodovoz.Domain.Orders
 		//FIXME Для предварительной реализации продления аренды пока не решили как она будет работать
 		private bool IsRentRenewal()
 		{
+			if(Order.IsLoadedFrom1C) {
+				//Так как все товары в таких заказах не будут привязаны к доп соглашениям
+				return false;
+			}
 			//Определяет что аренда на продажу не связана с дополнительным соглашением и таким образом является 
 			//продлением существующей аренды, на КОТОРУЮ ПОКА НЕТ ССЫЛКИ
 			return Nomenclature.Category == NomenclatureCategory.rent && AdditionalAgreement == null;
@@ -333,6 +337,11 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal? GetWaterFixedPrice()
 		{
 			decimal? result = null;
+
+			if(Order.IsLoadedFrom1C) {
+				return result;
+			}
+
 			//влияющая номенклатура
 			Nomenclature infuentialNomenclature = Nomenclature?.DependsOnNomenclature;
 			if(Nomenclature.Category == NomenclatureCategory.water) {
