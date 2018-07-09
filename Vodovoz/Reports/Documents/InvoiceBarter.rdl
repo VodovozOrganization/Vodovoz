@@ -789,8 +789,8 @@ payment_type='ToClient'</CommandText>
         </Footer>
       </Table>
       <List Name="List2">
-        <Height>409.78pt</Height>
-        <Width>562.39pt</Width>
+        <Height>351.79pt</Height>
+        <Width>561.64pt</Width>
         <Left>34.20pt</Left>
         <Top>258.20pt</Top>
         <ReportItems>
@@ -822,49 +822,18 @@ payment_type='ToClient'</CommandText>
               <FontWeight>Bold</FontWeight>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox34">
-            <Height>12.00pt</Height>
-            <Width>151.77pt</Width>
-            <Value>Время доставки</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>89.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-            </Style>
-          </Textbox>
           <Textbox Name="Textbox35">
             <Height>13.50pt</Height>
             <Width>518.44pt</Width>
             <Value>Товар получен в полном объеме. К продавцу претензий не имею.     /                                      /</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>112.9pt</Top>
+            <Top>83.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox36">
-            <Height>12.75pt</Height>
-            <Width>106.15pt</Width>
-            <Value>*</Value>
-            <ZIndex>1</ZIndex>
-            <Left>143.8pt</Left>
-            <Top>89.6pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth>
-                <Bottom>1.5pt</Bottom>
-              </BorderWidth>
             </Style>
           </Textbox>
           <Textbox Name="Textbox37">
@@ -873,7 +842,7 @@ payment_type='ToClient'</CommandText>
             <Value>Покупатель сдал</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>144.2pt</Top>
+            <Top>114.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -887,7 +856,7 @@ payment_type='ToClient'</CommandText>
             <Value>*             (                                    ) бутылей            /                                       /</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
-            <Top>144.9pt</Top>
+            <Top>115.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -901,7 +870,7 @@ payment_type='ToClient'</CommandText>
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
-            <Top>158.2pt</Top>
+            <Top>128.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -921,7 +890,7 @@ payment_type='ToClient'</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>338.7pt</Left>
-            <Top>126.1pt</Top>
+            <Top>96.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -940,7 +909,7 @@ payment_type='ToClient'</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>338.4pt</Left>
-            <Top>158.3pt</Top>
+            <Top>128.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -959,7 +928,7 @@ payment_type='ToClient'</CommandText>
             <Value>Предполагаемое количетво возвратной тары:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>177.2pt</Top>
+            <Top>147.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -980,7 +949,7 @@ payment_type='ToClient'</CommandText>
               </BorderWidth>
             </Style>
             <Left>0.0pt</Left>
-            <Top>219.5pt</Top>
+            <Top>189.9pt</Top>
           </Line>
           <Textbox Name="Textbox43">
             <Height>13.50pt</Height>
@@ -988,7 +957,7 @@ payment_type='ToClient'</CommandText>
             <Value>Залог за пустую тару</Value>
             <ZIndex>1</ZIndex>
             <Left>16.2pt</Left>
-            <Top>204.3pt</Top>
+            <Top>174.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1003,7 +972,7 @@ payment_type='ToClient'</CommandText>
             <Value>             (                                    ) бутылей в размере                                   рублей</Value>
             <ZIndex>1</ZIndex>
             <Left>119.3pt</Left>
-            <Top>240.5pt</Top>
+            <Top>210.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1017,7 +986,7 @@ payment_type='ToClient'</CommandText>
             <Value>Покупатель внес залог за</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>240.3pt</Top>
+            <Top>210.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1031,7 +1000,7 @@ payment_type='ToClient'</CommandText>
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
             <Left>130.0pt</Left>
-            <Top>255.1pt</Top>
+            <Top>225.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1051,7 +1020,7 @@ payment_type='ToClient'</CommandText>
             <Value>(сумма)</Value>
             <ZIndex>1</ZIndex>
             <Left>370.8pt</Left>
-            <Top>254.5pt</Top>
+            <Top>224.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1071,7 +1040,7 @@ payment_type='ToClient'</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>370.6pt</Left>
-            <Top>298.6pt</Top>
+            <Top>269.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1090,7 +1059,7 @@ payment_type='ToClient'</CommandText>
             <Value>/                                       /</Value>
             <ZIndex>1</ZIndex>
             <Left>371.5pt</Left>
-            <Top>285.4pt</Top>
+            <Top>255.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1104,7 +1073,7 @@ payment_type='ToClient'</CommandText>
             <Value>Экспедитор принял:                                        /                                        /</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>330.9pt</Top>
+            <Top>301.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1118,7 +1087,7 @@ payment_type='ToClient'</CommandText>
             <Value>(подпись)                   (расшифровка)</Value>
             <ZIndex>1</ZIndex>
             <Left>101.9pt</Left>
-            <Top>342.2pt</Top>
+            <Top>312.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1136,7 +1105,7 @@ payment_type='ToClient'</CommandText>
             <Value>* Поля обязательные к заполнению</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>372.0pt</Top>
+            <Top>342.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1180,7 +1149,7 @@ payment_type='ToClient'</CommandText>
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
             <Left>348.3pt</Left>
-            <Top>114.2pt</Top>
+            <Top>84.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1194,7 +1163,7 @@ payment_type='ToClient'</CommandText>
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
             <Left>348.5pt</Left>
-            <Top>145.8pt</Top>
+            <Top>116.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1242,7 +1211,7 @@ payment_type='ToClient'</CommandText>
             <Value>={bottles_return}</Value>
             <ZIndex>1</ZIndex>
             <Left>246.9pt</Left>
-            <Top>176.6pt</Top>
+            <Top>147.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1259,7 +1228,7 @@ payment_type='ToClient'</CommandText>
             <Value>бутылей.</Value>
             <ZIndex>1</ZIndex>
             <Left>312.5pt</Left>
-            <Top>176.5pt</Top>
+            <Top>146.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
