@@ -195,6 +195,10 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal GetEquipmentDepositsCollected {
 			get {
+				if(Order.PaymentType != Client.PaymentType.cash) {
+					return 0;
+				}
+
 				if(equipmentDepositsCollected != 0m) {
 					return equipmentDepositsCollected;
 				}
