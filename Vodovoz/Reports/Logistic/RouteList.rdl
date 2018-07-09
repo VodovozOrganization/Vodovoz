@@ -942,7 +942,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
-                      <Value>=Iif({Total} = 0, "", {Total})</Value>
+                      <Value>=Iif({Total}-{BottlesDeposit} = 0, "", {Total}-{BottlesDeposit})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1160,7 +1160,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox70">
-                      <Value>=Iif(Sum({Total}) = 0, "", Sum({Total}))</Value>
+                      <Value>=Iif(Sum({Total}-{BottlesDeposit}) = 0, "", Sum({Total}-{BottlesDeposit}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1232,7 +1232,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox80">
-                      <Value>=Iif(Sum({BottlesDeposit}) + Sum({Total}) = 0, "", Sum({BottlesDeposit}) + Sum({Total}))
+                      <Value>=Iif(Sum({BottlesDeposit}) + Sum({Total}-{BottlesDeposit}) = 0, "", Sum({BottlesDeposit}) + Sum({Total}-{BottlesDeposit}))
 </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1810,7 +1810,7 @@ ORDER BY order_in_route;
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_orders;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>часть заполняется из C#</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
