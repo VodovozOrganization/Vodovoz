@@ -620,22 +620,26 @@ namespace Vodovoz.Reports
 
 		protected void OnSearchEntityInSelectedListTextChanged(object sender, EventArgs e)
 		{
-			if(searchEntityInSelectedList.Text.Length > 0)
-				ytreeviewSelectedList.ItemsDataSource = new GenericObservableList<SalesReportNode>(
-					treeNodes
-					.Where(
-						n => n.Name
-						.ToLower()
-						.Contains(
-							searchEntityInSelectedList
-							.Text
+			if(treeNodes != null) {
+				if(searchEntityInSelectedList.Text.Length > 0)
+					ytreeviewSelectedList.ItemsDataSource = new GenericObservableList<SalesReportNode>(
+						treeNodes
+						.Where(
+							n => n.Name
 							.ToLower()
+							.Contains(
+								searchEntityInSelectedList
+								.Text
+								.ToLower()
+							)
 						)
-					)
-					.ToList()
-				);
-			else
-				ytreeviewSelectedList.ItemsDataSource = treeNodes;
+						.ToList()
+					);
+				else
+					ytreeviewSelectedList.ItemsDataSource = treeNodes;
+			} else {
+				searchEntityInSelectedList.Text = String.Empty;
+			}
 		}
 	}
 }
