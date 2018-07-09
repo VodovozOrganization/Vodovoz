@@ -897,6 +897,9 @@ namespace Vodovoz
 						UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
 					}
 					break;
+				case NomenclatureCategory.master:
+					UoWGeneric.Root.AddMasterNomenclature(nomenclature);
+					break;
 				case NomenclatureCategory.deposit://Залог
 				default://rest
 					UoWGeneric.Root.AddAnyGoodsNomenclatureForSale(nomenclature);

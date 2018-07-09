@@ -1151,6 +1151,22 @@ namespace Vodovoz.Domain.Orders
 			//UpdateDocuments();
 		}
 
+		public virtual void AddMasterNomenclature(Nomenclature nomenclature)
+		{
+			if(nomenclature.Category != NomenclatureCategory.master) {
+				return;
+			}
+
+			ObservableOrderItems.Add(new OrderItem {
+				Order = this,
+				AdditionalAgreement = null,
+				Count = 1,
+				Equipment = null,
+				Nomenclature = nomenclature,
+				Price = nomenclature.GetPrice(1)
+			});
+		}
+
 		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water)
