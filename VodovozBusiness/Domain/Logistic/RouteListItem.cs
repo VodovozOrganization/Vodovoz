@@ -202,8 +202,11 @@ namespace Vodovoz.Domain.Logistic
 				if(equipmentDepositsCollected != 0m) {
 					return equipmentDepositsCollected;
 				}
-				return Order.OrderItems.Where(i => i.IsDepositCategory && i.IsDelivered).Sum(i => i.Price * i.ActualCount)
-							- Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);
+
+				//раскомментировать если нужны залоги из таблицы товаров
+				/*return Order.OrderItems.Where(i => i.IsDepositCategory && i.IsDelivered).Sum(i => i.Price * i.ActualCount)
+							- Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);*/
+				return 0m;
 			}
 		}
 
