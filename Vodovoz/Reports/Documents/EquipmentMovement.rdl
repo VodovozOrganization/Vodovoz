@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>11in</PageHeight>
+  <PageWidth>210mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <DataSets>
+    <DataSet Name="Order">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT orders.id, orders.delivery_date, CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number, counterparty.full_name, 
+delivery_points.compiled_address, organizations.name as organization,
+(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.name IS NULL,'',phones.name)) SEPARATOR '; ')
+	FROM phones 
+WHERE phones.delivery_point_id = orders.delivery_point_id OR phones.counterparty_id = orders.client_id
+ORDER BY phones.delivery_point_id #Для того чтобы телефоны точки были первыми
+) as telephons
+FROM orders
+LEFT JOIN counterparty ON counterparty.id = orders.client_id
+LEFT JOIN counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id
+LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
+WHERE orders.id = @order_id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
+        </Field>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="contract_number">
+          <DataField>contract_number</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="full_name">
+          <DataField>full_name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="compiled_address">
+          <DataField>compiled_address</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="organization">
+          <DataField>organization</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="telephons">
+          <DataField>telephons</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Equipment">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT order_equipment.direction, order_equipment.direction_reason, order_equipment.own_type,
+equipment_type.name FROM order_equipment
+LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+LEFT JOIN equipment_type ON equipment_type.id = nomenclature.type_id
+WHERE order_equipment.order_id = @order_id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>={?order_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="direction">
+          <DataField>direction</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="direction_reason">
+          <DataField>direction_reason</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="own_type">
+          <DataField>own_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>325.1pt</Height>
+    <ReportItems>
+      <List Name="List1">
+        <DataSetName>Order</DataSetName>
+        <Height>114.96pt</Height>
+        <NoRows>Query returned no rows!</NoRows>
+        <ReportItems>
+          <Textbox Name="id">
+            <Top>28.2pt</Top>
+            <Left>459.2pt</Left>
+            <Width>99.34pt</Width>
+            <Height>15.81pt</Height>
+            <Value>={delivery_date}</Value>
+            <CanGrow>false</CanGrow>
+            <Style>
+              <PaddingLeft>2pt</PaddingLeft>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <Format>d</Format>
+              <TextAlign>Center</TextAlign>
+              <FontSize>12pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="contract_number">
+            <Top>47.00pt</Top>
+            <Left>52.30pt</Left>
+            <Width>505.85pt</Width>
+            <Height>14.32pt</Height>
+            <Value>=Fields!compiled_address.Value</Value>
+            <CanGrow>true</CanGrow>
+            <Style>
+              <PaddingLeft>2pt</PaddingLeft>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="full_name">
+            <Top>30.70pt</Top>
+            <Left>52.30pt</Left>
+            <Width>408.77pt</Width>
+            <Height>13.58pt</Height>
+            <Value>=Fields!full_name.Value</Value>
+            <CanGrow>true</CanGrow>
+            <Style>
+              <PaddingLeft>2pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="telephons">
+            <Top>63.10pt</Top>
+            <Left>51.40pt</Left>
+            <Width>505.95pt</Width>
+            <Height>11.28pt</Height>
+            <Value>=Fields!telephons.Value</Value>
+            <CanGrow>true</CanGrow>
+            <Style>
+              <PaddingLeft>2pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox1">
+            <Height>18.78pt</Height>
+            <Width>550.36pt</Width>
+            <Value>= "Акт движения оборудования № " + {id} + " по договору № " + {contract_number}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>5.00pt</Left>
+            <Top>5.20pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>16pt</FontSize>
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox2">
+            <Height>12.75pt</Height>
+            <Width>47.44pt</Width>
+            <Value>Клиент:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>5.10pt</Left>
+            <Top>30.70pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox3">
+            <Height>13.50pt</Height>
+            <Width>46.74pt</Width>
+            <Value>Адрес:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>6.10pt</Left>
+            <Top>46.70pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox4">
+            <Height>12.75pt</Height>
+            <Width>48.98pt</Width>
+            <Value>Телефон:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>3.90pt</Left>
+            <Top>62.90pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox5">
+            <Height>27.81pt</Height>
+            <Width>552.62pt</Width>
+            <Value>= {organization} + " с одной стороны и Клиент с другой стороны составили настоящий акт о нижеследующем:"</Value>
+            <ZIndex>1</ZIndex>
+            <Left>4.20pt</Left>
+            <Top>83.60pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>12pt</FontSize>
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <Width>560.15pt</Width>
+        <Left>0.00pt</Left>
+        <Top>0.00pt</Top>
+      </List>
+      <List Name="List2">
+        <Height>82.84pt</Height>
+        <Width>558.59pt</Width>
+        <Left>0.00pt</Left>
+        <Top>119.00pt</Top>
+        <DataSetName>Equipment</DataSetName>
+        <ReportItems>
+          <Textbox Name="Textbox6">
+            <Height>12.00pt</Height>
+            <Width>73.03pt</Width>
+            <Value>Направление:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>4.5pt</Left>
+            <Top>10.5pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox11">
+            <Height>12.76pt</Height>
+            <Width>417.08pt</Width>
+            <Value>= Switch({direction} = 'Deliver', "Доставлено клиенту", {direction} = 'PickUp', "Забрано у клиента")</Value>
+            <ZIndex>1</ZIndex>
+            <Left>80.9pt</Left>
+            <Top>9.5pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>11pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox12">
+            <Height>12pt</Height>
+            <Width>1in</Width>
+            <Value>Тип:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>5.0pt</Left>
+            <Top>25.3pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox13">
+            <Height>13.48pt</Height>
+            <Width>449.37pt</Width>
+            <Value>=Fields!name.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>81.7pt</Left>
+            <Top>26.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>11pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox14">
+            <Height>12.00pt</Height>
+            <Width>90.27pt</Width>
+            <Value>Принадлежность:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>4.30pt</Left>
+            <Top>42.80pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox15">
+            <Height>12.00pt</Height>
+            <Width>245.52pt</Width>
+            <Value>=Switch({own_type} = 'Client',"Собственность клиента", {own_type} = 'Duty', "Дежурный", {own_type} = 'Rent', "Аренда")</Value>
+            <ZIndex>1</ZIndex>
+            <Left>90.40pt</Left>
+            <Top>42.80pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>11pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox16">
+            <Height>12.00pt</Height>
+            <Width>51.24pt</Width>
+            <Value>Причина:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>339.70pt</Left>
+            <Top>42.50pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox17">
+            <Height>12.75pt</Height>
+            <Width>169.77pt</Width>
+            <Value>=Switch({direction_reason} = 'Unknown', "Неизвестна", {direction_reason} = 'Service', "Сервис", {direction_reason} = 'Rent', "Аренда",  {direction_reason} = 'Cancellation', "Расторжение", {direction_reason} = 'Sale', "Продажа")</Value>
+            <ZIndex>1</ZIndex>
+            <Left>387.50pt</Left>
+            <Top>43.00pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>11pt</FontSize>
+            </Style>
+          </Textbox>
+          <Subreport Name="Subreport1">
+            <Height>4.95pt</Height>
+            <Width>552.68pt</Width>
+            <Left>4.10pt</Left>
+            <Top>59.60pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <ReportName>EquipmentMovementRowFields</ReportName>
+            <MergeTransactions>true</MergeTransactions>
+            <Parameters>
+              <Parameter Name="direction">
+                <Value>{direction}</Value>
+              </Parameter>
+              <Parameter Name="own_type">
+                <Value>{own_type}</Value>
+              </Parameter>
+              <Parameter Name="direction_reason">
+                <Value>{direction_reason}</Value>
+              </Parameter>
+            </Parameters>
+          </Subreport>
+          <Subreport Name="Subreport2">
+            <Height>5.65pt</Height>
+            <Width>547.91pt</Width>
+            <Left>5.1pt</Left>
+            <Top>70.7pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <ReportName>EquipmentMovementRowWorks</ReportName>
+            <MergeTransactions>true</MergeTransactions>
+          </Subreport>
+        </ReportItems>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>2pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>2pt</Top>
+            <Bottom>2pt</Bottom>
+          </BorderWidth>
+        </Style>
+      </List>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <ReportParameters>
+    <ReportParameter Name="order_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>184539</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_orders;user=andrey;password=123;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+</Report>

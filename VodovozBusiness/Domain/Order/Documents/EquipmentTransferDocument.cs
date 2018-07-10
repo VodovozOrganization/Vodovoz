@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using QSReport;
-using Vodovoz.Domain.Service;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -14,7 +12,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new QSReport.ReportInfo {
 				Title = Name,
-				Identifier = "Documents.EquipmentTransfer",
+				Identifier = "Documents.EquipmentMovement",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id }
 				}
@@ -30,7 +28,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		#endregion
 
 		public override string Name {
-			get { return String.Format ("Акт приема-передачи оборудования"); }
+			get { return String.Format ("Акт движения оборудования"); }
 		}
 
 		public override DateTime? DocumentDate {
