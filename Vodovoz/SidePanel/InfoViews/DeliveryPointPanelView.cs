@@ -34,10 +34,12 @@ namespace Vodovoz.SidePanel.InfoViews
 			ytreeLastOrders.Selection.Changed += OnOrdersSelectionChanged;
 
 			ytreeLastOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
-				.AddColumn("Номер")
-				.AddNumericRenderer(node => node.Id)
 				.AddColumn("Дата")
-				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : String.Empty)
+				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToString("dd.MM.yy") : String.Empty)
+				.AddColumn("Тип оплаты")
+				.AddTextRenderer(node => GetDisplayShortName(node.PaymentType))
+				.AddColumn("Бутылей")
+				.AddNumericRenderer(node => node.TotalWaterBottles).Editing(false)
 				.Finish();
 		}
 
@@ -84,6 +86,12 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 		}
 		#endregion
+
+		string GetDisplayShortName(Enum enumerator)
+		{
+			var attr = enumerator.GetAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
+			return attr == null ? "" : attr.ShortName;
+		}
 
 		void OnOrdersRowActivated(object sender, RowActivatedArgs args)
 		{
