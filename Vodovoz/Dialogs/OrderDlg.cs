@@ -209,6 +209,7 @@ namespace Vodovoz
 			counterpartyFilter.RestrictIncludeArhive = false;
 			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
+			referenceClient.CanEditReference = true;
 
 			referenceDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.AllQuery();
 			referenceDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule>(e => e.Name);
@@ -223,6 +224,7 @@ namespace Vodovoz
 
 			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Client != null);
+			referenceDeliveryPoint.CanEditReference = true;
 
 			buttonViewDocument.Sensitive = false;
 			buttonDelete1.Sensitive = false;
@@ -484,7 +486,7 @@ namespace Vodovoz
 
 		void Entity_UpdateClientCanChange(object aList, int[] aIdx)
 		{
-			referenceClient.Sensitive = Entity.CanChangeContractor();
+			referenceClient.IsEditable = Entity.CanChangeContractor();
 		}
 
 		void Entity_ObservableOrderItems_ElementAdded(object aList, int[] aIdx)
