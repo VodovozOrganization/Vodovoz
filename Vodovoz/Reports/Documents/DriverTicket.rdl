@@ -737,7 +737,7 @@ WHERE
           </TableRows>
         </Details>
         <Left>52.9pt</Left>
-        <Top>155.0pt</Top>
+        <Top>163.8pt</Top>
         <Visibility>
           <Hidden>=Iif(First({ord_cnt}, "Orders_count")&gt;0, 'false', 'true')</Hidden>
         </Visibility>
@@ -748,7 +748,7 @@ WHERE
         <Value>=Format(Sum({total}, 'Goods'), "N2")</Value>
         <ZIndex>1</ZIndex>
         <Left>485.8pt</Left>
-        <Top>181.5pt</Top>
+        <Top>190.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -762,7 +762,7 @@ WHERE
         <Height>11.26pt</Height>
         <Width>598.34pt</Width>
         <Left>0.0pt</Left>
-        <Top>215.1pt</Top>
+        <Top>223.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -782,7 +782,7 @@ WHERE
         <Value>=Format(Sum(Iif({count}&gt;0,{include_nds},0), 'Goods'), "N2")</Value>
         <ZIndex>1</ZIndex>
         <Left>485.6pt</Left>
-        <Top>195.2pt</Top>
+        <Top>204.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -796,7 +796,7 @@ WHERE
         <Height>34.72pt</Height>
         <Width>540.51pt</Width>
         <Left>27.3pt</Left>
-        <Top>310.2pt</Top>
+        <Top>321.4pt</Top>
         <ReportItems>
           <Textbox Name="Textbox11">
             <Height>27.80pt</Height>
@@ -886,7 +886,7 @@ WHERE
         <Value>Итого:</Value>
         <ZIndex>1</ZIndex>
         <Left>430.6pt</Left>
-        <Top>180.7pt</Top>
+        <Top>189.5pt</Top>
         <Style>
           <TextAlign>Right</TextAlign>
         </Style>
@@ -897,7 +897,7 @@ WHERE
         <Value>В том числе НДС:</Value>
         <ZIndex>1</ZIndex>
         <Left>390.7pt</Left>
-        <Top>194.5pt</Top>
+        <Top>203.3pt</Top>
         <Style>
           <TextAlign>Right</TextAlign>
         </Style>
@@ -908,7 +908,7 @@ WHERE
         <Value>=First({order_comment}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>31.5pt</Left>
-        <Top>272.4pt</Top>
+        <Top>281.2pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <BorderStyle />
@@ -924,7 +924,7 @@ WHERE
         <Value>='Предполагаемое количеcтво возвратной тары: ' + Iif(First({bottles_return}, "Order")&gt;0,First({bottles_return}, "Order"),0) + ' бутылей'</Value>
         <ZIndex>1</ZIndex>
         <Left>31.3pt</Left>
-        <Top>249.8pt</Top>
+        <Top>258.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -939,7 +939,7 @@ WHERE
         <Value>=Code.SummaString_Val(Convert.ToString(First({total}, "Order")))</Value>
         <ZIndex>1</ZIndex>
         <Left>32.2pt</Left>
-        <Top>229.8pt</Top>
+        <Top>238.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -953,7 +953,7 @@ WHERE
         <Value>='Всего: ' + First({total}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>384.1pt</Left>
-        <Top>229.8pt</Top>
+        <Top>238.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -968,7 +968,7 @@ WHERE
         <Value>Доверенности:</Value>
         <ZIndex>1</ZIndex>
         <Left>31.6pt</Left>
-        <Top>293.6pt</Top>
+        <Top>302.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1051,7 +1051,7 @@ WHERE
           </TableRows>
         </Details>
         <Left>108.0pt</Left>
-        <Top>294.5pt</Top>
+        <Top>303.3pt</Top>
         <Visibility>
           <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
         </Visibility>
@@ -1790,7 +1790,7 @@ WHERE
           </TableRows>
         </Details>
         <Left>28.1pt</Left>
-        <Top>36.1pt</Top>
+        <Top>44.9pt</Top>
       </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
@@ -1803,7 +1803,7 @@ WHERE
           </CustomProperty>
         </CustomProperties>
         <Left>475.9pt</Left>
-        <Top>5.6pt</Top>
+        <Top>14.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1888,8 +1888,8 @@ WHERE
             </TableRow>
           </TableRows>
         </Details>
-        <Left>201.9pt</Left>
-        <Top>7.8pt</Top>
+        <Left>184.3pt</Left>
+        <Top>22.2pt</Top>
       </Table>
     </ReportItems>
   </Body>
