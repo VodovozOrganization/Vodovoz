@@ -989,14 +989,14 @@ WHERE
           </TableRows>
         </Footer>
         <Left>31.0pt</Left>
-        <Top>300.9pt</Top>
+        <Top>316.1pt</Top>
         <ZIndex>1</ZIndex>
       </Table>
       <List Name="List3">
         <Height>122.72pt</Height>
         <Width>535.30pt</Width>
-        <Left>40.00pt</Left>
-        <Top>391.63pt</Top>
+        <Left>40.0pt</Left>
+        <Top>406.8pt</Top>
         <ReportItems>
           <Textbox Name="Textbox24">
             <Height>16.50pt</Height>
@@ -1126,7 +1126,7 @@ WHERE
         <Value>Уважаемый клиент! Обращаем Ваше внимание, что:</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>497.6pt</Top>
+        <Top>516.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1145,7 +1145,7 @@ WHERE
 "Санитарную обработку и дезинфекцию кулера",</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>519.8pt</Top>
+        <Top>538.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1161,7 +1161,7 @@ WHERE
         <Value>даже для тех кто не является нашими клиентами, по той же стоимости.</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>542.0pt</Top>
+        <Top>560.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1178,7 +1178,7 @@ WHERE
 микрочастицы, влияющие на качество и вкус питьевой воды.</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>568.4pt</Top>
+        <Top>586.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1195,7 +1195,7 @@ WHERE
 для Вашего удобства мы предоставляем дежурный кулер совершенно бесплатно.</Value>
         <ZIndex>1</ZIndex>
         <Left>0.5pt</Left>
-        <Top>616.4pt</Top>
+        <Top>634.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1211,7 +1211,7 @@ WHERE
 номер и дату составления счета. СПАСИБО.</Value>
         <ZIndex>1</ZIndex>
         <Left>136.1pt</Left>
-        <Top>667.1pt</Top>
+        <Top>685.5pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1303,7 +1303,7 @@ WHERE
         <Details>
           <TableRows>
             <TableRow>
-              <Height>25.7pt</Height>
+              <Height>35.3pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1343,7 +1343,7 @@ Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Or
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>23.8pt</Height>
+              <Height>34.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1404,7 +1404,7 @@ Iif(
           </TableRows>
         </Details>
         <Left>28.9pt</Left>
-        <Top>244.1pt</Top>
+        <Top>240.9pt</Top>
       </Table>
     </ReportItems>
   </Body>
@@ -1859,7 +1859,7 @@ Iif(
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
