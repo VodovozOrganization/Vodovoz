@@ -392,6 +392,11 @@ namespace Vodovoz
 
 			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += WaterSalesAgreement_ObjectUpdatedGeneric;
 			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());
+
+			spinSumDifference.Hide();
+			labelSumDifference.Hide();
+			dataSumDifferenceReason.Hide();
+			labelSumDifferenceReason.Hide();
 		}
 
 		public virtual bool HideItemFromDirectionReasonComboInEquipment(OrderEquipment node, DirectionReason item)
