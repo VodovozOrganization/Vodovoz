@@ -187,30 +187,23 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			bool hasDuplicate = CheckDuplicate();
-			bool userAnswer = true;
+			Entity.UoW = UoW;
+			var valid = new QSValidator<Counterparty>(UoWGeneric.Root);
+			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+				return false;
 
-			if(hasDuplicate) {
-				userAnswer = MessageDialogWorks.RunQuestionDialog(
-							"Контрагент с данным ИНН уже существует. Сохранить?");
-			}
-
-			if(userAnswer) {
-				Entity.UoW = UoW;
-				var valid = new QSValidator<Counterparty>(UoWGeneric.Root);
-				if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
-					return false;
-
-				logger.Info("Сохраняем контрагента...");
-				phonesView.SaveChanges();
-				emailsView.SaveChanges();
-				UoWGeneric.Save();
-				logger.Info("Ok.");
-				return true;
-			}
-			return false;
+			logger.Info("Сохраняем контрагента...");
+			phonesView.SaveChanges();
+			emailsView.SaveChanges();
+			UoWGeneric.Save();
+			logger.Info("Ok.");
+			return true;
 		}
 
+		/// <summary>
+		/// Поиск контрагентов с таким же ИНН
+		/// </summary>
+		/// <returns><c>true</c>, if duplicate was checked, <c>false</c> otherwise.</returns>
 		private bool CheckDuplicate()
 		{
 			string INN = UoWGeneric.Root.INN;
