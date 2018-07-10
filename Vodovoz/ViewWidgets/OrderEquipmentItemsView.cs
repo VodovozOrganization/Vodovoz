@@ -297,7 +297,7 @@ namespace Vodovoz.ViewWidgets
 			treeView.Model.IterNthChild(out iter, index);
 			path = treeView.Model.GetPath(iter);
 
-			var column = treeView.Columns.First(x => x.Title == "Кол-во");
+			var column = treeView.Columns.First(x => x.Title == (MyTab is OrderReturnsView ? "Кол-во(недовоз)" : "Кол-во"));
 			var renderer = column.CellRenderers.First();
 			Application.Invoke(delegate {
 				treeView.SetCursorOnCell(path, column, renderer, true);
