@@ -180,4 +180,97 @@ namespace Vodovoz.Repositories
 			&& key.DefaultDocumentType == DefaultDocumentType.torg12
 		);
 	}
+
+
+	class ProhibitionRule
+	{
+		public Func<KeyToDocumentsSet, bool> Condition;
+		public string Message;
+
+		public ProhibitionRule(Func<KeyToDocumentsSet, bool> condition, string message)
+		{
+			Condition = condition;
+			Message = message;
+		}
+	}
+
+	/// <summary>
+	/// Содержит правила запрета подтверждения заказа
+	/// </summary>
+	public static class OrderAcceptProhibitionRulesRepository
+	{
+		static List<ProhibitionRule> rules = new List<ProhibitionRule>();
+
+		public static bool CanAcceptOrder(KeyToDocumentsSet key, ref List<string> messages)
+		{
+			messages = rules.Where(x => x.Condition(key)).Select(x => x.Message).ToList();
+
+			return !messages.Any();
+		}
+
+		static OrderAcceptProhibitionRulesRepository()
+		{
+			rules.Add(new ProhibitionRule(key => GetConditionForDepositReturn(key), 
+			                              "Возврат залога не применим для заказа в текущем состоянии"));
+			rules.Add(new ProhibitionRule(key => GetConditionForOrderWithoutMoney(key), 
+			                              "Невозможно подтвердить заказ в текущем состоянии без суммы"));
+			rules.Add(new ProhibitionRule(key => GetConditionForEmptyOrder(key), 
+			                              "Невозможно подтвердить пустой заказ"));
+		}
+
+		/// <summary>
+		/// Причина запрета: Возврат залога не применим для заказа в текущем состоянии
+		/// </summary>
+		static bool GetConditionForDepositReturn(KeyToDocumentsSet key){
+			bool result = false;
+			if(!key.NeedToRefundDepositToClient) {
+				return result;
+			}
+
+			if(key.PaymentType == PaymentType.cashless && key.HasOrderItems) {
+				result = true;
+			}
+
+			if((key.PaymentType == PaymentType.cashless || key.PaymentType == PaymentType.ByCard) 
+			   && !key.HasOrderItems) {
+				result = true;
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Причина запрета: Невозможно подтвердить заказ в текущем состоянии без суммы
+		/// </summary>
+		static bool GetConditionForOrderWithoutMoney(KeyToDocumentsSet key)
+		{
+			bool result = false;
+
+			if(key.HasOrderItems || key.NeedToRefundDepositToClient){
+				return false;
+			}
+
+			if(key.PaymentType == PaymentType.ByCard && 
+			   (key.HasOrderEquipment || (!key.HasOrderEquipment && key.NeedToReturnBottles))) {
+				result = true;
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Причина запрета: Невозможно подтвердить пустой заказ
+		/// </summary>
+		static bool GetConditionForEmptyOrder(KeyToDocumentsSet key)
+		{
+			if(!key.HasOrderItems 
+			   && !key.NeedToRefundDepositToClient 
+			   && !key.NeedToReturnBottles
+			   && !key.HasOrderEquipment
+			   && !key.HasOrderItems) {
+				return true;
+			}
+
+			return false;
+		}
+	}
 }

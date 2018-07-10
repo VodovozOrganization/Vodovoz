@@ -12,6 +12,17 @@ namespace Vodovoz.Domain.Orders
 		public KeyToDocumentsSet(Order order)
 		{
 			Order = order;
+			this.OrderStatus = Order.OrderStatus;
+			InitializeFields();
+		}
+
+		/// <summary>
+		/// Создает ключ для определенного требуемого статуса
+		/// </summary>
+		public KeyToDocumentsSet(Order order, OrderStatus requiredStatus)
+		{
+			Order = order;
+			this.OrderStatus = requiredStatus;
 			InitializeFields();
 		}
 
@@ -40,7 +51,7 @@ namespace Vodovoz.Domain.Orders
 		public bool IsSelfDelivery { get; set; } = false;
 
 		[Display(Name = "Статус заказа")]
-		public OrderStatus OrderStatus { get; set; } = OrderStatus.NewOrder;
+		public OrderStatus OrderStatus { get; set; }
 
 		[Display(Name = "Тип оплаты")]
 		public PaymentType PaymentType { get; set; }
@@ -63,7 +74,6 @@ namespace Vodovoz.Domain.Orders
 			this.PaymentType = Order.PaymentType;
 			this.NeedMaster = Order.OrderItems.Any(i => i.Nomenclature.Category == Goods.NomenclatureCategory.master);
 			this.IsSelfDelivery = Order.SelfDelivery;
-			this.OrderStatus = Order.OrderStatus;
 		}
 
 		#region после добавления любого свойства или поля, которые учавствуют в формировании ключа для нового правила, обязательно добавить эти поля в переопределение методов Equals, ==, !=, GetHashCode

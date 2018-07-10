@@ -667,6 +667,15 @@ namespace Vodovoz.Domain.Orders
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
 				if(newStatus == OrderStatus.Accepted) {
+
+					var key = new KeyToDocumentsSet(this, newStatus);
+					var messages = new List<string>();
+					if(!OrderAcceptProhibitionRulesRepository.CanAcceptOrder(key, ref messages)) {
+						foreach(var msg in messages) {
+							yield return new ValidationResult(msg);
+						}
+					}
+
 					if(DeliveryDate == null || DeliveryDate == default(DateTime))
 						yield return new ValidationResult("В заказе не указана дата доставки.",
 							new[] { this.GetPropertyName(o => o.DeliveryDate) });
