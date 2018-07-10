@@ -169,30 +169,39 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Equipments">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>   
+    SELECT 
     (SELECT 
             GROUP_CONCAT(CONCAT(nomenclature.name,
                             ' - ',
-                            order_equipment.actual_count)
+                            IF(orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
+                            order_equipment.actual_count, 
+                            order_equipment.count))
                     SEPARATOR '\n')
         FROM
-            `order_equipment`
+            order_equipment
                 LEFT JOIN
             nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+				LEFT JOIN
+			orders ON orders.id = order_equipment.order_id
         WHERE
             order_equipment.order_id = @order_id
                 AND order_equipment.direction = 'Deliver') AS equipment_to,
     (SELECT 
             GROUP_CONCAT(CONCAT(nomenclature.name,
                             ' - ',
-                            order_equipment.actual_count)
+                            IF(orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
+                            order_equipment.actual_count, 
+                            order_equipment.count))
                     SEPARATOR '\n')
         FROM
-            `order_equipment`
+            order_equipment
                 LEFT JOIN
             nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+				LEFT JOIN
+			orders ON orders.id = order_equipment.order_id
         WHERE
             order_equipment.order_id = @order_id
                 AND order_equipment.direction = 'PickUp') AS equipment_from</CommandText>
@@ -202,7 +211,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="equipment_to">
           <DataField>equipment_to</DataField>
           <TypeName>System.String</TypeName>
