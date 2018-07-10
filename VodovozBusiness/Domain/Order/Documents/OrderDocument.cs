@@ -94,6 +94,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		[Display(Name = "Накладная (безденежно)")]
 		InvoiceBarter,
 		[DocumentOfOrder]
+		[Display(Name = "Накладная (контрактная документация)")]
+		InvoiceContractDoc,
+		[DocumentOfOrder]
 		[Display(Name = "УПД")]
 		UPD,
 		[Display(Name = "Гарантийный талон для кулеров")]
@@ -130,5 +133,12 @@ namespace Vodovoz.Domain.Orders.Documents
 	{
 
 	}
-}
 
+	/// <summary>
+	/// Интерфейс необходим для документов заказа, напротив которых должен быть крыжик
+	/// "Без рекламы" в разделе "Документы" в диалоге заказа.
+	/// </summary>
+	public interface IAdvertisable{
+		bool WithoutAdvertising { get; set; }
+	}
+}

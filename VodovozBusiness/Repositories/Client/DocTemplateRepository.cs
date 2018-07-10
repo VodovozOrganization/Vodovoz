@@ -20,7 +20,7 @@ namespace Vodovoz.Repository.Client
 						return ContractType.CashFL;
 					}
 				case PaymentType.cashless:
-				case PaymentType.Internal:
+				case PaymentType.ContractDoc:
 					return ContractType.Cashless;
 				case PaymentType.barter:
 					return ContractType.Barter;

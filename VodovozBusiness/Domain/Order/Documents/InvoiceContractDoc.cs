@@ -5,15 +5,14 @@ using QSReport;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class InvoiceDocument : OrderDocument, IAdvertisable
+	public class InvoiceContractDoc : OrderDocument, IAdvertisable
 	{
 		#region implemented abstract members of OrderDocument
-
 		public override QSReport.ReportInfo GetReportInfo()
 		{
 			return new QSReport.ReportInfo {
-				Title = String.Format("Накладная №{0} от {1:d}", Order.Id, Order.DeliveryDate),
-				Identifier = "Documents.Invoice",
+				Title = String.Format("Накладная №{0} от {1:d} (контрактная документация)", Order.Id, Order.DeliveryDate),
+				Identifier = "Documents.InvoiceContractDoc",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
 					{ "without_advertising",  WithoutAdvertising },
@@ -21,25 +20,15 @@ namespace Vodovoz.Domain.Orders.Documents
 			};
 		}
 
-		public override OrderDocumentType Type {
-			get {
-				return OrderDocumentType.Invoice;
-			}
-		}
+		public override OrderDocumentType Type => OrderDocumentType.InvoiceContractDoc;
 
 		#endregion
 
-		public override string Name { get { return String.Format("Накладная №{0}", Order.Id); } }
+		public override string Name => String.Format("Накладная №{0} (контрактная документация)", Order.Id);
 
-		public override DateTime? DocumentDate {
-			get { return Order?.DeliveryDate; }
-		}
+		public override DateTime? DocumentDate => Order?.DeliveryDate;
 
-		public override PrinterType PrintType {
-			get {
-				return PrinterType.RDL;
-			}
-		}
+		public override PrinterType PrintType => PrinterType.RDL;
 
 		#region Свои свойства
 
@@ -54,4 +43,3 @@ namespace Vodovoz.Domain.Orders.Documents
 		#endregion
 	}
 }
-

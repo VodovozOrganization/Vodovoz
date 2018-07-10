@@ -504,6 +504,14 @@ namespace Vodovoz.Domain.Orders
 			get { return onlineOrder; }
 			set { SetField(ref onlineOrder, value, () => OnlineOrder); }
 		}
+
+		private bool isContractCloser;
+
+		[Display(Name = "Заказ - закрывашка по контракту?")]
+		public virtual bool IsContractCloser {
+			get { return isContractCloser; }
+			set { SetField(ref isContractCloser, value, () => IsContractCloser); }
+		}
 		#endregion
 
 		public virtual bool CanChangeContractor()
@@ -1423,10 +1431,21 @@ namespace Vodovoz.Domain.Orders
 						break;
 					case OrderDocumentType.InvoiceBarter:
 						if(observableOrderDocuments
-						   .OfType<InvoiceDocument>()
+						   .OfType<InvoiceBarterDocument>()
 						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
-							ObservableOrderDocuments.Add(new InvoiceDocument {
+							ObservableOrderDocuments.Add(new InvoiceBarterDocument {
+								Order = item.Order,
+								AttachedToOrder = this
+							});
+						}
+						break;
+					case OrderDocumentType.InvoiceContractDoc:
+						if(observableOrderDocuments
+						   .OfType<InvoiceContractDoc>()
+						   .FirstOrDefault(x => x.Order == item.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new InvoiceContractDoc {
 								Order = item.Order,
 								AttachedToOrder = this
 							});
@@ -2146,6 +2165,9 @@ namespace Vodovoz.Domain.Orders
 				case OrderDocumentType.InvoiceBarter:
 					newDoc = new InvoiceBarterDocument();
 					break;
+				case OrderDocumentType.InvoiceContractDoc:
+					newDoc = new InvoiceContractDoc();
+					break;
 				case OrderDocumentType.Torg12:
 					newDoc = new Torg12Document();
 					break;
@@ -2209,6 +2231,11 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void CreateBottlesMovementOperation(IUnitOfWork uow)
 		{
+			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
+			//не должны создаваться операции перемещения тары
+			if(IsContractCloser)
+				return;
+			
 			foreach(OrderItem item in OrderItems) {
 				item.ActualCount = item.Count;
 			}

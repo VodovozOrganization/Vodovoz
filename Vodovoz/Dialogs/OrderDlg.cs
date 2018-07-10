@@ -165,6 +165,8 @@ namespace Vodovoz
 			enumDocumentType.ItemsEnum = typeof(DefaultDocumentType);
 			enumDocumentType.Binding.AddBinding(Entity, s => s.DocumentType, w => w.SelectedItem).InitializeFromSource();
 
+			chkContractCloser.Binding.AddBinding(Entity, c => c.IsContractCloser, w => w.Active).InitializeFromSource();
+
 			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			pickerBillDate.Binding.AddBinding(Entity, s => s.BillDate, w => w.DateOrNull).InitializeFromSource();
@@ -178,7 +180,7 @@ namespace Vodovoz
 			entryBottlesToReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			if(Entity.OrderStatus == OrderStatus.Closed){
+			if(Entity.OrderStatus == OrderStatus.Closed) {
 				entryTareReturned.Text = BottlesRepository.GetEmptyBottlesFromClientByOrder(UoW, Entity).ToString();
 				entryTareReturned.Visible = lblTareReturned.Visible = true;
 			}
@@ -225,6 +227,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Client != null);
 			referenceDeliveryPoint.CanEditReference = true;
+			chkContractCloser.Sensitive = QSMain.User.Permissions["can_set_contract_closer"];
 
 			buttonViewDocument.Sensitive = false;
 			buttonDelete1.Sensitive = false;
@@ -338,9 +341,9 @@ namespace Vodovoz
 				.AddColumn("Документ").SetDataProperty(node => node.Name)
 				.AddColumn("Дата документа").AddTextRenderer(node => node.DocumentDateText)
 				.AddColumn("Заказ №").SetTag("OrderNumberColumn").AddTextRenderer(node => node.Order.Id != node.AttachedToOrder.Id ? node.Order.Id.ToString() : "")
-				.AddColumn("Без рекламы").AddToggleRenderer(x => x is InvoiceDocument ? (x as InvoiceDocument).WithoutAdvertising : false)
-				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<InvoiceDocument>(x => x.WithoutAdvertising))
-				.AddSetter((c, n) => c.Visible = n.Type == OrderDocumentType.Invoice)
+				.AddColumn("Без рекламы").AddToggleRenderer(x => x is IAdvertisable ? (x as IAdvertisable).WithoutAdvertising : false)
+				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<IAdvertisable>(x => x.WithoutAdvertising))
+				.AddSetter((c, n) => c.Visible = n.Type == OrderDocumentType.Invoice || n.Type == OrderDocumentType.InvoiceContractDoc)
 				.AddColumn("Без подписей и печати").AddToggleRenderer(x => x is BillDocument ? (x as BillDocument).HideSignature : false)
 				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<BillDocument>(x => x.HideSignature))
 				.AddSetter((c, n) => c.Visible = n.Type == OrderDocumentType.Bill)
@@ -388,6 +391,7 @@ namespace Vodovoz
 			OrderItemEquipmentCountHasChanges = false;
 			ShowOrderColumnInDocumentsList();
 			ButtonCloseOrderSensitivity();
+			SetSensitivityOfPaymentType();
 			depositrefunditemsview.Configure(UoWGeneric, UoWGeneric.Root);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
@@ -1074,15 +1078,16 @@ namespace Vodovoz
 		/// <summary>
 		/// Открытие соответствующего документу заказа окна.
 		/// </summary>
-		void OrderDocumentsOpener(){
-			if(treeDocuments.GetSelectedObjects().Any()){
+		void OrderDocumentsOpener()
+		{
+			if(treeDocuments.GetSelectedObjects().Any()) {
 				var rdlDocs = treeDocuments.GetSelectedObjects()
 										   .Cast<OrderDocument>()
 										   .Where(d => d.PrintType == PrinterType.RDL).ToList();
-				if(rdlDocs.Any()){
+				if(rdlDocs.Any()) {
 					string whatToPrint = rdlDocs.Count > 1
-					                            ? "документов"
-					                            : "документа \"" + rdlDocs.First().Type.GetEnumTitle() + "\"";
+												? "документов"
+												: "документа \"" + rdlDocs.First().Type.GetEnumTitle() + "\"";
 					if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
 						UoWGeneric.Save();
 					rdlDocs.ForEach(
@@ -1091,9 +1096,9 @@ namespace Vodovoz
 				}
 
 				var odtDocs = treeDocuments.GetSelectedObjects()
-				                           .Cast<OrderDocument>()
-				                           .Where(d => d.PrintType == PrinterType.ODT).ToList();
-				if(odtDocs.Any()){
+										   .Cast<OrderDocument>()
+										   .Where(d => d.PrintType == PrinterType.ODT).ToList();
+				if(odtDocs.Any()) {
 					foreach(var doc in odtDocs) {
 						ITdiDialog dlg = null;
 						if(doc is OrderAgreement) {
@@ -1316,7 +1321,7 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			if(UoWGeneric.Root.OrderStatus == OrderStatus.OnTheWay){
+			if(UoWGeneric.Root.OrderStatus == OrderStatus.OnTheWay) {
 				if(buttonAccept.Label == "Редактировать") {
 					IsUIEditable(true);
 					var icon = new Image();
@@ -1338,7 +1343,7 @@ namespace Vodovoz
 			}
 
 			if((UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder
-			    || UoWGeneric.Root.OrderStatus == OrderStatus.WaitForPayment)
+				|| UoWGeneric.Root.OrderStatus == OrderStatus.WaitForPayment)
 			   && !DefaultWaterCheck()) {
 				toggleGoods.Activate();
 				return;
@@ -1350,7 +1355,7 @@ namespace Vodovoz
 				UpdateButtonState();
 				return;
 			}
-			if(Entity.OrderStatus == OrderStatus.Accepted 
+			if(Entity.OrderStatus == OrderStatus.Accepted
 			   || Entity.OrderStatus == OrderStatus.Canceled) {
 				Entity.ChangeStatus(OrderStatus.NewOrder);
 				UpdateButtonState();
@@ -1387,7 +1392,7 @@ namespace Vodovoz
 							Equipment = equipmentToAdd[i],
 							OrderItem = item,
 							Reason = Reason.Sale
-						}); 
+						});
 					}
 					for(; equipmentCount > item.Count; equipmentCount--) {
 						UoWGeneric.Root.ObservableOrderEquipments.Remove(
@@ -1397,7 +1402,7 @@ namespace Vodovoz
 				}
 			}
 			if(Entity.OrderStatus == OrderStatus.NewOrder
-			   || UoWGeneric.Root.OrderStatus == OrderStatus.WaitForPayment){
+			   || UoWGeneric.Root.OrderStatus == OrderStatus.WaitForPayment) {
 				DailyNumberIncrement();
 				Entity.ChangeStatus(OrderStatus.Accepted);
 			}
@@ -1410,9 +1415,9 @@ namespace Vodovoz
 		private void DailyNumberIncrement()
 		{
 			var todayLastNumber = UoW.Session.QueryOver<Order>()
-			                         .Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DailyNumber))
-			                         .Where(d => d.DeliveryDate == Entity.DeliveryDate)
-			                         .SingleOrDefault<int>();
+									 .Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DailyNumber))
+									 .Where(d => d.DeliveryDate == Entity.DeliveryDate)
+									 .SingleOrDefault<int>();
 
 
 			if(Entity.DailyNumber == null) {
@@ -2018,6 +2023,20 @@ namespace Vodovoz
 		protected void OnButtonDepositsClicked(object sender, EventArgs e)
 		{
 			ToggleVisibilityOfDeposits();
+		}
+
+		protected void OnChkContractCloserToggled(object sender, EventArgs e)
+		{
+			SetSensitivityOfPaymentType();
+		}
+
+		void SetSensitivityOfPaymentType(){
+			if(chkContractCloser.Active) {
+				Entity.PaymentType = PaymentType.cashless;
+				enumPaymentType.Sensitive = false;
+			} else {
+				enumPaymentType.Sensitive = true;
+			}
 		}
 
 		/// <summary>

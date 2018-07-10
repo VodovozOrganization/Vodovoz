@@ -453,6 +453,7 @@
     <Compile Include="Repositories\OrderRulesRepository.cs" />
     <Compile Include="Domain\Goods\Folder1c.cs" />
     <Compile Include="HibernateMapping\Goods\Folder1cMap.cs" />
+    <Compile Include="Domain\Order\Documents\InvoiceContractDoc.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

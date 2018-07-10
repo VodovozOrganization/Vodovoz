@@ -89,6 +89,16 @@ namespace Vodovoz.HibernateMapping
 		}
 	}
 
+	public class InvoiceContractDocMap : SubclassMap<InvoiceContractDoc>
+	{
+		public InvoiceContractDocMap()
+		{
+			DiscriminatorValue("InvoiceContractDoc");
+
+			Map(x => x.WithoutAdvertising).Column("without_advertising");
+		}
+	}
+
 	public class InvoiceDocumentMap:SubclassMap<InvoiceDocument>
 	{
 		public InvoiceDocumentMap()

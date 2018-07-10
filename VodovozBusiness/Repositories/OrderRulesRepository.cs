@@ -46,6 +46,15 @@ namespace Vodovoz.Repositories
 					}
 				)
 			);
+			//ContractDocumentationInvoice
+			rules.Add(
+				new Rule(
+					key => GetConditionForContractDocumentationInvoice(key),
+					new[] {
+						OrderDocumentType.InvoiceContractDoc
+					}
+				)
+			);
 			//EquipmentTransfer
 			rules.Add(
 				new Rule(
@@ -124,6 +133,11 @@ namespace Vodovoz.Repositories
 			&& key.OrderStatus >= OrderStatus.Accepted
 		);
 
+		static bool GetConditionForContractDocumentationInvoice(KeyToDocumentsSet key) =>
+		(
+			key.PaymentType == PaymentType.ContractDoc
+			&& key.OrderStatus >= OrderStatus.Accepted
+		);
 
 		static bool GetConditionForEquipmentTransfer(KeyToDocumentsSet key) =>
 		(

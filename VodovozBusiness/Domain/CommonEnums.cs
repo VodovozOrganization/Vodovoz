@@ -35,8 +35,8 @@ namespace Vodovoz.Domain.Client
 		barter,
 		[Display(Name = "По карте", ShortName = "карта")]
 		ByCard,
-		[Display(Name = "Внутренняя документация", ShortName = "внут.")]
-		Internal
+		[Display(Name = "Контрактная документация", ShortName = "контрактн.")]
+		ContractDoc
 	}
 
 	public class PaymentTypeStringType : NHibernate.Type.EnumStringType

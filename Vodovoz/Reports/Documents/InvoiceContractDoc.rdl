@@ -1344,9 +1344,9 @@ GROUP BY name</CommandText>
         </Footer>
       </Table>
       <List Name="List2">
-        <Height>323.48pt</Height>
-        <Width>540.61pt</Width>
-        <Left>37.40pt</Left>
+        <Height>229.40pt</Height>
+        <Width>540.60pt</Width>
+        <Left>37.41pt</Left>
         <Top>262.10pt</Top>
         <ReportItems>
           <Textbox Name="Textbox32">
@@ -1355,7 +1355,7 @@ GROUP BY name</CommandText>
             <Value>Отпуск разрешил:__________________/Сосновцев С.С./</Value>
             <ZIndex>1</ZIndex>
             <Left>86.0pt</Left>
-            <Top>33.6pt</Top>
+            <Top>32.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1369,7 +1369,7 @@ GROUP BY name</CommandText>
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
             <Left>0.2pt</Left>
-            <Top>33.6pt</Top>
+            <Top>32.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1383,7 +1383,7 @@ GROUP BY name</CommandText>
             <Value>Товар получен в полном объеме. К продавцу претензий не имею.     /                                      /</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>56.9pt</Top>
+            <Top>50.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1397,7 +1397,7 @@ GROUP BY name</CommandText>
             <Value>Покупатель сдал</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>88.2pt</Top>
+            <Top>81.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1411,7 +1411,7 @@ GROUP BY name</CommandText>
             <Value>*             (                                    ) бутылей            /                                       /</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
-            <Top>88.9pt</Top>
+            <Top>82.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1425,7 +1425,7 @@ GROUP BY name</CommandText>
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
-            <Top>102.2pt</Top>
+            <Top>95.8pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1445,7 +1445,7 @@ GROUP BY name</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>338.7pt</Left>
-            <Top>70.1pt</Top>
+            <Top>63.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1464,7 +1464,7 @@ GROUP BY name</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>338.4pt</Left>
-            <Top>102.3pt</Top>
+            <Top>95.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1483,7 +1483,7 @@ GROUP BY name</CommandText>
             <Value>Предполагаемое количеcтво возвратной тары:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>119.7pt</Top>
+            <Top>113.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1492,111 +1492,13 @@ GROUP BY name</CommandText>
             </Style>
             <CanGrow>true</CanGrow>
           </Textbox>
-          <Line Name="Line2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>-0.01pt</Height>
-            <Width>539.91pt</Width>
-            <Style>
-              <BorderStyle>
-                <Default>Solid</Default>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth>
-                <Default>3pt</Default>
-              </BorderWidth>
-            </Style>
-            <Left>0.0pt</Left>
-            <Top>163.5pt</Top>
-          </Line>
-          <Textbox Name="Textbox43">
-            <Height>13.50pt</Height>
-            <Width>146.52pt</Width>
-            <Value>Залог за пустую тару</Value>
-            <ZIndex>1</ZIndex>
-            <Left>16.2pt</Left>
-            <Top>148.3pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>12pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox44" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>415.02pt</Width>
-            <Value>             (                                    ) бутылей в размере                                   рублей</Value>
-            <ZIndex>1</ZIndex>
-            <Left>119.3pt</Left>
-            <Top>184.5pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox45" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>145.77pt</Width>
-            <Value>Покупатель внес залог за</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>184.3pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox46" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>142.02pt</Width>
-            <Value>(кол. бутылей)</Value>
-            <ZIndex>1</ZIndex>
-            <Left>130.0pt</Left>
-            <Top>199.1pt</Top>
-            <Style>
-              <BorderStyle>
-                <Top>Solid</Top>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth>
-                <Top>1.5pt</Top>
-              </BorderWidth>
-              <FontWeight>Bold</FontWeight>
-              <TextAlign>Center</TextAlign>
-              <FontSize>8pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox47" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>100.77pt</Width>
-            <Value>(сумма)</Value>
-            <ZIndex>1</ZIndex>
-            <Left>370.8pt</Left>
-            <Top>198.5pt</Top>
-            <Style>
-              <BorderStyle>
-                <Top>Solid</Top>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth>
-                <Top>1.5pt</Top>
-              </BorderWidth>
-              <FontWeight>Bold</FontWeight>
-              <TextAlign>Center</TextAlign>
-              <FontSize>8pt</FontSize>
-            </Style>
-          </Textbox>
           <Textbox Name="Textbox48" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.03pt</Height>
             <Width>121.17pt</Width>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>370.6pt</Left>
-            <Top>242.6pt</Top>
+            <Top>146.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1615,7 +1517,7 @@ GROUP BY name</CommandText>
             <Value>/                                       /</Value>
             <ZIndex>1</ZIndex>
             <Left>371.5pt</Left>
-            <Top>229.4pt</Top>
+            <Top>133.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1629,7 +1531,7 @@ GROUP BY name</CommandText>
             <Value>Экспедитор принял:                                        /                                        /</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>252.6pt</Top>
+            <Top>156.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1643,7 +1545,7 @@ GROUP BY name</CommandText>
             <Value>(подпись)                   (расшифровка)</Value>
             <ZIndex>1</ZIndex>
             <Left>101.9pt</Left>
-            <Top>264.6pt</Top>
+            <Top>168.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1661,7 +1563,7 @@ GROUP BY name</CommandText>
             <Value>* Поля обязательные к заполнению</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>296.0pt</Top>
+            <Top>200.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1673,7 +1575,7 @@ GROUP BY name</CommandText>
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
             <Left>348.6pt</Left>
-            <Top>57.8pt</Top>
+            <Top>51.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1687,7 +1589,7 @@ GROUP BY name</CommandText>
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
             <Left>348.7pt</Left>
-            <Top>89.8pt</Top>
+            <Top>83.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1703,7 +1605,7 @@ GROUP BY name</CommandText>
             <Value>=Iif(Fields!order_online_number.IsMissing, '', 'Заказ #' + {order_online_number}+' - онлайн оплата. ') + {order_comment}</Value>
             <ZIndex>1</ZIndex>
             <Left>1.5pt</Left>
-            <Top>309.7pt</Top>
+            <Top>213.7pt</Top>
             <CanGrow>true</CanGrow>
             <Style>
               <BorderStyle />
@@ -1715,26 +1617,10 @@ GROUP BY name</CommandText>
           <Textbox Name="Textbox29">
             <Height>18.20pt</Height>
             <Width>519.39pt</Width>
-            <Value>="Всего получить от клиента: "+Code.SummaString_Val(
-    Convert.ToString(
-        Iif(First({order_payment_type}, "Order")!='ByCard',
-            Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
-            0
-        )
-    )
-)
-+"    ("+
-Format(
-    Iif(First({order_payment_type}, "Order")!='ByCard',
-        Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
-        0
-    )
-    ,'#,##0.00'
-)
-+ "р.)"</Value>
+            <Value>="Всего получить от клиента: "+Code.SummaString_Val(Convert.ToString(0))+"    (0 р.)"</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>2.4pt</Top>
+            <Top>1.6pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Solid</Default>
@@ -1766,7 +1652,7 @@ Format(
             <Value>={bottles_return}</Value>
             <ZIndex>1</ZIndex>
             <Left>260.0pt</Left>
-            <Top>119.4pt</Top>
+            <Top>113.0pt</Top>
             <Style>
               <TextAlign>Center</TextAlign>
               <BorderStyle />
@@ -1784,7 +1670,7 @@ Format(
             <Value>бутылей</Value>
             <ZIndex>1</ZIndex>
             <Left>320.3pt</Left>
-            <Top>120.2pt</Top>
+            <Top>113.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1796,7 +1682,7 @@ Format(
             <Height>48.26pt</Height>
             <Width>94.16pt</Width>
             <Left>380.9pt</Left>
-            <Top>256.0pt</Top>
+            <Top>160.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1928,7 +1814,7 @@ Format(
           </TableRows>
         </Details>
         <Left>38.1pt</Left>
-        <Top>625.2pt</Top>
+        <Top>528.4pt</Top>
         <Visibility>
           <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
         </Visibility>
@@ -2053,7 +1939,7 @@ Format(
           </TableRows>
         </Details>
         <Left>38.7pt</Left>
-        <Top>594.8pt</Top>
+        <Top>498.0pt</Top>
       </Table>
       <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>17.25pt</Height>
@@ -2125,24 +2011,6 @@ Format(
           <PaddingTop>0pt</PaddingTop>
         </Style>
       </CustomReportItem>
-      <Subreport Name="Subreport1">
-        <Height>6.81pt</Height>
-        <Width>598.48pt</Width>
-        <Left>0.0pt</Left>
-        <Top>250.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <ReportName>InvoiceDepositRefundTable</ReportName>
-        <MergeTransactions>false</MergeTransactions>
-        <Parameters>
-          <Parameter Name="order_id">
-            <Value>=Parameters!order_id</Value>
-          </Parameter>
-        </Parameters>
-      </Subreport>
       <Table Name="Table4">
         <DataSetName>Order</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -2189,11 +2057,7 @@ Format(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox1">
-                      <Value>=Iif(
-    {order_payment_type} != 'ByCard',
-    "",
-    "Тинькоф\\"
-) + {org_name} + ' ' + {org_address}</Value>
+                      <Value>= 'Контрактная документация/' + {org_name} + ' ' + {org_address}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2306,48 +2170,6 @@ Format(
             <TableRow>
               <Height>12 pt</Height>
               <Visibility>
-                <Hidden>=Iif(Fields!total.Value = Nothing, true, false)</Hidden>
-              </Visibility>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox10">
-                      <Value>Сдача:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Top</VerticalAlign>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox4">
-                      <Value>={trifle}</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Top</VerticalAlign>
-                        <TextAlign>Left</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <Visibility>
                 <Hidden>=Iif(Fields!order_comment.Value = Nothing, true, false)</Hidden>
               </Visibility>
               <TableCells>
@@ -2400,7 +2222,7 @@ Format(
         <Height>47.78pt</Height>
         <Width>86.00pt</Width>
         <Left>29.4pt</Left>
-        <Top>669.4pt</Top>
+        <Top>572.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2417,7 +2239,7 @@ Format(
         <Height>67.48pt</Height>
         <Width>456.61pt</Width>
         <Left>116.5pt</Left>
-        <Top>659.2pt</Top>
+        <Top>562.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
