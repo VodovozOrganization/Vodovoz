@@ -203,12 +203,11 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.DepositsCollected)
 				.AddColumn("Залоги за\n оборудование").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.GetEquipmentDepositsCollected)
+				.AddColumn("Доп.\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()
+					.AddNumericRenderer(node => node.ExtraCash).Editing()
+					.Adjustment(new Adjustment(0, -1000000, 1000000, 1, 1, 1))
 				.AddColumn("Итого\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.TotalCash)
-						.AddSetter((cell, node) => cell.Editable = node.Order.PaymentType == PaymentType.cash && 
-													node.IsDelivered())
-						.AddSetter((cell,node)=>cell.Sensitive = node.Order.PaymentType == PaymentType.cash)
-						.Adjustment(new Adjustment(0, -100000, 100000, 100, 100, 1))
 				.AddColumn ("Комментарий\nкассира")
 				.AddTextRenderer (node => node.CashierComment).EditedEvent (CommentCellEdited).Editable()
 				// Комментарий менеджера ответственного за водительский телефон

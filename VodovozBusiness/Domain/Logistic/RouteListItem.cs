@@ -224,6 +224,17 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		decimal extraCash;
+
+		public virtual decimal ExtraCash {
+			get {
+				return extraCash;
+			}
+			set {
+				SetField(ref extraCash, value, () => ExtraCash);
+			}
+		}
+
 		decimal driverWage;
 		public virtual decimal DriverWage {
 			get {
@@ -592,8 +603,9 @@ namespace Vodovoz.Domain.Logistic
 				return 0;
 
 			return Order.OrderItems
-				.Where(item => item.Order.PaymentType == Client.PaymentType.cash)
-				.Sum(item => item.ActualCount * item.Price * (1 - (decimal)item.Discount / 100));
+						.Where(item => item.Order.PaymentType == Client.PaymentType.cash)
+						.Sum(item => item.ActualCount * item.Price * (1 - (decimal)item.Discount / 100))
+				        + ExtraCash;
 		}
 
 		/// <summary>
