@@ -266,6 +266,12 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual decimal ActualSum {
+			get {
+				return Price * ActualCount * (1 - (decimal)Discount / 100);
+			}
+		}
+
 		public virtual bool CanEditAmount {
 			get {
 				bool result = false;

@@ -318,7 +318,8 @@ namespace Vodovoz.ExportTo1c
 			record.Properties.Add(
 				new PropertyNode("Количество",
 					Common1cTypes.Numeric,
-				                 orderItem.CurrentCount
+				                 //FIXME Не правильно, нужно переделывать ActualCount на нулабле
+				                 orderItem.Order.OrderStatus == OrderStatus.Closed ? orderItem.ActualCount : orderItem.Count
 				)
 			);
 			record.Properties.Add(
@@ -336,7 +337,8 @@ namespace Vodovoz.ExportTo1c
 			record.Properties.Add(
 				new PropertyNode("Сумма",
 					Common1cTypes.Numeric,
-				                 orderItem.Sum
+				                 //FIXME Не правильно, нужно переделывать ActualCount на нулабле
+				                 orderItem.Order.OrderStatus == OrderStatus.Closed ? orderItem.ActualSum : orderItem.Sum
 				)
 			);
 
@@ -350,7 +352,7 @@ namespace Vodovoz.ExportTo1c
 			record.Properties.Add(
 				new PropertyNode("СуммаНДС",
 					Common1cTypes.Numeric,
-				                 orderItem.IncludeNDS
+				                 orderItem.IncludeNDS //FIXME Нужно будет сделать что бы всегда соответствало количетству.
 				)
 			);
 			record.Properties.Add(
