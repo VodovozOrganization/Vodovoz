@@ -168,6 +168,7 @@ namespace Vodovoz
 				.AddDeleteDependence<RouteList>(x => x.Driver)
 				.AddDeleteDependence<RouteList>(x => x.Forwarder)
 				.AddDeleteDependence<RouteList>(x => x.Logistican)
+			    .AddDeleteDependence<PremiumItem>(x => x.Employee)
 				.AddDeleteDependence<FineItem>(x => x.Employee)
 				.AddDeleteDependence<EmployeeWorkChart>(item => item.Employee)
 				.AddDeleteDependence<FuelDocument>(x => x.Driver)
@@ -231,6 +232,12 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<UserSettings>();
 
+			DeleteConfig.AddHibernateDeleteInfo<Premium>()
+			            .AddDeleteDependence<PremiumItem>(x => x.Premium);
+
+			DeleteConfig.AddHibernateDeleteInfo<PremiumItem>()
+			            .AddDeleteCascadeDependence(item => item.WageOperation);
+			
 			DeleteConfig.AddHibernateDeleteInfo<Fine>()
 				.AddDeleteDependence<FineItem>(x => x.Fine)
 				.AddDeleteDependence<FineNomenclature>(x => x.Fine)
