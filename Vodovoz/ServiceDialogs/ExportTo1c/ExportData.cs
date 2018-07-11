@@ -299,6 +299,7 @@ namespace Vodovoz.ExportTo1c
 		public TableRecordNode CreateRecord(OrderItem orderItem)
 		{
 			var record = new TableRecordNode();
+			bool isService = !Nomenclature.GetCategoriesForGoods().Contains(orderItem.Nomenclature.Category);
 			var nomenclatureReference = NomenclatureCatalog.CreateReferenceTo(orderItem.Nomenclature);
 			record.Properties.Add(
 				new PropertyNode("Номенклатура",
@@ -306,11 +307,11 @@ namespace Vodovoz.ExportTo1c
 					nomenclatureReference
 				)
 			);
-			if(orderItem.Nomenclature.Category==NomenclatureCategory.service)
+			if(isService)
 				record.Properties.Add(
 					new PropertyNode("Содержание",
 						Common1cTypes.String,
-						orderItem.Nomenclature.Name
+					                 orderItem.Nomenclature.OfficialName
 					)
 				);
 			record.Properties.Add(
@@ -320,12 +321,16 @@ namespace Vodovoz.ExportTo1c
 				                 orderItem.Order.OrderStatus == OrderStatus.Closed ? orderItem.ActualCount : orderItem.Count
 				)
 			);
-			record.Properties.Add(
-				new PropertyNode("Коэффициент",
-					Common1cTypes.Numeric,
-								 1
-				)
-			);
+			if(!isService)
+			{
+				record.Properties.Add(
+					new PropertyNode("Коэффициент",
+						Common1cTypes.Numeric,
+									 1
+					)
+				);
+			}
+
 			record.Properties.Add(
 				new PropertyNode("Цена",
 					Common1cTypes.Numeric,
