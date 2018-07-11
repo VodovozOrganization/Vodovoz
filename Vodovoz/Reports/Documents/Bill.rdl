@@ -22,12 +22,30 @@
 	delivery_points.compiled_address AS client_address,
 	counterparty.inn,
 	counterparty.kpp,
-	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.name IS NULL,'',phones.name)) SEPARATOR '; ')
-	FROM phones 
-	WHERE phones.delivery_point_id = orders.delivery_point_id) AS delivery_point_contact,
-	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.name IS NULL,'',phones.name)) SEPARATOR '; ')
-	FROM phones
-	WHERE phones.counterparty_id = orders.client_id) AS client_contact,
+	GROUP_CONCAT(
+		CONCAT(
+			'+7 ',
+			delivery_points_phones.number,
+			IF(
+				delivery_points_phones.name IS NULL,
+				'',
+				CONCAT(' ', delivery_points_phones.name)
+			)
+		)
+		SEPARATOR '; '
+	) AS delivery_point_contact,
+	GROUP_CONCAT(
+		CONCAT(
+			'+7 ',
+			counterparty_phones.number,
+			IF(
+				counterparty_phones.name IS NULL,
+				'',
+				CONCAT(' ', counterparty_phones.name)
+			)
+		)
+		SEPARATOR '; '
+	) AS client_contact,
 	CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author
 FROM 
 	orders 
@@ -35,8 +53,10 @@ LEFT JOIN
 	counterparty ON orders.client_id = counterparty.id
 LEFT JOIN 
 	delivery_points ON delivery_points.id = orders.delivery_point_id
-LEFT JOIN 
-	phones ON counterparty.id = phones.counterparty_id
+LEFT JOIN
+	phones as delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id
+LEFT JOIN
+	phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id
 LEFT JOIN 
 	employees ON employees.id = orders.author_employee_id
 WHERE 
@@ -1836,7 +1856,7 @@ Iif(
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>185684</Value>
+          <Value>185838</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1859,7 +1879,7 @@ Iif(
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

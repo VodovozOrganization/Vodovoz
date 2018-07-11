@@ -16,69 +16,89 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    orders.id AS order_id,
-    orders.delivery_date AS order_date,
-    orders.bottles_return AS bottles_return,
-    orders.sum_to_receive AS total,
-    orders.comment AS order_comment,
-    delivery_schedule.name AS delivery_schedule,
-    CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
-    DATE_FORMAT(counterparty_contract.issue_date,
-            '%d.%m.%y') AS contract_date,
-    counterparty.full_name AS client_name,
-    counterparty.address AS client_address,
-    delivery_points.address_addition AS address_comment,
-    organizations.full_name AS org_name,
-    organizations.address AS org_address,
-    delivery_points.comment AS delivery_point_comment,
-    
-	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.name IS NULL,'',phones.name)) SEPARATOR '; ')
-	FROM phones 
-    WHERE phones.delivery_point_id = orders.delivery_point_id) AS delivery_point_contact,
-	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.name IS NULL,'',phones.name)) SEPARATOR '; ')
-    FROM phones
-    WHERE phones.counterparty_id = orders.client_id) AS client_contact,
-    
-    logistics_area.name AS logistics_area,
-    delivery_points.compiled_address_short AS del_point_address,
-    delivery_points.city AS city,
-    delivery_points.street AS street,
-    delivery_points.building AS building,
-    delivery_points.room AS room,
-    delivery_points.latitude,
-    delivery_points.longitude,
-    orders.daily_number_1c AS daily_number,
-    CONCAT_WS('',
-            CONCAT(employees.last_name, ' '),
-            IF(employees.name = '',
-                '',
-                CONCAT(LEFT(employees.name, 1), '.')),
-            IF(employees.patronymic = '',
-                '',
-                CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
-    orders.trifle AS trifle    
+	orders.id AS order_id,
+	orders.delivery_date AS order_date,
+	orders.bottles_return AS bottles_return,
+	orders.sum_to_receive AS total,
+	orders.comment AS order_comment,
+	delivery_schedule.name AS delivery_schedule,
+	CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
+	DATE_FORMAT(
+		counterparty_contract.issue_date,
+		'%d.%m.%y'
+	) AS contract_date,
+	counterparty.full_name AS client_name,
+	counterparty.address AS client_address,
+	delivery_points.address_addition AS address_comment,
+	organizations.full_name AS org_name,
+	organizations.address AS org_address,
+	delivery_points.comment AS delivery_point_comment,
+	
+	GROUP_CONCAT(
+		CONCAT(
+			'+7 ',
+			delivery_points_phones.number,
+			IF(
+				delivery_points_phones.name IS NULL,
+				'',
+				CONCAT(' ', delivery_points_phones.name)
+			)
+		)
+		SEPARATOR '; '
+	) AS delivery_point_contact,
+	GROUP_CONCAT(
+		CONCAT(
+			'+7 ',
+			counterparty_phones.number,
+			IF(
+				counterparty_phones.name IS NULL,
+				'',
+				CONCAT(' ', counterparty_phones.name)
+			)
+		)
+		SEPARATOR '; '
+	) AS client_contact,
+	
+	logistics_area.name AS logistics_area,
+	delivery_points.compiled_address_short AS del_point_address,
+	delivery_points.city AS city,
+	delivery_points.street AS street,
+	delivery_points.building AS building,
+	delivery_points.room AS room,
+	delivery_points.latitude,
+	delivery_points.longitude,
+	orders.daily_number_1c AS daily_number,
+	CONCAT_WS('',
+			CONCAT(employees.last_name, ' '),
+			IF(employees.name = '',
+				'',
+				CONCAT(LEFT(employees.name, 1), '.')),
+			IF(employees.patronymic = '',
+				'',
+				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
+	orders.trifle AS trifle
 FROM
-    orders
-        LEFT JOIN
-    counterparty ON orders.client_id = counterparty.id
-        LEFT JOIN
-    counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id
-        LEFT JOIN
-    organizations ON organizations.id = counterparty_contract.organization_id
-        LEFT JOIN
-    delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
-        LEFT JOIN
-    delivery_points ON orders.delivery_point_id = delivery_points.id
-        LEFT JOIN
-    logistics_area ON delivery_points.logistic_area_id = logistics_area.id
-        LEFT JOIN
-    employees ON employees.id = orders.author_employee_id
+	orders
 		LEFT JOIN
-    phones as delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id
+	counterparty ON orders.client_id = counterparty.id
 		LEFT JOIN
-    phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id
+	counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id
+		LEFT JOIN
+	organizations ON organizations.id = counterparty_contract.organization_id
+		LEFT JOIN
+	delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
+		LEFT JOIN
+	delivery_points ON orders.delivery_point_id = delivery_points.id
+		LEFT JOIN
+	logistics_area ON delivery_points.logistic_area_id = logistics_area.id
+		LEFT JOIN
+	employees ON employees.id = orders.author_employee_id
+		LEFT JOIN
+	phones as delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id
+		LEFT JOIN
+	phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id
 WHERE
-    orders.id = @order_id;</CommandText>
+	orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -2303,7 +2323,7 @@ WHERE
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>185684</Value>
+          <Value>185838</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
