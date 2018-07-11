@@ -84,9 +84,6 @@ namespace Vodovoz
 			}.FillFromMetaInfo ()
 			);
 
-			DeleteConfig.AddHibernateDeleteInfo<CarProxyDocument>();
-			DeleteConfig.AddHibernateDeleteInfo<M2ProxyDocument>();
-
 			DeleteConfig.AddHibernateDeleteInfo<Equipment>()
 				.AddDeleteDependence<FreeRentEquipment> (item => item.Equipment)
 				.AddDeleteDependence<IncomingInvoiceItem> (item => item.Equipment)
@@ -135,7 +132,6 @@ namespace Vodovoz
 			
 			#endregion
 
-			//Наша организация
 			#region Organization
 
 			DeleteConfig.AddHibernateDeleteInfo<Organization>()
@@ -254,6 +250,9 @@ namespace Vodovoz
 				.AddClearDependence<Employee>(item => item.Subdivision);
 			
 			DeleteConfig.AddHibernateDeleteInfo<EmployeeWorkChart>();
+
+			DeleteConfig.AddHibernateDeleteInfo<CarProxyDocument>();
+			DeleteConfig.AddHibernateDeleteInfo<M2ProxyDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<Chat>();
 			//Не добавляем сообщения чата чтобы не заполонять вывод удаления. все сообщения удалятся вместе с чатом.
