@@ -427,7 +427,7 @@ namespace Vodovoz
 					if(item.AdditionalAgreement?.Id == ad.Id)
 						UoW.Session.Refresh(item.AdditionalAgreement);
 				}
-				//UpdatePrices(ad);
+				UpdatePrices(ad);
 			}
 		}
 
