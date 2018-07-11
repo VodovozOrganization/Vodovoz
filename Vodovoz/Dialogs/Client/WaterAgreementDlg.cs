@@ -80,9 +80,7 @@ namespace Vodovoz
 			if(Entity.DocumentTemplate != null) {
 				(Entity.DocumentTemplate.DocParser as WaterAgreementParser).RootObject = Entity;
 				(Entity.DocumentTemplate.DocParser as WaterAgreementParser)
-					.AddPricesTable(
-						WaterPricesRepository.GetWaterPricesHeader(UoW),
-						WaterPricesRepository.GetWaterPrices(UoW));
+					.AddPricesTable(WaterPricesRepository.GetCompleteWaterPriceTable(UoW));
 			}
 
 			templatewidget1.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();

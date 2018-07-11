@@ -35,24 +35,32 @@ namespace Vodovoz.DocTemplates
 			SortFields();
 		}
 
-		public void AddPricesTable(List<WaterPriceNode> header, List<WaterPriceNode> priceNodes)
+		public void AddPricesTable(List<WaterPriceNode> priceNodes)
 		{
 			customTablesList.Clear();
-			AddCustomTable("ЦеныНаВодуШапка", header)
-				.AddColumn(x => x.Count, PatternFieldType.FString)
-				.AddColumn(x => x.Water1, PatternFieldType.FString)
-				.AddColumn(x => x.Water2, PatternFieldType.FString)
-				.AddColumn(x => x.Water3, PatternFieldType.FString);
+
+			foreach(var fPrice in RootObject.FixedPrices){
+				foreach(var node in priceNodes){
+					if(fPrice.Nomenclature.Id == node.Id1)
+						node.Water1 = fPrice.Price.ToString();
+					if(fPrice.Nomenclature.Id == node.Id2)
+						node.Water2 = fPrice.Price.ToString();
+					if(fPrice.Nomenclature.Id == node.Id3)
+						node.Water3 = fPrice.Price.ToString();
+					if(fPrice.Nomenclature.Id == node.Id4)
+						node.Water4 = fPrice.Price.ToString();
+				}
+			}
 
 			AddCustomTable("ЦеныНаВоду", priceNodes)
-				.AddColumn(x => x.Count, PatternFieldType.FString)
+				.AddColumn(x => x.StringCount, PatternFieldType.FString)
 				.AddColumn(x => x.Water1, PatternFieldType.FString)
 				.AddColumn(x => x.Water2, PatternFieldType.FString)
-				.AddColumn(x => x.Water3, PatternFieldType.FString);
+				.AddColumn(x => x.Water3, PatternFieldType.FString)
+				.AddColumn(x => x.Water4, PatternFieldType.FString);
 
 			SortFields();
 		}
-
 	}
 }
 

@@ -65,10 +65,7 @@ namespace Vodovoz.Domain.Orders.Documents
 						break;
 					case AgreementType.WaterSales:
 						var waterAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as WaterAgreementParser);
-						waterAgreementParser.AddPricesTable(
-							WaterPricesRepository.GetWaterPricesHeader(uow), 
-							WaterPricesRepository.GetWaterPrices(uow)
-						);
+						waterAgreementParser.AddPricesTable(WaterPricesRepository.GetCompleteWaterPriceTable(uow));
 						break;
 					case AgreementType.EquipmentSales:
 						var equipmentAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as EquipmentAgreementParser);
