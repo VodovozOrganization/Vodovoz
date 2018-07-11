@@ -17,16 +17,14 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			
 		public override ReferenceNode CreateReferenceTo(Counterparty counterparty)
 		{
+			if(String.IsNullOrWhiteSpace(counterparty.INN))
+				exportData.Errors.Add($"Для контрагента {counterparty.Id} - '{counterparty.Name}' не заполнен ИНН.");
+
 			int id = GetReferenceId(counterparty);
-			var code1c = String.IsNullOrWhiteSpace(counterparty.Code1c) 
-				? counterparty.Id.ToString() : counterparty.Code1c;
 			return new ReferenceNode(id,
-				new PropertyNode("Код",
+				new PropertyNode("ИНН",
 					Common1cTypes.String,
-					code1c
-				),
-				new PropertyNode("ЭтоГруппа",
-					Common1cTypes.Boolean)
+			                     counterparty.INN)
 			);
 		}
 
@@ -38,6 +36,14 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					Common1cTypes.Boolean
 				)
 			);
+			
+			properties.Add(
+				new PropertyNode("Код",
+					Common1cTypes.String,
+				                 counterparty.Code1c
+				)
+			);
+
 			properties.Add(
 				new PropertyNode("Наименование",
 					Common1cTypes.String,
@@ -82,12 +88,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					counterparty.FullName
 				)
 			);
-			properties.Add(
-				new PropertyNode("ИНН",
-					Common1cTypes.String,
-					counterparty.INN
-				)
-			);
+
 			properties.Add(
 				new PropertyNode("КПП",
 					Common1cTypes.String,
