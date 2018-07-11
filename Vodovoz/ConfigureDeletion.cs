@@ -129,6 +129,10 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<CullingCategory>()
 				.AddClearDependence<WriteoffDocumentItem>(x => x.CullingCategory);
+
+			DeleteConfig.AddHibernateDeleteInfo<Folder1c>()
+			            .AddDeleteDependence<Folder1c>(x => x.Parent)
+						.AddClearDependence<Nomenclature>(x => x.Folder1C);
 			
 			#endregion
 

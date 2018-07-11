@@ -183,7 +183,6 @@ namespace Vodovoz.ExportTo1c
 
 		public SalesDocumentNode CreateSalesDocument(Order order)
 		{
-			var goods = order.OrderItems.Where(item => Nomenclature.GetCategoriesForGoods().Contains(item.Nomenclature.Category));
 			var exportSaleDocument = new SalesDocumentNode();
 			exportSaleDocument.Id = ++objectCounter;
 			exportSaleDocument.Reference = new ReferenceNode(exportSaleDocument.Id,
@@ -195,11 +194,20 @@ namespace Vodovoz.ExportTo1c
 				Name="Товары",
 			};
 
-			foreach (var orderItem in goods)
+			var exportServicesTable = new TableNode {
+				Name = "Услуги",
+			};
+
+			foreach (var orderItem in order.OrderItems)
 			{
 				var record = CreateRecord(orderItem);
-				exportGoodsTable.Records.Add(record);
-				exportSaleDocument.Comission.Comissions.Add(0);
+				if(Nomenclature.GetCategoriesForGoods().Contains(orderItem.Nomenclature.Category))
+				{
+					exportGoodsTable.Records.Add(record);
+					exportSaleDocument.Comission.Comissions.Add(0);
+				}
+				else
+					exportServicesTable.Records.Add(record);
 			}
 
 			exportSaleDocument.Properties.Add(
@@ -283,16 +291,6 @@ namespace Vodovoz.ExportTo1c
 				)
 			);
 
-			var exportServicesTable = new TableNode
-				{
-					Name = "Услуги",
-				};
-			var services = order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.service);
-			foreach (var serviceItem in services)
-			{
-				var record = CreateRecord(serviceItem);
-				exportServicesTable.Records.Add(record);
-			}
 			exportSaleDocument.Tables.Add(exportGoodsTable);
 			exportSaleDocument.Tables.Add(exportServicesTable);		
 			return exportSaleDocument;
@@ -349,12 +347,25 @@ namespace Vodovoz.ExportTo1c
 					vat
 				)
 			);
-			record.Properties.Add(
-				new PropertyNode("СуммаНДС",
-					Common1cTypes.Numeric,
-				                 orderItem.IncludeNDS //FIXME Нужно будет сделать что бы всегда соответствало количетству.
-				)
-			);
+
+			if(orderItem.Nomenclature.VAT != VAT.No)
+			{
+				record.Properties.Add(
+					new PropertyNode("СуммаНДС",
+						Common1cTypes.Numeric,
+					                 orderItem.IncludeNDS //FIXME Нужно будет сделать что бы всегда соответствало количетству.
+					)
+				);
+			}
+			else
+			{
+				record.Properties.Add(
+					new PropertyNode("СуммаНДС",
+						Common1cTypes.Numeric
+					)
+				);
+			}
+
 			record.Properties.Add(
 				new PropertyNode("НомерГТД",
 					"СправочникСсылка.НомераГТД"
