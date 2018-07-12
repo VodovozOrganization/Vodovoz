@@ -31,6 +31,8 @@ namespace Vodovoz.Domain.Orders.Documents
 			get { return String.Format("Договор №{0}", contract.ContractFullNumber); }
 		}
 
+		public virtual int CopiesToPrint { get; set; }
+
 		public override DateTime? DocumentDate {
 			get { return Contract?.IssueDate; }
 		}

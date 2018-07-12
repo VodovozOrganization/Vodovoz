@@ -38,6 +38,8 @@ namespace Vodovoz.Domain.Orders.Documents
 			get { return M2Proxy?.Date; }
 		}
 
+		public virtual int CopiesToPrint { get; set; }
+
 		public virtual void PrepareTemplate(IUnitOfWork uow)
 		{
 			if(M2Proxy.DocumentTemplate == null)

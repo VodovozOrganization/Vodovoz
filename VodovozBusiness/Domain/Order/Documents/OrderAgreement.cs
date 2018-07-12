@@ -38,6 +38,8 @@ namespace Vodovoz.Domain.Orders.Documents
 			}
 		}
 
+		public virtual int CopiesToPrint { get; set; }
+
 		public override DateTime? DocumentDate {
 			get { return AdditionalAgreement?.IssueDate;}
 		}
