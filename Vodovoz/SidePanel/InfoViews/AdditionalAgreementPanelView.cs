@@ -128,7 +128,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		/// </summary>
 		void RefreshList(){
 			var wsa = Contract.AdditionalAgreements
-							  		.Where(a => a.DeliveryPoint.Id == DeliveryPoint.Id)
+							  		.Where(a => a.DeliveryPoint == DeliveryPoint)
 							  		.Where(a => !a.IsCancelled)
 			                        .FirstOrDefault()?.Self as WaterSalesAgreement;
 			if(wsa == null) {
