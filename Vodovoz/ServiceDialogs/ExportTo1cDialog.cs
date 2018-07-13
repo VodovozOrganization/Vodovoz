@@ -54,10 +54,18 @@ namespace Vodovoz
 				.Count()
 				.ToString();
 
-			labelErrors.Visible = exportData.Errors.Count > 0;
-			labelErrors.Markup = "<span foreground=\"red\">" + 
-				String.Join("\n", exportData.Errors)
-				+ "</span>";
+			GtkScrolledWindowErrors.Visible = exportData.Errors.Count > 0;
+			if(exportData.Errors.Count > 0)
+			{
+				TextTagTable textTags = new TextTagTable();
+				var tag = new TextTag("Red");
+				tag.Foreground = "red";
+				textTags.Add(tag);
+				TextBuffer tempBuffer = new TextBuffer(textTags);
+				TextIter iter = tempBuffer.EndIter;
+				tempBuffer.InsertWithTags(ref iter, String.Join("\n", exportData.Errors), tag);
+				textviewErrors.Buffer = tempBuffer;
+			}
 
 			buttonSave.Sensitive = exportData != null && exportData.Errors.Count == 0;
 		}			
