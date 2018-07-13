@@ -13,7 +13,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.MinCount).Column ("min_count");
 			Map (x => x.Price).Column ("price");
 
-			References(x => x.Nomenclature).Column("nomenclature_id");
+			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
 		}
 	}
 }

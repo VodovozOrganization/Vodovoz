@@ -45,7 +45,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.Warehouse).Column("warehouse_id");
 			References(x => x.Folder1C).Column("folder_1c_id");
 
-			HasMany(x => x.NomenclaturePrice).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasMany(x => x.NomenclaturePrice).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 		}
 	}
 }
