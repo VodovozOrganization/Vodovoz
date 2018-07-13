@@ -119,7 +119,7 @@ namespace Vodovoz
 
 			};*/
 
-			ytreeviewFixedPrices.ItemsDataSource = Entity.ObservablFixedPrices;
+			ytreeviewFixedPrices.ItemsDataSource = Entity.ObservableFixedPrices;
 			ytreeviewFixedPrices.Selection.Changed += YtreeviewFixedPrices_Selection_Changed;
 		}
 
@@ -210,7 +210,7 @@ namespace Vodovoz
 		protected void OnButtonDelClicked(object sender, EventArgs e)
 		{
 			var item = ytreeviewFixedPrices.GetSelectedObject<WaterSalesAgreementFixedPrice>();
-			Entity.ObservablFixedPrices.Remove(item);
+			Entity.ObservableFixedPrices.Remove(item);
 			UoW.Delete(item);
 		}
 

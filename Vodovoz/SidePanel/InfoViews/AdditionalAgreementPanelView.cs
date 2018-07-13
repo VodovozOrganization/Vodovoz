@@ -11,6 +11,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 using Vodovoz.SidePanel.InfoProviders;
+using NHibernate.Util;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -96,11 +97,12 @@ namespace Vodovoz.SidePanel.InfoViews
 				leftToOrderText = String.Format(" (осталось: {0})", bottlesLeftToOrder);
 			labelBottlesPerMonth.Text = String.Format("{0} из {1}{2}", bottlesThisMonth, requiredBottlesThisMonth, leftToOrderText);
 
+			/*Отключено из-за ошибки. Задачи I-1221 и I-1020
 			if(fixedPricesList != null)
-				fixedPricesList.ToList().ForEach(x => InfoProvider.UoW.Session.Evict(x));
-			if(Contract!= null) {
-				fixedPricesList = AdditionalAgreementRepository.GetFixedPricesForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, Contract);
-			}else {
+				fixedPricesList.ToList().ForEach(x => InfoProvider.UoW.Session.Evict(x));*/
+			if(Contract != null) {
+				RefreshList();
+			} else {
 				fixedPricesList = new List<WaterSalesAgreementFixedPrice>();
 			}
 
@@ -118,6 +120,37 @@ namespace Vodovoz.SidePanel.InfoViews
 			WaterAgreements = agreements.Where(a => a.Type == AgreementType.WaterSales).ToArray();
 
 			buttonWaterAgreement.Label = WaterAgreements.Length > 0 ? "Открыть доп. согл." : "Создать доп. согл.";
+		}
+
+		/// <summary>
+		/// Временный метод для обхода ошибки в I-1221. Хорошо бы придумать отдельный клас с genericами,
+		/// который бы содержал метод, обновляющий любые наши коллекции и поля внутри них.
+		/// </summary>
+		void RefreshList(){
+			var wsa = Contract.AdditionalAgreements
+							  .Where(a => a.DeliveryPoint.Id == DeliveryPoint.Id)
+							  .Where(a => !a.IsCancelled)
+							  .FirstOrDefault()
+							  .Self as WaterSalesAgreement;
+			if(wsa == null) {
+				wsa = Contract.AdditionalAgreements
+							  .Where(a => a.DeliveryPoint == null)
+							  .Where(a => !a.IsCancelled)
+							  .FirstOrDefault()
+							  .Self as WaterSalesAgreement;
+			}
+
+			wsa.FixedPrices.ForEach(p => InfoProvider.UoW.Session.Refresh(p));
+
+			WaterSalesAgreementFixedPrice fixedPricesAlias = null;
+			var fp = InfoProvider.UoW.Session.QueryOver<WaterSalesAgreementFixedPrice>(() => fixedPricesAlias)
+								 .Where(x => x.AdditionalAgreement.Id == wsa.Id)
+								 .List()
+								 .ToList();
+			fixedPricesList = wsa.FixedPrices;
+			wsa.FixedPrices.Clear();
+
+			fp.ForEach(p => wsa.FixedPrices.Add(p));
 		}
 
 		public bool VisibleOnPanel

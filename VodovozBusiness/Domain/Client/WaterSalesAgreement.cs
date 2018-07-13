@@ -21,20 +21,23 @@ namespace Vodovoz.Domain.Client
 		[Display (Name = "Фиксированные цены")]
 		public virtual IList<WaterSalesAgreementFixedPrice> FixedPrices {
 			get { return fixedPrices; }
-			set { SetField (ref fixedPrices, value, () => FixedPrices); }
+			set { 
+				if(SetField (ref fixedPrices, value, () => FixedPrices)){
+					observableFixedPrices = null;
+				} 
+			}
 		}
 
 		GenericObservableList<WaterSalesAgreementFixedPrice> observableFixedPrices;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		[IgnoreHistoryTrace]
-		public virtual GenericObservableList<WaterSalesAgreementFixedPrice> ObservablFixedPrices {
+		public virtual GenericObservableList<WaterSalesAgreementFixedPrice> ObservableFixedPrices {
 			get {
 				if (observableFixedPrices == null)
 					observableFixedPrices = new GenericObservableList<WaterSalesAgreementFixedPrice> (FixedPrices);
 				return observableFixedPrices;
 			}
 		}
-
 
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
@@ -68,7 +71,7 @@ namespace Vodovoz.Domain.Client
 				Price = price
 			};
 
-			ObservablFixedPrices.Add(nomenculaturePrice);
+			ObservableFixedPrices.Add(nomenculaturePrice);
 		}
 
 		/// <summary>
@@ -79,7 +82,7 @@ namespace Vodovoz.Domain.Client
 		public virtual void FillFixedPricesFromDeliveryPoint(IUnitOfWork uow)
 		{
 			if(DeliveryPoint != null) {
-				ObservablFixedPrices.Clear();
+				ObservableFixedPrices.Clear();
 
 				//Семиозерье
 				if(DeliveryPoint.FixPrice1 > 0) {
