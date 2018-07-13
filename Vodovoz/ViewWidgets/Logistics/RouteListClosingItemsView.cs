@@ -375,7 +375,10 @@ namespace Vodovoz
 			}
 
 			foreach(var orderItem in item.Order.OrderItems) {
-				if(orderItem.Nomenclature.Category == NomenclatureCategory.additional) {
+				if(new NomenclatureCategory[] {
+					NomenclatureCategory.additional,
+					NomenclatureCategory.spare_parts
+					}.Contains(orderItem.Nomenclature.Category)) {
 					stringParts.Add(orderItem.IsDelivered
 									? string.Format("{0}:<b>{1}</b>", orderItem.Nomenclature.Name, orderItem.ActualCount)
 									: string.Format("{0}:{1}({2:-0})", orderItem.Nomenclature.Name, orderItem.ActualCount, orderItem.Count - orderItem.ActualCount));
@@ -385,8 +388,7 @@ namespace Vodovoz
 
 			//Оборудование не из товаров
 			var equipList = item.Order.OrderEquipments
-					.Where(x => x.OrderItem == null
-			               && x.Nomenclature.Category != NomenclatureCategory.water
+					.Where(x => x.Nomenclature.Category != NomenclatureCategory.water
 			               && x.Direction == Domain.Orders.Direction.Deliver);
 			foreach(OrderEquipment orderEquip in equipList) {
 				stringParts.Add(string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount));
