@@ -32,10 +32,11 @@
     organizations.full_name AS org_name,
     organizations.address AS org_address,
     delivery_points.comment AS delivery_point_comment,
+    delivery_points.address_addition AS delivery_point_address_addition,
 
 	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.name IS NULL,'',phones.name)) SEPARATOR '; ')
 	FROM phones 
-    WHERE phones.delivery_point_id = orders.delivery_point_id) AS delivery_point_contact,
+	WHERE phones.delivery_point_id = orders.delivery_point_id) AS delivery_point_contact,
 	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.name IS NULL,'',phones.name)) SEPARATOR '; ')
     FROM phones
     WHERE phones.counterparty_id = orders.client_id) AS client_contact,
@@ -164,6 +165,10 @@ WHERE
         </Field>
         <Field Name="order_payment_type">
           <DataField>order_payment_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="delivery_point_address_addition">
+          <DataField>delivery_point_address_addition</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -2240,6 +2245,11 @@ GROUP BY name</CommandText>
             {delivery_point_comment} != '',
             '\n' + {delivery_point_comment},
             ''
+        )
+    + Iif(
+            {delivery_point_address_addition} != '',
+            '\n' + {delivery_point_address_addition},
+            ''
         )</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -3031,7 +3041,7 @@ GROUP BY name</CommandText>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>260046</Value>
+          <Value>252926</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>

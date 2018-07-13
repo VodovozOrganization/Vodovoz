@@ -217,13 +217,24 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Equipments">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     (SELECT 
             GROUP_CONCAT(CONCAT(nomenclature.name,
                             ' - ',
-                            order_equipment.count)
+                            order_equipment.count,
+					' (',
+					(
+						CASE order_equipment.own_type
+							WHEN 'Client' THEN 'Клиента'
+							WHEN 'Duty' THEN 'Дежурный'
+							WHEN 'Rent' THEN 'Аренда'
+							ELSE 'неизвестно'
+						END
+                    ),
+                    ')'
+                    )
                     SEPARATOR '\n')
         FROM
             `order_equipment`
@@ -235,7 +246,18 @@ WHERE
     (SELECT 
             GROUP_CONCAT(CONCAT(nomenclature.name,
                             ' - ',
-                            order_equipment.count)
+                            order_equipment.count,
+					' (',
+					(
+						CASE order_equipment.own_type
+							WHEN 'Client' THEN 'Клиента'
+							WHEN 'Duty' THEN 'Дежурный'
+							WHEN 'Rent' THEN 'Аренда'
+							ELSE 'неизвестно'
+						END
+                    ),
+                    ')'
+                    )
                     SEPARATOR '\n')
         FROM
             `order_equipment`
@@ -250,7 +272,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="equipment_to">
           <DataField>equipment_to</DataField>
           <TypeName>System.String</TypeName>
@@ -848,6 +870,7 @@ WHERE
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <VerticalAlign >Middle</VerticalAlign>
             </Style>
             <Visibility>
               <Hidden>=Count({equipment_to},"Equipments")  = 0</Hidden>
@@ -882,6 +905,7 @@ WHERE
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <VerticalAlign >Middle</VerticalAlign>
             </Style>
             <CanGrow>true</CanGrow>
             <Visibility>
