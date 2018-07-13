@@ -1722,7 +1722,7 @@ namespace Vodovoz
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
 		{
 			var org = OrganizationRepository.GetOrganizationByPaymentType(UoW, Counterparty.PersonType, Entity.PaymentType);
-			if((Entity.Contract == null || Entity.Contract.Organization.Id != org.Id) && Entity.Client != null)
+			if(Entity.Client != null)
 				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Counterparty.PersonType, Entity.PaymentType);
 		}
 
