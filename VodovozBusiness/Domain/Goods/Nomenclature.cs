@@ -421,6 +421,23 @@ namespace Vodovoz.Domain.Goods
 			};
 		}
 
+		/// <summary>
+		/// Список номенклатур доступных для добавления в товары 
+		/// из диалога изменения заказа в закрытии МЛ
+		/// </summary>
+		public static NomenclatureCategory[] GetCategoriesForEditOrderFromRL()
+		{
+			return new[] {
+				NomenclatureCategory.additional,
+				NomenclatureCategory.water,
+				NomenclatureCategory.disposableBottleWater,
+				NomenclatureCategory.bottle,
+				NomenclatureCategory.deposit,
+				NomenclatureCategory.spare_parts,
+				NomenclatureCategory.service
+			};
+		}
+
 		public static NomenclatureCategory[] GetCategoriesForMaster()
 		{
 			List<NomenclatureCategory> list = new List<NomenclatureCategory>(GetCategoriesForSale());

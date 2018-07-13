@@ -299,6 +299,12 @@ namespace Vodovoz.Domain.Logistic
 
 		#endregion
 
+		#region Runtime свойства (не мапятся)
+
+		public virtual bool AddressIsValid { get; set; } = true;
+
+		#endregion
+
 		#region Расчетные
 
 		public virtual bool HasUserSpecifiedTotalCash()

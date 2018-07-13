@@ -80,6 +80,7 @@ namespace Vodovoz
 			PerformanceHelper.StartMeasurement();
 
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
+			this.HasChanges = true;
 
 			TabName = String.Format("Закрытие маршрутного листа №{0}", Entity.Id);
 			PerformanceHelper.AddTimePoint("Создан UoW");
@@ -540,10 +541,19 @@ namespace Vodovoz
 			var valid = new QSValidator<RouteList>(Entity);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
-			
-			var orderValidator = new QSValidator<Order>(Entity.Addresses.FirstOrDefault().Order);
-			if(orderValidator.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+
+			bool isOrdersValid = true;
+			foreach(var item in Entity.Addresses) {
+				var orderValidator = new QSValidator<Order>(item.Order);
+				if(!orderValidator.IsValid) {
+					isOrdersValid = false;
+				}
+			}
+
+			if(!isOrdersValid){
+				MessageDialogWorks.RunErrorDialog("Один или несколько заказов заполнены некорректно.");
 				return false;
+			}
 
 			var messages = new List<string>();
 

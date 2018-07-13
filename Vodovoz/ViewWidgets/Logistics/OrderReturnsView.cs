@@ -6,14 +6,16 @@ using Gamma.GtkWidgets;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
+using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.JournalFilters;
 
 namespace Vodovoz
 {
-	public partial class OrderReturnsView : TdiTabBase
+	public partial class OrderReturnsView : TdiTabBase, ITDICloseControlTab
 	{
 		class OrderNode : PropertyChangedBase
 		{
@@ -101,9 +103,14 @@ namespace Vodovoz
 			ytreeToClient.Sensitive = routeListItem.IsDelivered();
 			orderEquipmentItemsView.Sensitive = routeListItem.IsDelivered();
 			Configure();
+			UpdateItemsList(routeListItem);
+			UpdateButtonsState();
+		}
+
+		private void UpdateItemsList(RouteListItem routeListItem)
+		{
 			itemsToClient = new List<OrderItemReturnsNode>();
 			var nomenclatures = routeListItem.Order.OrderItems
-				//.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.Where(item => !item.Nomenclature.IsSerial).ToList();
 			foreach(var item in nomenclatures) {
 				itemsToClient.Add(new OrderItemReturnsNode(item));
@@ -112,7 +119,40 @@ namespace Vodovoz
 			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualGoodsTotalSum);
 
 			ytreeToClient.ItemsDataSource = itemsToClient;
-			UpdateButtonsState();
+		}
+
+		private void OpenSelectNomenclatureDlg()
+		{
+			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
+			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForEditOrderFromRL();
+			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.deposit;
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.TabName = "Номенклатура на продажу";
+			SelectDialog.ObjectSelected += NomenclatureSelected;
+			SelectDialog.ShowFilter = true;
+			TabParent.AddSlaveTab(this, SelectDialog);
+		}
+
+		private void NomenclatureSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		{
+			Nomenclature nomenclature = UoW.Session.Get<Nomenclature>(e.ObjectId);
+			CounterpartyContract contract = routeListItem.Order.Contract;
+			WaterSalesAgreement wsa = null;
+			if(routeListItem.Order.IsLoadedFrom1C || nomenclature == null || contract == null) {
+				return;
+			}
+			if(nomenclature.Category == NomenclatureCategory.water 
+			   || nomenclature.Category == NomenclatureCategory.disposableBottleWater) {
+				wsa = contract.GetWaterSalesAgreement(routeListItem.Order.DeliveryPoint);
+				if(wsa == null) {
+					MessageDialogWorks.RunErrorDialog("Невозможно добавить воду, потому что нет дополнительного соглашения о продаже воды");
+				}
+				routeListItem.Order.AddWaterForSale(nomenclature, wsa, 1);
+			}else {
+				routeListItem.Order.AddAnyGoodsNomenclatureForSale(nomenclature);
+			}
+			UpdateItemsList(routeListItem);
 		}
 
 		public void OnOrderChanged(object sender, PropertyChangedEventArgs args)
@@ -258,6 +298,21 @@ namespace Vodovoz
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
 		{
 			AcceptOrderChange();
+		}
+
+		protected void OnButtonAddOrderItemClicked(object sender, EventArgs e)
+		{
+			OpenSelectNomenclatureDlg();
+		}
+
+		public bool CanClose()
+		{
+			var orderValidator = new QSValidator<Order>(routeListItem.Order);
+			routeListItem.AddressIsValid = orderValidator.IsValid;
+			orderValidator.RunDlgIfNotValid((Gtk.Window)this.Toplevel);
+
+			//Не блокируем закрытие вкладки
+			return true;
 		}
 	}
 

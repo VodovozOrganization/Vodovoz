@@ -189,6 +189,7 @@ namespace Vodovoz
 			var colorBlue = new Gdk.Color (0, 0, 0xff);
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
+			var colorDarkRed = new Gdk.Color(0xee, 0, 0);
 			var colorLightBlue = new Gdk.Color(0xbb, 0xbb, 0xff);
 			var colorYellow = new Gdk.Color(0xb3, 0xb3, 0x00);
 			config
@@ -254,6 +255,17 @@ namespace Vodovoz
 						color = colorYellow;
 					}
 					cell.CellBackgroundGdk = color;
+
+					//Выделение цветом ячейки с заказом, если валидация этого заказа не пройдет при сохранении
+					if(!node.AddressIsValid) {
+						var column = ytreeviewItems.Columns.FirstOrDefault(x => x.Title == "Заказ");
+						if(column != null) {
+							var renderer = column.CellRenderers.FirstOrDefault(x => x == cell);
+							if(renderer != null) {
+								renderer.CellBackgroundGdk = colorDarkRed;
+							}
+						}
+					}
 				});
 
 			ytreeviewItems.ColumnsConfig = config.Finish();
