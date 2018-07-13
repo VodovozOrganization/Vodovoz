@@ -186,10 +186,11 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     organizations.full_name,
+    organizations.name as org_name,
     organizations.INN,
     organizations.KPP,
     organizations.jur_address AS address,
@@ -232,7 +233,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -299,6 +300,10 @@ WHERE
         </Field>
         <Field Name="email">
           <DataField>email</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_name">
+          <DataField>org_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1345,7 +1350,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
-                      <Value>=First({full_name}, 'Organization') + ', ИНН ' + First({INN}, 'Organization') + ', КПП ' + First({KPP}, 'Organization') + '\n' + First({address}, 'Organization') + 
+                      <Value>=First({org_name}, 'Organization') + ', ИНН ' + First({INN}, 'Organization') + ', КПП ' + First({KPP}, 'Organization') + '\n' + First({address}, 'Organization') + 
 Iif(First({phone}, 'Organization') = null, '', '\nтел. ') + First({phone}, 'Organization') + 
 Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Organization')</Value>
                       <Style>
@@ -1357,6 +1362,7 @@ Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Or
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1416,6 +1422,7 @@ Iif(
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1856,7 +1863,7 @@ Iif(
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>185838</Value>
+          <Value>260047</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1879,7 +1886,7 @@ Iif(
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
