@@ -81,6 +81,15 @@ namespace Vodovoz.HibernateMapping
 		}
 	}
 
+	public class EquipmentReturnDocumentMap : SubclassMap<EquipmentReturnDocument>
+	{
+		public EquipmentReturnDocumentMap()
+		{
+			DiscriminatorValue("EquipmentReturn");
+		}
+	}
+
+
 	public class InvoiceBarterDocumentMap:SubclassMap<InvoiceBarterDocument>
 	{
 		public InvoiceBarterDocumentMap()

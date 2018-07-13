@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>11in</PageHeight>
+  <PageWidth>8.5in</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <DataSets>
+    <DataSet Name="Data">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT order_equipment.id, nomenclature.official_name, order_equipment.count FROM order_equipment 
+LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+WHERE order_equipment.order_id = @order_id AND order_equipment.direction = 'PickUp' AND order_equipment.own_type = 'Rent' AND order_equipment.direction_reason = 'Rent'</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
+        </Field>
+        <Field Name="official_name">
+          <DataField>official_name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Order">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT orders.id, orders.delivery_date, CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number, organizations.full_name as organization, counterparty.full_name as client FROM orders
+LEFT JOIN counterparty_contract on orders.counterparty_contract_id = counterparty_contract.id
+LEFT JOIN counterparty on counterparty_contract.counterparty_id = counterparty.id
+LEFT JOIN organizations on organizations.id = counterparty_contract.organization_id
+WHERE orders.id = @order_id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>={?order_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="contract_number">
+          <DataField>contract_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="organization">
+          <DataField>organization</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client">
+          <DataField>client</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>22.3pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>Data</DataSetName>
+        <NoRows>Нет ценностей :(</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>32.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>286.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>98.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>15.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Value>№</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Наименование оборудования</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Количество, шт</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>15.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="id">
+                      <Value>=RowNumber()</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>11pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="official_name">
+                      <Value>=Fields!official_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="count">
+                      <Value>=Fields!count.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>11pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>10.7pt</Left>
+        <Top>157.7pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <Value>=Sum({count})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+      <Textbox Name="Textbox4">
+        <Height>16.58pt</Height>
+        <Width>575.94pt</Width>
+        <Value>Акт</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>2.30pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox5">
+        <Height>12.82pt</Height>
+        <Width>575.14pt</Width>
+        <Value>возврата оборудования из аренды</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>18.70pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Center</TextAlign>
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox6">
+        <Height>15.75pt</Height>
+        <Width>161.11pt</Width>
+        <Value>="по договору № " + First({contract_number}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2.50pt</Left>
+        <Top>35.10pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox7">
+        <Height>33.05pt</Height>
+        <Width>113.67pt</Width>
+        <Value>="г. Санкт-Петербург\n" + Format(First({delivery_date}, "Order"), "d")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>459.20pt</Left>
+        <Top>35.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox8">
+        <Height>51.83pt</Height>
+        <Width>560.81pt</Width>
+        <Value>=First({organization}, "Order") + ", именуемый в дальнейшем «Фирма», в лице Сосновцева С.С., с одной стороны, и " + First({client}, "Order") + ", именуемый(ая) в дальнейшем «Клиент», с другой стороны,  на основании вышеуказанного договора, составили настоящий акт о нижеследующем:"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>11.29pt</Left>
+        <Top>73.07pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox9">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>={?order_id}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>501.1pt</Left>
+        <Top>4.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox10">
+        <Height>15.81pt</Height>
+        <Width>546.58pt</Width>
+        <Value>Клиент вернул, а Фирма приняла ниже перечисленные ценности.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>10.2pt</Left>
+        <Top>131.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox14">
+        <Height>24.08pt</Height>
+        <Width>559.48pt</Width>
+        <Value>Настоящий акт составлен в двух экземплярах, один из которых находится у Фирмы, другой – у Клиента.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>3.2pt</Left>
+        <Top>229.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox15">
+        <Height>87.19pt</Height>
+        <Width>264.98pt</Width>
+        <Value>От Фирмы
+
+
+______________ /Сосновцев С.С./
+
+М.П.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>5.40pt</Left>
+        <Top>271.30pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox16">
+        <Height>85.01pt</Height>
+        <Width>269.44pt</Width>
+        <Value>От Клиента
+
+
+______________ /                                    /
+
+М.П.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>280.20pt</Left>
+        <Top>271.90pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <Height>417.2pt</Height>
+  </Body>
+  <PageFooter>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_orders;user=andrey;password=123;port=3306;server=192.168.0.7</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="order_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>160084</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

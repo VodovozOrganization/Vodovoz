@@ -2192,6 +2192,10 @@ namespace Vodovoz.Domain.Orders
 				case OrderDocumentType.EquipmentTransfer:
 					newDoc = new EquipmentTransferDocument();
 					break;
+				case OrderDocumentType.EquipmentReturn:
+					newDoc = new EquipmentReturnDocument();
+					break;
+
 				default:
 					throw new NotImplementedException();
 			}

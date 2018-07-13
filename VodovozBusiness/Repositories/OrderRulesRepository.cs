@@ -64,6 +64,25 @@ namespace Vodovoz.Repositories
 					}
 				)
 			);
+			//EquipmentReturn
+			rules.Add(
+				new Rule(
+					key => GetConditionForEquipmentReturn(key),
+					new[] {
+						OrderDocumentType.EquipmentReturn
+					}
+				)
+			);
+			//DoneWorkReport
+			rules.Add(
+				new Rule(
+					key => GetConditionForEquipmentDoneWork(key),
+					new[] {
+						OrderDocumentType.DoneWorkReport
+					}
+				)
+			);
+
 			//DriverTicket
 			rules.Add(
 				new Rule(
@@ -141,30 +160,22 @@ namespace Vodovoz.Repositories
 
 		static bool GetConditionForEquipmentTransfer(KeyToDocumentsSet key) =>
 		(
-			(
-				(
-					key.HasOrderEquipment
-					&&
-					(
-						key.PaymentType == PaymentType.cash
-					    || key.PaymentType == PaymentType.barter
-					)
-				)
-				||
-				(
-					key.HasOrderEquipment
-					&& key.PaymentType == PaymentType.ByCard
-					&& !key.IsPriceOfAllOrderItemsZero
-				)
-				||
-				(
-					key.HasOrderEquipment
-					&& key.PaymentType == PaymentType.cashless
-					&& !key.NeedToRefundDepositToClient
-				)
-				|| key.NeedMaster
-			)
-			&& key.OrderStatus >= OrderStatus.Accepted
+			key.OrderStatus >= OrderStatus.Accepted
+			&& key.Order.OrderEquipments.Any(e => (e.Direction == Direction.PickUp && e.DirectionReason != DirectionReason.Rent)
+			                                 || (e.Direction == Direction.Deliver && (e.OwnType == OwnTypes.Duty || e.DirectionReason == DirectionReason.Rent))
+			                                )
+		);
+
+		static bool GetConditionForEquipmentReturn(KeyToDocumentsSet key) =>
+		(
+			key.OrderStatus >= OrderStatus.Accepted
+			&& key.Order.OrderEquipments.Any(e => e.Direction == Direction.PickUp && e.DirectionReason == DirectionReason.Rent && e.OwnType == OwnTypes.Rent)
+		);
+
+		static bool GetConditionForEquipmentDoneWork(KeyToDocumentsSet key) =>
+		(
+			key.OrderStatus >= OrderStatus.Accepted
+			&& key.Order.OrderEquipments.Any(e => e.Direction == Direction.Deliver && (e.DirectionReason == DirectionReason.Repair || e.DirectionReason == DirectionReason.RepairAndCleaning))
 		);
 
 		static bool GetConditionForDriverTicket(KeyToDocumentsSet key) =>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings;
 using QSOrmProject;
 using QSReport;
 
@@ -87,6 +86,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		[DocumentOfOrder]
 		[Display(Name = "Акт приема-передачи оборудования")]
 		EquipmentTransfer,
+		[DocumentOfOrder]
+		[Display(Name = "Акт закрытия аренды")]
+		EquipmentReturn,
 		[DocumentOfOrder]
 		[Display(Name = "Накладная (нал.)")]
 		Invoice,

@@ -60,7 +60,7 @@ namespace Vodovoz.Domain.Orders
 		public DefaultDocumentType? DefaultDocumentType { get; set; } = Client.DefaultDocumentType.upd;
 
 		[Display(Name = "Заказ, для которго создаётся набор документов")]
-		private Order Order { get; set; }
+		public Order Order { get; set; }
 
 		void InitializeFields()
 		{

@@ -4,7 +4,7 @@ using QSReport;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class EquipmentTransferDocument:OrderDocument
+	public class EquipmentReturnDocument:OrderDocument
 	{
 		#region implemented abstract members of OrderDocument
 
@@ -12,9 +12,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new QSReport.ReportInfo {
 				Title = Name,
-				//Identifier = "Documents.EquipmentMovement",
-				//FIXME Когда доделаем навороченый акт I-1200 вернуть
-				Identifier = "Documents.EquipmentTransfer",
+				Identifier = "Documents.EquipmentReturn",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id }
 				}
@@ -23,16 +21,14 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override OrderDocumentType Type {
 			get {
-				return OrderDocumentType.EquipmentTransfer;
+				return OrderDocumentType.EquipmentReturn;
 			}
 		}
 
 		#endregion
 
 		public override string Name {
-			get { return String.Format("Акт приемо-передачи оборудования"); }
-			//FIXME Когда доделаем навороченый акт I-1200 вернуть
-			//get { return String.Format ("Акт движения оборудования"); }
+			get { return String.Format("Акт закрытия аренды"); }
 		}
 
 		public override DateTime? DocumentDate {
