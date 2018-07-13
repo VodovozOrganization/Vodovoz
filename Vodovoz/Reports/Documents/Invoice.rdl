@@ -169,7 +169,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Equipments">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>   
     SELECT 
@@ -211,7 +211,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="equipment_to">
           <DataField>equipment_to</DataField>
           <TypeName>System.String</TypeName>
@@ -1755,17 +1755,17 @@ GROUP BY name</CommandText>
         </ReportItems>
         <Style>
           <BorderStyle>
-            <Default >None</Default>
-            <Left >None</Left>
-            <Right >None</Right>
-            <Top >None</Top>
-            <Bottom >None</Bottom>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
         </Style>
         <DataSetName>Order</DataSetName>
-        <KeepTogether >true</KeepTogether>
+        <KeepTogether>true</KeepTogether>
       </List>
       <Image Name="Image1">
         <Height>57.44pt</Height>
@@ -2447,7 +2447,7 @@ GROUP BY name</CommandText>
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
-      <Table Name="Table5" >
+      <Table Name="Table5">
         <DataSetName>Order</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -2494,7 +2494,7 @@ GROUP BY name</CommandText>
         <Left>38.0pt</Left>
         <Top>568.3pt</Top>
       </Table>
-      <Table Name="Table6" >
+      <Table Name="Table6">
         <DataSetName>Order</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -2515,23 +2515,42 @@ GROUP BY name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>="Всего получить от клиента: "+Code.SummaString_Val(
-    Convert.ToString(
+                      <Value>=Iif(Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund') &gt; 0,
+    "Всего получить от клиента: "+Code.SummaString_Val(
+        Convert.ToString(
+            Iif(First({order_payment_type}, "Order")!='ByCard',
+                Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
+                0
+            )
+        )
+    )
+    +"    ("+
+    Format(
         Iif(First({order_payment_type}, "Order")!='ByCard',
             Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
             0
         )
+        ,'#,##0.00'
     )
-)
-+"    ("+
-Format(
-    Iif(First({order_payment_type}, "Order")!='ByCard',
-        Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
-        0
+    + "р.)",
+   "Всего вернуть клиенту: "+Code.SummaString_Val(
+        Convert.ToString(
+            Iif(First({order_payment_type}, "Order")!='ByCard',
+                -Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
+                0
+            )
+        )
     )
-    ,'#,##0.00'
-)
-+ "р.)"</Value>
+    +"    ("+
+    Format(
+        Iif(First({order_payment_type}, "Order")!='ByCard',
+            -Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
+            0
+        )
+        ,'#,##0.00'
+    )
+    + "р.)"
+)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -3012,7 +3031,7 @@ Format(
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>185699</Value>
+          <Value>260046</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -3030,7 +3049,7 @@ Format(
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
