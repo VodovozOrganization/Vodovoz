@@ -128,18 +128,19 @@ namespace Vodovoz.SidePanel.InfoViews
 		/// </summary>
 		void RefreshList(){
 			var wsa = Contract.AdditionalAgreements
-							  .Where(a => a.DeliveryPoint.Id == DeliveryPoint.Id)
-							  .Where(a => !a.IsCancelled)
-							  .FirstOrDefault()
-							  .Self as WaterSalesAgreement;
+							  		.Where(a => a.DeliveryPoint.Id == DeliveryPoint.Id)
+							  		.Where(a => !a.IsCancelled)
+			                        .FirstOrDefault()?.Self as WaterSalesAgreement;
 			if(wsa == null) {
 				wsa = Contract.AdditionalAgreements
 							  .Where(a => a.DeliveryPoint == null)
 							  .Where(a => !a.IsCancelled)
-							  .FirstOrDefault()
-							  .Self as WaterSalesAgreement;
+							  .FirstOrDefault()?.Self as WaterSalesAgreement;
 			}
-
+			if(wsa == null) {
+				fixedPricesList = new List<WaterSalesAgreementFixedPrice>();
+				return;
+			}
 			wsa.FixedPrices.ForEach(p => InfoProvider.UoW.Session.Refresh(p));
 
 			WaterSalesAgreementFixedPrice fixedPricesAlias = null;
