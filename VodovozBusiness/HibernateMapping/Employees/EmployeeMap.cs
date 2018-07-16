@@ -42,7 +42,6 @@ namespace Vodovoz
 			References (x => x.Subdivision).Column("subdivision_id");
 			References (x => x.Nationality).Column ("nationality_id");
 			References (x => x.User).Column ("user_id");
-			References (x => x.DefaultAccount).Column ("default_account_id");
 			References(x => x.DefaultDaySheldule).Column("default_delivery_day_schedule_id");
 			References(x => x.DefaultForwarder).Column("default_forwarder_id");
 

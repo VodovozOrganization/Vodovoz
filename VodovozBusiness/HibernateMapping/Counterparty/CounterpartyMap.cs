@@ -39,7 +39,6 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.BottlesManager).Column("bottles_manager_id");
 			References(x => x.MainContact).Column("main_contact_id");
 			References(x => x.FinancialContact).Column("financial_contact_id");
-			References(x => x.DefaultAccount).Column("default_account_id");
 			References(x => x.DefaultExpenseCategory).Column("default_cash_expense_category_id");
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");

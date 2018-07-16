@@ -146,7 +146,6 @@ namespace Vodovoz
 				.AddDeleteDependence<AccountExpense> (item => item.Organization)
 				.AddDeleteDependence<DocTemplate>(x => x.Organization);
 
-			DeleteConfig.AddClearDependence<Account> (ClearDependenceInfo.Create<Organization> (item => item.DefaultAccount));
 
 			DeleteConfig.AddHibernateDeleteInfo<FreeRentPackage>()
 				.AddClearDependence<FreeRentEquipment>(x => x.FreeRentPackage);
@@ -214,7 +213,6 @@ namespace Vodovoz
 				.AddClearDependence<Subdivision>(x => x.Chief)
 			    .AddClearDependence<ChatMessage>(x => x.Sender);
 
-			DeleteConfig.AddClearDependence<Account> (ClearDependenceInfo.Create<Employee> (item => item.DefaultAccount));
 
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(Nationality),
@@ -297,7 +295,6 @@ namespace Vodovoz
 				.AddClearDependence<Counterparty>(x => x.PreviousCounterparty)
 				.AddClearDependence<Equipment>(x => x.AssignedToClient);
 
-			DeleteConfig.AddClearDependence<Account> (ClearDependenceInfo.Create<Counterparty> (item => item.DefaultAccount));
 
 			DeleteConfig.AddHibernateDeleteInfo<Contact>()
 				.AddDeleteDependenceFromBag(item => item.Emails)
