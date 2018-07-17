@@ -52,13 +52,17 @@ namespace Vodovoz.ServiceDialogs
 			nomStroika = UoW.GetById<Nomenclature>(15);
 			nomRuchki = UoW.GetById<Nomenclature>(7);
 
-			internalNumbers = UoW.Session.QueryOver<Counterparty>()
-								 .WhereRestrictionOn(x => x.VodovozInternalId).IsNotNull
-								 .SelectList( list => list
-			                                 .Select(x => x.Id)
-			                                 .Select(x => x.VodovozInternalId)			                                
-			                                )
-			                     .List<object[]>().ToDictionary(x => (int)x[0], x => (int)x[1]);
+			errorLog.Add(string.Format("Статус;Код1с контрагента;Код1с точки доставки;Причина"));
+
+		}
+
+		void ErrorLog(string status, string counterpartyCode1c, string deliveryPointCode1c, string reason)
+		{
+				errorLog.Add(string.Format("{0};{1};{2};{3}",
+				                           status,
+				                           counterpartyCode1c,
+				                           deliveryPointCode1c,
+				                           reason));			
 		}
 
 		#region Свойства
@@ -192,7 +196,7 @@ namespace Vodovoz.ServiceDialogs
 
 		protected string TryGetOrganizationType(string name)
 		{
-			foreach(var pair in InformationHandbook.OrganizationTypes) {
+			/*foreach(var pair in InformationHandbook.OrganizationTypes) {
 				string pattern = String.Format(@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Key);
 				string fullPattern = String.Format(@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Value);
 				Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
@@ -201,7 +205,12 @@ namespace Vodovoz.ServiceDialogs
 				regex = new Regex(fullPattern, RegexOptions.IgnoreCase);
 				if(regex.IsMatch(name))
 					return pair.Key;
-			}
+			}*/
+			string pattern = String.Format(@".*(^|\(|\s|\W|['""])ИП($|\)|\s|\W|['""]).*");
+			Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+			if(regex.IsMatch(name))
+				return "ИП";
+			
 			return null;
 		}
 
@@ -216,11 +225,12 @@ namespace Vodovoz.ServiceDialogs
 			}
 
 			var code1c = codeAttr.Value;
-			counterparty = UoW.Session.QueryOver<Counterparty>()
-							  .Where(x => x.Code1c == code1c).List()
-							  .FirstOrDefault();
+
+			counterparty = VodovozCounterparties.FirstOrDefault(x => x.Code1c == code1c);
+			
 			if(counterparty == null) {
-				errorLog.Add(string.Format("Не найден контрагент Код1с: {0}", code1c));
+
+				ErrorLog("Не загружен", code1c, "", "Не найден контрагент");
 				SkipedCounterparty++;
 				return;
 			}
@@ -228,10 +238,25 @@ namespace Vodovoz.ServiceDialogs
 			var internalNumberAttr = node.Attributes["ВремНомер"];
 			int internalNumber = 0;
 			if(internalNumberAttr != null && int.TryParse(internalNumberAttr.Value, out internalNumber)) {
-				var sdfsd = internalNumbers.Where(x => x.Key != counterparty.Id);
-				var sdfgsdfdf = sdfsd.ToDictionary(x => x.Key, x => x.Value);
+				//Убираем из словаря внутренний номер для нахождения дубликатов
+				int buffer = 0;
+				bool restoreDictionary = false;
+				if(internalNumbers.ContainsKey(counterparty.Id)) {
+					buffer = internalNumbers[counterparty.Id];
+					internalNumbers.Remove(counterparty.Id);
+					restoreDictionary = true;
+				}
 
-				if(sdfgsdfdf.ContainsValue(internalNumber)) {
+				//Нахождение дубликата
+				bool internalNumberExists = internalNumbers.ContainsValue(internalNumber);
+
+				//Восстановление словаря
+				if(restoreDictionary) {
+					internalNumbers.Add(counterparty.Id, buffer);
+				}
+
+				//Отметка дубликата для испраления в дальнейшем
+				if(internalNumberExists) {
 					isVodInternalDuplicate = true;
 					//Записываем номер для того чтобы отобразить его в логе
 					counterparty.VodovozInternalId = internalNumber;
@@ -264,7 +289,7 @@ namespace Vodovoz.ServiceDialogs
 				if(counterparty.TypeOfOwnership == "ИП" ? Regex.IsMatch(innStr, "^[0-9]{12,12}$") : Regex.IsMatch(innStr, "^[0-9]{10,10}$")) {
 					counterparty.INN = innStr;
 				} else if(!string.IsNullOrEmpty(innStr)) {
-					errorLog.Add(string.Format("Не корректный ИНН: {0} [Контрагент: {1}]", innStr, code1c));
+					ErrorLog("Загружен с ошибками", code1c, "", string.Format("Не корректный ИНН: {0}", innStr));
 					error = true;
 				}
 
@@ -272,7 +297,7 @@ namespace Vodovoz.ServiceDialogs
 				if(Regex.IsMatch(kppStr, "^[0-9]{9,9}$")) {
 					counterparty.KPP = kppStr;
 				} else if(!string.IsNullOrEmpty(kppStr)) {
-					errorLog.Add(string.Format("Не корректный КПП: {0} [Контрагент: {1}]", kppStr, code1c));
+					ErrorLog("Загружен с ошибками", code1c, "", string.Format("Не корректный КПП: {0}", kppStr));
 					error = true;
 				}
 			}
@@ -338,25 +363,32 @@ namespace Vodovoz.ServiceDialogs
 				string bik = bikAttr.Value;
 				Account account = counterparty.Accounts.FirstOrDefault(x => x.Number == accountNumber);
 				if(account == null) {
+					if(bik.Length == 8) {
+						bik = string.Format("0{0}", bik);
+					}
 					if(!Regex.IsMatch(bik, "^[0-9]{9,9}$")) {
-						errorLog.Add(string.Format("Не корректный БИК: {0} [Контрагент: {1}]", bik, code1c));
+						ErrorLog("Загружен с ошибками", code1c, "", string.Format("Не корректный БИК: {0}", bik));
 						error = true;
 					}
 					if(!Regex.IsMatch(accountNumber, "^[0-9]{20,25}$") && !string.IsNullOrEmpty(accountNumber)) {
-						errorLog.Add(string.Format("Не корректный счет: {0} [Контрагент: {1}]", accountNumber, code1c));
+						ErrorLog("Загружен с ошибками", code1c, "", string.Format("Не корректный счет: {0}", accountNumber));
 						error = true;
 					} else {
 						Bank bank = Banks.FirstOrDefault(b => b.Bik == bik);
-						account = new Account {
-							Number = accountNumber,
-							Owner = counterparty,
-							Name = "Основной",
-							InBank = bank,
-							Inactive = bank == null
-						};
-						counterparty.Accounts.Add(account);
-						account.IsDefault = true;
-						counterparty.DefaultAccount = account;
+						if(bank != null) {
+							account = new Account {
+								Number = accountNumber,
+								Owner = counterparty,
+								Name = "Основной",
+								InBank = bank,
+								Inactive = false
+							};
+							counterparty.Accounts.Add(account);
+							counterparty.DefaultAccount = account;
+						}else {
+							ErrorLog("Загружен с ошибками", code1c, "", string.Format("Для счета : {0} не найден банк БИК: {1}", accountNumber, bik));
+							error = true;
+						}
 					}
 				}
 			}
@@ -389,7 +421,7 @@ namespace Vodovoz.ServiceDialogs
 
 			var codeClientAttr = node.Attributes["КодКонтрагента"];
 			if(codeClientAttr == null) {
-				errorLog.Add(string.Format("Точка доставки без контрагента. Точка доставки: {0}", code));
+				ErrorLog("Не загружена ТД", "", code, "Точка доставки без контрагента");
 				SkipedDP++;
 				return;
 			}
@@ -397,7 +429,7 @@ namespace Vodovoz.ServiceDialogs
 			var counterpartyCode = codeClientAttr.Value;
 			counterparty = CounterpatiesList.FirstOrDefault(x => x.Code1c == counterpartyCode);
 			if(counterparty == null) {
-				errorLog.Add(string.Format("Не найден контрагент для точки доставки: {0} [Контрагент: {1}]", code, counterpartyCode));
+				ErrorLog("Не загружена ТД", counterpartyCode, code, "Не найден контрагент для точки доставки");
 				SkipedDP++;
 				return;
 			}
@@ -405,7 +437,7 @@ namespace Vodovoz.ServiceDialogs
 
 			var deliveryPoint = counterparty.DeliveryPoints.FirstOrDefault(x => x.Code1c == code);
 			if(deliveryPoint == null) {
-				errorLog.Add(string.Format("У контрагента: VodovozId:{0} не существует точки доставки с кодом 1с: {1}", counterparty.Id, code));
+				ErrorLog("Не загружена ТД", counterpartyCode, code, "У контрагента не существует этой точки доставки");
 				SkipedDP++;
 				return;
 			}
@@ -490,8 +522,8 @@ namespace Vodovoz.ServiceDialogs
 			foreach(var item in CounterpatiesInternalDuplicateList) {
 				var oldNumber = item.VodovozInternalId;
 				var newNumber = maxInternal + 1;
-				errorLog.Add(string.Format("Контрагент (Код1с: {0}) с дублирующимся временным номером: старый номер: {1}, новый номер: {2}", 
-				                           item.Code1c, oldNumber, newNumber));
+				ErrorLog("Дубликат", item.Code1c, "", string.Format("Контрагент с дублирующимся временным номером: старый номер: {0}, новый номер: {1}",
+										   oldNumber, newNumber));
 				item.VodovozInternalId = newNumber;
 				CounterpatiesList.Add(item);
 				maxInternal = newNumber;
@@ -506,6 +538,11 @@ namespace Vodovoz.ServiceDialogs
 
 		protected void OnButtonLoadClicked(object sender, EventArgs e)
 		{
+			LoadFromXML();
+		}
+
+		void LoadFromXML()
+		{
 			Clear();
 
 			XmlDocument xmlDoc = new XmlDocument();
@@ -516,7 +553,6 @@ namespace Vodovoz.ServiceDialogs
 
 			var deliveryPointsNodes = xmlDoc.SelectNodes("/root/Адрес");
 			TotalDP = deliveryPointsNodes.Count;
-
 			var progressCounter = 0;
 			var totalCount = counterPartyNodes.Count + deliveryPointsNodes.Count;
 			progressbar.Adjustment.Upper = totalCount;
@@ -540,7 +576,7 @@ namespace Vodovoz.ServiceDialogs
 				progressbar.Adjustment.Value = progressCounter;
 				QSMain.WaitRedraw();
 			}
-			File.WriteAllLines("ImportLog.txt", errorLog);
+			File.WriteAllLines("ImportLog.csv", errorLog);
 			progressbar.Text = "Выполнено. Лог ошибок в файле ImportLog.txt в каталоге с программой";
 		}
 
@@ -558,12 +594,73 @@ namespace Vodovoz.ServiceDialogs
 
 		protected void OnButton1Clicked(object sender, EventArgs e)
 		{
+			PreLoadEntities();
+		}
+
+		void PreLoadEntities()
+		{
+			progressbar.Text = string.Format("Загрузка контрагентов и счетов");
+
+			var counterpartyQuery = UoW.Session.QueryOver<Counterparty>().Future<Counterparty>();
+			var counterpartyQuery2 = UoW.Session.QueryOver<Counterparty>()
+										.Fetch(x => x.DeliveryPoints).Eager
+										.Future<Counterparty>();
+			var counterpartyQuery3 = UoW.Session.QueryOver<Counterparty>()
+										.Fetch(x => x.Emails).Eager
+										.Future<Counterparty>();
+			var counterpartyQuery4 = UoW.Session.QueryOver<Counterparty>()
+										.Fetch(x => x.Accounts).Eager
+										.Future<Counterparty>();
+
+			VodovozCounterparties = counterpartyQuery4.ToList();
+
+			internalNumbers = VodovozCounterparties.Where(x => x.VodovozInternalId != null)
+												   .Distinct()
+												   .ToDictionary(x => x.Id, x => x.VodovozInternalId.Value);
+		}
+
+		protected void OnButtonSaveClicked(object sender, EventArgs e)
+		{
+			Save();
+		}
+
+		void Save()
+		{
+			List<string> ErrorsCounterparties = new List<string>();
+			int counter = 0;
+			int batchCounter = 0;
+			UoW.Session.SetBatchSize(500);
 			foreach(var item in CounterpatiesList) {
-				UoW.Save<Counterparty>(item);
-				UoW.Commit();
+				try {
+					UoW.Save<Counterparty>(item);
+				} catch(Exception ex) {
+					ErrorLog("Ошибка сохранения", item.Code1c, string.Format("{0}", item.Id), string.Format("{0}", ex.Message));
+					ErrorsCounterparties.Add(string.Format("{0}", item.Id));
+				}
+				progressbar.Text = string.Format("Сохранение: {0} из {1}", counter, CounterpatiesList.Count);
+				QSMain.WaitRedraw();
+				if(batchCounter == 500) {
+					UoW.Commit();
+					batchCounter = 0;
+				}
+				counter++;
+				batchCounter++;
+			}
+			UoW.Commit();
+
+			if(ErrorsCounterparties.Any()) {
+				File.WriteAllLines("ErrorsCounterparties.txt", errorLog);
 			}
 
 			progressbar.Text = "Сохранено.";
+		}
+
+		protected void OnButton2Clicked(object sender, EventArgs e)
+		{
+			PreLoadEntities();
+			LoadFromXML();
+			Save();
+			progressbar.Text =  string.Format("Завершено в {0}", DateTime.Now);
 		}
 	}
 }
