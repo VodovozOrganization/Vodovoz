@@ -20,6 +20,7 @@ using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 using NHibernate.Criterion;
 using NHibernate.Util;
+using QSProjectsLib;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -834,6 +835,11 @@ namespace Vodovoz.Domain.Orders
 			   //(или без точки доставки если относится на все точки)
 			   !HaveActualWaterSaleAgreementByDeliveryPoint() ) {
 				yield return new ValidationResult("В заказе выбрана точка доставки для которой нет актуального дополнительного соглашения по доставке воды");
+			}
+
+			if(!QSMain.User.Permissions["can_can_create_order_in_advance"] && DeliveryDate.HasValue && DeliveryDate.Value < DateTime.Today) {
+				yield return new ValidationResult("Указана дата заказа более ранняя чем сегодняшняя. Укажите правильную дату доставки.",
+				                                  new[] { this.GetPropertyName(o => o.DeliveryDate) });
 			}
 #if !SHORT
 			if (ObservableOrderItems.Any (item => item.Count < 1))

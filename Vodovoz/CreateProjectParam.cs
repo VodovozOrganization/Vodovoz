@@ -56,6 +56,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("can_confirm_routelist_with_overweight", new UserPermission("can_confirm_routelist_with_overweight", "Подтверждение МЛ с перегрузом", "Пользователь может подтверждать МЛ, суммарный вес товаров и оборудования в котором превышает грузоподъемность автомобиля."));
 			QSMain.ProjectPermission.Add("can_edit_on_the_way_order", new UserPermission("can_edit_on_the_way_order", "Редактирование заказа 'В пути'", "Пользователю доступна возможность редактирования заказа, находящегося в статусе 'В пути'. При этом, ему обязательно нужно будет указывать причину редактирования."));
 			QSMain.ProjectPermission.Add("can_set_contract_closer", new UserPermission("can_set_contract_closer", "Установка крыжика 'Закрывашка по контракту'", "Пользователю доступна возможность установки крыжика 'Закрывашка по контракту'."));
+			QSMain.ProjectPermission.Add("can_can_create_order_in_advance", new UserPermission("can_can_create_order_in_advance", "Проведение накладных задним числом", "Пользователь может создавать заказы с датой доставки более ранней, чем текущая дата."));
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };

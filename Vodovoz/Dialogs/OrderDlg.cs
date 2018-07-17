@@ -168,6 +168,7 @@ namespace Vodovoz
 			chkContractCloser.Binding.AddBinding(Entity, c => c.IsContractCloser, w => w.Active).InitializeFromSource();
 
 			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
+			pickerDeliveryDate.DateChanged += PickerDeliveryDate_DateChanged;
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			pickerBillDate.Binding.AddBinding(Entity, s => s.BillDate, w => w.DateOrNull).InitializeFromSource();
 
@@ -418,6 +419,14 @@ namespace Vodovoz
 				default:
 					return false;
 			}
+		}
+
+		void PickerDeliveryDate_DateChanged(object sender, EventArgs e)
+		{
+			if(pickerDeliveryDate.Date < DateTime.Today && !QSMain.User.Permissions["can_can_create_order_in_advance"])
+				pickerDeliveryDate.ModifyBase(StateType.Normal, new Gdk.Color(255, 0, 0));
+			else
+				pickerDeliveryDate.ModifyBase(StateType.Normal, new Gdk.Color(255, 255, 255));
 		}
 
 		void WaterSalesAgreement_ObjectUpdatedGeneric(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<WaterSalesAgreement> e)
