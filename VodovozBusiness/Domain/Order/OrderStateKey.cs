@@ -5,11 +5,11 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders
 {
-	public class KeyToDocumentsSet
+	public class OrderStateKey
 	{
-		public KeyToDocumentsSet() { }
+		public OrderStateKey() { }
 
-		public KeyToDocumentsSet(Order order)
+		public OrderStateKey(Order order)
 		{
 			Order = order;
 			this.OrderStatus = Order.OrderStatus;
@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Создает ключ для определенного требуемого статуса
 		/// </summary>
-		public KeyToDocumentsSet(Order order, OrderStatus requiredStatus)
+		public OrderStateKey(Order order, OrderStatus requiredStatus)
 		{
 			Order = order;
 			this.OrderStatus = requiredStatus;
@@ -75,54 +75,5 @@ namespace Vodovoz.Domain.Orders
 			this.NeedMaster = Order.OrderItems.Any(i => i.Nomenclature.Category == Goods.NomenclatureCategory.master);
 			this.IsSelfDelivery = Order.SelfDelivery;
 		}
-
-		#region после добавления любого свойства или поля, которые учавствуют в формировании ключа для нового правила, обязательно добавить эти поля в переопределение методов Equals, ==, !=, GetHashCode
-		/*
-		public override bool Equals(object obj)
-		{
-			if(obj == null || this.GetType() != obj.GetType())
-				return false;
-
-			KeyToDocumentsSet set = (KeyToDocumentsSet)obj;
-			bool result = this.HasOrderItems == set.HasOrderItems
-							  && this.HasOrderEquipment == set.HasOrderEquipment
-							  && this.NeedToRefundDepositFromClient == set.NeedToRefundDepositFromClient
-							  && this.NeedToReturnBottles == set.NeedToReturnBottles
-							  && this.IsPriceOfAllOrderItemsZero == set.IsPriceOfAllOrderItemsZero
-							  && this.PaymentType == set.PaymentType
-							  && this.DefaultDocumentType == set.DefaultDocumentType;
-			return result;
-		}
-
-		public static bool operator ==(KeyToDocumentsSet x, KeyToDocumentsSet y)
-		{
-			bool result = x.HasOrderItems == y.HasOrderItems
-						   && x.HasOrderEquipment == y.HasOrderEquipment
-						   && x.NeedToRefundDepositFromClient == y.NeedToRefundDepositFromClient
-						   && x.NeedToReturnBottles == y.NeedToReturnBottles
-						   && x.IsPriceOfAllOrderItemsZero == y.IsPriceOfAllOrderItemsZero
-						   && x.PaymentType == y.PaymentType
-						   && x.DefaultDocumentType == y.DefaultDocumentType;
-			return result;
-		}
-
-		public static bool operator !=(KeyToDocumentsSet x, KeyToDocumentsSet y)
-		{
-			return !(x == y);
-		}
-
-		public override int GetHashCode()
-		{
-			int result = 0;
-			result += 31 * result + this.HasOrderItems.GetHashCode();
-			result += 31 * result + this.HasOrderEquipment.GetHashCode();
-			result += 31 * result + this.NeedToRefundDepositFromClient.GetHashCode();
-			result += 31 * result + this.NeedToReturnBottles.GetHashCode();
-			result += 31 * result + this.IsPriceOfAllOrderItemsZero.GetHashCode();
-			result += 31 * result + this.PaymentType.GetHashCode();
-			result += 31 * result + this.DefaultDocumentType.GetHashCode();
-			return result;
-		}*/
-		#endregion
 	}
 }

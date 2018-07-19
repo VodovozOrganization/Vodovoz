@@ -675,9 +675,8 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
-				if(newStatus == OrderStatus.Accepted) {
-
-					var key = new KeyToDocumentsSet(this, newStatus);
+				if(newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) {
+					var key = new OrderStateKey(this, newStatus);
 					var messages = new List<string>();
 					if(!OrderAcceptProhibitionRulesRepository.CanAcceptOrder(key, ref messages)) {
 						foreach(var msg in messages) {
@@ -1975,7 +1974,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			//создаём объект-ключ на основе текущего заказа. Этот ключ содержит набор свойств, 
 			//по которым будет происходить подбор правила для создания набора документов
-			var key = new KeyToDocumentsSet(this);
+			var key = new OrderStateKey(this);
 
 			//обращение к хранилищу правил для получения массива типов документов по ключу
 			OrderDocumentType[] typesArray = OrderDocumentRulesRepository.GetSetOfDocumets(key);

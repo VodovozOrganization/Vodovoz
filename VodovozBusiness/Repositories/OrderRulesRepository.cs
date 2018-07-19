@@ -9,10 +9,10 @@ namespace Vodovoz.Repositories
 {
 	class Rule
 	{
-		public Func<KeyToDocumentsSet, bool> Condition;
+		public Func<OrderStateKey, bool> Condition;
 		public OrderDocumentType[] Documents;
 
-		public Rule(Func<KeyToDocumentsSet, bool> condition, OrderDocumentType[] documents)
+		public Rule(Func<OrderStateKey, bool> condition, OrderDocumentType[] documents)
 		{
 			Condition = condition;
 			Documents = documents;
@@ -23,7 +23,7 @@ namespace Vodovoz.Repositories
 	{
 		static List<Rule> rules = new List<Rule>();
 
-		public static OrderDocumentType[] GetSetOfDocumets(KeyToDocumentsSet key) =>
+		public static OrderDocumentType[] GetSetOfDocumets(OrderStateKey key) =>
 		rules.Where(r => r.Condition(key)).SelectMany(r => r.Documents).Distinct().ToArray();
 
 		static OrderDocumentRulesRepository()
@@ -122,7 +122,7 @@ namespace Vodovoz.Repositories
 			);
 		}
 
-		static bool GetConditionForInvoice(KeyToDocumentsSet key) =>
+		static bool GetConditionForInvoice(OrderStateKey key) =>
 		(
 			(
 				(
@@ -146,19 +146,19 @@ namespace Vodovoz.Repositories
 			&& key.OrderStatus >= OrderStatus.Accepted
 		);
 
-		static bool GetConditionForBarterInvoice(KeyToDocumentsSet key) =>
+		static bool GetConditionForBarterInvoice(OrderStateKey key) =>
 		(
 			key.PaymentType == PaymentType.barter
 			&& key.OrderStatus >= OrderStatus.Accepted
 		);
 
-		static bool GetConditionForContractDocumentationInvoice(KeyToDocumentsSet key) =>
+		static bool GetConditionForContractDocumentationInvoice(OrderStateKey key) =>
 		(
 			key.PaymentType == PaymentType.ContractDoc
 			&& key.OrderStatus >= OrderStatus.Accepted
 		);
 
-		static bool GetConditionForEquipmentTransfer(KeyToDocumentsSet key) =>
+		static bool GetConditionForEquipmentTransfer(OrderStateKey key) =>
 		(
 			key.OrderStatus >= OrderStatus.Accepted
 			&& key.Order.OrderEquipments.Any(e => (e.Direction == Direction.PickUp && e.DirectionReason != DirectionReason.Rent)
@@ -166,32 +166,32 @@ namespace Vodovoz.Repositories
 			                                )
 		);
 
-		static bool GetConditionForEquipmentReturn(KeyToDocumentsSet key) =>
+		static bool GetConditionForEquipmentReturn(OrderStateKey key) =>
 		(
 			key.OrderStatus >= OrderStatus.Accepted
 			&& key.Order.OrderEquipments.Any(e => e.Direction == Direction.PickUp && e.DirectionReason == DirectionReason.Rent && e.OwnType == OwnTypes.Rent)
 		);
 
-		static bool GetConditionForEquipmentDoneWork(KeyToDocumentsSet key) =>
+		static bool GetConditionForEquipmentDoneWork(OrderStateKey key) =>
 		(
 			key.OrderStatus >= OrderStatus.Accepted
 			&& key.Order.OrderEquipments.Any(e => e.Direction == Direction.Deliver && (e.DirectionReason == DirectionReason.Repair || e.DirectionReason == DirectionReason.RepairAndCleaning))
 		);
 
-		static bool GetConditionForDriverTicket(KeyToDocumentsSet key) =>
+		static bool GetConditionForDriverTicket(OrderStateKey key) =>
 		(
 			GetConditionForBill(key)
 			&& !key.IsSelfDelivery
 			&& key.OrderStatus >= OrderStatus.Accepted
 		);
 
-		static bool GetConditionForUPD(KeyToDocumentsSet key) =>
+		static bool GetConditionForUPD(OrderStateKey key) =>
 		(
 			GetConditionForBill(key)
 			&& key.OrderStatus >= OrderStatus.Accepted
 		);
 
-		static bool GetConditionForBill(KeyToDocumentsSet key) =>
+		static bool GetConditionForBill(OrderStateKey key) =>
 		(
 			key.PaymentType == PaymentType.cashless
 			&& !key.IsPriceOfAllOrderItemsZero
@@ -199,7 +199,7 @@ namespace Vodovoz.Repositories
 			&& key.HasOrderItems
 		);
 
-		static bool GetConditionForTORG12(KeyToDocumentsSet key) =>
+		static bool GetConditionForTORG12(OrderStateKey key) =>
 		(
 			GetConditionForUPD(key)
 			&& key.DefaultDocumentType == DefaultDocumentType.torg12
@@ -209,10 +209,10 @@ namespace Vodovoz.Repositories
 
 	class ProhibitionRule
 	{
-		public Func<KeyToDocumentsSet, bool> Condition;
+		public Func<OrderStateKey, bool> Condition;
 		public string Message;
 
-		public ProhibitionRule(Func<KeyToDocumentsSet, bool> condition, string message)
+		public ProhibitionRule(Func<OrderStateKey, bool> condition, string message)
 		{
 			Condition = condition;
 			Message = message;
@@ -226,7 +226,7 @@ namespace Vodovoz.Repositories
 	{
 		static List<ProhibitionRule> rules = new List<ProhibitionRule>();
 
-		public static bool CanAcceptOrder(KeyToDocumentsSet key, ref List<string> messages)
+		public static bool CanAcceptOrder(OrderStateKey key, ref List<string> messages)
 		{
 			messages = rules.Where(x => x.Condition(key)).Select(x => x.Message).ToList();
 
@@ -238,15 +238,15 @@ namespace Vodovoz.Repositories
 			rules.Add(new ProhibitionRule(key => GetConditionForDepositReturn(key), 
 			                              "Возврат залога не применим для заказа в текущем состоянии"));
 			rules.Add(new ProhibitionRule(key => GetConditionForOrderWithoutMoney(key), 
-			                              "Невозможно подтвердить заказ в текущем состоянии без суммы"));
+			                              "Невозможно подтвердить или перевести в статус ожидания оплаты заказ в текущем состоянии без суммы"));
 			rules.Add(new ProhibitionRule(key => GetConditionForEmptyOrder(key), 
-			                              "Невозможно подтвердить пустой заказ"));
+			                              "Невозможно подтвердить или перевести в статус ожидания оплаты пустой заказ"));
 		}
 
 		/// <summary>
 		/// Причина запрета: Возврат залога не применим для заказа в текущем состоянии
 		/// </summary>
-		static bool GetConditionForDepositReturn(KeyToDocumentsSet key){
+		static bool GetConditionForDepositReturn(OrderStateKey key){
 			bool result = false;
 			if(!key.NeedToRefundDepositToClient) {
 				return result;
@@ -266,7 +266,7 @@ namespace Vodovoz.Repositories
 		/// <summary>
 		/// Причина запрета: Невозможно подтвердить заказ в текущем состоянии без суммы
 		/// </summary>
-		static bool GetConditionForOrderWithoutMoney(KeyToDocumentsSet key)
+		static bool GetConditionForOrderWithoutMoney(OrderStateKey key)
 		{
 			bool result = false;
 
@@ -285,7 +285,7 @@ namespace Vodovoz.Repositories
 		/// <summary>
 		/// Причина запрета: Невозможно подтвердить пустой заказ
 		/// </summary>
-		static bool GetConditionForEmptyOrder(KeyToDocumentsSet key)
+		static bool GetConditionForEmptyOrder(OrderStateKey key)
 		{
 			if(!key.HasOrderItems 
 			   && !key.NeedToRefundDepositToClient 
