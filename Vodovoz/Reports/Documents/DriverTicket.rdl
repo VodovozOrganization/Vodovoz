@@ -21,6 +21,12 @@
 	orders.bottles_return AS bottles_return,
 	orders.sum_to_receive AS total,
 	orders.comment AS order_comment,
+	CASE orders.signature_type 
+		WHEN 'BySeal' THEN 'По печати'
+		WHEN 'ByProxy' THEN 'По доверенности'
+		WHEN 'ProxyOnDeliveryPoint' THEN 'Доверенность на адресе'
+		ELSE ''
+	END AS signature_type, 
 	delivery_schedule.name AS delivery_schedule,
 	CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
 	DATE_FORMAT(
@@ -214,10 +220,14 @@ WHERE
           <DataField>del_point_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="signature_type">
+          <DataField>signature_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Equipments">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     (SELECT 
@@ -272,7 +282,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="equipment_to">
           <DataField>equipment_to</DataField>
           <TypeName>System.String</TypeName>
@@ -870,7 +880,7 @@ WHERE
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <VerticalAlign >Middle</VerticalAlign>
+              <VerticalAlign>Middle</VerticalAlign>
             </Style>
             <Visibility>
               <Hidden>=Count({equipment_to},"Equipments")  = 0</Hidden>
@@ -905,7 +915,7 @@ WHERE
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <VerticalAlign >Middle</VerticalAlign>
+              <VerticalAlign>Middle</VerticalAlign>
             </Style>
             <CanGrow>true</CanGrow>
             <Visibility>
@@ -1476,7 +1486,12 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
-                      <Value>={address_comment}</Value>
+                      <Value>={address_comment} + 
+Iif(
+    {signature_type} = '',
+    '',
+    Iif(Fields!address_comment.IsMissing,'',', ') + {signature_type}
+)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2347,7 +2362,7 @@ WHERE
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>185838</Value>
+          <Value>183773</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2357,7 +2372,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

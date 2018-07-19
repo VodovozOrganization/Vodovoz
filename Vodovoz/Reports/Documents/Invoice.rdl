@@ -16,62 +16,68 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    orders.id AS order_id,
-    orders.delivery_date AS order_date,
-    orders.bottles_return AS bottles_return,
-    orders.sum_to_receive AS total,
-    orders.comment AS order_comment,
-    orders.payment_type AS order_payment_type,
-    orders.online_order AS order_online_number,
-    delivery_schedule.name AS delivery_schedule,
-    CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
-    DATE_FORMAT(counterparty_contract.issue_date,
-            '%d.%m.%y') AS contract_date,
-    counterparty.full_name AS client_name,
-    counterparty.address AS client_address,
-    organizations.full_name AS org_name,
-    organizations.address AS org_address,
-    delivery_points.comment AS delivery_point_comment,
-    delivery_points.address_addition AS delivery_point_address_addition,
+	orders.id AS order_id,
+	orders.delivery_date AS order_date,
+	orders.bottles_return AS bottles_return,
+	orders.sum_to_receive AS total,
+	orders.comment AS order_comment,
+	CASE orders.signature_type 
+		WHEN 'BySeal' THEN 'По печати'
+		WHEN 'ByProxy' THEN 'По доверенности'
+		WHEN 'ProxyOnDeliveryPoint' THEN 'Доверенность на адресе'
+		ELSE ''
+	END AS order_signature_type, 
+	orders.payment_type AS order_payment_type,
+	orders.online_order AS order_online_number,
+	delivery_schedule.name AS delivery_schedule,
+	CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
+	DATE_FORMAT(counterparty_contract.issue_date,
+			'%d.%m.%y') AS contract_date,
+	counterparty.full_name AS client_name,
+	counterparty.address AS client_address,
+	organizations.full_name AS org_name,
+	organizations.address AS org_address,
+	delivery_points.comment AS delivery_point_comment,
+	delivery_points.address_addition AS delivery_point_address_addition,
 
 	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.name IS NULL,'',phones.name)) SEPARATOR '; ')
 	FROM phones 
 	WHERE phones.delivery_point_id = orders.delivery_point_id) AS delivery_point_contact,
 	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.name IS NULL,'',phones.name)) SEPARATOR '; ')
-    FROM phones
-    WHERE phones.counterparty_id = orders.client_id) AS client_contact,
+	FROM phones
+	WHERE phones.counterparty_id = orders.client_id) AS client_contact,
 
-    logistics_area.name AS logistics_area,
-    delivery_points.compiled_address_short AS del_point_address,
-    orders.daily_number_1c AS daily_number,
-    CONCAT_WS('',
-            CONCAT(employees.last_name, ' '),
-            IF(employees.name = '',
-                '',
-                CONCAT(LEFT(employees.name, 1), '.')),
-            IF(employees.patronymic = '',
-                '',
-                CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
-    orders.trifle AS trifle
+	logistics_area.name AS logistics_area,
+	delivery_points.compiled_address_short AS del_point_address,
+	orders.daily_number_1c AS daily_number,
+	CONCAT_WS('',
+			CONCAT(employees.last_name, ' '),
+			IF(employees.name = '',
+				'',
+				CONCAT(LEFT(employees.name, 1), '.')),
+			IF(employees.patronymic = '',
+				'',
+				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
+	orders.trifle AS trifle
 FROM
-    orders
-        LEFT JOIN
-    counterparty ON orders.client_id = counterparty.id
-        LEFT JOIN
-    counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
+	orders
+		LEFT JOIN
+	counterparty ON orders.client_id = counterparty.id
+		LEFT JOIN
+	counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
  AND orders.counterparty_contract_id = counterparty_contract.id
-        LEFT JOIN
-    organizations ON organizations.id = counterparty_contract.organization_id
-        LEFT JOIN
-    delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
-        LEFT JOIN
-    delivery_points ON orders.delivery_point_id = delivery_points.id
-        LEFT JOIN
-    logistics_area ON delivery_points.logistic_area_id = logistics_area.id
-        LEFT JOIN
-    employees ON employees.id = orders.author_employee_id
+		LEFT JOIN
+	organizations ON organizations.id = counterparty_contract.organization_id
+		LEFT JOIN
+	delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
+		LEFT JOIN
+	delivery_points ON orders.delivery_point_id = delivery_points.id
+		LEFT JOIN
+	logistics_area ON delivery_points.logistic_area_id = logistics_area.id
+		LEFT JOIN
+	employees ON employees.id = orders.author_employee_id
 WHERE
-    orders.id = @order_id;</CommandText>
+	orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -169,6 +175,10 @@ WHERE
         </Field>
         <Field Name="delivery_point_address_addition">
           <DataField>delivery_point_address_addition</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_signature_type">
+          <DataField>order_signature_type</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -2113,10 +2123,10 @@ GROUP BY name</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>73.5pt</Width>
+            <Width>79.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>314.9pt</Width>
+            <Width>308.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -2139,7 +2149,7 @@ GROUP BY name</CommandText>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Top</VerticalAlign>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2159,8 +2169,9 @@ GROUP BY name</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign>Top</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2185,7 +2196,7 @@ GROUP BY name</CommandText>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Top</VerticalAlign>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2201,8 +2212,9 @@ GROUP BY name</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign>Top</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2227,7 +2239,7 @@ GROUP BY name</CommandText>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Top</VerticalAlign>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2258,8 +2270,48 @@ GROUP BY name</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign>Top</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Value>Подписание:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox68">
+                      <Value>={order_signature_type}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2284,7 +2336,7 @@ GROUP BY name</CommandText>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Top</VerticalAlign>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2300,8 +2352,9 @@ GROUP BY name</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign>Top</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2326,7 +2379,7 @@ GROUP BY name</CommandText>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Top</VerticalAlign>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2346,8 +2399,9 @@ GROUP BY name</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign>Top</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3041,7 +3095,7 @@ GROUP BY name</CommandText>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>252926</Value>
+          <Value>183773</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
