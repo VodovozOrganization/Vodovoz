@@ -844,8 +844,13 @@ namespace Vodovoz
 				return;
 			}
 
+			if(UoWGeneric.Root.DeliveryPoint == null) {
+				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должна быть выбрана точка доставки.");
+				return;
+			}
+
 			if(UoWGeneric.Root.DeliveryDate == null) {
-				MessageDialogWorks.RunErrorDialog("Введите дату доставки");
+				MessageDialogWorks.RunWarningDialog("Введите дату доставки");
 				return;
 			}
 
