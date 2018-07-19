@@ -166,6 +166,7 @@ namespace Vodovoz
 			menuActions.Menu = menu;
 			menu.ShowAll();
 			menuActions.Sensitive = !UoWGeneric.IsNew;
+			contactsview1.Visible = false;
 		}
 
 		public void ActivateContactsTab()
