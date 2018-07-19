@@ -912,16 +912,13 @@ namespace Vodovoz
 					}
 					UoWGeneric.Session.Refresh(contract);
 					WaterSalesAgreement wsa = contract.GetWaterSalesAgreement(UoWGeneric.Root.DeliveryPoint, nomenclature);
-					if(wsa == null) {
-						//Если нет доп. соглашения продажи воды.
-						if(MessageDialogWorks.RunQuestionDialog("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?")) {
-							RunAdditionalAgreementWaterDialog(nomenclature, count);
-						} else
-							return;
-					} else {
-						UoWGeneric.Root.AddWaterForSale(nomenclature, wsa, count);
-						UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
+					if(wsa == null){
+						wsa = ClientDocumentsRepository.CreateDefaultWaterAgreement(UoW, Entity.DeliveryPoint, Entity.DeliveryDate, contract);
+						contract.AdditionalAgreements.Add(wsa);
+						UoWGeneric.Root.CreateOrderAgreementDocument(wsa);
 					}
+					UoWGeneric.Root.AddWaterForSale(nomenclature, wsa, count);
+					UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
 					break;
 				case NomenclatureCategory.master:
 					UoWGeneric.Root.AddMasterNomenclature(nomenclature);
