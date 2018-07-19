@@ -39,6 +39,8 @@ namespace Vodovoz.Domain.Orders.Documents
 			get { return AdditionalAgreement.DocumentDate; }
 		}
 
+		public int CopiesToPrint { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
 		public virtual void PrepareTemplate(IUnitOfWork uow)
 		{
 			if (AdditionalAgreement.AgreementTemplate == null && AdditionalAgreement.AgreementTemplate != null)

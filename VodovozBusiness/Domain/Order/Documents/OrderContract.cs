@@ -32,7 +32,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override string DocumentDate {
 			get { return String.Format ("от {0}", Contract.IssueDate.ToShortDateString ()); }
 		}
-			
+
+		public int CopiesToPrint { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
 		public virtual IDocTemplate GetTemplate()
 		{
 			return Contract.ContractTemplate;
