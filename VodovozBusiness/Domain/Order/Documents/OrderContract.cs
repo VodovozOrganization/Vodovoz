@@ -33,7 +33,7 @@ namespace Vodovoz.Domain.Orders.Documents
 			get { return String.Format ("от {0}", Contract.IssueDate.ToShortDateString ()); }
 		}
 
-		public int CopiesToPrint { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+		public virtual int CopiesToPrint { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
 		public virtual IDocTemplate GetTemplate()
 		{
