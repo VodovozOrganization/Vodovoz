@@ -203,7 +203,7 @@ namespace Vodovoz.Domain.Logistic
 					return equipmentDepositsCollected;
 				}
 
-				return Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);
+				return 0 - Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);
 			}
 		}
 
@@ -608,7 +608,7 @@ namespace Vodovoz.Domain.Logistic
 			return Order.OrderItems
 						.Where(item => item.Order.PaymentType == Client.PaymentType.cash)
 						.Sum(item => item.ActualCount * item.Price * (1 - (decimal)item.Discount / 100))
-				        + ExtraCash;
+						+ ExtraCash + DepositsCollected + GetEquipmentDepositsCollected;
 		}
 
 		/// <summary>
