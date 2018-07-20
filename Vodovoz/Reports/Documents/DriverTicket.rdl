@@ -234,7 +234,7 @@ WHERE
             GROUP_CONCAT(CONCAT(nomenclature.name,
                             ' - ',
                             order_equipment.count,
-					' (',
+					'\n(',
 					(
 						CASE order_equipment.own_type
 							WHEN 'Client' THEN 'Клиента'
@@ -243,6 +243,15 @@ WHERE
 							ELSE 'неизвестно'
 						END
                     ),
+                    (
+						CASE order_equipment.direction_reason
+							WHEN 'Rent' THEN ': В аренду'
+							WHEN 'Repair' THEN ': Из ремонта'
+							WHEN 'Cleaning' THEN ': После сан.обр.'
+							WHEN 'RepairAndCleaning' THEN ': После сан.обр. и ремонта'
+							ELSE ''
+						END
+					),
                     ')'
                     )
                     SEPARATOR '\n')
@@ -257,7 +266,7 @@ WHERE
             GROUP_CONCAT(CONCAT(nomenclature.name,
                             ' - ',
                             order_equipment.count,
-					' (',
+					'\n(',
 					(
 						CASE order_equipment.own_type
 							WHEN 'Client' THEN 'Клиента'
@@ -266,6 +275,15 @@ WHERE
 							ELSE 'неизвестно'
 						END
                     ),
+                    (
+						CASE order_equipment.direction_reason
+							WHEN 'Rent' THEN ': Закрытие'
+							WHEN 'Repair' THEN ': В ремонт'
+							WHEN 'Cleaning' THEN ': На сан.обр.'
+							WHEN 'RepairAndCleaning' THEN ': На сан.обр.и ремонт'
+							ELSE ''
+						END
+					),
                     ')'
                     )
                     SEPARATOR '\n')
@@ -2362,7 +2380,7 @@ Iif(
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>183773</Value>
+          <Value>260463</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
