@@ -843,9 +843,11 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе выбрана точка доставки для которой нет актуального дополнительного соглашения по доставке воды");
 			}
 
-			if(!QSMain.User.Permissions["can_can_create_order_in_advance"] && DeliveryDate.HasValue && DeliveryDate.Value < DateTime.Today) {
+			if(!QSMain.User.Permissions["can_can_create_order_in_advance"]
+			   && DeliveryDate.HasValue && DeliveryDate.Value < DateTime.Today
+			   && OrderStatus <= OrderStatus.Accepted) {
 				yield return new ValidationResult("Указана дата заказа более ранняя чем сегодняшняя. Укажите правильную дату доставки.",
-				                                  new[] { this.GetPropertyName(o => o.DeliveryDate) });
+												  new[] { this.GetPropertyName(o => o.DeliveryDate) });
 			}
 #if !SHORT
 			if (ObservableOrderItems.Any (item => item.Count < 1))
