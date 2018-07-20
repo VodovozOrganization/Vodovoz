@@ -27438,6 +27438,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -27567,7 +27568,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">3</property>
             <child>
               <widget class="Gtk.VBox" id="vboxInfo">
                 <property name="MemberName" />
@@ -29177,14 +29178,15 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="Gamma.Widgets.yValidatedEntry" id="entryDiscountOrder">
+                                  <widget class="Gamma.Widgets.ySpecComboBox" id="ycomboboxReason">
                                     <property name="MemberName" />
-                                    <property name="CanFocus">True</property>
-                                    <property name="IsEditable">True</property>
-                                    <property name="WidthChars">3</property>
-                                    <property name="InvisibleChar">•</property>
-                                    <signal name="Changed" handler="OnEntryDiscountOrderChanged" />
-                                    <signal name="KeyReleaseEvent" handler="OnEntryDiscountOrderKeyReleaseEvent" />
+                                    <property name="IsTextCombo">False</property>
+                                    <property name="Items" translatable="yes" />
+                                    <property name="AddIfNotExist">False</property>
+                                    <property name="DefaultFirst">False</property>
+                                    <property name="ShowSpecialStateAll">False</property>
+                                    <property name="ShowSpecialStateNot">False</property>
+                                    <signal name="ItemSelected" handler="OnYcomboboxReasonItemSelected" />
                                   </widget>
                                   <packing>
                                     <property name="Position">6</property>
@@ -29194,15 +29196,17 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="Gamma.Widgets.ySpecComboBox" id="ycomboboxReason">
+                                  <widget class="Gamma.GtkWidgets.ySpinButton" id="spinDiscount">
                                     <property name="MemberName" />
-                                    <property name="Sensitive">False</property>
-                                    <property name="IsTextCombo">False</property>
-                                    <property name="Items" translatable="yes" />
-                                    <property name="AddIfNotExist">False</property>
-                                    <property name="DefaultFirst">False</property>
-                                    <property name="ShowSpecialStateAll">False</property>
-                                    <property name="ShowSpecialStateNot">False</property>
+                                    <property name="CanFocus">True</property>
+                                    <property name="Upper">100</property>
+                                    <property name="PageIncrement">1</property>
+                                    <property name="StepIncrement">1</property>
+                                    <property name="ClimbRate">1</property>
+                                    <property name="Numeric">True</property>
+                                    <property name="ValueAsDecimal">0</property>
+                                    <property name="ValueAsInt">0</property>
+                                    <signal name="ValueChanged" handler="OnSpinDiscountValueChanged" />
                                   </widget>
                                   <packing>
                                     <property name="Position">7</property>
@@ -29212,20 +29216,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="Gtk.Button" id="buttonSetDiscount">
-                                    <property name="MemberName" />
-                                    <property name="CanFocus">True</property>
-                                    <property name="Type">TextOnly</property>
-                                    <property name="Label" translatable="yes">Применить</property>
-                                    <property name="UseUnderline">True</property>
-                                    <signal name="Clicked" handler="OnButtonSetDiscountClicked" />
-                                  </widget>
-                                  <packing>
-                                    <property name="Position">8</property>
-                                    <property name="AutoSize">True</property>
-                                    <property name="Expand">False</property>
-                                    <property name="Fill">False</property>
-                                  </packing>
+                                  <placeholder />
                                 </child>
                                 <child>
                                   <placeholder />

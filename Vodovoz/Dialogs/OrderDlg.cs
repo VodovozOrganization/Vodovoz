@@ -203,8 +203,6 @@ namespace Vodovoz
 
 			txtOnRouteEditReason.Binding.AddBinding(Entity, e => e.OnRouteEditReason, w => w.Buffer.Text).InitializeFromSource();
 
-			entryDiscountOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
-
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
@@ -399,6 +397,7 @@ namespace Vodovoz
 
 			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += WaterSalesAgreement_ObjectUpdatedGeneric;
 			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());
+			SetDiscountEditable();
 
 			spinSumDifference.Hide();
 			labelSumDifference.Hide();
@@ -789,7 +788,7 @@ namespace Vodovoz
 			pickerDeliveryDate.Sensitive = val;
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
-			entryDiscountOrder.Visible = buttonSetDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
+			spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			tblOnRouteEditReason.Sensitive = val;
 			ChangeOrderEditable(val);
 
@@ -1742,12 +1741,22 @@ namespace Vodovoz
 			SetDiscount();
 		}
 
+		void SetDiscountEditable(bool? canEdit = null)
+		{
+			spinDiscount.Sensitive = canEdit.HasValue ? canEdit.Value : ycomboboxReason.SelectedItem != null;
+		}
+
+		protected void OnSpinDiscountValueChanged(object sender, EventArgs e)
+		{
+			SetDiscount();
+		}
+
 		private void SetDiscount()
 		{
 			DiscountReason reason = (ycomboboxReason.SelectedItem as DiscountReason);
 
 			int discount = 0;
-			if(Int32.TryParse(entryDiscountOrder.Text, out discount)) {
+			if(Int32.TryParse(spinDiscount.Text, out discount)) {
 				if(reason == null && discount > 0) {
 					MessageDialogWorks.RunErrorDialog("Необходимо выбрать основание для скидки");
 					return;
@@ -2086,7 +2095,7 @@ namespace Vodovoz
 		protected void OnEntryDiscountOrderChanged(object sender, EventArgs e)
 		{
 			int result = 0;
-			if(Int32.TryParse(entryDiscountOrder.Text, out result)) {
+			if(Int32.TryParse(spinDiscount.Text, out result)) {
 				bool haveDiscount = result != 0;
 				ycomboboxReason.Sensitive = haveDiscount;
 				if(!haveDiscount) {
@@ -2105,6 +2114,11 @@ namespace Vodovoz
 		protected void OnReferenceContractChanged(object sender, EventArgs e)
 		{
 			OnReferenceDeliveryPointChanged(sender, e);
+		}
+
+		protected void OnYcomboboxReasonItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			SetDiscountEditable();
 		}
 		#endregion
 	}
