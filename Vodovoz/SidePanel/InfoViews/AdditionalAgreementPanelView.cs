@@ -128,14 +128,16 @@ namespace Vodovoz.SidePanel.InfoViews
 		/// </summary>
 		void RefreshList(){
 			var wsa = Contract.AdditionalAgreements
-							  		.Where(a => a.DeliveryPoint == DeliveryPoint)
-							  		.Where(a => !a.IsCancelled)
-			                        .FirstOrDefault()?.Self as WaterSalesAgreement;
+			                  .Select(x => x.Self).OfType<WaterSalesAgreement>()
+			                  .Where(a => a.DeliveryPoint == DeliveryPoint)
+			                  .Where(a => !a.IsCancelled)
+			                  .FirstOrDefault();
 			if(wsa == null) {
 				wsa = Contract.AdditionalAgreements
+				              .Select(x => x.Self).OfType<WaterSalesAgreement>()
 							  .Where(a => a.DeliveryPoint == null)
 							  .Where(a => !a.IsCancelled)
-							  .FirstOrDefault()?.Self as WaterSalesAgreement;
+							  .FirstOrDefault();
 			}
 			if(wsa == null) {
 				fixedPricesList = new List<WaterSalesAgreementFixedPrice>();
