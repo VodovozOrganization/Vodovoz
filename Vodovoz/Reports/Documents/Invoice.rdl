@@ -2628,7 +2628,7 @@ GROUP BY name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>=Iif(Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund') &gt; 0,
+                      <Value>=Iif(Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund') &gt;= 0,
     "Всего получить от клиента: "+Code.SummaString_Val(
         Convert.ToString(
             Iif(First({order_payment_type}, "Order")!='ByCard',
