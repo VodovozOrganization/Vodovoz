@@ -817,12 +817,19 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 
-			if(ObservableOrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
-			   .Any(x => x.OwnType == OwnTypes.None))
+			if(ObservableOrderEquipments
+			   .Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
+			   .Where(x => x.OwnType == OwnTypes.None)
+			   .Any()
+			  )
 				yield return new ValidationResult("У оборудования в заказе должна быть выбрана принадлежность.");
 
-			if(ObservableOrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
-			   .Any(x => x.DirectionReason == DirectionReason.None && x.OwnType != OwnTypes.Duty))
+			if(ObservableOrderEquipments
+			   .Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
+			   .Where(x => x.DirectionReason == DirectionReason.None && x.OwnType != OwnTypes.Duty)
+			   .Where(x => x.Nomenclature?.SubTypeOfEquipmentCategory != SubtypeOfEquipmentCategory.forSale)
+			   .Any()
+			  )
 				yield return new ValidationResult("У оборудования в заказе должна быть указана причина забор-доставки.");
 
 			if(ObservableOrderDepositItems.Any(x => x.Total < 0)) {
@@ -1980,7 +1987,6 @@ namespace Vodovoz.Domain.Orders
 			OrderDocumentType[] typesArray = OrderDocumentRulesRepository.GetSetOfDocumets(key);
 
 			CheckAndCreateDocuments(typesArray);
-			CreateWarrantyDocuments();
 		}
 
 		[Obsolete("Метод устарел после внедрения функционала в рамках задачи I-1173", true)]
@@ -2371,7 +2377,7 @@ namespace Vodovoz.Domain.Orders
 			OrderStatus.UnloadingOnStock
 		};
 
-  		#endregion
+		#endregion
 	}
 }
 

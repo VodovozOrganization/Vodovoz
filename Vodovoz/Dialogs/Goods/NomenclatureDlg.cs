@@ -52,6 +52,10 @@ namespace Vodovoz
 			enumType.ItemsEnum = typeof(NomenclatureCategory);
 			enumType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
+			enumSubtype.Visible = Entity.Category == NomenclatureCategory.equipment;
+			enumSubtype.ItemsEnum = typeof(SubtypeOfEquipmentCategory);
+			enumSubtype.Binding.AddBinding(Entity, e => e.SubTypeOfEquipmentCategory, w => w.SelectedItem).InitializeFromSource();
+
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			yentryOfficialName.Binding.AddBinding(Entity, e => e.OfficialName, w => w.Text).InitializeFromSource();
 			var parallel = new ParallelEditing (yentryOfficialName);
@@ -149,7 +153,7 @@ namespace Vodovoz
 
 		protected void ConfigureInputs (NomenclatureCategory selected)
 		{
-			radioEuqpment.Sensitive = selected == NomenclatureCategory.equipment;
+			enumSubtype.Visible = radioEuqpment.Sensitive = selected == NomenclatureCategory.equipment;
 			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 			spinVolume.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 			lblPercentForMaster.Visible = spinPercentForMaster.Visible = (selected == NomenclatureCategory.master);
@@ -160,9 +164,9 @@ namespace Vodovoz
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelRentPriority.Sensitive = ycheckRentPriority.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
+			labelCanPrintPrice.Visible = checkcanPrintPrice.Visible = Entity.Category == NomenclatureCategory.water;
 
 			labelBottle.Sensitive = ycheckNewBottle.Sensitive = ycheckDefectiveBottle.Sensitive = selected == NomenclatureCategory.bottle;
-
 			//FIXME запуск оборудования - временный фикс
 			//if (Entity.Category == NomenclatureCategory.equipment)
 				//Entity.Serial = true;

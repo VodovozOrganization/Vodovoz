@@ -1318,7 +1318,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5106,6 +5105,9 @@
                             <property name="DrawIndicator">True</property>
                             <property name="HasLabel">True</property>
                             <property name="UseUnderline">True</property>
+                            <property name="FocusOnClick">False</property>
+                            <property name="Xalign">0</property>
+                            <property name="Yalign">0</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">14</property>
@@ -5291,32 +5293,6 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEnumComboBox" id="enumType">
-                            <property name="MemberName" />
-                            <property name="IsTextCombo">False</property>
-                            <property name="Items" translatable="yes" />
-                            <property name="ShowSpecialStateAll">False</property>
-                            <property name="ShowSpecialStateNot">False</property>
-                            <property name="UseShortTitle">False</property>
-                            <property name="DefaultFirst">True</property>
-                            <signal name="Changed" handler="OnEnumTypeChanged" />
-                          </widget>
-                          <packing>
-                            <property name="TopAttach">3</property>
-                            <property name="BottomAttach">4</property>
-                            <property name="LeftAttach">1</property>
-                            <property name="RightAttach">2</property>
-                            <property name="AutoSize">False</property>
-                            <property name="YOptions">Fill</property>
-                            <property name="XExpand">True</property>
-                            <property name="XFill">True</property>
-                            <property name="XShrink">False</property>
-                            <property name="YExpand">False</property>
-                            <property name="YFill">True</property>
-                            <property name="YShrink">False</property>
-                          </packing>
-                        </child>
-                        <child>
                           <widget class="Gamma.Widgets.yEnumComboBox" id="enumVAT">
                             <property name="MemberName" />
                             <property name="IsTextCombo">False</property>
@@ -5390,6 +5366,60 @@
                           </packing>
                         </child>
                         <child>
+                          <widget class="Gtk.HBox" id="hbox3">
+                            <property name="MemberName" />
+                            <property name="Spacing">6</property>
+                            <child>
+                              <widget class="Gamma.Widgets.yEnumComboBox" id="enumType">
+                                <property name="MemberName" />
+                                <property name="IsTextCombo">False</property>
+                                <property name="Items" translatable="yes" />
+                                <property name="ShowSpecialStateAll">False</property>
+                                <property name="ShowSpecialStateNot">False</property>
+                                <property name="UseShortTitle">False</property>
+                                <property name="DefaultFirst">True</property>
+                                <signal name="Changed" handler="OnEnumTypeChanged" />
+                              </widget>
+                              <packing>
+                                <property name="Position">0</property>
+                                <property name="AutoSize">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gamma.Widgets.yEnumComboBox" id="enumSubtype">
+                                <property name="MemberName" />
+                                <property name="IsTextCombo">False</property>
+                                <property name="Items" translatable="yes" />
+                                <property name="ShowSpecialStateAll">False</property>
+                                <property name="ShowSpecialStateNot">False</property>
+                                <property name="UseShortTitle">False</property>
+                                <property name="DefaultFirst">False</property>
+                                <signal name="Changed" handler="OnEnumTypeChanged" />
+                              </widget>
+                              <packing>
+                                <property name="Position">1</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">3</property>
+                            <property name="BottomAttach">4</property>
+                            <property name="LeftAttach">1</property>
+                            <property name="RightAttach">2</property>
+                            <property name="AutoSize">False</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">True</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
                           <widget class="Gtk.HBox" id="hbox8">
                             <property name="MemberName" />
                             <property name="Spacing">6</property>
@@ -5444,7 +5474,7 @@
                           <widget class="Gtk.Label" id="label3">
                             <property name="MemberName" />
                             <property name="Xalign">1</property>
-                            <property name="LabelProp" translatable="yes">Колонка маршрутного листа:</property>
+                            <property name="LabelProp" translatable="yes">Колонка маршр. листа:</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">7</property>
@@ -5588,7 +5618,8 @@
                           <widget class="Gtk.Label" id="labelCanPrintPrice">
                             <property name="MemberName" />
                             <property name="Xalign">1</property>
-                            <property name="LabelProp" translatable="yes">Печатать цены в доп.соглашении:</property>
+                            <property name="LabelProp" translatable="yes">Печатать цены в
+доп.соглашении:</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">14</property>

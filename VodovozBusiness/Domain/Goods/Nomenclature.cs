@@ -172,6 +172,13 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		SubtypeOfEquipmentCategory? subTypeOfEquipmentCategory;
+
+		[Display(Name = "Подкатегория товаров")]
+		public virtual SubtypeOfEquipmentCategory? SubTypeOfEquipmentCategory {
+			get { return subTypeOfEquipmentCategory; }
+			set { SetField(ref subTypeOfEquipmentCategory, value, () => SubTypeOfEquipmentCategory);}
+		}
 		EquipmentColors color;
 
 		[Display(Name = "Цвет оборудования")]
@@ -347,6 +354,11 @@ namespace Vodovoz.Domain.Goods
 					String.Format("Не указан тип оборудования."),
 					new[] { this.GetPropertyName(o => o.Type) });
 
+			if(Category == NomenclatureCategory.equipment && SubTypeOfEquipmentCategory == null)
+				yield return new ValidationResult(
+					String.Format("Не указан подтип оборудования (для продажи или нет)."),
+					new[] { this.GetPropertyName(o => o.SubTypeOfEquipmentCategory) });
+
 			//Проверка зависимостей номенклатур #1: если есть зависимые
 			if(DependsOnNomenclature != null) {
 				IList<Nomenclature> dependedNomenclatures = Repository.NomenclatureRepository.GetDependedNomenclatures(UoW, this);
@@ -521,9 +533,27 @@ namespace Vodovoz.Domain.Goods
 		master
 	}
 
+	/// <summary>
+	/// Подтип категории "Товары"
+	/// </summary>
+	public enum SubtypeOfEquipmentCategory
+	{
+		[Display(Name = "На продажу")]
+		forSale,
+		[Display(Name = "Не для продажи")]
+		notForSale
+	}
+
 	public class NomenclatureCategoryStringType : NHibernate.Type.EnumStringType
 	{
 		public NomenclatureCategoryStringType() : base(typeof(NomenclatureCategory))
+		{
+		}
+	}
+
+	public class SubtypeOfEquipmentCategoryStringType : NHibernate.Type.EnumStringType
+	{
+		public SubtypeOfEquipmentCategoryStringType() : base(typeof(SubtypeOfEquipmentCategory))
 		{
 		}
 	}
