@@ -58,14 +58,20 @@
 			IF(employees.patronymic = '',
 				'',
 				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
-	orders.trifle AS trifle
+	orders.trifle AS trifle,
+	IF(
+		orders.order_status = 'Closed',
+		MAX(route_list_addresses.bottles_returned),
+		 '    '
+	) AS bottles_in_fact
 FROM
 	orders
 		LEFT JOIN
+	route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.status = 'Completed'
+		LEFT JOIN
 	counterparty ON orders.client_id = counterparty.id
 		LEFT JOIN
-	counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
- AND orders.counterparty_contract_id = counterparty_contract.id
+	counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id AND orders.counterparty_contract_id = counterparty_contract.id
 		LEFT JOIN
 	organizations ON organizations.id = counterparty_contract.organization_id
 		LEFT JOIN
@@ -180,6 +186,10 @@ WHERE
         <Field Name="order_signature_type">
           <DataField>order_signature_type</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bottles_in_fact">
+          <DataField>bottles_in_fact</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1481,7 +1491,7 @@ GROUP BY name</CommandText>
           <Textbox Name="Textbox38">
             <Height>12.00pt</Height>
             <Width>385.02pt</Width>
-            <Value>*             (                                    ) бутылей            /                                       /</Value>
+            <Value>='*    ' + {bottles_in_fact} + '      (                                    ) бутылей            /                                       /'</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
             <Top>55.3pt</Top>
@@ -3144,7 +3154,7 @@ GROUP BY name</CommandText>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>260463</Value>
+          <Value>183688</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>

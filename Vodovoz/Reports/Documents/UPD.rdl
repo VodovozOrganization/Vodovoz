@@ -93,6 +93,7 @@ WHERE
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SET lc_time_names = 'ru_RU';
+
 SELECT 
 	orders.id AS order_id,
 	orders.delivery_date AS order_date,
@@ -114,11 +115,18 @@ SELECT
 	LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
 	leader.last_name AS leader_last_name,
 	LEFT(leader.name, 1) AS leader_name,
-	LEFT(leader.patronymic, 1) AS leader_patronymic
+	LEFT(leader.patronymic, 1) AS leader_patronymic,
+	IF(
+		orders.order_status = 'Closed',
+		MAX(route_list_addresses.bottles_returned),
+		'    '
+	) AS bottles_in_fact
 FROM
 	orders
 		LEFT JOIN
 	counterparty ON orders.client_id = counterparty.id
+		LEFT JOIN
+	route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.status = 'Completed'
 		LEFT JOIN
 	counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
 		LEFT JOIN
@@ -219,6 +227,10 @@ WHERE
         <Field Name="del_point_address">
           <DataField>del_point_address</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bottles_in_fact">
+          <DataField>bottles_in_fact</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -2708,7 +2720,7 @@ WHERE
           <Textbox Name="Textbox171">
             <Height>13.50pt</Height>
             <Width>143.08pt</Width>
-            <Value>(                 )</Value>
+            <Value>='(   ' + {bottles_in_fact} + '   )'</Value>
             <ZIndex>1</ZIndex>
             <Left>174.7pt</Left>
             <Top>80.3pt</Top>
@@ -3584,7 +3596,7 @@ WHERE
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>185644</Value>
+          <Value>183688</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>

@@ -2144,13 +2144,13 @@ namespace Vodovoz.Domain.Orders
 					needCreate.Remove(doc.Type);
 				else
 					ObservableOrderDocuments.Remove(doc);
-				if(OrderDocuments.Any(x => x.Id != doc.Id && x.Type == doc.Type)) {
+				if(OrderDocuments.Any(x => x.Order?.Id == Id && x.Id != doc.Id && x.Type == doc.Type)) {
 					ObservableOrderDocuments.Remove(doc);
 				}
 			}
 			//Создаем отсутствующие
 			foreach(var type in needCreate) {
-				if(ObservableOrderDocuments.Any(x => x.Type == type)) {
+				if(ObservableOrderDocuments.Any(x => x.Order?.Id == Id && x.Type == type)) {
 					continue;
 				}
 				ObservableOrderDocuments.Add(CreateDocumentOfOrder(type));
