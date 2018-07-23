@@ -907,7 +907,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox15" >
+                    <Textbox Name="Textbox15">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1128,7 +1128,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox68" >
+                    <Textbox Name="Textbox68">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1198,7 +1198,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value><!--table_cell_total_without_stock--></Value>
+                      <Value>
+                        <!--table_cell_total_without_stock-->
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1678,7 +1680,15 @@ UNION ALL
 	SELECT 
 		order_equipment.order_id as order_id, 
 		nomenclature.id AS nomenclature_id,
-		IFNULL(nomenclature.short_name, nomenclature.name) as name, 
+		CONCAT(
+			IFNULL(nomenclature.short_name, nomenclature.name), 
+			case
+				when order_equipment.own_type = 'Rent' then '(Аренда)'
+				when order_equipment.own_type = 'Client' then '(Клиент)'
+				when order_equipment.own_type = 'Duty' then '(Дежурный)'
+				else ''
+			end
+        ) as name, 
         SUM(order_equipment.count) AS cnt 
 	FROM order_equipment
 		LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
@@ -1691,7 +1701,15 @@ LEFT JOIN (
 	SELECT
 		order_equipment.order_id as order_id, 
         nomenclature.id AS nomenclature_id,
-		IFNULL(nomenclature.short_name, nomenclature.name) as name, 
+		CONCAT(
+			IFNULL(nomenclature.short_name, nomenclature.name), 
+			case
+				when order_equipment.own_type = 'Rent' then '(Аренда)'
+				when order_equipment.own_type = 'Client' then '(Клиент)'
+				when order_equipment.own_type = 'Duty' then '(Дежурный)'
+				else ''
+			end
+        ) as name, 
         SUM(order_equipment.count) AS cnt 
     FROM order_equipment 
 		LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
