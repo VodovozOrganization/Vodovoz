@@ -68,6 +68,17 @@ namespace Vodovoz.Domain.Orders
 					}
 				}
 				if(SetField(ref price, value, () => Price)) {
+					if(additionalAgreement != null 
+					   && Nomenclature.Category == NomenclatureCategory.equipment
+					   && additionalAgreement.Self.Type == AgreementType.EquipmentSales) {
+						var es = additionalAgreement.Self as SalesEquipmentAgreement;
+						if(es != null) {
+							var salesEquipment = es.ObservableSalesEqipments.FirstOrDefault(x => x.Nomenclature.Id == Nomenclature.Id);
+							if(salesEquipment != null) {
+								salesEquipment.Price = value;
+							}
+						}
+					}
 					RecalculateNDS();
 				}
 			}

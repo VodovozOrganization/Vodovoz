@@ -1724,18 +1724,26 @@ namespace Vodovoz.Domain.Orders
 			} else if(a.Type == AgreementType.EquipmentSales) {
 				SalesEquipmentAgreement agreement = a as SalesEquipmentAgreement;
 				foreach(SalesEquipment equipment in agreement.SalesEqipments) {
-					int ItemId;
-					//Добавляем номенклатуру продажи оборудования.
-					ItemId = ObservableOrderItems.AddWithReturn(
-						new OrderItem {
-							Order = this,
-							AdditionalAgreement = agreement,
-							Count = equipment.Count,
-							Equipment = null,
-							Nomenclature = equipment.Nomenclature,
-							Price = equipment.Price
-						}
-					);
+					var oi = observableOrderItems.FirstOrDefault(x => x.AdditionalAgreement != null
+					                                             && x.AdditionalAgreement.Self == agreement
+					                                             && x.Nomenclature.Id == equipment.Nomenclature.Id);
+					if(oi != null) {
+						oi.Price = equipment.Price;
+						oi.Price = equipment.Count;
+					} else {
+						int ItemId;
+						//Добавляем номенклатуру продажи оборудования.
+						ItemId = ObservableOrderItems.AddWithReturn(
+							new OrderItem {
+								Order = this,
+								AdditionalAgreement = agreement,
+								Count = equipment.Count,
+								Equipment = null,
+								Nomenclature = equipment.Nomenclature,
+								Price = equipment.Price
+							}
+							);
+					}
 				}
 			}
 			UpdateDocuments();

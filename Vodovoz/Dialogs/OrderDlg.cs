@@ -575,9 +575,11 @@ namespace Vodovoz
 			}
 
 			buttonDelete1.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null || (items[0] as OrderItem).Nomenclature.Category == NomenclatureCategory.water
-														  || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.DailyRent
-														  || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.FreeRent
-														  || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.NonfreeRent);
+			                                               || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.DailyRent
+			                                               || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.FreeRent
+			                                               || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.NonfreeRent
+			                                               || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.EquipmentSales
+			                                              );
 		}
 
 		/// <summary>
@@ -1383,8 +1385,19 @@ namespace Vodovoz
 
 		protected void RunAdditionalAgreementSalesEquipmentDialog(Nomenclature nom = null)
 		{
+			CounterpartyContract contract = null;
+			if(Entity.Contract == null) {
+				contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
+				if(contract == null) {
+					contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate);
+					Entity.Contract = contract;
+					AddContractDocument(contract);
+				}
+			} else {
+				contract = Entity.Contract;
+			}
 			ITdiDialog dlg = new EquipSalesAgreementDlg(
-				CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType),
+				contract,
 				UoWGeneric.Root.DeliveryPoint,
 				UoWGeneric.Root.DeliveryDate,
 				nom
