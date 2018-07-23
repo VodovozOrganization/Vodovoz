@@ -67,7 +67,8 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Номер")]
-		public virtual string Number { get { return Id > 0 ? Id.ToString() : "Не определен"; } set { } }
+		//FIXME Удалить дублирование в ContractFullNumber, когда запустимся и станет поспокойнее.
+		public virtual string Number { get { return ContractFullNumber; } set { } }
 
 		DateTime issueDate;
 
@@ -136,9 +137,17 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
+#region Вычисляемые
+
 		public virtual string Title { 
 			get { return String.Format ("Договор №{0}-{1} от {2:d}", Counterparty.VodovozInternalId, ContractSubNumber, IssueDate); }
 		}
+
+		public virtual string TitleIn1c {
+			get { return String.Format("{0}-{1} от {2:d}", Counterparty.VodovozInternalId, ContractSubNumber, IssueDate); }
+		}
+
+#endregion
 
 		#region IValidatableObject implementation
 

@@ -95,11 +95,25 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					counterparty.KPP
 				)
 			);
-			properties.Add(
-				new PropertyNode("ГоловнойКонтрагент",
-					Common1cTypes.ReferenceContract
-				)
-			);
+
+			if(counterparty.MainCounterparty != null)
+			{
+				properties.Add(
+					new PropertyNode("ГоловнойКонтрагент",
+					                 Common1cTypes.ReferenceCounterparty,
+					                 exportData.CounterpartyCatalog.CreateReferenceTo(counterparty.MainCounterparty)
+					)
+				);
+			}
+			else
+			{
+				properties.Add(
+					new PropertyNode("ГоловнойКонтрагент",
+									 Common1cTypes.ReferenceCounterparty
+					)
+				);
+			}
+
 			return properties.ToArray();
 		}
 	}

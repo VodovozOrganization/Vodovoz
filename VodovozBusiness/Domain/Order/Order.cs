@@ -513,6 +513,14 @@ namespace Vodovoz.Domain.Orders
 			get { return isContractCloser; }
 			set { SetField(ref isContractCloser, value, () => IsContractCloser); }
 		}
+
+		#region Временные на период запуска заказов, для выгрузки договоров из заказов загруженных из 1с.
+
+		public virtual string ContractCode1c {get; set;}
+		public virtual string ContractTitle1c { get; set; }
+
+		#endregion
+
 		#endregion
 
 		public virtual bool CanChangeContractor()

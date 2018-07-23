@@ -27,7 +27,7 @@ namespace Vodovoz.ExportTo1c
 			: this(name, type, new PropertyValueNode(value.ToString())){}
 		
 		public PropertyNode(string name, string type, string value)
-			: this(name, type, new PropertyValueNode(value)){}
+			: this(name, type, value == null ? (IXmlConvertable) new PropertyNullNode() : (IXmlConvertable) new PropertyValueNode(value)){}
 
 		public PropertyNode(string name, string type)
 			:this(name,type,new PropertyNullNode()){}

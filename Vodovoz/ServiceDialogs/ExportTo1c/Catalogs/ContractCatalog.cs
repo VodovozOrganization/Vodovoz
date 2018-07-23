@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 
@@ -23,7 +24,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			return new ReferenceNode(
 				new PropertyNode("Наименование",
 					Common1cTypes.String,
-					contract.Title
+				                 contract.TitleIn1c
 				),
 				new PropertyNode("ЭтоГруппа",
 					Common1cTypes.Boolean
@@ -34,7 +35,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				),
 				new PropertyNode("Организация",
 					Common1cTypes.ReferenceOrganization,
-					exportData.OrganizationCatalog.CreateReferenceTo(organization)
+				                 exportData.OrganizationCatalog.CreateReferenceTo(contract.Organization)
 				),
 				new PropertyNode("ВидДоговора",
 					Common1cTypes.EnumContractType,
@@ -42,6 +43,20 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				)
 			);
 		}
+
+		public ReferenceNode CreateReferenceToContract(Domain.Orders.Order order)
+		{
+			if(order.Contract != null)
+				return CreateReferenceTo(order.Contract);
+
+			var contract = items.FirstOrDefault(pair => pair.Key is VirtualContract
+			                                    && ((VirtualContract)pair.Key).Check(order)).Key;
+			if(contract == null)
+				contract = new VirtualContract(order.Client, exportData.CashlessOrganization, order.ContractTitle1c, order.ContractCode1c);
+
+			return CreateReferenceTo(contract);
+		}
+
 		protected override PropertyNode[] GetProperties(CounterpartyContract contract)
 		{
 			var properties = new List<PropertyNode>();
@@ -70,10 +85,31 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			properties.Add(
 				new PropertyNode("Код",
 					Common1cTypes.String,
-					contract.Id
+				                 contract is VirtualContract ? ((VirtualContract)contract).Code1c : contract.Id.ToString()
 				)
 			);
 			return properties.ToArray();
+		}
+	}
+
+	public class VirtualContract : CounterpartyContract
+	{
+		string title;
+		public string Code1c;
+
+		public override string TitleIn1c => title;
+
+		public VirtualContract(Counterparty counterparty, Organization organization, string title, string code)
+		{
+			Counterparty = counterparty;
+			Organization = organization;
+			this.title = title;
+			this.Code1c = code;
+		}
+
+		public bool Check(Domain.Orders.Order order)
+		{
+			return Counterparty == order.Client && title == order.ContractTitle1c && Code1c == order.ContractCode1c;
 		}
 	}
 }
