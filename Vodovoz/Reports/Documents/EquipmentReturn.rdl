@@ -535,7 +535,7 @@ ______________ /                                    /
         </Style>
       </Textbox>
       <Table Name="Table2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <DataSetName>equipments</DataSetName>
+        <DataSetName>Data</DataSetName>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -641,7 +641,7 @@ ______________ /                                    /
                         <BorderWidth />
                         <FontSize>10pt</FontSize>
                       </Style>
-                      <Value>={nomenclature}</Value>
+                      <Value>={official_name}</Value>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
