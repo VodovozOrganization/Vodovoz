@@ -161,7 +161,7 @@ namespace Vodovoz.Repositories
 		static bool GetConditionForEquipmentTransfer(OrderStateKey key) =>
 		(
 			key.OrderStatus >= OrderStatus.Accepted
-			&& key.Order.OrderEquipments.Any(e => (e.Direction == Direction.PickUp && e.DirectionReason != DirectionReason.Rent)
+			&& key.OnlyEquipments.Any(e => (e.Direction == Direction.PickUp && e.DirectionReason != DirectionReason.Rent)
 			                                 || (e.Direction == Direction.Deliver && (e.OwnType == OwnTypes.Duty || e.DirectionReason == DirectionReason.Rent))
 			                                )
 		);
@@ -169,7 +169,7 @@ namespace Vodovoz.Repositories
 		static bool GetConditionForEquipmentReturn(OrderStateKey key) =>
 		(
 			key.OrderStatus >= OrderStatus.Accepted
-			&& key.Order.OrderEquipments.Any(e => e.Direction == Direction.PickUp && e.DirectionReason == DirectionReason.Rent && e.OwnType == OwnTypes.Rent)
+			&& key.OnlyEquipments.Any(e => e.Direction == Direction.PickUp && e.DirectionReason == DirectionReason.Rent && e.OwnType == OwnTypes.Rent)
 		);
 
 		static bool GetConditionForEquipmentDoneWork(OrderStateKey key) =>
@@ -177,7 +177,7 @@ namespace Vodovoz.Repositories
 			key.OrderStatus >= OrderStatus.Accepted
 			&& (
 				//Условие для оборудования возвращенного из ремонта.
-				key.Order.OrderEquipments.Any(e => e.Direction == Direction.Deliver && (e.DirectionReason == DirectionReason.Repair || e.DirectionReason == DirectionReason.RepairAndCleaning))
+				key.OnlyEquipments.Any(e => e.Direction == Direction.Deliver && (e.DirectionReason == DirectionReason.Repair || e.DirectionReason == DirectionReason.RepairAndCleaning))
 			   ||
 				//Условия для выезда мастера.
 				key.Order.IsService

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using NHibernate.Util;
 using Vodovoz.Domain.Client;
@@ -61,6 +62,8 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Заказ, для которго создаётся набор документов")]
 		public Order Order { get; set; }
+
+		public IEnumerable<OrderEquipment> OnlyEquipments => Order.OrderEquipments.Where(x => x.Nomenclature.Category == Goods.NomenclatureCategory.equipment);
 
 		void InitializeFields()
 		{
