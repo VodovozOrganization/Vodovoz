@@ -1014,4 +1014,13 @@ public partial class MainWindow : Gtk.Window
 			() => new OrmReference(typeof(Folder1c))
 		);
 	}
+
+	protected void OnActionOrderRegistryActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.OrderRegistryReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
 }

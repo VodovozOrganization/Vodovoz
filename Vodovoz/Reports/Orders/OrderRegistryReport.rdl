@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
+  <Width>190mm</Width>
+  <TopMargin>10mm</TopMargin>
+  <LeftMargin>10mm</LeftMargin>
+  <RightMargin>10mm</RightMargin>
+  <BottomMargin>10mm</BottomMargin>
+  <PageHeader>
+    <Height>.5in</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+    <ReportItems>
+      <Textbox Name="Textbox20">
+        <Height>23.34pt</Height>
+        <Width>577.50pt</Width>
+        <Value>= "Реестр заказов от " + (Format(Cdate(Parameters!date), "dd.MM.yyyy"))</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.8pt</Left>
+        <Top>5.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+  </PageHeader>
+  <Body>
+    <Height>114.2pt</Height>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>orders</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>43.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>112.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>240.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>55.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>82.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>27.3pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Ежедн.
+номер</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Клиент</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Адрес</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>Номер заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>Статус</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>13.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>={daily_number}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>={client}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>={address}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>={order_id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>={status}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>16.5pt</Top>
+      </Table>
+    </ReportItems>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataSets>
+    <DataSet Name="orders">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	daily_number_1c as daily_number,
+    counterparty.full_name as client,
+    delivery_points.compiled_address as address,
+    orders.id as order_id,
+    case
+		when orders.order_status = 'NewOrder' then 'Новый'
+		when orders.order_status = 'WaitForPayment' then 'Ожидание оплаты'
+		when orders.order_status = 'Accepted' then 'Принят'
+		when orders.order_status = 'InTravelList' then 'В маршрутном листе'
+		when orders.order_status = 'OnLoading' then 'На погрузке'    
+		when orders.order_status = 'OnTheWay' then 'В пути'
+		when orders.order_status = 'Shipped' then 'Доставлен'
+        when orders.order_status = 'UnloadingOnStock' then 'Выгрузка на складе'
+        when orders.order_status = 'Closed' then 'Закрыт'
+        when orders.order_status = 'Canceled' then 'Отменён'
+        when orders.order_status = 'NotDelivered' then 'Недовоз'
+        when orders.order_status = 'DeliveryCanceled' then 'Доставка отменена'        
+		else ''
+	end as status
+from orders
+LEFT JOIN counterparty ON counterparty.id = orders.client_id
+LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+WHERE orders.delivery_date = @date</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="date">
+            <Value>=Parameters!date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="daily_number">
+          <DataField>daily_number</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="client">
+          <DataField>client</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="address">
+          <DataField>address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="status">
+          <DataField>status</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_honeybee;user= ;password= ;port=3306;server=vod-srv.qsolution.ru;Allow User Variables=True</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="date">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018/01/15</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

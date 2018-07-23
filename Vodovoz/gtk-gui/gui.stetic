@@ -929,6 +929,12 @@
         <property name="ShortLabel" translatable="yes">Папки номенклатуры в 1с</property>
         <signal name="Activated" handler="OnActionFolders1cActivated" />
       </action>
+      <action id="ActionOrderRegistry">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Реестр заказов</property>
+        <property name="ShortLabel" translatable="yes">Реестр заказов</property>
+        <signal name="Activated" handler="OnActionOrderRegistryActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -1045,7 +1051,6 @@
                   </node>
                   <node type="Menu" action="Action31">
                     <node type="Menu" action="ActionReportOrders">
-                      <node type="Menuitem" />
                       <node type="Menuitem" action="Action1cComments" />
                       <node type="Menuitem" action="ActionOrdersByDistrict" />
                       <node type="Menuitem" action="Action30" />
@@ -1056,6 +1061,7 @@
                       <node type="Menuitem" action="ActionCounterpartyTag" />
                       <node type="Menuitem" action="ActionNotDeliveredOrders" />
                       <node type="Menuitem" action="Action49" />
+                      <node type="Menuitem" action="ActionOrderRegistry" />
                     </node>
                     <node type="Menu" action="ActionReportsSales">
                       <node type="Menuitem" action="ActionSalesReport" />
@@ -27438,7 +27444,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -55635,6 +55640,73 @@ not tooltip</property>
             <property name="PackType">End</property>
             <property name="Position">1</property>
             <property name="AutoSize">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.OrderRegistryReport" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox2">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hbox3">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="label2">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Дата:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.Widgets.yDatePicker" id="ydatepicker">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
+                <property name="Date">0</property>
+                <property name="IsEditable">True</property>
+                <property name="AutoSeparation">False</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonCreateRepot">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Сформировать отчет</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonCreateRepotClicked" />
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
           </packing>
         </child>
       </widget>
