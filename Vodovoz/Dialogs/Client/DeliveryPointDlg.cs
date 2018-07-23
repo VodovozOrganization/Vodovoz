@@ -127,6 +127,8 @@ namespace Vodovoz
 			#endregion
 			spinBottlesReserv.Binding.AddBinding(Entity, e => e.BottleReserv, w => w.ValueAsInt).InitializeFromSource();
 
+			lblCounterparty.LabelProp = Entity.Counterparty.FullName;
+
 			ylabelFoundOnOsm.Binding.AddFuncBinding(Entity,
 				entity => entity.СoordinatesExist
 				? String.Format("<span foreground='{1}'>{0}</span>", entity.СoordinatesText,
