@@ -4,9 +4,9 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
-  <Width>7.5in</Width>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
+  <Width>210mm</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
   <RightMargin>.25in</RightMargin>
@@ -229,7 +229,7 @@ WHERE orders.id = @order_id</CommandText>
           </TableRows>
         </Details>
         <Left>10.7pt</Left>
-        <Top>157.7pt</Top>
+        <Top>148.9pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -286,7 +286,7 @@ WHERE orders.id = @order_id</CommandText>
       </Table>
       <Textbox Name="Textbox4">
         <Height>16.58pt</Height>
-        <Width>575.94pt</Width>
+        <Width>558.69pt</Width>
         <Value>Акт</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
@@ -301,7 +301,7 @@ WHERE orders.id = @order_id</CommandText>
       </Textbox>
       <Textbox Name="Textbox5">
         <Height>12.82pt</Height>
-        <Width>575.14pt</Width>
+        <Width>559.39pt</Width>
         <Value>возврата оборудования из аренды</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
@@ -334,8 +334,8 @@ WHERE orders.id = @order_id</CommandText>
         <Width>113.67pt</Width>
         <Value>="г. Санкт-Петербург\n" + Format(First({delivery_date}, "Order"), "d")</Value>
         <ZIndex>1</ZIndex>
-        <Left>459.20pt</Left>
-        <Top>35.00pt</Top>
+        <Left>444.8pt</Left>
+        <Top>35.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -346,7 +346,7 @@ WHERE orders.id = @order_id</CommandText>
       </Textbox>
       <Textbox Name="Textbox8">
         <Height>51.83pt</Height>
-        <Width>560.81pt</Width>
+        <Width>547.31pt</Width>
         <Value>=First({organization}, "Order") + ", именуемый в дальнейшем «Фирма», в лице Сосновцева С.С., с одной стороны, и " + First({client}, "Order") + ", именуемый(ая) в дальнейшем «Клиент», с другой стороны,  на основании вышеуказанного договора, составили настоящий акт о нижеследующем:"</Value>
         <ZIndex>1</ZIndex>
         <Left>11.29pt</Left>
@@ -363,7 +363,7 @@ WHERE orders.id = @order_id</CommandText>
         <Width>1in</Width>
         <Value>={?order_id}</Value>
         <ZIndex>1</ZIndex>
-        <Left>501.1pt</Left>
+        <Left>487.5pt</Left>
         <Top>4.7pt</Top>
         <Style>
           <BorderStyle />
@@ -392,8 +392,8 @@ WHERE orders.id = @order_id</CommandText>
         <Width>559.48pt</Width>
         <Value>Настоящий акт составлен в двух экземплярах, один из которых находится у Фирмы, другой – у Клиента.</Value>
         <ZIndex>1</ZIndex>
-        <Left>3.2pt</Left>
-        <Top>229.5pt</Top>
+        <Left>2.4pt</Left>
+        <Top>619.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -411,8 +411,8 @@ ______________ /Сосновцев С.С./
 
 М.П.</Value>
         <ZIndex>1</ZIndex>
-        <Left>5.40pt</Left>
-        <Top>271.30pt</Top>
+        <Left>4.6pt</Left>
+        <Top>660.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -431,8 +431,8 @@ ______________ /                                    /
 
 М.П.</Value>
         <ZIndex>1</ZIndex>
-        <Left>280.20pt</Left>
-        <Top>271.90pt</Top>
+        <Left>279.4pt</Left>
+        <Top>661.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -441,8 +441,754 @@ ______________ /                                    /
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox17" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.31pt</Height>
+        <Width>509.99pt</Width>
+        <Value>Поля необходимые для заполнения</Value>
+        <ZIndex>1</ZIndex>
+        <Left>4.41pt</Left>
+        <Top>207.35pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>10pt</FontSize>
+          <TextDecoration>None</TextDecoration>
+          <TextAlign>Center</TextAlign>
+          <FontFamily>Times New Roman</FontFamily>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.25pt</Height>
+        <Width>140pt</Width>
+        <Value>Итого сдано в ремонт</Value>
+        <ZIndex>1</ZIndex>
+        <Left>3.71pt</Left>
+        <Top>230.55pt</Top>
+        <Style>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <CanShrink>true</CanShrink>
+      </Textbox>
+      <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.25pt</Height>
+        <Width>100.02pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>134.91pt</Left>
+        <Top>230.65pt</Top>
+        <Style>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>10pt</FontSize>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox20" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.25pt</Height>
+        <Width>46.02pt</Width>
+        <Value>единиц</Value>
+        <ZIndex>1</ZIndex>
+        <Left>239.01pt</Left>
+        <Top>230.95pt</Top>
+        <Style>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.25pt</Height>
+        <Width>450pt</Width>
+        <Value>Клиент принял временный кулер (нужное подчеркнуть)      Да,      Нет</Value>
+        <ZIndex>1</ZIndex>
+        <Left>3.01pt</Left>
+        <Top>250.15pt</Top>
+        <Style>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+        <CanGrow>true</CanGrow>
+      </Textbox>
+      <Textbox Name="Textbox22" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.31pt</Height>
+        <Width>509.99pt</Width>
+        <Value>Заполняется клиентом</Value>
+        <ZIndex>1</ZIndex>
+        <Left>6.3pt</Left>
+        <Top>277.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>10pt</FontSize>
+          <TextDecoration>None</TextDecoration>
+          <TextAlign>Center</TextAlign>
+          <FontFamily>Times New Roman</FontFamily>
+        </Style>
+      </Textbox>
+      <Table Name="Table2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>equipments</DataSetName>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <PaddingTop>0pt</PaddingTop>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>181.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>165.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>154.6pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>15.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>Модель</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <PaddingTop>0pt</PaddingTop>
+                      </Style>
+                      <Visibility>
+                      </Visibility>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Серийный номер</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                      <CanGrow>false</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>Неисправность</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                      <CanGrow>false</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>7.5pt</Left>
+        <Top>296.5pt</Top>
+        <PageBreakAtEnd>false</PageBreakAtEnd>
+        <PageBreakAtStart>false</PageBreakAtStart>
+        <DataElementOutput>Output</DataElementOutput>
+        <Visibility>
+        </Visibility>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                      <Value>={nomenclature}</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <NoRows>Нет данных</NoRows>
+      </Table>
+      <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.31pt</Height>
+        <Width>509.99pt</Width>
+        <Value>Заполняется водителем-экспедитором</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2.9pt</Left>
+        <Top>334.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>10pt</FontSize>
+          <TextDecoration>None</TextDecoration>
+          <TextAlign>Center</TextAlign>
+          <FontFamily>Times New Roman</FontFamily>
+        </Style>
+      </Textbox>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid1">
+        <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+          <TableColumn>
+            <Width>187.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>165.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>157.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+          <TableRows>
+            <TableRow>
+              <Height>13.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>Комплектность оборудования</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <FontFamily>Times New Roman</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>Санитарное состояние</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <FontFamily>Times New Roman</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>Механические повреждения</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <FontFamily>Times New Roman</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">3.8pt</Left>
+        <Top xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">350.3pt</Top>
+        <Footer xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </fyi:Grid>
+      <Textbox Name="Textbox51" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>61.80pt</Height>
+        <Width>510.55pt</Width>
+        <Value>Оборудование, поступающее в ремонт, должно быть в 100% стандартной упаковке (паспорт, пакет, коробка) и соответствовать требованиям, прописанным в паспорте изделия. При отсутствии копии гарантийного талона продавца или договора продажи/аренды ремонт является платным.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>5.27pt</Left>
+        <Top>455.78pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Justified</TextAlign>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox52" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>16.50pt</Height>
+        <Width>255.27pt</Width>
+        <Value>Оборудование принято, претензий не имею</Value>
+        <ZIndex>1</ZIndex>
+        <Left>17.8pt</Left>
+        <Top>522.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox53" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.75pt</Height>
+        <Width>229.77pt</Width>
+        <Value>Оборудование передано клиенту</Value>
+        <ZIndex>1</ZIndex>
+        <Left>17.8pt</Left>
+        <Top>566.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox54" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>126.27pt</Width>
+        <Value>/                                      /</Value>
+        <ZIndex>1</ZIndex>
+        <Left>350.8pt</Left>
+        <Top>522.7pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox55" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>113.52pt</Width>
+        <Value>Подпись клиента</Value>
+        <ZIndex>1</ZIndex>
+        <Left>355.6pt</Left>
+        <Top>534.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox56" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>126.27pt</Width>
+        <Value>/                                      /</Value>
+        <ZIndex>1</ZIndex>
+        <Left>350.8pt</Left>
+        <Top>566.7pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox57" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>115.02pt</Width>
+        <Value>Подпись водителя</Value>
+        <ZIndex>1</ZIndex>
+        <Left>355.6pt</Left>
+        <Top>578.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
     </ReportItems>
-    <Height>417.2pt</Height>
+    <Height>751.0pt</Height>
   </Body>
   <PageFooter>
     <Height>0.0pt</Height>
