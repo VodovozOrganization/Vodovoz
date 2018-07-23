@@ -1736,19 +1736,6 @@ namespace Vodovoz.Domain.Orders
 							Price = equipment.Price
 						}
 					);
-					//Добавляем оборудование.
-					ObservableOrderEquipments.Add(
-						new OrderEquipment {
-							Order = this,
-							Direction = Direction.Deliver,
-							Count = equipment.Count,
-							Equipment = null,
-							Nomenclature = equipment.Nomenclature,
-							Reason = Reason.Sale,
-							OrderItem = ObservableOrderItems[ItemId],
-							OwnType = OwnTypes.Client
-						}
-					);
 				}
 			}
 			UpdateDocuments();
