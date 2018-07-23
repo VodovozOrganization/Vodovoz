@@ -278,9 +278,7 @@ namespace Vodovoz.Domain.Orders
 				if(AdditionalAgreement == null) 
 					result = true;
 				
-				if(AdditionalAgreement?.Type == AgreementType.WaterSales
-				   || AdditionalAgreement?.Type == AgreementType.NonfreeRent
-				   || AdditionalAgreement?.Type == AgreementType.DailyRent) 
+				if(AdditionalAgreement?.Type == AgreementType.WaterSales) 
 					result = true;
 				
 				if(Nomenclature.Category == NomenclatureCategory.rent)

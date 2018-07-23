@@ -89,7 +89,7 @@ namespace Vodovoz.Domain.Client
 
 		public virtual string PriceString { get { return CurrencyWorks.GetShortCurrencyString (Price); } }
 
-		public virtual string Title {get { return String.Format("Платная аренда {0}", Equipment.NomenclatureName); }}
+		public virtual string Title {get { return String.Format("Платная аренда {0}", Equipment?.NomenclatureName); }}
 
 		#region IValidatableObject implementation
 

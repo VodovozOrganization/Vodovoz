@@ -13,18 +13,11 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderEquipmentItemsView : WidgetOnDialogBase
 	{
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-			}
-		}
+		public IUnitOfWork UoW { get; set; }
 
 		public Order Order { get; set; }
+
+		public event EventHandler<OrderEquipment> OnDeleteEquipment;
 
 		public OrderEquipmentItemsView()
 		{
@@ -71,7 +64,10 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
 				.AddColumn("Кол-во")
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
-				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
+				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+				.AddSetter((cell, node) => {
+					cell.Editable = !(node.OrderItem != null && node.OwnType == OwnTypes.Rent);
+				})
 				.AddTextRenderer(node => String.Format("({0})", node.ReturnedCount))
 				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
 				.AddSetter((c, n) => {
@@ -311,7 +307,11 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnButtonDeleteEquipmentClicked(object sender, EventArgs e)
 		{
-			Order.DeleteEquipment(treeEquipment.GetSelectedObject() as OrderEquipment);
+			OrderEquipment deletedEquipment = treeEquipment.GetSelectedObject() as OrderEquipment;
+			if(deletedEquipment == null) {
+				return;
+			}
+			OnDeleteEquipment?.Invoke(this, deletedEquipment);
 			//при удалении номенклатуры выделение снимается и при последующем удалении exception
 			//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
 			buttonDeleteEquipment.Sensitive = treeEquipment.GetSelectedObject() != null;

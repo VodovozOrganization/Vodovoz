@@ -1161,12 +1161,6 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void DeleteEquipment(OrderEquipment item)
-		{
-			ObservableOrderEquipments.Remove(item);
-			UpdateDocuments();
-		}
-
 		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature)
 		{
 			var acceptCategories = Nomenclature.GetCategoriesForSale();
@@ -1760,25 +1754,26 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void RemoveItem(IUnitOfWork uow, OrderItem item)
+		public virtual void RemoveItem(OrderItem item)
 		{
 			if(item.AdditionalAgreement != null) {
-				if(item.AdditionalAgreement.Type == AgreementType.DailyRent
-					|| item.AdditionalAgreement.Type == AgreementType.FreeRent
-					|| item.AdditionalAgreement.Type == AgreementType.NonfreeRent) {
-					RemoveRentItems(uow, item);
-				}
+					ObservableOrderItems.Remove(item);
+					DeleteOrderEquipmentOnOrderItem(item);
+					DeleteOrderAgreementDocumentOnOrderItem(item);
+			}else {
+				ObservableOrderItems.Remove(item);
+				DeleteOrderEquipmentOnOrderItem(item);
 			}
-			ObservableOrderItems.Remove(item);
-
-			DeleteOrderEquipmentOnOrderItem(item);
-			DeleteOrderAgreementDocumentOnOrderItem(item);
-
-
 			UpdateDocuments();
 		}
 
-		private void RemoveRentItems(IUnitOfWork uow, OrderItem item)
+		public virtual void RemoveEquipment(OrderEquipment item)
+		{
+			ObservableOrderEquipments.Remove(item);
+			UpdateDocuments();
+		}
+
+		private void RemoveRentItems(OrderItem item)
 		{
 			if(item.FreeRentEquipment != null) // Для бесплатной аренды.
 			{

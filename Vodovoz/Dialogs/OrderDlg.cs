@@ -137,6 +137,7 @@ namespace Vodovoz
 										 || Entity.OrderStatus == OrderStatus.Canceled);
 
 			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
+			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
 			treeServiceClaim.ItemsDataSource = UoWGeneric.Root.ObservableInitialOrderService;
@@ -805,9 +806,133 @@ namespace Vodovoz
 			tableTareControl.Sensitive = Entity.OrderStatus == OrderStatus.OnTheWay || Entity.OrderStatus == OrderStatus.Shipped;
 		}
 
+		private void RemoveOrderItem(OrderItem item)
+		{
+			var types = new AgreementType[] {
+					AgreementType.EquipmentSales,
+					AgreementType.DailyRent,
+					AgreementType.FreeRent,
+					AgreementType.NonfreeRent
+				};
+			if(item.AdditionalAgreement != null && types.Contains(item.AdditionalAgreement.Type)) {
+				RemoveAgreementBeingCreateForEachAdding(item);
+			}else{
+				Entity.RemoveItem(item);
+			}
+		}
+
+		/// <summary>
+		/// Удаляет доп соглашения которые создаются на каждое добавление в товарах.
+		/// </summary>
+		public virtual void RemoveAgreementBeingCreateForEachAdding(OrderItem item)
+		{
+			if(item.AdditionalAgreement == null) {
+				return;
+			}
+
+			var agreement = item.AdditionalAgreement.Self;
+
+			var deletedOrderItems = Entity.ObservableOrderItems.Where(x => x.AdditionalAgreement != null
+																   && x.AdditionalAgreement.Self == agreement)
+															.ToList();
+			var deletedOrderDocuments = Entity.ObservableOrderDocuments.OfType<OrderAgreement>()
+																.Where(x => x.AdditionalAgreement != null
+																	   && x.AdditionalAgreement.Self == agreement)
+																.ToList();
+
+			if(Entity.Id != 0) {
+				var valid = new QSValidator<Order>(UoWGeneric.Root);
+				if(!MessageDialogWorks.RunQuestionDialog("Заказ будет сохранен после удаления товара, продолжить?") 
+				   || valid.RunDlgIfNotValid((Window)this.Toplevel)) {
+					return;
+				}
+
+				Type agreementType = null;
+				switch(agreement.Type) {
+					case AgreementType.NonfreeRent:
+						agreementType = typeof(NonfreeRentAgreement);
+						break;
+					case AgreementType.DailyRent:
+						agreementType = typeof(DailyRentAgreement);
+						break;
+					case AgreementType.FreeRent:
+						agreementType = typeof(FreeRentAgreement);
+						break;
+					case AgreementType.EquipmentSales:
+						agreementType = typeof(SalesEquipmentAgreement);
+						break;
+					default:
+						return;
+				}
+
+				var deletionObjects = OrmMain.GetDeletionObjects(agreementType, agreement.Id);
+
+				//Нахождение, есть объекты которые не связаны с текущим заказом,
+				//но которые необходимо удалить вместе с доп соглашением
+				bool canDelete = true;
+
+				var delAgreement = deletionObjects.FirstOrDefault(x => x.Type == agreementType && x.Id == agreement.Id);
+				if(delAgreement != null) {
+					deletionObjects.Remove(delAgreement);
+				}
+
+				foreach(var oi in deletedOrderItems) {
+					var delObject = deletionObjects.FirstOrDefault(x => x.Type == typeof(OrderItem) && x.Id == oi.Id);
+					if(delObject != null) {
+						deletionObjects.Remove(delObject);
+					}
+				}
+				foreach(var od in deletedOrderDocuments) {
+					var delObject = deletionObjects.FirstOrDefault(x => x.Type == typeof(OrderAgreement) && x.Id == od.Id);
+					if(delObject != null) {
+						deletionObjects.Remove(delObject);
+					}
+				}
+				var autoDeletionTypes = new Type[] { typeof(PaidRentEquipment), typeof(FreeRentEquipment), typeof(SalesEquipment) };
+				if(deletionObjects.Any(x => !autoDeletionTypes.Contains(x.Type))) {
+					MessageDialogWorks.RunErrorDialog("Невозможно удалить дополнительное соглашение из-за связанных документов не относящихся к текущему заказу.");
+					return;
+				}
+			}
+
+			deletedOrderItems.ForEach(x => Entity.RemoveItem(x));
+			Entity.Contract.AdditionalAgreements.Remove(agreement);
+
+			//Принудительно сохраняем только, уже сохраненный в базе, заказ, 
+			//чтобы пользователь не смог вернуть товары связанные с не существующем доп соглашением, 
+			//отменив сохранение заказа
+			if(Entity.Id != 0) {
+				//var dfd = Entity.Contract.AdditionalAgreements.FirstOrDefault(x => x.Id == agreement.Id);
+				UoW.Delete<AdditionalAgreement>(agreement);
+				UoW.Save();
+				UoW.Commit();
+			}else {
+				using (var deletionUoW = UnitOfWorkFactory.CreateWithoutRoot()){
+					var deletedAgreement = deletionUoW.GetById<AdditionalAgreement>(agreement.Id);
+					deletionUoW.Delete<AdditionalAgreement>(deletedAgreement);
+					deletionUoW.Commit();
+				}
+			}
+			Entity.UpdateDocuments();
+		}
+
+		void OrderEquipmentItemsView_OnDeleteEquipment(object sender, OrderEquipment e)
+		{
+			if(e.OrderItem != null) {
+				RemoveOrderItem(e.OrderItem);
+			}else {
+				Entity.RemoveEquipment(e);
+			}
+		}
+
+
 		protected void OnButtonDelete1Clicked(object sender, EventArgs e)
 		{
-			Entity.RemoveItem(UoWGeneric, treeItems.GetSelectedObject() as OrderItem);
+			OrderItem orderItem = treeItems.GetSelectedObject() as OrderItem;
+			if(orderItem == null) {
+				return;
+			}
+			RemoveOrderItem(orderItem);
 			//при удалении номенклатуры выделение снимается и при последующем удалении exception
 			//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
 			buttonDelete1.Sensitive = treeItems.GetSelectedObject() != null;
