@@ -175,7 +175,13 @@ namespace Vodovoz.Repositories
 		static bool GetConditionForEquipmentDoneWork(OrderStateKey key) =>
 		(
 			key.OrderStatus >= OrderStatus.Accepted
-			&& key.Order.OrderEquipments.Any(e => e.Direction == Direction.Deliver && (e.DirectionReason == DirectionReason.Repair || e.DirectionReason == DirectionReason.RepairAndCleaning))
+			&& (
+				//Условие для оборудования возвращенного из ремонта.
+				key.Order.OrderEquipments.Any(e => e.Direction == Direction.Deliver && (e.DirectionReason == DirectionReason.Repair || e.DirectionReason == DirectionReason.RepairAndCleaning))
+			   ||
+				//Условия для выезда мастера.
+				key.Order.IsService
+			   )
 		);
 
 		static bool GetConditionForDriverTicket(OrderStateKey key) =>
