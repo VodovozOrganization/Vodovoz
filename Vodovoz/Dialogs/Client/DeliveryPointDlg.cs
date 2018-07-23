@@ -35,6 +35,9 @@ namespace Vodovoz
 		public DeliveryPoint DeliveryPoint => Entity;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+		string cityBeforeChange = null;
+		string streetBeforeChange = null;
+		string buildingBeforeChange = null;
 
 		public PanelViewType[] InfoWidgets {
 			get {
@@ -142,14 +145,14 @@ namespace Vodovoz
 				entryStreet.CityId = entryCity.OsmId;
 				entryStreet.Street = string.Empty;
 				entryStreet.StreetDistrict = string.Empty;
+				entryBuilding.House = string.Empty;
 			};
 
 			entryStreet.StreetSelected += (sender, e) => {
 				entryBuilding.Street = new OsmStreet(-1, entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
 			};
 
-			entryBuilding.CompletionLoaded += EntryBuilding_Changed;
-			entryBuilding.Changed += EntryBuilding_Changed;
+			entryBuilding.FocusOutEvent += EntryBuilding_FocusOutEvent;
 
 			entryCity.Binding
 				.AddSource(Entity)
@@ -166,6 +169,10 @@ namespace Vodovoz
 				.AddSource(Entity)
 				.AddBinding(entity => entity.Building, widget => widget.House)
 				.InitializeFromSource();
+
+			cityBeforeChange = entryCity.City;
+			streetBeforeChange = entryStreet.Street;
+			buildingBeforeChange = entryBuilding.House;
 
 			//make actions menu
 			var menu = new Gtk.Menu();
@@ -289,23 +296,36 @@ namespace Vodovoz
 			SetLogisticsArea();
 		}
 
-		void EntryBuilding_Changed(object sender, EventArgs e)
+		void EntryBuilding_FocusOutEvent(object o, Gtk.FocusOutEventArgs args)
 		{
+			bool addressChanged = entryCity.City != cityBeforeChange
+							   || entryStreet.Street != streetBeforeChange
+							   || entryBuilding.House != buildingBeforeChange;
 			if(entryBuilding.OsmCompletion.HasValue) {
 				Entity.FoundOnOsm = entryBuilding.OsmCompletion.Value;
 				decimal? latitude, longitude;
 				entryBuilding.GetCoordinates(out longitude, out latitude);
 
+				if(longitude == null || latitude == null)
+					return;
+				if(!addressChanged)
+					return;
+
+				cityBeforeChange = entryCity.City;
+				streetBeforeChange = entryStreet.Street;
+				buildingBeforeChange = entryBuilding.House;
+
 				if(!Entity.ManualCoordinates || (Entity.ManualCoordinates && MessageDialogWorks.RunQuestionDialog("Координаты были установлены вручную, заменить их на коордитаты адреса?"))) {
 					WriteCoordinates(latitude, longitude);
 					Entity.ManualCoordinates = false;
 				}
-			}
-			if(entryBuilding.OsmHouse != null && !String.IsNullOrWhiteSpace(entryBuilding.OsmHouse.Name)) {
-				labelHouseName.Visible = true;
-				labelHouseName.LabelProp = entryBuilding.OsmHouse.Name;
-			} else {
-				labelHouseName.Visible = false;
+
+				if(entryBuilding.OsmHouse != null && !String.IsNullOrWhiteSpace(entryBuilding.OsmHouse.Name)) {
+					labelHouseName.Visible = true;
+					labelHouseName.LabelProp = entryBuilding.OsmHouse.Name;
+				} else {
+					labelHouseName.Visible = false;
+				}
 			}
 		}
 
