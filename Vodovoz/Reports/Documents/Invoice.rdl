@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
@@ -91,7 +91,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1929,6 +1929,8 @@ GROUP BY name</CommandText>
                         <PaddingBottom>0pt</PaddingBottom>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <BackgroundColor>
+                        </BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2326,11 +2328,6 @@ GROUP BY name</CommandText>
             {delivery_point_address_addition} != '',
             '\n' + {delivery_point_address_addition},
             ''
-        )
-    + Iif(
-            {order_comment_for_logist} != '',
-            '\n' + {order_comment_for_logist},
-            ''
         )</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -2601,7 +2598,19 @@ GROUP BY name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
-                      <Value>=Iif(Fields!order_online_number.IsMissing, '', 'Заказ #' + {order_online_number}+' - онлайн оплата. ') + {order_comment}</Value>
+                      <Value>=Trim(
+    Iif(
+        Fields!order_online_number.IsMissing,
+        '',
+        'Заказ #' + {order_online_number}+' - онлайн оплата. '
+    )
+    + {order_comment}
+    + Iif(
+        {order_comment_for_logist} != '',
+        '\n' + {order_comment_for_logist},
+        ''
+    )
+)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -3164,7 +3173,7 @@ GROUP BY name</CommandText>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>183688</Value>
+          <Value>260729</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -3182,7 +3191,7 @@ GROUP BY name</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
