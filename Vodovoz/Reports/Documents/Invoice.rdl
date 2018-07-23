@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
@@ -21,6 +21,7 @@
 	orders.bottles_return AS bottles_return,
 	orders.sum_to_receive AS total,
 	orders.comment AS order_comment,
+	orders.comment_logist AS order_comment_for_logist,
 	CASE orders.signature_type 
 		WHEN 'BySeal' THEN 'По печати'
 		WHEN 'ByProxy' THEN 'По доверенности'
@@ -90,7 +91,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -190,6 +191,10 @@ WHERE
         <Field Name="bottles_in_fact">
           <DataField>bottles_in_fact</DataField>
           <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="order_comment_for_logist">
+          <DataField>order_comment_for_logist</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -2085,7 +2090,7 @@ GROUP BY name</CommandText>
       <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>17.25pt</Height>
         <Width>320.29pt</Width>
-        <Value>='Накладная № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
+        <Value>='Товарный чек № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
         <ZIndex>1</ZIndex>
         <Left>111.1pt</Left>
         <Top>35.8pt</Top>
@@ -2320,6 +2325,11 @@ GROUP BY name</CommandText>
     + Iif(
             {delivery_point_address_addition} != '',
             '\n' + {delivery_point_address_addition},
+            ''
+        )
+    + Iif(
+            {order_comment_for_logist} != '',
+            '\n' + {order_comment_for_logist},
             ''
         )</Value>
                       <CanGrow>true</CanGrow>
@@ -3172,7 +3182,7 @@ GROUP BY name</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

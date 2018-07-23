@@ -1966,7 +1966,7 @@ GROUP BY name</CommandText>
       <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>17.25pt</Height>
         <Width>320.29pt</Width>
-        <Value>='Накладная № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
+        <Value>='Товарный чек № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
         <ZIndex>1</ZIndex>
         <Left>111.1pt</Left>
         <Top>35.8pt</Top>
@@ -2953,7 +2953,7 @@ GROUP BY name</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

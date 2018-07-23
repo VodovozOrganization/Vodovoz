@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
@@ -21,6 +21,7 @@
 	orders.bottles_return AS bottles_return,
 	orders.sum_to_receive AS total,
 	orders.comment AS order_comment,
+	orders.comment_logist AS comment_for_logist,
 	CASE orders.signature_type 
 		WHEN 'BySeal' THEN 'По печати'
 		WHEN 'ByProxy' THEN 'По доверенности'
@@ -111,7 +112,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -222,6 +223,10 @@ WHERE
         </Field>
         <Field Name="signature_type">
           <DataField>signature_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment_for_logist">
+          <DataField>comment_for_logist</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1504,11 +1509,22 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
-                      <Value>={address_comment} + 
-Iif(
-    {signature_type} = '',
-    '',
-    Iif(Fields!address_comment.IsMissing,'',', ') + {signature_type}
+                      <Value>= Trim(
+    Iif(
+        Fields!address_comment.IsMissing,
+        '',
+        {address_comment}
+    )
+    + Iif(
+            Fields!signature_type.IsMissing,
+            '',
+            ', ' + {signature_type}
+        )
+     + Iif(
+            Fields!comment_for_logist.IsMissing,
+            '',
+            ', ' + {comment_for_logist}
+        )
 )</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -2390,7 +2406,7 @@ Iif(
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

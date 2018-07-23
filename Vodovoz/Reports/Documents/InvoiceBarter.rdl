@@ -1507,7 +1507,7 @@ payment_type='ToClient'</CommandText>
       <Textbox Name="Textbox79" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>17.25pt</Height>
         <Width>335.29pt</Width>
-        <Value>='Накладная № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
+        <Value>='Товарный чек № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
         <ZIndex>1</ZIndex>
         <Left>121.60pt</Left>
         <Top>35.70pt</Top>

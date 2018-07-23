@@ -662,7 +662,7 @@ WHERE
           <Textbox Name="Textbox24" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>493.25pt</Width>
-            <Value>={del_point_address}</Value>
+            <Value>={client_address}</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
             <Top>112.20pt</Top>
@@ -3606,7 +3606,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
