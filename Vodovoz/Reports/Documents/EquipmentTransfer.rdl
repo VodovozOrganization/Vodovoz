@@ -71,7 +71,7 @@ WHERE orders.id = @order_id</CommandText>
         </Field>
         <Field Name="contract">
           <DataField>contract</DataField>
-          <TypeName>System.UInt32</TypeName>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -208,17 +208,20 @@ WHERE
         </Style>
       </Textbox>
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14.25pt</Height>
-        <Width>289.00pt</Width>
+        <Height>13.00pt</Height>
+        <Width>379.75pt</Width>
         <Value>=Max({phone}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>162.7pt</Left>
-        <Top>197.1pt</Top>
+        <Left>121.90pt</Left>
+        <Top>197.10pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <TextAlign>Left</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
           <FontSize>10pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
       <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -273,12 +276,12 @@ WHERE
         <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>15.00pt</Height>
-        <Width>289.00pt</Width>
+        <Height>13.00pt</Height>
+        <Width>379.75pt</Width>
         <Value>=Max({client_name}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>162.7pt</Left>
-        <Top>167.1pt</Top>
+        <Left>121.90pt</Left>
+        <Top>167.10pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <BorderStyle />
@@ -290,12 +293,12 @@ WHERE
         </Style>
       </Textbox>
       <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14.25pt</Height>
-        <Width>289.00pt</Width>
+        <Height>13.00pt</Height>
+        <Width>379.75pt</Width>
         <Value>=Max({delivery_address}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>162.7pt</Left>
-        <Top>182.1pt</Top>
+        <Left>121.90pt</Left>
+        <Top>182.10pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <TextAlign>Left</TextAlign>
@@ -1492,7 +1495,7 @@ WHERE
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>183678</Value>
+          <Value>260764</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1502,11 +1505,11 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_orders;user=andrey;password=123;port=3306;server=192.168.0.7</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

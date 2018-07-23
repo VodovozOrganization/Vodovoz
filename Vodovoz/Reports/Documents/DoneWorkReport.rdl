@@ -19,7 +19,7 @@
 	orders.id AS order_id, 
 	orders.delivery_date AS order_date, 
                 orders.service AS is_service, 
-    	orders.counterparty_contract_id as contract,
+    	CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract,
 	counterparty.full_name AS client_name, 
 	counterparty.jur_address AS client_address, 
 	counterparty.inn, counterparty.kpp,
@@ -27,6 +27,7 @@
 	delivery_points.compiled_address as delivery_address
 FROM orders 
 	LEFT JOIN counterparty ON orders.client_id = counterparty.id
+    LEFT JOIN counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id
 	LEFT JOIN delivery_points on delivery_points.id = orders.delivery_point_id
 	LEFT JOIN phones ON delivery_points.id = phones.delivery_point_id
 WHERE orders.id = @order_id</CommandText>
@@ -51,7 +52,7 @@ WHERE orders.id = @order_id</CommandText>
         </Field>
         <Field Name="contract">
           <DataField>contract</DataField>
-          <TypeName>System.UInt32</TypeName>
+          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="client_name">
           <DataField>client_name</DataField>
@@ -780,17 +781,20 @@ WHERE
         <Top>244.6pt</Top>
       </Table>
       <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14.25pt</Height>
-        <Width>320.00pt</Width>
+        <Height>14pt</Height>
+        <Width>372.50pt</Width>
         <Value>=Max({phone}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>184.3pt</Left>
-        <Top>212.6pt</Top>
+        <Left>135.50pt</Left>
+        <Top>212.60pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <TextAlign>Left</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
           <FontSize>12pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -843,12 +847,12 @@ WHERE
         </Style>
       </Textbox>
       <Textbox Name="Textbox8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>15.00pt</Height>
-        <Width>320.00pt</Width>
+        <Height>14pt</Height>
+        <Width>372.50pt</Width>
         <Value>=Max({client_name}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>184.3pt</Left>
-        <Top>182.6pt</Top>
+        <Left>135.50pt</Left>
+        <Top>182.60pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <BorderStyle />
@@ -860,12 +864,12 @@ WHERE
         </Style>
       </Textbox>
       <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14.25pt</Height>
-        <Width>320.00pt</Width>
+        <Height>14pt</Height>
+        <Width>372.50pt</Width>
         <Value>=Max({delivery_address}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>184.3pt</Left>
-        <Top>197.6pt</Top>
+        <Left>135.50pt</Left>
+        <Top>197.60pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <TextAlign>Left</TextAlign>
@@ -1347,7 +1351,7 @@ WHERE
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>184467</Value>
+          <Value>260764</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
