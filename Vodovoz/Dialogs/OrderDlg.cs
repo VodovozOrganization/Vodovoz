@@ -1052,6 +1052,17 @@ namespace Vodovoz
 					UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
 					break;
 				case NomenclatureCategory.master:
+					contract = null;
+					if(Entity.Contract == null) {
+						contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
+						if(contract == null) {
+							contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate);
+							Entity.Contract = contract;
+							AddContractDocument(contract);
+						}
+					} else {
+						contract = Entity.Contract;
+					}
 					UoWGeneric.Root.AddMasterNomenclature(nomenclature);
 					break;
 				case NomenclatureCategory.deposit://Залог
