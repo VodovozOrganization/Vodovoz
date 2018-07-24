@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -21,6 +21,7 @@
     orders.bottles_return AS bottles_return,
     orders.sum_to_receive AS total,
     orders.comment AS order_comment,
+    orders.comment_logist AS order_comment_for_logist,
     orders.payment_type AS order_payment_type,
     orders.online_order AS order_online_number,
     delivery_schedule.name AS delivery_schedule,
@@ -77,7 +78,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -145,6 +146,167 @@ WHERE
         <Field Name="trifle">
           <DataField>trifle</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="order_online_number">
+          <DataField>order_online_number</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="order_comment">
+          <DataField>order_comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_comment_for_logist">
+          <DataField>order_comment_for_logist</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Equipments">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+
+	(SELECT 
+
+			GROUP_CONCAT(
+
+				CONCAT(
+
+					nomenclature.name,
+
+					' - ',
+
+					IF(
+
+						orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
+
+						order_equipment.actual_count, 
+
+						order_equipment.count),
+
+					'\n(',
+					(
+						CASE order_equipment.own_type
+							WHEN 'Client' THEN 'Клиента'
+							WHEN 'Duty' THEN 'Дежурный'
+							WHEN 'Rent' THEN 'Аренда'
+							ELSE 'неизвестно'
+						END
+                    ),
+                    (
+						CASE order_equipment.direction_reason
+							WHEN 'Rent' THEN ': В аренду'
+							WHEN 'Repair' THEN ': Из ремонта'
+							WHEN 'Cleaning' THEN ': После сан.обр.'
+							WHEN 'RepairAndCleaning' THEN ': После сан.обр. и ремонта'
+							ELSE ''
+						END
+					),
+                    ')'
+
+					)
+
+					SEPARATOR '\n'
+
+				)
+
+		FROM
+
+			order_equipment
+
+		LEFT JOIN
+
+			nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+
+		LEFT JOIN
+
+			orders ON orders.id = order_equipment.order_id
+
+		WHERE
+
+			order_equipment.order_id = @order_id
+
+			AND order_equipment.direction = 'Deliver'
+
+		) AS equipment_to,
+
+	(SELECT 
+
+			GROUP_CONCAT(
+
+				CONCAT(
+
+					nomenclature.name,
+
+					' - ',
+
+					IF(
+
+						orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
+
+						order_equipment.actual_count, 
+
+						order_equipment.count),
+
+					'\n(',
+					(
+						CASE order_equipment.own_type
+							WHEN 'Client' THEN 'Клиента'
+							WHEN 'Duty' THEN 'Дежурный'
+							WHEN 'Rent' THEN 'Аренда'
+							ELSE 'неизвестно'
+						END
+                    ),
+                    (
+						CASE order_equipment.direction_reason
+							WHEN 'Rent' THEN ': Закрытие'
+							WHEN 'Repair' THEN ': В ремонт'
+							WHEN 'Cleaning' THEN ': На сан.обр.'
+							WHEN 'RepairAndCleaning' THEN ': На сан.обр.и ремонт'
+							ELSE ''
+						END
+					),
+                    ')'
+
+					)
+
+					SEPARATOR '\n'
+
+				)
+
+		FROM
+
+			order_equipment
+
+		LEFT JOIN
+
+			nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+
+		LEFT JOIN
+
+			orders ON orders.id = order_equipment.order_id
+
+		WHERE
+
+			order_equipment.order_id = @order_id
+
+			AND order_equipment.direction = 'PickUp'
+
+		) AS equipment_from</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="equipment_to">
+          <DataField>equipment_to</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="equipment_from">
+          <DataField>equipment_from</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -275,7 +437,7 @@ payment_type='ToClient'</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>671.9pt</Height>
+    <Height>755.0pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table1">
@@ -293,7 +455,7 @@ payment_type='ToClient'</CommandText>
             <Width>24.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>218.9pt</Width>
+            <Width>207.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>24.7pt</Width>
@@ -305,7 +467,7 @@ payment_type='ToClient'</CommandText>
             <Width>51.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>29.8pt</Width>
+            <Width>49.4pt</Width>
             <Visibility>
               <Hidden>=Iif(SUM({item_discount}, 'Goods')&gt;0,'false','true')</Hidden>
             </Visibility>
@@ -789,7 +951,7 @@ payment_type='ToClient'</CommandText>
         </Footer>
       </Table>
       <List Name="List2">
-        <Height>351.79pt</Height>
+        <Height>281.29pt</Height>
         <Width>561.64pt</Width>
         <Left>34.20pt</Left>
         <Top>258.20pt</Top>
@@ -800,7 +962,7 @@ payment_type='ToClient'</CommandText>
             <Value>Отпуск разрешил:__________________/Сосновцев С.С./</Value>
             <ZIndex>1</ZIndex>
             <Left>85.2pt</Left>
-            <Top>60.8pt</Top>
+            <Top>2.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -814,7 +976,7 @@ payment_type='ToClient'</CommandText>
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>60.8pt</Top>
+            <Top>2.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -828,7 +990,7 @@ payment_type='ToClient'</CommandText>
             <Value>Товар получен в полном объеме. К продавцу претензий не имею.     /                                      /</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>83.3pt</Top>
+            <Top>24.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -842,7 +1004,7 @@ payment_type='ToClient'</CommandText>
             <Value>Покупатель сдал</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>114.6pt</Top>
+            <Top>56.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -856,7 +1018,7 @@ payment_type='ToClient'</CommandText>
             <Value>*             (                                    ) бутылей            /                                       /</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
-            <Top>115.3pt</Top>
+            <Top>56.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -870,7 +1032,7 @@ payment_type='ToClient'</CommandText>
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
             <Left>107.0pt</Left>
-            <Top>128.6pt</Top>
+            <Top>70.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -890,7 +1052,7 @@ payment_type='ToClient'</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>338.7pt</Left>
-            <Top>96.5pt</Top>
+            <Top>38.1pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -909,7 +1071,7 @@ payment_type='ToClient'</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>338.4pt</Left>
-            <Top>128.7pt</Top>
+            <Top>70.3pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -928,7 +1090,7 @@ payment_type='ToClient'</CommandText>
             <Value>Предполагаемое количетво возвратной тары:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>147.6pt</Top>
+            <Top>89.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -949,7 +1111,7 @@ payment_type='ToClient'</CommandText>
               </BorderWidth>
             </Style>
             <Left>0.0pt</Left>
-            <Top>189.9pt</Top>
+            <Top>131.5pt</Top>
           </Line>
           <Textbox Name="Textbox43">
             <Height>13.50pt</Height>
@@ -957,7 +1119,7 @@ payment_type='ToClient'</CommandText>
             <Value>Залог за пустую тару</Value>
             <ZIndex>1</ZIndex>
             <Left>16.2pt</Left>
-            <Top>174.7pt</Top>
+            <Top>116.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -972,7 +1134,7 @@ payment_type='ToClient'</CommandText>
             <Value>             (                                    ) бутылей в размере                                   рублей</Value>
             <ZIndex>1</ZIndex>
             <Left>119.3pt</Left>
-            <Top>210.9pt</Top>
+            <Top>152.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -986,7 +1148,7 @@ payment_type='ToClient'</CommandText>
             <Value>Покупатель внес залог за</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>210.7pt</Top>
+            <Top>152.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1000,7 +1162,7 @@ payment_type='ToClient'</CommandText>
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
             <Left>130.0pt</Left>
-            <Top>225.5pt</Top>
+            <Top>167.1pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1020,7 +1182,7 @@ payment_type='ToClient'</CommandText>
             <Value>(сумма)</Value>
             <ZIndex>1</ZIndex>
             <Left>370.8pt</Left>
-            <Top>224.9pt</Top>
+            <Top>166.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1040,7 +1202,7 @@ payment_type='ToClient'</CommandText>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>370.6pt</Left>
-            <Top>269.0pt</Top>
+            <Top>196.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1059,7 +1221,7 @@ payment_type='ToClient'</CommandText>
             <Value>/                                       /</Value>
             <ZIndex>1</ZIndex>
             <Left>371.5pt</Left>
-            <Top>255.8pt</Top>
+            <Top>183.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1073,7 +1235,7 @@ payment_type='ToClient'</CommandText>
             <Value>Экспедитор принял:                                        /                                        /</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>301.3pt</Top>
+            <Top>236.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1087,7 +1249,7 @@ payment_type='ToClient'</CommandText>
             <Value>(подпись)                   (расшифровка)</Value>
             <ZIndex>1</ZIndex>
             <Left>101.9pt</Left>
-            <Top>312.6pt</Top>
+            <Top>247.8pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1105,7 +1267,7 @@ payment_type='ToClient'</CommandText>
             <Value>* Поля обязательные к заполнению</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>342.4pt</Top>
+            <Top>268.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1113,43 +1275,11 @@ payment_type='ToClient'</CommandText>
               <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox30" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>150.27pt</Width>
-            <Value>=(Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'))</Value>
-            <ZIndex>1</ZIndex>
-            <Left>410.2pt</Left>
-            <Top>21.7pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <Format>#,##0.00</Format>
-              <TextAlign>Left</TextAlign>
-              <FontSize>11pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>38.52pt</Width>
-            <Value>Всего:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>370.4pt</Left>
-            <Top>21.8pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>11pt</FontSize>
-            </Style>
-          </Textbox>
           <Image Name="Image2">
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
             <Left>348.3pt</Left>
-            <Top>84.6pt</Top>
+            <Top>26.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1163,7 +1293,7 @@ payment_type='ToClient'</CommandText>
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
             <Left>348.5pt</Left>
-            <Top>116.2pt</Top>
+            <Top>57.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1173,45 +1303,13 @@ payment_type='ToClient'</CommandText>
             <Value>check</Value>
             <Sizing>FitProportional</Sizing>
           </Image>
-          <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>150.27pt</Width>
-            <Value>={trifle}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>410.0pt</Left>
-            <Top>35.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <Format>0.00</Format>
-              <TextAlign>Left</TextAlign>
-              <FontSize>11pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox55" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>13.50pt</Height>
-            <Width>50.57pt</Width>
-            <Value>Сдача с:</Value>
-            <ZIndex>1</ZIndex>
-            <Left>360.6pt</Left>
-            <Top>35.8pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <FontSize>11pt</FontSize>
-            </Style>
-          </Textbox>
           <Textbox Name="Textbox29">
             <Height>12.00pt</Height>
             <Width>45.97pt</Width>
             <Value>={bottles_return}</Value>
             <ZIndex>1</ZIndex>
             <Left>246.9pt</Left>
-            <Top>147.0pt</Top>
+            <Top>88.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1228,7 +1326,7 @@ payment_type='ToClient'</CommandText>
             <Value>бутылей.</Value>
             <ZIndex>1</ZIndex>
             <Left>312.5pt</Left>
-            <Top>146.9pt</Top>
+            <Top>88.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1245,20 +1343,6 @@ payment_type='ToClient'</CommandText>
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
-      <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>352.77pt</Width>
-        <Value>=Code.SummaString_Val(Convert.ToString((Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'))))</Value>
-        <ZIndex>1</ZIndex>
-        <Left>35.0pt</Left>
-        <Top>259.2pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-        </Style>
-      </Textbox>
       <Subreport Name="Subreport1">
         <Height>11.26pt</Height>
         <Width>598.34pt</Width>
@@ -1565,6 +1649,186 @@ payment_type='ToClient'</CommandText>
         </Style>
         <CanGrow>false</CanGrow>
       </Textbox>
+      <Table Name="Table2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>Equipments</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>76.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>176.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>96.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>180.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>21.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Value>Оборудование
+к клиенту: </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>=Fields!equipment_to.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Оборудование от клиента:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>=Fields!equipment_from.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>34.9pt</Left>
+        <Top>585.6pt</Top>
+      </Table>
+      <Table Name="Table3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>Order</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>537.9pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>25.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>=Trim(
+    Iif(
+        Fields!order_online_number.IsMissing,
+        '',
+        'Заказ #' + {order_online_number}+' - онлайн оплата. '
+    )
+    + {order_comment}
+    + Iif(
+        {order_comment_for_logist} != '',
+        '\n' + {order_comment_for_logist},
+        ''
+    )
+)</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>34.5pt</Left>
+        <Top>551.4pt</Top>
+      </Table>
     </ReportItems>
   </Body>
   <PageFooter>

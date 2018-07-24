@@ -49,7 +49,7 @@
 	WHERE phones.counterparty_id = orders.client_id) AS client_contact,
 
 	logistics_area.name AS logistics_area,
-	delivery_points.compiled_address_short AS del_point_address,
+	delivery_points.compiled_address AS del_point_address,
 	orders.daily_number_1c AS daily_number,
 	CONCAT_WS('',
 			CONCAT(employees.last_name, ' '),
@@ -199,7 +199,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Equipments">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	(SELECT 
@@ -217,7 +217,7 @@ WHERE
 							WHEN 'Client' THEN 'Клиента'
 							WHEN 'Duty' THEN 'Дежурный'
 							WHEN 'Rent' THEN 'Аренда'
-							ELSE 'неизвестно'
+							ELSE ''
 						END
                     ),
                     (
@@ -290,7 +290,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="equipment_to">
           <DataField>equipment_to</DataField>
           <TypeName>System.String</TypeName>
@@ -3191,7 +3191,7 @@ GROUP BY name</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
