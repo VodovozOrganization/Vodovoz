@@ -11,6 +11,7 @@ using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel.InfoProviders;
+using NHibernate.Util;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -66,9 +67,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelDeposits.Text = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
 
-			var currentOrders = OrderRepository.GetLatestOrdersForCounterparty(InfoProvider.UoW, DeliveryPoint, 5);
+			var currentOrders = OrderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
 			ytreeLastOrders.SetItemsSource<Order>(currentOrders);
-			vboxLastOrders.Visible = currentOrders.Count > 0;
+			vboxLastOrders.Visible = currentOrders.Any();
 		}
 
 		public bool VisibleOnPanel {
