@@ -45,10 +45,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.FromClientText)		.Column("from_client_text");
 			Map(x => x.IsContractCloser)	.Column("is_contract_closer");
 
-			//Временные на период запуска заказов, для выгрузки договоров из заказов загруженных из 1с.
-			Map(x => x.ContractCode1c).Column("1c_contract_code");
-			Map(x => x.ContractTitle1c).Column("1c_contract_title");
-
 			Map (x => x.OrderStatus)		.Column ("order_status").CustomType<OrderStatusStringType> ();
 			Map (x => x.SignatureType)		.Column ("signature_type").CustomType<OrderSignatureTypeStringType> ();
 			Map (x => x.PaymentType)		.Column ("payment_type").CustomType<PaymentTypeStringType> ();

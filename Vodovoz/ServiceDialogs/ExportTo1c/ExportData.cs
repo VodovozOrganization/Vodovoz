@@ -95,23 +95,12 @@ namespace Vodovoz.ExportTo1c
 				)
 			);
 
-			if (order.Contract != null || !String.IsNullOrEmpty(order.ContractTitle1c))
-			{
-				exportInvoiceDocument.Properties.Add(
-					new PropertyNode("ДоговорКонтрагента",
-						Common1cTypes.ReferenceContract,
-					                 ContractCatalog.CreateReferenceToContract(order)
-					)
-				);
-			}
-			else
-			{
-				exportInvoiceDocument.Properties.Add(
-					new PropertyNode("ДоговорКонтрагента",
-						Common1cTypes.ReferenceContract
-					)
-				);
-			}
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("ДоговорКонтрагента",
+					Common1cTypes.ReferenceContract,
+				                 ContractCatalog.CreateReferenceToContract(order)
+				)
+			);
 
 			exportInvoiceDocument.Properties.Add(
 				new PropertyNode("ДокументОснование",
@@ -233,20 +222,12 @@ namespace Vodovoz.ExportTo1c
 				)
 			);
 
-			if(order.Contract != null || !String.IsNullOrEmpty(order.ContractTitle1c)) {
-				exportSaleDocument.Properties.Add(
-					new PropertyNode("ДоговорКонтрагента",
-						Common1cTypes.ReferenceContract,
-									 ContractCatalog.CreateReferenceToContract(order)
-					)
-				);
-			} else {
-				exportSaleDocument.Properties.Add(
-					new PropertyNode("ДоговорКонтрагента",
-						Common1cTypes.ReferenceContract
-					)
-				);
-			}
+			exportSaleDocument.Properties.Add(
+				new PropertyNode("ДоговорКонтрагента",
+					Common1cTypes.ReferenceContract,
+								 ContractCatalog.CreateReferenceToContract(order)
+				)
+			);
 
 			exportSaleDocument.Properties.Add(
 				new PropertyNode("ВалютаДокумента",

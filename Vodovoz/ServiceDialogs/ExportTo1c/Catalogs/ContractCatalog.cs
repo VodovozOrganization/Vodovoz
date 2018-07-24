@@ -50,9 +50,12 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				return CreateReferenceTo(order.Contract);
 
 			var contract = items.FirstOrDefault(pair => pair.Key is VirtualContract
-			                                    && ((VirtualContract)pair.Key).Check(order)).Key;
+			                                    && pair.Key.Counterparty == order.Client).Key;
 			if(contract == null)
-				contract = new VirtualContract(order.Client, exportData.CashlessOrganization, order.ContractTitle1c, order.ContractCode1c);
+				contract = new VirtualContract(order.Client,
+				                               exportData.CashlessOrganization,
+				                               $"{order.Client.VodovozInternalId}-1",
+				                               $"{order.Client.VodovozInternalId}-1");
 
 			return CreateReferenceTo(contract);
 		}
@@ -105,11 +108,6 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			Organization = organization;
 			this.title = title;
 			this.Code1c = code;
-		}
-
-		public bool Check(Domain.Orders.Order order)
-		{
-			return Counterparty == order.Client && title == order.ContractTitle1c && Code1c == order.ContractCode1c;
 		}
 	}
 }
