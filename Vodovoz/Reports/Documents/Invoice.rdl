@@ -199,7 +199,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Equipments">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	(SELECT 
@@ -290,7 +290,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="equipment_to">
           <DataField>equipment_to</DataField>
           <TypeName>System.String</TypeName>
@@ -2323,11 +2323,6 @@ GROUP BY name</CommandText>
             {delivery_point_comment} != '',
             '\n' + {delivery_point_comment},
             ''
-        )
-    + Iif(
-            {delivery_point_address_addition} != '',
-            '\n' + {delivery_point_address_addition},
-            ''
         )</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -3173,7 +3168,7 @@ GROUP BY name</CommandText>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>260729</Value>
+          <Value>269900</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -3191,7 +3186,7 @@ GROUP BY name</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
