@@ -44,6 +44,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.ToClientText)		.Column("to_client_text");
 			Map(x => x.FromClientText)		.Column("from_client_text");
 			Map(x => x.IsContractCloser)	.Column("is_contract_closer");
+			Map(x => x.BillDate)			.Column("bill_date");
 
 			Map (x => x.OrderStatus)		.Column ("order_status").CustomType<OrderStatusStringType> ();
 			Map (x => x.SignatureType)		.Column ("signature_type").CustomType<OrderSignatureTypeStringType> ();

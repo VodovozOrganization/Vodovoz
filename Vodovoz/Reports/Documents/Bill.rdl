@@ -13,11 +13,12 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
 	DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date,
+	DATE_FORMAT(orders.bill_date,'%d.%m.%y') AS bill_date,
 	counterparty.full_name AS client_name,
 	delivery_points.compiled_address AS client_address,
 	counterparty.inn,
@@ -67,7 +68,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -102,6 +103,10 @@ WHERE
         </Field>
         <Field Name="client_contact">
           <DataField>client_contact</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bill_date">
+          <DataField>bill_date</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1291,7 +1296,7 @@ WHERE
       <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15.75pt</Height>
         <Width>213.27pt</Width>
-        <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({order_date}, 'Order')</Value>
+        <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({bill_date}, 'Order')</Value>
         <ZIndex>1</ZIndex>
         <Left>39.2pt</Left>
         <Top>216.1pt</Top>
@@ -1895,7 +1900,7 @@ Iif(
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
