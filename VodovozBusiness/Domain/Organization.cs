@@ -57,9 +57,9 @@ namespace Vodovoz.Domain
 
 		string oGRN;
 
-		[Display (Name = "ОГРН")]
-		[Digits (ErrorMessage = "ОГРН может содержать только цифры.")]
-		[StringLength (13, MinimumLength = 0, ErrorMessage = "Номер ОГРН не должен превышать 13 цифр.")]
+		[Display (Name = "ОГРН/ОГРНИП")]
+		[Digits (ErrorMessage = "ОГРН/ОГРНИП может содержать только цифры.")]
+		[StringLength (15, MinimumLength = 0, ErrorMessage = "Номер ОГРНИП не должен превышать 15 цифр.")]
 		public virtual string OGRN {
 			get { return oGRN; }
 			set { SetField (ref oGRN, value, () => OGRN); }

@@ -1282,7 +1282,6 @@
                 <property name="Icon">stock:gtk-save Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -1299,7 +1298,6 @@
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отменить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -1324,6 +1322,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1504,7 +1503,7 @@
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">True</property>
-                            <property name="MaxLength">13</property>
+                            <property name="MaxLength">15</property>
                             <property name="InvisibleChar">●</property>
                           </widget>
                           <packing>
@@ -1635,7 +1634,7 @@
                           <widget class="Gtk.Label" id="label10">
                             <property name="MemberName" />
                             <property name="Xalign">1</property>
-                            <property name="LabelProp" translatable="yes">ОГРН:</property>
+                            <property name="LabelProp" translatable="yes">ОГРН/ОГРНИП:</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">8</property>
@@ -10242,7 +10241,6 @@
                     <property name="Visible">False</property>
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Информация</property>
-                    <property name="Active">True</property>
                     <property name="DrawIndicator">False</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>

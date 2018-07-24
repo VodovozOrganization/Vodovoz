@@ -145,7 +145,6 @@ namespace Vodovoz
 			this.radioTabInfo = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Основное"));
 			this.radioTabInfo.CanFocus = true;
 			this.radioTabInfo.Name = "radioTabInfo";
-			this.radioTabInfo.Active = true;
 			this.radioTabInfo.DrawIndicator = false;
 			this.radioTabInfo.UseUnderline = true;
 			this.radioTabInfo.Group = new global::GLib.SList(global::System.IntPtr.Zero);
@@ -264,7 +263,7 @@ namespace Vodovoz
 			this.dataentryOGRN.CanFocus = true;
 			this.dataentryOGRN.Name = "dataentryOGRN";
 			this.dataentryOGRN.IsEditable = true;
-			this.dataentryOGRN.MaxLength = 13;
+			this.dataentryOGRN.MaxLength = 15;
 			this.dataentryOGRN.InvisibleChar = '●';
 			this.datatableMain.Add(this.dataentryOGRN);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.dataentryOGRN]));
@@ -344,7 +343,7 @@ namespace Vodovoz
 			this.label10 = new global::Gtk.Label();
 			this.label10.Name = "label10";
 			this.label10.Xalign = 1F;
-			this.label10.LabelProp = global::Mono.Unix.Catalog.GetString("ОГРН:");
+			this.label10.LabelProp = global::Mono.Unix.Catalog.GetString("ОГРН/ОГРНИП:");
 			this.datatableMain.Add(this.label10);
 			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label10]));
 			w24.TopAttach = ((uint)(8));
@@ -553,8 +552,6 @@ namespace Vodovoz
 			}
 			w1.SetUiManager(UIManager);
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 			this.radioTabInfo.Toggled += new global::System.EventHandler(this.OnRadioTabInfoToggled);
 			this.radioTabAccounts.Toggled += new global::System.EventHandler(this.OnRadioTabAccountsToggled);
 		}
