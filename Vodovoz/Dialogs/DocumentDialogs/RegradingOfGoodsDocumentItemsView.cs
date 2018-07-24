@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
+using NHibernate.Criterion;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
@@ -127,7 +128,7 @@ namespace Vodovoz
 				AmountInStock = VMNode.Amount
 			};
 
-			var selectNewNomenclature = new OrmReference(Repository.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var selectNewNomenclature = new OrmReference(QueryOver.Of<Nomenclature>().Where(n => n.Category.IsIn(Nomenclature.GetCategoriesForGoods())));
 			selectNewNomenclature.Mode = OrmReferenceMode.Select;
 			selectNewNomenclature.TabName = "Выберите новую номенклатуру";
 			selectNewNomenclature.ObjectSelected += SelectNewNomenclature_ObjectSelected;

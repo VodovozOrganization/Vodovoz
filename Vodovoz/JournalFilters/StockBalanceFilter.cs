@@ -25,6 +25,8 @@ namespace Vodovoz
 			}
 		}
 
+		public bool ShowArchive { get; set; }
+
 		public StockBalanceFilter (IUnitOfWork uow)
 		{
 			this.Build ();
@@ -67,6 +69,12 @@ namespace Vodovoz
 		protected void OnSpeccomboStockItemSelected (object sender, ItemSelectedEventArgs e)
 		{
 			OnRefiltered ();
+		}
+
+		protected void OnCheckShowArchiveToggled(object sender, EventArgs e)
+		{
+			ShowArchive = checkShowArchive.Active;
+			OnRefiltered();
 		}
 	}
 }

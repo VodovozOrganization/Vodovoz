@@ -47,7 +47,12 @@ namespace Vodovoz.ViewModel
 					: Restrictions.Eq (Projections.Property<WarehouseMovementOperation> (o => o.WriteoffWarehouse), Filter.RestrictWarehouse))
 				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
 
-			var stocklist = UoW.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
+			var queryStock = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias);
+			if(!Filter.ShowArchive){
+				queryStock = queryStock.Where(n => n.IsArchive == false);
+			}
+
+			var stocklist = queryStock
 				.JoinQueryOver(n => n.Unit, () => unitAlias)
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)

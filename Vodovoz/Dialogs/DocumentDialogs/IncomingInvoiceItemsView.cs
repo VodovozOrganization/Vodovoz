@@ -86,7 +86,7 @@ namespace Vodovoz
 				return;
 			}
 
-			OrmReference SelectDialog = new OrmReference (DocumentUoW, Repository.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery ());
+			OrmReference SelectDialog = new OrmReference (DocumentUoW, QueryOver.Of<Nomenclature>().Where(n => n.Category.IsIn(Nomenclature.GetCategoriesForGoods())));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
