@@ -186,7 +186,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     organizations.full_name,
@@ -233,7 +233,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -1040,8 +1040,12 @@ WHERE
           <Textbox Name="Textbox25">
             <Height>12.00pt</Height>
             <Width>121.77pt</Width>
-            <Value>='(' + {leader_last_name} + ' ' +
-{leader_name} +  ' ' + {leader_patronymic} + ')'</Value>
+            <Value>='(' + {leader_last_name}
++ ' '
++ Left({leader_name},1)
++ '.'
++ Left({leader_patronymic},1)
++ '.)'</Value>
             <ZIndex>1</ZIndex>
             <Left>156.8pt</Left>
             <Top>44.5pt</Top>
@@ -1051,12 +1055,17 @@ WHERE
               <BorderWidth />
               <FontSize>8pt</FontSize>
             </Style>
-            <CanGrow>true</CanGrow>
+            <CanGrow>false</CanGrow>
           </Textbox>
           <Textbox Name="Textbox26">
             <Height>12.00pt</Height>
             <Width>118.77pt</Width>
-            <Value>='(' + {buh_last_name} + ' ' + {buh_name} + ' ' + {buh_patronymic} + ')'</Value>
+            <Value>='(' + {buh_last_name}
++ ' '
++ Left({buh_name},1)
++ '.'
++ Left({buh_patronymic},1)
++ '.)'</Value>
             <ZIndex>2</ZIndex>
             <Left>407.8pt</Left>
             <Top>45.3pt</Top>
@@ -1863,7 +1872,7 @@ Iif(
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>260047</Value>
+          <Value>269991</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1886,7 +1895,7 @@ Iif(
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
