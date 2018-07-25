@@ -20,6 +20,9 @@ namespace Vodovoz.JournalFilters
 		{
 			this.Build();
 			enumcomboCategory.ItemsEnum = typeof(NomenclatureCategory);
+			cmbEquipmentSubtype.ItemsEnum = typeof(SubtypeOfEquipmentCategory);
+			cmbEquipmentSubtype.Visible = DefaultSelectedCategory == NomenclatureCategory.equipment;
+			chkShowDilers.Visible = DefaultSelectedCategory == NomenclatureCategory.water;
 			OnRefiltered();
 		}
 
@@ -31,8 +34,6 @@ namespace Vodovoz.JournalFilters
 		{
 			if(Refiltered != null)
 				Refiltered(this, new EventArgs());
-			if(enumcomboCategory.SelectedItem != null)
-				chkShowDilers.Visible = (NomenclatureCategory)enumcomboCategory.SelectedItem == NomenclatureCategory.water;
 		}
 
 		IUnitOfWork uow;
@@ -68,6 +69,16 @@ namespace Vodovoz.JournalFilters
 			}
 		}
 
+		SubtypeOfEquipmentCategory defaultSelectedSubCategory;
+
+		public SubtypeOfEquipmentCategory DefaultSelectedSubCategory {
+			get { return defaultSelectedSubCategory; }
+			set {
+				defaultSelectedSubCategory = value;
+				cmbEquipmentSubtype.SelectedItem = value;
+			}
+		}
+
 		public bool ShowDilers {
 			get { return chkShowDilers.Active; }
 		}
@@ -87,6 +98,17 @@ namespace Vodovoz.JournalFilters
 			}
 		}
 
+		public SubtypeOfEquipmentCategory[] SelectedSubCategories {
+			get {
+				var selected = cmbEquipmentSubtype.SelectedItem as SubtypeOfEquipmentCategory?;
+				if(selected == null) {
+					return Enum.GetValues(typeof(SubtypeOfEquipmentCategory)).OfType<SubtypeOfEquipmentCategory>().ToArray();
+				} else {
+					return new SubtypeOfEquipmentCategory[] { (SubtypeOfEquipmentCategory)cmbEquipmentSubtype.SelectedItem };
+				}
+			}
+		}
+
 		private void SetAvailableCategories()
 		{
 			enumcomboCategory.ClearEnumHideList();
@@ -95,16 +117,29 @@ namespace Vodovoz.JournalFilters
 			enumcomboCategory.AddEnumToHideList(hidingCategories.Cast<object>().ToArray());
 		}
 
+		void SetVisibilityOfSubcategory(){
+			cmbEquipmentSubtype.Visible = enumcomboCategory.SelectedItem != null
+				&& (NomenclatureCategory)enumcomboCategory.SelectedItem == NomenclatureCategory.equipment;
+		}
+
 		protected void OnEnumcomboCategoryChangedByUser(object sender, EventArgs e)
 		{
+			SetVisibilityOfSubcategory();
+
 			if(enumcomboCategory.SelectedItem == null) {
 				return;
 			}
 
+			chkShowDilers.Visible = (NomenclatureCategory)enumcomboCategory.SelectedItem == NomenclatureCategory.water;
 			OnRefiltered();
 		}
 
 		protected void OnChkShowDilersToggled(object sender, EventArgs e) {
+			OnRefiltered();
+		}
+
+		protected void OnCmbEquipmentSubtypeChangedByUser(object sender, EventArgs e)
+		{
 			OnRefiltered();
 		}
 	}

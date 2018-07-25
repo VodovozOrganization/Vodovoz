@@ -8,6 +8,8 @@ namespace Vodovoz.JournalFilters
 
 		private global::Gamma.GtkWidgets.yCheckButton chkShowDilers;
 
+		private global::Gamma.Widgets.yEnumComboBox cmbEquipmentSubtype;
+
 		private global::Gamma.Widgets.yEnumComboBox enumcomboCategory;
 
 		private global::Gtk.Label labelType;
@@ -19,7 +21,8 @@ namespace Vodovoz.JournalFilters
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.JournalFilters.NomenclatureRepFilter";
 			// Container child Vodovoz.JournalFilters.NomenclatureRepFilter.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(3)), false);
+			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(4)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -31,10 +34,23 @@ namespace Vodovoz.JournalFilters
 			this.chkShowDilers.UseUnderline = true;
 			this.table1.Add(this.chkShowDilers);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.chkShowDilers]));
-			w1.LeftAttach = ((uint)(2));
-			w1.RightAttach = ((uint)(3));
+			w1.LeftAttach = ((uint)(3));
+			w1.RightAttach = ((uint)(4));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.cmbEquipmentSubtype = new global::Gamma.Widgets.yEnumComboBox();
+			this.cmbEquipmentSubtype.Name = "cmbEquipmentSubtype";
+			this.cmbEquipmentSubtype.ShowSpecialStateAll = true;
+			this.cmbEquipmentSubtype.ShowSpecialStateNot = false;
+			this.cmbEquipmentSubtype.UseShortTitle = false;
+			this.cmbEquipmentSubtype.DefaultFirst = true;
+			this.table1.Add(this.cmbEquipmentSubtype);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.cmbEquipmentSubtype]));
+			w2.LeftAttach = ((uint)(2));
+			w2.RightAttach = ((uint)(3));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.enumcomboCategory = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumcomboCategory.Name = "enumcomboCategory";
@@ -43,19 +59,19 @@ namespace Vodovoz.JournalFilters
 			this.enumcomboCategory.UseShortTitle = false;
 			this.enumcomboCategory.DefaultFirst = true;
 			this.table1.Add(this.enumcomboCategory);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboCategory]));
-			w2.LeftAttach = ((uint)(1));
-			w2.RightAttach = ((uint)(2));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboCategory]));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelType = new global::Gtk.Label();
 			this.labelType.Name = "labelType";
 			this.labelType.LabelProp = global::Mono.Unix.Catalog.GetString("Категория");
 			this.table1.Add(this.labelType);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType]));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType]));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
@@ -63,6 +79,7 @@ namespace Vodovoz.JournalFilters
 			}
 			this.Hide();
 			this.enumcomboCategory.ChangedByUser += new global::System.EventHandler(this.OnEnumcomboCategoryChangedByUser);
+			this.cmbEquipmentSubtype.ChangedByUser += new global::System.EventHandler(this.OnCmbEquipmentSubtypeChangedByUser);
 			this.chkShowDilers.Toggled += new global::System.EventHandler(this.OnChkShowDilersToggled);
 		}
 	}

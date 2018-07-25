@@ -63,9 +63,13 @@ namespace Vodovoz.ViewModel
 
 			if(!Filter.ShowDilers)
 				itemsQuery.Where(() => !nomenclatureAlias.IsDiler);
-			
-			itemsQuery = itemsQuery.Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category), Filter.SelectedCategories))
-				.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
+
+			itemsQuery.Where(n => n.Category.IsIn(Filter.SelectedCategories));
+
+			if(Filter.SelectedCategories.Count() == 1 && Filter.SelectedCategories.Contains(NomenclatureCategory.equipment))
+				itemsQuery.Where(n => n.SubTypeOfEquipmentCategory.IsIn(Filter.SelectedSubCategories));
+				
+			itemsQuery.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
 				.Where(() => !nomenclatureAlias.IsSerial)
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)

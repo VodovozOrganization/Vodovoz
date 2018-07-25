@@ -327,6 +327,7 @@ namespace Vodovoz.ViewWidgets
 			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
 			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.equipment;
+			nomenclatureFilter.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование к клиенту";
@@ -355,6 +356,7 @@ namespace Vodovoz.ViewWidgets
 			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
 			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.equipment;
+			nomenclatureFilter.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование от клиента";

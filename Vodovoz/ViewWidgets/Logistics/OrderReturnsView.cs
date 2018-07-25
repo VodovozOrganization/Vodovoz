@@ -126,6 +126,7 @@ namespace Vodovoz
 			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
 			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForEditOrderFromRL();
 			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.deposit;
+			nomenclatureFilter.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Номенклатура на продажу";
