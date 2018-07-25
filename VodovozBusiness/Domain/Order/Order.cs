@@ -707,6 +707,18 @@ namespace Vodovoz.Domain.Orders
 					//если ни у точки доставки, ни у контрагента нет ни одного номера телефона
 					if(!IsLoadedFrom1C && !((DeliveryPoint != null && DeliveryPoint.Phones.Any()) || Client.Phones.Any()))
 						yield return new ValidationResult("Ни для контрагента, ни для точки доставки заказа не указано ни одного номера телефона.");
+					
+					if(!IsLoadedFrom1C && DeliveryPoint != null){
+						if(DeliveryPoint.Entrance == 0) {
+							yield return new ValidationResult("Не заполнена парадная в точке доставки");
+						}
+						if(DeliveryPoint.Floor == 0) {
+							yield return new ValidationResult("Не заполнен этаж в точке доставки");
+						}
+						if(string.IsNullOrEmpty(DeliveryPoint.Room)) {
+							yield return new ValidationResult("Не заполнен номер помещения в точке доставки");
+						}
+					}
 
 					//В случае, если редактируется заказ "В пути", то должен быть оставлен комментарий, поясняющий причину редактирования.
 					//Если заказ "В пути" редактируется больше одного раза, то комментарий должен отличаться от предыдущего.

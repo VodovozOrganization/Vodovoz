@@ -69,6 +69,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref floor, value, () => Floor); }
 		}
 
+		int entrance;
+
+		[Display(Name = "Парадная")]
+		public virtual int Entrance {
+			get { return entrance; }
+			set { SetField(ref entrance, value, () => Entrance); }
+		}
+
 		public virtual string Title { 
 			get { return String.IsNullOrWhiteSpace(CompiledAddress) ? "АДРЕС ПУСТОЙ" : CompiledAddress; }
 		}
