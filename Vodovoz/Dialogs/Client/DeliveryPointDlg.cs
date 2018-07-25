@@ -108,8 +108,8 @@ namespace Vodovoz
 			checkIsActive.Binding.AddBinding(Entity, e => e.IsActive, w => w.Active).InitializeFromSource();
 			checkIsActive.Sensitive = QSMain.User.Permissions["can_arc_counterparty_and_deliverypoint"];
 			entryRoom.Binding.AddBinding(Entity, e => e.Room, w => w.Text).InitializeFromSource();
-			spinFloor.Binding.AddBinding(Entity, e => e.Floor, w => w.ValueAsInt).InitializeFromSource();
-			spinEntrance.Binding.AddBinding(Entity, e => e.Entrance, w => w.ValueAsInt).InitializeFromSource();
+			entryFloor.Binding.AddBinding(Entity, e => e.Floor, w => w.Text).InitializeFromSource();
+			entryEntrance.Binding.AddBinding(Entity, e => e.Entrance, w => w.Text).InitializeFromSource();
 			spinMinutesToUnload.Binding.AddBinding(Entity, e => e.MinutesToUnload, w => w.ValueAsInt).InitializeFromSource();
 
 			yentryAddition.Binding.AddBinding(Entity, e => e.АddressAddition, w => w.Text).InitializeFromSource();

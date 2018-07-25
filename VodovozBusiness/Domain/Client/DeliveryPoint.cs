@@ -61,18 +61,18 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref placement, value, () => Placement); }
 		}
 
-		int floor;
+		string floor;
 
 		[Display (Name = "Этаж")]
-		public virtual int Floor {
+		public virtual string Floor {
 			get { return floor; }
 			set { SetField (ref floor, value, () => Floor); }
 		}
 
-		int entrance;
+		string entrance;
 
 		[Display(Name = "Парадная")]
-		public virtual int Entrance {
+		public virtual string Entrance {
 			get { return entrance; }
 			set { SetField(ref entrance, value, () => Entrance); }
 		}
@@ -95,7 +95,9 @@ namespace Vodovoz.Domain.Client
 					address += String.Format ("д.{0}, ", Building);
 				if (!String.IsNullOrWhiteSpace (Letter))
 					address += String.Format ("лит.{0}, ", Letter);
-				if (default(int) != Floor)
+				if(!string.IsNullOrWhiteSpace(Entrance))
+					address += String.Format("пар.{0}, ", Entrance);
+				if (!string.IsNullOrWhiteSpace(Floor))
 					address += String.Format ("эт.{0}, ", Floor);
 				if (!String.IsNullOrWhiteSpace (Room))
 					address += String.Format ("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
@@ -121,8 +123,10 @@ namespace Vodovoz.Domain.Client
 					address += String.Format ("д.{0}, ", Building);
 				if (!String.IsNullOrWhiteSpace (Letter))
 					address += String.Format ("лит.{0}, ", Letter);
-				if (default(int) != Floor)
-					address += String.Format ("эт.{0}, ", Floor);
+				if(!string.IsNullOrWhiteSpace(Entrance))
+					address += String.Format("пар.{0}, ", Entrance);
+				if(!string.IsNullOrWhiteSpace(Floor))
+					address += String.Format("эт.{0}, ", Floor);
 				if (!String.IsNullOrWhiteSpace (Room))
 					address += String.Format ("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
 

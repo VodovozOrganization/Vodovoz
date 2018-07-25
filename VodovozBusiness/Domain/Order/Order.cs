@@ -701,13 +701,13 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("Ни для контрагента, ни для точки доставки заказа не указано ни одного номера телефона.");
 					
 					if(!IsLoadedFrom1C && DeliveryPoint != null){
-						if(DeliveryPoint.Entrance == 0) {
+						if(string.IsNullOrWhiteSpace(DeliveryPoint.Entrance)) {
 							yield return new ValidationResult("Не заполнена парадная в точке доставки");
 						}
-						if(DeliveryPoint.Floor == 0) {
+						if(string.IsNullOrWhiteSpace(DeliveryPoint.Floor)) {
 							yield return new ValidationResult("Не заполнен этаж в точке доставки");
 						}
-						if(string.IsNullOrEmpty(DeliveryPoint.Room)) {
+						if(string.IsNullOrWhiteSpace(DeliveryPoint.Room)) {
 							yield return new ValidationResult("Не заполнен номер помещения в точке доставки");
 						}
 					}

@@ -84,7 +84,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelEntrance;
 
-		private global::Gamma.GtkWidgets.ySpinButton spinEntrance;
+		private global::Gamma.GtkWidgets.yEntry entryEntrance;
 
 		private global::Gamma.Widgets.yEnumComboBox comboRoomType;
 
@@ -94,7 +94,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label9;
 
-		private global::Gamma.GtkWidgets.ySpinButton spinFloor;
+		private global::Gamma.GtkWidgets.yEntry entryFloor;
 
 		private global::Gtk.HBox hboxCode;
 
@@ -561,16 +561,13 @@ namespace Vodovoz
 			w38.Expand = false;
 			w38.Fill = false;
 			// Container child hbox9.Gtk.Box+BoxChild
-			this.spinEntrance = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
-			this.spinEntrance.CanFocus = true;
-			this.spinEntrance.Name = "spinEntrance";
-			this.spinEntrance.Adjustment.PageIncrement = 10D;
-			this.spinEntrance.ClimbRate = 1D;
-			this.spinEntrance.Numeric = true;
-			this.spinEntrance.ValueAsDecimal = 0m;
-			this.spinEntrance.ValueAsInt = 0;
-			this.hbox9.Add(this.spinEntrance);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.spinEntrance]));
+			this.entryEntrance = new global::Gamma.GtkWidgets.yEntry();
+			this.entryEntrance.CanFocus = true;
+			this.entryEntrance.Name = "entryEntrance";
+			this.entryEntrance.IsEditable = true;
+			this.entryEntrance.InvisibleChar = '•';
+			this.hbox9.Add(this.entryEntrance);
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.entryEntrance]));
 			w39.Position = 1;
 			w39.Expand = false;
 			w39.Fill = false;
@@ -616,20 +613,16 @@ namespace Vodovoz
 			w43.Expand = false;
 			w43.Fill = false;
 			// Container child hbox9.Gtk.Box+BoxChild
-			this.spinFloor = new global::Gamma.GtkWidgets.ySpinButton(-5D, 100D, 1D);
-			this.spinFloor.WidthRequest = 0;
-			this.spinFloor.HeightRequest = 0;
-			this.spinFloor.CanFocus = true;
-			this.spinFloor.Name = "spinFloor";
-			this.spinFloor.Adjustment.PageIncrement = 10D;
-			this.spinFloor.ClimbRate = 1D;
-			this.spinFloor.Numeric = true;
-			this.spinFloor.Value = 7D;
-			this.spinFloor.ValueAsDecimal = 0m;
-			this.spinFloor.ValueAsInt = 0;
-			this.hbox9.Add(this.spinFloor);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.spinFloor]));
+			this.entryFloor = new global::Gamma.GtkWidgets.yEntry();
+			this.entryFloor.CanFocus = true;
+			this.entryFloor.Name = "entryFloor";
+			this.entryFloor.IsEditable = true;
+			this.entryFloor.InvisibleChar = '•';
+			this.hbox9.Add(this.entryFloor);
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.entryFloor]));
 			w44.Position = 6;
+			w44.Expand = false;
+			w44.Fill = false;
 			this.datatable1.Add(this.hbox9);
 			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.datatable1[this.hbox9]));
 			w45.TopAttach = ((uint)(5));
