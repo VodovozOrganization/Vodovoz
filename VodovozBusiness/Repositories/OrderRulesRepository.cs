@@ -177,7 +177,7 @@ namespace Vodovoz.Repositories
 			key.OrderStatus >= OrderStatus.Accepted
 			&& (
 				//Условие для оборудования возвращенного из ремонта.
-				key.OnlyEquipments.Any(e => e.Direction == Direction.Deliver && (e.DirectionReason == DirectionReason.Repair || e.DirectionReason == DirectionReason.RepairAndCleaning))
+				key.OnlyEquipments.Any(e => e.Direction == Direction.Deliver && (e.DirectionReason == DirectionReason.Repair || e.DirectionReason == DirectionReason.RepairAndCleaning || e.DirectionReason == DirectionReason.Cleaning))
 			   ||
 				//Условия для выезда мастера.
 				key.Order.IsService
