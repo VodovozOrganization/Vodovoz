@@ -155,6 +155,17 @@ namespace Vodovoz.Repository
 				OrderStatus.UnloadingOnStock
 			};
 		}
+
+		public static OrderStatus[] GetGrantedStatusesToCreateSeveralOrders()
+		{
+			return new OrderStatus[]{
+				OrderStatus.Canceled,
+				OrderStatus.NewOrder,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.NotDelivered,
+				OrderStatus.WaitForPayment
+			};
+		}
 	}
 }
 

@@ -749,7 +749,12 @@ namespace Vodovoz.Domain.Orders
 
 					if(!SelfDelivery && DeliveryPoint != null) {
 						var ordersForDeliveryPoints = OrderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
-																	 .Where(o => o.Id != Id && o.DeliveryDate == DeliveryDate);
+																	 .Where(
+							                                             o => o.Id != Id
+							                                             && o.DeliveryDate == DeliveryDate
+							                                             && !OrderRepository.GetGrantedStatusesToCreateSeveralOrders()
+							                                             .Contains(o.OrderStatus)
+							                                            );
 						if(!QSMain.User.Permissions["can_create_several_orders_for_date_and_deliv_point"]
 						   && ordersForDeliveryPoints.Any()
 						  ) {
