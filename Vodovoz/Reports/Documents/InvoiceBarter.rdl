@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -78,7 +78,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -311,7 +311,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -345,14 +345,34 @@ LEFT JOIN
 LEFT JOIN
 	orders ON orders.id = order_items.order_id
 WHERE
-	order_items.order_id = @order_id;</CommandText>
+	order_items.order_id = @order_id
+/*Отображенеие строки Забор-Доставка, если нет номенклатур в заказе*/
+UNION ALL
+SELECT DISTINCT
+	null AS id,
+	'Забор-Доставка' AS name,
+	null AS unit_code,
+	null AS mu_name,
+	null AS count,
+	null AS item_price,
+	null AS item_discount,
+	null AS total_wo_disc,
+	null AS total
+FROM
+	order_items
+WHERE NOT EXISTS (
+	SELECT id
+	FROM order_items
+	WHERE order_id = @order_id
+	)
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.String</TypeName>
