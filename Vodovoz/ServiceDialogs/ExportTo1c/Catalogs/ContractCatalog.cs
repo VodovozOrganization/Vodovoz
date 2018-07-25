@@ -21,7 +21,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		{
 			int id = GetReferenceId(contract);
 			var organization = exportData.CashlessOrganization;
-			return new ReferenceNode(
+			return new ReferenceNode(id,
 				new PropertyNode("Наименование",
 					Common1cTypes.String,
 				                 contract.TitleIn1c
