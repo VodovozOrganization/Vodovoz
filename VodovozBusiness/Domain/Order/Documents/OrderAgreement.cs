@@ -44,8 +44,6 @@ namespace Vodovoz.Domain.Orders.Documents
 			get { return AdditionalAgreement?.IssueDate;}
 		}
 
-		public virtual int CopiesToPrint { get; set; }
-
 		public virtual void PrepareTemplate(IUnitOfWork uow)
 		{
 			if (AdditionalAgreement.DocumentTemplate == null)
