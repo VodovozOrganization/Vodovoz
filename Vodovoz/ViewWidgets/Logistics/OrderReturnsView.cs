@@ -210,6 +210,10 @@ namespace Vodovoz
 			var order = routeListItem.Order;
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
+
+			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			entryOnlineOrder.Binding.AddBinding(routeListItem.Order, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			OnlineOrderVisible();
 		}
 
 		private void ConfigureDeliveryPointRefference(Counterparty client = null)
@@ -313,6 +317,16 @@ namespace Vodovoz
 
 			//Не блокируем закрытие вкладки
 			return true;
+		}
+
+		protected void OnYenumcomboOrderPaymentChanged(object sender, EventArgs e)
+		{
+			OnlineOrderVisible();
+		}
+
+		private void OnlineOrderVisible()
+		{
+			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (routeListItem.Order.PaymentType == PaymentType.ByCard);
 		}
 	}
 
