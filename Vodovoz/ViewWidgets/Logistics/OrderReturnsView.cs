@@ -149,7 +149,7 @@ namespace Vodovoz
 				if(wsa == null) {
 					MessageDialogWorks.RunErrorDialog("Невозможно добавить воду, потому что нет дополнительного соглашения о продаже воды");
 				}
-				routeListItem.Order.AddWaterForSale(nomenclature, wsa, 1);
+				routeListItem.Order.AddWaterForSale(nomenclature, wsa, 0);
 			}else {
 				routeListItem.Order.AddAnyGoodsNomenclatureForSale(nomenclature);
 			}
@@ -192,7 +192,7 @@ namespace Vodovoz
 					}
 				})
 						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
-						.AddSetter((cell, node) => cell.Adjustment = new Gtk.Adjustment(0, 0, node.Count, 1, 1, 0))
+						.AddSetter((cell, node) => cell.Adjustment = new Gtk.Adjustment(0, 0, GetMaxCount(node), 1, 1, 0))
 						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
@@ -215,6 +215,13 @@ namespace Vodovoz
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(routeListItem.Order, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 			OnlineOrderVisible();
+		}
+
+		int GetMaxCount(OrderItemReturnsNode node){
+			var count = (node.Nomenclature.Category == NomenclatureCategory.service
+			             || node.Nomenclature.Category == NomenclatureCategory.master
+			             || node.Nomenclature.Category == NomenclatureCategory.deposit) ? 1 : 9999;
+			return count;
 		}
 
 		private void ConfigureDeliveryPointRefference(Counterparty client = null)

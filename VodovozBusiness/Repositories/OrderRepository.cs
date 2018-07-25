@@ -144,7 +144,7 @@ namespace Vodovoz.Repository
 			};
 		}
 
-		public static OrderStatus[] GetNotDeliveredOrderStatuses()
+		public static OrderStatus[] GetStatusesForActualCount()
 		{
 			return new OrderStatus[]{
 				OrderStatus.Canceled,

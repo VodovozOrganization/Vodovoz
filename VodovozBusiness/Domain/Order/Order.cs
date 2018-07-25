@@ -224,7 +224,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual Decimal SumToReceive {
 			get {
 				decimal money = TotalSum;
-				if(OrderRepository.GetNotDeliveredOrderStatuses().Contains(OrderStatus))
+				if(OrderRepository.GetStatusesForActualCount().Contains(OrderStatus))
 					money = ActualTotalSum;
 				return PaymentType == PaymentType.cash ? money + ExtraMoney : 0;
 			}
