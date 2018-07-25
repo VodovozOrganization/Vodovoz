@@ -689,7 +689,7 @@ namespace Vodovoz.Domain.Orders
 							new[] { this.GetPropertyName(o => o.SignatureType) });
 
 					if(!IsLoadedFrom1C && bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water))
-						yield return new ValidationResult("В заказе не указано бутылей на возврат.",
+						yield return new ValidationResult("В заказе не указана планируемая тара.",
 							new[] { this.GetPropertyName(o => o.Contract) });
 					if(!IsLoadedFrom1C && trifle == null && PaymentType == PaymentType.cash && this.TotalSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
