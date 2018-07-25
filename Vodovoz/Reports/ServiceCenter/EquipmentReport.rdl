@@ -43,6 +43,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -364,10 +366,20 @@
     orders.id AS order_id,
     counterparty.full_name AS client_name,
     delivery_points.compiled_address_short AS address,
-	CONCAT_WS(' ', orders.to_client_text,
-		GROUP_CONCAT(IF(nomenclature.category = 'additional', CONCAT(nomenclature.official_name, IF(order_items.count &gt; 1, CONCAT(': ', order_items.count, ' шт.'), '')), '') SEPARATOR ' ')
-        ) AS to_client,
-    orders.from_client_text AS from_client,
+	CONCAT_WS(
+		', ',
+		CONCAT_WS(
+			' ', 
+			orders.to_client_text,
+			GROUP_CONCAT(IF(nomenclature.category = 'additional', CONCAT(nomenclature.official_name, IF(order_items.count &gt; 1, CONCAT(': ', order_items.count, ' шт.'), '')), '') SEPARATOR ' ')
+		),
+        equipments.equipment_to_client
+    ) AS to_client,
+    CONCAT_WS(
+		', ',
+		orders.from_client_text,
+        equipments.equipment_from_client
+	) AS from_client,
     orders.order_status AS status,
     orders.daily_number_1c AS dailynum,
     IF(nomenclature.category != 'water', GROUP_CONCAT( CONCAT_WS(' ', nomenclature.name, '-', order_items.count, 'шт.') SEPARATOR ',\n'), '') as nomenclatures
@@ -380,17 +392,87 @@ FROM
         LEFT JOIN
     order_items ON order_items.order_id = orders.id
         LEFT JOIN
+        (
+			SELECT
+				order_equipment.order_id as order_id,
+                GROUP_CONCAT(
+					IF(order_equipment.direction = 'Deliver',
+						CONCAT(
+							IFNULL(equip_nomenclature.name, equip_nomenclature.official_name),
+							' (',
+							Case
+								when order_equipment.direction_reason = 'Rent' then 'Аренда'
+								when order_equipment.direction_reason = 'Repair' then 'Ремонт'
+								when order_equipment.direction_reason = 'Cleaning' then 'Санобработка'
+								when order_equipment.direction_reason = 'RepairAndCleaning' then 'Ремонт и санобработка'       
+								else ''
+							end,
+							', ',
+							Case
+								when order_equipment.own_type = 'Client' then 'Клиент'
+								when order_equipment.own_type = 'Duty' then 'Дежурный'
+								when order_equipment.own_type = 'Rent' then 'Аренда'       
+								else ''
+							end,
+							')'
+						), null)
+					SEPARATOR ', '
+				) as equipment_to_client,
+                
+                GROUP_CONCAT(
+					IF(order_equipment.direction = 'PickUp',
+						CONCAT(
+							IFNULL(equip_nomenclature.name, equip_nomenclature.official_name),
+							' (',
+							Case
+								when order_equipment.direction_reason = 'Rent' then 'Аренда, '
+								when order_equipment.direction_reason = 'Repair' then 'Ремонт, '
+								when order_equipment.direction_reason = 'Cleaning' then 'Санобработка, '
+								when order_equipment.direction_reason = 'RepairAndCleaning' then 'Ремонт и санобработка, '       
+								else ''
+							end,
+							Case
+								when order_equipment.own_type = 'Client' then 'Клиент'
+								when order_equipment.own_type = 'Duty' then 'Дежурный'
+								when order_equipment.own_type = 'Rent' then 'Аренда'       
+								else ''
+							end,
+							')'
+						)
+					, null)
+					SEPARATOR ', '
+				) as equipment_from_client
+			FROM 
+				order_equipment
+				LEFT JOIN
+				nomenclature as equip_nomenclature ON equip_nomenclature.id = order_equipment.nomenclature_id
+			WHERE equip_nomenclature.category = 'equipment'
+            GROUP BY order_equipment.order_id
+        ) as equipments ON equipments.order_id = orders.id
+        LEFT JOIN
     nomenclature ON nomenclature.id = order_items.nomenclature_id
+		#LEFT JOIN
+    #nomenclature as equip_nomenclature ON equip_nomenclature.id = order_equipment.nomenclature_id AND equip_nomenclature.category = 'equipment'
 WHERE
-    orders.delivery_date &gt;= @start_date
-        AND orders.delivery_date &lt;= @end_date
-        AND (((orders.to_client_text IS NOT NULL AND TRIM(orders.to_client_text) &lt;&gt; '' AND TRIM(orders.to_client_text) &lt;&gt; 'раст')
-		   OR (orders.from_client_text IS NOT NULL AND TRIM(orders.from_client_text) &lt;&gt; ''))
-        OR ((nomenclature.code_1c = '00001358')
-        OR (nomenclature.code_1c = '00001357')
-        OR (nomenclature.code_1c = '00001355')
-        OR (nomenclature.code_1c = '00001726')
-        AND nomenclature.category = 'additional'))
+		orders.delivery_date &gt;= @start_date
+	AND orders.delivery_date &lt;= @end_date
+	AND (
+			(
+				(
+						(orders.to_client_text IS NOT NULL AND TRIM(orders.to_client_text) &lt;&gt; '' AND TRIM(orders.to_client_text) &lt;&gt; 'раст')
+					OR (orders.from_client_text IS NOT NULL AND TRIM(orders.from_client_text) &lt;&gt; '')
+					
+				)	
+				OR (
+					(nomenclature.code_1c = '00001358')
+					OR (nomenclature.code_1c = '00001357')
+					OR (nomenclature.code_1c = '00001355')
+					OR (nomenclature.code_1c = '00001726')
+					AND nomenclature.category = 'additional'
+				   )
+				)
+            OR equipments.order_id IS NOT NULL
+		)
 GROUP BY orders.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
