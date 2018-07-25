@@ -1816,6 +1816,9 @@ namespace Vodovoz
 
 		protected void OnPickerDeliveryDateDateChanged(object sender, EventArgs e)
 		{
+			if(Entity.DeliveryDate.HasValue && Entity.DeliveryDate.Value.Date == DateTime.Today.Date) {
+				MessageDialogWorks.RunWarningDialog("Сегодня? Уверены?");
+			}
 			SetProxyForOrder();
 			UpdateProxyInfo();
 		}
