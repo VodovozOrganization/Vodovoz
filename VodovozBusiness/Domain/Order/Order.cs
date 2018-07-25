@@ -126,20 +126,12 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		DateTime? billDate;
+		DateTime billDate = DateTime.Now;
 
 		[Display(Name = "Дата счета")]
 		[HistoryDateOnly]
-		public virtual DateTime? BillDate {
-			get {
-				if(PaymentType != PaymentType.cashless) {
-					return deliveryDate;
-				}
-				if(PaymentType == PaymentType.cashless && !billDate.HasValue) {
-					return deliveryDate;
-				}
-				return billDate;
-			}
+		public virtual DateTime BillDate {
+			get { return billDate; }
 			set { SetField(ref billDate, value, () => BillDate); }
 		}
 
