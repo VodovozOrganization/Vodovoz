@@ -1817,11 +1817,15 @@ namespace Vodovoz
 
 		protected void OnPickerDeliveryDateDateChanged(object sender, EventArgs e)
 		{
+			SetProxyForOrder();
+			UpdateProxyInfo();
+		}
+
+		protected void OnPickerDeliveryDateDateChangedByUser(object sender, EventArgs e)
+		{
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryDate.Value.Date == DateTime.Today.Date) {
 				MessageDialogWorks.RunWarningDialog("Сегодня? Уверены?");
 			}
-			SetProxyForOrder();
-			UpdateProxyInfo();
 		}
 
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
