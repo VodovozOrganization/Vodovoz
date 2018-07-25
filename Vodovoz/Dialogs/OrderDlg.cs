@@ -1577,15 +1577,13 @@ namespace Vodovoz
 			var todayLastNumber = UoW.Session.QueryOver<Order>()
 									 .Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DailyNumber))
 									 .Where(d => d.DeliveryDate == Entity.DeliveryDate)
+			                         .Where(x => x.Id != Entity.Id)
 									 .SingleOrDefault<int>();
 
-
-			if(Entity.DailyNumber == null) {
-				if(todayLastNumber != 0)
-					Entity.DailyNumber = todayLastNumber + 1;
-				else
-					Entity.DailyNumber = 1;
-			}
+			if(todayLastNumber != 0)
+				Entity.DailyNumber = todayLastNumber + 1;
+			else
+				Entity.DailyNumber = 1;
 		}
 
 		void SaveChanges()
