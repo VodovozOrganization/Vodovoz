@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using QSDocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repositories.Client;
@@ -31,6 +32,12 @@ namespace Vodovoz.DocTemplates
 			AddTable(x => x.FixedPrices)
 				.AddColumn(x => x.Nomenclature.OfficialName, PatternFieldType.FString)
 				.AddColumn(x => x.Price, PatternFieldType.FString);
+
+			AddField(x => String.Join(", ",
+									  x.DeliveryPoint != null && x.DeliveryPoint.Phones.Any()
+									  ? x.DeliveryPoint.Phones.Select(p => p.ToString())
+									  : x.Contract.Counterparty.Phones.Select(p => p.ToString())
+									 ), "Телефоны", PatternFieldType.FString);
 
 			SortFields();
 		}

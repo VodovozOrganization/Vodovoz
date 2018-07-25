@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using QSDocTemplates;
 using Vodovoz.Domain.Client;
 
@@ -28,6 +29,12 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.StartDate, PatternFieldType.FDate);
 			AddField(x => x.IssueDate, PatternFieldType.FDate);
 			AddField(x => x.DeliveryPoint.CompiledAddress, PatternFieldType.FString);
+
+			AddField(x => String.Join(", ",
+									  x.DeliveryPoint != null && x.DeliveryPoint.Phones.Any()
+									  ? x.DeliveryPoint.Phones.Select(p => p.ToString())
+									  : x.Contract.Counterparty.Phones.Select(p => p.ToString())
+									 ), "Телефоны", PatternFieldType.FString);
 
 			AddTable(x => x.Equipment)
 				.AddColumn(x => x.WaterAmount, PatternFieldType.FString)

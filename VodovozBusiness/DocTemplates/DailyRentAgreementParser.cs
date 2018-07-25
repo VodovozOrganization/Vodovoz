@@ -26,6 +26,12 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.IssueDate, PatternFieldType.FDate);
 			AddField(x => x.DeliveryPoint.CompiledAddress, PatternFieldType.FString);
 
+			AddField(x => String.Join(", ",
+									  x.DeliveryPoint != null && x.DeliveryPoint.Phones.Any()
+									  ? x.DeliveryPoint.Phones.Select(p => p.ToString())
+									  : x.Contract.Counterparty.Phones.Select(p => p.ToString())
+									 ), "Телефоны", PatternFieldType.FString);
+			
 			SortFields();
 		}
 
