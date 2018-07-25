@@ -1904,7 +1904,7 @@ namespace Vodovoz
 			this.buttonCloseOrder.CanFocus = true;
 			this.buttonCloseOrder.Name = "buttonCloseOrder";
 			this.buttonCloseOrder.UseUnderline = true;
-			this.buttonCloseOrder.Label = global::Mono.Unix.Catalog.GetString("Закрыть заказ");
+			this.buttonCloseOrder.Label = global::Mono.Unix.Catalog.GetString("Закрыть без доставки");
 			this.hboxStatusButtons.Add(this.buttonCloseOrder);
 			global::Gtk.Box.BoxChild w162 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonCloseOrder]));
 			w162.Position = 2;
@@ -1953,7 +1953,6 @@ namespace Vodovoz
 			this.referenceClient.Changed += new global::System.EventHandler(this.OnReferenceClientChanged);
 			this.referenceClient.ChangedByUser += new global::System.EventHandler(this.OnReferenceClientChangedByUser);
 			this.pickerDeliveryDate.DateChanged += new global::System.EventHandler(this.OnPickerDeliveryDateDateChanged);
-			this.pickerDeliveryDate.DateChangedByUser += new global::System.EventHandler(this.OnPickerDeliveryDateDateChangedByUser);
 			this.pickerBillDate.DateChanged += new global::System.EventHandler(this.OnPickerDeliveryDateDateChanged);
 			this.enumSignatureType.Changed += new global::System.EventHandler(this.OnEnumSignatureTypeChanged);
 			this.enumPaymentType.Changed += new global::System.EventHandler(this.OnEnumPaymentTypeChanged);
