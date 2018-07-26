@@ -311,9 +311,8 @@ namespace Vodovoz.ExportTo1c
 			record.Properties.Add(
 				new PropertyNode("Цена",
 					Common1cTypes.Numeric,
-					orderItem.Price.ToString()
-				)
-			);
+					orderItem.Price));
+
 			record.Properties.Add(
 				new PropertyNode("Сумма",
 					Common1cTypes.Numeric,
