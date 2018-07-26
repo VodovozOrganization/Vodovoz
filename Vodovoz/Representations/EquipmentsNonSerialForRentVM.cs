@@ -57,12 +57,13 @@ namespace Vodovoz.Representations
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig <NomenclatureForRentVMNode>
 			.Create()
-			.AddColumn ("Оборудование").AddTextRenderer (node => node.Nomenclature.Name)
-		    .AddColumn ("Тип оборудования").AddTextRenderer (node => node.Type != null ? node.Type.Name : "")
-			.AddColumn ("Кол-во").AddTextRenderer (node => node.InStockText)
-			.AddColumn ("Зарезервировано").AddTextRenderer (node => node.ReservedText)
-			.AddColumn ("Доступно").AddTextRenderer (node => node.AvailableText)
-			.AddSetter ((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
+			.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+			.AddColumn("Оборудование").AddTextRenderer (node => node.Nomenclature.Name)
+		    .AddColumn("Тип оборудования").AddTextRenderer (node => node.Type != null ? node.Type.Name : "")
+			.AddColumn("Кол-во").AddTextRenderer (node => node.InStockText)
+			.AddColumn("Зарезервировано").AddTextRenderer (node => node.ReservedText)
+			.AddColumn("Доступно").AddTextRenderer (node => node.AvailableText)
+			.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {

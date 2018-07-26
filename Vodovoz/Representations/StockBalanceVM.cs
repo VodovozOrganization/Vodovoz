@@ -69,6 +69,7 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig <StockBalanceVMNode>.Create ()
+			.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Номенклатура").SetDataProperty (node => node.NomenclatureName)
 			.AddColumn ("Кол-во").SetDataProperty (node => node.CountText)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
@@ -107,7 +108,7 @@ namespace Vodovoz.ViewModel
 		
 	public class StockBalanceVMNode
 	{
-
+		[UseForSearch]
 		public int Id{ get; set;}
 
 		public decimal Append{ get; set;}

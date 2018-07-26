@@ -128,6 +128,7 @@ namespace Vodovoz.ViewModel
 		static Gdk.Color colorRed = new Gdk.Color(0xff, 0, 0);
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<NomenclatureForSaleVMNode>.Create()
+			.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Номенклатура").SetDataProperty(node => node.Name)
 			.AddColumn("Категория").SetDataProperty(node => node.Category.GetEnumTitle())
 			.AddColumn("Кол-во").AddTextRenderer(node => node.InStockText)
@@ -168,6 +169,7 @@ namespace Vodovoz.ViewModel
 
 	public class NomenclatureForSaleVMNode
 	{
+		[UseForSearch]
 		public int Id { get; set; }
 
 		[UseForSearch]

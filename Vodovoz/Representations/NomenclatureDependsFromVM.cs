@@ -53,6 +53,7 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<NomenclatureDependsFromVMNode>.Create()
+			.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Номенклатура").AddTextRenderer(node => node.Name)
 			.AddColumn("Категория").AddTextRenderer(node => node.Category.GetEnumTitle())
 			.Finish();
