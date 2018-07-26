@@ -2309,6 +2309,16 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual void SaveOrderComment(){
+			if(Id == 0) return;
+			
+			using(var uow = UnitOfWorkFactory.CreateForRoot<Order>(Id)) {
+				uow.Root.Comment = Comment;
+				uow.Save();
+				uow.Commit();
+			}
+		}
+
 		#endregion
 
 		#region	Внутренние функции

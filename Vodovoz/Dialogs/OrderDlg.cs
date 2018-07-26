@@ -2284,6 +2284,11 @@ namespace Vodovoz
 		{
 			SetDiscountEditable();
 		}
+
+		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)
+		{
+			Entity.SaveOrderComment();
+		}
 		#endregion
 	}
 }
