@@ -392,6 +392,7 @@ namespace Vodovoz
 
 			if(UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
 				IsUIEditable(CanChange);
+			tableTareControl.Sensitive = !(Entity.OrderStatus == OrderStatus.NewOrder || Entity.OrderStatus == OrderStatus.Accepted);
 
 			OrderItemEquipmentCountHasChanges = false;
 			ShowOrderColumnInDocumentsList();
@@ -812,7 +813,6 @@ namespace Vodovoz
 			buttonAddExistingDocument.Sensitive = val;
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
-			tableTareControl.Sensitive = Entity.OrderStatus == OrderStatus.OnTheWay || Entity.OrderStatus == OrderStatus.Shipped;
 		}
 
 		private void RemoveOrderItem(OrderItem item)
