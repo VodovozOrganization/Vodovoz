@@ -6,6 +6,7 @@ using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Goods;
 using QSHistoryLog;
 using Vodovoz.Repository;
+using NHibernate.Util;
 
 namespace Vodovoz.Domain.Client
 {
@@ -55,12 +56,8 @@ namespace Vodovoz.Domain.Client
 
 		#region Расчетные
 
-		public virtual bool IsFixedPrice {
-			get {
-				return FixedPrices != null && FixedPrices.Count > 0;
-			}
-		}
-
+		public virtual bool HasFixedPrice => FixedPrices.Any();
+	
 		#endregion
 
 		public virtual void  AddFixedPrice(Nomenclature nomenclature, decimal price)

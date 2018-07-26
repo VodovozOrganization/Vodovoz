@@ -58,7 +58,8 @@ namespace Vodovoz.Repository
 		public static QueryOver<Nomenclature> NomenclatureWaterOnlyQuery()
 		{
 			return QueryOver.Of<Nomenclature>()
-				.Where(n => n.Category == NomenclatureCategory.water)
+				.Where(n => n.Category == NomenclatureCategory.water 
+				       || n.Category == NomenclatureCategory.disposableBottleWater)
 							.Where(n => !n.IsArchive);
 		}
 

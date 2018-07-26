@@ -225,7 +225,7 @@ namespace Vodovoz.Domain.Client
 					a.DeliveryPoint != null &&
 					a.DeliveryPoint.Id == deliveryPoint.Id &&
 					!a.IsCancelled
-					&& a.IsFixedPrice
+					&& a.HasFixedPrice
 					&& a.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id)
 				);
 				if (agreement == null)

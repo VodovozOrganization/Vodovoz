@@ -1237,16 +1237,17 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count)
 		{
-			if(nomenclature.Category != NomenclatureCategory.water)
+			if(!(nomenclature.Category == NomenclatureCategory.water 
+			     || nomenclature.Category == NomenclatureCategory.disposableBottleWater))
 				return;
 
 			decimal price;
 			//влияющая номенклатура
 			Nomenclature infuentialNomenclature = nomenclature?.DependsOnNomenclature;
 
-			if(wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && infuentialNomenclature == null)) {
+			if(wsa.HasFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && infuentialNomenclature == null)) {
 				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id).Price;
-			} else if(wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == infuentialNomenclature?.Id)) {
+			} else if(wsa.HasFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == infuentialNomenclature?.Id)) {
 				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == infuentialNomenclature?.Id).Price;
 			} else {
 				price = nomenclature.GetPrice(1);

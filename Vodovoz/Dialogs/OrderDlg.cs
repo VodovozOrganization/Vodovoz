@@ -311,7 +311,7 @@ namespace Vodovoz
 						}
 						AdditionalAgreement aa = node.AdditionalAgreement.Self;
 						if(aa is WaterSalesAgreement &&
-						  (aa as WaterSalesAgreement).IsFixedPrice) {
+						  (aa as WaterSalesAgreement).HasFixedPrice) {
 							c.ForegroundGdk = colorGreen;
 						} else if(node.IsUserPrice &&
 						  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
@@ -1032,6 +1032,7 @@ namespace Vodovoz
 				case NomenclatureCategory.equipment://Оборудование
 					RunAdditionalAgreementSalesEquipmentDialog(nomenclature);
 					break;
+				case NomenclatureCategory.disposableBottleWater://Вода в одноразовой таре
 				case NomenclatureCategory.water://Вода в многооборотной таре
 					CounterpartyContract contract = CounterpartyContractRepository.
 						GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.Client.PersonType, UoWGeneric.Root.PaymentType);
@@ -2284,11 +2285,11 @@ namespace Vodovoz
 		{
 			SetDiscountEditable();
 		}
+		#endregion
 
 		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)
 		{
 			Entity.SaveOrderComment();
 		}
-		#endregion
 	}
 }

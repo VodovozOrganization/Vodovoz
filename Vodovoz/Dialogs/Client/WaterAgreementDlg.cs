@@ -166,7 +166,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			if(!Entity.IsFixedPrice && Entity.FixedPrices.Count > 0) {
+			if(!Entity.HasFixedPrice && Entity.FixedPrices.Count > 0) {
 				foreach(var v in Entity.FixedPrices.ToList()) {
 					Entity.FixedPrices.Remove(v);
 					UoW.Delete(v);
