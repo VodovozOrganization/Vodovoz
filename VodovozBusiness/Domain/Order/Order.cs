@@ -1197,19 +1197,20 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature)
+		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature, bool isChangeOrder = false)
 		{
 			var acceptCategories = Nomenclature.GetCategoriesForSale();
 			if(!acceptCategories.Contains(nomenclature.Category)) {
 				return;
 			}
 
+			var count = (nomenclature.Category == NomenclatureCategory.service
+						 || nomenclature.Category == NomenclatureCategory.deposit) && !isChangeOrder ? 1 : 0;
+
 			ObservableOrderItems.Add(new OrderItem {
 				Order = this,
 				AdditionalAgreement = null,
-				Count = (nomenclature.Category == NomenclatureCategory.service
-						 || nomenclature.Category == NomenclatureCategory.master
-						 || nomenclature.Category == NomenclatureCategory.deposit) ? 1 : 0,
+				Count = count,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)
@@ -1218,7 +1219,7 @@ namespace Vodovoz.Domain.Orders
 			//UpdateDocuments();
 		}
 
-		public virtual void AddMasterNomenclature(Nomenclature nomenclature)
+		public virtual void AddMasterNomenclature(Nomenclature nomenclature, int count)
 		{
 			if(nomenclature.Category != NomenclatureCategory.master) {
 				return;
@@ -1227,7 +1228,7 @@ namespace Vodovoz.Domain.Orders
 			ObservableOrderItems.Add(new OrderItem {
 				Order = this,
 				AdditionalAgreement = null,
-				Count = 1,
+				Count = count,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)

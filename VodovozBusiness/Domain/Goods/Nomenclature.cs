@@ -446,7 +446,8 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.bottle,
 				NomenclatureCategory.deposit,
 				NomenclatureCategory.spare_parts,
-				NomenclatureCategory.service
+				NomenclatureCategory.service,
+				NomenclatureCategory.master
 			};
 		}
 

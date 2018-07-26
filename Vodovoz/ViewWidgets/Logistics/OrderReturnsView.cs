@@ -143,15 +143,33 @@ namespace Vodovoz
 			if(routeListItem.Order.IsLoadedFrom1C || nomenclature == null || contract == null) {
 				return;
 			}
-			if(nomenclature.Category == NomenclatureCategory.water 
-			   || nomenclature.Category == NomenclatureCategory.disposableBottleWater) {
-				wsa = contract.GetWaterSalesAgreement(routeListItem.Order.DeliveryPoint);
-				if(wsa == null) {
-					MessageDialogWorks.RunErrorDialog("Невозможно добавить воду, потому что нет дополнительного соглашения о продаже воды");
-				}
-				routeListItem.Order.AddWaterForSale(nomenclature, wsa, 0);
-			}else {
-				routeListItem.Order.AddAnyGoodsNomenclatureForSale(nomenclature);
+
+			if(routeListItem.Order.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
+			   && nomenclature.Category == NomenclatureCategory.master) {
+				MessageDialogWorks.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
+				return;
+			}
+
+			if(routeListItem.Order.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
+			   && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
+				MessageDialogWorks.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
+				return;
+			}
+			switch(nomenclature.Category) {
+				case NomenclatureCategory.water:
+				case NomenclatureCategory.disposableBottleWater:
+					wsa = contract.GetWaterSalesAgreement(routeListItem.Order.DeliveryPoint);
+					if(wsa == null) {
+						MessageDialogWorks.RunErrorDialog("Невозможно добавить воду, потому что нет дополнительного соглашения о продаже воды");
+					}
+					routeListItem.Order.AddWaterForSale(nomenclature, wsa, 0);
+					break;
+				case NomenclatureCategory.master:
+					routeListItem.Order.AddMasterNomenclature(nomenclature, 0);
+					break;
+				default:
+					routeListItem.Order.AddAnyGoodsNomenclatureForSale(nomenclature);
+					break;
 			}
 			UpdateItemsList(routeListItem);
 		}
@@ -322,7 +340,7 @@ namespace Vodovoz
 			var orderValidator = new QSValidator<Order>(routeListItem.Order);
 			routeListItem.AddressIsValid = orderValidator.IsValid;
 			orderValidator.RunDlgIfNotValid((Gtk.Window)this.Toplevel);
-
+			routeListItem.Order.CheckAndSetOrderIsService();
 			//Не блокируем закрытие вкладки
 			return true;
 		}

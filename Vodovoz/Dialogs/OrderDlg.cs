@@ -1071,7 +1071,7 @@ namespace Vodovoz
 					} else {
 						contract = Entity.Contract;
 					}
-					UoWGeneric.Root.AddMasterNomenclature(nomenclature);
+					UoWGeneric.Root.AddMasterNomenclature(nomenclature, 1);
 					break;
 				case NomenclatureCategory.deposit://Залог
 				default://rest
