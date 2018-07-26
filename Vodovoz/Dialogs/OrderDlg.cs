@@ -1077,7 +1077,7 @@ namespace Vodovoz
 					break;
 			}
 
-			if(nomenclature.NoDelivey == true)
+			if(nomenclature.Category == NomenclatureCategory.master)
 				UoWGeneric.Root.IsService = true;
 			else
 				UoWGeneric.Root.IsService = false;
