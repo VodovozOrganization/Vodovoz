@@ -361,6 +361,7 @@ namespace Vodovoz
 			routeListItem.AddressIsValid = orderValidator.IsValid;
 			orderValidator.RunDlgIfNotValid((Gtk.Window)this.Toplevel);
 			routeListItem.Order.CheckAndSetOrderIsService();
+			orderEquipmentItemsView.UnsubscribeOnEquipmentAdd();
 			//Не блокируем закрытие вкладки
 			return true;
 		}

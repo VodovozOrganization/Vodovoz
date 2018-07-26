@@ -50,6 +50,12 @@ namespace Vodovoz.ViewWidgets
 			treeEquipment.Selection.Changed += TreeEquipment_Selection_Changed;
 		}
 
+		public void UnsubscribeOnEquipmentAdd()
+		{
+			Order.ObservableOrderEquipments.ElementAdded -= Order_ObservableOrderEquipments_ElementAdded;
+		}
+
+
 		private void SetColumnConfigForOrderDlg()
 		{
 			var colorBlack = new Gdk.Color(0, 0, 0);
