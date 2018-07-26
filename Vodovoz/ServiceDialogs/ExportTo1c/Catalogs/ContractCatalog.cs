@@ -51,7 +51,6 @@ namespace Vodovoz.ExportTo1c.Catalogs
 
 			var contract = new VirtualContract(order.Client,
 				                               exportData.CashlessOrganization,
-				                               $"{order.Client.VodovozInternalId}-1",
 				                               $"{order.Client.VodovozInternalId}-1");
 
 			return CreateReferenceTo(contract);
@@ -85,7 +84,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			properties.Add(
 				new PropertyNode("Код",
 					Common1cTypes.String,
-				                 contract is VirtualContract ? ((VirtualContract)contract).Code1c : contract.Id.ToString()
+				                 contract.Number
 				)
 			);
 			return properties.ToArray();
@@ -95,19 +94,18 @@ namespace Vodovoz.ExportTo1c.Catalogs
 	public class VirtualContract : CounterpartyContract
 	{
 		string title;
-		public string Code1c;
 
 		public override string TitleIn1c => title;
 
-		public VirtualContract(Counterparty counterparty, Organization organization, string title, string code)
+		public VirtualContract(Counterparty counterparty, Organization organization, string title)
 		{
 			//В договор создаем виртуальный номер id, по номеру контрагента но отрицательный, чтобы не пересекалось с настоящими id договоров.
 			//Поиск в GetReferenceId ищет по id.
 			Id = -counterparty.Id;
+			ContractSubNumber = 1;
 			Counterparty = counterparty;
 			Organization = organization;
 			this.title = title;
-			this.Code1c = code;
 		}
 	}
 }

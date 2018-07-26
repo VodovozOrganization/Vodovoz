@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using QSOrmProject;
-using QSProjectsLib;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
+using QSOrmProject;
+using QSProjectsLib;
 using Vodovoz.Domain.Goods;
-using NHibernate.Criterion;
 
 namespace Vodovoz.Domain.Client
 {
@@ -67,8 +66,10 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Номер")]
-		//FIXME Удалить дублирование в ContractFullNumber, когда запустимся и станет поспокойнее.
-		public virtual string Number { get { return ContractFullNumber; } set { } }
+		public virtual string Number { 
+			get => String.Format("{0}-{1}", Counterparty.VodovozInternalId, ContractSubNumber);
+			set { }
+		}
 
 		DateTime issueDate;
 
@@ -130,6 +131,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Полный номер договора")]
+		//FIXME Удалить дублирование в ContractFullNumber, протому как есть аналогичное посто Number
 		public virtual string ContractFullNumber {
 			get => String.Format("{0}-{1}", Counterparty.VodovozInternalId, ContractSubNumber);
 			set { }
