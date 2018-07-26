@@ -21,6 +21,12 @@
 	DATE_FORMAT(orders.bill_date,'%d.%m.%y') AS bill_date,
 	counterparty.full_name AS client_name,
 	delivery_points.compiled_address AS client_address,
+	CONCAT_WS(
+		', ',
+		delivery_points.city,
+		delivery_points.street,
+		delivery_points.building
+	) AS del_point_address_composite,
 	counterparty.inn,
 	counterparty.kpp,
 	GROUP_CONCAT(
@@ -107,6 +113,10 @@ WHERE
         </Field>
         <Field Name="bill_date">
           <DataField>bill_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="del_point_address_composite">
+          <DataField>del_point_address_composite</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1411,7 +1421,7 @@ Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Or
 + ', КПП ' 
 + {kpp} 
 + '\n' 
-+ {client_address} 
++ {del_point_address_composite} 
 + ', ' 
 +
 Iif(
