@@ -49,10 +49,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			if(order.Contract != null)
 				return CreateReferenceTo(order.Contract);
 
-			var contract = items.FirstOrDefault(pair => pair.Key is VirtualContract
-			                                    && pair.Key.Counterparty == order.Client).Key;
-			if(contract == null)
-				contract = new VirtualContract(order.Client,
+			var contract = new VirtualContract(order.Client,
 				                               exportData.CashlessOrganization,
 				                               $"{order.Client.VodovozInternalId}-1",
 				                               $"{order.Client.VodovozInternalId}-1");
@@ -104,6 +101,9 @@ namespace Vodovoz.ExportTo1c.Catalogs
 
 		public VirtualContract(Counterparty counterparty, Organization organization, string title, string code)
 		{
+			//В договор создаем виртуальный номер id, по номеру контрагента но отрицательный, чтобы не пересекалось с настоящими id договоров.
+			//Поиск в GetReferenceId ищет по id.
+			Id = -counterparty.Id;
 			Counterparty = counterparty;
 			Organization = organization;
 			this.title = title;
