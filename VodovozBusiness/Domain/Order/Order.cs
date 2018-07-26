@@ -1790,7 +1790,9 @@ namespace Vodovoz.Domain.Orders
 		public virtual void RemoveAloneItem(OrderItem item)
 		{
 			if(item.Count == 0 
-			   && item.AdditionalAgreement == null 
+			   && (item.AdditionalAgreement == null 
+			       || (item.AdditionalAgreement != null && item.AdditionalAgreement.Self is WaterSalesAgreement)
+			      )
 			   && !OrderEquipments.Any(x => x.OrderItem == item)) {
 				ObservableOrderItems.Remove(item);
 			}
