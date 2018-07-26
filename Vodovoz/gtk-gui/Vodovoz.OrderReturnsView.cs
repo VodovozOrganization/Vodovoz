@@ -52,6 +52,8 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonAddOrderItem;
 
+		private global::Gtk.Button buttonDeleteOrderItem;
+
 		private global::Gtk.Label GtkLabel7;
 
 		private global::Gtk.HBox hbox3;
@@ -86,6 +88,7 @@ namespace Vodovoz
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(3)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -293,11 +296,25 @@ namespace Vodovoz
 			w20.Position = 0;
 			w20.Expand = false;
 			w20.Fill = false;
+			// Container child hbox6.Gtk.Box+BoxChild
+			this.buttonDeleteOrderItem = new global::Gtk.Button();
+			this.buttonDeleteOrderItem.CanFocus = true;
+			this.buttonDeleteOrderItem.Name = "buttonDeleteOrderItem";
+			this.buttonDeleteOrderItem.UseUnderline = true;
+			this.buttonDeleteOrderItem.Label = global::Mono.Unix.Catalog.GetString("Удалить товар");
+			global::Gtk.Image w21 = new global::Gtk.Image();
+			w21.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.buttonDeleteOrderItem.Image = w21;
+			this.hbox6.Add(this.buttonDeleteOrderItem);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonDeleteOrderItem]));
+			w22.Position = 1;
+			w22.Expand = false;
+			w22.Fill = false;
 			this.vbox5.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox6]));
-			w21.Position = 1;
-			w21.Expand = false;
-			w21.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox6]));
+			w23.Position = 1;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.GtkAlignment4.Add(this.vbox5);
 			this.frame1.Add(this.GtkAlignment4);
 			this.GtkLabel7 = new global::Gtk.Label();
@@ -306,8 +323,8 @@ namespace Vodovoz
 			this.GtkLabel7.UseMarkup = true;
 			this.frame1.LabelWidget = this.GtkLabel7;
 			this.vbox1.Add(this.frame1);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame1]));
-			w24.Position = 1;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame1]));
+			w26.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
@@ -332,11 +349,11 @@ namespace Vodovoz
 			this.GtkLabel9.UseMarkup = true;
 			this.frame2.LabelWidget = this.GtkLabel9;
 			this.hbox3.Add(this.frame2);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.frame2]));
-			w27.Position = 0;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.frame2]));
+			w29.Position = 0;
 			this.vbox1.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
-			w28.Position = 2;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
+			w30.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.frame3 = new global::Gtk.Frame();
 			this.frame3.Name = "frame3";
@@ -354,8 +371,8 @@ namespace Vodovoz
 			this.depositrefunditemsview1.Events = ((global::Gdk.EventMask)(256));
 			this.depositrefunditemsview1.Name = "depositrefunditemsview1";
 			this.vbox3.Add(this.depositrefunditemsview1);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.depositrefunditemsview1]));
-			w29.Position = 0;
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.depositrefunditemsview1]));
+			w31.Position = 0;
 			this.GtkAlignment7.Add(this.vbox3);
 			this.frame3.Add(this.GtkAlignment7);
 			this.GtkLabel13 = new global::Gtk.Label();
@@ -364,8 +381,8 @@ namespace Vodovoz
 			this.GtkLabel13.UseMarkup = true;
 			this.frame3.LabelWidget = this.GtkLabel13;
 			this.vbox1.Add(this.frame3);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame3]));
-			w32.Position = 3;
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame3]));
+			w34.Position = 3;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -380,6 +397,7 @@ namespace Vodovoz
 			this.buttonNotDelivered.Clicked += new global::System.EventHandler(this.OnButtonNotDeliveredClicked);
 			this.buttonDeliveryCanceled.Clicked += new global::System.EventHandler(this.OnButtonDeliveryCanseledClicked);
 			this.buttonAddOrderItem.Clicked += new global::System.EventHandler(this.OnButtonAddOrderItemClicked);
+			this.buttonDeleteOrderItem.Clicked += new global::System.EventHandler(this.OnButtonDeleteOrderItemClicked);
 		}
 	}
 }

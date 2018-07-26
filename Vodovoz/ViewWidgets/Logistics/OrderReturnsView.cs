@@ -102,12 +102,13 @@ namespace Vodovoz
 
 			ytreeToClient.Sensitive = routeListItem.IsDelivered();
 			orderEquipmentItemsView.Sensitive = routeListItem.IsDelivered();
+			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
 			Configure();
-			UpdateItemsList(routeListItem);
+			UpdateItemsList();
 			UpdateButtonsState();
 		}
 
-		private void UpdateItemsList(RouteListItem routeListItem)
+		private void UpdateItemsList()
 		{
 			itemsToClient = new List<OrderItemReturnsNode>();
 			var nomenclatures = routeListItem.Order.OrderItems
@@ -168,10 +169,10 @@ namespace Vodovoz
 					routeListItem.Order.AddMasterNomenclature(nomenclature, 0);
 					break;
 				default:
-					routeListItem.Order.AddAnyGoodsNomenclatureForSale(nomenclature);
+					routeListItem.Order.AddAnyGoodsNomenclatureForSale(nomenclature, true);
 					break;
 			}
-			UpdateItemsList(routeListItem);
+			UpdateItemsList();
 		}
 
 		public void OnOrderChanged(object sender, PropertyChangedEventArgs args)
@@ -335,6 +336,25 @@ namespace Vodovoz
 			OpenSelectNomenclatureDlg();
 		}
 
+		protected void OnButtonDeleteOrderItemClicked(object sender, EventArgs e)
+		{
+			OrderItemReturnsNode selectedItemNode = ytreeToClient.GetSelectedObject() as OrderItemReturnsNode;
+			if(selectedItemNode == null || selectedItemNode.OrderItem == null) {
+				return;
+			}
+			routeListItem.Order.RemoveAloneItem(selectedItemNode.OrderItem);
+			UpdateItemsList();
+		}
+
+		void OrderEquipmentItemsView_OnDeleteEquipment(object sender, OrderEquipment e)
+		{
+			//Если оборудование добавлено в изменении заказа то базовое количество равно 0,
+			//значит такое оборудование можно удалять из изменения заказа
+			if(e.OrderItem == null && e.Count == 0) {
+				routeListItem.Order.RemoveEquipment(e);
+			}
+		}
+
 		public bool CanClose()
 		{
 			var orderValidator = new QSValidator<Order>(routeListItem.Order);
@@ -360,6 +380,8 @@ namespace Vodovoz
 	{
 		OrderItem orderItem;
 		OrderEquipment orderEquipment;
+
+		public OrderItem OrderItem => orderItem;
 
 		public OrderItemReturnsNode(OrderItem item)
 		{

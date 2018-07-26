@@ -1787,6 +1787,15 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
+		public virtual void RemoveAloneItem(OrderItem item)
+		{
+			if(item.Count == 0 
+			   && item.AdditionalAgreement == null 
+			   && !OrderEquipments.Any(x => x.OrderItem == item)) {
+				ObservableOrderItems.Remove(item);
+			}
+		}
+
 		public virtual void RemoveItem(OrderItem item)
 		{
 			if(item.AdditionalAgreement != null) {
