@@ -1256,7 +1256,8 @@ namespace Vodovoz
 			// Container child vbox8.Gtk.Box+BoxChild
 			this.label9 = new global::Gtk.Label();
 			this.label9.Name = "label9";
-			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString("Товары");
+			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Товары</b>");
+			this.label9.UseMarkup = true;
 			this.vbox8.Add(this.label9);
 			global::Gtk.Box.BoxChild w85 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.label9]));
 			w85.Position = 0;
@@ -1467,7 +1468,8 @@ namespace Vodovoz
 			// Container child alignment1.Gtk.Container+ContainerChild
 			this.labelDeposit1 = new global::Gtk.Label();
 			this.labelDeposit1.Name = "labelDeposit1";
-			this.labelDeposit1.LabelProp = global::Mono.Unix.Catalog.GetString("Возврат залогов");
+			this.labelDeposit1.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Возврат залогов</b>");
+			this.labelDeposit1.UseMarkup = true;
 			this.alignment1.Add(this.labelDeposit1);
 			this.hbox5.Add(this.alignment1);
 			global::Gtk.Box.BoxChild w109 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.alignment1]));

@@ -29092,7 +29092,8 @@
                             <child>
                               <widget class="Gtk.Label" id="label9">
                                 <property name="MemberName" />
-                                <property name="LabelProp" translatable="yes">Товары</property>
+                                <property name="LabelProp" translatable="yes">&lt;b&gt;Товары&lt;/b&gt;</property>
+                                <property name="UseMarkup">True</property>
                               </widget>
                               <packing>
                                 <property name="Position">0</property>
@@ -29378,7 +29379,8 @@
                                       <widget class="Gtk.Label" id="labelDeposit1">
                                         <property name="MemberName" />
                                         <property name="Visible">False</property>
-                                        <property name="LabelProp" translatable="yes">Возврат залогов</property>
+                                        <property name="LabelProp" translatable="yes">&lt;b&gt;Возврат залогов&lt;/b&gt;</property>
+                                        <property name="UseMarkup">True</property>
                                       </widget>
                                     </child>
                                   </widget>

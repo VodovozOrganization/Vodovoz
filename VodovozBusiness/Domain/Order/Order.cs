@@ -1799,9 +1799,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual void RemoveItem(OrderItem item)
 		{
 			if(item.AdditionalAgreement != null) {
-					ObservableOrderItems.Remove(item);
-					DeleteOrderEquipmentOnOrderItem(item);
-					DeleteOrderAgreementDocumentOnOrderItem(item);
+				//без обнуления ссылки на ДопСогл Nhibern не сохраняет сессию Exception:
+				//deleted object would be re-saved by cascade (remove deleted
+				//object from associations)[Vodovoz.Domain.Client.WaterSalesAgreement]
+				item.AdditionalAgreement = null;
+				ObservableOrderItems.Remove(item);
+				DeleteOrderEquipmentOnOrderItem(item);
+				DeleteOrderAgreementDocumentOnOrderItem(item);
 			}else {
 				ObservableOrderItems.Remove(item);
 				DeleteOrderEquipmentOnOrderItem(item);
