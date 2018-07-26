@@ -1586,7 +1586,7 @@ namespace Vodovoz
 			                         .Where(x => x.Id != Entity.Id)
 									 .SingleOrDefault<int>();
 			
-			if(originalOrderDate == Entity.DeliveryDate) {
+			if(originalOrderDate == Entity.DeliveryDate && Entity.DailyNumber.HasValue) {
 				return;
 			}
 
