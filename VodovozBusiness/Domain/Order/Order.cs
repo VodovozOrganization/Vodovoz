@@ -751,15 +751,20 @@ namespace Vodovoz.Domain.Orders
 					if(ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
 						yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
+					//создание нескольких заказов на одну дату и точку доставки
 					if(!SelfDelivery && DeliveryPoint != null) {
 						var ordersForDeliveryPoints = OrderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
 																	 .Where(
 							                                             o => o.Id != Id
 							                                             && o.DeliveryDate == DeliveryDate
-							                                             && !OrderRepository.GetGrantedStatusesToCreateSeveralOrders()
-							                                             .Contains(o.OrderStatus)
+							                                             && !OrderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
+							                                             && !o.IsService
 							                                            );
-						if(!QSMain.User.Permissions["can_create_several_orders_for_date_and_deliv_point"]
+
+						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
+
+						if(!hasMaster
+						   && !QSMain.User.Permissions["can_create_several_orders_for_date_and_deliv_point"]
 						   && ordersForDeliveryPoints.Any()
 						  ) {
 							yield return new ValidationResult(
