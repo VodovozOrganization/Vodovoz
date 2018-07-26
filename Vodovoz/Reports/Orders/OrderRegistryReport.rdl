@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>297mm</PageHeight>
-  <PageWidth>210mm</PageWidth>
+  <PageHeight>296.926mm</PageHeight>
+  <PageWidth>209.804mm</PageWidth>
   <Width>190mm</Width>
   <TopMargin>10mm</TopMargin>
   <LeftMargin>10mm</LeftMargin>
@@ -18,11 +18,11 @@
     <ReportItems>
       <Textbox Name="Textbox20">
         <Height>23.34pt</Height>
-        <Width>577.50pt</Width>
-        <Value>= "Реестр заказов от " + (Format(Cdate(Parameters!date), "dd.MM.yyyy"))</Value>
+        <Width>531.75pt</Width>
+        <Value>= "Реестр заказов от " + (Format(Convert.ToDateTime({?date}), "dd.MM.yyyy"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.8pt</Left>
-        <Top>5.9pt</Top>
+        <Left>0.80pt</Left>
+        <Top>5.90pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -260,7 +260,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	daily_number_1c as daily_number,
@@ -285,14 +285,14 @@
 from orders
 LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-WHERE orders.delivery_date = @date</CommandText>
+WHERE orders.delivery_date = DATE(@date)</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="daily_number">
           <DataField>daily_number</DataField>
           <TypeName>System.Int32</TypeName>
@@ -318,23 +318,19 @@ WHERE orders.delivery_date = @date</CommandText>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user= ;password= ;port=3306;server=vod-srv.qsolution.ru;Allow User Variables=True</ConnectString>
+        <ConnectString>
+        </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="date">
       <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>2018/01/15</Value>
-        </Values>
-      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
