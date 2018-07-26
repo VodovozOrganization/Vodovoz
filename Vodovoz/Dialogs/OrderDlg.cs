@@ -695,6 +695,8 @@ namespace Vodovoz
 				MessageDialogWorks.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
 			}
 
+			Entity.CheckAndSetOrderIsService();
+
 			logger.Info("Сохраняем заказ...");
 			SaveChanges();
 			UoWGeneric.Save();
@@ -1076,11 +1078,6 @@ namespace Vodovoz
 					UoWGeneric.Root.AddAnyGoodsNomenclatureForSale(nomenclature);
 					break;
 			}
-
-			if(nomenclature.Category == NomenclatureCategory.master)
-				UoWGeneric.Root.IsService = true;
-			else
-				UoWGeneric.Root.IsService = false;
 		}
 
 		private void AddRentAgreement(OrderAgreementType type)

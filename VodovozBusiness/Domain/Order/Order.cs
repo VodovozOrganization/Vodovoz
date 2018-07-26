@@ -1044,6 +1044,14 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		public virtual void CheckAndSetOrderIsService()
+		{
+			if(OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master))
+				IsService = true;
+			else
+				IsService = false;
+		}
+
 		public virtual void CreateDefaultContract()
 		{
 			Contract = FindOrCreateContract(Client);
