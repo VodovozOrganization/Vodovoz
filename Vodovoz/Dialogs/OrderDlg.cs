@@ -86,6 +86,8 @@ namespace Vodovoz
 
 		public CounterpartyContract Contract => Entity.Contract;
 
+		private DateTime? originalOrderDate;
+
 		#endregion
 
 		public OrderDlg()
@@ -124,6 +126,8 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			originalOrderDate = Entity.DeliveryDate;
+
 			treeDocuments.Selection.Mode = SelectionMode.Multiple;
 			if(UoWGeneric.Root.PreviousOrder != null) {
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
@@ -1569,6 +1573,9 @@ namespace Vodovoz
 			}
 			treeItems.Selection.UnselectAll();
 			var successfullySaved = Save();
+			if(successfullySaved) {
+				originalOrderDate = Entity.DeliveryDate;
+			}
 			PrintOrderDocuments();
 			return successfullySaved;
 		}
@@ -1580,6 +1587,10 @@ namespace Vodovoz
 									 .Where(d => d.DeliveryDate == Entity.DeliveryDate)
 			                         .Where(x => x.Id != Entity.Id)
 									 .SingleOrDefault<int>();
+			
+			if(originalOrderDate == Entity.DeliveryDate) {
+				return;
+			}
 
 			if(todayLastNumber != 0)
 				Entity.DailyNumber = todayLastNumber + 1;
