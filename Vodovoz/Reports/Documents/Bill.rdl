@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
@@ -21,12 +21,6 @@
 	DATE_FORMAT(orders.bill_date,'%d.%m.%y') AS bill_date,
 	counterparty.full_name AS client_name,
 	delivery_points.compiled_address AS client_address,
-	CONCAT_WS(
-		', ',
-		delivery_points.city,
-		delivery_points.street,
-		delivery_points.building
-	) AS del_point_address_composite,
 	counterparty.inn,
 	counterparty.kpp,
 	GROUP_CONCAT(
@@ -74,7 +68,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -115,14 +109,10 @@ WHERE
           <DataField>bill_date</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="del_point_address_composite">
-          <DataField>del_point_address_composite</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -131,7 +121,7 @@ WHERE
 	'--' AS unit_code,
 	measurement_units.name AS mu_name,
 	IF(
-		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
+		orders.order_status IN('UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
 		actual_count,
 		count
 	) AS count,
@@ -141,7 +131,7 @@ WHERE
 	order_items.include_nds,
 	order_items.discount,
 	order_items.price * IF(
-		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
+		orders.order_status IN('UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
 		actual_count,
 		count
 	) * (1 - order_items.discount / 100) AS total
@@ -161,7 +151,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1421,7 +1411,7 @@ Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Or
 + ', КПП ' 
 + {kpp} 
 + '\n' 
-+ {del_point_address_composite} 
++ {client_address} 
 + ', ' 
 +
 Iif(
