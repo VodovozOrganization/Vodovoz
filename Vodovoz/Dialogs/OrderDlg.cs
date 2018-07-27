@@ -774,6 +774,10 @@ namespace Vodovoz
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, Entity.Client);
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder;
 				referenceContract.RepresentationModel = new ViewModel.ContractsVM(UoW, Entity.Client);
+				if(UoWGeneric.Root.Client.PersonType == PersonType.natural)
+					enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.cashless });
+				else
+					enumPaymentType.ClearEnumHideList();
 			} else {
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
 			}
@@ -1798,10 +1802,7 @@ namespace Vodovoz
 		/// Is the payment type barter or cashless?
 		/// </summary>
 		/// <returns><c>true</c>, if payment type barter or cashless, <c>false</c> otherwise.</returns>
-		private bool IsPaymentTypeBarterOrCashless()
-		{
-			return (PaymentType)enumPaymentType.SelectedItem == PaymentType.barter || (PaymentType)enumPaymentType.SelectedItem == PaymentType.cashless;
-		}
+		private bool IsPaymentTypeBarterOrCashless() => Entity.PaymentType == PaymentType.barter || Entity.PaymentType == PaymentType.cashless;
 
 		protected void OnEnumPaymentTypeChanged(object sender, EventArgs e)
 		{
