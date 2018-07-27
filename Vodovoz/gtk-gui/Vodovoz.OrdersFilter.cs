@@ -236,6 +236,8 @@ namespace Vodovoz
 			this.entryreferencePoint.Changed += new global::System.EventHandler(this.OnEntryreferencePointChanged);
 			this.entryreferenceClient.Changed += new global::System.EventHandler(this.OnEntryreferenceClientChanged);
 			this.dateperiodOrders.PeriodChanged += new global::System.EventHandler(this.OnDateperiodOrdersPeriodChanged);
+			this.dateperiodOrders.StartDateChanged += new global::System.EventHandler(this.OnDateperiodOrdersStartDateChanged);
+			this.dateperiodOrders.EndDateChanged += new global::System.EventHandler(this.OnDateperiodOrdersEndDateChanged);
 			this.checkWithoutSelfDelivery.Toggled += new global::System.EventHandler(this.OnCheckWithoutSelfDeliveryToggled);
 			this.checkWithoutCoordinates.Toggled += new global::System.EventHandler(this.OnCheckWithoutCoordinatesToggled);
 			this.checkOnlyService.Toggled += new global::System.EventHandler(this.OnCheckOnlyServiceToggled);

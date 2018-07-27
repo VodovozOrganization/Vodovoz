@@ -10,7 +10,8 @@ namespace Vodovoz
 	public partial class OrdersFilter : Gtk.Bin, IRepresentationFilter
 	{
 		IUnitOfWork uow;
-
+		int daysToAft = 0;
+		int daysToFwd = 0;
 		public IUnitOfWork UoW {
 			get {
 				return uow;
@@ -30,11 +31,11 @@ namespace Vodovoz
 		public OrdersFilter ()
 		{
 			this.Build ();
-
-			//Последние месяц назад и месяц вперед.
 #if SHORT
-			dateperiodOrders.StartDateOrNull = DateTime.Today;
-			dateperiodOrders.EndDateOrNull = DateTime.Today;
+			daysToAft = -CurrentUserSettings.Settings.JournalDaysToAft;
+			daysToFwd = CurrentUserSettings.Settings.JournalDaysToFwd;
+			dateperiodOrders.StartDateOrNull = DateTime.Today.AddDays(daysToAft);
+			dateperiodOrders.EndDateOrNull = DateTime.Today.AddDays(daysToFwd);
 #else
 			dateperiodOrders.StartDateOrNull = DateTime.Today.AddMonths (-1);
 			dateperiodOrders.EndDateOrNull = DateTime.Today.AddMonths (1);
@@ -203,6 +204,12 @@ namespace Vodovoz
 		protected void OnDateperiodOrdersPeriodChanged (object sender, EventArgs e)
 		{
 			OnRefiltered ();
+			if(CurrentUserSettings.Settings.JournalDaysToAft != daysToAft 
+			   || CurrentUserSettings.Settings.JournalDaysToFwd != daysToFwd) {
+				CurrentUserSettings.Settings.JournalDaysToAft = daysToAft;
+				CurrentUserSettings.Settings.JournalDaysToFwd = daysToFwd;
+				CurrentUserSettings.SaveSettings();
+			}
 		}
 
 		protected void OnEnumcomboStatusChanged (object sender, EventArgs e)
@@ -242,6 +249,20 @@ namespace Vodovoz
 		{
 			checkHideService.Active = checkOnlyService.Active ? false : checkHideService.Active;
 			OnRefiltered();
+		}
+
+		protected void OnDateperiodOrdersStartDateChanged(object sender, EventArgs e)
+		{
+			daysToAft = (DateTime.Today - dateperiodOrders.StartDate).Days;
+			daysToAft = daysToAft > 14 ? 14 : daysToAft; //ограничение на сохранение не более 15 дней назад
+			daysToAft = daysToAft < 0 ? 0 : daysToAft; //проверка на корректность выбора дат
+		}
+
+		protected void OnDateperiodOrdersEndDateChanged(object sender, EventArgs e)
+		{
+			daysToFwd = (dateperiodOrders.EndDate - DateTime.Today).Days;
+			daysToFwd = daysToFwd > 14 ? 14 : daysToFwd; //ограничение на сохранение не более 15 дней вперёд
+			daysToFwd = daysToFwd < 0 ? 0 : daysToFwd; //проверка на корректность выбора дат
 		}
 	}
 }

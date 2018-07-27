@@ -22254,6 +22254,8 @@
             <property name="StartDate">0</property>
             <property name="EndDate">0</property>
             <signal name="PeriodChanged" handler="OnDateperiodOrdersPeriodChanged" />
+            <signal name="StartDateChanged" handler="OnDateperiodOrdersStartDateChanged" />
+            <signal name="EndDateChanged" handler="OnDateperiodOrdersEndDateChanged" />
           </widget>
           <packing>
             <property name="LeftAttach">3</property>

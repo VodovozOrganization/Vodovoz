@@ -49,6 +49,25 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
+		int journalDaysToAft;
+
+		[Display (Name = "Дней в фильтре журнала заказов назад")]
+		public virtual int JournalDaysToAft {
+			get { return journalDaysToAft; }
+			set {
+				SetField (ref journalDaysToAft, value, () => JournalDaysToAft);
+			}
+		}
+
+		int journalDaysToFwd;
+
+		[Display(Name = "Дней в фильтре журнала заказов вперёд")]
+		public virtual int JournalDaysToFwd {
+			get { return journalDaysToFwd; }
+			set {
+				SetField(ref journalDaysToFwd, value, () => JournalDaysToFwd);
+			}
+		}
 		#endregion
 
 		public UserSettings ()
