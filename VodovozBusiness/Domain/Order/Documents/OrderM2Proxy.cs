@@ -5,6 +5,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.DocTemplates;
 using System.Linq;
+using QSReport;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -57,5 +58,6 @@ namespace Vodovoz.Domain.Orders.Documents
 			return M2Proxy.DocumentTemplate;
 		}
 
+		public override PrinterType PrintType => PrinterType.ODT;
 	}
 }
