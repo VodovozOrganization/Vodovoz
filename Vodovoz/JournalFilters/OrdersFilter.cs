@@ -186,6 +186,9 @@ namespace Vodovoz
 
 		protected void OnEntryreferenceClientChanged (object sender, EventArgs e)
 		{
+			CheckLimitationForStartDate();
+			CheckLimitationForEndDate();
+
 			entryreferencePoint.Sensitive = RestrictCounterparty != null;
 			if (RestrictCounterparty == null)
 				entryreferencePoint.Subject = null;
@@ -253,6 +256,8 @@ namespace Vodovoz
 
 		protected void OnDateperiodOrdersStartDateChanged(object sender, EventArgs e)
 		{
+			CheckLimitationForStartDate();
+			//сохранение диапазона дат
 			daysToAft = (DateTime.Today - dateperiodOrders.StartDate).Days;
 			daysToAft = daysToAft > 14 ? 14 : daysToAft; //ограничение на сохранение не более 15 дней назад
 			daysToAft = daysToAft < 0 ? 0 : daysToAft; //проверка на корректность выбора дат
@@ -260,9 +265,31 @@ namespace Vodovoz
 
 		protected void OnDateperiodOrdersEndDateChanged(object sender, EventArgs e)
 		{
+			CheckLimitationForEndDate();
+			//сохранение диапазона дат
 			daysToFwd = (dateperiodOrders.EndDate - DateTime.Today).Days;
 			daysToFwd = daysToFwd > 14 ? 14 : daysToFwd; //ограничение на сохранение не более 15 дней вперёд
 			daysToFwd = daysToFwd < 0 ? 0 : daysToFwd; //проверка на корректность выбора дат
+		}
+
+		/// <summary>
+		/// Установка ограничения на дату "от", если не выбран контрагент
+		/// </summary>
+		void CheckLimitationForStartDate()
+		{
+			if(entryreferenceClient.Subject == null
+			   && dateperiodOrders.StartDate.Date < DateTime.Today.AddMonths(-1))
+				dateperiodOrders.StartDateOrNull = DateTime.Today.AddMonths(-1);
+		}
+
+		/// <summary>
+		/// Установка ограничения на дату "до", если не выбран контрагент
+		/// </summary>
+		void CheckLimitationForEndDate()
+		{
+			if(entryreferenceClient.Subject == null
+			   && dateperiodOrders.EndDate.Date > DateTime.Today.AddMonths(1))
+				dateperiodOrders.EndDateOrNull = DateTime.Today.AddMonths(1);
 		}
 	}
 }
