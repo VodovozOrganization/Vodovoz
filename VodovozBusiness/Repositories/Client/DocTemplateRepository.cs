@@ -19,6 +19,12 @@ namespace Vodovoz.Repository.Client
 					}else {
 						return ContractType.CashFL;
 					}
+				case PaymentType.BeveragesWorld:
+					if(clientType == PersonType.legal) {
+						return ContractType.CashBeveragesUL;
+					} else {
+						return ContractType.CashBeveragesFL;
+					}
 				case PaymentType.cashless:
 				case PaymentType.ContractDoc:
 					return ContractType.Cashless;

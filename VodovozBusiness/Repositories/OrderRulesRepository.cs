@@ -141,7 +141,7 @@ namespace Vodovoz.Repositories
 					key.PaymentType == PaymentType.ByCard
 					&& key.HasOrderItems
 				)
-				|| key.PaymentType == PaymentType.cash
+				|| (key.PaymentType == PaymentType.cash || key.PaymentType == PaymentType.BeveragesWorld)
 			)
 			&& key.OrderStatus >= OrderStatus.Accepted
 		);

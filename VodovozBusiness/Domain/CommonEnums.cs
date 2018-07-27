@@ -29,6 +29,8 @@ namespace Vodovoz.Domain.Client
 	{
 		[Display (Name = "Наличная", ShortName = "нал." )]
 		cash,
+		[Display(Name = "Мир напитков", ShortName = "нал.")]
+		BeveragesWorld,
 		[Display (Name = "Безналичная", ShortName = "б/н." )]
 		cashless,
 		[Display (Name="Бартер", ShortName = "бар." )]
@@ -54,6 +56,10 @@ namespace Vodovoz.Domain.Client
 		CashFL,
 		[Display(Name = "Наличная ЮЛ")]
 		CashUL,
+		[Display(Name = "Мир Напитков Наличная ФЛ")]
+		CashBeveragesFL,
+		[Display(Name = "Мир Напитков Наличная ЮЛ")]
+		CashBeveragesUL,
 		[Display(Name = "Бартер")]
 		Barter
 	}

@@ -1048,7 +1048,7 @@ namespace Vodovoz.Domain.Logistic
 				var order = address.Order;
 				var depositsTotal = order.OrderDepositItems.Sum(dep => dep.Count * dep.Deposit);
 				Decimal? money = null;
-				if(order.PaymentType == PaymentType.cash)
+				if(order.PaymentType == PaymentType.cash || order.PaymentType == PaymentType.BeveragesWorld)
 					money = address.TotalCash;
 				MoneyMovementOperation moneyMovementOperation = order.MoneyMovementOperation;
 				if(moneyMovementOperation == null) {

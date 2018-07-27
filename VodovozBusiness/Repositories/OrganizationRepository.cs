@@ -16,11 +16,12 @@ namespace Vodovoz.Repository
 		public static Organization GetOrganizationByPaymentType(IUnitOfWork uow, PersonType personType, PaymentType paymentType)
 		{
 			var contractType = DocTemplateRepository.GetContractTypeForPaymentType(personType, paymentType);
+
 			DocTemplate template =
-			uow.Session.QueryOver<DocTemplate>()
-			   .Where(x => x.TemplateType == TemplateType.Contract)
-			   .Where(x => x.ContractType == contractType)
-			   .List().FirstOrDefault();
+				uow.Session.QueryOver<DocTemplate>()
+				   .Where(x => x.TemplateType == TemplateType.Contract)
+				   .Where(x => x.ContractType == contractType)
+				   .List().FirstOrDefault();
 			if(template == null) {
 				return null;
 			}

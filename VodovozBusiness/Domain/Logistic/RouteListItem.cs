@@ -195,7 +195,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal GetEquipmentDepositsCollected {
 			get {
-				if(Order.PaymentType != Client.PaymentType.cash) {
+				if(Order.PaymentType != Client.PaymentType.cash && Order.PaymentType != Client.PaymentType.BeveragesWorld) {
 					return 0;
 				}
 
@@ -606,7 +606,7 @@ namespace Vodovoz.Domain.Logistic
 				return 0;
 
 			return Order.OrderItems
-						.Where(item => item.Order.PaymentType == Client.PaymentType.cash)
+				        .Where(item => item.Order.PaymentType == Client.PaymentType.cash || item.Order.PaymentType == Client.PaymentType.BeveragesWorld)
 						.Sum(item => item.ActualCount * item.Price * (1 - (decimal)item.Discount / 100))
 						+ ExtraCash + DepositsCollected + GetEquipmentDepositsCollected;
 		}
@@ -653,7 +653,7 @@ namespace Vodovoz.Domain.Logistic
 			PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
 			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
 			TotalCash = IsDelivered() &&
-				Order.PaymentType == Client.PaymentType.cash
+				Order.PaymentType == Client.PaymentType.cash || Order.PaymentType == Client.PaymentType.BeveragesWorld
 				? Order.SumToReceive : 0;
 			var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(uow).GetPrice(Order.BottlesReturn);
 			PerformanceHelper.AddTimePoint("Получили прайс");

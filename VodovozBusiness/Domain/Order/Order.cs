@@ -226,7 +226,7 @@ namespace Vodovoz.Domain.Orders
 				decimal money = TotalSum;
 				if(OrderRepository.GetStatusesForActualCount().Contains(OrderStatus))
 					money = ActualTotalSum;
-				return PaymentType == PaymentType.cash ? money + ExtraMoney : 0;
+				return (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) ? money + ExtraMoney : 0;
 			}
 			protected set {; }
 		}
@@ -691,7 +691,7 @@ namespace Vodovoz.Domain.Orders
 					if(!IsLoadedFrom1C && bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water))
 						yield return new ValidationResult("В заказе не указана планируемая тара.",
 							new[] { this.GetPropertyName(o => o.Contract) });
-					if(!IsLoadedFrom1C && trifle == null && PaymentType == PaymentType.cash && this.TotalSum > 0m)
+					if(!IsLoadedFrom1C && trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.TotalSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
