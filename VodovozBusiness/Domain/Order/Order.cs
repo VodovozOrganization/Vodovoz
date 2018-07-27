@@ -46,6 +46,13 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref version, value, () => Version); }
 		}
 
+		DateTime? createDate;
+		[Display(Name = "Дата создания")]
+		public virtual DateTime? CreateDate {
+			get { return createDate; }
+			set { SetField(ref createDate, value, () => CreateDate); }
+		}
+
 		OrderStatus orderStatus;
 
 		[Display(Name = "Статус заказа")]
@@ -1055,6 +1062,13 @@ namespace Vodovoz.Domain.Orders
 				IsService = true;
 			else
 				IsService = false;
+		}
+
+		public virtual void SetOrderCreationDate()
+		{
+			if(Id == 0 && !CreateDate.HasValue) {
+				CreateDate = DateTime.Now;
+			}
 		}
 
 		public virtual void CreateDefaultContract()

@@ -16,6 +16,7 @@ namespace Vodovoz.HibernateMapping
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
+			Map(x => x.CreateDate)			.Column("create_date");
 			Map(x => x.Comment)				.Column("comment");
 			Map(x => x.CommentLogist)		.Column("comment_logist");
 			Map(x => x.DeliveryDate)		.Column("delivery_date");
