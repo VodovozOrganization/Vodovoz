@@ -263,10 +263,10 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public int CurrentCount{
 			get{
-				if(Order == null || Repository.OrderRepository.GetStatusesForActualCount().Contains(Order.OrderStatus))
-					return Count;
-				else
+				if(Repository.OrderRepository.GetStatusesForActualCount().Contains(Order.OrderStatus))
 					return ActualCount;
+				else
+					return Count;
 			}
 		}
 
@@ -279,7 +279,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal ActualSum {
 			get {
-				return Price * ActualCount * (1 - (decimal)Discount / 100);
+				return Price * CurrentCount * (1 - (decimal)Discount / 100);
 			}
 		}
 
