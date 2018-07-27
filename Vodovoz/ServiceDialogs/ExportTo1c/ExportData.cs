@@ -347,16 +347,19 @@ namespace Vodovoz.ExportTo1c
 				);
 			}
 
-			record.Properties.Add(
-				new PropertyNode("НомерГТД",
-					"СправочникСсылка.НомераГТД"
-				)
-			);
-			record.Properties.Add(
-				new PropertyNode("СтранаПроисхождения",
-					Common1cTypes.ReferenceCountry
-				)
-			);
+			if(!isService)
+			{
+				record.Properties.Add(
+					new PropertyNode("НомерГТД",
+						"СправочникСсылка.НомераГТД"
+					)
+				);
+				record.Properties.Add(
+					new PropertyNode("СтранаПроисхождения",
+						Common1cTypes.ReferenceCountry
+					)
+				);
+			}
 			return record;
 		}
 
