@@ -990,7 +990,7 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForSale();
+			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
 			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.water;
 			nomenclatureFilter.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale;
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));

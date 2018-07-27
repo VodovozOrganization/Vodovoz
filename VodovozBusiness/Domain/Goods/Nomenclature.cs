@@ -5,6 +5,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QSBusinessCommon.Domain;
 using QSOrmProject;
+using QSProjectsLib;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
 
@@ -431,6 +432,30 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.rent,
 				NomenclatureCategory.service
 			};
+		}
+
+		public static NomenclatureCategory[] GetCategoriesForSaleToOrder()
+		{
+			List<NomenclatureCategory> forSale = new List<NomenclatureCategory>(
+				new[] {
+					NomenclatureCategory.additional,
+					NomenclatureCategory.equipment,
+					NomenclatureCategory.water,
+					NomenclatureCategory.disposableBottleWater,
+					NomenclatureCategory.rent,
+					NomenclatureCategory.deposit,
+					NomenclatureCategory.service
+				}
+			);
+
+			if(QSMain.User.Permissions["can_add_spares_to_order"])
+				forSale.Add(NomenclatureCategory.spare_parts);
+			if(QSMain.User.Permissions["can_add_bottles_to_order"])
+				forSale.Add(NomenclatureCategory.bottle);
+			if(QSMain.User.Permissions["can_add_materials_to_order"])
+				forSale.Add(NomenclatureCategory.material);
+
+			return forSale.ToArray();
 		}
 
 		/// <summary>
