@@ -61,6 +61,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("can_add_spares_to_order", new UserPermission("can_add_spares_to_order", "Продажа запчастей", "Пользователь может добавлять запчасти в заказ на продажу."));
 			QSMain.ProjectPermission.Add("can_add_bottles_to_order", new UserPermission("can_add_bottles_to_order", "Продажа тары", "Пользователь может добавлять тару в заказ на продажу."));
 			QSMain.ProjectPermission.Add("can_add_materials_to_order", new UserPermission("can_add_materials_to_order", "Продажа сырья", "Пользователь может добавлять сырьё в заказ на продажу."));
+			QSMain.ProjectPermission.Add("can_edit_delivery_schedule", new UserPermission("can_edit_delivery_schedule", "Изменение времени доставки", "Пользователь может изменять время доставки."));
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };

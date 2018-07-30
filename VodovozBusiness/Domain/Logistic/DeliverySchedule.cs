@@ -44,6 +44,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
+			if(!QSProjectsLib.QSMain.User.Permissions["can_edit_delivery_schedule"])
+				yield return new ValidationResult("Вы не можете изменять график доставки");
+
 			if (From > To)
 				yield return new ValidationResult ("Окончание периода доставки не может быть раньше его начала.", new[] {
 					this.GetPropertyName (o => o.From),
@@ -69,7 +72,6 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult ("Время окончания периода не может быть больше 24 часов.", new[] {
 					this.GetPropertyName (o => o.To)
 				});
-			
 		}
 
 		#endregion
