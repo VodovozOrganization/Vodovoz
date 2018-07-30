@@ -28,6 +28,12 @@
 		WHEN 'ProxyOnDeliveryPoint' THEN 'Доверенность на адресе'
 		ELSE ''
 	END AS signature_type, 
+	CASE orders.payment_type 
+		WHEN 'cash' THEN 'НАЛ'
+		WHEN 'cashless' THEN 'БЕЗНАЛ'
+		WHEN 'ByCard' THEN 'ПО КАРТЕ'
+		ELSE ''
+	END AS pay_type,
 	delivery_schedule.name AS delivery_schedule,
 	CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
 	DATE_FORMAT(
@@ -227,6 +233,10 @@ WHERE
         </Field>
         <Field Name="comment_for_logist">
           <DataField>comment_for_logist</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="pay_type">
+          <DataField>pay_type</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1239,8 +1249,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>
-                      </Value>
+                      <Value>={pay_type}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2406,7 +2415,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

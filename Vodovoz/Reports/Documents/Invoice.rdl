@@ -26,8 +26,14 @@
 		WHEN 'BySeal' THEN 'По печати'
 		WHEN 'ByProxy' THEN 'По доверенности'
 		WHEN 'ProxyOnDeliveryPoint' THEN 'Доверенность на адресе'
+		ELSE ''                
+	END AS order_signature_type,
+	CASE orders.payment_type 
+		WHEN 'cash' THEN 'НАЛ'
+		WHEN 'cashless' THEN 'БЕЗНАЛ'
+		WHEN 'ByCard' THEN 'ПО КАРТЕ'
 		ELSE ''
-	END AS order_signature_type, 
+	END AS pay_type,
 	orders.payment_type AS order_payment_type,
 	orders.online_order AS order_online_number,
 	delivery_schedule.name AS delivery_schedule,
@@ -194,6 +200,10 @@ WHERE
         </Field>
         <Field Name="order_comment_for_logist">
           <DataField>order_comment_for_logist</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="pay_type">
+          <DataField>pay_type</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -2094,8 +2104,8 @@ GROUP BY name</CommandText>
         <Width>320.29pt</Width>
         <Value>='Товарный чек № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>111.1pt</Left>
-        <Top>35.8pt</Top>
+        <Left>111.10pt</Left>
+        <Top>35.80pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2718,6 +2728,14 @@ GROUP BY name</CommandText>
         <Left>37.3pt</Left>
         <Top>261.0pt</Top>
       </Table>
+      <Textbox Name="Textbox29">
+        <Height>12.00pt</Height>
+        <Width>72.27pt</Width>
+        <Value>=First({pay_type}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>128.00pt</Left>
+        <Top>62.20pt</Top>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -3186,7 +3204,7 @@ GROUP BY name</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
