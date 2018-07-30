@@ -207,115 +207,13 @@ WHERE
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>13.00pt</Height>
-        <Width>379.75pt</Width>
-        <Value>=Max({phone}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>121.90pt</Left>
-        <Top>197.10pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <TextAlign>Left</TextAlign>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14.25pt</Height>
-        <Width>140pt</Width>
-        <Value>Контактный телефон</Value>
-        <ZIndex>1</ZIndex>
-        <Left>7.8pt</Left>
-        <Top>197.1pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-        </Style>
-        <CanGrow>true</CanGrow>
-      </Textbox>
-      <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14.25pt</Height>
-        <Width>140pt</Width>
-        <Value>Адрес</Value>
-        <ZIndex>1</ZIndex>
-        <Left>7.8pt</Left>
-        <Top>182.1pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-        </Style>
-        <CanGrow>true</CanGrow>
-      </Textbox>
-      <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14.25pt</Height>
-        <Width>140pt</Width>
-        <Value>Клиент</Value>
-        <ZIndex>1</ZIndex>
-        <Left>7.8pt</Left>
-        <Top>167.1pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-        </Style>
-        <CanGrow>true</CanGrow>
-      </Textbox>
-      <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>13.00pt</Height>
-        <Width>379.75pt</Width>
-        <Value>=Max({client_name}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>121.90pt</Left>
-        <Top>167.10pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Left</TextAlign>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>13.00pt</Height>
-        <Width>379.75pt</Width>
-        <Value>=Max({delivery_address}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>121.90pt</Left>
-        <Top>182.10pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <TextAlign>Left</TextAlign>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
       <Textbox Name="Textbox53" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.31pt</Height>
         <Width>509.99pt</Width>
         <Value>Поля необходимые для заполнения</Value>
         <ZIndex>1</ZIndex>
-        <Left>1.4pt</Left>
-        <Top>229.5pt</Top>
+        <Left>1.40pt</Left>
+        <Top>229.50pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1065,6 +963,165 @@ WHERE
           <PaddingTop>0pt</PaddingTop>
         </Style>
       </CustomReportItem>
+      <Table Name="Table2">
+        <DataSetName>Order</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>118.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>373.4pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Клиент</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>={client_name}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>Адрес</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>={delivery_address}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>Контактный телефон</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>={phone}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>10.1pt</Left>
+        <Top>175.3pt</Top>
+      </Table>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -1505,7 +1562,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
