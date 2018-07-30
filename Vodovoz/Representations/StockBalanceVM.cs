@@ -56,8 +56,9 @@ namespace Vodovoz.ViewModel
 				.JoinQueryOver(n => n.Unit, () => unitAlias)
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
+		            .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
+				    .Select(() => nomenclatureAlias.IsArchive).WithAlias(() => resultAlias.NomenclatureIsArchive)					
+				    .Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
 					.SelectSubQuery (subqueryAdd).WithAlias(() => resultAlias.Append)
 					.SelectSubQuery (subqueryRemove).WithAlias(() => resultAlias.Removed)
@@ -119,8 +120,14 @@ namespace Vodovoz.ViewModel
 
 		public short UnitDigits{ get; set;}
 
+		public bool NomenclatureIsArchive { get; set; }
+
+		string nomenclatureName { get; set; }
 		[UseForSearch]
-		public string NomenclatureName { get; set;}
+		public string NomenclatureName { 
+			get{ return string.Format("{0}{1}", nomenclatureName, NomenclatureIsArchive ? " (АРХИВ)" : ""); } 
+			set{ nomenclatureName = value; }
+		}
 
 		public string CountText { get { return String.Format ("{0:" + String.Format ("F{0}", UnitDigits) + "} {1}", 
 			Amount,
