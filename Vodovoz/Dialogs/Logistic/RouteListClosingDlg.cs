@@ -542,16 +542,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			bool isOrdersValid = true;
-			foreach(var item in Entity.Addresses) {
-				var orderValidator = new QSValidator<Order>(item.Order);
-				if(!orderValidator.IsValid) {
-					isOrdersValid = false;
-				}
-			}
-
-			if(!isOrdersValid){
-				MessageDialogWorks.RunErrorDialog("Один или несколько заказов заполнены некорректно.");
+			if(!ValidateOrders()) {
 				return false;
 			}
 
@@ -574,6 +565,36 @@ namespace Vodovoz
 
 			return true;
 		}
+
+		private bool ValidateOrders()
+		{
+			bool isOrdersValid = true;
+			string orderIds = "";
+			byte ordersCounter = 0;
+			foreach(var item in Entity.Addresses) {
+				var orderValidator = new QSValidator<Order>(item.Order);
+				if(!orderValidator.IsValid) {
+					if(string.IsNullOrWhiteSpace(orderIds)) {
+						orderIds = string.Format("{0}", item.Order.Id);
+					} else {
+						orderIds = string.Format("{0}{2} {1}", orderIds, item.Order.Id, ordersCounter == 4 ? "\n" : ",");
+					}
+					isOrdersValid = false;
+					if(ordersCounter == 4) {
+						ordersCounter = 0;
+						continue;
+					}
+					ordersCounter++;
+				}
+			}
+
+			if(!isOrdersValid) {
+				MessageDialogWorks.RunErrorDialog(string.Format("Следующие заказы заполнены некорректно:\n {0}", orderIds));
+				return false;
+			}
+			return true;
+		}
+
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
