@@ -90,7 +90,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SET lc_time_names = 'ru_RU';
 
@@ -153,7 +153,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -591,7 +591,7 @@ WHERE
           <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>411.50pt</Width>
-            <Value>=Fields!org_kpp.Value + '\\' + Fields!org_kpp.Value</Value>
+            <Value>=Fields!org_inn.Value + '\\' + Fields!org_kpp.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
             <Top>52.60pt</Top>
