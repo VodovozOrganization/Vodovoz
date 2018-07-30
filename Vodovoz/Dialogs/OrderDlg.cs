@@ -778,8 +778,7 @@ namespace Vodovoz
 					enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.cashless });
 				else
 					enumPaymentType.ClearEnumHideList();
-				enumPaymentType.SelectedItem = UoWGeneric.Root.Client.PaymentMethod;
-				OnEnumPaymentTypeChanged(null, e);
+				UoWGeneric.Root.PaymentType = UoWGeneric.Root.Client.PaymentMethod;
 			} else {
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
 			}
