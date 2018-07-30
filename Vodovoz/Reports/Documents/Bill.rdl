@@ -13,14 +13,14 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
 	DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date,
 	DATE_FORMAT(orders.bill_date,'%d.%m.%y') AS bill_date,
 	counterparty.full_name AS client_name,
-	delivery_points.compiled_address AS client_address,
+	counterparty.jur_address AS client_address,
 	counterparty.inn,
 	counterparty.kpp,
 	GROUP_CONCAT(
@@ -68,7 +68,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -112,7 +112,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -151,7 +151,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
