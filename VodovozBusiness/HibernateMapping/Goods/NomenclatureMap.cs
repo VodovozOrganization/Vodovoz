@@ -13,6 +13,7 @@ namespace Vodovoz.HibernateMapping
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
+			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.IsArchive).Column("is_archive");
 			Map(x => x.CanPrintPrice).Column("can_print_price");
 			Map(x => x.Name).Column("name");
@@ -37,6 +38,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.PercentForMaster).Column("percent_for_master");
 			Map(x => x.SubTypeOfEquipmentCategory).Column("subtype_of_equipment").CustomType<SubtypeOfEquipmentCategoryStringType>();
 
+			References(x => x.CreatedBy).Column("created_by");
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
 			References(x => x.Unit).Column("unit_id").Not.LazyLoad();
 			References(x => x.Color).Column("color_id");

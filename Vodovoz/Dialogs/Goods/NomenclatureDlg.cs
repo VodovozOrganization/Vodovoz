@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NLog;
 using QSBusinessCommon.Domain;
 using QSOrmProject;
@@ -6,6 +7,7 @@ using QSProjectsLib;
 using QSValidation;
 using QSWidgetLib;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
@@ -45,6 +47,9 @@ namespace Vodovoz
 			lblPercentForMaster.Visible = spinPercentForMaster.Visible = false;
 			entryName.IsEditable = true;
 			radioInfo.Active = true;
+
+			ylabelCreationDate.Binding.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
+			ylabelCreatedBy.Binding.AddFuncBinding<Nomenclature>(Entity, s => GetUserEmployeeName(s.CreatedBy), w => w.LabelProp).InitializeFromSource();
 
 			enumVAT.ItemsEnum = typeof(VAT);
 			enumVAT.Binding.AddBinding(Entity, e => e.VAT, w => w.SelectedItem).InitializeFromSource();
@@ -124,6 +129,19 @@ namespace Vodovoz
 			OpenTab(replaceDlg);
 		}
 
+		private string GetUserEmployeeName(User s)
+		{
+			if(Entity.CreatedBy == null) {
+				return "";
+			}
+			var employee = EmployeeRepository.GetEmployeesForUser(UoW, s.Id).FirstOrDefault();
+			if(employee == null) {
+				return Entity.CreatedBy.Name;
+			}else {
+				return employee.ShortName;
+			}
+		}
+
 		string GenerateOfficialName (object arg)
 		{
 			var widget = arg as Gtk.Entry;
@@ -141,6 +159,7 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 			logger.Info ("Сохраняем номенклатуру...");
+			Entity.SetNomenclatureCreationInfo();
 			pricesView.SaveChanges ();
 			UoWGeneric.Save ();
 			return true;

@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using QSBusinessCommon.Domain;
 using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
 
@@ -19,6 +20,20 @@ namespace Vodovoz.Domain.Goods
 		#region Свойства
 
 		public virtual int Id { get; set; }
+
+		DateTime? createDate;
+		[Display(Name = "Дата создания")]
+		public virtual DateTime? CreateDate {
+			get { return createDate; }
+			set { SetField(ref createDate, value, () => CreateDate); }
+		}
+
+		User createdBy;
+		[Display(Name = "Кем создана")]
+		public virtual User CreatedBy {
+			get { return createdBy; }
+			set { SetField(ref createdBy, value, () => CreatedBy); }
+		}
 
 		string name;
 
@@ -303,6 +318,14 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		#endregion
+
+		public virtual void SetNomenclatureCreationInfo()
+		{
+			if(Id == 0 && !CreateDate.HasValue) {
+				CreateDate = DateTime.Now;
+				CreatedBy = UserRepository.GetCurrentUser(UoW);
+			}
+		}
 
 		#region Рассчетные
 
