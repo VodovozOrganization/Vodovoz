@@ -119,7 +119,7 @@ namespace Vodovoz.Additions.Logistic
 				if(isClosed)
 					CellColumnValue += String.Format (numericCellTemplate,
 					                                  TextBoxNumber++, 
-					                                  String.Format ("=Iif({{Water{0}}} + {{Water_fact{0}}} = 0, \"\", Iif( {{Water{0}}} = {{Water_fact{0}}}, Format({{Water{0}}}, '0'), '' + {{Water_fact{0}}} + '(' + ({{Water_fact{0}}} - {{Water{0}}}) + ')'))", column.Id),
+					                                  String.Format ("=Iif({{Water{0}}} + {{Water_fact{0}}} = 0, \"\", Iif( {{Water{0}}} = {{Water_fact{0}}}, Format({{Water{0}}}, '0'), '' + {{Water_fact{0}}} + '(' + Iif({{Water_fact{0}}} - {{Water{0}}} > 0, '+', '') + ({{Water_fact{0}}} - {{Water{0}}}) + ')'))", column.Id),
 					                                  String.Format ("=Iif({{Water{0}}} = {{Water_fact{0}}}, \"0\", \"\")", column.Id)
 					                                 );
 				else
