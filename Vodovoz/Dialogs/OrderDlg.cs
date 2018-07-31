@@ -1692,6 +1692,21 @@ namespace Vodovoz
 					Entity.DeliveryPoint = null;
 				}
 			}
+
+			CheckSameOrders();
+		}
+
+		private void CheckSameOrders()
+		{
+			if(!Entity.DeliveryDate.HasValue || Entity.DeliveryPoint == null) {
+				return;
+			}
+
+			var sameOrder = OrderRepository.GetOrderOnDateAndDeliveryPoint(UoW, Entity.DeliveryDate.Value, Entity.DeliveryPoint);
+			if(sameOrder != null) {
+				MessageDialogWorks.RunWarningDialog("На выбранную дату и точку доставки уже есть созданный заказ!");
+				Entity.DeliveryDate = null;
+			}
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
@@ -1839,6 +1854,7 @@ namespace Vodovoz
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryDate.Value.Date == DateTime.Today.Date) {
 				MessageDialogWorks.RunWarningDialog("Сегодня? Уверены?");
 			}
+			CheckSameOrders();
 		}
 
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)

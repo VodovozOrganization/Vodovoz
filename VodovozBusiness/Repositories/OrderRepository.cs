@@ -136,6 +136,22 @@ namespace Vodovoz.Repository
 				return queryResult.List();
 		}
 
+		public static Domain.Orders.Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
+		{
+			var notSupportedStatuses = new OrderStatus[] { 
+				OrderStatus.NewOrder, 
+				OrderStatus.Canceled, 
+				OrderStatus.NotDelivered 
+			};
+
+			return uow.Session.QueryOver<Domain.Orders.Order>()
+				      .WhereRestrictionOn(x => x.OrderStatus).Not.IsIn(notSupportedStatuses)
+				      .Where(x => x.DeliveryDate == date)
+				      .Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
+				      .List().FirstOrDefault();
+		}
+
+
 		public static OrderStatus[] GetOnClosingOrderStatuses()
 		{
 			return new OrderStatus[] {

@@ -28515,6 +28515,7 @@
                                 <property name="IsEditable">True</property>
                                 <property name="AutoSeparation">True</property>
                                 <signal name="DateChanged" handler="OnPickerDeliveryDateDateChanged" />
+                                <signal name="DateChangedByUser" handler="OnPickerDeliveryDateDateChangedByUser" />
                               </widget>
                               <packing>
                                 <property name="TopAttach">8</property>
