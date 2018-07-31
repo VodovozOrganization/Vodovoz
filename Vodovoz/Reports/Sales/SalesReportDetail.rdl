@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>125.8pt</Height>
+    <Height>141.0pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>20.29pt</Height>
@@ -68,7 +68,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>11.3pt</Height>
+              <Height>30.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -82,7 +82,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
                       </Visibility>
@@ -102,7 +102,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -110,7 +110,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>Заказ/ Автор</Value>
+                      <Value>Заказ/ Дата/ Автор</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -119,9 +119,9 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -137,7 +137,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -154,7 +154,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -171,7 +171,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -437,7 +437,7 @@
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
                             <FontSize>11pt</FontSize>
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -573,13 +573,13 @@
           </TableGroup>
         </TableGroups>
       </Table>
-      <Textbox Name="Textbox11" >
+      <Textbox Name="Textbox11">
         <Height>13.51pt</Height>
         <Width>223.58pt</Width>
         <Value>=First({criterions}, "Criterions")</Value>
         <ZIndex>1</ZIndex>
-        <Left>589.10pt</Left>
-        <Top>108.50pt</Top>
+        <Left>589.1pt</Left>
+        <Top>126.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -596,7 +596,7 @@
     <Height>13.6pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
-    <ReportItems >
+    <ReportItems>
       <Textbox Name="Textbox18">
         <Height>12.00pt</Height>
         <Width>815.31pt</Width>
@@ -618,7 +618,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	counterparty.name as counterparty,
@@ -631,6 +631,8 @@
 	) AS order_author,
 	CONCAT(
 		orders.id,
+		'\n',
+		DATE_FORMAT(orders.delivery_date, '%d.%m.%Y'),
 		IF(
 			employees.name IS NULL OR employees.last_name IS NULL,
 			'',
@@ -748,7 +750,7 @@ GROUP BY counterparty.id, delivery_points.id, orders.id, orders.author_employee_
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -788,7 +790,7 @@ GROUP BY counterparty.id, delivery_points.id, orders.id, orders.author_employee_
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -943,7 +945,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
