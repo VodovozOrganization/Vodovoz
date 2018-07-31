@@ -99,8 +99,7 @@ namespace Vodovoz
 			checkNoDeliver.Binding.AddBinding(Entity, e => e.NoDelivey, w => w.Active).InitializeFromSource();
 
 			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text, new NullToEmptyStringConverter()).InitializeFromSource();
-			yentryShortName.MaxLength = 20;
-
+			yentryShortName.MaxLength = 220;
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			checkIsArchive.Sensitive = QSMain.User.Permissions["can_create_and_arc_nomenclatures"];
 
