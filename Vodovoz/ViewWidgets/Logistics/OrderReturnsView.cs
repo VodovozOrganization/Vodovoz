@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Gamma.GtkWidgets;
+using Gtk;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
@@ -219,8 +220,21 @@ namespace Vodovoz
 						.Adjustment(new Gtk.Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn("Скидка")
-					.AddTextRenderer(node => String.Format("{0}%",node.Discount))
+				.AddColumn("Скидка, %")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(node => node.Discount)
+					.Adjustment(new Adjustment(0, 0, 100, 1, 100, 1)).Editing(true)
+				.AddColumn("Основание скидки")
+					.HeaderAlignment(0.5f)
+					.AddComboRenderer(node => node.DiscountReason)
+					.SetDisplayFunc(x => x.Name)
+					.FillItems(UoW.GetAll<DiscountReason>()
+					.ToList()).AddSetter((c, n) => c.Editable = n.Discount > 0)
+				.AddSetter(
+					(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
+					? new Gdk.Color(0xff, 0x66, 0x66)
+					: new Gdk.Color(0xff, 0xff, 0xff)
+				)
 				.AddColumn("Стоимость")
 					.AddNumericRenderer(node => node.Sum)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName)
@@ -492,8 +506,22 @@ namespace Vodovoz
 			}
 		}
 
-		public decimal Sum {
-			get => Price * ActualCount * (1 - (decimal)Discount / 100);
+		public DiscountReason DiscountReason{
+			get {
+				if(IsEquipment)
+					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountReason : null;
+				else
+					return orderItem.DiscountReason;
+			}
+			set {
+				if(IsEquipment) {
+					if(orderEquipment.OrderItem != null)
+						orderEquipment.OrderItem.DiscountReason = value;
+				} else
+					orderItem.DiscountReason = value;
+			}
 		}
+
+		public decimal Sum => Price * ActualCount * (1 - (decimal)Discount / 100);
 	}
 }

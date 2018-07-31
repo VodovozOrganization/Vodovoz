@@ -336,7 +336,12 @@ namespace Vodovoz
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(UoW.GetAll<DiscountReason>()
-							   .ToList()).AddSetter((c, n) => c.Editable = n.Discount > 0)
+					.ToList()).AddSetter((c, n) => c.Editable = n.Discount > 0)
+					.AddSetter(
+						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
+						? colorLightRed
+						: colorWhite
+					)
 				.AddColumn("Доп. соглашение")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.AgreementString)

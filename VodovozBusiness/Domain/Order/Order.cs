@@ -755,9 +755,6 @@ namespace Vodovoz.Domain.Orders
 					}
 					// Конец проверки цен
 
-					if(ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
-						yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
-
 					//создание нескольких заказов на одну дату и точку доставки
 					if(!SelfDelivery && DeliveryPoint != null) {
 						var ordersForDeliveryPoints = OrderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
@@ -837,6 +834,9 @@ namespace Vodovoz.Domain.Orders
 					}
 				}
 			}
+
+			if(ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
+				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
