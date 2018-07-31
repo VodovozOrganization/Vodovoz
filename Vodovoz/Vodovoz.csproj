@@ -805,6 +805,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrderRegistryReport.cs" />
     <Compile Include="ReportsParameters\Store\EquipmentBalance.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.EquipmentBalance.cs" />
+    <Compile Include="ReportsParameters\CardPaymentsOrdersReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CardPaymentsOrdersReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1289,6 +1291,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\EquipmentBalance.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\CardPaymentsOrdersReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

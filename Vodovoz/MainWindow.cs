@@ -1032,4 +1032,13 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
+
+	protected void OnActionCardPaymentsActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.CardPaymentsOrdersReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
 }
