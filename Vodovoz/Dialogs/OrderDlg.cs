@@ -778,7 +778,8 @@ namespace Vodovoz
 					enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.cashless });
 				else
 					enumPaymentType.ClearEnumHideList();
-				UoWGeneric.Root.PaymentType = UoWGeneric.Root.Client.PaymentMethod;
+				enumPaymentType.SelectedItem = UoWGeneric.Root.Client.PaymentMethod;
+				OnEnumPaymentTypeChanged(null, e);
 			} else {
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
 			}
@@ -1818,8 +1819,8 @@ namespace Vodovoz
 				 (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)
 				);
 			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (Entity.PaymentType == PaymentType.ByCard);
-
-			treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
+			if(treeItems.Columns.Any())
+				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
 				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.BeveragesWorld);
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
