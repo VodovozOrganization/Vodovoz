@@ -187,7 +187,6 @@ namespace Vodovoz.Repositories
 		static bool GetConditionForDriverTicket(OrderStateKey key) =>
 		(
 			GetConditionForBill(key)
-			&& !key.IsSelfDelivery
 			&& key.OrderStatus >= OrderStatus.Accepted
 		);
 
