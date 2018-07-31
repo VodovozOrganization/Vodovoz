@@ -1705,7 +1705,6 @@ namespace Vodovoz
 			var sameOrder = OrderRepository.GetOrderOnDateAndDeliveryPoint(UoW, Entity.DeliveryDate.Value, Entity.DeliveryPoint);
 			if(sameOrder != null) {
 				MessageDialogWorks.RunWarningDialog("На выбранную дату и точку доставки уже есть созданный заказ!");
-				Entity.DeliveryDate = null;
 			}
 		}
 
