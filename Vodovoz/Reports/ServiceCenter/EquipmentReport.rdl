@@ -43,8 +43,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -68,7 +68,7 @@
           <TableColumn>
             <Width>72.3pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>223.4pt</Width>
           </TableColumn>
         </TableColumns>
@@ -190,7 +190,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
                       <Value>Номенклатуры</Value>
@@ -316,7 +316,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
                       <Value>=Fields!nomenclatures.Value</Value>
@@ -338,7 +338,7 @@
         <Top>3.1pt</Top>
       </Table>
     </ReportItems>
-    <Columns >1</Columns>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -367,12 +367,17 @@
     counterparty.full_name AS client_name,
     delivery_points.compiled_address_short AS address,
 	CONCAT_WS(
-		', ',
-		CONCAT_WS(
+		', ',		
+        NULLIF(CONCAT_WS(
 			' ', 
 			orders.to_client_text,
-			GROUP_CONCAT(IF(nomenclature.category = 'additional', CONCAT(nomenclature.official_name, IF(order_items.count &gt; 1, CONCAT(': ', order_items.count, ' шт.'), '')), '') SEPARATOR ' ')
-		),
+			GROUP_CONCAT(
+				IF(nomenclature.category = 'additional', 
+					CONCAT(nomenclature.official_name, IF(order_items.count &gt; 1, CONCAT(': ', order_items.count, ' шт.'), '')),
+					''
+				) 
+			SEPARATOR ' ')
+		), ' '),
         equipments.equipment_to_client
     ) AS to_client,
     CONCAT_WS(
@@ -528,9 +533,9 @@ GROUP BY orders.id</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
