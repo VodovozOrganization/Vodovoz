@@ -359,7 +359,8 @@ namespace Vodovoz.Domain.Orders
 
 			//влияющая номенклатура
 			Nomenclature infuentialNomenclature = Nomenclature?.DependsOnNomenclature;
-			if(Nomenclature.Category == NomenclatureCategory.water) {
+			if(Nomenclature.Category == NomenclatureCategory.water
+			   || Nomenclature.Category == NomenclatureCategory.disposableBottleWater) {
 				var waterSalesAgreement = AdditionalAgreement.Self as WaterSalesAgreement;
 				if(waterSalesAgreement == null) {
 					return result;
