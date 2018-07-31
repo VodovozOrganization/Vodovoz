@@ -24,7 +24,7 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.FullNumberText, PatternFieldType.FString);
 			AddField(x => x.StartDate, PatternFieldType.FDate);
 			AddField(x => x.IssueDate, PatternFieldType.FDate);
-			AddField(x => x.DeliveryPoint.CompiledAddress, PatternFieldType.FString);
+			AddField(x => x.DeliveryPoint.CompiledAddressWOAddition, PatternFieldType.FString);
 
 			AddField(x => String.Join(", ",
 									  x.DeliveryPoint != null && x.DeliveryPoint.Phones.Any()

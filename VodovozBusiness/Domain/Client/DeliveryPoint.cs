@@ -109,6 +109,29 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref compiledAddress, value, () => CompiledAddress); }
 		}
 
+		[Display(Name = "Адрес без дополнения")]
+		public virtual string CompiledAddressWOAddition {
+			get {
+				string address = String.Empty;
+				if(!String.IsNullOrWhiteSpace(City))
+					address += String.Format("{0} {1}, ", LocalityType.GetEnumShortTitle(), City);
+				if(!String.IsNullOrWhiteSpace(Street))
+					address += String.Format("{0}, ", Street);
+				if(!String.IsNullOrWhiteSpace(Building))
+					address += String.Format("д.{0}, ", Building);
+				if(!String.IsNullOrWhiteSpace(Letter))
+					address += String.Format("лит.{0}, ", Letter);
+				if(!string.IsNullOrWhiteSpace(Entrance))
+					address += String.Format("пар.{0}, ", Entrance);
+				if(!string.IsNullOrWhiteSpace(Floor))
+					address += String.Format("эт.{0}, ", Floor);
+				if(!String.IsNullOrWhiteSpace(Room))
+					address += String.Format("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
+
+				return address.TrimEnd(',', ' ');
+			}
+		}
+
 		string shortAddress;
 
 		[Display (Name = "Сокращенный адрес")]
