@@ -18,6 +18,7 @@ namespace Vodovoz
 				stockbalancefilter1.UoW = value;
 				var vm = new ViewModel.StockBalanceVM (value);
 				vm.Filter = stockbalancefilter1;
+				vm.Filter.ShowArchive = true;
 				datatreeviewBalance.RepresentationModel = vm;
 				datatreeviewBalance.RepresentationModel.UpdateNodes ();
 			}

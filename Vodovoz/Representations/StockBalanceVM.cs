@@ -19,7 +19,8 @@ namespace Vodovoz.ViewModel
 			get {
 				return RepresentationFilter as StockBalanceFilter;
 			}
-			set { RepresentationFilter = value as IRepresentationFilter;
+			set {
+				RepresentationFilter = value as IRepresentationFilter;
 			}
 		}
 

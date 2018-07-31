@@ -25,7 +25,13 @@ namespace Vodovoz
 			}
 		}
 
-		public bool ShowArchive { get; set; }
+		bool showArchive;
+		public bool ShowArchive {
+			get => showArchive;
+			set { 
+				showArchive = checkShowArchive.Active = value; 
+			}
+		}
 
 		public StockBalanceFilter (IUnitOfWork uow)
 		{
