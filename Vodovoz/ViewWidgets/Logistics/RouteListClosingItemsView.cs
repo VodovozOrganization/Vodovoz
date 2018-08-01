@@ -377,6 +377,7 @@ namespace Vodovoz
 			foreach(var orderItem in item.Order.OrderItems) {
 				if(new NomenclatureCategory[] {
 					NomenclatureCategory.additional,
+					NomenclatureCategory.equipment,
 					NomenclatureCategory.spare_parts
 					}.Contains(orderItem.Nomenclature.Category)) {
 					stringParts.Add(orderItem.IsDelivered
