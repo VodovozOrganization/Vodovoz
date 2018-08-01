@@ -85,41 +85,8 @@ namespace Vodovoz.ViewModel
 			
 			var items = itemsQuery.List<NomenclatureForSaleVMNode>();
 
-			var equipment = Repository.EquipmentRepository.AvailableEquipmentQuery()
-				.GetExecutableQueryOver(UoW.Session)
-				.Where(eq => !eq.OnDuty)
-				.JoinAlias(eq => eq.Nomenclature, () => nomenclatureAlias)
-				.Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category), Filter.SelectedCategories))
-				.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
-				.SelectList(list => list
-					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => true).WithAlias(() => resultAlias.IsEquipmentWithSerial)
-					.SelectSum(() => (decimal)1).WithAlias(() => resultAlias.Added)
-					.SelectSubQuery(subqueryReserved).WithAlias(() => resultAlias.Reserved)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.Category)
-					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
-					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
-				)
-				.TransformUsing(Transformers.AliasToBean<NomenclatureForSaleVMNode>())
-				.List<NomenclatureForSaleVMNode>();
-
-			var services = Repository.NomenclatureRepository.NomenclatureOfServices()
-				.GetExecutableQueryOver(UoW.Session)
-				.SelectList(list => list
-					.Select(x => x.Id).WithAlias(() => resultAlias.Id)
-					.Select(x => x.Name).WithAlias(() => resultAlias.Name)
-					.Select(x => x.Category).WithAlias(() => resultAlias.Category)
-				)
-				.TransformUsing(Transformers.AliasToBean<NomenclatureForSaleVMNode>())
-				.List<NomenclatureForSaleVMNode>();
-
 			List<NomenclatureForSaleVMNode> forSale = new List<NomenclatureForSaleVMNode>();
 			forSale.AddRange(items);
-			forSale.AddRange(equipment);
-			if(Filter.SelectedCategories.Contains(NomenclatureCategory.service)) {
-				forSale.AddRange(services);
-			}
 			forSale.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.CurrentCulture));
 			SetItemsSource(forSale);
 		}
