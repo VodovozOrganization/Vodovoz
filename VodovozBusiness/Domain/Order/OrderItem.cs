@@ -126,10 +126,21 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref includeNDS, value, () => IncludeNDS); }
 		}
 
-		private int discount;
+		private bool isDiscountInMoney;
+
+		[Display(Name = "Скидка деньгами?")]
+		public virtual bool IsDiscountInMoney {
+			get { return isDiscountInMoney; }
+			set {
+				if(SetField(ref isDiscountInMoney, value, () => IsDiscountInMoney))
+					RecalculateNDS();
+			}
+		}
+
+		private decimal discount;
 
 		[Display(Name = "Процент скидки на товар")]
-		public virtual int Discount {
+		public virtual decimal Discount {
 			get { return discount; }
 			set {
 				if(value != discount && value == 0) {
@@ -138,6 +149,20 @@ namespace Vodovoz.Domain.Orders
 				if(SetField(ref discount, value, () => Discount)) {
 					RecalculateNDS();
 				}
+			}
+		}
+
+		private decimal discountMoney;
+
+		[Display(Name = "Скидка на товар в деньгах")]
+		public virtual decimal DiscountMoney {
+			get { return discountMoney; }
+			set {
+				//value = value > Price * CurrentCount ? Price * CurrentCount : value;
+				if(value != discountMoney && value == 0)
+					DiscountReason = null;
+				if(SetField(ref discountMoney, value, () => DiscountMoney))
+					RecalculateNDS();
 			}
 		}
 
@@ -258,6 +283,24 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual decimal DiscountForDlg{
+			get{
+				if(IsDiscountInMoney)
+					return DiscountMoney;
+				else
+					return Discount;
+			}
+			set{
+				if(IsDiscountInMoney) {
+					DiscountMoney = value > Price * CurrentCount ? Price * CurrentCount : value;
+					Discount = (100 * DiscountMoney) / (Price * CurrentCount);
+				} else {
+					Discount = value > 100 ? 100 : value;
+					DiscountMoney = Price * CurrentCount * Discount / 100;
+				}
+			}
+		}
+
 		/// <summary>
 		/// Свойство возвращает подходяшее значение Count или ActualCount в зависимости от статуса заказа.
 		/// </summary>
@@ -273,13 +316,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Sum {
 			get {
 				//FIXME Count -- CurrentCount
-				return Price * Count * (1 - (decimal)Discount / 100);
+				return Price * Count * (1 - Discount / 100);
 			}
 		}
 
 		public virtual decimal ActualSum {
 			get {
-				return Price * CurrentCount * (1 - (decimal)Discount / 100);
+				return Price * CurrentCount * (1 - Discount / 100);
 			}
 		}
 

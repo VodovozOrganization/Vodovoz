@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
@@ -127,6 +128,8 @@ namespace Vodovoz
 		public void ConfigureDlg()
 		{
 			originalOrderDate = Entity.DeliveryDate;
+			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
+			spinDiscount.Adjustment.Upper = 100;
 
 			treeDocuments.Selection.Mode = SelectionMode.Multiple;
 			if(UoWGeneric.Root.PreviousOrder != null) {
@@ -305,7 +308,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
-				.AddSetter((c, node) => c.Editable = node.CanEditPrice())
+					.AddSetter((c, node) => c.Editable = node.CanEditPrice())
 					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) => {
 						c.ForegroundGdk = colorBlack;
 						if(node.AdditionalAgreement == null) {
@@ -327,10 +330,19 @@ namespace Vodovoz
 				.AddColumn("Сумма")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.ActualSum))
-				.AddColumn("Скидка %")
+				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.Discount)
-					.Adjustment(new Adjustment(0, 0, 100, 1, 100, 1)).Editing(true)
+					.AddNumericRenderer(node => node.DiscountForDlg).Editing(true)
+					.AddSetter(
+						(c, n) => c.Adjustment = n.IsDiscountInMoney
+									? new Adjustment(0, 0, (double)n.Price * n.CurrentCount, 1, 100, 1)
+									: new Adjustment(0, 0, 100, 1, 100, 1)
+					)
+					.Digits(2)
+					.WidthChars(10)
+					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
+				.AddColumn("Скидка \nв рублях?").AddToggleRenderer(x => x.IsDiscountInMoney)
+					.Editing()
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
@@ -412,6 +424,7 @@ namespace Vodovoz
 			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += WaterSalesAgreement_ObjectUpdatedGeneric;
 			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());
 			SetDiscountEditable();
+			SetDiscountUnitEditable();
 
 			spinSumDifference.Hide();
 			labelSumDifference.Hide();
@@ -812,7 +825,7 @@ namespace Vodovoz
 			pickerDeliveryDate.Sensitive = val;
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
-			spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
+			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			tblOnRouteEditReason.Sensitive = val;
 			ChangeOrderEditable(val);
 
@@ -1933,7 +1946,7 @@ namespace Vodovoz
 
 		void SetDiscountEditable(bool? canEdit = null)
 		{
-			spinDiscount.Sensitive = canEdit.HasValue ? canEdit.Value : ycomboboxReason.SelectedItem != null;
+			spinDiscount.Sensitive = canEdit.HasValue ? canEdit.Value : enumDiscountUnit.SelectedItem != null;
 		}
 
 		protected void OnSpinDiscountValueChanged(object sender, EventArgs e)
@@ -1944,17 +1957,15 @@ namespace Vodovoz
 		private void SetDiscount()
 		{
 			DiscountReason reason = (ycomboboxReason.SelectedItem as DiscountReason);
-
-			int discount = 0;
-			if(Int32.TryParse(spinDiscount.Text, out discount)) {
+			DiscountUnits unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
+			decimal discount = 0;
+			if(Decimal.TryParse(spinDiscount.Text, out discount)) {
 				if(reason == null && discount > 0) {
 					MessageDialogWorks.RunErrorDialog("Необходимо выбрать основание для скидки");
 					return;
 				}
-				foreach(OrderItem item in UoWGeneric.Root.ObservableOrderItems) {
-					item.Discount = discount;
-					item.DiscountReason = reason;
-				}
+				Entity.SetDiscountUnitsForAll(unit);
+				Entity.SetDiscount(reason, discount, unit);
 			}
 		}
 
@@ -2282,7 +2293,7 @@ namespace Vodovoz
 			return UoW.GetById<CounterpartyContract>(anotherSessionContract.Id);
 		}
 
-		protected void OnEntryDiscountOrderChanged(object sender, EventArgs e)
+		/*protected void OnEntryDiscountOrderChanged(object sender, EventArgs e)
 		{
 			int result = 0;
 			if(Int32.TryParse(spinDiscount.Text, out result)) {
@@ -2292,7 +2303,7 @@ namespace Vodovoz
 					ycomboboxReason.SelectedItem = null;
 				}
 			}
-		}
+		}*/
 
 		protected void OnEntryDiscountOrderKeyReleaseEvent(object o, KeyReleaseEventArgs args)
 		{
@@ -2308,13 +2319,29 @@ namespace Vodovoz
 
 		protected void OnYcomboboxReasonItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			SetDiscountEditable();
+			SetDiscountUnitEditable();
 		}
 		#endregion
 
 		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)
 		{
 			Entity.SaveOrderComment();
+		}
+
+		protected void OnEnumDiscountUnitEnumItemSelected(object sender, EnumItemClickedEventArgs e)
+		{
+			var sum = UoWGeneric.Root.ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
+			var unit = (DiscountUnits)e.ItemEnum;
+			spinDiscount.Adjustment.Upper = unit == DiscountUnits.money ? (double)sum : 100d;
+			if(unit == DiscountUnits.percent && spinDiscount.Value > 100)
+				spinDiscount.Value = 100;
+			Entity.SetDiscountUnitsForAll(unit);
+			SetDiscountEditable();
+			SetDiscount();
+		}
+
+		void SetDiscountUnitEditable(bool? canEdit = null){
+			enumDiscountUnit.Sensitive = canEdit.HasValue ? canEdit.Value : ycomboboxReason.SelectedItem != null;
 		}
 	}
 }

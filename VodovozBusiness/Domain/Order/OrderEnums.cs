@@ -90,4 +90,12 @@ namespace Vodovoz.Domain.Orders
 		{
 		}
 	}
+
+	public enum DiscountUnits
+	{
+		[Display(Name = "₽")]
+		money,
+		[Display(Name = "%")]
+		percent
+	}
 }

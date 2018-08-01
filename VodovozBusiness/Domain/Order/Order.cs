@@ -2351,6 +2351,36 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
+		#region работа со скидками
+		public virtual void SetDiscountUnitsForAll(DiscountUnits unit){
+			ObservableOrderItems.ForEach(i => i.IsDiscountInMoney = unit == DiscountUnits.money);
+		}
+
+		/// <summary>
+		/// Устанавливает скидку в рублях или процентах.
+		/// Если скидка в %, то просто применяется к каждой строке заказа,
+		/// а если в рублях - расчитывается % в зависимости от суммы заказа и рублёвой скидки
+		/// и применяется этот % аналогично случаю с процентной скидкой.
+		/// </summary>
+		/// <param name="reason">Причина для скидки.</param>
+		/// <param name="discount">Значение скидки.</param>
+		/// <param name="unit">рубли или %.</param>
+		public virtual void SetDiscount(DiscountReason reason, decimal discount, DiscountUnits unit)
+		{
+			if(unit == DiscountUnits.money) {
+				var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
+				discount = 100 * discount / sum;
+			}
+			foreach(OrderItem item in ObservableOrderItems) {
+				if(unit == DiscountUnits.money)
+					item.DiscountForDlg = discount * item.Price * item.CurrentCount / 100;
+				else
+					item.DiscountForDlg = discount;
+				item.DiscountReason = reason;
+			}
+		}
+		#endregion
+
 		#region	Внутренние функции
 
 		decimal GetFixedPrice(OrderItem item)

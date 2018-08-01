@@ -27755,7 +27755,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">3</property>
             <child>
               <widget class="Gtk.VBox" id="vboxInfo">
                 <property name="MemberName" />
@@ -29447,6 +29447,21 @@
                                   </packing>
                                 </child>
                                 <child>
+                                  <widget class="QSOrmProject.EnumListComboBox" id="enumDiscountUnit">
+                                    <property name="MemberName" />
+                                    <property name="CanDefault">True</property>
+                                    <property name="IsTextCombo">False</property>
+                                    <property name="Items" translatable="yes" />
+                                    <signal name="EnumItemSelected" handler="OnEnumDiscountUnitEnumItemSelected" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">7</property>
+                                    <property name="AutoSize">True</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
                                   <widget class="Gamma.GtkWidgets.ySpinButton" id="spinDiscount">
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
@@ -29460,14 +29475,11 @@
                                     <signal name="ValueChanged" handler="OnSpinDiscountValueChanged" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">7</property>
+                                    <property name="Position">8</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
                                   </packing>
-                                </child>
-                                <child>
-                                  <placeholder />
                                 </child>
                                 <child>
                                   <placeholder />

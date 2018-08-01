@@ -220,10 +220,19 @@ namespace Vodovoz
 						.Adjustment(new Gtk.Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn("Скидка, %")
+				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.Discount)
-					.Adjustment(new Adjustment(0, 0, 100, 1, 100, 1)).Editing(true)
+					.AddNumericRenderer(node => node.DiscountForDlg).Editing(true)
+					.AddSetter(
+						(c, n) => c.Adjustment = n.IsDiscountInMoney
+									? new Adjustment(0, 0, (double)n.Price * n.ActualCount, 1, 100, 1)
+									: new Adjustment(0, 0, 100, 1, 100, 1)
+					)
+					.Digits(2)
+					.WidthChars(10)
+					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
+				.AddColumn("Скидка \nв рублях?").AddToggleRenderer(x => x.IsDiscountInMoney)
+					.Editing()
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
@@ -491,10 +500,42 @@ namespace Vodovoz
 					orderItem.Price = value;
 			}
 		}
-		public int Discount {
+
+		public bool IsDiscountInMoney{
+			get {
+				if(IsEquipment)
+					return orderEquipment.OrderItem != null && orderEquipment.OrderItem.IsDiscountInMoney;
+				return orderItem.IsDiscountInMoney;
+			}
+
+			set {
+				if(IsEquipment)
+					orderEquipment.OrderItem.IsDiscountInMoney = orderEquipment.OrderItem != null && value;
+				else
+					orderItem.IsDiscountInMoney = value;
+			}
+		}
+
+		public Decimal DiscountForDlg{
+			get{
+				if(IsEquipment)
+					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountForDlg : 0;
+				return orderItem.DiscountForDlg;
+			}
+
+			set{
+				if(IsEquipment) {
+					if(orderEquipment.OrderItem != null)
+						orderEquipment.OrderItem.DiscountForDlg = value;
+				} else
+					orderItem.DiscountForDlg = value;
+			}
+		}
+
+		public Decimal Discount {
 			get { 
 				if(IsEquipment)
-					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.Discount : 0;
+					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.Discount : 0m;
 				return orderItem.Discount;
 			}
 			set {
