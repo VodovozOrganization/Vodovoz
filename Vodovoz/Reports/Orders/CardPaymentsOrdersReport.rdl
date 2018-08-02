@@ -391,7 +391,8 @@ LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
 LEFT JOIN employees ON employees.id = orders.author_employee_id
 WHERE
-	orders.delivery_date &gt;= @start_date
+	orders.payment_type = 'ByCard'
+	AND orders.delivery_date &gt;= @start_date
 	AND orders.delivery_date &lt;= @end_date</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
