@@ -98,15 +98,22 @@ namespace Vodovoz
 
 			UoW = uow;
 
+			UpdateListsSentivity();
 			entryTotal.Sensitive = yenumcomboOrderPayment.Sensitive =
 				routeListItem.Status != RouteListItemStatus.Transfered;
 
-			ytreeToClient.Sensitive = routeListItem.IsDelivered();
-			orderEquipmentItemsView.Sensitive = routeListItem.IsDelivered();
+
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
 			Configure();
 			UpdateItemsList();
 			UpdateButtonsState();
+		}
+
+		private void UpdateListsSentivity()
+		{
+			ytreeToClient.Sensitive = 
+			orderEquipmentItemsView.Sensitive =
+			depositrefunditemsview1.Sensitive = routeListItem.IsDelivered();
 		}
 
 		private void UpdateItemsList()
@@ -287,6 +294,7 @@ namespace Vodovoz
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
 		{
 			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Overdue);
+			routeListItem.FillCountsOnCanceled();
 			UpdateButtonsState();
 			this.OnCloseTab(false);
 		}
@@ -294,6 +302,7 @@ namespace Vodovoz
 		protected void OnButtonDeliveryCanseledClicked(object sender, EventArgs e)
 		{
 			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Canceled);
+			routeListItem.FillCountsOnCanceled();
 			UpdateButtonsState();
 			this.OnCloseTab(false);
 		}
@@ -302,6 +311,7 @@ namespace Vodovoz
 		{
 			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Completed);
 			routeListItem.FirstFillClosing(UoW);
+			UpdateListsSentivity();
 			UpdateButtonsState();
 		}
 

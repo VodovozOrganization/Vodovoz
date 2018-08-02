@@ -201,7 +201,7 @@ namespace Vodovoz
 						.Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
 						.AddSetter(EmptyBottleCellSetter)
 				.AddColumn("Залоги за\n бутыли").HeaderAlignment(0.5f).EnterToNextCell()
-					.AddNumericRenderer(node => node.DepositsCollected)
+					.AddNumericRenderer(node => node.GetDepositsCollected)
 				.AddColumn("Залоги за\n оборудование").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.GetEquipmentDepositsCollected)
 				.AddColumn("Доп.\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()

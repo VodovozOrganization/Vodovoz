@@ -177,12 +177,21 @@ namespace Vodovoz.Domain.Logistic
 		decimal depositsCollected;
 
 		public virtual decimal DepositsCollected {
+			get { return depositsCollected; }
+			set { SetField(ref depositsCollected, value, () => DepositsCollected); }
+		}
+
+		public virtual decimal GetDepositsCollected {
 			get {
+				if(Order.PaymentType != Client.PaymentType.cash && Order.PaymentType != Client.PaymentType.BeveragesWorld) {
+					return 0;
+				}
+
 				if(depositsCollected != 0m) {
 					return depositsCollected;
-				} else {
-					return 0 - Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Bottles).Sum(x => x.Total);
 				}
+
+				return 0 - Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Bottles).Sum(x => x.Total);
 			}
 		}
 
@@ -608,7 +617,7 @@ namespace Vodovoz.Domain.Logistic
 			return Order.OrderItems
 				        .Where(item => item.Order.PaymentType == Client.PaymentType.cash || item.Order.PaymentType == Client.PaymentType.BeveragesWorld)
 						.Sum(item => item.ActualCount * item.Price * (1 - (decimal)item.Discount / 100))
-						+ ExtraCash + DepositsCollected + GetEquipmentDepositsCollected;
+						+ ExtraCash + GetDepositsCollected + GetEquipmentDepositsCollected;
 		}
 
 		/// <summary>
@@ -648,7 +657,10 @@ namespace Vodovoz.Domain.Logistic
 				item.ActualCount = IsDelivered() ? item.Count : 0;
 			}
 			foreach(var equip in Order.OrderEquipments) {
-				equip.ActualCount = equip.Count;
+				equip.ActualCount = IsDelivered() ? equip.Count : 0;
+			}
+			foreach(var deposit in Order.OrderDepositItems) {
+				deposit.ActualCount = IsDelivered() ? deposit.Count : 0;
 			}
 			PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
 			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
@@ -659,6 +671,23 @@ namespace Vodovoz.Domain.Logistic
 			PerformanceHelper.AddTimePoint("Получили прайс");
 			RecalculateWages();
 			PerformanceHelper.AddTimePoint("Пересчет");
+		}
+
+		/// <summary>
+		/// Обнуляет фактическое количетво
+		/// Использовать если заказ отменен или полностью не доставлен
+		/// </summary>
+		public virtual void FillCountsOnCanceled()
+		{
+			foreach(var item in Order.OrderItems) {
+				item.ActualCount = 0;
+			}
+			foreach(var equip in Order.OrderEquipments) {
+				equip.ActualCount = 0;
+			}
+			foreach(var deposit in Order.OrderDepositItems) {
+				deposit.ActualCount = 0;
+			}
 		}
 
 		private Dictionary<int, int> goodsByRouteColumns;

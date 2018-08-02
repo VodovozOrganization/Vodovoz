@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
@@ -30,6 +31,14 @@ namespace Vodovoz.Domain.Orders
 		public virtual int Count {
 			get { return count; }
 			set { SetField (ref count, value, () => Count); }
+		}
+
+		int actualCount;
+
+		[Display(Name = "Фактическое количество")]
+		public virtual int ActualCount {
+			get { return actualCount; }
+			set { SetField(ref actualCount, value, () => ActualCount); }
 		}
 
 		PaymentDirection paymentDirection;
@@ -105,7 +114,19 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref deposit, value, () => Deposit); }
 		}
 
-		public virtual Decimal Total { get { return Deposit * Count; } }
+		/// <summary>
+		/// Свойство возвращает подходяшее значение Count или ActualCount в зависимости от статуса заказа.
+		/// </summary>
+		public int CurrentCount {
+			get {
+				if(Repository.OrderRepository.GetStatusesForActualCount().Contains(Order.OrderStatus))
+					return ActualCount;
+				else
+					return Count;
+			}
+		}
+
+		public virtual Decimal Total { get { return Deposit * CurrentCount; } }
 
 		public string Title {
 			get{

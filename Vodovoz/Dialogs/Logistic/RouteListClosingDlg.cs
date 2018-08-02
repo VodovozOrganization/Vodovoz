@@ -439,7 +439,7 @@ namespace Vodovoz
 			bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
 			int fullBottlesTotal = items.SelectMany(item => item.Order.OrderItems).Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(item => item.ActualCount);
-			decimal depositsCollectedTotal = items.Sum(item => item.DepositsCollected);
+			decimal depositsCollectedTotal = items.Sum(item => item.GetDepositsCollected);
 			decimal equipmentDepositsCollectedTotal = items.Sum(item => item.GetEquipmentDepositsCollected);
 			decimal totalCollected = items.Sum(item => item.TotalCash);
 			Entity.CalculateWages();

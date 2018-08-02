@@ -15,6 +15,7 @@ namespace Vodovoz.HibernateMapping
 
 			Map (x => x.Deposit).Column ("deposit_sum");
 			Map (x => x.Count).Column ("count");
+			Map (x => x.ActualCount).Column("actual_count");
 			Map (x => x.DepositType).Column ("deposit_type").CustomType<DepositTypeStringType> ();
 			Map (x => x.PaymentDirection).Column ("payment_type").CustomType<PaymentDirectionStringType> ();
 
