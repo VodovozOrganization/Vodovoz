@@ -229,7 +229,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.DiscountForDlg).Editing(true)
+					.AddNumericRenderer(node => node.DiscountForPrewiev).Editing(true)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
 									? new Adjustment(0, 0, (double)n.Price * n.ActualCount, 1, 100, 1)
@@ -252,7 +252,7 @@ namespace Vodovoz
 					: new Gdk.Color(0xff, 0xff, 0xff)
 				)
 				.AddColumn("Стоимость")
-					.AddNumericRenderer(node => node.Sum)
+					.AddNumericRenderer(node => node.Sum).Digits(2)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName)
 				.AddColumn("")
 				.Finish();
@@ -526,19 +526,19 @@ namespace Vodovoz
 			}
 		}
 
-		public Decimal DiscountForDlg{
+		public Decimal DiscountForPrewiev{
 			get{
 				if(IsEquipment)
-					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountForDlg : 0;
-				return orderItem.DiscountForDlg;
+					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountForPrewiev : 0;
+				return orderItem.DiscountForPrewiev;
 			}
 
 			set{
 				if(IsEquipment) {
 					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.DiscountForDlg = value;
+						orderEquipment.OrderItem.DiscountForPrewiev = value;
 				} else
-					orderItem.DiscountForDlg = value;
+					orderItem.DiscountForPrewiev = value;
 			}
 		}
 
@@ -554,6 +554,21 @@ namespace Vodovoz
 						orderEquipment.OrderItem.Discount = value;
 				} else
 					orderItem.Discount = value;
+			}
+		}
+
+		public Decimal DiscountMoney {
+			get {
+				if(IsEquipment)
+					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountMoney : 0m;
+				return orderItem.DiscountMoney;
+			}
+			set {
+				if(IsEquipment) {
+					if(orderEquipment.OrderItem != null)
+						orderEquipment.OrderItem.DiscountMoney = value;
+				} else
+					orderItem.DiscountMoney = value;
 			}
 		}
 
@@ -573,6 +588,6 @@ namespace Vodovoz
 			}
 		}
 
-		public decimal Sum => Price * ActualCount * (1 - (decimal)Discount / 100);
+		public decimal Sum => Price * ActualCount - DiscountMoney;
 	}
 }

@@ -345,7 +345,7 @@ WHERE
 		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
 		actual_count,
 		count
-	) * (1 - order_items.discount/100) AS total,
+	) - order_items.discount_money AS total,
 	order_items.include_nds AS include_nds
 FROM order_items
 LEFT JOIN 
@@ -805,7 +805,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
-                      <Value>={item_price} * {count}</Value>
+                      <Value>={total}</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>

@@ -616,7 +616,7 @@ namespace Vodovoz.Domain.Logistic
 
 			return Order.OrderItems
 				        .Where(item => item.Order.PaymentType == Client.PaymentType.cash || item.Order.PaymentType == Client.PaymentType.BeveragesWorld)
-						.Sum(item => item.ActualCount * item.Price * (1 - (decimal)item.Discount / 100))
+				        .Sum(item => item.ActualCount * item.Price - item.DiscountMoney)
 						+ ExtraCash + GetDepositsCollected + GetEquipmentDepositsCollected;
 		}
 

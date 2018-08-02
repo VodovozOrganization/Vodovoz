@@ -618,7 +618,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	counterparty.name as counterparty,
@@ -641,7 +641,7 @@
 	) AS ord_details,
 	nomenclature.official_name AS name,
 	SUM(order_items.count) AS total_count,
-	truncate(SUM(order_items.count * (order_items.price * (100 - (cast(order_items.discount as decimal(2))))/100)),2) AS total_sum,
+	truncate(SUM(order_items.count * order_items.price - order_items.discount_money), 2) AS total_sum,
 	nomenclature.category,
 	nomenclature.id as nomenclature_id
 FROM
@@ -750,7 +750,7 @@ GROUP BY counterparty.id, delivery_points.id, orders.id, orders.author_employee_
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>

@@ -951,7 +951,7 @@ namespace Vodovoz.Domain.Orders
 			get {
 				Decimal sum = 0;
 				foreach(OrderItem item in ObservableOrderItems) {
-					sum += item.Price * item.Count * (1 - (decimal)item.Discount / 100);
+					sum += item.Price * item.Count - item.DiscountMoney;
 				}
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
 					if(dep.PaymentDirection == PaymentDirection.ToClient)
@@ -966,7 +966,7 @@ namespace Vodovoz.Domain.Orders
 			get {
 				Decimal sum = 0;
 				foreach(OrderItem item in ObservableOrderItems) {
-					sum += item.Price * item.ActualCount * (1 - (decimal)item.Discount / 100);
+					sum += item.Price * item.ActualCount - item.DiscountMoney;
 				}
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
 					if(dep.PaymentDirection == PaymentDirection.ToClient)
@@ -982,7 +982,7 @@ namespace Vodovoz.Domain.Orders
 							.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount * i.Price);
 
 		public virtual decimal ActualGoodsTotalSum =>
-		OrderItems.Sum(item => item.Price * item.ActualCount * (1 - (decimal)item.Discount / 100));
+		OrderItems.Sum(item => item.Price * item.ActualCount - item.DiscountMoney);
 
 		/// <summary>
 		/// Количество 19л бутылей в заказе
@@ -2377,9 +2377,9 @@ namespace Vodovoz.Domain.Orders
 			}
 			foreach(OrderItem item in ObservableOrderItems) {
 				if(unit == DiscountUnits.money)
-					item.DiscountForDlg = discount * item.Price * item.CurrentCount / 100;
+					item.DiscountForPrewiev = discount * item.Price * item.CurrentCount / 100;
 				else
-					item.DiscountForDlg = discount;
+					item.DiscountForPrewiev = discount;
 				item.DiscountReason = reason;
 			}
 		}

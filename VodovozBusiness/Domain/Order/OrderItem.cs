@@ -283,7 +283,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual decimal DiscountForDlg{
+		public virtual decimal DiscountForPrewiev{
 			get{
 				if(IsDiscountInMoney)
 					return DiscountMoney;
@@ -313,18 +313,22 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual decimal Sum {
+		/*public virtual decimal Sum {
 			get {
 				//FIXME Count -- CurrentCount
 				return Price * Count * (1 - Discount / 100);
 			}
-		}
+		}*/
 
-		public virtual decimal ActualSum {
+		public virtual decimal Sum => Price * Count - DiscountMoney;//FIXME Count -- CurrentCount
+
+		/*public virtual decimal ActualSum {
 			get {
 				return Price * CurrentCount * (1 - Discount / 100);
 			}
-		}
+		}*/
+
+		public virtual decimal ActualSum => Price * CurrentCount - DiscountMoney;
 
 		public virtual bool CanEditAmount {
 			get {

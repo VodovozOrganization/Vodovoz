@@ -291,7 +291,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.ActualSum))
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.DiscountForDlg).Editing(true)
+					.AddNumericRenderer(node => node.DiscountForPrewiev).Editing(true)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
 									? new Adjustment(0, 0, (double)n.Price * n.CurrentCount, 1, 100, 1)

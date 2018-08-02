@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -29,6 +29,7 @@
 	order_items.price AS item_price,
 	order_items.include_nds,
 	order_items.discount AS item_discount,
+	order_items.discount_money AS item_discount_money,
 	CASE nomenclature.vat
 		WHEN 'No' THEN 1
 		WHEN 'Vat10' THEN 1.1
@@ -50,7 +51,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -85,6 +86,10 @@ WHERE
         </Field>
         <Field Name="item_discount">
           <DataField>item_discount</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="item_discount_money">
+          <DataField>item_discount_money</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
@@ -1323,7 +1328,7 @@ AND orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
-                      <Value>=(Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds},0))  * (1 - Fields!item_discount.Value /100)</Value>
+                      <Value>=(Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds}*(1 - {item_discount} / 100),0)) - Fields!item_discount_money.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1378,7 +1383,7 @@ AND orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox113">
-                      <Value>=Fields!item_price.Value * Fields!count.Value  * (1 - Fields!item_discount.Value /100)</Value>
+                      <Value>=Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1495,7 +1500,7 @@ AND orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox208">
-                      <Value>=Sum(({item_price} * {count} - Iif({count}&gt;0,{include_nds},0)) * (1 - {item_discount}/100))</Value>
+                      <Value>=Sum(({item_price} * {count} - Iif({count}&gt;0,{include_nds}*(1 - {item_discount} / 100),0)) - {item_discount_money})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1549,7 +1554,7 @@ AND orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox508">
-                      <Value>=Sum({item_price} * {count} * (1 - {item_discount}/100))</Value>
+                      <Value>=Sum({item_price} * {count} - {item_discount_money})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2559,7 +2564,7 @@ AND orders.id = @order_id;</CommandText>
           <Textbox Name="Textbox192" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>10.00pt</Height>
             <Width>66.27pt</Width>
-            <Value>=Sum({item_price} * {count} * (1 - {item_discount}/100) - {include_nds} * (1 - {item_discount}/100), "Goods")</Value>
+            <Value>=Sum({item_price} * {count} - {include_nds} *(1 - {item_discount} / 100) - {item_discount_money}, "Goods")</Value>
             <ZIndex>1</ZIndex>
             <Left>573.0pt</Left>
             <Top>0.0pt</Top>
@@ -2628,7 +2633,7 @@ AND orders.id = @order_id;</CommandText>
           <Textbox Name="Textbox195" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>10.00pt</Height>
             <Width>52.77pt</Width>
-            <Value>=Sum({item_price} * {count} * (1 - {item_discount}/100), "Goods")</Value>
+            <Value>=Sum({item_price} * {count} - {item_discount_money}, "Goods")</Value>
             <ZIndex>1</ZIndex>
             <Left>717.50pt</Left>
             <Top>0.00pt</Top>
@@ -4709,7 +4714,7 @@ Public Function SummaString_Val(ByVal Summa As String) As String
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

@@ -71,7 +71,7 @@ namespace Vodovoz.Domain.Orders
 			this.IsDocTypeTORG12 = DefaultDocumentType.HasValue && DefaultDocumentType == Client.DefaultDocumentType.torg12;
 			this.HasOrderEquipment = Order.ObservableOrderEquipments.Any();
 			this.HasOrderItems = Order.ObservableOrderItems.Any();
-			this.IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.Price * (1 - (decimal)i.Discount / 100)) <= 0m;
+			this.IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.Sum) <= 0m;
 			this.NeedToReturnBottles = Order.BottlesReturn > 0;
 			this.NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any(x => x.PaymentDirection == PaymentDirection.ToClient);
 			this.PaymentType = Order.PaymentType;

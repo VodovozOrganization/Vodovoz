@@ -335,7 +335,7 @@ WHERE
 		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
 		actual_count,
 		count
-	) * (1-order_items.discount/100) AS total
+	) - order_items.discount_money AS total
 FROM
 	order_items
 LEFT JOIN
@@ -487,7 +487,7 @@ payment_type='ToClient'</CommandText>
             <Width>51.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.4pt</Width>
+            <Width>54.1pt</Width>
             <Visibility>
               <Hidden>=Iif(SUM({item_discount}, 'Goods')&gt;0,'false','true')</Hidden>
             </Visibility>

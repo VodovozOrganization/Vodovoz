@@ -283,7 +283,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -307,7 +307,7 @@ WHERE
 		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
 		actual_count,
 		count
-	) * (1 - order_items.discount/100) AS total
+	)  - order_items.discountmoney AS total
 FROM
 	order_items
 LEFT JOIN
@@ -343,7 +343,7 @@ WHERE NOT EXISTS (
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.String</TypeName>
@@ -625,7 +625,7 @@ GROUP BY name</CommandText>
             <Width>49.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>34.7pt</Width>
+            <Width>42.6pt</Width>
             <Visibility>
               <Hidden>=Iif(SUM({item_discount}, 'Goods')&gt;0,'false','true')</Hidden>
             </Visibility>
@@ -960,7 +960,7 @@ GROUP BY name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox72">
-                      <Value>Скид-ка</Value>
+                      <Value>Скидка</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
