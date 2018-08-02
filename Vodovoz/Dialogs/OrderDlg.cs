@@ -720,6 +720,7 @@ namespace Vodovoz
 			Entity.CheckAndSetOrderIsService();
 			Entity.SetOrderCreationDate();
 			SaveChanges();
+			DailyNumberClear();
 			UoWGeneric.Save();
 
 			logger.Info("Ok.");
@@ -1602,6 +1603,18 @@ namespace Vodovoz
 			}
 			PrintOrderDocuments();
 			return successfullySaved;
+		}
+
+
+		/// <summary>
+		/// Очищает ежедневный номер если заказ был сохранен как черновик и у него был номер.
+		/// </summary>
+		private void DailyNumberClear()
+		{
+			if(Entity.OrderStatus == OrderStatus.NewOrder 
+			   || Entity.OrderStatus == OrderStatus.WaitForPayment) {
+				Entity.DailyNumber = null;
+			}
 		}
 
 		private void DailyNumberIncrement()
