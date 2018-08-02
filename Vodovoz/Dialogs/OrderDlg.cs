@@ -87,8 +87,6 @@ namespace Vodovoz
 
 		public CounterpartyContract Contract => Entity.Contract;
 
-		private DateTime? originalOrderDate;
-
 		#endregion
 
 		public OrderDlg()
@@ -127,7 +125,6 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
-			originalOrderDate = Entity.DeliveryDate;
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 			spinDiscount.Adjustment.Upper = 100;
 
@@ -720,9 +717,8 @@ namespace Vodovoz
 			Entity.CheckAndSetOrderIsService();
 			Entity.SetOrderCreationDate();
 			SaveChanges();
-			DailyNumberClear();
 			UoWGeneric.Save();
-
+			UoW.Session.Refresh(Entity);
 			logger.Info("Ok.");
 			ButtonCloseOrderSensitivity();
 			return true;
@@ -1593,46 +1589,12 @@ namespace Vodovoz
 			}
 			if(Entity.OrderStatus == OrderStatus.NewOrder
 			   || UoWGeneric.Root.OrderStatus == OrderStatus.WaitForPayment) {
-				DailyNumberIncrement();
 				Entity.ChangeStatus(OrderStatus.Accepted);
 			}
 			treeItems.Selection.UnselectAll();
 			var successfullySaved = Save();
-			if(successfullySaved) {
-				originalOrderDate = Entity.DeliveryDate;
-			}
 			PrintOrderDocuments();
 			return successfullySaved;
-		}
-
-
-		/// <summary>
-		/// Очищает ежедневный номер если заказ был сохранен как черновик и у него был номер.
-		/// </summary>
-		private void DailyNumberClear()
-		{
-			if(Entity.OrderStatus == OrderStatus.NewOrder 
-			   || Entity.OrderStatus == OrderStatus.WaitForPayment) {
-				Entity.DailyNumber = null;
-			}
-		}
-
-		private void DailyNumberIncrement()
-		{
-			var todayLastNumber = UoW.Session.QueryOver<Order>()
-									 .Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DailyNumber))
-									 .Where(d => d.DeliveryDate == Entity.DeliveryDate)
-			                         .Where(x => x.Id != Entity.Id)
-									 .SingleOrDefault<int>();
-			
-			if(originalOrderDate == Entity.DeliveryDate && Entity.DailyNumber.HasValue) {
-				return;
-			}
-
-			if(todayLastNumber != 0)
-				Entity.DailyNumber = todayLastNumber + 1;
-			else
-				Entity.DailyNumber = 1;
 		}
 
 		void SaveChanges()

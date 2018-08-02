@@ -399,6 +399,10 @@ namespace Vodovoz.Domain.Orders
 
 		private int? dailyNumber;
 
+		/// <summary>
+		/// Уникапльный номер в передлах одного дня.
+		/// ВАЖНО! Номер генерируется и изменяется на стороне БД
+		/// </summary>
 		[Display(Name = "Ежедневный номер")]
 		public virtual int? DailyNumber {
 			get { return dailyNumber; }
