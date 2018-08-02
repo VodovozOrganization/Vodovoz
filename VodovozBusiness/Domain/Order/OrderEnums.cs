@@ -7,10 +7,17 @@ namespace Vodovoz.Domain.Orders
 	{
 		[Display(Name = "Отменён")]
 		Canceled,
+
+		// При смене имени статуса NewOrder не забыть сменить имя также и 
+		// в тригере на таблице заказов в моделе БД
 		[Display (Name = "Новый")]
 		NewOrder,
+
+		// При смене имени статуса WaitForPayment не забыть сменить имя также и 
+		// в тригере на таблице заказов в моделе БД
 		[Display (Name = "Ожидание оплаты")]
 		WaitForPayment,
+
 		[Display (Name = "Принят")]
 		Accepted,
 		[Display (Name = "В маршрутном листе")]
