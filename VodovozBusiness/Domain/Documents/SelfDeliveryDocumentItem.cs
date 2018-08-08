@@ -62,10 +62,18 @@ namespace Vodovoz.Domain.Documents
 
 		OrderItem orderItem;
 
-		[Display (Name = "Связанная строка")]
+		[Display (Name = "Связанный товар")]
 		public virtual OrderItem OrderItem {
 			get { return orderItem; }
 			set { SetField (ref orderItem, value, () => OrderItem); }
+		}
+
+		OrderEquipment orderEquipment;
+
+		[Display(Name = "Связанное оборудование")]
+		public virtual OrderEquipment OrderEquipment {
+			get { return orderEquipment; }
+			set { SetField(ref orderEquipment, value, () => OrderEquipment); }
 		}
 
 		WarehouseMovementOperation warehouseMovementOperation;

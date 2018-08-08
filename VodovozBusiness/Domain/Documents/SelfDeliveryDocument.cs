@@ -107,12 +107,6 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public virtual void AddItem (SelfDeliveryDocumentItem item)
-		{
-			item.Document = this;
-			ObservableItems.Add (item);
-		}
-
 		public virtual void FillByOrder()
 		{
 			ObservableItems.Clear();
@@ -121,24 +115,27 @@ namespace Vodovoz.Domain.Documents
 
 			foreach(var orderItem in Order.OrderItems)
 			{
-				if (!Nomenclature.GetCategoriesForSale().Contains(orderItem.Nomenclature.Category) 
-					&& orderItem.Nomenclature.Category != NomenclatureCategory.equipment)
+				if(!Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category)) {
 					continue;
+				}
+
 				ObservableItems.Add(new SelfDeliveryDocumentItem(){
 					Document = this,
 					Nomenclature = orderItem.Nomenclature,
 					OrderItem = orderItem,
+					OrderEquipment = null,
 					Amount = orderItem.Count
 				});
 			}
 
-			foreach(var orderItem in Order.OrderEquipments.Where(x => x.Direction == Direction.Deliver))
+			foreach(var orderEquipment in Order.OrderEquipments.Where(x => x.Direction == Direction.Deliver))
 			{
-				ObservableItems.Add(new SelfDeliveryDocumentItem(){
+				ObservableItems.Add(new SelfDeliveryDocumentItem() {
 					Document = this,
-					Nomenclature = orderItem.Equipment.Nomenclature,
-					Equipment = orderItem.Equipment,
-					Amount = 1
+					Nomenclature = orderEquipment.Nomenclature,
+					OrderItem = null,
+					OrderEquipment = orderEquipment,
+					Amount = orderEquipment.Count
 				});
 			}
 		}
