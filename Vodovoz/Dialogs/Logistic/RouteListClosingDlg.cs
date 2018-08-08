@@ -162,8 +162,17 @@ namespace Vodovoz
 			routeListAddressesView.UoW = UoW;
 			routeListAddressesView.RouteList = Entity;
 			foreach(RouteListItem item in routeListAddressesView.Items) {
-				item.Order.ObservableOrderItems.ElementChanged += OnOrderReturnsChanged;
-				item.Order.ObservableOrderEquipments.ElementChanged += OnOrderReturnsChanged;
+				item.Order.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged;
+				item.Order.ObservableOrderItems.ElementAdded += ObservableOrderItems_ElementAdded;
+				item.Order.ObservableOrderItems.ElementRemoved += ObservableOrderItems_ElementRemoved;
+
+				item.Order.ObservableOrderEquipments.ElementChanged += ObservableOrderItems_ElementChanged;
+				item.Order.ObservableOrderEquipments.ElementAdded += ObservableOrderItems_ElementAdded;
+				item.Order.ObservableOrderEquipments.ElementRemoved += ObservableOrderItems_ElementRemoved;
+
+				item.Order.ObservableOrderDepositItems.ElementChanged += ObservableOrderItems_ElementChanged;
+				item.Order.ObservableOrderDepositItems.ElementAdded += ObservableOrderItems_ElementAdded;
+				item.Order.ObservableOrderDepositItems.ElementRemoved += ObservableOrderItems_ElementRemoved;
 			}
 			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
 			routeListAddressesView.OnClosingItemActivated += OnRouteListItemActivated;
@@ -392,7 +401,22 @@ namespace Vodovoz
 			OnItemsUpdated();
 		}
 
-		void OnOrderReturnsChanged(object aList, int[] aIdx)
+		void ObservableOrderItems_ElementAdded(object aList, int[] aIdx)
+		{
+			OrderReturnsChanged();
+		}
+
+		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			OrderReturnsChanged();
+		}
+
+		void ObservableOrderItems_ElementChanged(object aList, int[] aIdx)
+		{
+			OrderReturnsChanged();
+		}
+
+		void OrderReturnsChanged()
 		{
 			foreach(var item in routeListAddressesView.Items) {
 				var rli = item as RouteListItem;
@@ -460,17 +484,17 @@ namespace Vodovoz
 			);
 			labelCash.Text = String.Format(
 				"Сдано по накладным: {0} {1}",
-				totalCollected + depositsCollectedTotal + equipmentDepositsCollectedTotal,
+				totalCollected,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotalCollected.Text = String.Format(
 				"Итоговая сумма: {0} {1}",
-				totalCollected + depositsCollectedTotal + equipmentDepositsCollectedTotal - Entity.PhoneSum,
+				totalCollected - Entity.PhoneSum,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotal.Markup = String.Format(
 				"Итого сдано: <b>{0:F2}</b> {1}",
-				Entity.MoneyToReturn - GetCashOrder() + equipmentDepositsCollectedTotal - (decimal)advanceSpinbutton.Value,
+				Entity.MoneyToReturn - GetCashOrder() - (decimal)advanceSpinbutton.Value,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = String.Format(
