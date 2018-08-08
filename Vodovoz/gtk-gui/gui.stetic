@@ -28653,7 +28653,7 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gtk.VBox" id="vbox7">
+                              <widget class="Gtk.VBox" id="vboxOrderComment">
                                 <property name="MemberName" />
                                 <property name="Spacing">6</property>
                                 <child>

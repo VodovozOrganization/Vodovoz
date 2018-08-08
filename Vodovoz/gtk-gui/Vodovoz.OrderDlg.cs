@@ -118,7 +118,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReference referenceDeliverySchedule;
 
-		private global::Gtk.VBox vbox7;
+		private global::Gtk.VBox vboxOrderComment;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
 
@@ -975,10 +975,10 @@ namespace Vodovoz
 			w55.XOptions = ((global::Gtk.AttachOptions)(4));
 			w55.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.vbox7 = new global::Gtk.VBox();
-			this.vbox7.Name = "vbox7";
-			this.vbox7.Spacing = 6;
-			// Container child vbox7.Gtk.Box+BoxChild
+			this.vboxOrderComment = new global::Gtk.VBox();
+			this.vboxOrderComment.Name = "vboxOrderComment";
+			this.vboxOrderComment.Spacing = 6;
+			// Container child vboxOrderComment.Gtk.Box+BoxChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -987,22 +987,22 @@ namespace Vodovoz
 			this.textComments.CanFocus = true;
 			this.textComments.Name = "textComments";
 			this.GtkScrolledWindow2.Add(this.textComments);
-			this.vbox7.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w57 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.GtkScrolledWindow2]));
+			this.vboxOrderComment.Add(this.GtkScrolledWindow2);
+			global::Gtk.Box.BoxChild w57 = ((global::Gtk.Box.BoxChild)(this.vboxOrderComment[this.GtkScrolledWindow2]));
 			w57.Position = 0;
-			// Container child vbox7.Gtk.Box+BoxChild
+			// Container child vboxOrderComment.Gtk.Box+BoxChild
 			this.btnSaveComment = new global::Gtk.Button();
 			this.btnSaveComment.CanFocus = true;
 			this.btnSaveComment.Name = "btnSaveComment";
 			this.btnSaveComment.UseUnderline = true;
 			this.btnSaveComment.Label = global::Mono.Unix.Catalog.GetString("Сохранить только комментарий");
-			this.vbox7.Add(this.btnSaveComment);
-			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.btnSaveComment]));
+			this.vboxOrderComment.Add(this.btnSaveComment);
+			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.vboxOrderComment[this.btnSaveComment]));
 			w58.Position = 1;
 			w58.Expand = false;
 			w58.Fill = false;
-			this.table1.Add(this.vbox7);
-			global::Gtk.Table.TableChild w59 = ((global::Gtk.Table.TableChild)(this.table1[this.vbox7]));
+			this.table1.Add(this.vboxOrderComment);
+			global::Gtk.Table.TableChild w59 = ((global::Gtk.Table.TableChild)(this.table1[this.vboxOrderComment]));
 			w59.TopAttach = ((uint)(13));
 			w59.BottomAttach = ((uint)(14));
 			w59.LeftAttach = ((uint)(1));

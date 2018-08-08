@@ -2111,7 +2111,6 @@ namespace Vodovoz
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive =
 				buttonAddForSale.Sensitive = val;
 			checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
-			textComments.Sensitive = textCommentsLogistic.Sensitive = val;
 			pickerDeliveryDate.Sensitive = val;
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
@@ -2124,11 +2123,32 @@ namespace Vodovoz
 
 		void ChangeOrderEditable(bool val)
 		{
-			vboxInfo.Sensitive = val;
+			SetPadInfoSensitive(val);
 			vboxGoods.Sensitive = val;
 			buttonAddExistingDocument.Sensitive = val;
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
+		}
+
+		void SetPadInfoSensitive(bool value)
+		{
+			foreach(var widget in table1.Children) {
+				if(widget.Name == vboxOrderComment.Name) {
+					widget.Sensitive = true;
+				}else {
+					widget.Sensitive = value;
+				}
+			}
+		}
+
+		void SetSensitivityOfPaymentType()
+		{
+			if(chkContractCloser.Active) {
+				Entity.PaymentType = PaymentType.cashless;
+				enumPaymentType.Sensitive = false;
+			} else {
+				enumPaymentType.Sensitive = CanChange;
+			}
 		}
 
 		void UpdateButtonState()
@@ -2207,16 +2227,6 @@ namespace Vodovoz
 
 		void SetDiscountUnitEditable(bool? canEdit = null){
 			enumDiscountUnit.Sensitive = canEdit.HasValue ? canEdit.Value : ycomboboxReason.SelectedItem != null;
-		}
-	
-		void SetSensitivityOfPaymentType()
-		{
-			if(chkContractCloser.Active) {
-				Entity.PaymentType = PaymentType.cashless;
-				enumPaymentType.Sensitive = false;
-			} else {
-				enumPaymentType.Sensitive = true;
-			}
 		}
 
 		/// <summary>
