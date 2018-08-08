@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -51,7 +51,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1364,7 +1364,7 @@ AND orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox107">
-                      <Value>=Iif({count}&gt;0,{include_nds},0)  * (1 - Fields!item_discount.Value /100)</Value>
+                      <Value>=Iif({count}&gt;0,{include_nds},0)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1535,7 +1535,7 @@ AND orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox408">
-                      <Value>=Sum(Iif({count}&gt;0,{include_nds},0) * (1 - {item_discount}/100))</Value>
+                      <Value>=Sum(Iif({count}&gt;0,{include_nds},0))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2609,7 +2609,7 @@ AND orders.id = @order_id;</CommandText>
           <Textbox Name="Textbox194" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>10.00pt</Height>
             <Width>38.52pt</Width>
-            <Value>=Sum({include_nds} * (1 - {item_discount}/100), "Goods")</Value>
+            <Value>=Sum({include_nds}, "Goods")</Value>
             <ZIndex>1</ZIndex>
             <Left>679.30pt</Left>
             <Top>0.00pt</Top>

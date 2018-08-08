@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -51,7 +51,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1275,7 +1275,7 @@ AND orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox107">
-                      <Value>=Iif(Iif({count}&gt;0,{include_nds},0) &gt; 0, Format(Iif({count}&gt;0,{include_nds},0) * (1 - {item_discount}/100), "N2"), "без НДС")</Value>
+                      <Value>=Iif(Iif({count}&gt;0,{include_nds},0) &gt; 0, Format(Iif({count}&gt;0,{include_nds},0), "N2"), "без НДС")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1436,7 +1436,7 @@ AND orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox408">
-                      <Value>=Iif(Sum(Iif({count}&gt;0,{include_nds},0)) &gt; 0, Sum(Iif({count}&gt;0,{include_nds},0) * (1 - {item_discount}/100)), "без НДС")</Value>
+                      <Value>=Iif(Sum(Iif({count}&gt;0,{include_nds},0)) &gt; 0, Sum(Iif({count}&gt;0,{include_nds},0)), "без НДС")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>

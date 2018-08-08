@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -51,7 +51,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2143,7 +2143,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>=Iif({count}&gt;0,{include_nds},0) * (1 - Fields!item_discount.Value/100)</Value>
+                      <Value>=Iif({count}&gt;0,{include_nds},0)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2317,7 +2317,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>=Sum(Iif({count}&gt;0,{include_nds},0) * (1 - Fields!item_discount.Value/100))</Value>
+                      <Value>=Sum(Iif({count}&gt;0,{include_nds},0))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
