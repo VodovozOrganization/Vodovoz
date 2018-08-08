@@ -46,43 +46,46 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>37.6pt</Width>
+            <Width>30.4pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>48.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65.9pt</Width>
+            <Width>51.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>102.5pt</Width>
+            <Width>94.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.8pt</Width>
+            <Width>36.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>42.8pt</Width>
+            <Width>38.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35.1pt</Width>
+            <Width>29.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.5pt</Width>
+            <Width>37.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>81.1pt</Width>
+            <Width>70.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>81.1pt</Width>
+            <Width>43.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.3pt</Width>
+            <Width>49.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>79.1pt</Width>
+            <Width>75.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>57.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.3pt</Width>
+            <Width>53.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -102,6 +105,24 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Автор заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -135,6 +156,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -151,6 +173,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -167,6 +190,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -183,6 +207,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -199,6 +224,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -326,6 +352,20 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>={author}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -339,6 +379,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -354,6 +395,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -369,6 +411,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -383,6 +426,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -397,6 +441,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -411,6 +456,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -425,6 +471,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -441,7 +488,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -455,6 +504,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -469,6 +519,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -484,6 +535,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -498,6 +550,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -521,6 +574,21 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize >8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -535,6 +603,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -552,6 +621,7 @@
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -567,6 +637,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -581,6 +652,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -595,6 +667,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -609,6 +682,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -624,6 +698,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -639,6 +714,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -654,6 +730,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -669,6 +746,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -684,6 +762,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -699,6 +778,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -707,8 +787,8 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>0.0pt</Left>
-        <Top>16.5pt</Top>
+        <Left>0.8pt</Left>
+        <Top>15.7pt</Top>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -733,10 +813,14 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
     orders.id,
+    IF(orders.author_employee_id IS NOT NULL,
+		CONCAT(employees.last_name, ' ', LEFT(employees.name, 1), '.', LEFT(employees.patronymic, 1), '.'),
+        ''
+	) as author,
     orders.code1c,
     counterparty.name,
     cast(IF(orders.sum_to_receive &lt;&gt; 0, orders.sum_to_receive,
@@ -795,10 +879,12 @@ left join
 	store_self_delivery_document on store_self_delivery_document.order_id = orders.id
 left join
 	warehouses on warehouses.id = store_self_delivery_document.warehouse_id
+left join
+	employees on employees.id = orders.author_employee_id
 where
 	self_delivery = 1
 	and	delivery_date = DATE(@date)
-	AND orders.order_status &lt;&gt; 'Canceled'
+	AND orders.order_status NOT IN ('Canceled', 'WaitForPayment')
 group by
 	orders.id</CommandText>
         <QueryParameters>
@@ -807,7 +893,7 @@ group by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -860,6 +946,10 @@ group by
           <DataField>full_bottles_count</DataField>
           <TypeName>System.Int16</TypeName>
         </Field>
+        <Field Name="author">
+          <DataField>author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -880,7 +970,7 @@ group by
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
