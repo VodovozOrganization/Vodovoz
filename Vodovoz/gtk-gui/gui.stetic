@@ -704,11 +704,11 @@
         <property name="ShortLabel" translatable="yes">Время доставки</property>
         <signal name="Activated" handler="OnActionDeliveryTimeReportActivated" />
       </action>
-      <action id="Action1cComments">
+      <action id="ActionCommentsForLogists">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Отчет по комментариям из 1С</property>
+        <property name="Label" translatable="yes">Отчет по комментариям для логистов</property>
         <property name="ShortLabel" translatable="yes">Отчет по комментариям из 1С</property>
-        <signal name="Activated" handler="OnAction1cCommentsActivated" />
+        <signal name="Activated" handler="OnActionCommentsForLogistsActivated" />
       </action>
       <action id="ActionOrdersByDistrict">
         <property name="Type">Action</property>
@@ -1063,7 +1063,7 @@
                   </node>
                   <node type="Menu" action="Action31">
                     <node type="Menu" action="ActionReportOrders">
-                      <node type="Menuitem" action="Action1cComments" />
+                      <node type="Menuitem" action="ActionCommentsForLogists" />
                       <node type="Menuitem" action="ActionOrdersByDistrict" />
                       <node type="Menuitem" action="Action30" />
                       <node type="Menuitem" action="Action38" />

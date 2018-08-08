@@ -31,7 +31,7 @@
       <Textbox Name="Textbox2">
         <Height>18.02pt</Height>
         <Width>816.08pt</Width>
-        <Value>="Отчет по комментариям из 1С c" + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
+        <Value>="Отчет по комментариям для логистов c " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
         <Top>5.6pt</Top>
@@ -46,7 +46,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>35.3pt</Height>
+    <Height>52.8pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>OnecComments</DataSetName>
@@ -60,7 +60,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>33.8pt</Width>
+            <Width>41.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>140.7pt</Width>
@@ -78,7 +78,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>20.7pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -92,6 +92,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -108,6 +109,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -124,6 +126,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -140,6 +143,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -156,6 +160,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -214,7 +219,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -245,6 +250,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -281,35 +287,34 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    orders.id AS ordernum,
-    counterparty.full_name AS client,
-    address_1c AS address,
-    orders.comment_logist AS commentLogist,
-    CASE order_status
-        WHEN 'NewOrder' THEN 'Новый'
-        WHEN 'Canceled' THEN 'Отменён'
-        WHEN 'WaitForPayment' THEN 'Ожидание оплаты'
-        WHEN 'Accepted' THEN 'Принят'
-        WHEN 'InTravelList' THEN 'В маршрутном листе'
-        WHEN 'OnLoading' THEN 'На погрузке'
-        WHEN 'OnTheWay' THEN 'В пути'
-        WHEN 'DeliveryCanceled' THEN 'Доставка отменена'
-        WHEN 'Shipped' THEN 'Доставлен'
-        WHEN 'UnloadingOnStock' THEN 'Выгрузка на складе'
-        WHEN 'NotDelivered' THEN 'Недовоз'
-		WHEN 'Closed' THEN 'Закрыт'
-               
-    END AS status
- 
+	orders.id AS ordernum,
+	counterparty.full_name AS client,
+	compiled_address_short AS address,
+	orders.comment_logist AS commentLogist,
+	CASE order_status
+		WHEN 'NewOrder' THEN 'Новый'
+		WHEN 'Canceled' THEN 'Отменён'
+		WHEN 'WaitForPayment' THEN 'Ожидание оплаты'
+		WHEN 'Accepted' THEN 'Принят'
+		WHEN 'InTravelList' THEN 'В маршрутном листе'
+		WHEN 'OnLoading' THEN 'На погрузке'
+		WHEN 'OnTheWay' THEN 'В пути'
+		WHEN 'DeliveryCanceled' THEN 'Доставка отменена'
+		WHEN 'Shipped' THEN 'Доставлен'
+		WHEN 'UnloadingOnStock' THEN 'Выгрузка на складе'
+		WHEN 'NotDelivered' THEN 'Недовоз'
+		WHEN 'Closed' THEN 'Закрыт'	   
+	END AS status
 FROM
-    orders
-    LEFT JOIN  
-    counterparty ON counterparty.id = orders.client_id
-    
+	orders
+LEFT JOIN  
+	counterparty ON counterparty.id = orders.client_id
+LEFT JOIN  
+	delivery_points ON delivery_points.id = orders.delivery_point_id
 WHERE
-    orders.comment_logist IS NOT NULL
-        AND orders.comment_logist &lt;&gt; ''
-       AND (delivery_date BETWEEN @start_date  AND   @end_date);</CommandText>
+	orders.comment_logist IS NOT NULL
+		AND orders.comment_logist &lt;&gt; ''
+		AND (delivery_date BETWEEN @start_date AND @end_date);</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>

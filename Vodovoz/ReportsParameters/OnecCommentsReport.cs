@@ -28,7 +28,7 @@ namespace Vodovoz.ReportsParameters
 
 		public string Title {
 			get {
-				return "Отчет по комментариям из 1С";
+				return "Отчет по комментариям для логистов";
 			}
 		}
 

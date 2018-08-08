@@ -700,7 +700,7 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnAction1cCommentsActivated(object sender, EventArgs e)
+	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)
 	{
 		var widget = new Vodovoz.ReportsParameters.OnecCommentsReport();
 		tdiMain.OpenTab(
