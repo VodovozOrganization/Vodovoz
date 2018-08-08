@@ -7,6 +7,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSDocTemplates;
 using QSOrmProject;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Repositories.Client
@@ -137,6 +138,24 @@ namespace Vodovoz.Repositories.Client
 			var completeTable = GetWaterPricesHeader(uow);
 			completeTable.AddRange(GetWaterPrices(uow));
 			return completeTable;
+		}
+	
+		public static WaterSalesAgreement FillWaterFixedPrices (IUnitOfWork UoW, WaterSalesAgreement agreement, List<WaterSalesAgreementFixedPrice> fixedPrices)
+		{
+			WaterSalesAgreement result = null;
+			using(var uow = UnitOfWorkFactory.CreateForRoot<WaterSalesAgreement>(agreement.Id)) {
+				foreach(var fixPrice in fixedPrices) {
+					var existsPrice = uow.Root.FixedPrices.FirstOrDefault(x => x.Nomenclature == fixPrice.Nomenclature);
+					if(existsPrice != null) {
+						existsPrice.Price = fixPrice.Price;
+					}else {
+						uow.Root.AddFixedPrice(fixPrice.Nomenclature, fixPrice.Price);
+					}
+				}
+				uow.Save();
+				result = UoW.GetById<WaterSalesAgreement>(uow.Root.Id);
+			}
+			return result;
 		}
 	}
 

@@ -358,7 +358,7 @@ namespace Vodovoz.Domain.Orders
 				if(AdditionalAgreement == null) {
 					return String.Empty;
 				}
-				string result = String.Format("{0} №{1}", AdditionalAgreement.AgreementTypeTitle, AdditionalAgreement.AgreementNumber);
+				string result = String.Format("{0} №{1}", AdditionalAgreement.AgreementTypeTitle, AdditionalAgreement.FullNumberText);
 				if(AdditionalAgreement.Self is FreeRentAgreement && FreeRentEquipment != null) {
 					result += string.Format(" Пакет №{0}", FreeRentEquipment.FreeRentPackage.Id);
 				}

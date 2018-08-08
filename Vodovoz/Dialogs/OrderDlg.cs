@@ -411,7 +411,7 @@ namespace Vodovoz
 					if(item.AdditionalAgreement?.Id == ad.Id)
 						UoW.Session.Refresh(item.AdditionalAgreement);
 				}
-				UpdatePrices(ad);
+				Entity.UpdatePrices(ad);
 			}
 		}
 
@@ -956,7 +956,7 @@ namespace Vodovoz
 						if(contract == null) {
 							contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate);
 							Entity.Contract = contract;
-							AddContractDocument(contract);
+							Entity.AddContractDocument(contract);
 						}
 					} else {
 						contract = Entity.Contract;
@@ -1232,7 +1232,7 @@ namespace Vodovoz
 		{
 			var contract = GetActualInstanceContract(ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate));
 			Entity.Contract = contract;
-			AddContractDocument(contract);
+			Entity.AddContractDocument(contract);
 			AdditionalAgreement agreement = contract.GetWaterSalesAgreement(Entity.DeliveryPoint, nomenclature);
 			if(agreement == null) {
 				agreement = ClientDocumentsRepository.CreateDefaultWaterAgreement(UoW, Entity.DeliveryPoint, Entity.DeliveryDate, contract);
@@ -1334,7 +1334,7 @@ namespace Vodovoz
 				TabParent.AddSlaveTab(this, dlg);
 			} else if(response == (int)ResponseType.Accept) {
 				var contract = GetActualInstanceContract(ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate));
-				AddContractDocument(contract);
+				Entity.AddContractDocument(contract);
 				Entity.Contract = contract;
 			}
 		}
@@ -1418,7 +1418,7 @@ namespace Vodovoz
 				if(contract == null) {
 					contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate);
 					Entity.Contract = contract;
-					AddContractDocument(contract);
+					Entity.AddContractDocument(contract);
 				}
 			} else {
 				contract = Entity.Contract;
@@ -1436,18 +1436,6 @@ namespace Vodovoz
 				};
 			TabParent.AddSlaveTab(this, dlg);
 		}
-
-		protected void AddContractDocument(CounterpartyContract contract)
-		{
-			Order order = Entity;
-			var orderDocuments = Entity.ObservableOrderDocuments;
-			orderDocuments.Add(new OrderContract {
-				Order = order,
-				AttachedToOrder = order,
-				Contract = contract
-			});
-		}
-
 
 		#endregion
 
@@ -1699,8 +1687,7 @@ namespace Vodovoz
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
 		{
 			var org = OrganizationRepository.GetOrganizationByPaymentType(UoW, Counterparty.PersonType, Entity.PaymentType);
-			if(Entity.Client != null)
-				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Counterparty.PersonType, Entity.PaymentType);
+			Entity.ChangeOrderContract();
 		}
 
 		protected void OnButtonSetDiscountClicked(object sender, EventArgs e)
@@ -1934,32 +1921,6 @@ namespace Vodovoz
 				case DirectionReason.RepairAndCleaning:
 				default:
 					return false;
-			}
-		}
-
-		public void UpdatePrices()
-		{
-			var agreement = Entity.Contract.GetWaterSalesAgreement(DeliveryPoint);
-			UoW.Session.Refresh(agreement);
-			UpdatePrices(agreement);
-		}
-
-		public void UpdatePrices(int[] agrIds)
-		{
-			var agreements = Entity.Contract.AdditionalAgreements.Select(a => a.Self).OfType<WaterSalesAgreement>().Where(a => agrIds.Contains(a.Id));
-			foreach(var item in agreements) {
-				UoW.Session.Refresh(item);
-				UpdatePrices(item);
-			}
-		}
-
-		public void UpdatePrices(WaterSalesAgreement agreement)
-		{
-			var pricesMap = agreement.FixedPrices.ToDictionary(p => (int)p.Nomenclature.Id, p => (decimal)p.Price);
-
-			foreach(OrderItem oItem in Entity.ObservableOrderItems) {
-				if(pricesMap.ContainsKey(oItem.Nomenclature.Id) && oItem.Price != pricesMap[oItem.Nomenclature.Id])
-					oItem.Price = pricesMap[oItem.Nomenclature.Id];
 			}
 		}
 

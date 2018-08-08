@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
+using NHibernate.Criterion;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
@@ -138,7 +139,7 @@ namespace Vodovoz.Domain.Client
 				if(newTemplate == null) {
 					DocumentTemplate = null;
 					ChangedTemplateFile = null;
-					return false;;
+					return false;
 				}
 				if (!DomainHelper.EqualDomainObjects(newTemplate, DocumentTemplate))
 				{
@@ -162,6 +163,18 @@ namespace Vodovoz.Domain.Client
 				return numbers.Last() + 1;
 			} else
 				return 1;
+		}
+
+		public static int GetNumberWithTypeFromDB<TAgreement>(CounterpartyContract contract) 
+			where TAgreement : AdditionalAgreement
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				var maxNumber = uow.Session.QueryOver<NonfreeRentAgreement>()
+								   .Where(x => x.Contract.Id == contract.Id)
+				                   .Select(Projections.Max<NonfreeRentAgreement>(y => y.AgreementNumber))
+				                   .SingleOrDefault<int>();
+				return maxNumber + 1;
+			}
 		}
 
 		public static string GetTypePrefix(AgreementType type)
@@ -210,6 +223,21 @@ namespace Vodovoz.Domain.Client
 			
 
 		#endregion
+
+		/// <summary>
+		/// Возвращает типы доп соглашений которые создаются на 
+		/// каждое новое создание аренды в заказе, и могут хранится 
+		/// в неограниченном количестве в договоре
+		/// </summary>
+		public static AgreementType[] GetOrderBasedAgreementTypes()
+		{
+			return new AgreementType[] {
+				AgreementType.DailyRent,
+				AgreementType.FreeRent,
+				AgreementType.NonfreeRent,
+				AgreementType.EquipmentSales
+			};
+		}
 	}
 
 	public enum AgreementType

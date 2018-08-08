@@ -1060,6 +1060,189 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		public virtual void AddContractDocument(CounterpartyContract contract)
+		{
+			var orderDocuments = ObservableOrderDocuments;
+			orderDocuments.Add(new OrderContract {
+				Order = this,
+				AttachedToOrder = this,
+				Contract = contract
+			});
+		}
+
+		public virtual void ChangeOrderContract()
+		{
+			if(Client == null || DeliveryPoint == null || DeliveryDate == null) {
+				return;
+			}
+			var oldContract = Contract;
+
+			//Нахождение подходящего существующего договора
+			var actualContract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+
+			//Нахождение договора созданного в текущем заказе, 
+			//который можно изменить под необходимые параметры
+			var contractInOrder = OrderDocuments.OfType<OrderContract>()
+			                                    .Where(x => x.Order == this)
+			                                    .Select(x => x.Contract)
+			                                    .FirstOrDefault();
+			if(contractInOrder != null){
+				Contract = contractInOrder;
+			}
+
+			//Изменение существующего договора под необходимые параметры
+			if(OrderDocuments.OfType<OrderContract>()
+			   .Any(x => x.Order == this && x.Contract == Contract)
+			   && actualContract == null){
+				using(var uowContract = UnitOfWorkFactory.CreateForRoot<CounterpartyContract>(Contract.Id)){
+					uowContract.Root.ContractType = DocTemplateRepository.GetContractTypeForPaymentType(Client.PersonType, PaymentType);
+					uowContract.Root.Organization = OrganizationRepository.GetOrganizationByPaymentType(uowContract, Client.PersonType, PaymentType);
+					uowContract.Save();
+				}
+				UoW.Session.Refresh(Contract);
+				return;
+			}
+
+			if(actualContract == null) {
+				actualContract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
+				Contract = actualContract;
+				AddContractDocument(actualContract);
+			}
+
+			if(actualContract != oldContract) {
+				Contract = actualContract;
+				ChangeWaterAgreement(actualContract, oldContract);
+				ChangeOrderBasedAgreements(actualContract);
+			}
+		}
+
+		/// <summary>
+		/// При смене договора переделывает связанные с доп соглашением на воду
+		/// все елементы в заказе на актуальное доп соглашение измененного договора.
+		/// ВНИМАНИЕ! Использовать только при смене договора
+		/// </summary>
+		private void ChangeWaterAgreement(CounterpartyContract actualContract, CounterpartyContract oldContract)
+		{
+			if(oldContract == null) {
+				return;
+			}
+			var waterCategories = Nomenclature.GetCategoriesRequirementForWaterAgreement();
+			var oldWaterAgreement = oldContract.GetWaterSalesAgreement(DeliveryPoint);
+			var waterItems = OrderItems.Where(x => waterCategories.Contains(x.Nomenclature.Category))
+			                           .ToList();
+			var waterDocuments = OrderDocuments.OfType<OrderAgreement>()
+			                                   .Where(x => (x.AdditionalAgreement.Self as WaterSalesAgreement) == oldWaterAgreement)
+			                                   .ToList();
+
+			if(!IsHaveWater()) {
+				return;
+			}
+
+			var actualWaterAgreement = actualContract.GetWaterSalesAgreement(DeliveryPoint);
+			if(actualWaterAgreement == null) {
+				//Создаем новое доп соглашение воды.
+				var newWaterAgreement = ClientDocumentsRepository.CreateDefaultWaterAgreement(UoW, DeliveryPoint, DeliveryDate, actualContract);
+
+				//Переносим фикс цены.
+				if(oldWaterAgreement.HasFixedPrice) {
+					newWaterAgreement = WaterPricesRepository.FillWaterFixedPrices(UoW, newWaterAgreement, oldWaterAgreement.FixedPrices.ToList());
+				}
+				//Привязываем товары и документы на новое доп соглашение
+				waterItems.ForEach(x => x.AdditionalAgreement = newWaterAgreement);
+				waterDocuments.ForEach(x => x.AdditionalAgreement = newWaterAgreement);
+				
+			} else {
+				//Привязываем товары и документы на новое доп соглашение
+				waterItems.ForEach(x => x.AdditionalAgreement = actualWaterAgreement);
+				waterDocuments.ForEach(x => x.AdditionalAgreement = actualWaterAgreement);
+				//Обновляем цены на воду в заказе по доп соглашению.
+				UpdatePrices(actualWaterAgreement);
+			}
+
+		}
+
+		/// <summary>
+		/// При смене договора перепривязывает доп соглашения созданные для 
+		/// заказа на неизмененный договор.
+		/// ВНИМАНИЕ! Использовать только при смене контракта
+		/// </summary>
+		private void ChangeOrderBasedAgreements(CounterpartyContract actualContract)
+		{
+			var agreementTypes = AdditionalAgreement.GetOrderBasedAgreementTypes();
+			var agreementsForChange = OrderItems.Where(x => x.AdditionalAgreement != null)
+			                                    .Select(x => x.AdditionalAgreement.Self)
+			                                    .Where(x => agreementTypes.Contains(x.Type))
+			                                    .Distinct()
+			                                    .OrderBy(x => x.AgreementNumber)
+			                                    .ToList();
+			foreach(var agr in agreementsForChange) {
+				IUnitOfWork uowAggr = null;
+				switch(agr.Type) {
+					case AgreementType.NonfreeRent:
+						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
+						break;
+					case AgreementType.DailyRent:
+						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
+						break;
+					case AgreementType.FreeRent:
+						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
+						break;
+					case AgreementType.EquipmentSales:
+						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
+						break;
+				}
+				uowAggr.Save();
+				uowAggr.Dispose();
+			}
+
+			var agreements = UoW.Session.QueryOver<AdditionalAgreement>()
+								 .Where(x => x.Contract.Id == actualContract.Id)
+								 .List<AdditionalAgreement>().ToList();
+			actualContract.AdditionalAgreements.Clear();
+			agreements.ForEach(x => actualContract.AdditionalAgreements.Add(x));
+		}
+
+		private void AgreementTransfer<TAgreement>(out IUnitOfWork blankUoW, int agreementId, CounterpartyContract toContract)
+			where TAgreement : AdditionalAgreement, new()
+		{
+			var uow = UnitOfWorkFactory.CreateForRoot<TAgreement>(agreementId);
+			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithTypeFromDB<TAgreement>(toContract);
+			uow.Root.Contract = toContract;
+			blankUoW = uow;
+		}
+
+		public virtual void UpdatePrices()
+		{
+			var agreement = Contract.GetWaterSalesAgreement(DeliveryPoint);
+			UoW.Session.Refresh(agreement);
+			UpdatePrices(agreement);
+		}
+
+		public virtual void UpdatePrices(int[] agrIds)
+		{
+			var agreements = Contract.AdditionalAgreements.Select(a => a.Self).OfType<WaterSalesAgreement>().Where(a => agrIds.Contains(a.Id));
+			foreach(var item in agreements) {
+				UoW.Session.Refresh(item);
+				UpdatePrices(item);
+			}
+		}
+
+		public virtual void UpdatePrices(WaterSalesAgreement agreement)
+		{
+			var pricesMap = agreement.FixedPrices.ToDictionary(p => (int)p.Nomenclature.Id, p => (decimal)p.Price);
+
+			foreach(OrderItem oItem in ObservableOrderItems) {
+				if(pricesMap.ContainsKey(oItem.Nomenclature.Id) && oItem.Price != pricesMap[oItem.Nomenclature.Id])
+					oItem.Price = pricesMap[oItem.Nomenclature.Id];
+			}
+		}
+
+		public virtual bool IsHaveWater()
+		{
+			var categories = Nomenclature.GetCategoriesRequirementForWaterAgreement();
+			return ObservableOrderItems.Any(x => categories.Contains(x.Nomenclature.Category));
+		}
+
 		public virtual void CheckAndSetOrderIsService()
 		{
 			if(OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master))

@@ -553,6 +553,17 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.master
 			};
 		}
+
+		/// <summary>
+		/// Определяет категории для которых необходимо создавать доп соглашение по продаже воды
+		/// </summary>
+		public static NomenclatureCategory[] GetCategoriesRequirementForWaterAgreement()
+		{
+			return new[] {
+				NomenclatureCategory.water,
+				NomenclatureCategory.disposableBottleWater
+			};
+		}
 		#endregion
 	}
 
