@@ -628,7 +628,7 @@ WHERE
           <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>411.50pt</Width>
-            <Value>=Fields!client_name.Value + ', ' + {del_point_address_composite}</Value>
+            <Value>=Fields!client_name.Value + ', ' + {client_address}</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
             <Top>76.60pt</Top>
