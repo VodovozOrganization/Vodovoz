@@ -2560,9 +2560,9 @@ namespace Vodovoz.Domain.Orders
 			}
 			foreach(OrderItem item in ObservableOrderItems) {
 				if(unit == DiscountUnits.money)
-					item.DiscountForPrewiev = discount * item.Price * item.CurrentCount / 100;
+					item.DiscountForPreview = discount * item.Price * item.CurrentCount / 100;
 				else
-					item.DiscountForPrewiev = discount;
+					item.DiscountForPreview = discount;
 				item.DiscountReason = reason;
 			}
 		}

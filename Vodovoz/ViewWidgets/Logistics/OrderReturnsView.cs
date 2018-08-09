@@ -529,16 +529,16 @@ namespace Vodovoz
 		public Decimal DiscountForPrewiev{
 			get{
 				if(IsEquipment)
-					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountForPrewiev : 0;
-				return orderItem.DiscountForPrewiev;
+					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountForPreview : 0;
+				return orderItem.DiscountForPreview;
 			}
 
 			set{
 				if(IsEquipment) {
 					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.DiscountForPrewiev = value;
+						orderEquipment.OrderItem.DiscountForPreview = value;
 				} else
-					orderItem.DiscountForPrewiev = value;
+					orderItem.DiscountForPreview = value;
 			}
 		}
 

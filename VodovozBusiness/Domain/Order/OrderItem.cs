@@ -79,6 +79,7 @@ namespace Vodovoz.Domain.Orders
 							}
 						}
 					}
+					RecalculateDiscount();
 					RecalculateNDS();
 				}
 			}
@@ -102,6 +103,7 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(SetField(ref count, value, () => Count)) {
 					Order?.RecalculateItemsPrice();
+					RecalculateDiscount();
 					RecalculateNDS();
 				}
 			}
@@ -283,7 +285,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual decimal DiscountForPrewiev{
+		public virtual decimal DiscountForPreview{
 			get{
 				if(IsDiscountInMoney)
 					return DiscountMoney;
@@ -291,13 +293,32 @@ namespace Vodovoz.Domain.Orders
 					return Discount;
 			}
 			set{
-				if(IsDiscountInMoney) {
-					DiscountMoney = value > Price * CurrentCount ? Price * CurrentCount : value;
-					Discount = (100 * DiscountMoney) / (Price * CurrentCount);
-				} else {
-					Discount = value > 100 ? 100 : value;
-					DiscountMoney = Price * CurrentCount * Discount / 100;
-				}
+				CalculateAndSetDiscount(value);
+			}
+		}
+
+		private void RecalculateDiscount()
+		{
+			if(!NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(DiscountMoney))
+			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Discount))
+			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Price))
+			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Count))
+			   || (Order == null || !NHibernate.NHibernateUtil.IsInitialized(Order.OrderItems))) {
+				return;
+			}
+			if(DiscountMoney > 0) {
+				CalculateAndSetDiscount(DiscountForPreview);
+			}
+		}
+
+		private void CalculateAndSetDiscount(decimal value) 
+		{
+			if(IsDiscountInMoney) {
+				DiscountMoney = value > Price * CurrentCount ? Price * CurrentCount : value;
+				Discount = (100 * DiscountMoney) / (Price * CurrentCount);
+			} else {
+				Discount = value > 100 ? 100 : value;
+				DiscountMoney = Price * CurrentCount * Discount / 100;
 			}
 		}
 
@@ -313,20 +334,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		/*public virtual decimal Sum {
-			get {
-				//FIXME Count -- CurrentCount
-				return Price * Count * (1 - Discount / 100);
-			}
-		}*/
-
 		public virtual decimal Sum => Price * Count - DiscountMoney;//FIXME Count -- CurrentCount
-
-		/*public virtual decimal ActualSum {
-			get {
-				return Price * CurrentCount * (1 - Discount / 100);
-			}
-		}*/
 
 		public virtual decimal ActualSum => Price * CurrentCount - DiscountMoney;
 
