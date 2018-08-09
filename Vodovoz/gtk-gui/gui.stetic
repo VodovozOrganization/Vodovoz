@@ -657,12 +657,6 @@
         <property name="ShortLabel" translatable="yes">Зарплаты экспедиторов</property>
         <signal name="Activated" handler="OnActionForwarderWageReportActivated" />
       </action>
-      <action id="ActionCashierComments">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Отчет по комментариям кассиров</property>
-        <property name="ShortLabel" translatable="yes">Отчет по комментариям кассиров</property>
-        <signal name="Activated" handler="OnActionCashierCommentsActivated" />
-      </action>
       <action id="ActionStaff">
         <property name="Type">Radio</property>
         <property name="Label" translatable="yes">Кадры</property>
@@ -947,6 +941,12 @@
         <property name="ShortLabel" translatable="yes">Оплата по картам</property>
         <signal name="Activated" handler="OnActionCardPaymentsActivated" />
       </action>
+      <action id="ActionCashierComments">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчет по комментариям кассы</property>
+        <property name="ShortLabel" translatable="yes">Отчет по комментариям кассы</property>
+        <signal name="Activated" handler="OnActionCashierCommentsActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -1063,6 +1063,7 @@
                   </node>
                   <node type="Menu" action="Action31">
                     <node type="Menu" action="ActionReportOrders">
+                      <node type="Menuitem" action="ActionCashierComments" />
                       <node type="Menuitem" action="ActionCommentsForLogists" />
                       <node type="Menuitem" action="ActionOrdersByDistrict" />
                       <node type="Menuitem" action="Action30" />
