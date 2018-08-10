@@ -20,7 +20,10 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		public override ReferenceNode CreateReferenceTo(CounterpartyContract contract)
 		{
 			int id = GetReferenceId(contract);
-			var organization = exportData.CashlessOrganization;
+
+			if(contract.Organization.INN != "7816453294")
+				exportData.Errors.Add($"Выгрузка в 1с возможна только для организации ООО \"Весёлый водовоз\" (ИНН 7816453294). Договор {contract.Title} оформлен на дугую организацию.");
+
 			return new ReferenceNode(id,
 				new PropertyNode("Наименование",
 					Common1cTypes.String,
