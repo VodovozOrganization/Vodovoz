@@ -69,6 +69,9 @@
           <TableColumn>
             <Width>28.1pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>45.2pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>95.6pt</Width>
           </TableColumn>
@@ -100,10 +103,7 @@
             <Width>23.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23.6pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>88.5pt</Width>
+            <Width>64.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.0pt</Width>
@@ -142,6 +142,23 @@
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox67">
+                      <Value>Автор заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -224,7 +241,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value>Пуст. бут. план (1c)</Value>
+                      <Value>Пуст. бут. план</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -294,23 +311,6 @@
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox46">
-                      <Value>Резерв бут.</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
-                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -490,6 +490,22 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox68">
+                      <Value>={author}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
@@ -566,7 +582,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>=Fields!returned_tare.Value</Value>
+                      <Value>={bottles_return}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -635,22 +651,6 @@
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox47">
-                      <Value>=Fields!bottle_reserv.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -824,6 +824,25 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox69">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
@@ -895,7 +914,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>=Sum(Fields!returned_tare.Value)</Value>
+                      <Value>=Sum({bottles_return})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -937,25 +956,6 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox48">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1397,6 +1397,10 @@
         <CommandText>SELECT 
 	bottles_movement_operations.delivery_point_id AS pointid,
 	orders.id AS ordersIdAlias,
+    IF(orders.author_employee_id IS NOT NULL,
+		CONCAT(employees_author.last_name, ' ', LEFT(employees_author.name, 1), '.', LEFT(employees_author.patronymic, 1), '.'),
+        ''
+	) as author,
 	TRIM(counterparty.full_name) AS counterparty,
 	delivery_points.compiled_address_short AS address,
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
@@ -1453,7 +1457,7 @@
 		WHEN 'OrderIncrease' THEN 'увелич. заказа'
 		WHEN 'FirstOrder' THEN 'первый заказ'
 		END AS reason_type_status,
-	returned_tare,
+	bottles_return,
 	information_on_tara,
 	driver_call_id,
 	CASE driver_call_type
@@ -1492,6 +1496,9 @@ LEFT JOIN
 	doc_residue ON bottles_movement_operations.delivery_point_id = doc_residue.delivery_point_id
 LEFT JOIN 
 	cars ON cars.id = route_lists.car_id
+LEFT JOIN
+	employees as employees_author on employees_author.id = orders.author_employee_id
+
 WHERE
 	orders.delivery_date = DATE(@date)
 	AND(route_lists.status = 'Closed'
@@ -1558,8 +1565,8 @@ ORDER BY reason_type_status</CommandText>
           <DataField>reason_type_status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="returned_tare">
-          <DataField>returned_tare</DataField>
+        <Field Name="bottles_return">
+          <DataField>bottles_return</DataField>
           <TypeName>System.Int16</TypeName>
         </Field>
         <Field Name="information_on_tara">
@@ -1597,6 +1604,10 @@ ORDER BY reason_type_status</CommandText>
         <Field Name="debt">
           <DataField>debt</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="author">
+          <DataField>author</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
