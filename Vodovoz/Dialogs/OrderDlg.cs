@@ -925,8 +925,12 @@ namespace Vodovoz
 					break;
 				case NomenclatureCategory.disposableBottleWater://Вода в одноразовой таре
 				case NomenclatureCategory.water://Вода в многооборотной таре
-					CounterpartyContract contract = CounterpartyContractRepository.
-						GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
+					CounterpartyContract contract = Entity.Contract;
+					if(contract == null) {
+						contract = CounterpartyContractRepository.
+							GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
+						Entity.Contract = contract;
+					}
 					if(contract == null) {
 						var result = AskCreateContract();
 						switch(result) {
@@ -990,8 +994,10 @@ namespace Vodovoz
 				return;
 			}
 
-			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-			if(contract == null) {
+			if(Entity.Contract == null) {
+				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
+			}
+			if(Contract == null) {
 				switch(type) {
 					case OrderAgreementType.NonfreeRent:
 						lastChosenAction = LastChosenAction.NonFreeRentAgreement;
@@ -1004,12 +1010,12 @@ namespace Vodovoz
 						break;
 				}
 				RunContractCreateDialog(type);
-				contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-				if(contract == null) {
+				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
+				if(Entity.Contract == null) {
 					return;
 				}
 			}
-			CreateRentAgreementDialogs(contract, type);
+			CreateRentAgreementDialogs(Entity.Contract, type);
 		}
 
 		protected void OnButtonbuttonAddEquipmentToClientClicked(object sender, EventArgs e)
