@@ -36,6 +36,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.IsDefectiveBottle).Column("is_defective_bottle");
 			Map(x => x.IsDiler).Column("is_diler");
 			Map(x => x.PercentForMaster).Column("percent_for_master");
+			Map(x => x.TypeOfDepositCategory).Column("type_of_deposit").CustomType<TypeOfDepositCategoryStringType>();
 			Map(x => x.SubTypeOfEquipmentCategory).Column("subtype_of_equipment").CustomType<SubtypeOfEquipmentCategoryStringType>();
 
 			References(x => x.CreatedBy).Column("created_by");

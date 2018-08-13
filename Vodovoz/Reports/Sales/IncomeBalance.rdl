@@ -1252,7 +1252,7 @@ FROM
 			(
 				SUM(
 					CAST(IFNULL(money_movement_operations.money, 0) as DECIMAL(10,2)) * IF(route_list_addresses.status='Completed',1,0)
-					+ CAST(IFNULL(deposit_operations.received_deposit, 0) as DECIMAL(10,2))
+					+ CAST((IFNULL(deposit_operations.received_deposit, 0)-IFNULL(deposit_operations.refund_deposit, 0)) as DECIMAL(10,2))
                     			)                
 				+ CAST(IFNULL(PhoneSums.Sum, 0) as DECIMAL(10,2))
 			) as FactIncome,
@@ -1260,7 +1260,7 @@ FROM
 		CAST(IFNULL(PhoneSums.Sum, 0) as DECIMAL(10,2)) as PhoneSum,
 		IFNULL(nedovoz.nedovoz_sum, 0) as NedovozSum,
 		IFNULL(Transfered.TotalOrdersSum, 0) as TransferedSum,
-		SUM(IFNULL(deposit_operations.received_deposit, 0)) as DepositsSum,
+		SUM(IFNULL(deposit_operations.received_deposit, 0)-IFNULL(deposit_operations.refund_deposit, 0)) as DepositsSum,
 		CI.CashIncomeDates,
 		CAST((IFNULL(CI.MoneyIncome,0)-IFNULL(CE.MoneyExpence,0)) as DECIMAL(10,2)) as IncMinusExp
 	FROM

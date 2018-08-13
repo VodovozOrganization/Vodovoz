@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
+using Gamma.Binding;
 using Gamma.Utilities;
 using QSBusinessCommon.Domain;
 using QSOrmProject;
@@ -195,6 +197,15 @@ namespace Vodovoz.Domain.Goods
 			get { return subTypeOfEquipmentCategory; }
 			set { SetField(ref subTypeOfEquipmentCategory, value, () => SubTypeOfEquipmentCategory);}
 		}
+
+		TypeOfDepositCategory? typeOfDepositCategory;
+
+		[Display(Name = "Подкатегория залогов")]
+		public virtual TypeOfDepositCategory? TypeOfDepositCategory {
+			get { return typeOfDepositCategory; }
+			set { SetField(ref typeOfDepositCategory, value, () => TypeOfDepositCategory); }
+		}
+
 		EquipmentColors color;
 
 		[Display(Name = "Цвет оборудования")]
@@ -367,12 +378,6 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-#if !SHORT
-			if(GetCategoriesForShipment ().Contains (Category) && Warehouse == null)
-				yield return new ValidationResult (
-					String.Format ("Для номенклатур вида «{0}», необходимо указывать склад отгрузки.", Category.GetEnumTitle ()),
-					new[] { this.GetPropertyName (o => o.Warehouse) });
-#endif
 			if(Category == NomenclatureCategory.equipment && Type == null)
 				yield return new ValidationResult(
 					String.Format("Не указан тип оборудования."),
@@ -382,6 +387,11 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult(
 					String.Format("Не указан подтип оборудования (для продажи или нет)."),
 					new[] { this.GetPropertyName(o => o.SubTypeOfEquipmentCategory) });
+
+			if(Category == NomenclatureCategory.deposit && TypeOfDepositCategory == null)
+				yield return new ValidationResult(
+					String.Format("Не указан тип залога."),
+					new[] { this.GetPropertyName(o => o.TypeOfDepositCategory) });
 
 			//Проверка зависимостей номенклатур #1: если есть зависимые
 			if(DependsOnNomenclature != null) {
@@ -604,6 +614,17 @@ namespace Vodovoz.Domain.Goods
 		notForSale
 	}
 
+	/// <summary>
+	/// Подтип категории "Залог"
+	/// </summary>
+	public enum TypeOfDepositCategory
+	{
+		[Display(Name = "Залог за бутыли")]
+		BottleDeposit,
+		[Display(Name = "Залог за оборудование")]
+		EquipmentDeposit
+	}
+
 	public class NomenclatureCategoryStringType : NHibernate.Type.EnumStringType
 	{
 		public NomenclatureCategoryStringType() : base(typeof(NomenclatureCategory))
@@ -614,6 +635,13 @@ namespace Vodovoz.Domain.Goods
 	public class SubtypeOfEquipmentCategoryStringType : NHibernate.Type.EnumStringType
 	{
 		public SubtypeOfEquipmentCategoryStringType() : base(typeof(SubtypeOfEquipmentCategory))
+		{
+		}
+	}
+
+	public class TypeOfDepositCategoryStringType : NHibernate.Type.EnumStringType
+	{
+		public TypeOfDepositCategoryStringType() : base(typeof(TypeOfDepositCategory))
 		{
 		}
 	}

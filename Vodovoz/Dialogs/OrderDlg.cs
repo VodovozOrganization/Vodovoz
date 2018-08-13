@@ -572,6 +572,7 @@ namespace Vodovoz
 			if(Entity.BottlesMovementOperation == null) {
 				Entity.CreateBottlesMovementOperation(UoW);
 			}
+			Entity.UpdateDepositOperations(UoW);
 
 			Entity.ChangeStatus(OrderStatus.Closed);
 			ButtonCloseOrderSensitivity();

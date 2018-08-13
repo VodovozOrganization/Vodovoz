@@ -530,6 +530,10 @@
       <Project>{1C3B49FC-372C-46F7-995F-EEB44474E2DE}</Project>
       <Name>QSHistoryLog</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
+      <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
+      <Name>GammaBinding</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

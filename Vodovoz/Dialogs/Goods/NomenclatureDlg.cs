@@ -57,9 +57,15 @@ namespace Vodovoz
 			enumType.ItemsEnum = typeof(NomenclatureCategory);
 			enumType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
-			enumSubtype.Visible = Entity.Category == NomenclatureCategory.equipment;
-			enumSubtype.ItemsEnum = typeof(SubtypeOfEquipmentCategory);
-			enumSubtype.Binding.AddBinding(Entity, e => e.SubTypeOfEquipmentCategory, w => w.SelectedItem).InitializeFromSource();
+			enumEquipmentSubtype.Visible = Entity.Category == NomenclatureCategory.equipment;
+			enumEquipmentSubtype.ItemsEnum = typeof(SubtypeOfEquipmentCategory);
+			enumEquipmentSubtype.Binding.AddBinding(Entity, e => e.SubTypeOfEquipmentCategory, w => w.SelectedItem).InitializeFromSource();
+
+			enumDepositType.Visible = Entity.Category == NomenclatureCategory.deposit;
+			enumDepositType.ItemsEnum = typeof(TypeOfDepositCategory);
+			enumDepositType.Binding.AddBinding(Entity, e => e.TypeOfDepositCategory, w => w.SelectedItemOrNull).InitializeFromSource();
+
+			labelSubType.Visible = (Entity.Category == NomenclatureCategory.deposit || Entity.Category == NomenclatureCategory.equipment);
 
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			yentryOfficialName.Binding.AddBinding(Entity, e => e.OfficialName, w => w.Text).InitializeFromSource();
@@ -167,11 +173,17 @@ namespace Vodovoz
 		protected void OnEnumTypeChanged (object sender, EventArgs e)
 		{
 			ConfigureInputs (Entity.Category);
+
+			if(Entity.Category != NomenclatureCategory.deposit) {
+				Entity.TypeOfDepositCategory = null;
+			}
 		}
 
 		protected void ConfigureInputs (NomenclatureCategory selected)
 		{
-			enumSubtype.Visible = radioEuqpment.Sensitive = selected == NomenclatureCategory.equipment;
+			enumDepositType.Visible = selected == NomenclatureCategory.deposit;
+			enumEquipmentSubtype.Visible = radioEuqpment.Sensitive = selected == NomenclatureCategory.equipment;
+			labelSubType.Visible = (selected == NomenclatureCategory.deposit || selected == NomenclatureCategory.equipment);
 			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 			spinVolume.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 			lblPercentForMaster.Visible = spinPercentForMaster.Visible = (selected == NomenclatureCategory.master);

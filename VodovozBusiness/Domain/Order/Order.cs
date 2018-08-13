@@ -2664,6 +2664,76 @@ namespace Vodovoz.Domain.Orders
 		};
 
 		#endregion
+	
+		#region Операции
+
+		public virtual void UpdateDepositOperations(IUnitOfWork uow)
+		{
+			var bottleRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Bottles).Sum(x => x.Total);
+			var equipmentRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);
+			var operations = UpdateDepositOperations(uow, equipmentRefundDeposit, bottleRefundDeposit);
+			operations.ForEach(x => uow.Save(x));
+		}
+
+		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork uow, decimal equipmentRefundDeposit, decimal bottleRefundDeposit)
+		{
+			var result = new List<DepositOperation>();
+			DepositOperation bottlesOperation = null;
+			DepositOperation equipmentOperation = null;
+			bottlesOperation = DepositOperations.Where(x => x.DepositType == DepositType.Bottles).FirstOrDefault();
+			equipmentOperation = DepositOperations.Where(x => x.DepositType == DepositType.Equipment).FirstOrDefault();
+
+			//Залоги
+			var bottleReceivedDeposit = OrderItems.Where(x => x.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.BottleDeposit)
+			                                      .Sum(x => x.ActualSum);
+			var equipmentReceivedDeposit = OrderItems.Where(x => x.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.EquipmentDeposit)
+			                                         .Sum(x => x.ActualSum);
+
+			//ЗАЛОГИ ЗА БУТЫЛИ
+			if(bottleReceivedDeposit != 0m || bottleRefundDeposit != 0m) {
+				if(bottlesOperation == null) {
+					bottlesOperation = new DepositOperation {
+						Order = this,
+						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+						DepositType = DepositType.Bottles,
+						Counterparty = Client,
+						DeliveryPoint = DeliveryPoint
+					};
+				}
+				bottlesOperation.ReceivedDeposit = bottleReceivedDeposit;
+				bottlesOperation.RefundDeposit = bottleRefundDeposit;
+				result.Add(bottlesOperation);
+			} else {
+				if(bottlesOperation != null) {
+					DepositOperations.Remove(bottlesOperation);
+					UoW.Delete(bottlesOperation);
+				}
+			}
+
+			//ЗАЛОГИ ЗА ОБОРУДОВАНИЕ
+			if(equipmentReceivedDeposit != 0m || equipmentRefundDeposit != 0m) {
+				if(equipmentOperation == null) {
+					equipmentOperation = new DepositOperation {
+						Order = this,
+						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+						DepositType = DepositType.Equipment,
+						Counterparty = Client,
+						DeliveryPoint = DeliveryPoint
+					};
+				}
+				equipmentOperation.ReceivedDeposit = equipmentReceivedDeposit;
+				equipmentOperation.RefundDeposit = equipmentRefundDeposit;
+				result.Add(equipmentOperation);
+			} else {
+				if(equipmentOperation != null) {
+					DepositOperations.Remove(equipmentOperation);
+					UoW.Delete(equipmentOperation);
+				}
+			}
+			return result;
+		}
+
+		#endregion
 	}
 }
 

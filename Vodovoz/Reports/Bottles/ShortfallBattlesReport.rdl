@@ -69,7 +69,7 @@
           <TableColumn>
             <Width>28.1pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>45.2pt</Width>
           </TableColumn>
           <TableColumn>
@@ -145,7 +145,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox67">
                       <Value>Автор заказа</Value>
@@ -490,7 +490,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
                       <Value>={author}</Value>
@@ -824,7 +824,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox69">
                       <Value>
@@ -1434,7 +1434,7 @@
 			base_parameters
 		WHERE
 			base_parameters.name = 'forfeit_nomenclature_id')),0)
-    - (IFNULL(received_deposit,0)/200)),0) AS bottles,
+    - ((IFNULL(received_deposit,0)-IFNULL(refund_deposit,0))/200)),0) AS bottles,
 	IFNULL((SELECT 
 			order_items.count
 		FROM
@@ -1450,7 +1450,7 @@
 			FROM
 				base_parameters
 			WHERE
-				base_parameters.name = 'forfeit_nomenclature_id')),received_deposit) AS forfeitAndDeposit,
+				base_parameters.name = 'forfeit_nomenclature_id')),(IFNULL(received_deposit,0)-IFNULL(refund_deposit,0))) AS forfeitAndDeposit,
 	CASE reason_type
 		WHEN 'Unknown' THEN 'неизв.'
 		WHEN 'NewAddress' THEN 'новый адрес'

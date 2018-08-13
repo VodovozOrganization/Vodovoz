@@ -1337,7 +1337,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5408,7 +5407,19 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gamma.Widgets.yEnumComboBox" id="enumSubtype">
+                              <widget class="Gtk.Label" id="labelSubType">
+                                <property name="MemberName" />
+                                <property name="LabelProp" translatable="yes">Подтип</property>
+                              </widget>
+                              <packing>
+                                <property name="Position">1</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gamma.Widgets.yEnumComboBox" id="enumEquipmentSubtype">
                                 <property name="MemberName" />
                                 <property name="IsTextCombo">False</property>
                                 <property name="Items" translatable="yes" />
@@ -5419,7 +5430,26 @@
                                 <signal name="Changed" handler="OnEnumTypeChanged" />
                               </widget>
                               <packing>
-                                <property name="Position">1</property>
+                                <property name="Position">2</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gamma.Widgets.yEnumComboBox" id="enumDepositType">
+                                <property name="MemberName" />
+                                <property name="Tooltip" translatable="yes" />
+                                <property name="IsTextCombo">False</property>
+                                <property name="Items" translatable="yes" />
+                                <property name="ShowSpecialStateAll">False</property>
+                                <property name="ShowSpecialStateNot">True</property>
+                                <property name="UseShortTitle">False</property>
+                                <property name="DefaultFirst">False</property>
+                                <signal name="Changed" handler="OnEnumTypeChanged" />
+                              </widget>
+                              <packing>
+                                <property name="Position">3</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
