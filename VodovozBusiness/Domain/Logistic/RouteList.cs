@@ -388,10 +388,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal PhoneSum {
 			get
-			{
-                var count = Addresses.Where(item => item.RouteList.car.TypeOfUse == CarTypeOfUse.Truck || item.Order.IsService == true)
-                                     .Select(item => item).Count();
-				if (count > 0 || Driver.WageCalcType == WageCalculationType.withoutPayment)
+			{                
+				if (Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || Driver.WageCalcType == WageCalculationType.withoutPayment)
 					return 0;
 
 				return Wages.GetDriverRates(Date).PhoneServiceCompensationRate * UniqueAddressCount;
