@@ -1060,6 +1060,19 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		public virtual void ParseTareReason()
+		{
+			ReasonType = ReasonType.Unknown;
+			if(!string.IsNullOrWhiteSpace(Comment)) {
+				if(Comment.ToUpper().Contains("НОВЫЙ АДРЕС"))
+					ReasonType = ReasonType.NewAddress;
+				if(Comment.ToUpper().Contains("УВЕЛИЧЕНИЕ ЗАКАЗА"))
+					ReasonType = ReasonType.OrderIncrease;
+				if(Comment.ToUpper().Contains("ПЕРВЫЙ ЗАКАЗ"))
+					ReasonType = ReasonType.FirstOrder;
+			}
+		}
+
 		public virtual void AddContractDocument(CounterpartyContract contract)
 		{
 			var orderDocuments = ObservableOrderDocuments;
