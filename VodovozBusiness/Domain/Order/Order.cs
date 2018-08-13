@@ -2483,7 +2483,8 @@ namespace Vodovoz.Domain.Orders
 			// Закрывает заказ и создает операцию движения бутылей если все товары в заказе отгружены
 			var unloadedItems = Repository.Store.SelfDeliveryRepository.OrderItemUnloaded(uow, this, closingDocument);
 			bool canCloseOrder = true;
-			foreach(var item in OrderItems) {
+			var shipmentCats = Nomenclature.GetCategoriesForShipment();
+			foreach(var item in OrderItems.Where(x => shipmentCats.Contains(x.Nomenclature.Category))) {
 				decimal totalCount = default(decimal);
 				var deliveryItem = closingDocument.Items.FirstOrDefault(x => x.OrderItem.Id == item.Id);
 				if(deliveryItem != null) {
