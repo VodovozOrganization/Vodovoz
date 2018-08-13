@@ -517,7 +517,10 @@ namespace Vodovoz
 				return false;
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
-				Entity.CreateDefaultContract();
+				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
+				if(Entity.Contract == null) {
+					Entity.CreateDefaultContract();
+				}
 			}
 
 			foreach(OrderItem item in Entity.ObservableOrderItems) {
