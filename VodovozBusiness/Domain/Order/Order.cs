@@ -2482,11 +2482,14 @@ namespace Vodovoz.Domain.Orders
 		{
 			// Закрывает заказ и создает операцию движения бутылей если все товары в заказе отгружены
 			var unloadedItems = Repository.Store.SelfDeliveryRepository.OrderItemUnloaded(uow, this, closingDocument);
+			var unloadedEquipments = Repository.Store.SelfDeliveryRepository.OrderEquipmentsUnloaded(uow, this, closingDocument);
 			bool canCloseOrder = true;
 			var shipmentCats = Nomenclature.GetCategoriesForShipment();
 			foreach(var item in OrderItems.Where(x => shipmentCats.Contains(x.Nomenclature.Category))) {
 				decimal totalCount = default(decimal);
-				var deliveryItem = closingDocument.Items.FirstOrDefault(x => x.OrderItem.Id == item.Id);
+				var deliveryItem = closingDocument.Items
+				                                  .Where(x => x.OrderItem != null)
+				                                  .FirstOrDefault(x => x.OrderItem.Id == item.Id);
 				if(deliveryItem != null) {
 					totalCount += deliveryItem.Amount;
 				}
@@ -2494,6 +2497,22 @@ namespace Vodovoz.Domain.Orders
 					totalCount += unloadedItems[item.Id];
 				}
 				if((int)totalCount != item.Count) {
+					canCloseOrder = false;
+				}
+			}
+
+			foreach(var equipment in orderEquipments.Where(x => shipmentCats.Contains(x.Nomenclature.Category))) {
+				decimal totalCount = default(decimal);
+				var deliveryItem = closingDocument.Items
+				                                  .Where(x => x.OrderEquipment != null)
+				                                  .FirstOrDefault(x => x.OrderEquipment.Id == equipment.Id);
+				if(deliveryItem != null) {
+					totalCount += deliveryItem.Amount;
+				}
+				if(unloadedEquipments.ContainsKey(equipment.Id)) {
+					totalCount += unloadedEquipments[equipment.Id];
+				}
+				if((int)totalCount != equipment.Count) {
 					canCloseOrder = false;
 				}
 			}

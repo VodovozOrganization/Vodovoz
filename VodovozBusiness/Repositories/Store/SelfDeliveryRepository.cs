@@ -44,13 +44,36 @@ namespace Vodovoz.Repository.Store
 
 			ItemInStock inUnload = null;
 			var unloadedlist = UoW.Session.QueryOver<SelfDeliveryDocument>(() => docAlias)
-				.Where(d => d.Order.Id == order.Id)
-				.Where(d => d.Id != excludeDoc.Id)
-				.JoinAlias(d => d.Items, () => docItemsAlias)
+			                      .JoinAlias(d => d.Items, () => docItemsAlias)
+			                      .Where(d => d.Order.Id == order.Id)
+			                      .Where(d => d.Id != excludeDoc.Id)				
+			                      .WhereRestrictionOn(() => docItemsAlias.OrderItem).IsNotNull
 				.SelectList(list => list
 				   .SelectGroup(() => docItemsAlias.OrderItem.Id).WithAlias(() => inUnload.Id)
 				   .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inUnload.Added)
 				).TransformUsing(Transformers.PassThrough).List<object[]>();
+			var result = new Dictionary<int, decimal>();
+			foreach(var unloadedItem in unloadedlist) {
+				result.Add((int)unloadedItem[0], (decimal)unloadedItem[1]);
+			}
+			return result;
+		}
+
+		public static Dictionary<int, decimal> OrderEquipmentsUnloaded(IUnitOfWork UoW, Order order, SelfDeliveryDocument excludeDoc)
+		{
+			SelfDeliveryDocument docAlias = null;
+			SelfDeliveryDocumentItem docItemsAlias = null;
+
+			ItemInStock inUnload = null;
+			var unloadedlist = UoW.Session.QueryOver<SelfDeliveryDocument>(() => docAlias)
+								  .JoinAlias(d => d.Items, () => docItemsAlias)
+								  .Where(d => d.Order.Id == order.Id)
+								  .Where(d => d.Id != excludeDoc.Id)
+			                      .WhereRestrictionOn(() => docItemsAlias.OrderEquipment).IsNotNull
+			                      .SelectList(list => list
+			                                  .SelectGroup(() => docItemsAlias.OrderEquipment.Id).WithAlias(() => inUnload.Id)
+			                                  .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inUnload.Added)
+			                                 ).TransformUsing(Transformers.PassThrough).List<object[]>();
 			var result = new Dictionary<int, decimal>();
 			foreach(var unloadedItem in unloadedlist) {
 				result.Add((int)unloadedItem[0], (decimal)unloadedItem[1]);
