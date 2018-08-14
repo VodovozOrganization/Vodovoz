@@ -152,7 +152,6 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Клиент").SetDataProperty (node => node.Counterparty)
 			.AddColumn ("Коор.").AddTextRenderer (x => x.Latitude.HasValue && x.Longitude.HasValue ? "Есть" : String.Empty)
 			.AddColumn ("Адрес").SetDataProperty (node => node.Address)
-			.AddColumn ("Адрес из 1с").SetDataProperty (node => node.Address1c)
 			.AddColumn ("Изменил").SetDataProperty(node => node.LastEditor)
 			.AddColumn ("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
 		    .AddColumn ("Номер звонка").SetDataProperty(node => node.DriverCallId)
