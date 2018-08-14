@@ -117,6 +117,7 @@ namespace Vodovoz
 			ConfigureInputs (Entity.Category);
 
 			pricesView.UoWGeneric = UoWGeneric;
+			pricesView.Sensitive = QSMain.User.Permissions["can_create_and_arc_nomenclatures"];
 
 			//make actions menu
 			var menu = new Gtk.Menu();
