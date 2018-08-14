@@ -53,6 +53,7 @@ namespace Vodovoz.ViewModel
 			ReadyForShipmentVMNode resultAlias = null;
 			Employee employeeAlias = null;
 			Car carAlias = null;
+			DeliveryShift shiftAlias = null;
 			CarLoadDocument carLoadDocAlias = null;
 
 			var orderitemsSubqury = QueryOver.Of<OrderItem> (() => orderItemsAlias)
@@ -70,6 +71,7 @@ namespace Vodovoz.ViewModel
 			var queryRoutes = UoW.Session.QueryOver<RouteList> (() => routeListAlias)
 				.JoinAlias (rl => rl.Driver, () => employeeAlias)
 				.JoinAlias (rl => rl.Car, () => carAlias)
+			    .JoinAlias(rl => rl.Shift, () => shiftAlias)
 				.Where (r => routeListAlias.Status == RouteListStatus.InLoading);
 
 			if (Filter.RestrictWarehouse != null) {
@@ -90,6 +92,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => employeeAlias.Patronymic).WithAlias (() => resultAlias.Patronymic)
 					.Select (() => carAlias.RegistrationNumber).WithAlias (() => resultAlias.Car)
 					.Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
+			        .Select(() => shiftAlias.Name).WithAlias(() => resultAlias.Shift)
 				)
 				.TransformUsing (Transformers.AliasToBean <ReadyForShipmentVMNode> ())
 				.List<ReadyForShipmentVMNode> ();
@@ -126,12 +129,14 @@ namespace Vodovoz.ViewModel
 				SetItemsSource (dirtyList.OrderByDescending(x => x.Date).ToList());
 		}
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig<ReadyForShipmentVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<ReadyForShipmentVMNode>
+			.Create ()
 			.AddColumn ("Тип").SetDataProperty (node => node.TypeString)
 			.AddColumn ("Номер").AddTextRenderer (node => node.Id.ToString())
 		    .AddColumn ("Водитель").SetDataProperty (node => node.Driver)
 		    .AddColumn ("Машина").SetDataProperty (node => node.Car)
 			.AddColumn ("Дата").AddTextRenderer (node => node.Date.ToShortDateString())
+		    .AddColumn ("Смена").AddTextRenderer(node => node.Shift)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -169,6 +174,8 @@ namespace Vodovoz.ViewModel
 		public string Car { get; set; }
 
 		public DateTime Date { get;	set; }
+
+		public string Shift { get; set; }
 	}
 
 }
