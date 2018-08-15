@@ -31,6 +31,7 @@ FROM
 WHERE
     route_list_addresses.route_list_id = @id
         AND nomenclature.warehouse_id = 1 #Отгрузка только с софийской
+        AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
 GROUP BY nomenclature.id
 ORDER BY category , nomenclature;</CommandText>
         <QueryParameters>
