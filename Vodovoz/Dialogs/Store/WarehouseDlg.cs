@@ -1,5 +1,6 @@
 ﻿using System;
 using QSOrmProject;
+using QSProjectsLib;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz
@@ -36,6 +37,10 @@ namespace Vodovoz
 			ycheckbuttonCanReceiveEquipment.Binding
 				.AddBinding (UoWGeneric.Root, (warehouse) => warehouse.CanReceiveEquipment, (widget) => widget.Active)
 				.InitializeFromSource ();
+			ycheckbuttonArchive.Binding
+				.AddBinding(UoWGeneric.Root, (warehouse) => warehouse.IsArchive, (widget) => widget.Active)
+				.InitializeFromSource();
+			ycheckbuttonArchive.Sensitive = QSMain.User.Permissions["can_archive_warehouse"];
 
 			comboTypeOfUse.ItemsEnum = typeof(WarehouseUsing);
 			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItem).InitializeFromSource();

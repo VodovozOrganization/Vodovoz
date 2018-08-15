@@ -6,6 +6,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using QSWidgetLib;
+using Vodovoz.Additions.Store;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -96,7 +97,7 @@ namespace Vodovoz
 			yentryrefEqupmentType.Binding.AddBinding(Entity, e => e.Type, w => w.Subject).InitializeFromSource();
 			referenceColor.SubjectType = typeof(EquipmentColors);
 			referenceColor.Binding.AddBinding(Entity, e => e.Color, w => w.Subject).InitializeFromSource();
-			referenceWarehouse.SubjectType = typeof (Warehouse);
+			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
 			referenceWarehouse.Binding.AddBinding (Entity, n => n.Warehouse, w => w.Subject).InitializeFromSource ();
 			referenceRouteColumn.SubjectType = typeof (Domain.Logistic.RouteColumn);
 			referenceRouteColumn.Binding.AddBinding (Entity, n => n.RouteListColumn, w => w.Subject).InitializeFromSource ();

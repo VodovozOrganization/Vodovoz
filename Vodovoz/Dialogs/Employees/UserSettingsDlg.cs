@@ -1,5 +1,6 @@
 ﻿using System;
 using QSOrmProject;
+using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 
@@ -22,7 +23,7 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			yentryrefWarehouse.SubjectType = typeof(Warehouse);
+			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.DefaultWarehouse, w => w.Subject).InitializeFromSource();
 		}
 

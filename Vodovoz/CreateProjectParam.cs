@@ -62,6 +62,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("can_add_bottles_to_order", new UserPermission("can_add_bottles_to_order", "Продажа тары", "Пользователь может добавлять тару в заказ на продажу."));
 			QSMain.ProjectPermission.Add("can_add_materials_to_order", new UserPermission("can_add_materials_to_order", "Продажа сырья", "Пользователь может добавлять сырьё в заказ на продажу."));
 			QSMain.ProjectPermission.Add("can_edit_delivery_schedule", new UserPermission("can_edit_delivery_schedule", "Изменение времени доставки", "Пользователь может изменять время доставки."));
+			QSMain.ProjectPermission.Add("can_archive_warehouse", new UserPermission("can_archive_warehouse", "Архивирование склада", "Пользователь может архивировать склады."));
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
@@ -178,7 +179,7 @@ namespace Vodovoz
 				OrmObjectMapping<AccountIncome>.Create (),
 				OrmObjectMapping<AccountExpense>.Create (),
 				//Склад
-				OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w=>w.Name).End(),
+				OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w=>w.Name).Column("В архиве", w=>w.IsArchive ? "Да":"").End(),
 				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().DefaultTableView().Column("Название", w=>w.Name).End()
 			};
 

@@ -12,12 +12,7 @@ namespace Vodovoz.Repository.Store
 
 		public static IList<Warehouse> GetActiveWarehouse(IUnitOfWork uow)
 		{
-			return uow.Session.CreateCriteria<Warehouse>().List<Warehouse>();
-		}
-
-		public static QueryOver<Warehouse> ActiveWarehouseQuery()
-		{
-			return QueryOver.Of<Warehouse>();
+			return uow.Session.QueryOver<Warehouse>().WhereNot(x => x.IsArchive).List<Warehouse>();
 		}
 
 		public static IList<Warehouse> WarehouseForShipment(IUnitOfWork uow, int routeListId)

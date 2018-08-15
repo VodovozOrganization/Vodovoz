@@ -8,6 +8,8 @@ namespace Vodovoz.Core.Permissions
 	{
 		[Display(Name = "Просмотр склада")]
 		WarehouseView,
+		[Display(Name = "Архивирование склада")]
+		Archive,
 		[Display(Name = "Изменение талона погрузки")]
 		[DocumentType(DocumentType.CarLoadDocument)]
 		CarLoadEdit,

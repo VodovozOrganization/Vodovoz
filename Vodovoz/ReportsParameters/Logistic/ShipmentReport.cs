@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QSOrmProject;
 using QSReport;
+using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ReportsParameters.Logistic
@@ -16,7 +17,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.Build();
 			uow = UnitOfWorkFactory.CreateWithoutRoot();
 			ydatepicker.Date = DateTime.Now.Date;
-			referenceWarehouse.SubjectType = typeof(Warehouse);
+			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
 			ButtonSensitivity();
 		}
 

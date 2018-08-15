@@ -91,11 +91,18 @@ namespace Vodovoz.Additions.Store
 				return CurrentPermissions.Warehouse.Allowed(edit).Any();
 		}
 
+		public static QueryOver<Warehouse> GetWarehouseQuery()
+		{
+			return QueryOver.Of<Warehouse>()
+							.AndNot(w => w.IsArchive);
+		}
+
 		public static QueryOver<Warehouse> GetRestrictedWarehouseQuery(WarehousePermissions permission)
 		{
 			return QueryOver.Of<Warehouse>()
 				            .Where(w => w.Id.IsIn(CurrentPermissions.Warehouse.Allowed(permission)
-				                                  .Select(x => x.Id).ToArray()));
+				                                  .Select(x => x.Id).ToArray()))
+				            .AndNot(w => w.IsArchive);
 		}
 
 		/// <summary>
@@ -105,7 +112,8 @@ namespace Vodovoz.Additions.Store
 		{
 			return QueryOver.Of<Warehouse>()
 				            .Where(w => w.Id.IsIn(CurrentPermissions.Warehouse.AnyPermissions()
-				                                  .Select(x => x.Id).ToArray()));
+				                                  .Select(x => x.Id).ToArray()))
+				            .AndNot(w => w.IsArchive);
 		}
 
 	}

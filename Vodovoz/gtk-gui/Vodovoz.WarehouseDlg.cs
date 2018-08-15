@@ -20,6 +20,8 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelName;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonArchive;
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonCanReceiveBottles;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonCanReceiveEquipment;
@@ -74,7 +76,7 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(5)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -114,6 +116,21 @@ namespace Vodovoz
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.ycheckbuttonArchive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonArchive.CanFocus = true;
+			this.ycheckbuttonArchive.Name = "ycheckbuttonArchive";
+			this.ycheckbuttonArchive.Label = global::Mono.Unix.Catalog.GetString("Архивный");
+			this.ycheckbuttonArchive.DrawIndicator = true;
+			this.ycheckbuttonArchive.UseUnderline = true;
+			this.table1.Add(this.ycheckbuttonArchive);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonArchive]));
+			w9.TopAttach = ((uint)(4));
+			w9.BottomAttach = ((uint)(5));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ycheckbuttonCanReceiveBottles = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonCanReceiveBottles.CanFocus = true;
 			this.ycheckbuttonCanReceiveBottles.Name = "ycheckbuttonCanReceiveBottles";
@@ -121,13 +138,13 @@ namespace Vodovoz
 			this.ycheckbuttonCanReceiveBottles.DrawIndicator = true;
 			this.ycheckbuttonCanReceiveBottles.UseUnderline = true;
 			this.table1.Add(this.ycheckbuttonCanReceiveBottles);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonCanReceiveBottles]));
-			w9.TopAttach = ((uint)(2));
-			w9.BottomAttach = ((uint)(3));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonCanReceiveBottles]));
+			w10.TopAttach = ((uint)(2));
+			w10.BottomAttach = ((uint)(3));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ycheckbuttonCanReceiveEquipment = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonCanReceiveEquipment.CanFocus = true;
@@ -136,13 +153,13 @@ namespace Vodovoz
 			this.ycheckbuttonCanReceiveEquipment.DrawIndicator = true;
 			this.ycheckbuttonCanReceiveEquipment.UseUnderline = true;
 			this.table1.Add(this.ycheckbuttonCanReceiveEquipment);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonCanReceiveEquipment]));
-			w10.TopAttach = ((uint)(3));
-			w10.BottomAttach = ((uint)(4));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonCanReceiveEquipment]));
+			w11.TopAttach = ((uint)(3));
+			w11.BottomAttach = ((uint)(4));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.CanFocus = true;
@@ -150,16 +167,16 @@ namespace Vodovoz
 			this.yentryName.IsEditable = true;
 			this.yentryName.InvisibleChar = '•';
 			this.table1.Add(this.yentryName);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox2.Add(this.table1);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table1]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table1]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

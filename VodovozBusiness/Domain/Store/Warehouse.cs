@@ -42,6 +42,14 @@ namespace Vodovoz.Domain.Store
 			set { SetField(ref typeOfUse, value, () => TypeOfUse); }
 		}
 
+		private bool isArchive;
+
+		[Display(Name = "Архивный")]
+		public virtual bool IsArchive {
+			get { return isArchive; }
+			set { SetField(ref isArchive, value, () => IsArchive); }
+		}
+
 		#endregion
 
 		public Warehouse ()

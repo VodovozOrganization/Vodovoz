@@ -70,7 +70,7 @@ namespace Vodovoz
 			referenceCounterpartyTo.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
-			referenceWarehouseTo.SubjectType = typeof(Warehouse); //Можем выбрать любой склад, куда везем, а не только склад к которому имеем доступ.
+			referenceWarehouseTo.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
 			referenceWarehouseTo.Binding.AddBinding(Entity, e => e.ToWarehouse, w => w.Subject).InitializeFromSource();
 			referenceWarehouseFrom.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.MovementEdit);
 			referenceWarehouseFrom.Binding.AddBinding(Entity, e => e.FromWarehouse, w => w.Subject).InitializeFromSource();
