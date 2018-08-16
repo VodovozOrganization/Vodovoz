@@ -86,6 +86,15 @@ namespace Vodovoz
 			}
 			OnDataentryreferenceDriverChanged (null, null);
 			textDriverInfo.Selectable = true;
+
+			checkIsCompanyHavings.Sensitive = CarTypeIsEditable();
+			checkIsRaskat.Sensitive = CarTypeIsEditable();
+			comboTypeOfUse.Sensitive = CarTypeIsEditable();
+		}
+
+		bool CarTypeIsEditable()
+		{
+			return Entity.Id == 0;
 		}
 
 		public override bool Save ()
@@ -138,8 +147,8 @@ namespace Vodovoz
 			Entity.IsCompanyHavings = checkIsCompanyHavings.Active;
 			dataentryreferenceDriver.Sensitive = !Entity.IsCompanyHavings;
 
-			comboTypeOfUse.Sensitive = Entity.IsCompanyHavings;
-			checkIsRaskat.Sensitive = !Entity.IsCompanyHavings;
+			comboTypeOfUse.Sensitive = Entity.IsCompanyHavings && CarTypeIsEditable();
+			checkIsRaskat.Sensitive = !Entity.IsCompanyHavings && CarTypeIsEditable();
 
 			if(Entity.IsCompanyHavings) {
 				Entity.Driver = null;
@@ -154,7 +163,7 @@ namespace Vodovoz
 
 			dataentryreferenceDriver.Sensitive = Entity.IsRaskat;
 
-			checkIsCompanyHavings.Sensitive = !Entity.IsRaskat;
+			checkIsCompanyHavings.Sensitive = !Entity.IsRaskat && CarTypeIsEditable();
 
 			if(Entity.IsRaskat) {
 				checkIsCompanyHavings.Active = false;
