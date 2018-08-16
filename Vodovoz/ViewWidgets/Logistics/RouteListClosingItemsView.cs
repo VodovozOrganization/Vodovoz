@@ -392,7 +392,10 @@ namespace Vodovoz
 					.Where(x => //x.Nomenclature.Category != NomenclatureCategory.water && 
 			               x.Direction == Domain.Orders.Direction.Deliver);
 			foreach(OrderEquipment orderEquip in equipList) {
-				stringParts.Add(string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount));
+				stringParts.Add(orderEquip.IsDelivered
+									? string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount)
+				                	: string.Format("{0}:{1}({2:-0})", orderEquip.NameString, orderEquip.ActualCount, orderEquip.Count - orderEquip.ActualCount)
+				                );
 			}
 
 			//Если это старый заказ со старой записью оборудования в виде строки, то выводим только его
@@ -434,7 +437,10 @@ namespace Vodovoz
 			                           //&& x.Nomenclature.Category != NomenclatureCategory.water
 			                           && x.Direction == Domain.Orders.Direction.PickUp);
 			foreach(var orderEquip in equipList) {
-				stringParts.Add(string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount));
+				stringParts.Add(orderEquip.IsDelivered
+									? string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount)
+									: string.Format("{0}:{1}({2:-0})", orderEquip.NameString, orderEquip.ActualCount, orderEquip.Count - orderEquip.ActualCount)
+								);
 			}
 
 			//Если это старый заказ со старой записью оборудования в виде строки, то выводим только его
