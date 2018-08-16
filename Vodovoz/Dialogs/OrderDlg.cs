@@ -450,6 +450,7 @@ namespace Vodovoz
 			logger.Info("Сохраняем заказ...");
 			Entity.CheckAndSetOrderIsService();
 			Entity.SetOrderCreationDate();
+			Entity.SetFirstOrder();
 			SaveChanges();
 			Entity.ParseTareReason();
 			UoWGeneric.Save();

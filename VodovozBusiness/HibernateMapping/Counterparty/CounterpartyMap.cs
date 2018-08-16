@@ -40,6 +40,8 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.MainContact).Column("main_contact_id");
 			References(x => x.FinancialContact).Column("financial_contact_id");
 			References(x => x.DefaultExpenseCategory).Column("default_cash_expense_category_id");
+			References(x => x.CameFrom).Column("counterparty_camefrom_id");
+			References(x => x.FirstOrder).Column("first_order_id");
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()

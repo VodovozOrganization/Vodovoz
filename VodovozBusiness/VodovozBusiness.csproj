@@ -455,6 +455,8 @@
     <Compile Include="HibernateMapping\Goods\Folder1cMap.cs" />
     <Compile Include="Domain\Order\Documents\InvoiceContractDoc.cs" />
     <Compile Include="Domain\Order\Documents\EquipmentReturnDocument.cs" />
+    <Compile Include="Domain\Client\ClientCameFrom.cs" />
+    <Compile Include="HibernateMapping\Counterparty\ClientCameFromMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

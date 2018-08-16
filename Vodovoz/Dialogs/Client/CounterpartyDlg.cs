@@ -123,6 +123,8 @@ namespace Vodovoz
 			deliveryPointView.DeliveryPointUoW = UoWGeneric;
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
 			counterpartydocumentsview.Config(UoWGeneric, Entity);
+			referenceCameFrom.SubjectType = typeof(ClientCameFrom);
+			referenceCameFrom.Binding.AddBinding(Entity, e => e.CameFrom, w => w.Subject).InitializeFromSource();
 			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
 			referenceDefaultExpense.Binding.AddBinding(Entity, e => e.DefaultExpenseCategory, w => w.Subject).InitializeFromSource();
 			var filterAccountant = new EmployeeFilter(UoW);
@@ -167,6 +169,8 @@ namespace Vodovoz
 			menu.ShowAll();
 			menuActions.Sensitive = !UoWGeneric.IsNew;
 			contactsview1.Visible = false;
+			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
+			referenceCameFrom.Sensitive = Entity.Id == 0;
 		}
 
 		public void ActivateContactsTab()

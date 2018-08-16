@@ -807,6 +807,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.EquipmentBalance.cs" />
     <Compile Include="ReportsParameters\CardPaymentsOrdersReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CardPaymentsOrdersReport.cs" />
+    <Compile Include="Dialogs\Client\ClientCameFromDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.ClientCameFromDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

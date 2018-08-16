@@ -53,6 +53,13 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref createDate, value, () => CreateDate); }
 		}
 
+		bool isFirstOrder;
+		[Display(Name = "Первый заказ")]
+		public virtual bool IsFirstOrder {
+			get { return isFirstOrder; }
+			set { SetField(ref isFirstOrder, value, () => IsFirstOrder); }
+		}
+
 		OrderStatus orderStatus;
 
 		[Display(Name = "Статус заказа")]
@@ -1268,6 +1275,14 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(Id == 0 && !CreateDate.HasValue) {
 				CreateDate = DateTime.Now;
+			}
+		}
+
+		public virtual void SetFirstOrder()
+		{
+			if(Id == 0 && Client.FirstOrder == null) {
+				IsFirstOrder = true;
+				Client.FirstOrder = this;
 			}
 		}
 

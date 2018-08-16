@@ -11,6 +11,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Client
 {
@@ -347,6 +348,22 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref phoneFrom1c, value, () => PhoneFrom1c); }
 		}
 
+		ClientCameFrom cameFrom;
+
+		[Display(Name = "Откуда клиент")]
+		public virtual ClientCameFrom CameFrom {
+			get { return cameFrom; }
+			set { SetField(ref cameFrom, value, () => CameFrom); }
+		}
+
+		Order firstOrder;
+
+		[Display(Name = "Первый заказ")]
+		public virtual Order FirstOrder {
+			get { return firstOrder; }
+			set { SetField(ref firstOrder, value, () => FirstOrder); }
+		}
+
 		#endregion
 
 		public Counterparty()
@@ -432,6 +449,10 @@ namespace Vodovoz.Domain.Client
 					yield return new ValidationResult(
 						String.Format("Вы не можете сдать контрагента в архив так как он не вернул {0} бутылей", bottles));
 
+			}
+
+			if(Id == 0 && CameFrom == null) {
+				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Откуда клиент\"");
 			}
 		}
 
