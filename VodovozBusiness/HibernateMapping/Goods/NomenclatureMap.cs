@@ -38,6 +38,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.PercentForMaster).Column("percent_for_master");
 			Map(x => x.TypeOfDepositCategory).Column("type_of_deposit").CustomType<TypeOfDepositCategoryStringType>();
 			Map(x => x.SubTypeOfEquipmentCategory).Column("subtype_of_equipment").CustomType<SubtypeOfEquipmentCategoryStringType>();
+			Map(x => x.OnlineStoreGuid).Column("online_store_guid");
 
 			References(x => x.CreatedBy).Column("created_by");
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
@@ -48,6 +49,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.RouteListColumn).Column("route_column_id");
 			References(x => x.Warehouse).Column("warehouse_id");
 			References(x => x.Folder1C).Column("folder_1c_id");
+			References(x => x.ProductGroup).Column("group_id");
 
 			HasMany(x => x.NomenclaturePrice).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 		}

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using System.Linq;
-using Gamma.Binding;
 using Gamma.Utilities;
 using QSBusinessCommon.Domain;
 using QSOrmProject;
@@ -326,6 +324,22 @@ namespace Vodovoz.Domain.Goods
 		public virtual double PercentForMaster {
 			get { return percentForMaster; }
 			set { SetField(ref percentForMaster, value, () => PercentForMaster); }
+		}
+
+		private Guid? onlineStoreGuid;
+
+		[Display(Name = "Guid интернет магазина")]
+		public virtual Guid? OnlineStoreGuid {
+			get { return onlineStoreGuid; }
+			set { SetField(ref onlineStoreGuid, value, () => OnlineStoreGuid); }
+		}
+
+		private ProductGroup productGroup;
+
+		[Display(Name = "Группа товаров")]
+		public virtual ProductGroup ProductGroup {
+			get { return productGroup; }
+			set { SetField(ref productGroup, value, () => ProductGroup); }
 		}
 
 		#endregion

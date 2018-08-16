@@ -1044,7 +1044,17 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionCameFromActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(ClientCameFrom));
-		tdiMain.AddTab(refWin);
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<ClientCameFrom>(),
+			() => new OrmReference(typeof(ClientCameFrom))
+		);
+	}
+
+	protected void OnActionProductGroupsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<ProductGroup>(),
+			() => new OrmReference(typeof(ProductGroup))
+		);
 	}
 }
