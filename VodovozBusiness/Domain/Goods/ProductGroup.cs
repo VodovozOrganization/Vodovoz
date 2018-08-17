@@ -40,6 +40,19 @@ namespace Vodovoz.Domain.Goods
 
 		#endregion
 
+		/// <summary>
+		/// Получает или создает новый Guid. Uow необходим для сохранения группы.
+		/// </summary>
+		public virtual Guid GetOrCreateGuid(IUnitOfWork uow)
+		{
+			if(OnlineStoreGuid == null)
+			{
+				OnlineStoreGuid = Guid.NewGuid();
+				uow.Save(this);
+			}
+			return OnlineStoreGuid.Value;
+		}
+
 		public ProductGroup()
 		{
 		}

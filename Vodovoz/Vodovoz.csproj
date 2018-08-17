@@ -810,6 +810,8 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.ClientCameFromDlg.cs" />
     <Compile Include="Dialogs\Goods\ProductGroupDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.ProductGroupDlg.cs" />
+    <Compile Include="Dialogs\OnlineStore\ExportToSiteDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.OnlineStore.ExportToSiteDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -964,6 +966,7 @@
     <Folder Include="Additions\Store\" />
     <Folder Include="ReportsParameters\Bottles\" />
     <Folder Include="Reports\Bottles\" />
+    <Folder Include="Dialogs\OnlineStore\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

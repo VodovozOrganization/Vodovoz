@@ -24,6 +24,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ServiceDialogs;
+using Vodovoz.Dialogs.OnlineStore;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1055,6 +1056,14 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			OrmReference.GenerateHashName<ProductGroup>(),
 			() => new OrmReference(typeof(ProductGroup))
+		);
+	}
+
+	protected void OnActionToOnlineStoreActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<ExportToSiteDlg>(),
+			() => new ExportToSiteDlg()
 		);
 	}
 }

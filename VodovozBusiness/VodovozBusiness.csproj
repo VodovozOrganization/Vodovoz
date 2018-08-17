@@ -118,6 +118,12 @@
     <Reference Include="NLog">
       <HintPath>..\..\QSProjects\packages\NLog.4.4.11\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml.Linq">
+      <HintPath>..\..\..\..\..\usr\lib\mono\4.5-api\System.Xml.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>..\..\..\..\..\usr\lib\mono\4.0-api\System.Xml.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -457,6 +463,16 @@
     <Compile Include="Domain\Order\Documents\EquipmentReturnDocument.cs" />
     <Compile Include="Domain\Client\ClientCameFrom.cs" />
     <Compile Include="HibernateMapping\Counterparty\ClientCameFromMap.cs" />
+    <Compile Include="Tools\CommerceML\Export.cs" />
+    <Compile Include="Tools\IXmlConvertable.cs" />
+    <Compile Include="Tools\CommerceML\Nodes\Root.cs" />
+    <Compile Include="Tools\CommerceML\Nodes\Classifier.cs" />
+    <Compile Include="Tools\CommerceML\GuidNodeBase.cs" />
+    <Compile Include="Tools\CommerceML\IGuidNode.cs" />
+    <Compile Include="Tools\CommerceML\Nodes\Owner.cs" />
+    <Compile Include="Tools\CommerceML\Nodes\Groups.cs" />
+    <Compile Include="Domain\Goods\ProductGroup.cs" />
+    <Compile Include="HibernateMapping\Goods\ProductGroupMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -474,6 +490,8 @@
     <Folder Include="Repositories\Sale\" />
     <Folder Include="Domain\Sale\" />
     <Folder Include="HibernateMapping\Sale\" />
+    <Folder Include="Tools\CommerceML\" />
+    <Folder Include="Tools\CommerceML\Nodes\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
