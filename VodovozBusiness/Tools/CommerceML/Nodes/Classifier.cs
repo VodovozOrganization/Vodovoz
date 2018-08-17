@@ -11,7 +11,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 		public Classifier(Export export)
 		{
 			myExport = export;
-			groups = new Groups(export);
+			myExport.ProductGroups = groups = new Groups(export);
 		}
 
 		Export myExport;

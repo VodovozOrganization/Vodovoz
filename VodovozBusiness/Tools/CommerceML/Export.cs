@@ -24,6 +24,8 @@ namespace Vodovoz.Tools.CommerceML
 
 		public Owner DefaultOwner { get; private set; }
 
+		public Groups ProductGroups { get; set; }
+
 		private Root root;
 
 #region Progress
@@ -34,7 +36,7 @@ namespace Vodovoz.Tools.CommerceML
 
 		public int CurrentTask = 0;
 
-		public int TotalTasks = 3;
+		public int TotalTasks = 5;
 
 		public void OnProgressPlusOneTask(string text)
 		{
@@ -60,6 +62,12 @@ namespace Vodovoz.Tools.CommerceML
 			DefaultOwner = new Owner(this, org);
 
 			root = new Root(this);
+
+			if(Errors.Count == 0)
+			{
+				OnProgressPlusOneTask("Сохраняем созданные Guid's в базу.");
+				UOW.Commit();
+			}
 		}
 
 		public XElement GetXml()

@@ -371,6 +371,7 @@ namespace Vodovoz.Domain.Goods
 			Category = NomenclatureCategory.water;
 		}
 
+#region Методы
 
 		public virtual decimal GetPrice(int? itemsCount)
 		{
@@ -387,6 +388,20 @@ namespace Vodovoz.Domain.Goods
 			}
 			return price;
 		}
+
+		/// <summary>
+		/// Получает или создает новый Guid. Uow необходим для сохранения созданного Guid в базу.
+		/// </summary>
+		public virtual Guid GetOrCreateGuid(IUnitOfWork uow)
+		{
+			if(OnlineStoreGuid == null) {
+				OnlineStoreGuid = Guid.NewGuid();
+				uow.Save(this);
+			}
+			return OnlineStoreGuid.Value;
+		}
+
+#endregion
 
 		#region IValidatableObject implementation
 

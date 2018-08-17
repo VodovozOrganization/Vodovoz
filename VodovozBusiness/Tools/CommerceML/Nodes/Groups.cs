@@ -35,7 +35,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			foreach(var group in groups)
 			{
 				if(!group.ExportToOnlineStore)
-					return;
+					continue;
 
 				var groupxml = new XElement("Группа");
 				groupxml.Add(new XElement("Ид", group.GetOrCreateGuid(myExport.UOW)));
@@ -44,6 +44,25 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 				AddGroups(childGroupsxml, group.Childs);
 				groupxml.Add(childGroupsxml);
 				xml.Add(groupxml);
+			}
+		}
+
+		public int[] ToExportIds()
+		{
+			var ids = new List<int>();
+			SearchForExport(ids, treeOfGroups);
+			return ids.ToArray();
+		}
+
+		void SearchForExport(List<int> ids, IList<ProductGroup> groups)
+		{
+			foreach(var group in groups) {
+				if(!group.ExportToOnlineStore)
+					continue;
+
+				ids.Add(group.Id);
+				if(group.Childs.Any())
+					SearchForExport(ids, group.Childs);
 			}
 		}
 	}

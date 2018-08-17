@@ -11,6 +11,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 		public string Version { get; private set; }
 		public DateTime ExportDate { get; private set; }
 		public Classifier Classifier { get; private set; }
+		public Catalog Catalog { get; private set; }
 
 		public Root(Export export)
 		{
@@ -18,6 +19,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			Version = "2.04";
 			ExportDate = DateTime.Now;
 			Classifier = new Classifier(myExport);
+			Catalog = new Catalog(myExport, Classifier);
 		}
 
 		public XElement ToXml()
@@ -27,6 +29,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			                       new XAttribute("ДатаФормирования", ExportDate)
 					  );
 			xml.Add(Classifier.ToXml());
+			xml.Add(Catalog.ToXml());
 			return xml;
 		}
 	}

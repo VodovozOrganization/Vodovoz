@@ -473,6 +473,8 @@
     <Compile Include="Tools\CommerceML\Nodes\Groups.cs" />
     <Compile Include="Domain\Goods\ProductGroup.cs" />
     <Compile Include="HibernateMapping\Goods\ProductGroupMap.cs" />
+    <Compile Include="Tools\CommerceML\Nodes\Goods.cs" />
+    <Compile Include="Tools\CommerceML\Nodes\Catalog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

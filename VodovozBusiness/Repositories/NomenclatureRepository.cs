@@ -144,6 +144,12 @@ namespace Vodovoz.Repository
 			return Nomenclature.PrefixOfCode1c + id.ToString(format);
 		}
 
+		public static QueryOver<Nomenclature> NomenclatureInGroupsQuery(int[] groupsIds)
+		{
+			return QueryOver.Of<Nomenclature>()
+				            .Where(n => n.ProductGroup.Id.IsIn(groupsIds));
+		}
+
 		#region Получение номенклатур воды
 
 		public static Nomenclature GetWaterSemiozerie(IUnitOfWork uow)

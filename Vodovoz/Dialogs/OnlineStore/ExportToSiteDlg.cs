@@ -12,6 +12,7 @@ namespace Vodovoz.Dialogs.OnlineStore
 		public ExportToSiteDlg()
 		{
 			this.Build();
+			TabName = "Экспорт интернет магазин";
 		}
 
 		protected void OnButtonRunToFileClicked(object sender, EventArgs e)
