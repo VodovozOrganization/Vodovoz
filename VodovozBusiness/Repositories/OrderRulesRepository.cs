@@ -180,7 +180,7 @@ namespace Vodovoz.Repositories
 				key.OnlyEquipments.Any(e => e.Direction == Direction.Deliver && (e.DirectionReason == DirectionReason.Repair || e.DirectionReason == DirectionReason.RepairAndCleaning || e.DirectionReason == DirectionReason.Cleaning))
 			   ||
 				//Условия для выезда мастера.
-				key.Order.IsService
+				key.NeedMaster
 			   )
 		);
 

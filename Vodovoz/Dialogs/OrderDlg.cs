@@ -549,6 +549,9 @@ namespace Vodovoz
 					}
 				}
 			}
+
+			Entity.CheckAndSetOrderIsService();
+
 			if(Entity.OrderStatus == OrderStatus.NewOrder
 			   || Entity.OrderStatus == OrderStatus.WaitForPayment) {
 				Entity.ChangeStatus(OrderStatus.Accepted);
