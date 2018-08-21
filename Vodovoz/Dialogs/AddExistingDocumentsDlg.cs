@@ -101,7 +101,7 @@ namespace Vodovoz.Dialogs
 
 		void Orderselectedview1_OrderActivated(object sender, int e)
 		{
-			var doc = UoW.GetById<OrderDocument>(e);
+			var doc = UoW.GetById<OrderDocument>(e) as IPrintableRDLDocument;
 			if(doc == null) {
 				return;
 			}

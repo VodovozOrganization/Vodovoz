@@ -7,6 +7,7 @@ using NHibernate.Cfg;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
 using QSContacts;
+using QSDocTemplates;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSOrmProject.Permissions;
@@ -195,9 +196,10 @@ namespace Vodovoz
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 			OrmMain.ClassMappingList.AddRange(QSContactsMain.GetModuleMaping());
 
-#endregion
+			#endregion
 
 			//HistoryMain.ConfigureFromOrmMain();
+			TemplatePrinter.InitPrinter();
 
 			//Настройка ParentReference
 			ParentReferenceConfig.AddActions(new ParentReferenceActions<Organization, QSBanks.Account> {

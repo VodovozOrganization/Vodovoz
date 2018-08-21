@@ -1,16 +1,16 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Client;
-using QSReport;
+using System.Linq;
+using QS.Print;
 using QSDocTemplates;
 using QSOrmProject;
 using Vodovoz.DocTemplates;
-using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.Repositories.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class OrderAgreement : OrderDocument, ITemplatePrntDoc, ITemplateOdtDocument
+	public class OrderAgreement : OrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
 	{
 		#region implemented abstract members of OrderDocument
 
@@ -37,8 +37,6 @@ namespace Vodovoz.Domain.Orders.Documents
 				                      additionalAgreement.FullNumberText);
 			}
 		}
-
-		public virtual int CopiesToPrint { get; set; }
 
 		public override DateTime? DocumentDate {
 			get { return AdditionalAgreement?.IssueDate;}

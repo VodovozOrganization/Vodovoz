@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Print;
 using QSReport;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class ShetFacturaDocument:OrderDocument
+	public class ShetFacturaDocument:OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 
-		public override QSReport.ReportInfo GetReportInfo ()
+		public virtual QSReport.ReportInfo GetReportInfo ()
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format ("Счет-Фактура {0} от {1:d}", Order.Id, Order.DeliveryDate),

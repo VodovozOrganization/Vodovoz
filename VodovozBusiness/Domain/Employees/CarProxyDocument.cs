@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using QS.Print;
 using QSOrmProject;
-using QSReport;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 

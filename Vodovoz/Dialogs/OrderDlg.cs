@@ -9,6 +9,7 @@ using Gtk;
 using NHibernate.Proxy;
 using NHibernate.Util;
 using NLog;
+using QS.Print;
 using QSDocTemplates;
 using QSOrmProject;
 using QSProjectsLib;
@@ -655,12 +656,12 @@ namespace Vodovoz
 		{
 			if(treeDocuments.GetSelectedObjects().Any()) {
 				var rdlDocs = treeDocuments.GetSelectedObjects()
-										   .Cast<OrderDocument>()
-										   .Where(d => d.PrintType == PrinterType.RDL).ToList();
+				                           .Cast<IPrintableRDLDocument>()
+										   .ToList();
 				if(rdlDocs.Any()) {
 					string whatToPrint = rdlDocs.Count > 1
 												? "документов"
-												: "документа \"" + rdlDocs.First().Type.GetEnumTitle() + "\"";
+					                            : "документа \"" + rdlDocs.Cast<OrderDocument>().First().Type.GetEnumTitle() + "\"";
 					if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
 						UoWGeneric.Save();
 					rdlDocs.ForEach(
@@ -1602,7 +1603,7 @@ namespace Vodovoz
 			}
 
 			var selectedPrintableODTDocuments = treeDocuments.GetSelectedObjects()
-				.OfType<ITemplatePrntDoc>().ToList();
+				.OfType<IPrintableOdtDocument>().ToList();
 			if(selectedPrintableODTDocuments.Count > 0) {
 				TemplatePrinter.PrintAll(selectedPrintableODTDocuments);
 			}

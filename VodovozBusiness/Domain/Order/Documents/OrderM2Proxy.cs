@@ -1,15 +1,15 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using QS.Print;
 using QSDocTemplates;
 using QSOrmProject;
-using Vodovoz.Domain.Employees;
 using Vodovoz.DocTemplates;
-using System.Linq;
-using QSReport;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class OrderM2Proxy : OrderDocument, ITemplatePrntDoc, ITemplateOdtDocument
+	public class OrderM2Proxy : OrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
 	{
 		#region implemented abstract members of OrderDocument
 
@@ -38,8 +38,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override DateTime? DocumentDate {
 			get { return M2Proxy?.Date; }
 		}
-
-		public virtual int CopiesToPrint { get; set; }
 
 		public virtual void PrepareTemplate(IUnitOfWork uow)
 		{

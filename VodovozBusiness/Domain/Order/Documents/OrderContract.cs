@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.Print;
 using QSDocTemplates;
 using QSOrmProject;
 using QSReport;
@@ -7,7 +8,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class OrderContract : OrderDocument, ITemplatePrntDoc, IPrintableDocument, ITemplateOdtDocument
+	public class OrderContract : OrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
 	{
 		#region implemented abstract members of OrderDocument
 
@@ -30,8 +31,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override string Name {
 			get { return String.Format("Договор №{0}", contract.ContractFullNumber); }
 		}
-
-		public virtual int CopiesToPrint { get; set; }
 
 		public override DateTime? DocumentDate {
 			get { return Contract?.IssueDate; }

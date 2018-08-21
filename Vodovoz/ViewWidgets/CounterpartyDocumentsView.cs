@@ -6,6 +6,7 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NHibernate.Proxy;
 using NHibernate.Transform;
+using QS.Print;
 using QSOrmProject;
 using QSReport;
 using QSTDI;
@@ -173,9 +174,9 @@ namespace Vodovoz.ViewWidgets
 				);
 			}
 			if(selectedPrintableDocuments.Document is OrderDocument) {
-				OrderDocument orderDoc = (selectedPrintableDocuments.Document as OrderDocument);
-				if(orderDoc.PrintType != PrinterType.None){
-					mytab.TabParent.AddTab(DocumentPrinter.GetPreviewTab(orderDoc), mytab);
+				var rdlDoc = (selectedPrintableDocuments.Document as IPrintableRDLDocument);
+				if(rdlDoc != null){
+					mytab.TabParent.AddTab(DocumentPrinter.GetPreviewTab(rdlDoc), mytab);
 				}
 			}
 		}

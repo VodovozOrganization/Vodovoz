@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using QS.Print;
 using QSReport;
-using Vodovoz.Domain.Service;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class DoneWorkDocument:OrderDocument
+	public class DoneWorkDocument:OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 
@@ -16,7 +15,7 @@ namespace Vodovoz.Domain.Orders.Documents
 			}
 		}
 
-		public override QSReport.ReportInfo GetReportInfo ()
+		public virtual QSReport.ReportInfo GetReportInfo ()
 		{
 			return new QSReport.ReportInfo {
 				Title = Name,

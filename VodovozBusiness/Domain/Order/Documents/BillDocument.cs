@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using QS.Print;
 using QSReport;
 using QSSupportLib;
 using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class BillDocument:OrderDocument
+	public class BillDocument:OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 
@@ -17,20 +18,7 @@ namespace Vodovoz.Domain.Orders.Documents
 			}
 		}
 			
-		public override QSReport.ReportInfo GetReportInfo ()
-		{
-			return new QSReport.ReportInfo {
-				Title = String.Format ("Счет №{0} от {1:d}", Order.Id, Order.BillDate),
-				Identifier = "Documents.Bill",
-				Parameters = new Dictionary<string, object> {
-					{ "order_id",  Order.Id },
-					{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization]) },
-					{ "hide_signature", HideSignature }
-				}
-			};
-		}
-
-		public override QSReport.ReportInfo GetReportInfoForPreview()
+		public virtual QSReport.ReportInfo GetReportInfo ()
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format ("Счет №{0} от {1:d}", Order.Id, Order.BillDate),

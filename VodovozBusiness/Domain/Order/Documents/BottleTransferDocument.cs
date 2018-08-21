@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Print;
 using QSReport;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class BottleTransferDocument : OrderDocument
+	public class BottleTransferDocument : OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 
-		public override QSReport.ReportInfo GetReportInfo()
+		public virtual QSReport.ReportInfo GetReportInfo()
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format("Акт передачи-возврата бутылей"),

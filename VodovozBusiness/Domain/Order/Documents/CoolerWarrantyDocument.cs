@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using QS.Print;
 using QSReport;
 using QSSupportLib;
 using Vodovoz.Domain.Client;
@@ -9,12 +10,12 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class CoolerWarrantyDocument:OrderDocument
+	public class CoolerWarrantyDocument:OrderDocument, IPrintableRDLDocument
 	{
 		
 		#region implemented abstract members of OrderDocument
 
-		public override QSReport.ReportInfo GetReportInfo ()
+		public virtual QSReport.ReportInfo GetReportInfo ()
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format ("Гарантийный талон на кулера №{0}", WarrantyFullNumber),
@@ -118,7 +119,6 @@ namespace Vodovoz.Domain.Orders.Documents
 			} else
 				return 1;
 		}
-
 	}
 }
 

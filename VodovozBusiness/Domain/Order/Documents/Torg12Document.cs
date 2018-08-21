@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Print;
 using QSReport;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class Torg12Document:OrderDocument
+	public class Torg12Document:OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 
-		public override QSReport.ReportInfo GetReportInfo ()
+		public virtual QSReport.ReportInfo GetReportInfo ()
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format ("ТОРГ-12 {0} от {1:d}", Order.Id, Order.DeliveryDate),

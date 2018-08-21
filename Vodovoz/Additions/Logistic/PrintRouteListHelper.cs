@@ -7,6 +7,7 @@ using System.Xml;
 using Gamma.Utilities;
 using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
+using QS.Print;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
@@ -327,7 +328,7 @@ namespace Vodovoz.Additions.Logistic
 		OrderOfAddresses
 	}
 
-	public class RouteListPrintableDocs : IPrintableDocument
+	public class RouteListPrintableDocs : IPrintableRDLDocument
 	{
 		public RouteListPrintableDocs(IUnitOfWork uow, RouteList routeList, RouteListPrintableDocuments type)
 		{
@@ -341,11 +342,6 @@ namespace Vodovoz.Additions.Logistic
 		public ReportInfo GetReportInfo()
 		{
 			return PrintRouteListHelper.GetRDL(routeList, type, UoW);
-		}
-
-		public ReportInfo GetReportInfoForPreview()
-		{
-			return GetReportInfo();
 		}
 
 		public PrinterType PrintType {
@@ -367,6 +363,8 @@ namespace Vodovoz.Additions.Logistic
 				return RouteListPrintableDocuments.LoadDocument.GetEnumTitle();
 			}
 		}
+
+		public int CopiesToPrint { get; set; }
 
 		#endregion
 

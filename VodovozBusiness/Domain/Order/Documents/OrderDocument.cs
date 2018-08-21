@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.Print;
 using QSOrmProject;
-using QSReport;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -45,15 +45,6 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual string DocumentDateText { get { return DocumentDate?.ToShortDateString() ?? "не указана"; } }
 
-		#region IPrintableDocument implementation
-		public virtual QSReport.ReportInfo GetReportInfo (){
-			throw new NotImplementedException ();
-		}
-
-		public virtual QSReport.ReportInfo GetReportInfoForPreview(){
-			return GetReportInfo ();
-		}
-
 		public virtual PrinterType PrintType {
 			get {
 				return PrinterType.None;
@@ -65,7 +56,8 @@ namespace Vodovoz.Domain.Orders.Documents
 				return DocumentOrientation.Portrait;
 			}
 		}
-		#endregion
+
+		public virtual int CopiesToPrint { get ; set ; }
 	}
 
 

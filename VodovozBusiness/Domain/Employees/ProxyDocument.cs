@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.Print;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using QSReport;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Employees

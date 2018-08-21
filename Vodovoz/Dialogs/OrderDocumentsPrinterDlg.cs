@@ -5,11 +5,9 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using QSDocTemplates;
-using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using QSTDI;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 
@@ -31,20 +29,20 @@ namespace Vodovoz.Dialogs
 			currentOrder = order;
 			bool? successfulUpdate = null;
 			foreach(var item in currentOrder.OrderDocuments) {
-				if(item is ITemplatePrntDoc) {
+				if(item is IPrintableOdtDocument) {
 					switch(item.Type) {
 						case OrderDocumentType.AdditionalAgreement:
-							if((item as ITemplatePrntDoc).GetTemplate() == null)
+							if((item as IPrintableOdtDocument).GetTemplate() == null)
 								successfulUpdate = (item as OrderAgreement).AdditionalAgreement.UpdateContractTemplate(currentOrder.UoW);
 							(item as OrderAgreement).PrepareTemplate(currentOrder.UoW);
 							break;
 						case OrderDocumentType.Contract:
-							if((item as ITemplatePrntDoc).GetTemplate() == null)
+							if((item as IPrintableOdtDocument).GetTemplate() == null)
 								successfulUpdate = (item as OrderContract).Contract.UpdateContractTemplate(currentOrder.UoW);
 							(item as OrderContract).PrepareTemplate(currentOrder.UoW);
 							break;
 						case OrderDocumentType.M2Proxy:
-							if((item as ITemplatePrntDoc).GetTemplate() == null)
+							if((item as IPrintableOdtDocument).GetTemplate() == null)
 								successfulUpdate = (item as OrderM2Proxy).M2Proxy.UpdateM2ProxyDocumentTemplate(currentOrder.UoW);
 							(item as OrderM2Proxy).PrepareTemplate(currentOrder.UoW);
 							break;
@@ -119,14 +117,11 @@ namespace Vodovoz.Dialogs
 
 		void PreviewDocument(SelectablePrintDocument selectedDocument)
 		{
-			if(selectedDocument == null)
+			var rdldoc = selectedDocument.Document as IPrintableRDLDocument;
+			if(rdldoc == null)
 				return;
 
-			if(selectedDocument.Document.PrintType != PrinterType.RDL) {
-
-				return;
-			}
-			var reportInfo = selectedDocument.Document.GetReportInfo();
+			var reportInfo = rdldoc.GetReportInfo();
 			reportviewer.LoadReport(reportInfo.GetReportUri(), reportInfo.GetParametersString(), reportInfo.ConnectionString, true);
 		}
 
