@@ -68,6 +68,16 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.Button buttonDiscountReasonUnselect;
 
+		private global::Gtk.HBox hboxSubdivizion;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel10;
+
+		private global::Gamma.GtkWidgets.yLabel yLblSubdivision;
+
+		private global::Gtk.Button btnSubdivisionSelect;
+
+		private global::Gtk.Button btnSubdivisionDeselect;
+
 		private global::Gtk.HBox hboxOrderAuthor;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel9;
@@ -406,6 +416,54 @@ namespace Vodovoz.Reports
 			w31.Expand = false;
 			w31.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.hboxSubdivizion = new global::Gtk.HBox();
+			this.hboxSubdivizion.Name = "hboxSubdivizion";
+			this.hboxSubdivizion.Spacing = 6;
+			// Container child hboxSubdivizion.Gtk.Box+BoxChild
+			this.ylabel10 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel10.Name = "ylabel10";
+			this.ylabel10.Xalign = 0F;
+			this.ylabel10.LabelProp = global::Mono.Unix.Catalog.GetString("Отдел:");
+			this.hboxSubdivizion.Add(this.ylabel10);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hboxSubdivizion[this.ylabel10]));
+			w32.Position = 0;
+			w32.Expand = false;
+			w32.Fill = false;
+			// Container child hboxSubdivizion.Gtk.Box+BoxChild
+			this.yLblSubdivision = new global::Gamma.GtkWidgets.yLabel();
+			this.yLblSubdivision.Name = "yLblSubdivision";
+			this.yLblSubdivision.Xalign = 1F;
+			this.hboxSubdivizion.Add(this.yLblSubdivision);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hboxSubdivizion[this.yLblSubdivision]));
+			w33.Position = 1;
+			// Container child hboxSubdivizion.Gtk.Box+BoxChild
+			this.btnSubdivisionSelect = new global::Gtk.Button();
+			this.btnSubdivisionSelect.CanFocus = true;
+			this.btnSubdivisionSelect.Name = "btnSubdivisionSelect";
+			this.btnSubdivisionSelect.UseUnderline = true;
+			this.btnSubdivisionSelect.Label = global::Mono.Unix.Catalog.GetString("Вкл.");
+			this.hboxSubdivizion.Add(this.btnSubdivisionSelect);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hboxSubdivizion[this.btnSubdivisionSelect]));
+			w34.Position = 2;
+			w34.Expand = false;
+			w34.Fill = false;
+			// Container child hboxSubdivizion.Gtk.Box+BoxChild
+			this.btnSubdivisionDeselect = new global::Gtk.Button();
+			this.btnSubdivisionDeselect.CanFocus = true;
+			this.btnSubdivisionDeselect.Name = "btnSubdivisionDeselect";
+			this.btnSubdivisionDeselect.UseUnderline = true;
+			this.btnSubdivisionDeselect.Label = global::Mono.Unix.Catalog.GetString("Искл.");
+			this.hboxSubdivizion.Add(this.btnSubdivisionDeselect);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hboxSubdivizion[this.btnSubdivisionDeselect]));
+			w35.Position = 3;
+			w35.Expand = false;
+			w35.Fill = false;
+			this.vbox1.Add(this.hboxSubdivizion);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSubdivizion]));
+			w36.Position = 7;
+			w36.Expand = false;
+			w36.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxOrderAuthor = new global::Gtk.HBox();
 			this.hboxOrderAuthor.Name = "hboxOrderAuthor";
 			this.hboxOrderAuthor.Spacing = 6;
@@ -415,17 +473,17 @@ namespace Vodovoz.Reports
 			this.ylabel9.Xalign = 0F;
 			this.ylabel9.LabelProp = global::Mono.Unix.Catalog.GetString("Автор заказа:");
 			this.hboxOrderAuthor.Add(this.ylabel9);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAuthor[this.ylabel9]));
-			w32.Position = 0;
-			w32.Expand = false;
-			w32.Fill = false;
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAuthor[this.ylabel9]));
+			w37.Position = 0;
+			w37.Expand = false;
+			w37.Fill = false;
 			// Container child hboxOrderAuthor.Gtk.Box+BoxChild
 			this.yLblOrderAuthor = new global::Gamma.GtkWidgets.yLabel();
 			this.yLblOrderAuthor.Name = "yLblOrderAuthor";
 			this.yLblOrderAuthor.Xalign = 1F;
 			this.hboxOrderAuthor.Add(this.yLblOrderAuthor);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAuthor[this.yLblOrderAuthor]));
-			w33.Position = 1;
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAuthor[this.yLblOrderAuthor]));
+			w38.Position = 1;
 			// Container child hboxOrderAuthor.Gtk.Box+BoxChild
 			this.btnOrderAuthorSelect = new global::Gtk.Button();
 			this.btnOrderAuthorSelect.CanFocus = true;
@@ -433,10 +491,10 @@ namespace Vodovoz.Reports
 			this.btnOrderAuthorSelect.UseUnderline = true;
 			this.btnOrderAuthorSelect.Label = global::Mono.Unix.Catalog.GetString("Вкл.");
 			this.hboxOrderAuthor.Add(this.btnOrderAuthorSelect);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAuthor[this.btnOrderAuthorSelect]));
-			w34.Position = 2;
-			w34.Expand = false;
-			w34.Fill = false;
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAuthor[this.btnOrderAuthorSelect]));
+			w39.Position = 2;
+			w39.Expand = false;
+			w39.Fill = false;
 			// Container child hboxOrderAuthor.Gtk.Box+BoxChild
 			this.btnOrderAuthorDeselect = new global::Gtk.Button();
 			this.btnOrderAuthorDeselect.CanFocus = true;
@@ -444,44 +502,43 @@ namespace Vodovoz.Reports
 			this.btnOrderAuthorDeselect.UseUnderline = true;
 			this.btnOrderAuthorDeselect.Label = global::Mono.Unix.Catalog.GetString("Искл.");
 			this.hboxOrderAuthor.Add(this.btnOrderAuthorDeselect);
-			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAuthor[this.btnOrderAuthorDeselect]));
-			w35.Position = 3;
-			w35.Expand = false;
-			w35.Fill = false;
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAuthor[this.btnOrderAuthorDeselect]));
+			w40.Position = 3;
+			w40.Expand = false;
+			w40.Fill = false;
 			this.vbox1.Add(this.hboxOrderAuthor);
-			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxOrderAuthor]));
-			w36.Position = 7;
-			w36.Expand = false;
-			w36.Fill = false;
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxOrderAuthor]));
+			w41.Position = 8;
+			w41.Expand = false;
+			w41.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hseparator1 = new global::Gtk.HSeparator();
 			this.hseparator1.Name = "hseparator1";
 			this.vbox1.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
-			w37.Position = 8;
-			w37.Expand = false;
-			w37.Fill = false;
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
+			w42.Position = 9;
+			w42.Expand = false;
+			w42.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.labelTableTitle = new global::Gtk.Label();
 			this.labelTableTitle.Name = "labelTableTitle";
 			this.labelTableTitle.Xalign = 0F;
 			this.vbox1.Add(this.labelTableTitle);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelTableTitle]));
-			w38.Position = 9;
-			w38.Expand = false;
-			w38.Fill = false;
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelTableTitle]));
+			w43.Position = 10;
+			w43.Expand = false;
+			w43.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.searchEntityInSelectedList = new global::QSWidgetLib.SearchEntity();
 			this.searchEntityInSelectedList.Events = ((global::Gdk.EventMask)(256));
 			this.searchEntityInSelectedList.Name = "searchEntityInSelectedList";
 			this.vbox1.Add(this.searchEntityInSelectedList);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchEntityInSelectedList]));
-			w39.Position = 10;
-			w39.Expand = false;
-			w39.Fill = false;
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchEntityInSelectedList]));
+			w44.Position = 11;
+			w44.Expand = false;
+			w44.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -491,11 +548,11 @@ namespace Vodovoz.Reports
 			this.buttonSelectAll.UseUnderline = true;
 			this.buttonSelectAll.Label = global::Mono.Unix.Catalog.GetString("Выбрать всех");
 			this.table1.Add(this.buttonSelectAll);
-			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonSelectAll]));
-			w40.TopAttach = ((uint)(1));
-			w40.BottomAttach = ((uint)(2));
-			w40.XOptions = ((global::Gtk.AttachOptions)(4));
-			w40.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonSelectAll]));
+			w45.TopAttach = ((uint)(1));
+			w45.BottomAttach = ((uint)(2));
+			w45.XOptions = ((global::Gtk.AttachOptions)(4));
+			w45.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.buttonUnselectAll = new global::Gtk.Button();
 			this.buttonUnselectAll.CanFocus = true;
@@ -503,13 +560,13 @@ namespace Vodovoz.Reports
 			this.buttonUnselectAll.UseUnderline = true;
 			this.buttonUnselectAll.Label = global::Mono.Unix.Catalog.GetString("Снять выделение");
 			this.table1.Add(this.buttonUnselectAll);
-			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonUnselectAll]));
-			w41.TopAttach = ((uint)(1));
-			w41.BottomAttach = ((uint)(2));
-			w41.LeftAttach = ((uint)(1));
-			w41.RightAttach = ((uint)(2));
-			w41.XOptions = ((global::Gtk.AttachOptions)(4));
-			w41.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonUnselectAll]));
+			w46.TopAttach = ((uint)(1));
+			w46.BottomAttach = ((uint)(2));
+			w46.LeftAttach = ((uint)(1));
+			w46.RightAttach = ((uint)(2));
+			w46.XOptions = ((global::Gtk.AttachOptions)(4));
+			w46.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -521,11 +578,11 @@ namespace Vodovoz.Reports
 			this.ytreeviewSelectedList.Name = "ytreeviewSelectedList";
 			this.GtkScrolledWindow.Add(this.ytreeviewSelectedList);
 			this.table1.Add(this.GtkScrolledWindow);
-			global::Gtk.Table.TableChild w43 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow]));
-			w43.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w48 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow]));
+			w48.RightAttach = ((uint)(2));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w44.Position = 11;
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w49.Position = 12;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -533,11 +590,11 @@ namespace Vodovoz.Reports
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w45.PackType = ((global::Gtk.PackType)(1));
-			w45.Position = 12;
-			w45.Expand = false;
-			w45.Fill = false;
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w50.PackType = ((global::Gtk.PackType)(1));
+			w50.Position = 13;
+			w50.Expand = false;
+			w50.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -554,6 +611,8 @@ namespace Vodovoz.Reports
 			this.buttonOrgUnselect.Clicked += new global::System.EventHandler(this.OnButtonOrgUnselectClicked);
 			this.buttonDiscountReasonSelect.Clicked += new global::System.EventHandler(this.OnButtonDiscountReasonSelectClicked);
 			this.buttonDiscountReasonUnselect.Clicked += new global::System.EventHandler(this.OnButtonDiscountReasonUnselectClicked);
+			this.btnSubdivisionSelect.Clicked += new global::System.EventHandler(this.OnBtnSubdivisionSelectClicked);
+			this.btnSubdivisionDeselect.Clicked += new global::System.EventHandler(this.OnBtnSubdivisionDeselectClicked);
 			this.btnOrderAuthorSelect.Clicked += new global::System.EventHandler(this.OnBtnOrderAuthorSelectClicked);
 			this.btnOrderAuthorDeselect.Clicked += new global::System.EventHandler(this.OnBtnOrderAuthorDeselectClicked);
 			this.searchEntityInSelectedList.TextChanged += new global::System.EventHandler(this.OnSearchEntityInSelectedListTextChanged);

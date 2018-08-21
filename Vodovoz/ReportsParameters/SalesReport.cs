@@ -35,9 +35,6 @@ namespace Vodovoz.Reports
 			}
 		}
 
-		//TODO Если эта конструкция окажется жизнеспособной возможно стоит ее 
-		//доработать и вынести в отдельное место для других отчетов.
-
 		/// <summary>
 		/// Конструкция фильтра где фильтры могут быть связаны друг с другом,
 		/// позволяет снимать выделение документов и фильтровать наборы данных других фильтров
@@ -139,6 +136,8 @@ namespace Vodovoz.Reports
 			OrganizationExclude,
 			DiscountReasonInclude,
 			DiscountReasonExclude,
+			SubdivisionInclude,
+			SubdivisionExclude,
 			OrderAuthorInclude,
 			OrderAuthorExclude
 		}
@@ -157,177 +156,27 @@ namespace Vodovoz.Reports
 		private void ConfigureFilters()
 		{
 			//Номенклатура
-			Criterion nomenclatureIncludeCrit = new Criterion((arg) => {
-				SalesReportNode alias = null;
-				var query = UoW.Session.QueryOver<Nomenclature>();
-				if(arg != null && arg.Any()) {
-					NomenclatureCategory[] categories = new NomenclatureCategory[arg.Count()];
-					for(int i = 0; i < arg.Count(); i++) {
-						categories[i] = (NomenclatureCategory)arg[i];
-					}
-					query.WhereRestrictionOn(x => x.Category).IsIn(categories);
-				}
-				var queryResult = query.SelectList(list => list
-						 .Select(x => x.Id).WithAlias(() => alias.Id)
-						 .Select(x => x.Name).WithAlias(() => alias.Name)
-						)
-				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
-				.List<SalesReportNode>();
-				return queryResult.ToList();
-			});
-			Criterion nomenclatureExcludeCrit = new Criterion((arg) => {
-				SalesReportNode alias = null;
-				var query = UoW.Session.QueryOver<Nomenclature>();
-				if(arg != null && arg.Any()) {
-					NomenclatureCategory[] categories = new NomenclatureCategory[arg.Count()];
-					for(int i = 0; i < arg.Count(); i++) {
-						categories[i] = (NomenclatureCategory)arg[i];
-					}
-					query.WhereRestrictionOn(x => x.Category).IsIn(categories);
-				}
-				var queryResult = query.SelectList(list => list
-						 .Select(x => x.Id).WithAlias(() => alias.Id)
-						 .Select(x => x.Name).WithAlias(() => alias.Name)
-						)
-				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
-				.List<SalesReportNode>();
-				return queryResult.ToList();
-			});
-
+			Criterion nomenclatureIncludeCrit = CreateNomenclatureCriterion();
+			Criterion nomenclatureExcludeCrit = CreateNomenclatureCriterion();
 			//Типы номенклатуры
-			Criterion nomenclatureTypeIncludeCrit = new Criterion((arg) => {
-				List<SalesReportNode> result = new List<SalesReportNode>();
-				var categories = Enum.GetValues(typeof(NomenclatureCategory)).Cast<NomenclatureCategory>();
-				foreach(var item in categories) {
-					result.Add(new SalesReportNode() {
-						Id = (int)item, 
-						Name = item.GetAttribute<DisplayAttribute>().Name
-					});
-				}
-				return result;
-			});
-			Criterion nomenclatureTypeExcludeCrit = new Criterion((arg) => {
-				List<SalesReportNode> result = new List<SalesReportNode>();
-				var categories = Enum.GetValues(typeof(NomenclatureCategory)).Cast<NomenclatureCategory>();
-				foreach(var item in categories) {
-					result.Add(new SalesReportNode() {
-						Id = (int)item,
-						Name = item.GetAttribute<DisplayAttribute>().Name
-					});
-				}
-				return result;
-			});
-
+			Criterion nomenclatureTypeIncludeCrit = CreateNomenclatureTypeCriterion();
+			Criterion nomenclatureTypeExcludeCrit = CreateNomenclatureTypeCriterion();
 			// Клиенты
-			Criterion clientIncludeCrit = new Criterion((arg) => {
-				SalesReportNode alias = null;
-				var query = UoW.Session.QueryOver<Counterparty>();
-				var queryResult = query.SelectList(list => list
-						 .Select(x => x.Id).WithAlias(() => alias.Id)
-						 .Select(x => x.Name).WithAlias(() => alias.Name)
-						)
-				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
-				.List<SalesReportNode>();
-				return queryResult.ToList();
-			});
-			Criterion clientExcludeCrit = new Criterion((arg) => {
-				SalesReportNode alias = null;
-				var query = UoW.Session.QueryOver<Counterparty>();
-				var queryResult = query.SelectList(list => list
-						 .Select(x => x.Id).WithAlias(() => alias.Id)
-						 .Select(x => x.Name).WithAlias(() => alias.Name)
-						)
-				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
-				.List<SalesReportNode>();
-				return queryResult.ToList();
-			});
-
+			Criterion clientIncludeCrit = CreateCounterpartyCriterion();
+			Criterion clientExcludeCrit = CreateCounterpartyCriterion();
 			// Поставщики (организации)
-			Criterion organizationIncludeCrit = new Criterion((arg) => {
-				SalesReportNode alias = null;
-				var query = UoW.Session.QueryOver<Organization>();
-				var queryResult = query.SelectList(list => list
-						 .Select(x => x.Id).WithAlias(() => alias.Id)
-						 .Select(x => x.Name).WithAlias(() => alias.Name)
-						)
-				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
-				.List<SalesReportNode>();
-				return queryResult.ToList();
-			});
-			Criterion organizationExcludeCrit = new Criterion((arg) => {
-				SalesReportNode alias = null;
-				var query = UoW.Session.QueryOver<Organization>();
-				var queryResult = query.SelectList(list => list
-						 .Select(x => x.Id).WithAlias(() => alias.Id)
-						 .Select(x => x.Name).WithAlias(() => alias.Name)
-						)
-				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
-				.List<SalesReportNode>();
-				return queryResult.ToList();
-			});
-
+			Criterion organizationIncludeCrit = CreateOrganizationCriterion();
+			Criterion organizationExcludeCrit = CreateOrganizationCriterion();
 			// Основания скидок
-			Criterion discountReasonIncludeCrit = new Criterion((arg) => {
-				SalesReportNode alias = null;
-				var query = UoW.Session.QueryOver<DiscountReason>();
-				var queryResult = query.SelectList(list => list
-						 .Select(x => x.Id).WithAlias(() => alias.Id)
-						 .Select(x => x.Name).WithAlias(() => alias.Name)
-						)
-				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
-				.List<SalesReportNode>();
-				return queryResult.ToList();
-			});
-			Criterion discountReasonExcludeCrit = new Criterion((arg) => {
-				SalesReportNode alias = null;
-				var query = UoW.Session.QueryOver<DiscountReason>();
-				var queryResult = query.SelectList(list => list
-						 .Select(x => x.Id).WithAlias(() => alias.Id)
-						 .Select(x => x.Name).WithAlias(() => alias.Name)
-						)
-				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
-				.List<SalesReportNode>();
-				return queryResult.ToList();
-			});
+			Criterion discountReasonIncludeCrit = CreateDiscountReasonCriterion();
+			Criterion discountReasonExcludeCrit = CreateDiscountReasonCriterion();
+			// Отделы пользователей
+			Criterion subdivisionIncludeCrit = CreateSubdivisionCriterion();
+			Criterion subdivisionExcludeCrit = CreateSubdivisionCriterion();
 			// Авторы заказов
-			Criterion orderAuthorIncludeCrit = new Criterion((arg) => {
-				SalesReportNode alias = null;
-				Employee employeeAlias = null;
-				var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
-				var queryResult = query.SelectList(list => list
-				                                   .Select(x => x.Id).WithAlias(() => alias.Id)
-				                                   .Select(
-					                                   Projections.SqlFunction(
-						                                   new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?2,' ',SUBSTR(?1,1,1))"),
-						                                   NHibernateUtil.String,
-						                                   Projections.Property(() => employeeAlias.Name),
-														   Projections.Property(() => employeeAlias.LastName)
-						                                  )
-					                                  ).WithAlias(() => alias.Name)
-				                                  ).OrderBy(o => o.LastName).Asc
-				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
-				.List<SalesReportNode>();
-				return queryResult.ToList();
-			});
-			Criterion orderAuthorExcludeCrit = new Criterion((arg) => {
-				SalesReportNode alias = null;
-				Employee employeeAlias = null;
-				var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
-				var queryResult = query.SelectList(list => list
-												   .Select(x => x.Id).WithAlias(() => alias.Id)
-												   .Select(
-													   Projections.SqlFunction(
-														   new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?2,' ',SUBSTR(?1,1,1))"),
-														   NHibernateUtil.String,
-														   Projections.Property(() => employeeAlias.Name),
-														   Projections.Property(() => employeeAlias.LastName)
-														  )
-													  ).WithAlias(() => alias.Name)
-												  ).OrderBy(o => o.LastName).Asc
-				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
-				.List<SalesReportNode>();
-				return queryResult.ToList();
-			});
+			Criterion orderAuthorIncludeCrit = CreateOrderAuthorCriterion();
+			Criterion orderAuthorExcludeCrit = CreateOrderAuthorCriterion();
+
 
 			//Задание связей по фильтрации и снятию выделения между критериями
 			//Номенклатура
@@ -353,6 +202,17 @@ namespace Vodovoz.Reports
 			//Основания для скидок
 			discountReasonIncludeCrit.UnselectRelation.Add(discountReasonExcludeCrit);
 			discountReasonExcludeCrit.UnselectRelation.Add(discountReasonIncludeCrit);
+			//Отделы пользователей
+			subdivisionIncludeCrit.FilteringRelation.Add(orderAuthorIncludeCrit);
+			subdivisionIncludeCrit.FilteringRelation.Add(orderAuthorExcludeCrit);
+			subdivisionIncludeCrit.UnselectRelation.Add(orderAuthorIncludeCrit);
+			subdivisionIncludeCrit.UnselectRelation.Add(orderAuthorExcludeCrit);
+			subdivisionIncludeCrit.UnselectRelation.Add(subdivisionExcludeCrit);
+			subdivisionExcludeCrit.FilteringRelation.Add(orderAuthorIncludeCrit);
+			subdivisionExcludeCrit.FilteringRelation.Add(orderAuthorExcludeCrit);
+			subdivisionExcludeCrit.UnselectRelation.Add(orderAuthorIncludeCrit);
+			subdivisionExcludeCrit.UnselectRelation.Add(orderAuthorExcludeCrit);
+			subdivisionExcludeCrit.UnselectRelation.Add(subdivisionIncludeCrit);
 			//Авторы заказов
 			orderAuthorIncludeCrit.UnselectRelation.Add(orderAuthorExcludeCrit);
 			orderAuthorExcludeCrit.UnselectRelation.Add(orderAuthorIncludeCrit);
@@ -368,9 +228,138 @@ namespace Vodovoz.Reports
 			criterions.Add(FilterTypes.OrganizationExclude, organizationExcludeCrit);
 			criterions.Add(FilterTypes.DiscountReasonInclude, discountReasonIncludeCrit);
 			criterions.Add(FilterTypes.DiscountReasonExclude, discountReasonExcludeCrit);
+			criterions.Add(FilterTypes.SubdivisionInclude, subdivisionIncludeCrit);
+			criterions.Add(FilterTypes.SubdivisionExclude, subdivisionExcludeCrit);
 			criterions.Add(FilterTypes.OrderAuthorInclude, orderAuthorIncludeCrit);
 			criterions.Add(FilterTypes.OrderAuthorExclude, orderAuthorExcludeCrit);
 		}
+
+		#region Создание фильтров
+
+		private Criterion CreateOrderAuthorCriterion()
+		{
+			return new Criterion((arg) => {
+				SalesReportNode alias = null;
+				Employee employeeAlias = null;
+				var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
+				if(arg != null && arg.Any()) {
+					query.WhereRestrictionOn(x => x.Subdivision.Id).IsIn(arg);
+				}
+				var queryResult = query.SelectList(list => list
+												   .Select(x => x.Id).WithAlias(() => alias.Id)
+												   .Select(
+													   Projections.SqlFunction(
+														   new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?2,' ',SUBSTR(?1,1,1))"),
+														   NHibernateUtil.String,
+														   Projections.Property(() => employeeAlias.Name),
+														   Projections.Property(() => employeeAlias.LastName)
+														  )
+													  ).WithAlias(() => alias.Name)
+												  ).OrderBy(o => o.LastName).Asc
+				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
+				.List<SalesReportNode>();
+				return queryResult.ToList();
+			});
+		}
+
+		private Criterion CreateSubdivisionCriterion()
+		{
+			return new Criterion((arg) => {
+				List<SalesReportNode> result = new List<SalesReportNode>();
+				SalesReportNode alias = null;
+				return UoW.Session.QueryOver<Subdivision>()
+						  .SelectList(list => list
+									  .Select(x => x.Id).WithAlias(() => alias.Id)
+									  .Select(x => x.Name).WithAlias(() => alias.Name)
+									 )
+						  .TransformUsing(Transformers.AliasToBean<SalesReportNode>())
+						  .List<SalesReportNode>().ToList();
+			});
+		}
+
+		private Criterion CreateDiscountReasonCriterion()
+		{
+			return new Criterion((arg) => {
+				SalesReportNode alias = null;
+				var query = UoW.Session.QueryOver<DiscountReason>();
+				var queryResult = query.SelectList(list => list
+						 .Select(x => x.Id).WithAlias(() => alias.Id)
+						 .Select(x => x.Name).WithAlias(() => alias.Name)
+						)
+				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
+				.List<SalesReportNode>();
+				return queryResult.ToList();
+			});
+		}
+
+		private Criterion CreateOrganizationCriterion()
+		{
+			return new Criterion((arg) => {
+				SalesReportNode alias = null;
+				var query = UoW.Session.QueryOver<Organization>();
+				var queryResult = query.SelectList(list => list
+						 .Select(x => x.Id).WithAlias(() => alias.Id)
+						 .Select(x => x.Name).WithAlias(() => alias.Name)
+						)
+				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
+				.List<SalesReportNode>();
+				return queryResult.ToList();
+			});
+		}
+
+		private Criterion CreateCounterpartyCriterion()
+		{
+			return new Criterion((arg) => {
+				SalesReportNode alias = null;
+				var query = UoW.Session.QueryOver<Counterparty>();
+				var queryResult = query.SelectList(list => list
+						 .Select(x => x.Id).WithAlias(() => alias.Id)
+						 .Select(x => x.Name).WithAlias(() => alias.Name)
+						)
+				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
+				.List<SalesReportNode>();
+				return queryResult.ToList();
+			});
+		}
+
+		private Criterion CreateNomenclatureTypeCriterion()
+		{
+			return new Criterion((arg) => {
+				List<SalesReportNode> result = new List<SalesReportNode>();
+				var categories = Enum.GetValues(typeof(NomenclatureCategory)).Cast<NomenclatureCategory>();
+				foreach(var item in categories) {
+					result.Add(new SalesReportNode() {
+						Id = (int)item,
+						Name = item.GetAttribute<DisplayAttribute>().Name
+					});
+				}
+				return result;
+			});
+		}
+
+		private Criterion CreateNomenclatureCriterion()
+		{
+			return new Criterion((arg) => {
+				SalesReportNode alias = null;
+				var query = UoW.Session.QueryOver<Nomenclature>();
+				if(arg != null && arg.Any()) {
+					NomenclatureCategory[] categories = new NomenclatureCategory[arg.Count()];
+					for(int i = 0; i < arg.Count(); i++) {
+						categories[i] = (NomenclatureCategory)arg[i];
+					}
+					query.WhereRestrictionOn(x => x.Category).IsIn(categories);
+				}
+				var queryResult = query.SelectList(list => list
+						 .Select(x => x.Id).WithAlias(() => alias.Id)
+						 .Select(x => x.Name).WithAlias(() => alias.Name)
+						)
+				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
+				.List<SalesReportNode>();
+				return queryResult.ToList();
+			});
+		}
+
+		#endregion
 
 		private IColumnsConfig columnsConfig = ColumnsConfigFactory
 			.Create<SalesReportNode>()
@@ -439,28 +428,31 @@ namespace Vodovoz.Reports
 			return new ReportInfo {
 				Identifier = identifier,
 				Parameters = new Dictionary<string, object>
-					{
-						{ "start_date", dateperiodpicker.StartDateOrNull },
-						{ "end_date", dateperiodpicker.EndDateOrNull },
-						//тип номенклатур
-						{ "nomtype_include", includeCategories },
-						{ "nomtype_exclude", excludeCategories },
-						//номенклатуры
-						{ "nomen_include", GetResultIds(criterions[FilterTypes.NomenclatureInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id))},
-						{ "nomen_exclude", GetResultIds(criterions[FilterTypes.NomenclatureExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id))},
-						//клиенты
-						{ "client_include", GetResultIds(criterions[FilterTypes.ClientInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						{ "client_exclude", GetResultIds(criterions[FilterTypes.ClientExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						//поставщики (наши организации)
-						{ "org_include", GetResultIds(criterions[FilterTypes.OrganizationInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						{ "org_exclude", GetResultIds(criterions[FilterTypes.OrganizationExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						//основания для скидок
-						{ "discountreason_include", GetResultIds(criterions[FilterTypes.DiscountReasonInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						{ "discountreason_exclude", GetResultIds(criterions[FilterTypes.DiscountReasonExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						//авторы заказа
-						{ "orderauthor_include", GetResultIds(criterions[FilterTypes.OrderAuthorInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-						{ "orderauthor_exclude", GetResultIds(criterions[FilterTypes.OrderAuthorExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
-					}
+				{
+					{ "start_date", dateperiodpicker.StartDateOrNull },
+					{ "end_date", dateperiodpicker.EndDateOrNull },
+					//тип номенклатур
+					{ "nomtype_include", includeCategories },
+					{ "nomtype_exclude", excludeCategories },
+					//номенклатуры
+					{ "nomen_include", GetResultIds(criterions[FilterTypes.NomenclatureInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id))},
+					{ "nomen_exclude", GetResultIds(criterions[FilterTypes.NomenclatureExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id))},
+					//клиенты
+					{ "client_include", GetResultIds(criterions[FilterTypes.ClientInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					{ "client_exclude", GetResultIds(criterions[FilterTypes.ClientExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					//поставщики (наши организации)
+					{ "org_include", GetResultIds(criterions[FilterTypes.OrganizationInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					{ "org_exclude", GetResultIds(criterions[FilterTypes.OrganizationExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					//основания для скидок
+					{ "discountreason_include", GetResultIds(criterions[FilterTypes.DiscountReasonInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					{ "discountreason_exclude", GetResultIds(criterions[FilterTypes.DiscountReasonExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					//авторы заказа
+					{ "subdivision_include", GetResultIds(criterions[FilterTypes.SubdivisionInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					{ "subdivision_exclude", GetResultIds(criterions[FilterTypes.SubdivisionExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					//авторы заказа
+					{ "orderauthor_include", GetResultIds(criterions[FilterTypes.OrderAuthorInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					{ "orderauthor_exclude", GetResultIds(criterions[FilterTypes.OrderAuthorExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
+				}
 			};
 		}
 
@@ -640,6 +632,26 @@ namespace Vodovoz.Reports
 			} else {
 				searchEntityInSelectedList.Text = String.Empty;
 			}
+		}
+
+		protected void OnBtnSubdivisionSelectClicked(object sender, EventArgs e)
+		{
+			treeNodes = criterions[FilterTypes.SubdivisionInclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
+			criterions[FilterTypes.SubdivisionInclude].SubcribeWithClearOld((string obj) => {
+				yLblSubdivision.Text = String.Format("Вкл.: {0} елем.", obj);
+			});
+			labelTableTitle.Text = "Включаемые отделы";
+		}
+
+		protected void OnBtnSubdivisionDeselectClicked(object sender, EventArgs e)
+		{
+			treeNodes = criterions[FilterTypes.SubdivisionExclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
+			criterions[FilterTypes.SubdivisionExclude].SubcribeWithClearOld((string obj) => {
+				yLblSubdivision.Text = String.Format("Искл.: {0} елем.", obj);
+			});
+			labelTableTitle.Text = "Исключаемые отделы";
 		}
 	}
 }

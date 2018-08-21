@@ -618,7 +618,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	counterparty.name as counterparty,
@@ -699,6 +699,12 @@ WHERE
 			OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
 		)
 	AND (
+			((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
+			OR
+			(IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) NOT IN (@subdivision_exclude) AND 0 IN (@subdivision_include)))
+			OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
+		)
+	AND (
 			((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude) )
 			OR
 			(IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@orderauthor_exclude) AND 0 IN (@orderauthor_include)))
@@ -748,9 +754,15 @@ GROUP BY counterparty.id, delivery_points.id, orders.id, orders.author_employee_
           <QueryParameter Name="orderauthor_exclude">
             <Value>=Parameters!orderauthor_exclude</Value>
           </QueryParameter>
+          <QueryParameter Name="subdivision_include">
+            <Value>=Parameters!subdivision_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_exclude">
+            <Value>=Parameters!subdivision_exclude</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -790,7 +802,7 @@ GROUP BY counterparty.id, delivery_points.id, orders.id, orders.author_employee_
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -818,6 +830,12 @@ GROUP BY counterparty.id, delivery_points.id, orders.id, orders.author_employee_
 		'')),
 		(IF(excluded_org!=0,
 		CONCAT('Искл.орг: ',excluded_org,'\n'),
+		'')),
+        (IF(included_subdivision!=0,
+		CONCAT('Вкл.отделов: ',included_subdivision,'\n'),
+		'')),
+		(IF(excluded_subdivision!=0,
+		CONCAT('Искл.отделов: ',excluded_subdivision,'\n'),
 		'')),
 		(IF(included_orderauthor!=0,
 		CONCAT('Вкл.авторов заказов: ',included_orderauthor,'\n'),
@@ -878,6 +896,17 @@ FROM
 			0
 		) AS excluded_org,
 		
+        IF(
+			0 NOT IN (@subdivision_include),
+			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@subdivision_include)),
+			0
+		) AS included_subdivision,
+		IF(
+			0 NOT IN (@subdivision_exclude),
+			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@subdivision_exclude)),
+			0
+		) AS excluded_subdivision,
+        
 		IF(
 			0 NOT IN (@orderauthor_include),
 			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@orderauthor_include)),
@@ -943,9 +972,15 @@ FROM
           <QueryParameter Name="orderauthor_exclude">
             <Value>=Parameters!orderauthor_exclude</Value>
           </QueryParameter>
+          <QueryParameter Name="subdivision_include">
+            <Value>=Parameters!subdivision_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_exclude">
+            <Value>=Parameters!subdivision_exclude</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -1070,6 +1105,20 @@ FROM
       <Prompt />
     </ReportParameter>
     <ReportParameter Name="orderauthor_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="subdivision_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="subdivision_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

@@ -389,6 +389,8 @@ FROM
 	delivery_points ON orders.delivery_point_id = delivery_points.id
 		LEFT JOIN
 	counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+        LEFT JOIN
+    employees ON orders.author_employee_id = employees.id
 WHERE
 	(order_status = 'Accepted'
 		OR order_status = 'InTravelList'
@@ -428,6 +430,12 @@ WHERE
 			OR
 			(order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
 			OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
+		)
+    AND (
+			((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
+			OR
+			(IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) NOT IN (@subdivision_exclude) AND 0 IN (@subdivision_include)))
+			OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
 		)
 	AND (
 			((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude) )
@@ -478,6 +486,12 @@ GROUP BY nomenclature_id</CommandText>
           </QueryParameter>
           <QueryParameter Name="orderauthor_exclude">
             <Value>=Parameters!orderauthor_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_include">
+            <Value>=Parameters!subdivision_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_exclude">
+            <Value>=Parameters!subdivision_exclude</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -541,7 +555,13 @@ GROUP BY nomenclature_id</CommandText>
 		'')),
 		(IF(excluded_org!=0,
 		CONCAT('Искл.орг: ',excluded_org,'\n'),
+		'')),        
+        (IF(included_subdivision!=0,
+		CONCAT('Вкл.отделов: ',included_subdivision,'\n'),
 		'')),
+		(IF(excluded_subdivision!=0,
+		CONCAT('Искл.отделов: ',excluded_subdivision,'\n'),
+		'')),        
 		(IF(included_orderauthor!=0,
 		CONCAT('Вкл.авторов заказов: ',included_orderauthor,'\n'),
 		'')),
@@ -601,6 +621,17 @@ FROM
 			0
 		) AS excluded_org,
 		
+        IF(
+			0 NOT IN (@subdivision_include),
+			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@subdivision_include)),
+			0
+		) AS included_subdivision,
+		IF(
+			0 NOT IN (@subdivision_exclude),
+			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@subdivision_exclude)),
+			0
+		) AS excluded_subdivision,
+        
 		IF(
 			0 NOT IN (@orderauthor_include),
 			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@orderauthor_include)),
@@ -665,6 +696,12 @@ FROM
           </QueryParameter>
           <QueryParameter Name="orderauthor_exclude">
             <Value>=Parameters!orderauthor_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_include">
+            <Value>=Parameters!subdivision_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_exclude">
+            <Value>=Parameters!subdivision_exclude</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -790,9 +827,25 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="orderauthor_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="subdivision_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="subdivision_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
