@@ -13,11 +13,12 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
 	orders.delivery_date AS order_date,
+	orders.self_delivery AS self_delivery,
 	orders.bottles_return AS bottles_return,
 	orders.sum_to_receive AS total,
 	orders.comment AS order_comment,
@@ -118,7 +119,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -238,6 +239,10 @@ WHERE
         <Field Name="pay_type">
           <DataField>pay_type</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="self_delivery">
+          <DataField>self_delivery</DataField>
+          <TypeName>System.Boolean</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1469,17 +1474,20 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
-                      <Value>=Iif(
-        {logistics_area} = null, 
-        "",
-        "["+ {logistics_area} + "]"
-    )
-    + {del_point_address}
-    + Iif(
-            {delivery_point_comment} != '',
-            '\n' + {delivery_point_comment},
-            ''
-        )</Value>
+                      <Value>=
+Iif({self_delivery}, "САМОВЫВОЗ",
+    Iif(
+            {logistics_area} = null, 
+            "",
+            "["+ {logistics_area} + "]"
+        )
+        + {del_point_address}
+        + Iif(
+                {delivery_point_comment} != '',
+                '\n' + {delivery_point_comment},
+                ''
+            )
+)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
