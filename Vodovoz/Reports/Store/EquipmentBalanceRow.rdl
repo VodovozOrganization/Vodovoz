@@ -528,12 +528,12 @@ FROM
         LEFT JOIN nomenclature_groups ON nom.group_id = nomenclature_groups.id
 		LEFT JOIN equipment_type eqt ON nom.type_id = eqt.id
 		WHERE 
-			(nom.category = @category AND nom.category NOT IN ('equipment', 'additional'))
+			(nom.category = @category AND nom.category NOT IN ('equipment'/*РАСКОМЕНТИРОВАТЬ ПРИ ПЕРЕХОДЕ НА ОБЯЗАТЕЛЬНОЕ УКАЗАНИЕ ГРУППЫ У ТОВАРОВ , 'additional'*/))
             OR
 			(
 				(nom.category = @category AND @category = 'equipment' AND '0' NOT IN (@equipments) AND nom.subtype_of_equipment IN (@equipments))
-				OR
-				(nom.category = @category AND @category = 'additional' AND '0' NOT IN (@additional) AND nom.group_id IN (@additional))
+				/*РАСКОМЕНТИРОВАТЬ ПРИ ПЕРЕХОДЕ НА ОБЯЗАТЕЛЬНОЕ УКАЗАНИЕ ГРУППЫ У ТОВАРОВ OR
+				(nom.category = @category AND @category = 'additional' AND '0' NOT IN (@additional) AND nom.group_id IN (@additional))*/
             )
 		GROUP BY TableAmount.nom_id, TableAmount.wh 
 		HAVING SUM(TableAmount.quantity) &gt; 0

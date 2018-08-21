@@ -38,10 +38,11 @@ namespace Vodovoz.ReportsParameters.Store
 				if(cat == NomenclatureCategory.equipment) {
 					node.Children = GenerateEnumCategoryNodes();
 				}
-				if(cat == NomenclatureCategory.additional) {
+				//РАСКОМЕНТИРОВАТЬ ПРИ ПЕРЕХОДЕ НА ОБЯЗАТЕЛЬНОЕ УКАЗАНИЕ ГРУППЫ У ТОВАРОВ
+				/*if(cat == NomenclatureCategory.additional) {
 					var groups = uow.Session.QueryOver<ProductGroup>().List().ToList();
 					node.Children = GenerateGoodsGroupNodes(groups, null);
-				}
+				}*/
 				node.Children.ForEach(x => x.Parent = node);
 				items.Add(node);
 			}
