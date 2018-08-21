@@ -8,9 +8,9 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private global::Gtk.Button buttonRun;
 
-		private global::Gtk.Label lblType;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.Widgets.yEnumComboBox yEnumCMBType;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewCategories;
 
 		protected virtual void Build()
 		{
@@ -19,7 +19,7 @@ namespace Vodovoz.ReportsParameters.Store
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ReportsParameters.Store.EquipmentBalance";
 			// Container child Vodovoz.ReportsParameters.Store.EquipmentBalance.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -32,31 +32,25 @@ namespace Vodovoz.ReportsParameters.Store
 			this.buttonRun.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.table1.Add(this.buttonRun);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonRun]));
-			w1.TopAttach = ((uint)(5));
-			w1.BottomAttach = ((uint)(6));
+			w1.TopAttach = ((uint)(3));
+			w1.BottomAttach = ((uint)(4));
 			w1.RightAttach = ((uint)(2));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.lblType = new global::Gtk.Label();
-			this.lblType.Name = "lblType";
-			this.lblType.Xalign = 1F;
-			this.lblType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип ТМЦ:");
-			this.table1.Add(this.lblType);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.lblType]));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.yEnumCMBType = new global::Gamma.Widgets.yEnumComboBox();
-			this.yEnumCMBType.Name = "yEnumCMBType";
-			this.yEnumCMBType.ShowSpecialStateAll = false;
-			this.yEnumCMBType.ShowSpecialStateNot = false;
-			this.yEnumCMBType.UseShortTitle = false;
-			this.yEnumCMBType.DefaultFirst = false;
-			this.table1.Add(this.yEnumCMBType);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.yEnumCMBType]));
-			w3.LeftAttach = ((uint)(1));
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.ytreeviewCategories = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewCategories.WidthRequest = 300;
+			this.ytreeviewCategories.CanFocus = true;
+			this.ytreeviewCategories.Name = "ytreeviewCategories";
+			this.GtkScrolledWindow.Add(this.ytreeviewCategories);
+			this.table1.Add(this.GtkScrolledWindow);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow]));
+			w3.BottomAttach = ((uint)(3));
 			w3.RightAttach = ((uint)(2));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{

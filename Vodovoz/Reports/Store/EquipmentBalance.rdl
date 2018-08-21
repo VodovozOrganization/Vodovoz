@@ -15,89 +15,69 @@
     <DataSet Name="Nomenclatures">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-	q.nomenclature_id,
-	q.type,
-	q.nom_name,
-	SUM(q.qty) AS qty,
-	GROUP_CONCAT(
-		CONCAT_WS(': ',
-			w.name,
-			CONCAT(FORMAT(q.qty, 0), ' ', mu.name)
-		)
-		SEPARATOR '\n'
-	) AS place,
-	CASE q.subtype_of_equipment
-		WHEN 'forSale' THEN 'Для продажи'
-		WHEN 'notForSale' THEN 'Не для продажи'
-		ELSE '?'
-	END AS subtype_of_equipment
-FROM(
-	SELECT 
-		T.nom_id AS nomenclature_id,
-		eqt.name AS type,
-		nom.name AS nom_name,
-		T.wh AS incoming_wh,
-		SUM(T.qty) AS qty,
-		nom.unit_id AS unit_id,
-		nom.subtype_of_equipment 
-	FROM(
-		SELECT
-			nomenclature_id AS nom_id,
-			writeoff_warehouse_id AS wh,
-			-SUM(amount) AS qty
-		FROM warehouse_movement_operations
-		WHERE writeoff_warehouse_id IS NOT NULL
-		GROUP BY nomenclature_id, wh
-		UNION ALL
-		SELECT
-			nomenclature_id AS nom_id,
-			incoming_warehouse_id AS wh,
-			SUM(amount) AS qty
-		FROM warehouse_movement_operations
-		WHERE incoming_warehouse_id IS NOT NULL
-		GROUP BY nomenclature_id, wh
-	) AS T
-	LEFT JOIN nomenclature nom ON nom.id = T.nom_id
-	LEFT JOIN equipment_type eqt ON nom.type_id = eqt.id
-	WHERE nom.category = 'equipment'
-	GROUP BY T.nom_id, T.wh 
-	HAVING SUM(T.qty) &gt; 0
-) AS q
-LEFT JOIN measurement_units mu ON mu.id = q.unit_id
-LEFT JOIN warehouses w ON w.id = q.incoming_wh
-GROUP BY q.nomenclature_id
-ORDER BY q.type
-;</CommandText>
+        <CommandText>SELECT DISTINCT
+    Max(IF(nomenclature.category = 'rent', 'rent', null)) as rent,
+    Max(IF(nomenclature.category = 'water', 'water', null)) as water,
+    Max(IF(nomenclature.category = 'deposit', 'deposit', null)) as deposit,
+    Max(IF(nomenclature.category = 'spare_parts', 'spare_parts', null)) as spare_parts,
+    Max(IF(nomenclature.category = 'equipment', 'equipment', null)) as equipment,
+    Max(IF(nomenclature.category = 'additional', 'additional', null)) as additional,
+    Max(IF(nomenclature.category = 'service', 'service', null)) as service,
+    Max(IF(nomenclature.category = 'bottle', 'bottle', null)) as bottle,
+    Max(IF(nomenclature.category = 'material', 'material', null)) as material,
+    Max(IF(nomenclature.category = 'disposableBottleWater', 'disposableBottleWater', null)) as disposableBottleWater,
+    Max(IF(nomenclature.category = 'master', 'master', null)) as master
+FROM nomenclature 
+WHERE '0' NOT IN (@categories) AND nomenclature.category in (@categories)</CommandText>
         <QueryParameters>
-          <QueryParameter Name="nom_type">
-            <Value>={?nom_type}</Value>
+          <QueryParameter Name="categories">
+            <Value>={?categories}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields>
-        <Field Name="nomenclature_id">
-          <DataField>nomenclature_id</DataField>
-          <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="type">
-          <DataField>type</DataField>
+        <Field Name="rent">
+          <DataField>rent</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="nom_name">
-          <DataField>nom_name</DataField>
+        <Field Name="water">
+          <DataField>water</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="qty">
-          <DataField>qty</DataField>
-          <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="place">
-          <DataField>place</DataField>
+        <Field Name="deposit">
+          <DataField>deposit</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="subtype_of_equipment">
-          <DataField>subtype_of_equipment</DataField>
+        <Field Name="spare_parts">
+          <DataField>spare_parts</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="equipment">
+          <DataField>equipment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="additional">
+          <DataField>additional</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="service">
+          <DataField>service</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bottle">
+          <DataField>bottle</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="material">
+          <DataField>material</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="disposableBottleWater">
+          <DataField>disposableBottleWater</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="master">
+          <DataField>master</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -111,7 +91,7 @@ ORDER BY q.type
         <Left>7.23pt</Left>
         <Width>566.12pt</Width>
         <Height>18.82pt</Height>
-        <Value>='Отчет по оборудованию на остатках на '
+        <Value>='Отчет по ТМЦ на остатках на '
 +Format({@ExecutionTime},'dd.MM.yyyy HH:mm:ss')</Value>
         <Style>
           <FontSize>15pt</FontSize>
@@ -128,417 +108,305 @@ ORDER BY q.type
   </PageHeader>
   <Body>
     <ReportItems>
-      <Table Name="Table2">
-        <DataSetName>Nomenclatures</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+      <Subreport Name="Subreport2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>11.2pt</Top>
         <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
+          <BorderStyle />
           <BorderColor />
           <BorderWidth />
         </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>24.9pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>28.8pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>127.1pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>159.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>33.2pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>203.5pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Header>
-          <TableRows>
-            <TableRow>
-              <Height>23.4pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox31">
-                      <Value>№ п/п</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox2">
-                      <Value>ID ТМЦ</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox6">
-                      <Value>Тип</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value>Наименование</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox12">
-                      <Value>Кол-во</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox13">
-                      <Value>Местонахождение</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-          <RepeatOnNewPage>true</RepeatOnNewPage>
-        </Header>
-        <Details>
-          <TableRows>
-            <TableRow>
-              <Height>14.3pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox32">
-                      <Value>=RowNumber()</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox3">
-                      <Value>={nomenclature_id}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox20">
-                      <Value>=Trim({type})</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox22">
-                      <Value>=Trim({nom_name})</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox23">
-                      <Value>={qty}</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <Format>#,##0</Format>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox24">
-                      <Value>=Trim({place})</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Left</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
-                        <PaddingTop>1pt</PaddingTop>
-                        <PaddingBottom>1pt</PaddingBottom>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>rent</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({rent}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
         <Left>0.0pt</Left>
-        <Top>1.1pt</Top>
-        <TableGroups>
-          <TableGroup>
-            <Grouping Name="SubType">
-              <PageBreakAtStart>false</PageBreakAtStart>
-              <PageBreakAtEnd>false</PageBreakAtEnd>
-              <GroupExpressions>
-                <GroupExpression>={subtype_of_equipment}</GroupExpression>
-              </GroupExpressions>
-            </Grouping>
-            <Header>
-              <RepeatOnNewPage>false</RepeatOnNewPage>
-              <TableRows>
-                <TableRow>
-                  <Height>.2in</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox4">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                            <FontSize>10pt</FontSize>
-                            <TextAlign>Right</TextAlign>
-                          </Style>
-                          <Value>={subtype_of_equipment}</Value>
-                        </Textbox>
-                      </ReportItems>
-                      <ColSpan>6</ColSpan>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Header>
-            <Footer>
-              <RepeatOnNewPage>true</RepeatOnNewPage>
-              <TableRows>
-                <TableRow>
-                  <Height>.2in</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox14">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <BorderColor />
-                            <BorderWidth />
-                          </Style>
-                          <Value>
-                          </Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox15">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <BorderColor />
-                            <BorderWidth />
-                          </Style>
-                          <Value>
-                          </Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox16">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <BorderColor />
-                            <BorderWidth />
-                          </Style>
-                          <Value>
-                          </Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox17">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Right</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <FontWeight>Bold</FontWeight>
-                          </Style>
-                          <Value>Итого:</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox18">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <Format>#,##0</Format>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <TextAlign>Left</TextAlign>
-                          </Style>
-                          <Value>=SUM({qty})</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox19">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <BorderColor />
-                            <BorderWidth />
-                          </Style>
-                          <Value>
-                          </Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Footer>
-            <Sorting>
-              <SortBy>
-                <SortExpression>={type}</SortExpression>
-                <Direction>Ascending</Direction>
-              </SortBy>
-            </Sorting>
-          </TableGroup>
-        </TableGroups>
-      </Table>
+        <Top>27.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>water</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({water}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>44.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>deposit</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({deposit}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>61.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>spare_parts</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({spare_parts}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>77.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>equipment</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({equipment}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>94.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>additional</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({additional}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>110.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>service</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({service}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>127.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>bottle</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({bottle}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>144.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>material</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({material}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>160.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>disposableBottleWater</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({disposableBottleWater}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>177.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>master</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({master}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
     </ReportItems>
-    <Height>69.5pt</Height>
+    <Height>330.1pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -564,28 +432,39 @@ ORDER BY q.type
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
-    <ReportParameter Name="nom_type">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>equipment</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
-    </ReportParameter>
-  </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_test;user=enzogord;password=123;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="categories">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="equipments">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="additional">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
 </Report>
