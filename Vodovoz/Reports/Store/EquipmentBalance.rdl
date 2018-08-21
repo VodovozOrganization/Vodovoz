@@ -436,7 +436,7 @@ WHERE '0' NOT IN (@categories) AND nomenclature.category in (@categories)</Comma
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_test;user=enzogord;password=123;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

@@ -590,7 +590,7 @@ ORDER BY q.type, q.manufacturer</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=andrey;password=123;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
