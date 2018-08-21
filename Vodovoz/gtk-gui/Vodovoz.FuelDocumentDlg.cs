@@ -174,13 +174,13 @@ namespace Vodovoz
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.spinFuelPrice = new global::Gamma.GtkWidgets.ySpinButton(0D, 200D, 0.01D);
 			this.spinFuelPrice.WidthRequest = 100;
+			this.spinFuelPrice.Sensitive = false;
 			this.spinFuelPrice.CanFocus = true;
 			this.spinFuelPrice.Name = "spinFuelPrice";
 			this.spinFuelPrice.Adjustment.PageIncrement = 0.01D;
 			this.spinFuelPrice.ClimbRate = 1D;
 			this.spinFuelPrice.Digits = ((uint)(2));
 			this.spinFuelPrice.Numeric = true;
-			this.spinFuelPrice.Value = 198.630000000001D;
 			this.spinFuelPrice.ValueAsDecimal = 0m;
 			this.spinFuelPrice.ValueAsInt = 0;
 			this.hbox3.Add(this.spinFuelPrice);
@@ -238,8 +238,8 @@ namespace Vodovoz
 			this.hbox5.Spacing = 6;
 			this.table3.Add(this.hbox5);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table3[this.hbox5]));
-			w15.TopAttach = ((uint)(6));
-			w15.BottomAttach = ((uint)(7));
+			w15.TopAttach = ((uint)(5));
+			w15.BottomAttach = ((uint)(6));
 			w15.LeftAttach = ((uint)(2));
 			w15.RightAttach = ((uint)(3));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -357,8 +357,8 @@ namespace Vodovoz
 			this.labelResultInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Итог");
 			this.table3.Add(this.labelResultInfo);
 			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table3[this.labelResultInfo]));
-			w26.TopAttach = ((uint)(7));
-			w26.BottomAttach = ((uint)(8));
+			w26.TopAttach = ((uint)(6));
+			w26.BottomAttach = ((uint)(7));
 			w26.LeftAttach = ((uint)(2));
 			w26.RightAttach = ((uint)(3));
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));

@@ -170,7 +170,7 @@ namespace Vodovoz.Domain.Logistic
 			if(RouteList.Cashier == null) {
 				return EmployeeRepository.GetEmployeeForCurrentUser(uow);
 			}
-			return RouteList.Cashier;
+			return uow.GetById<Employee>(RouteList.Cashier.Id);
 		}
 
 		public virtual void UpdateDocument(IUnitOfWork uow)

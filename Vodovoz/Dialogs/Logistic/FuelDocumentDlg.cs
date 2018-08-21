@@ -21,6 +21,9 @@ namespace Vodovoz
 
 		public decimal FuelOutlayed { get; set; }
 
+		decimal spentFuel;
+		decimal spentFuelConfirmed;
+
 		public FuelDocumentDlg ()
 		{
 			this.Build ();
@@ -127,15 +130,15 @@ namespace Vodovoz
 				text.Add("Не указан вид топлива");
 			}
 
-			FuelOutlayed = fc / 100 * RouteListClosing.ActualDistance;
+			spentFuel = FuelOutlayed = fc / 100 * RouteListClosing.ActualDistance;
 
 			text.Add(string.Format("Израсходовано топлива: {0:f2} л. ({1:f2} л/100км)",
 			                       FuelOutlayed, fc));
 
 			if(RouteListClosing.ConfirmedDistance != 0 && RouteListClosing.ConfirmedDistance != RouteListClosing.ActualDistance) {
 
-				decimal spentFuelConfirmed = (decimal)RouteListClosing.Car.FuelConsumption
-																	  / 100 * RouteListClosing.ConfirmedDistance;
+				spentFuelConfirmed = (decimal)RouteListClosing.Car.FuelConsumption
+				                                              / 100 * RouteListClosing.ConfirmedDistance;
 
 				text.Add(string.Format("Топливо подтвержденное логистами: {0:F2} л.", spentFuelConfirmed));
 			}
@@ -147,13 +150,10 @@ namespace Vodovoz
 		private void UpdateResutlInfo () 
 		{
 			decimal litersGived = Entity.Operation?.LitersGived ?? default(decimal);
-			decimal spentFuel = (decimal)RouteListClosing.Car.FuelConsumption
-								 / 100 * RouteListClosing.ActualDistance;
 
 			var text = new List<string>();
 
 			if(RouteListClosing.ConfirmedDistance != 0 && RouteListClosing.ConfirmedDistance != RouteListClosing.ActualDistance) {
-				decimal spentFuelConfirmed = (decimal)RouteListClosing.Car.FuelConsumption / 100 * RouteListClosing.ConfirmedDistance;
 				spentFuel = spentFuelConfirmed;
 			}
 
@@ -241,8 +241,7 @@ namespace Vodovoz
 		{
 			decimal litersBalance = 0;
 			decimal litersGived = Entity.Operation?.LitersGived ?? default(decimal);
-			decimal spentFuel = (decimal)RouteListClosing.Car.FuelConsumption
-				/ 100 * RouteListClosing.ActualDistance;
+
 			litersBalance = FuelBalance + litersGived - spentFuel;
 
 			decimal moneyToPay = -litersBalance * spinFuelPrice.ValueAsDecimal;
