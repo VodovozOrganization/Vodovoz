@@ -41,7 +41,12 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Водитель")]
 		public virtual Employee Driver {
 			get { return driver; }
-			set { SetField(ref driver, value, () => Driver); }
+			set {
+				Employee oldDriver = driver;
+				if(SetField(ref driver, value, () => Driver)){
+					ChangeFuelDocumentsOnChangeDriver(oldDriver);
+				} 
+			}
 		}
 
 		Employee forwarder;
@@ -72,7 +77,10 @@ namespace Vodovoz.Domain.Logistic
 		public virtual Car Car {
 			get { return car; }
 			set {
-				SetField(ref car, value, () => Car);
+				Car oldCar = car;
+				if(SetField(ref car, value, () => Car)){
+					ChangeFuelDocumentsChangeCar(oldCar);
+				}
 				if(value?.Driver != null)
 					Driver = value.Driver;
 			}
@@ -423,6 +431,30 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#region Функции
+
+		public virtual void ChangeFuelDocumentsChangeCar(Car oldCar)
+		{
+			if(oldCar == null || Car == oldCar || !FuelDocuments.Any()) {
+				return;
+			}
+
+			foreach(FuelDocument item in ObservableFuelDocuments) {
+				item.Car = Car;
+				item.Operation.Car = Car;
+			}
+		}
+
+		public virtual void ChangeFuelDocumentsOnChangeDriver(Employee oldDriver)
+		{
+			if(oldDriver == null || Driver == oldDriver || !FuelDocuments.Any()) {
+				return;
+			}
+
+			foreach(FuelDocument item in ObservableFuelDocuments) {
+				item.Driver = Driver;
+				item.Operation.Driver = Driver;
+			}
+		}
 
 		public virtual bool FuelOperationHaveDiscrepancy()
 		{
