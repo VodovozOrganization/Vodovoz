@@ -32,5 +32,12 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			xml.Add(Catalog.ToXml());
 			return xml;
 		}
+
+		public void WriteToStream(System.IO.Stream stream)
+		{
+			using(XmlWriter writer = XmlWriter.Create(stream, Export.WriterSettings)) {
+				ToXml().WriteTo(writer);
+			}
+		}
 	}
 }

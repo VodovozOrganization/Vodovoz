@@ -124,6 +124,9 @@
     <Reference Include="System.Xml">
       <HintPath>..\..\..\..\..\usr\lib\mono\4.0-api\System.Xml.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\..\QSProjects\packages\RestSharp.105.2.3\lib\net4\RestSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
