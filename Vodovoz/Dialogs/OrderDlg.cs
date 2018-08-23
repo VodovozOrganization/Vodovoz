@@ -351,7 +351,7 @@ namespace Vodovoz
 
 			enumPaymentType.ItemsEnum = typeof(PaymentType);
 			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
-			enumPaymentType.Sensitive = Entity.Client != null;
+			SetSensitivityOfPaymentType();
 
 			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
 			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
@@ -1513,19 +1513,31 @@ namespace Vodovoz
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, Entity.Client);
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 				referenceContract.RepresentationModel = new ViewModel.ContractsVM(UoW, Entity.Client);
+
+				PaymentType? previousEnum = enumPaymentType.SelectedItem is PaymentType ? ((PaymentType?)enumPaymentType.SelectedItem) : null; 
+				var hideEnums = new Enum[] { PaymentType.cashless };
 				if(Entity.Client.PersonType == PersonType.natural)
-					enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.cashless });
+					enumPaymentType.AddEnumToHideList(hideEnums);
 				else
 					enumPaymentType.ClearEnumHideList();
-				enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;
-				OnEnumPaymentTypeChanged(null, e);
+				if(previousEnum.HasValue) {
+					if(previousEnum.Value == Entity.PaymentType) {
+						enumPaymentType.SelectedItem = previousEnum.Value;
+					} else if(Entity.Id == 0 || hideEnums.Contains(Entity.PaymentType)) {
+						enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;
+						OnEnumPaymentTypeChanged(null, e);
+						Entity.ChangeOrderContract();
+					} else {
+						enumPaymentType.SelectedItem = Entity.PaymentType;
+					}
+				}
 			} else {
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
 			}
 			SetProxyForOrder();
 			UpdateProxyInfo();
 
-			enumPaymentType.Sensitive = Entity.Client != null;
+			SetSensitivityOfPaymentType();
 		}
 
 		protected void OnButtonFillCommentClicked(object sender, EventArgs e)
@@ -1681,7 +1693,7 @@ namespace Vodovoz
 			//Устанавливаем тип оплаты
 			if(Entity.Client != null) {
 				Entity.PaymentType = Entity.Client.PaymentMethod;
-				OnEnumPaymentTypeChangedByUser(null, EventArgs.Empty);
+				Entity.ChangeOrderContract();
 			} else {
 				Entity.Contract = null;
 			}
@@ -1702,7 +1714,6 @@ namespace Vodovoz
 
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
 		{
-			var org = OrganizationRepository.GetOrganizationByPaymentType(UoW, Counterparty.PersonType, Entity.PaymentType);
 			Entity.ChangeOrderContract();
 		}
 
