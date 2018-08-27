@@ -58,7 +58,7 @@ namespace Vodovoz.ViewWidgets
 			yEForUndeliveredOrder.Changed += (sender, e) => {
 				oldOrder = undelivery.OldOrder;
 				lblInfo.Markup = undelivery.GenerateUndeliveryInfo();
-				if(UoW.IsNew)
+				if(undelivery.Id <= 0)
 					undelivery.OldOrderStatus = oldOrder.OrderStatus;
 				routeListDoesNotExist = oldOrder != null && (undelivery.OldOrderStatus == OrderStatus.NewOrder
 				                                       || undelivery.OldOrderStatus == OrderStatus.Accepted
@@ -76,14 +76,14 @@ namespace Vodovoz.ViewWidgets
 			yEnumCMBGuilty.Binding.AddBinding(undelivery, g => g.GuiltySide, w => w.SelectedItem).InitializeFromSource();
 
 			yDateDriverCallTime.Binding.AddBinding(undelivery, t => t.DriverCallTime, w => w.DateOrNull).InitializeFromSource();
-			if(UoW.IsNew)
+			if(undelivery.Id <= 0)
 				yDateDriverCallTime.DateOrNull = DateTime.Now;
 
 			yEnumCMBDriverCallPlace.ItemsEnum = typeof(DriverCallType);
 			yEnumCMBDriverCallPlace.Binding.AddBinding(undelivery, p => p.DriverCallType, w => w.SelectedItem).InitializeFromSource();
 
 			yDateDispatcherCallTime.Binding.AddBinding(undelivery, t => t.DispatcherCallTime, w => w.DateOrNull).InitializeFromSource();
-			if(UoW.IsNew)
+			if(undelivery.Id <= 0)
 				yDateDispatcherCallTime.DateOrNull = DateTime.Now;
 
 			referenceNewDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.AllQuery();
