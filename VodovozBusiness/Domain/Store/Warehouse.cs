@@ -34,9 +34,17 @@ namespace Vodovoz.Domain.Store
 			set{ SetField (ref canReceiveEquipment, value, () => CanReceiveEquipment); }
 		}
 
+		private bool publishOnlineStore;
+
+		[Display(Name = "Публиковать в интернет магазине")]
+		public virtual bool PublishOnlineStore {
+			get { return publishOnlineStore; }
+			set { SetField(ref publishOnlineStore, value, () => PublishOnlineStore); }
+		}
+
 		private WarehouseUsing typeOfUse;
 
-		[Display(Name = "notset")]
+		[Display(Name = "Тип использования")]
 		public virtual WarehouseUsing TypeOfUse {
 			get { return typeOfUse; }
 			set { SetField(ref typeOfUse, value, () => TypeOfUse); }

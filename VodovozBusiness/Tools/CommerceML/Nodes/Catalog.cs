@@ -12,11 +12,11 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 		{
 			myExport = export;
 			Classifier = classifier;
-			goods = new Goods(export);
+			Goods = new Goods(export);
 		}
 
 		Export myExport;
-		Goods goods;
+		public Goods Goods { get; private set; }
 
 		public Guid Guid => Guid.Parse("79ecd59a-403b-4bac-809d-738d4e146b84");
 		public string Name = "Основной каталог товаров";
@@ -30,7 +30,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			xml.Add(new XElement("ИдКлассификатора", Classifier.Guid));
 			xml.Add(new XElement("Наименование", Name));
 			xml.Add(myExport.DefaultOwner.ToXml());
-			xml.Add(goods.ToXml());
+			xml.Add(Goods.ToXml());
 			return xml;
 		}
 	}

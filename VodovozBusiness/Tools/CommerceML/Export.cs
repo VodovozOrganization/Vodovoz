@@ -35,10 +35,15 @@ namespace Vodovoz.Tools.CommerceML
 		public List<string> Errors = new List<string>();
 
 		public Owner DefaultOwner { get; private set; }
+		public Guid DefaultPriceGuid = Guid.Parse("beae9b72-cbd3-46ec-bddf-10104d5dd3e6");
 
 		public Groups ProductGroups { get; set; }
 
+		public Classifier Classifier { get; set; }
+		public Catalog Catalog { get; set; }
+
 		private Root rootCatalog;
+		private Root rootOffers;
 
 #region Progress
 
@@ -64,11 +69,22 @@ namespace Vodovoz.Tools.CommerceML
 			UOW = uow;
 		}
 
-		public void RunToDirectory()
+		public void RunToDirectory(string dir)
 		{
 			Errors.Clear();
 
 			CreateObjects();
+
+			OnProgressPlusOneTask("Сохраняем import.xml");
+			using(XmlWriter writer = XmlWriter.Create(Path.Combine(dir, "import.xml"), Export.WriterSettings)) {
+				rootCatalog.ToXml().WriteTo(writer);
+			}
+
+			OnProgressPlusOneTask("Сохраняем offers.xml");
+			using(XmlWriter writer = XmlWriter.Create(Path.Combine(dir, "offers.xml"), Export.WriterSettings)) {
+				rootOffers.ToXml().WriteTo(writer);
+			}
+
 		}
 
 		public void RunToSite()
@@ -92,7 +108,6 @@ namespace Vodovoz.Tools.CommerceML
 
 			CreateObjects();
 
-
 			OnProgressPlusOneTask("Инициализация процесса обмена");
 			//Инициализируем передачу. Ответ о сжатии и размере нас не интересует. Мы не умеем других вариантов.
 			request = new RestRequest("1c_exchange.php?type=catalog&mode=init", Method.GET);
@@ -115,9 +130,32 @@ namespace Vodovoz.Tools.CommerceML
 			response = client.Execute(request);
 			DebugResponse(response);
 
+			OnProgressPlusOneTask("Выгружаем наличие");
+
+			request = new RestRequest("1c_exchange.php?type=catalog&mode=file&filename=offers.xml", Method.POST);
+			//request.AddParameter("filename", "import.xml");
+			//request.AddFile("import.xml", s => rootCatalog.WriteToStream(s), "import.xml");
+			using(MemoryStream stream = new MemoryStream()) {
+				rootOffers.WriteToStream(stream);
+				stream.Position = 0;
+				var file = stream.ToArray();
+
+				request.AddFile("offers.xml", file, "offers.xml");
+			}
+			response = client.Execute(request);
+			DebugResponse(response);
+
+			SendImportCommand(client, "import.xml");
+			SendImportCommand(client, "offers.xml");
+
+		}
+
+		private void SendImportCommand(RestClient client, string filename)
+		{
 			OnProgressPlusOneTask("Ожидаем обработки данных на сайте");
 
-			request = new RestRequest("1c_exchange.php?type=catalog&mode=import&filename=import.xml", Method.GET);
+			var request = new RestRequest("1c_exchange.php?type=catalog&mode=import&filename=" + filename, Method.GET);
+			IRestResponse response;
 
 			int i = 0;
 			do {
@@ -146,7 +184,9 @@ namespace Vodovoz.Tools.CommerceML
 			var org = OrganizationRepository.GetOrganizationByInn(UOW, "7816453294");
 			DefaultOwner = new Owner(this, org);
 
-			rootCatalog = new Root(this);
+			rootCatalog = new Root(this, RootContents.Catalog);
+
+			rootOffers = new Root(this, RootContents.Offers);
 
 			if(Errors.Count == 0) {
 				OnProgressPlusOneTask("Сохраняем созданные Guid's в базу.");

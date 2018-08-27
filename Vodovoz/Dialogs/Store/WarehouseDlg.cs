@@ -31,6 +31,7 @@ namespace Vodovoz
 			yentryName.Binding
 				.AddBinding (UoWGeneric.Root, (warehouse) => warehouse.Name, (widget) => widget.Text)
 				.InitializeFromSource ();
+			ycheckOnlineStore.Binding.AddBinding(Entity, e => e.PublishOnlineStore, w => w.Active).InitializeFromSource();
 			ycheckbuttonCanReceiveBottles.Binding
 				.AddBinding (UoWGeneric.Root, (warehouse) => warehouse.CanReceiveBottles, (widget) => widget.Active)
 				.InitializeFromSource ();

@@ -485,6 +485,8 @@
     <Compile Include="Tools\CommerceML\Nodes\Goods.cs" />
     <Compile Include="Tools\CommerceML\Nodes\Catalog.cs" />
     <Compile Include="Repositories\UndeliveredOrdersRepository.cs" />
+    <Compile Include="Tools\CommerceML\Nodes\Offers.cs" />
+    <Compile Include="Tools\CommerceML\Nodes\OffersPackage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

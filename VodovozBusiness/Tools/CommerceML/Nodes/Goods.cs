@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Gamma.Utilities;
@@ -10,7 +9,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 {
 	public class Goods : IXmlConvertable 
 	{
-		IList<Nomenclature> goods;
+		public IList<Nomenclature> Nomenclatures { get; private set; }
 
 		public Goods(Export export)
 		{
@@ -18,7 +17,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			myExport.OnProgressPlusOneTask("Выгружаем товары");
 
 			var groupsIds = myExport.ProductGroups.ToExportIds();
-			goods = NomenclatureRepository.NomenclatureInGroupsQuery(groupsIds).GetExecutableQueryOver(myExport.UOW.Session).List();
+			Nomenclatures = NomenclatureRepository.NomenclatureInGroupsQuery(groupsIds).GetExecutableQueryOver(myExport.UOW.Session).List();
 		}
 
 		Export myExport;
@@ -26,7 +25,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 		public XElement ToXml()
 		{
 			var xml = new XElement("Товары");
-			foreach(var good in goods)
+			foreach(var good in Nomenclatures)
 			{
 				var goodxml = new XElement("Товар");
 				goodxml.Add(new XElement("Ид", good.GetOrCreateGuid(myExport.UOW)));
@@ -50,6 +49,12 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 				xml.Add(goodxml);
 			}
 			return xml;
+		}
+
+		public int[] NomenclatureIds{
+			get{
+				return Nomenclatures.Select(x => x.Id).ToArray();
+			}
 		}
 	}
 }

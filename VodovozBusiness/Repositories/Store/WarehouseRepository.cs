@@ -92,5 +92,13 @@ namespace Vodovoz.Repository.Store
 				.Select(Projections.Distinct(Projections.Property<Nomenclature>(n => n.Warehouse)))
 				.List<Warehouse>();
 		}
+
+		public static IList<Warehouse> WarehousesForPublishOnlineStore(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<Warehouse>()
+				      .WhereNot(x => x.IsArchive)
+				      .Where(x => x.PublishOnlineStore)
+				      .List<Warehouse>();
+		}
 	}
 }

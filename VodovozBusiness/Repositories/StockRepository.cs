@@ -103,6 +103,22 @@ namespace Vodovoz.Repository
 			return result;			      
 		}
 
+		public static Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork UoW, int[] warehouseIds, int[] nomenclatureIds)
+		{
+			var total = new Dictionary<int, decimal>();
+			foreach(var warehouse in warehouseIds) {
+				var stockTotal = NomenclatureInStock(UoW, warehouse, nomenclatureIds);
+				foreach(var pair in stockTotal)
+				{
+					if(total.ContainsKey(pair.Key))
+						total[pair.Key] += pair.Value;
+					else
+						total.Add(pair.Key, pair.Value);
+				}
+			}
+			return total;
+		}
+
 		public static decimal EquipmentInStock(IUnitOfWork UoW, int warehouseId, int equipmentId)
 		{
 			return EquipmentInStock (UoW, warehouseId, new int[]{ equipmentId }).Values.FirstOrDefault ();

@@ -12,14 +12,30 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 		public DateTime ExportDate { get; private set; }
 		public Classifier Classifier { get; private set; }
 		public Catalog Catalog { get; private set; }
+		public OffersPackage Offers { get; private set; }
 
-		public Root(Export export)
+		private RootContents Contents;
+
+		public Root(Export export, RootContents contents)
 		{
 			myExport = export;
 			Version = "2.04";
 			ExportDate = DateTime.Now;
-			Classifier = new Classifier(myExport);
-			Catalog = new Catalog(myExport, Classifier);
+			Contents = contents;
+
+			switch(contents) {
+				case RootContents.Catalog:
+					myExport.Classifier = Classifier = new Classifier(myExport);
+					myExport.Catalog = Catalog = new Catalog(myExport, Classifier);
+					break;
+
+				case RootContents.Offers:
+					Offers = new OffersPackage(myExport, myExport.Classifier, myExport.Catalog);
+					break;
+				default:
+					break;
+			}
+
 		}
 
 		public XElement ToXml()
@@ -28,8 +44,19 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			                       new XAttribute("ВерсияСхемы", Version),
 			                       new XAttribute("ДатаФормирования", ExportDate)
 					  );
-			xml.Add(Classifier.ToXml());
-			xml.Add(Catalog.ToXml());
+
+			switch(Contents) {
+				case RootContents.Catalog:
+					xml.Add(Classifier.ToXml());
+					xml.Add(Catalog.ToXml());
+					break;
+				case RootContents.Offers:
+					xml.Add(Offers.ToXml());
+					break;
+				default:
+					break;
+			}
+
 			return xml;
 		}
 
@@ -39,5 +66,11 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 				ToXml().WriteTo(writer);
 			}
 		}
+	}
+
+	public enum RootContents
+	{
+		Catalog,
+		Offers
 	}
 }

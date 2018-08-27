@@ -27,34 +27,30 @@ namespace Vodovoz.Dialogs.OnlineStore
 		{
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
+				var fileChooser = new Gtk.FileChooserDialog("Выберите папку для сохранения выгрузки",
+					(Window)this.Toplevel,
+				                                            Gtk.FileChooserAction.SelectFolder,
+					"Отмена", ResponseType.Cancel,
+					"Выбрать", ResponseType.Accept
+				);
+
+				if(fileChooser.Run() == (int)ResponseType.Cancel)
+				{
+					fileChooser.Destroy();
+					return;
+				}
+
+				var directory = fileChooser.Filename;
+				fileChooser.Destroy();
+
 				var export = new Export(uow);
 				export.ProgressUpdated += Export_ProgressUpdated;
 
-				export.RunToDirectory();
+				export.RunToDirectory(directory);
 
 				if(UpdateErrors(export.Errors))
 					return;
-
-				var fileChooser = new Gtk.FileChooserDialog("Выберите файл для сохранения выгрузки",
-					(Window)this.Toplevel,
-					Gtk.FileChooserAction.Save,
-					"Отмена", ResponseType.Cancel,
-					"Сохранить", ResponseType.Accept
-				);
-
-				var dateText = DateTime.Today.ToShortDateString().Replace(System.IO.Path.DirectorySeparatorChar, '-');
-				fileChooser.CurrentName = $"import-{dateText}.xml";
-				var filter = new FileFilter();
-				filter.AddPattern("*.xml");
-				fileChooser.Filter = filter;
-				if(fileChooser.Run() == (int)ResponseType.Accept) {
-					var filename = fileChooser.Filename.EndsWith(".xml") ? fileChooser.Filename : fileChooser.Filename + ".xml";
-					using(XmlWriter writer = XmlWriter.Create(filename, Export.WriterSettings)) {
-						export.GetXml().WriteTo(writer);
-					}
-				}
-				fileChooser.Destroy();
-
+					
 				progressbarTotal.Text = "Готово";
 				progressbarTotal.Adjustment.Value = progressbarTotal.Adjustment.Upper;
 			}
