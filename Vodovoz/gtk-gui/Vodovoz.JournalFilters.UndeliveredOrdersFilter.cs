@@ -61,8 +61,7 @@ namespace Vodovoz.JournalFilters
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.JournalFilters.UndeliveredOrdersFilter";
 			// Container child Vodovoz.JournalFilters.UndeliveredOrdersFilter.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(8)), false);
-			this.table1.Name = "table1";
+			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(6)), false);
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -73,8 +72,10 @@ namespace Vodovoz.JournalFilters
 			this.dateperiodNewOrderDate.EndDate = new global::System.DateTime(0);
 			this.table1.Add(this.dateperiodNewOrderDate);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.dateperiodNewOrderDate]));
-			w1.LeftAttach = ((uint)(5));
-			w1.RightAttach = ((uint)(6));
+			w1.TopAttach = ((uint)(2));
+			w1.BottomAttach = ((uint)(3));
+			w1.LeftAttach = ((uint)(3));
+			w1.RightAttach = ((uint)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.dateperiodOldOrderDate = new global::QSWidgetLib.DatePeriodPicker();
@@ -84,8 +85,8 @@ namespace Vodovoz.JournalFilters
 			this.dateperiodOldOrderDate.EndDate = new global::System.DateTime(0);
 			this.table1.Add(this.dateperiodOldOrderDate);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.dateperiodOldOrderDate]));
-			w2.TopAttach = ((uint)(2));
-			w2.BottomAttach = ((uint)(3));
+			w2.TopAttach = ((uint)(1));
+			w2.BottomAttach = ((uint)(2));
 			w2.LeftAttach = ((uint)(3));
 			w2.RightAttach = ((uint)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -98,10 +99,8 @@ namespace Vodovoz.JournalFilters
 			this.enumCMBUndeliveryStatus.DefaultFirst = false;
 			this.table1.Add(this.enumCMBUndeliveryStatus);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.enumCMBUndeliveryStatus]));
-			w3.TopAttach = ((uint)(2));
-			w3.BottomAttach = ((uint)(3));
-			w3.LeftAttach = ((uint)(7));
-			w3.RightAttach = ((uint)(8));
+			w3.LeftAttach = ((uint)(5));
+			w3.RightAttach = ((uint)(6));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.lblActionWithInvoice = new global::Gtk.Label();
@@ -110,10 +109,10 @@ namespace Vodovoz.JournalFilters
 			this.lblActionWithInvoice.LabelProp = global::Mono.Unix.Catalog.GetString("Действие с накладной:");
 			this.table1.Add(this.lblActionWithInvoice);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.lblActionWithInvoice]));
-			w4.TopAttach = ((uint)(1));
-			w4.BottomAttach = ((uint)(2));
-			w4.LeftAttach = ((uint)(6));
-			w4.RightAttach = ((uint)(7));
+			w4.TopAttach = ((uint)(3));
+			w4.BottomAttach = ((uint)(4));
+			w4.LeftAttach = ((uint)(2));
+			w4.RightAttach = ((uint)(3));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -134,8 +133,8 @@ namespace Vodovoz.JournalFilters
 			this.lblDeliveryPoint.LabelProp = global::Mono.Unix.Catalog.GetString("Адрес:");
 			this.table1.Add(this.lblDeliveryPoint);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.lblDeliveryPoint]));
-			w6.LeftAttach = ((uint)(2));
-			w6.RightAttach = ((uint)(3));
+			w6.TopAttach = ((uint)(3));
+			w6.BottomAttach = ((uint)(4));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -182,8 +181,10 @@ namespace Vodovoz.JournalFilters
 			this.lblNewOrderDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата переноса:");
 			this.table1.Add(this.lblNewOrderDate);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.lblNewOrderDate]));
-			w10.LeftAttach = ((uint)(4));
-			w10.RightAttach = ((uint)(5));
+			w10.TopAttach = ((uint)(2));
+			w10.BottomAttach = ((uint)(3));
+			w10.LeftAttach = ((uint)(2));
+			w10.RightAttach = ((uint)(3));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -202,8 +203,6 @@ namespace Vodovoz.JournalFilters
 			this.lblOldOrderAuthor.LabelProp = global::Mono.Unix.Catalog.GetString("Автор заказа:");
 			this.table1.Add(this.lblOldOrderAuthor);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.lblOldOrderAuthor]));
-			w12.TopAttach = ((uint)(1));
-			w12.BottomAttach = ((uint)(2));
 			w12.LeftAttach = ((uint)(2));
 			w12.RightAttach = ((uint)(3));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -215,8 +214,8 @@ namespace Vodovoz.JournalFilters
 			this.lblOldOrderDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
 			this.table1.Add(this.lblOldOrderDate);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.lblOldOrderDate]));
-			w13.TopAttach = ((uint)(2));
-			w13.BottomAttach = ((uint)(3));
+			w13.TopAttach = ((uint)(1));
+			w13.BottomAttach = ((uint)(2));
 			w13.LeftAttach = ((uint)(2));
 			w13.RightAttach = ((uint)(3));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -228,8 +227,10 @@ namespace Vodovoz.JournalFilters
 			this.lblUndeliveryAuthor.LabelProp = global::Mono.Unix.Catalog.GetString("Автор недовоза:");
 			this.table1.Add(this.lblUndeliveryAuthor);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.lblUndeliveryAuthor]));
-			w14.LeftAttach = ((uint)(6));
-			w14.RightAttach = ((uint)(7));
+			w14.TopAttach = ((uint)(3));
+			w14.BottomAttach = ((uint)(4));
+			w14.LeftAttach = ((uint)(4));
+			w14.RightAttach = ((uint)(5));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -239,10 +240,8 @@ namespace Vodovoz.JournalFilters
 			this.lblUndeliveryStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус недовоза:");
 			this.table1.Add(this.lblUndeliveryStatus);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.lblUndeliveryStatus]));
-			w15.TopAttach = ((uint)(2));
-			w15.BottomAttach = ((uint)(3));
-			w15.LeftAttach = ((uint)(6));
-			w15.RightAttach = ((uint)(7));
+			w15.LeftAttach = ((uint)(4));
+			w15.RightAttach = ((uint)(5));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -262,8 +261,10 @@ namespace Vodovoz.JournalFilters
 			this.refDeliveryPoint.Name = "refDeliveryPoint";
 			this.table1.Add(this.refDeliveryPoint);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.refDeliveryPoint]));
-			w17.LeftAttach = ((uint)(3));
-			w17.RightAttach = ((uint)(4));
+			w17.TopAttach = ((uint)(3));
+			w17.BottomAttach = ((uint)(4));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(2));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.refDriver = new global::Gamma.Widgets.yEntryReferenceVM();
@@ -291,8 +292,6 @@ namespace Vodovoz.JournalFilters
 			this.refOldOrderAuthor.Name = "refOldOrderAuthor";
 			this.table1.Add(this.refOldOrderAuthor);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.refOldOrderAuthor]));
-			w20.TopAttach = ((uint)(1));
-			w20.BottomAttach = ((uint)(2));
 			w20.LeftAttach = ((uint)(3));
 			w20.RightAttach = ((uint)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -302,8 +301,10 @@ namespace Vodovoz.JournalFilters
 			this.refUndeliveryAuthor.Name = "refUndeliveryAuthor";
 			this.table1.Add(this.refUndeliveryAuthor);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.refUndeliveryAuthor]));
-			w21.LeftAttach = ((uint)(7));
-			w21.RightAttach = ((uint)(8));
+			w21.TopAttach = ((uint)(3));
+			w21.BottomAttach = ((uint)(4));
+			w21.LeftAttach = ((uint)(5));
+			w21.RightAttach = ((uint)(6));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yEnumCMBActionWithInvoice = new global::Gamma.Widgets.yEnumComboBox();
@@ -314,10 +315,10 @@ namespace Vodovoz.JournalFilters
 			this.yEnumCMBActionWithInvoice.DefaultFirst = false;
 			this.table1.Add(this.yEnumCMBActionWithInvoice);
 			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.yEnumCMBActionWithInvoice]));
-			w22.TopAttach = ((uint)(1));
-			w22.BottomAttach = ((uint)(2));
-			w22.LeftAttach = ((uint)(7));
-			w22.RightAttach = ((uint)(8));
+			w22.TopAttach = ((uint)(3));
+			w22.BottomAttach = ((uint)(4));
+			w22.LeftAttach = ((uint)(3));
+			w22.RightAttach = ((uint)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yEnumCMBGuilty = new global::Gamma.Widgets.yEnumComboBox();

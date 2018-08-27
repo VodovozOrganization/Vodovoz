@@ -7,8 +7,9 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.JournalViewers;
 using Vodovoz.Repository;
-using Vodovoz.Representations;
+using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -53,6 +54,8 @@ namespace Vodovoz
 		public FineDlg(UndeliveredOrder undeliveredOrder) : this()
 		{
 			Entity.UndeliveredOrder = undeliveredOrder;
+			var RouteList = RouteListItemRepository.GetRouteListItemForOrder(UoW, undeliveredOrder.OldOrder)?.RouteList;
+			Entity.RouteList = RouteList;
 		}
 
 		public FineDlg (int id)
@@ -249,12 +252,13 @@ namespace Vodovoz
 
 		protected void OnBtnShowUndeliveryClicked(object sender, EventArgs e)
 		{
-			MainClass.MainWin.TdiMain.OpenTab(
-				ReferenceRepresentation.GenerateHashName<UndeliveredOrdersVM>(),
-				() => new ReferenceRepresentation(new UndeliveredOrdersVM(UoW, Entity.UndeliveredOrder.Id))
-				.CustomTabName("Просмотр недовоза")
-				.Buttons(ReferenceButtonMode.None)
-			);
+			UndeliveriesView dlg = new UndeliveriesView();
+			dlg.HideFilterAndControls();
+			dlg.GetUndeliveryFilter.RestrictOldOrder = Entity.UndeliveredOrder.OldOrder;
+			dlg.GetUndeliveryFilter.RestrictOldOrderStartDate = dlg.GetUndeliveryFilter.RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate;
+			dlg.GetUndeliveryFilter.RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus;
+			dlg.Refresh();
+			TabParent.AddSlaveTab(this, dlg);
 		}
 	}
 }

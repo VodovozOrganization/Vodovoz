@@ -6,7 +6,7 @@ namespace Vodovoz.JournalViewers
 	{
 		private global::Gtk.VBox vbox1;
 
-		private global::Gtk.HBox hbox6;
+		private global::Gtk.HBox hbxDlgControls;
 
 		private global::Gtk.Button buttonAdd;
 
@@ -41,10 +41,10 @@ namespace Vodovoz.JournalViewers
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox6 = new global::Gtk.HBox();
-			this.hbox6.Name = "hbox6";
-			this.hbox6.Spacing = 6;
-			// Container child hbox6.Gtk.Box+BoxChild
+			this.hbxDlgControls = new global::Gtk.HBox();
+			this.hbxDlgControls.Name = "hbxDlgControls";
+			this.hbxDlgControls.Spacing = 6;
+			// Container child hbxDlgControls.Gtk.Box+BoxChild
 			this.buttonAdd = new global::Gtk.Button();
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
@@ -53,12 +53,12 @@ namespace Vodovoz.JournalViewers
 			global::Gtk.Image w1 = new global::Gtk.Image();
 			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.buttonAdd.Image = w1;
-			this.hbox6.Add(this.buttonAdd);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAdd]));
+			this.hbxDlgControls.Add(this.buttonAdd);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbxDlgControls[this.buttonAdd]));
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
-			// Container child hbox6.Gtk.Box+BoxChild
+			// Container child hbxDlgControls.Gtk.Box+BoxChild
 			this.buttonEdit = new global::Gtk.Button();
 			this.buttonEdit.Sensitive = false;
 			this.buttonEdit.CanFocus = true;
@@ -68,12 +68,12 @@ namespace Vodovoz.JournalViewers
 			global::Gtk.Image w3 = new global::Gtk.Image();
 			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
 			this.buttonEdit.Image = w3;
-			this.hbox6.Add(this.buttonEdit);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonEdit]));
+			this.hbxDlgControls.Add(this.buttonEdit);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbxDlgControls[this.buttonEdit]));
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
-			// Container child hbox6.Gtk.Box+BoxChild
+			// Container child hbxDlgControls.Gtk.Box+BoxChild
 			this.buttonDelete = new global::Gtk.Button();
 			this.buttonDelete.Sensitive = false;
 			this.buttonDelete.CanFocus = true;
@@ -83,24 +83,24 @@ namespace Vodovoz.JournalViewers
 			global::Gtk.Image w5 = new global::Gtk.Image();
 			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
 			this.buttonDelete.Image = w5;
-			this.hbox6.Add(this.buttonDelete);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonDelete]));
+			this.hbxDlgControls.Add(this.buttonDelete);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbxDlgControls[this.buttonDelete]));
 			w6.Position = 2;
 			w6.Expand = false;
 			w6.Fill = false;
-			// Container child hbox6.Gtk.Box+BoxChild
+			// Container child hbxDlgControls.Gtk.Box+BoxChild
 			this.checkShowFilter = new global::Gtk.CheckButton();
 			this.checkShowFilter.CanFocus = true;
 			this.checkShowFilter.Name = "checkShowFilter";
 			this.checkShowFilter.Label = global::Mono.Unix.Catalog.GetString("Фильтр");
 			this.checkShowFilter.DrawIndicator = false;
 			this.checkShowFilter.UseUnderline = true;
-			this.hbox6.Add(this.checkShowFilter);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.checkShowFilter]));
+			this.hbxDlgControls.Add(this.checkShowFilter);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbxDlgControls[this.checkShowFilter]));
 			w7.PackType = ((global::Gtk.PackType)(1));
 			w7.Position = 3;
 			w7.Expand = false;
-			// Container child hbox6.Gtk.Box+BoxChild
+			// Container child hbxDlgControls.Gtk.Box+BoxChild
 			this.buttonRefresh = new global::Gtk.Button();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
@@ -109,13 +109,13 @@ namespace Vodovoz.JournalViewers
 			global::Gtk.Image w8 = new global::Gtk.Image();
 			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Menu);
 			this.buttonRefresh.Image = w8;
-			this.hbox6.Add(this.buttonRefresh);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRefresh]));
+			this.hbxDlgControls.Add(this.buttonRefresh);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbxDlgControls[this.buttonRefresh]));
 			w9.PackType = ((global::Gtk.PackType)(1));
 			w9.Position = 4;
 			w9.Expand = false;
 			w9.Fill = false;
-			// Container child hbox6.Gtk.Box+BoxChild
+			// Container child hbxDlgControls.Gtk.Box+BoxChild
 			this.btnPrint = new global::Gtk.Button();
 			this.btnPrint.CanFocus = true;
 			this.btnPrint.Name = "btnPrint";
@@ -124,14 +124,14 @@ namespace Vodovoz.JournalViewers
 			global::Gtk.Image w10 = new global::Gtk.Image();
 			w10.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-print", global::Gtk.IconSize.Menu);
 			this.btnPrint.Image = w10;
-			this.hbox6.Add(this.btnPrint);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.btnPrint]));
+			this.hbxDlgControls.Add(this.btnPrint);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbxDlgControls[this.btnPrint]));
 			w11.PackType = ((global::Gtk.PackType)(1));
 			w11.Position = 5;
 			w11.Expand = false;
 			w11.Fill = false;
-			this.vbox1.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox6]));
+			this.vbox1.Add(this.hbxDlgControls);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbxDlgControls]));
 			w12.Position = 0;
 			w12.Expand = false;
 			w12.Fill = false;

@@ -838,7 +838,7 @@ LEFT JOIN (
 				IF(
 					field_name = 'OldOrderDeliveryDate',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
 						'\n',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',

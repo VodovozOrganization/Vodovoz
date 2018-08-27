@@ -56932,14 +56932,14 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.JournalFilters.UndeliveredOrdersFilter" design-size="843 105">
+  <widget class="Gtk.Bin" id="Vodovoz.JournalFilters.UndeliveredOrdersFilter" design-size="821 142">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
       <widget class="Gtk.Table" id="table1">
         <property name="MemberName" />
-        <property name="NRows">3</property>
-        <property name="NColumns">8</property>
+        <property name="NRows">4</property>
+        <property name="NColumns">6</property>
         <property name="RowSpacing">6</property>
         <property name="ColumnSpacing">6</property>
         <child>
@@ -56951,8 +56951,10 @@ not tooltip</property>
             <signal name="PeriodChanged" handler="OnDateperiodNewOrderDatePeriodChanged" />
           </widget>
           <packing>
-            <property name="LeftAttach">5</property>
-            <property name="RightAttach">6</property>
+            <property name="TopAttach">2</property>
+            <property name="BottomAttach">3</property>
+            <property name="LeftAttach">3</property>
+            <property name="RightAttach">4</property>
             <property name="AutoSize">False</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">True</property>
@@ -56972,8 +56974,8 @@ not tooltip</property>
             <signal name="PeriodChanged" handler="OnDateperiodOldOrderDatePeriodChanged" />
           </widget>
           <packing>
-            <property name="TopAttach">2</property>
-            <property name="BottomAttach">3</property>
+            <property name="TopAttach">1</property>
+            <property name="BottomAttach">2</property>
             <property name="LeftAttach">3</property>
             <property name="RightAttach">4</property>
             <property name="AutoSize">False</property>
@@ -56998,10 +57000,8 @@ not tooltip</property>
             <signal name="EnumItemSelected" handler="OnEnumcomboUndeliveryStatusEnumItemSelected" />
           </widget>
           <packing>
-            <property name="TopAttach">2</property>
-            <property name="BottomAttach">3</property>
-            <property name="LeftAttach">7</property>
-            <property name="RightAttach">8</property>
+            <property name="LeftAttach">5</property>
+            <property name="RightAttach">6</property>
             <property name="AutoSize">False</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">True</property>
@@ -57019,10 +57019,10 @@ not tooltip</property>
             <property name="LabelProp" translatable="yes">Действие с накладной:</property>
           </widget>
           <packing>
-            <property name="TopAttach">1</property>
-            <property name="BottomAttach">2</property>
-            <property name="LeftAttach">6</property>
-            <property name="RightAttach">7</property>
+            <property name="TopAttach">3</property>
+            <property name="BottomAttach">4</property>
+            <property name="LeftAttach">2</property>
+            <property name="RightAttach">3</property>
             <property name="AutoSize">True</property>
             <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
@@ -57061,8 +57061,8 @@ not tooltip</property>
             <property name="LabelProp" translatable="yes">Адрес:</property>
           </widget>
           <packing>
-            <property name="LeftAttach">2</property>
-            <property name="RightAttach">3</property>
+            <property name="TopAttach">3</property>
+            <property name="BottomAttach">4</property>
             <property name="AutoSize">True</property>
             <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
@@ -57105,7 +57105,7 @@ not tooltip</property>
             <property name="BottomAttach">2</property>
             <property name="LeftAttach">4</property>
             <property name="RightAttach">5</property>
-            <property name="AutoSize">False</property>
+            <property name="AutoSize">True</property>
             <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">False</property>
@@ -57145,9 +57145,11 @@ not tooltip</property>
             <property name="LabelProp" translatable="yes">Дата переноса:</property>
           </widget>
           <packing>
-            <property name="LeftAttach">4</property>
-            <property name="RightAttach">5</property>
-            <property name="AutoSize">False</property>
+            <property name="TopAttach">2</property>
+            <property name="BottomAttach">3</property>
+            <property name="LeftAttach">2</property>
+            <property name="RightAttach">3</property>
+            <property name="AutoSize">True</property>
             <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">False</property>
@@ -57183,8 +57185,6 @@ not tooltip</property>
             <property name="LabelProp" translatable="yes">Автор заказа:</property>
           </widget>
           <packing>
-            <property name="TopAttach">1</property>
-            <property name="BottomAttach">2</property>
             <property name="LeftAttach">2</property>
             <property name="RightAttach">3</property>
             <property name="AutoSize">True</property>
@@ -57205,8 +57205,8 @@ not tooltip</property>
             <property name="LabelProp" translatable="yes">Дата:</property>
           </widget>
           <packing>
-            <property name="TopAttach">2</property>
-            <property name="BottomAttach">3</property>
+            <property name="TopAttach">1</property>
+            <property name="BottomAttach">2</property>
             <property name="LeftAttach">2</property>
             <property name="RightAttach">3</property>
             <property name="AutoSize">True</property>
@@ -57227,8 +57227,10 @@ not tooltip</property>
             <property name="LabelProp" translatable="yes">Автор недовоза:</property>
           </widget>
           <packing>
-            <property name="LeftAttach">6</property>
-            <property name="RightAttach">7</property>
+            <property name="TopAttach">3</property>
+            <property name="BottomAttach">4</property>
+            <property name="LeftAttach">4</property>
+            <property name="RightAttach">5</property>
             <property name="AutoSize">True</property>
             <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
@@ -57247,10 +57249,8 @@ not tooltip</property>
             <property name="LabelProp" translatable="yes">Статус недовоза:</property>
           </widget>
           <packing>
-            <property name="TopAttach">2</property>
-            <property name="BottomAttach">3</property>
-            <property name="LeftAttach">6</property>
-            <property name="RightAttach">7</property>
+            <property name="LeftAttach">4</property>
+            <property name="RightAttach">5</property>
             <property name="AutoSize">True</property>
             <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
@@ -57290,8 +57290,10 @@ not tooltip</property>
             <signal name="Changed" handler="OnEntryreferencePointChanged" />
           </widget>
           <packing>
-            <property name="LeftAttach">3</property>
-            <property name="RightAttach">4</property>
+            <property name="TopAttach">3</property>
+            <property name="BottomAttach">4</property>
+            <property name="LeftAttach">1</property>
+            <property name="RightAttach">2</property>
             <property name="AutoSize">False</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">True</property>
@@ -57349,8 +57351,6 @@ not tooltip</property>
             <signal name="Changed" handler="OnRefOldOrderAuthorChanged" />
           </widget>
           <packing>
-            <property name="TopAttach">1</property>
-            <property name="BottomAttach">2</property>
             <property name="LeftAttach">3</property>
             <property name="RightAttach">4</property>
             <property name="AutoSize">False</property>
@@ -57370,8 +57370,10 @@ not tooltip</property>
             <signal name="Changed" handler="OnRefUndeliveryAuthorChanged" />
           </widget>
           <packing>
-            <property name="LeftAttach">7</property>
-            <property name="RightAttach">8</property>
+            <property name="TopAttach">3</property>
+            <property name="BottomAttach">4</property>
+            <property name="LeftAttach">5</property>
+            <property name="RightAttach">6</property>
             <property name="AutoSize">False</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">True</property>
@@ -57394,10 +57396,10 @@ not tooltip</property>
             <signal name="EnumItemSelected" handler="OnYEnumCMBActionWithInvoiceEnumItemSelected" />
           </widget>
           <packing>
-            <property name="TopAttach">1</property>
-            <property name="BottomAttach">2</property>
-            <property name="LeftAttach">7</property>
-            <property name="RightAttach">8</property>
+            <property name="TopAttach">3</property>
+            <property name="BottomAttach">4</property>
+            <property name="LeftAttach">3</property>
+            <property name="RightAttach">4</property>
             <property name="AutoSize">False</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">True</property>
@@ -57471,7 +57473,7 @@ not tooltip</property>
         <property name="MemberName" />
         <property name="Spacing">6</property>
         <child>
-          <widget class="Gtk.HBox" id="hbox6">
+          <widget class="Gtk.HBox" id="hbxDlgControls">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>

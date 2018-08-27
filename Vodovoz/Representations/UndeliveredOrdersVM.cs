@@ -61,6 +61,8 @@ namespace Vodovoz.Representations
 			RouteListItem routeListItemAlias = null;
 			Subdivision subdivisionAlias = null;
 			UndeliveredOrderComment undeliveredOrderCommentsAlias = null;
+			Fine fineAlias = null;
+			FineItem fineItemAlias = null;
 
 			var subqueryDriver = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
 										  .Where(() => routeListItemAlias.Order.Id == oldOrderAlias.Id)
@@ -76,6 +78,7 @@ namespace Vodovoz.Representations
 												  Projections.Property(() => driverAlias.Patronymic)
 												 )
 											 );
+			
 			if(Filter?.RestrictDriver != null)
 				subqueryDriver.Where(() => routeListAlias.Driver == Filter.RestrictDriver);
 
@@ -115,6 +118,19 @@ namespace Vodovoz.Representations
 														   Projections.Constant("\n")
 														)
 													);
+
+			var subqueryFinedPeople = QueryOver.Of<FineItem>(() => fineItemAlias)
+			                                    .Where(() => fineItemAlias.Fine.Id == fineAlias.Id)
+			                                    .Left.JoinAlias(i => i.Fine, () => fineAlias)
+			                                    .Where(() => fineAlias.UndeliveredOrder.Id == undeliveredOrderAlias.Id)
+			                                    .Left.JoinAlias(i => i.Employee, () => employeeAlias)
+			                                    .Select(
+				                                    Projections.SqlFunction(
+					                                    new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ', ')"),
+					                                    NHibernateUtil.String,
+					                                    Projections.Property(() => employeeAlias.LastName)
+					                                   )
+				                                   );
 
 			var query = UoW.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
 						   .Left.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
@@ -209,6 +225,7 @@ namespace Vodovoz.Representations
 										  .SelectSubQuery(subquery19LWatterQty).WithAlias(() => resultAlias.OldOrder19LBottleQty)
 										  .SelectSubQuery(subqueryGoodsToClient).WithAlias(() => resultAlias.OldOrderGoodsToClient)
 										  .SelectSubQuery(subqueryGoodsFromClient).WithAlias(() => resultAlias.OldOrderGoodsFromClient)
+										  .SelectSubQuery(subqueryFinedPeople).WithAlias(() => resultAlias.Fined)
 										 )
 							  .TransformUsing(Transformers.AliasToBean<UndeliveredOrdersVMNode>())
 							  .List<UndeliveredOrdersVMNode>();
@@ -222,7 +239,7 @@ namespace Vodovoz.Representations
 										 .Select(() => undeliveredOrderCommentsAlias.CommentedField).WithAlias(() => commentsAlias.Field)
 										 .Select(
 											 Projections.SqlFunction(
-												 new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT('<span foreground=\"', ?6, '\">', '<b>', DATE_FORMAT(?1, '%e %b %Y, %k:%i:%s'), '\n', ?2, ' ', ?4, ':</b>\n', TRIM(?5), '</span>')"),
+												 new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT('<span foreground=\"', ?6, '\">', '<b>', DATE_FORMAT(?1, '%e.%m.%y, %k:%i:%s'), '\n', ?2, ' ', ?4, ':</b>\n', TRIM(?5), '</span>')"),
 												 NHibernateUtil.String,
 												 Projections.Property(() => undeliveredOrderCommentsAlias.CommentDate),
 												 Projections.Property(() => employeeAlias.Name),
@@ -238,7 +255,8 @@ namespace Vodovoz.Representations
 											).WithAlias(() => commentsAlias.Comment)
 										).TransformUsing(Transformers.AliasToBean<CommentNode>())
 									 .List<CommentNode>();
-			
+
+			int counter = 1;
 			foreach(var r in Result) {
 				var commentsForAllFields = allCommentsList.Where(x => x.Id == r.Id).OrderBy(x => x.Date).ToList();
 
@@ -296,6 +314,9 @@ namespace Vodovoz.Representations
 							case CommentedFields.Guilty:
 								com.Guilty = comment.Comment;
 								break;
+							case CommentedFields.FinedPeople:
+								com.FinedPeople = comment.Comment;
+								break;
 							case CommentedFields.Status:
 								com.Status = comment.Comment;
 								break;
@@ -307,6 +328,7 @@ namespace Vodovoz.Representations
 					commentsList.Add(com);
 				}
 
+				r.NumberInList = counter++;
 				r.Children = commentsList;
 			}
 
@@ -331,69 +353,91 @@ namespace Vodovoz.Representations
 		#region IColumnsConfig implementation
 		IColumnsConfig columnsConfig = FluentColumnsConfig<UndeliveredOrdersVMNode>
 			.Create()
-			.AddColumn("№").AddTextRenderer(node => node.StrId)
+			.AddColumn("№").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.StrId)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Дата\nзаказа").AddTextRenderer(node => node.OldOrderDeliveryDate)
+			.AddColumn("Дата\nзаказа").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.OldOrderDeliveryDate)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.OldOrderDeliveryDate)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Причина").AddTextRenderer(node => node.Reason)
+			.AddColumn("Причина").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.Reason)
 				.WrapWidth(300).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.Reason)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("№ нов.\nзаказа").AddTextRenderer(node => node.ActionWithInvoice)
+			.AddColumn("№ нов.\nзаказа").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.ActionWithInvoice)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.ActionWithInvoice)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Перенос").AddTextRenderer(node => node.TransferDateTime)
+			.AddColumn("Перенос").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.TransferDateTime)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.TransferDateTime)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Клиент").AddTextRenderer(node => node.Client)
+			.AddColumn("Клиент").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.Client)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.Client)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Адрес").AddTextRenderer(node => node.Address)
+			.AddColumn("Адрес").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.Address)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.Address)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Количество\nбутылей").AddTextRenderer(node => node.UndeliveredOrderItems)
+			.AddColumn("Количество\nбутылей").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.UndeliveredOrderItems)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.UndeliveredOrderItems)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Интервал\nдоставки").AddTextRenderer(node => node.OldDeliverySchedule)
+			.AddColumn("Интервал\nдоставки").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.OldDeliverySchedule)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.OldDeliverySchedule)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Автор\nзаказа").AddTextRenderer(node => node.OldOrderAuthor)
+			.AddColumn("Автор\nзаказа").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.OldOrderAuthor)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.OldOrderAuthor)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Водитель").AddTextRenderer(node => node.DriverName)
+			.AddColumn("Водитель").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.DriverName)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.DriverName)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Звонок\nв офис").AddTextRenderer(node => node.DriversCall)
+			.AddColumn("Звонок\nв офис").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.DriversCall)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.DriversCall)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Звонок\nклиенту").AddTextRenderer(node => node.DispatcherCall)
+			.AddColumn("Звонок\nклиенту").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.DispatcherCall)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.DispatcherCall)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Кто недовоз\nзафиксировал").AddTextRenderer(node => node.Registrator)
+			.AddColumn("Кто недовоз\nзафиксировал").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.Registrator)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.Registrator)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Автор\nнедовоза").AddTextRenderer(node => node.UndeliveryAuthor)
+			.AddColumn("Автор\nнедовоза").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.UndeliveryAuthor)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.UndeliveryAuthor)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Виновный").AddTextRenderer(node => node.Guilty)
+			.AddColumn("Виновный").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.Guilty)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.Guilty)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Статус").AddTextRenderer(node => node.Status)
+			.AddColumn("Оштрафованные").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.FinedPeople)
+				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddSetter((c, n) => c.Markup = n.FinedPeople)
+				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
+			.AddColumn("Статус").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.Status)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.Status)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
@@ -435,12 +479,13 @@ namespace Vodovoz.Representations
 	public class UndeliveredOrdersVMNode
 	{
 		public int Id { get; set; }
+		public int NumberInList { get; set; }
 		[UseForSearch]
 		[SearchHighlight]
 
 		public bool IsComment { get; set; }
 
-		public virtual string StrId { get => Id.ToString(); set {; } }
+		public virtual string StrId { get => NumberInList.ToString(); set {; } }
 
 		public UndeliveryStatus StatusEnum { get; set; }
 
@@ -504,6 +549,7 @@ namespace Vodovoz.Representations
 		public virtual string Registrator { get => StringWorks.PersonNameWithInitials(RegistratorLastName, RegistratorFirstName, RegistratorMidleName); set {; } }
 		public virtual string UndeliveryAuthor { get => StringWorks.PersonNameWithInitials(AuthorLastName, AuthorFirstName, AuthorMidleName); set {; } }
 		public virtual string Status { get => UndeliveryStatus.GetEnumTitle(); set {; } }
+		public virtual string FinedPeople { get => Fined ?? "Не выставлено"; set {; } }
 
 		public DateTime? DispatcherCallTime { get; set; }
 		public DateTime DriverCallTime { get; set; }
@@ -521,6 +567,8 @@ namespace Vodovoz.Representations
 		public UndeliveryStatus UndeliveryStatus { get; set; }
 		public GuiltyTypes GuiltySide { get; set; }
 		public string GuiltyDepartment { get; set; }
+		public string Fined { get; set; }
+
 		//старый заказ
 		public int OldOrderId { get; set; }
 		public DateTime OldOrderDeliveryDateTime { get; set; }
@@ -561,6 +609,7 @@ namespace Vodovoz.Representations
 		public override string Registrator { get; set; } = String.Empty;
 		public override string UndeliveryAuthor { get; set; } = String.Empty;
 		public override string Guilty { get; set; } = String.Empty;
+		public override string FinedPeople { get; set; } = String.Empty;
 		public override string Status { get; set; } = String.Empty;
 		public override Color BGColor { get; set; }
 

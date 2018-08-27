@@ -8,6 +8,7 @@ using QSTDI;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.JournalFilters;
 using Vodovoz.Representations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -61,6 +62,12 @@ namespace Vodovoz.JournalViewers
 			yTreeViewUndeliveries.Selection.Changed += OnYTreeViewUndeliveriesSelectionChanged; ;
 		}
 
+		public virtual void HideFilterAndControls(){
+			undeliveredOrdersFilter.Visible = hbxDlgControls.Visible = false;
+		}
+
+		public UndeliveredOrdersFilter GetUndeliveryFilter => undeliveredOrdersFilter;
+
 		protected void OnSearchEntityTextChanged(object sender, System.EventArgs e)
 		{
 			yTreeViewUndeliveries.SearchHighlightText = searchEntity.Text;
@@ -71,7 +78,7 @@ namespace Vodovoz.JournalViewers
 			Refresh();
 		}
 
-		void Refresh()
+		public virtual void Refresh()
 		{
 			vm.UpdateNodes();
 			yTreeViewUndeliveries.ColumnsConfig = vm.ColumnsConfig;
@@ -146,6 +153,7 @@ namespace Vodovoz.JournalViewers
 				OrmMain.GenerateDialogHashName<Fine>(menusSelected.Id),
 				() => fineDlg
 			);
+			fineDlg.EntitySaved += (sndr, eArgs) => Refresh();
 		}
 
 		#endregion

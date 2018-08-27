@@ -125,6 +125,8 @@ namespace Vodovoz.Domain.Orders
 		UndeliveryAuthor,
 		[Display(Name = "Виновный")]
 		Guilty,
+		[Display(Name = "Оштрафованные")]
+		FinedPeople,
 		[Display(Name = "Статус недовоза")]
 		Status
 	}

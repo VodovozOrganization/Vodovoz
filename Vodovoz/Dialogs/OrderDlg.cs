@@ -1745,6 +1745,8 @@ namespace Vodovoz
 			dlg.DlgSaved += (sender, e) => {
 				Entity.SetUndeliveredStatus(e.UndeliveredOrder.GuiltySide);
 				UpdateButtonState();
+				if(Save())
+					this.OnCloseTab(false);
 			};
 		}
 
