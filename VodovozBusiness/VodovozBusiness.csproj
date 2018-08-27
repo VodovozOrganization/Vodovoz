@@ -462,8 +462,14 @@
     <Compile Include="Repositories\OrderRulesRepository.cs" />
     <Compile Include="Domain\Goods\Folder1c.cs" />
     <Compile Include="HibernateMapping\Goods\Folder1cMap.cs" />
+    <Compile Include="Domain\Order\UndeliveredOrder.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveredOrderMap.cs" />
     <Compile Include="Domain\Order\Documents\InvoiceContractDoc.cs" />
     <Compile Include="Domain\Order\Documents\EquipmentReturnDocument.cs" />
+    <Compile Include="Repositories\FinesRepository.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveredOrderCommentsMap.cs" />
+    <Compile Include="Domain\Order\UndeliveredOrderComment.cs" />
+    <Compile Include="Repositories\UndeliveredOrderCommentsRepository.cs" />
     <Compile Include="Domain\Client\ClientCameFrom.cs" />
     <Compile Include="HibernateMapping\Counterparty\ClientCameFromMap.cs" />
     <Compile Include="Tools\CommerceML\Export.cs" />
@@ -478,6 +484,7 @@
     <Compile Include="HibernateMapping\Goods\ProductGroupMap.cs" />
     <Compile Include="Tools\CommerceML\Nodes\Goods.cs" />
     <Compile Include="Tools\CommerceML\Nodes\Catalog.cs" />
+    <Compile Include="Repositories\UndeliveredOrdersRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

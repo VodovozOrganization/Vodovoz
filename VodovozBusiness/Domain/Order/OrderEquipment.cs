@@ -137,16 +137,9 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref serviceClaim, value, () => ServiceClaim); }
 		}
 
-		public virtual string DirectionString { get { return Direction.GetEnumTitle(); } }
-
-		public virtual string DirectionReasonString => DirectionReason.GetEnumTitle();
-
-		public virtual string ReasonString { get { return Reason.GetEnumTitle(); } }
-
 		//TODO Номер заявки на обслуживание
 
 		int count;
-
 		/// <summary>
 		/// Количество оборудования, которое изначально должен был привезти/забрать водитель
 		/// </summary>
@@ -167,17 +160,12 @@ namespace Vodovoz.Domain.Orders
 
 		#region Вычисляемые
 
-		public virtual int ReturnedCount {
-			get {
-				return Count - ActualCount;
-			}
-		}
+		public virtual int ReturnedCount => Count - ActualCount;
+		public virtual bool IsFullyDelivered => Count - ActualCount == 0;
 
-		public virtual bool IsDelivered {
-			get {
-				return Count - ActualCount == 0;
-			}
-		}
+		public virtual string DirectionString => Direction.GetEnumTitle(); 
+		public virtual string DirectionReasonString => DirectionReason.GetEnumTitle();
+		public virtual string ReasonString => Reason.GetEnumTitle();
 
 		#endregion
 

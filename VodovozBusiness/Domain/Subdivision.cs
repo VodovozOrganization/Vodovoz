@@ -32,6 +32,7 @@ namespace Vodovoz
 		get { return chief; }
 		set { SetField (ref chief, value, () => Chief); }
 		}
+
 		#endregion
 
 		public Subdivision()

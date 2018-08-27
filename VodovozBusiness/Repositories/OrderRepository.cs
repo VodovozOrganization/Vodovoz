@@ -5,50 +5,51 @@ using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Transform;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Repository
 {
 	public static class OrderRepository
 	{
-		public static ListStore GetListStoreSumDifferenceReasons (IUnitOfWork uow)
+		public static ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)
 		{
 			Vodovoz.Domain.Orders.Order order = null;
 
-			var reasons = uow.Session.QueryOver<VodovozOrder> (() => order)
-				.Select (Projections.Distinct (Projections.Property (() => order.SumDifferenceReason)))
-				.List<string> ();
+			var reasons = uow.Session.QueryOver<VodovozOrder>(() => order)
+				.Select(Projections.Distinct(Projections.Property(() => order.SumDifferenceReason)))
+				.List<string>();
 
-			var store = new ListStore (typeof(string));
-			foreach (string s in reasons) {
-				store.AppendValues (s);
+			var store = new ListStore(typeof(string));
+			foreach(string s in reasons) {
+				store.AppendValues(s);
 			}
 			return store;
 		}
-			
-		public static QueryOver<VodovozOrder> GetOrdersForRLEditingQuery (DateTime date, bool showShipped)
+
+		public static QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped)
 		{
 			var query = QueryOver.Of<VodovozOrder>();
-			if (!showShipped)
+			if(!showShipped)
 				query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
 			else
 				query.Where(order => order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.NewOrder && order.OrderStatus != OrderStatus.WaitForPayment);
 			return query.Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery);
 		}
 
-		public static IList<VodovozOrder> GetAcceptedOrdersForRegion (IUnitOfWork uow, DateTime date, LogisticsArea area)
+		public static IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, LogisticsArea area)
 		{
 			DeliveryPoint point = null;
-			return uow.Session.QueryOver<VodovozOrder> ()
-				.JoinAlias (o => o.DeliveryPoint, () => point)
-				.Where (o => o.DeliveryDate == date.Date && point.LogisticsArea.Id == area.Id 
-					&& !o.SelfDelivery && o.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.Accepted)
-				.List<Vodovoz.Domain.Orders.Order> ();
+			return uow.Session.QueryOver<VodovozOrder>()
+				.JoinAlias(o => o.DeliveryPoint, () => point)
+				.Where(o => o.DeliveryDate == date.Date && point.LogisticsArea.Id == area.Id
+				   && !o.SelfDelivery && o.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.Accepted)
+				.List<Vodovoz.Domain.Orders.Order>();
 		}
 
 		public static VodovozOrder GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)
@@ -68,7 +69,7 @@ namespace Vodovoz.Repository
 			return UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.Where(() => orderAlias.Client.Id == counterparty.Id)
 				.Where(() => orderAlias.DeliveryDate >= DateTime.Today)
-				.Where(() => orderAlias.OrderStatus != OrderStatus.Closed 
+				.Where(() => orderAlias.OrderStatus != OrderStatus.Closed
 					&& orderAlias.OrderStatus != OrderStatus.Canceled
 					&& orderAlias.OrderStatus != OrderStatus.DeliveryCanceled
 					&& orderAlias.OrderStatus != OrderStatus.NotDelivered)
@@ -81,25 +82,25 @@ namespace Vodovoz.Repository
 			OrderItem orderItemAlias = null;
 
 			var subquerySum = QueryOver.Of<OrderItem>(() => orderItemAlias)
-			                           .Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-			                           .Select(Projections.Sum(
-				                           Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
-				                                                   NHibernateUtil.Decimal,
-				                                                   Projections.Property<OrderItem>(x => x.ActualCount),
-				                                                   Projections.Property<OrderItem>(x => x.Price),
-				                                                   Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( 1 - ?1 / 100 )"),
-				                                                                           NHibernateUtil.Decimal,
-				                                                                           Projections.Property<OrderItem>(x => x.Discount)
-				                                                                          )
-				                                                  )
-				                          ))
-			                           ;
+									   .Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+									   .Select(Projections.Sum(
+										   Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
+																   NHibernateUtil.Decimal,
+																   Projections.Property<OrderItem>(x => x.ActualCount),
+																   Projections.Property<OrderItem>(x => x.Price),
+																   Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( 1 - ?1 / 100 )"),
+																						   NHibernateUtil.Decimal,
+																						   Projections.Property<OrderItem>(x => x.Discount)
+																						  )
+																  )
+										  ))
+									   ;
 
 			return UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
-				      .Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
+					  .Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
 					  .Where(o => o.PaymentType == PaymentType.cashless)
 					  .Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
-				      .Where(Subqueries.Le(0.01, subquerySum.DetachedCriteria))
+					  .Where(Subqueries.Le(0.01, subquerySum.DetachedCriteria))
 					  .List();
 		}
 
@@ -110,11 +111,84 @@ namespace Vodovoz.Repository
 				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate).List();
 		}
 
-		public static IList<VodovozOrder> GetOrdersByCode1c (IUnitOfWork uow, string[] codes1c)
+		public static IList<VodovozOrder> GetOrdersByCode1c(IUnitOfWork uow, string[] codes1c)
 		{
-			return uow.Session.QueryOver<VodovozOrder> ()
+			return uow.Session.QueryOver<VodovozOrder>()
 				.Where(c => c.Code1c.IsIn(codes1c))
-				.List<VodovozOrder> ();
+				.List<VodovozOrder>();
+		}
+
+		/// <summary>
+		/// Кол-во 19л. воды в заказе
+		/// </summary>
+		/// <returns>Кол-во 19л. воды в заказе</returns>
+		/// <param name="uow">Uow.</param>
+		/// <param name="order">Заказ</param>
+		public static int Get19LWatterQtyForOrder(IUnitOfWork uow, VodovozOrder order)
+		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			var _19LWatterQty = uow.Session.QueryOver<OrderItem>(() => orderItemAlias)
+										  .Where(() => orderItemAlias.Order.Id == order.Id)
+										  .Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
+										  .Where(n => n.Category == NomenclatureCategory.water)
+										  .List()
+										  .Sum(i => i.Count);
+			return _19LWatterQty;
+		}
+
+		/// <summary>
+		/// Оборудование заказа к клиенту
+		/// </summary>
+		/// <returns>Список оборудования к клиенту</returns>
+		/// <param name="uow">Uow.</param>
+		/// <param name="order">Заказ</param>
+		public static IList<ClientEquipmentNode> GetEquipmentToClientForOrder(IUnitOfWork uow, VodovozOrder order)
+		{
+			OrderEquipment orderEquipmentAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			ClientEquipmentNode resultAlias = null;
+
+			var equipToClient = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
+								   .Where(() => orderEquipmentAlias.Order.Id == order.Id)
+								   .Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
+								   .Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
+			                       .SelectList(list => list
+			                                   .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
+			                                   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+			                                   .Select(() => nomenclatureAlias.ShortName).WithAlias(() => resultAlias.ShortName)
+			                                   .Select(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.Count)
+									  )
+			                       .TransformUsing(Transformers.AliasToBean<ClientEquipmentNode>())
+			                       .List<ClientEquipmentNode>();
+			return equipToClient;
+		}
+
+		/// <summary>
+		/// Оборудование заказа от клиента
+		/// </summary>
+		/// <returns>Список оборудования от клиенту</returns>
+		/// <param name="uow">Uow.</param>
+		/// <param name="order">Заказ</param>
+		public static IList<ClientEquipmentNode> GetEquipmentFromClientForOrder(IUnitOfWork uow, VodovozOrder order)
+		{
+			OrderEquipment orderEquipmentAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			ClientEquipmentNode resultAlias = null;
+
+			var equipFromClient = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
+								   .Where(() => orderEquipmentAlias.Order.Id == order.Id)
+			                       .Where(() => orderEquipmentAlias.Direction == Direction.PickUp)
+								   .Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
+			                       .SelectList(list => list
+			                                   .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
+			                                   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+			                                   .Select(() => nomenclatureAlias.ShortName).WithAlias(() => resultAlias.ShortName)
+			                                   .Select(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.Count)
+									  )
+			                       .TransformUsing(Transformers.AliasToBean<ClientEquipmentNode>())
+			                       .List<ClientEquipmentNode>();
+			return equipFromClient;
 		}
 
 		/// <summary>
@@ -138,17 +212,17 @@ namespace Vodovoz.Repository
 
 		public static Domain.Orders.Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
 		{
-			var notSupportedStatuses = new OrderStatus[] { 
-				OrderStatus.NewOrder, 
-				OrderStatus.Canceled, 
-				OrderStatus.NotDelivered 
+			var notSupportedStatuses = new OrderStatus[] {
+				OrderStatus.NewOrder,
+				OrderStatus.Canceled,
+				OrderStatus.NotDelivered
 			};
 
 			return uow.Session.QueryOver<Domain.Orders.Order>()
-				      .WhereRestrictionOn(x => x.OrderStatus).Not.IsIn(notSupportedStatuses)
-				      .Where(x => x.DeliveryDate == date)
-				      .Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
-				      .List().FirstOrDefault();
+					  .WhereRestrictionOn(x => x.OrderStatus).Not.IsIn(notSupportedStatuses)
+					  .Where(x => x.DeliveryDate == date)
+					  .Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
+					  .List().FirstOrDefault();
 		}
 
 
@@ -157,6 +231,18 @@ namespace Vodovoz.Repository
 			return new OrderStatus[] {
 				OrderStatus.UnloadingOnStock,
 				OrderStatus.Closed
+			};
+		}
+
+		public static OrderStatus[] GetStatusesForOrderCancelation()
+		{
+			return new OrderStatus[] {
+				OrderStatus.NewOrder,
+				OrderStatus.WaitForPayment,
+				OrderStatus.Accepted,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock
 			};
 		}
 
@@ -183,5 +269,12 @@ namespace Vodovoz.Repository
 			};
 		}
 	}
-}
 
+	public class ClientEquipmentNode
+	{
+		public int Id { get; set; }
+		public string Name { get; set; }
+		public string ShortName { get; set; }
+		public int Count { get; set; }
+	}
+}

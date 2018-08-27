@@ -1,0 +1,296 @@
+﻿using System;
+using System.Linq;
+using Gamma.GtkWidgets;
+using Gamma.Utilities;
+using QSOrmProject;
+using QSProjectsLib;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Repositories;
+using Vodovoz.Repository;
+using Vodovoz.ViewModel;
+
+namespace Vodovoz.ViewWidgets
+{
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class UndeliveredOrderView : WidgetOnDialogBase
+	{
+		Order newOrder = null;
+		Order oldOrder = null;
+		IUnitOfWork uow;
+		bool routeListDoesNotExist = false;
+
+		public IUnitOfWork UoW {
+			get {
+				return uow;
+			}
+			set {
+				uow = value;
+			}
+		}
+
+		UndeliveryStatus initialStatus;
+		UndeliveredOrder undelivery;
+
+		public UndeliveredOrderView()
+		{
+			this.Build();
+		}
+
+		public void OnTabAdded()
+		{
+			//если новый недовоз без выбранного недовезённого заказа
+			if(UoW.IsNew && undelivery.OldOrder == null)
+				//открыть окно выбора недовезённого заказа
+				yEForUndeliveredOrder.OpenSelectDialog("Выбор недовезённого заказа");
+		}
+
+		public void ConfigureDlg(IUnitOfWork uow, UndeliveredOrder undelivery, UndeliveryStatus initialStatus = UndeliveryStatus.InProcess)
+		{
+			this.initialStatus = initialStatus;
+			this.undelivery = undelivery;
+			UoW = uow;
+			vBoxWithControls.Sensitive = QSMain.User.Permissions["can_edit_undeliveries"] || undelivery.Id == 0;
+			oldOrder = undelivery.OldOrder;
+			newOrder = undelivery.NewOrder;
+			var filterOrders = new OrdersFilter(UoW);
+			filterOrders.HideStatuses = new Enum[] { OrderStatus.WaitForPayment };
+			yEForUndeliveredOrder.Changed += (sender, e) => {
+				oldOrder = undelivery.OldOrder;
+				lblInfo.Markup = undelivery.GenerateUndeliveryInfo();
+				if(UoW.IsNew)
+					undelivery.OldOrderStatus = oldOrder.OrderStatus;
+				routeListDoesNotExist = oldOrder != null && (undelivery.OldOrderStatus == OrderStatus.NewOrder
+				                                       || undelivery.OldOrderStatus == OrderStatus.Accepted
+				                                       || undelivery.OldOrderStatus == OrderStatus.WaitForPayment);
+
+				SetSensitivities();
+				SetVisibilities();
+				GetFines();
+				RemoveItemsFromEnums();
+			};
+			yEForUndeliveredOrder.RepresentationModel = new OrdersVM(filterOrders);
+			yEForUndeliveredOrder.Binding.AddBinding(undelivery, x => x.OldOrder, x => x.Subject).InitializeFromSource();
+
+			yEnumCMBGuilty.ItemsEnum = typeof(GuiltyTypes);
+			yEnumCMBGuilty.Binding.AddBinding(undelivery, g => g.GuiltySide, w => w.SelectedItem).InitializeFromSource();
+
+			yDateDriverCallTime.Binding.AddBinding(undelivery, t => t.DriverCallTime, w => w.DateOrNull).InitializeFromSource();
+			if(UoW.IsNew)
+				yDateDriverCallTime.DateOrNull = DateTime.Now;
+
+			yEnumCMBDriverCallPlace.ItemsEnum = typeof(DriverCallType);
+			yEnumCMBDriverCallPlace.Binding.AddBinding(undelivery, p => p.DriverCallType, w => w.SelectedItem).InitializeFromSource();
+
+			yDateDispatcherCallTime.Binding.AddBinding(undelivery, t => t.DispatcherCallTime, w => w.DateOrNull).InitializeFromSource();
+			if(UoW.IsNew)
+				yDateDispatcherCallTime.DateOrNull = DateTime.Now;
+
+			referenceNewDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.AllQuery();
+			referenceNewDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule>(e => e.Name);
+			referenceNewDeliverySchedule.Binding.AddBinding(undelivery, s => s.NewDeliverySchedule, w => w.Subject).InitializeFromSource();
+			referenceNewDeliverySchedule.Sensitive = false;
+
+			SetLabelsAcordingToNewOrder();
+
+			yEnumCMBStatus.ItemsEnum = typeof(UndeliveryStatus);
+			yEnumCMBStatus.Binding.AddBinding(undelivery, s => s.UndeliveryStatus, w => w.SelectedItem).InitializeFromSource();
+			yEnumCMBStatus.ChangedByUser += (e, s) => SetSensitivities();
+
+			yentrySubdivision.SubjectType = typeof(Subdivision);
+			yentrySubdivision.Binding.AddBinding(undelivery, g => g.GuiltyDepartment, w => w.Subject).InitializeFromSource();
+
+			var filterRegisteredBy = new EmployeeFilter(UoW);
+			filterRegisteredBy.RestrictFired = false;
+			refRegisteredBy.RepresentationModel = new EmployeesVM(filterRegisteredBy);
+			refRegisteredBy.Binding.AddBinding(undelivery, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
+
+			yEnumCMBDriverCallPlace.EnumItemSelected += CMBSelectedItemChanged;
+			yEnumCMBGuilty.EnumItemSelected += CMBSelectedItemChanged;
+
+			txtReason.Binding.AddBinding(undelivery, u => u.Reason, w => w.Buffer.Text).InitializeFromSource();
+
+			lblInfo.Markup = undelivery.GenerateUndeliveryInfo();
+
+			yTreeFines.ColumnsConfig = ColumnsConfigFactory.Create<FinesVMNodeForUndelivery>()
+				.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+				.AddColumn("Сотудники").AddTextRenderer(node => node.EmployeesName)
+				.AddColumn("Сумма штрафа").AddTextRenderer(node => node.FineSumm.ToString())
+				.Finish();
+
+			GetFines();
+			SetVisibilities();
+			SetSensitivities();
+		}
+
+		void GetFines()
+		{
+			yTreeFines.ItemsDataSource = FinesRepository.GetFinesForUndelivery(UoW, undelivery);
+		}
+
+		private void SetLabelsAcordingToNewOrder()
+		{
+			lblTransferDate.Text = undelivery.NewOrder == null ? "Заказ не\nсоздан" : undelivery.NewOrder.Title;
+			btnNewOrder.Label = undelivery.NewOrder == null ? "Создать новый заказ" : "Открыть заказ";
+		}
+
+		void RemoveItemsFromEnums()
+		{
+			//удаляем статус "закрыт" из списка, если недовоз не закрыт и нет прав на их закрытие
+			if(!QSMain.User.Permissions["can_close_undeliveries"] && undelivery.UndeliveryStatus != UndeliveryStatus.Closed) {
+				yEnumCMBStatus.AddEnumToHideList(new Enum[] { UndeliveryStatus.Closed });
+				yEnumCMBStatus.SelectedItem = (UndeliveryStatus)undelivery.UndeliveryStatus;
+			}
+
+			//если недовезённый заказ не был в мл, то водитель не может быть виновным
+			if(routeListDoesNotExist)
+				yEnumCMBGuilty.AddEnumToHideList(new Enum[] { GuiltyTypes.Driver });
+		}
+
+		void SetVisibilities()
+		{
+			lblGuiltyDepartment.Visible = yentrySubdivision.Visible = undelivery.GuiltySide == GuiltyTypes.Department;
+			lblDriverCallPlace.Visible = yEnumCMBDriverCallPlace.Visible = !routeListDoesNotExist;
+			lblDriverCallTime.Visible = yDateDriverCallTime.Visible = undelivery.DriverCallType != DriverCallType.NoCall;
+		}
+
+		void SetSensitivities()
+		{
+			bool hasPermissionOrNew = QSMain.User.Permissions["can_edit_undeliveries"] || undelivery.Id == 0;
+			tblUndeliveryFields.Sensitive = hbxReasonAndFines.Sensitive = (
+				undelivery.OldOrder != null 
+				&& hasPermissionOrNew 
+				&& undelivery.UndeliveryStatus != UndeliveryStatus.Closed
+			);
+			hbxUndelivery.Sensitive = undelivery.OldOrder == null && hasPermissionOrNew;
+			//можем менять статус, если есть права или нет прав и статус не "закрыт"
+			hbxStatus.Sensitive = (
+				(
+					QSMain.User.Permissions["can_close_undeliveries"] 
+					|| undelivery.UndeliveryStatus != UndeliveryStatus.Closed
+				)
+				&& undelivery.OldOrder != null
+			);
+		}
+
+		/// <summary>
+		/// Добавление комментариев к полям.
+		/// Если не указан текст, то к каждому полю будет добавлятся комментарий,
+		/// в соответствии с правилами внутри метода.
+		/// </summary>
+		/// <param name="field">Комментируемое поле</param>
+		/// <param name="text">Текст комментария (опционально)</param>
+		void AddComment(CommentedFields field, string text = null)
+		{
+			switch(field) {
+				case CommentedFields.Status:
+					if(text == null && initialStatus != undelivery.UndeliveryStatus)
+						text = String.Format(
+							"сменил(а) статус недовоза\nс \"{0}\" на \"{1}\"",
+							initialStatus.GetEnumTitle(),
+							undelivery.UndeliveryStatus.GetEnumTitle()
+						);
+					break;
+				default:
+					break;
+			}
+			if(text == null)
+				return;
+
+			UndeliveredOrderComment comment = new UndeliveredOrderComment {
+				Comment = text,
+				CommentDate = DateTime.Now,
+				CommentedField = field,
+				Employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW),
+				UndeliveredOrder = undelivery
+			};
+
+			UoW.Save(comment);
+		}
+
+		public void SaveChanges()
+		{
+			undelivery.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			undelivery.LastEditedTime = DateTime.Now;
+			AddComment(CommentedFields.Status);
+			BeforeSave();
+		}
+
+		void BeforeSave()
+		{
+			if(undelivery.DriverCallType == DriverCallType.NoCall) {
+				undelivery.DriverCallTime = null;
+				undelivery.DriverCallNr = null;
+			}
+		}
+
+		protected void CMBSelectedItemChanged(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			if(undelivery.GuiltySide != GuiltyTypes.Department)
+				undelivery.GuiltyDepartment = null;
+			SetVisibilities();
+		}
+
+		protected void OnBtnNewOrderClicked(object sender, EventArgs e)
+		{
+			if(undelivery.NewOrder == null) {
+				CreateNewOrder(oldOrder);
+			} else {
+				OpenOrder(newOrder);
+			}
+		}
+
+		/// <summary>
+		/// Создаёт новый заказ, копируя поля существующего.
+		/// </summary>
+		/// <param name="order">Заказ, из которого копируются свойства.</param>
+		void CreateNewOrder(Order order)
+		{
+			var dlg = new OrderDlg();
+			dlg.CopyOrderFrom(order.Id);
+			MyTab.TabParent.OpenTab(
+				OrmMain.GenerateDialogHashName<Domain.Orders.Order>(dlg.Entity.Id),
+				() => dlg
+			);
+
+			dlg.CloseTab += (sender, e) => {
+				if(sender is OrderDlg) {
+					Order o = (sender as OrderDlg).Entity;
+					if(o.Id > 0) {
+						newOrder = undelivery.NewOrder = o;
+						SetLabelsAcordingToNewOrder();
+						undelivery.NewDeliverySchedule = newOrder.DeliverySchedule;
+					}
+				}
+			};
+		}
+
+		/// <summary>
+		/// Открытие существующего заказа
+		/// </summary>
+		/// <param name="order">Заказ, который требуется открыть</param>
+		void OpenOrder(Order order)
+		{
+			var dlg = new OrderDlg(order);
+			MyTab.TabParent.OpenTab(
+				OrmMain.GenerateDialogHashName<Domain.Orders.Order>(order.Id),
+				() => dlg
+			);
+		}
+
+		protected void OnYEnumCMBDriverCallPlaceEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			var listDriverCallType = UoW.Session.QueryOver<UndeliveredOrder>()
+							.Where(x => x.Id == undelivery.Id)
+							.Select(x => x.DriverCallType).List<DriverCallType>().FirstOrDefault();
+
+			if(listDriverCallType != (DriverCallType)yEnumCMBDriverCallPlace.SelectedItem) {
+				var max = UoW.Session.QueryOver<UndeliveredOrder>().Select(NHibernate.Criterion.Projections.Max<UndeliveredOrder>(x => x.DriverCallNr)).SingleOrDefault<int>();
+				if(max != 0)
+					undelivery.DriverCallNr = max + 1;
+				else
+					undelivery.DriverCallNr = 1;
+			}
+		}
+	}
+}

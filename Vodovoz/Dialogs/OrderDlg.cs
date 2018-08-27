@@ -41,6 +41,8 @@ namespace Vodovoz
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
+		Order templateOrder = null;
+
 		#region Работа с боковыми панелями
 
 		public PanelViewType[] InfoWidgets {
@@ -95,6 +97,41 @@ namespace Vodovoz
 		public OrderDlg(Order sub) : this(sub.Id)
 		{ }
 
+		public void CopyOrderFrom(int id)
+		{
+			templateOrder = UoW.GetById<Order>(id);
+			Entity.Client = templateOrder.Client;
+			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
+			Entity.Comment = templateOrder.Comment;
+			Entity.CommentLogist = templateOrder.CommentLogist;
+			Entity.PaymentType = templateOrder.PaymentType;
+			Entity.ClientPhone = templateOrder.ClientPhone;
+			Entity.ReasonType = templateOrder.ReasonType;
+			Entity.BillDate = templateOrder.BillDate;
+			Entity.BottlesReturn = templateOrder.BottlesReturn;
+			Entity.CollectBottles = templateOrder.CollectBottles;
+			Entity.CommentManager = templateOrder.CommentManager;
+			Entity.DocumentType = templateOrder.DocumentType;
+			Entity.ExtraMoney = templateOrder.ExtraMoney;
+			Entity.InformationOnTara = templateOrder.InformationOnTara;
+			Entity.OnlineOrder = templateOrder.OnlineOrder;
+			Entity.PreviousOrder = templateOrder.PreviousOrder;
+			Entity.ReturnedTare = templateOrder.ReturnedTare;
+			Entity.SelfDelivery = templateOrder.SelfDelivery;
+			Entity.SignatureType = templateOrder.SignatureType;
+			Entity.SumDifferenceReason = templateOrder.SumDifferenceReason;
+			Entity.Trifle = templateOrder.Trifle;
+			Entity.IsService = templateOrder.IsService;
+			Entity.Contract = templateOrder.Contract;
+			Entity.CopyItemsFrom(templateOrder);
+			Entity.CopyDocumentsFrom(templateOrder);
+			Entity.CopyEquipmentFrom(templateOrder);
+			Entity.CopyDepositItemsFrom(templateOrder);
+			Entity.UpdateDocuments();
+
+			ConfigureDlg();
+		}
+
 		public void ConfigureDlg()
 		{
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
@@ -106,11 +143,8 @@ namespace Vodovoz
 				//TODO Make it clickable.
 			} else
 				labelPreviousOrder.Visible = false;
-			hboxStatusButtons.Visible = (Entity.OrderStatus == OrderStatus.NewOrder
-										 || Entity.OrderStatus == OrderStatus.WaitForPayment
-										 || Entity.OrderStatus == OrderStatus.Accepted
-			                             || (Entity.OrderStatus == OrderStatus.OnTheWay && QSMain.User.Permissions["can_edit_on_the_way_order"])
-										 || Entity.OrderStatus == OrderStatus.Canceled);
+			hboxStatusButtons.Visible = OrderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
+				|| Entity.OrderStatus == OrderStatus.Canceled;
 
 			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
@@ -279,7 +313,7 @@ namespace Vodovoz
 						  (aa as WaterSalesAgreement).HasFixedPrice) {
 							c.ForegroundGdk = colorGreen;
 						} else if(node.IsUserPrice &&
-						  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
+				                  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 							c.ForegroundGdk = colorBlue;
 						}
 					})
@@ -287,6 +321,7 @@ namespace Vodovoz
 				.AddColumn("В т.ч. НДС")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS))
+					.AddSetter((c, n) => c.Visible = Entity.PaymentType == PaymentType.cashless)
 				.AddColumn("Сумма")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.ActualSum))
@@ -709,7 +744,7 @@ namespace Vodovoz
 		/// <param name="docList">Лист документов.</param>
 		private void PrintDocuments(IList<OrderDocument> docList)
 		{
-			if(docList.Count > 0) {
+			if(docList.Any()) {
 				DocumentPrinter.PrintAll(docList);
 			}
 		}
@@ -986,8 +1021,6 @@ namespace Vodovoz
 
 		private void AddRentAgreement(OrderAgreementType type)
 		{
-			ITdiDialog dlg = null;
-
 			if(Entity.IsLoadedFrom1C) {
 				return;
 			}
@@ -1084,7 +1117,7 @@ namespace Vodovoz
 
 		public void FillOrderItems(Order order)
 		{
-			if(Entity.ObservableOrderItems.Count > 0 && !MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите удалить все позиции текущего из заказа и заполнить его позициями из выбранного?")) {
+			if(Entity.ObservableOrderItems.Any() && !MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите удалить все позиции текущего из заказа и заполнить его позициями из выбранного?")) {
 				return;
 			}
 
@@ -1103,7 +1136,6 @@ namespace Vodovoz
 				}
 			}
 		}
-
 		#endregion
 
 		#region Удаление номенклатур
@@ -1261,13 +1293,6 @@ namespace Vodovoz
 		CounterpartyContract GetActualInstanceContract(CounterpartyContract anotherSessionContract)
 		{
 			return UoW.GetById<CounterpartyContract>(anotherSessionContract.Id);
-		}
-
-		protected void OnEntryDiscountOrderKeyReleaseEvent(object o, KeyReleaseEventArgs args)
-		{
-			if(args.Event.Key == Gdk.Key.Return) {
-				SetDiscount();
-			}
 		}
 
 		protected void OnReferenceContractChanged(object sender, EventArgs e)
@@ -1610,13 +1635,13 @@ namespace Vodovoz
 
 			var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
 				.Where(doc => doc.PrintType == PrinterType.RDL).ToList();
-			if(selectedPrintableRDLDocuments.Count > 0) {
+			if(selectedPrintableRDLDocuments.Any()) {
 				DocumentPrinter.PrintAll(selectedPrintableRDLDocuments);
 			}
 
 			var selectedPrintableODTDocuments = treeDocuments.GetSelectedObjects()
 				.OfType<IPrintableOdtDocument>().ToList();
-			if(selectedPrintableODTDocuments.Count > 0) {
+			if(selectedPrintableODTDocuments.Any()) {
 				TemplatePrinter.PrintAll(selectedPrintableODTDocuments);
 			}
 		}
@@ -1707,19 +1732,25 @@ namespace Vodovoz
 			});
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
+			
+			OpenDlgToCreateNewUndeliveredOrder();
+		}
 
-			Entity.ChangeStatus(OrderStatus.Canceled);
-			UpdateButtonState();
+		/// <summary>
+		/// Открытие окна создания нового недовоза при отмене заказа
+		/// </summary>
+		void OpenDlgToCreateNewUndeliveredOrder(){
+			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
+			TabParent.AddSlaveTab(this, dlg);
+			dlg.DlgSaved += (sender, e) => {
+				Entity.SetUndeliveredStatus(e.UndeliveredOrder.GuiltySide);
+				UpdateButtonState();
+			};
 		}
 
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
 		{
 			Entity.ChangeOrderContract();
-		}
-
-		protected void OnButtonSetDiscountClicked(object sender, EventArgs e)
-		{
-			SetDiscount();
 		}
 
 		protected void OnSpinDiscountValueChanged(object sender, EventArgs e)
@@ -1824,9 +1855,11 @@ namespace Vodovoz
 			spinDiscount.Adjustment.Upper = unit == DiscountUnits.money ? (double)sum : 100d;
 			if(unit == DiscountUnits.percent && spinDiscount.Value > 100)
 				spinDiscount.Value = 100;
-			Entity.SetDiscountUnitsForAll(unit);
-			SetDiscountEditable();
-			SetDiscount();
+			if((SpecialComboState)enumDiscountUnit.SelectedItem != SpecialComboState.None) {
+				Entity.SetDiscountUnitsForAll(unit);
+				SetDiscountEditable();
+				SetDiscount();
+			}
 		}
 
 		#endregion
@@ -1930,8 +1963,8 @@ namespace Vodovoz
 		//реализация метода интерфейса ITdiTabAddedNotifier
 		public void OnTabAdded()
 		{
-			//если новый заказ
-			if(UoW.IsNew)
+			//если новый заказ и не создан из недовоза (templateOrder заполняется только из недовоза)
+			if(UoW.IsNew && templateOrder == null)
 				//открыть окно выбора контрагента
 				referenceClient.OpenSelectDialog();
 		}
@@ -2196,9 +2229,16 @@ namespace Vodovoz
 
 			//если новый заказ и тип платежа бартер или безнал, то вкл кнопку
 			buttonWaitForPayment.Sensitive = (Entity.OrderStatus == OrderStatus.NewOrder && IsPaymentTypeBarterOrCashless());
-			buttonCancelOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted
-										  || Entity.OrderStatus == OrderStatus.NewOrder
-										  || Entity.OrderStatus == OrderStatus.WaitForPayment;
+
+			buttonCancelOrder.Sensitive = OrderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus);
+			buttonAccept.Sensitive = new OrderStatus[] {
+				OrderStatus.NewOrder,
+				OrderStatus.WaitForPayment,
+				OrderStatus.Accepted,
+				OrderStatus.Canceled
+			}.Contains(Entity.OrderStatus)
+			 || (Entity.OrderStatus == OrderStatus.OnTheWay && QSMain.User.Permissions["can_edit_on_the_way_order"]);
+			
 
 			if(Counterparty?.DeliveryPoints?.FirstOrDefault(d => d.Address1c == Entity.Address1c) == null
 				&& !string.IsNullOrWhiteSpace(Entity.Address1c)

@@ -1,12 +1,14 @@
-﻿﻿using System;
-using QSOrmProject;
-using Vodovoz.Domain.Employees;
+﻿using System;
 using System.Linq;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain;
 using Gamma.Utilities;
-using Vodovoz.Repository;
+using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Repository;
+using Vodovoz.Representations;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -46,6 +48,11 @@ namespace Vodovoz
 		{
 			Entity.RouteList = routeList;
 			Entity.Date = routeList.Date;
+		}
+
+		public FineDlg(UndeliveredOrder undeliveredOrder) : this()
+		{
+			Entity.UndeliveredOrder = undeliveredOrder;
 		}
 
 		public FineDlg (int id)
@@ -170,6 +177,8 @@ namespace Vodovoz
 				default:
 					break;
 			}
+
+			btnShowUndelivery.Visible = Entity.UndeliveredOrder != null;
 		}
 
 		private void ShowLiters()
@@ -237,5 +246,15 @@ namespace Vodovoz
             }
             return true;
         }
+
+		protected void OnBtnShowUndeliveryClicked(object sender, EventArgs e)
+		{
+			MainClass.MainWin.TdiMain.OpenTab(
+				ReferenceRepresentation.GenerateHashName<UndeliveredOrdersVM>(),
+				() => new ReferenceRepresentation(new UndeliveredOrdersVM(UoW, Entity.UndeliveredOrder.Id))
+				.CustomTabName("Просмотр недовоза")
+				.Buttons(ReferenceButtonMode.None)
+			);
+		}
 	}
 }

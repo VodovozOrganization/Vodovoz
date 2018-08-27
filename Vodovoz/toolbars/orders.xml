@@ -6,5 +6,6 @@
 		<toolitem name='ActionLoadOrders' action='ActionLoadOrders'/>
         <toolitem name='ActionWarehouseStock' action='ActionWarehouseStock'/>
         <toolitem name='ActionDeliveryPrice' action='ActionDeliveryPrice'/>
+        <toolitem name='ActionUndeliveredOrders' action='ActionUndeliveredOrders'/>
 	</toolbar>
 </ui>

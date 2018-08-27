@@ -18,6 +18,7 @@ public partial class MainWindow : Window
 	Action ActionAddOrder;
 	Action ActionLoadOrders;
 	Action ActionDeliveryPrice;
+	Action ActionUndeliveredOrders;
 
 	Action ActionServiceClaims;
 	Action ActionWarehouseDocuments;
@@ -63,6 +64,7 @@ public partial class MainWindow : Window
 		ActionAddOrder = new Action("ActionAddOrder", "Новый заказ", null, "table");
 		ActionLoadOrders = new Action("ActionLoadOrders", "Загрузить из 1С", null, "table");
 		ActionDeliveryPrice = new Action("ActionDeliveryPrice", "Стоимость доставки", null, null);
+		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
 		//Склад
@@ -111,6 +113,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionAddOrder, null);
 		w1.Add(ActionLoadOrders, null);
 		w1.Add(ActionDeliveryPrice, null);
+		w1.Add(ActionUndeliveredOrders, null);
 		//
 		w1.Add(ActionServiceClaims, null);
 		w1.Add(ActionWarehouseDocuments, null);
@@ -155,6 +158,7 @@ public partial class MainWindow : Window
 		ActionAddOrder.Activated += ActionAddOrder_Activated;
 		ActionLoadOrders.Activated += ActionLoadOrders_Activated;
 		ActionDeliveryPrice.Activated += ActionDeliveryPrice_Activated;
+		ActionUndeliveredOrders.Activated += ActionUndeliveredOrdersActivated;
 
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
@@ -464,6 +468,16 @@ public partial class MainWindow : Window
 			ReferenceRepresentation.GenerateHashName<OrdersVM>(),
 			() => new ReferenceRepresentation(new OrdersVM()).CustomTabName("Журнал заказов")
 			.Buttons(QSMain.User.Permissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
+		);
+	}
+
+	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)
+	{
+		var view = new UndeliveriesView();
+		view.ButtonMode = QSMain.User.Permissions["can_edit_undeliveries"] ? ReferenceButtonMode.CanAll : ReferenceButtonMode.CanAdd;
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<UndeliveriesView>(),
+			() => view
 		);
 	}
 

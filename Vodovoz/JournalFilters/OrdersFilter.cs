@@ -12,13 +12,14 @@ namespace Vodovoz
 		IUnitOfWork uow;
 		int daysToAft = 0;
 		int daysToFwd = 0;
+
 		public IUnitOfWork UoW {
 			get {
 				return uow;
 			}
 			set {
 				uow = value;
-				enumcomboStatus.ItemsEnum = typeof (OrderStatus);
+				enumcomboStatus.ItemsEnum = typeof(OrderStatus);
 				entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM (new CounterpartyFilter(UoW));
 			}
 		}
@@ -59,6 +60,20 @@ namespace Vodovoz
 			set {
 				enumcomboStatus.SelectedItem = value;
 				enumcomboStatus.Sensitive = false;
+			}
+		}
+
+
+		Object[] hideStatuses;
+		/// <summary>
+		/// Скрыть заказы со статусом из массива
+		/// </summary>
+		/// <value>массив скрываемых статусов</value>
+		public Object[] HideStatuses{
+			get => hideStatuses;
+			set{
+				enumcomboStatus.AddEnumToHideList(value);
+				hideStatuses = value;
 			}
 		}
 

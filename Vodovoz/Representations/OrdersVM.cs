@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Gamma.ColumnConfig;
@@ -49,6 +48,10 @@ namespace Vodovoz.ViewModel
 
 			if (Filter.RestrictStatus != null) {
 				query.Where (o => o.OrderStatus == Filter.RestrictStatus);
+			}
+
+			if(Filter.HideStatuses != null) {
+				query.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(Filter.HideStatuses);
 			}
 
 			if (Filter.RestrictSelfDelivery != null) {

@@ -91,6 +91,7 @@ namespace Vodovoz.JournalViewers
 					   || orderDocumentAlias.GetType() == typeof(EquipmentTransferDocument)
 					   || orderDocumentAlias.GetType() == typeof(InvoiceBarterDocument)
 					   || orderDocumentAlias.GetType() == typeof(InvoiceDocument)
+				       || orderDocumentAlias.GetType() == typeof(InvoiceContractDoc)
 					   || orderDocumentAlias.GetType() == typeof(UPDDocument)
 					   || orderDocumentAlias.GetType() == typeof(DriverTicketDocument)
 					   || orderDocumentAlias.GetType() == typeof(Torg12Document)

@@ -21,6 +21,7 @@ using Vodovoz.Repository.Client;
 using NHibernate.Criterion;
 using NHibernate.Util;
 using QSProjectsLib;
+using NHibernate.Type;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -787,52 +788,6 @@ namespace Vodovoz.Domain.Orders
 								new[] { this.GetPropertyName(o => o.OrderEquipments) });
 						}
 					}
-
-#if !SHORT
-					//Проверка товаров
-					var itemsWithBlankWarehouse = OrderItems
-						.Where(orderItem => Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category))
-						.Where(orderItem => orderItem.Nomenclature.Warehouse==null);
-					foreach(var itemWithBlankWarehouse in itemsWithBlankWarehouse)
-					{
-						yield return new ValidationResult (
-							String.Format("Невозможно подтвердить заказ т.к. у товара \"{0}\" не указан склад отгрузки.",
-							itemWithBlankWarehouse.NomenclatureString),
-							new[] { this.GetPropertyName (o => o.OrderItems) });						
-					}
-
-					var orderItemsForShipment = OrderItems
-						.Where(orderItem => Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category))
-						.Where(orderItem => orderItem.Nomenclature.Warehouse!=null)
-						.Where(orderItem => orderItem.Nomenclature.DoNotReserve == false);
-					foreach (var item in orderItemsForShipment)
-					{
-						var inStock = Repository.StockRepository.NomenclatureInStock(UoW, item.Nomenclature);
-						var reserved = Repository.StockRepository.NomenclatureReserved(UoW, item.Nomenclature);
-						if (inStock-reserved < item.Count)
-						{
-							if (item.Nomenclature.Unit == null)
-							{
-								yield return new ValidationResult(
-									String.Format("У номенклатуры \"{0}\" с кодом {1} не стоит единица измерения).",
-										item.NomenclatureString,
-										item.Nomenclature.Id
-									),
-									new[] { this.GetPropertyName(o => o.OrderItems) });
-							} else {
-								yield return new ValidationResult(
-									String.Format("Товара \"{0}\" нет на складе \"{1}\" в достаточном количестве(на складе: {2}, в резерве: {3}).",
-										item.NomenclatureString,
-										item.Nomenclature.Warehouse.Name,
-										item.Nomenclature.Unit.MakeAmountShortStr(inStock),
-										item.Nomenclature.Unit.MakeAmountShortStr(reserved)
-									),
-									new[] { this.GetPropertyName(o => o.OrderItems) });
-							}
-						}
-					}
-
-#endif
 				}
 
 				if(newStatus == OrderStatus.Closed) {
@@ -895,11 +850,6 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Указана дата заказа более ранняя чем сегодняшняя. Укажите правильную дату доставки.",
 												  new[] { this.GetPropertyName(o => o.DeliveryDate) });
 			}
-#if !SHORT
-			if (ObservableOrderItems.Any (item => item.Count < 1))
-				yield return new ValidationResult ("В заказе присутствуют позиции с нулевым количеством.", 
-					new[] { this.GetPropertyName (o => o.OrderItems) });
-#endif
 		}
 
 		#endregion
@@ -1553,6 +1503,113 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
+		/// Наполнение списка товаров нового заказа элементами списка другого заказа.
+		/// </summary>
+		/// <param name="order">Заказ, из которого будет производится копирование товаров</param>
+		public virtual void CopyItemsFrom(Order order)
+		{
+			if(Id > 0)
+				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
+
+			foreach(OrderItem orderItem in order.OrderItems){
+				ObservableOrderItems.Add(
+					new OrderItem {
+						Order = this,
+						AdditionalAgreement = orderItem.AdditionalAgreement,
+						Nomenclature = orderItem.Nomenclature,
+						Equipment = orderItem.Equipment,
+						Price = orderItem.Price,
+						IsUserPrice = orderItem.IsUserPrice,
+						Count = orderItem.Count,
+						ActualCount = orderItem.ActualCount,
+						IncludeNDS = orderItem.IncludeNDS,
+						IsDiscountInMoney = orderItem.IsDiscountInMoney,
+						Discount = orderItem.Discount,
+						DiscountMoney = orderItem.DiscountMoney,
+						DiscountReason = orderItem.DiscountReason,
+						FreeRentEquipment = orderItem.FreeRentEquipment,
+						PaidRentEquipment = orderItem.PaidRentEquipment
+					}
+				);
+			}
+		}
+
+		/// <summary>
+		/// Наполнение списка оборудования нового заказа элементами списка другого заказа.
+		/// </summary>
+		/// <param name="order">Заказ, из которого будет производится копирование оборудования</param>
+		public virtual void CopyEquipmentFrom(Order order)
+		{
+			if(Id > 0)
+				throw new InvalidOperationException("Копирование списка оборудования из другого заказа недопустимо, если этот заказ не новый.");
+			
+			foreach(OrderEquipment orderEquipment in order.OrderEquipments) {
+				ObservableOrderEquipments.Add(
+					new OrderEquipment {
+						Order = this,
+						Direction = orderEquipment.Direction,
+						DirectionReason = orderEquipment.DirectionReason,
+						OrderItem = orderEquipment.OrderItem,
+						Equipment = orderEquipment.Equipment,
+						OwnType = orderEquipment.OwnType,
+						Nomenclature = orderEquipment.Nomenclature,
+						Reason = orderEquipment.Reason,
+						Confirmed = orderEquipment.Confirmed,
+						ConfirmedComment = orderEquipment.ConfirmedComment,
+						ActualCount = orderEquipment.ActualCount,
+						Count = orderEquipment.Count
+					}
+				);
+			}
+		}
+
+		/// <summary>
+		/// Копирует таблицу залогов в новый заказа из другого заказа
+		/// </summary>
+		/// <param name="order">Order.</param>
+		public virtual void CopyDepositItemsFrom(Order order)
+		{
+			if(Id > 0)
+				throw new InvalidOperationException("Копирование списка залогов из другого заказа недопустимо, если этот заказ не новый.");
+
+			foreach(OrderDepositItem oDepositItem in order.OrderDepositItems){
+				ObservableOrderDepositItems.Add(
+					new OrderDepositItem {
+						Order = this,
+						Count = oDepositItem.Count,
+						ActualCount = oDepositItem.ActualCount,
+						Deposit = oDepositItem.Deposit,
+						PaymentDirection = oDepositItem.PaymentDirection,
+						DepositType = oDepositItem.DepositType,
+						EquipmentNomenclature = oDepositItem.EquipmentNomenclature
+					}
+				);
+			}
+		}
+
+		public virtual void CopyDocumentsFrom(Order order)
+		{
+			if(Id > 0)
+				throw new InvalidOperationException("Копирование списка документов из другого заказа недопустимо, если этот заказ не новый.");
+
+			var counterpartyDocTypes = typeof(OrderDocumentType).GetFields()
+													   .Where(x => !x.GetCustomAttributes(typeof(DocumentOfOrderAttribute), false).Any())
+			                                           .Where(x => !x.Name.Equals("value__"))
+													   .Select(x => (OrderDocumentType)x.GetValue(null))
+			                                           .ToArray();
+
+			var orderDocTypes = typeof(OrderDocumentType).GetFields()
+			                                           .Where(x => x.GetCustomAttributes(typeof(DocumentOfOrderAttribute), false).Any())
+			                                           .Select(x => (OrderDocumentType)x.GetValue(null))
+			                                           .ToArray();
+
+			var counterpartyDocs = order.OrderDocuments.Where(d => counterpartyDocTypes.Contains(d.Type)).ToList();
+			var orderDocs = order.OrderDocuments.Where(d => orderDocTypes.Contains(d.Type) && d.AttachedToOrder.Id != d.Order.Id).ToList();
+			AddAdditionalDocuments(counterpartyDocs);
+			AddAdditionalDocuments(orderDocs);
+		}
+
+		/// <summary>
 		/// Удаляет дополнительные документы выделенные пользователем, которые не относятся к текущему заказу.
 		/// </summary>
 		/// <returns>Документы текущего заказа, которые не были удалены.</returns>
@@ -2192,6 +2249,33 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		/// <summary>
+		/// Присвоение текущему заказу статуса недовоза
+		/// </summary>
+		/// <param name="guilty">Виновный в недовезении заказа</param>
+		public virtual void SetUndeliveredStatus(GuiltyTypes? guilty)
+		{
+			switch(OrderStatus) {
+				case OrderStatus.NewOrder:
+				case OrderStatus.Accepted:
+				case OrderStatus.InTravelList:
+				case OrderStatus.OnLoading:
+					ChangeStatus(OrderStatus.Canceled);
+					break;
+				case OrderStatus.OnTheWay:
+				case OrderStatus.DeliveryCanceled:
+				case OrderStatus.Shipped:
+				case OrderStatus.UnloadingOnStock:
+				case OrderStatus.NotDelivered:
+				case OrderStatus.Closed:
+					if(guilty == GuiltyTypes.Client)
+						ChangeStatus(OrderStatus.DeliveryCanceled);
+					else
+						ChangeStatus(OrderStatus.NotDelivered);
+					break;
+			}
+		}
+
 		public virtual void ChangeStatus(OrderStatus newStatus)
 		{
 			OrderStatus = newStatus;
@@ -2604,6 +2688,8 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(unit == DiscountUnits.money) {
 				var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
+				if(sum == 0)
+					return;
 				discount = 100 * discount / sum;
 			}
 			foreach(OrderItem item in ObservableOrderItems) {

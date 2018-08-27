@@ -8,6 +8,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using QSValidation;
+using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -293,18 +294,26 @@ namespace Vodovoz
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
 		{
-			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Overdue);
-			routeListItem.FillCountsOnCanceled();
-			UpdateButtonsState();
-			this.OnCloseTab(false);
+			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
+			TabParent.AddSlaveTab(this, dlg);
+			dlg.DlgSaved += (s, ea) => {
+				routeListItem.UpdateStatus(UoW, RouteListItemStatus.Overdue);
+				routeListItem.FillCountsOnCanceled();
+				UpdateButtonsState();
+				this.OnCloseTab(false);
+			};
 		}
 
 		protected void OnButtonDeliveryCanseledClicked(object sender, EventArgs e)
 		{
-			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Canceled);
-			routeListItem.FillCountsOnCanceled();
-			UpdateButtonsState();
-			this.OnCloseTab(false);
+			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
+			TabParent.AddSlaveTab(this, dlg);
+			dlg.DlgSaved += (s, ea) => {
+				routeListItem.UpdateStatus(UoW, RouteListItemStatus.Canceled);
+				routeListItem.FillCountsOnCanceled();
+				UpdateButtonsState();
+				this.OnCloseTab(false);
+			};
 		}
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)

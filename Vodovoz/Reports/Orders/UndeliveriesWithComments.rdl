@@ -1,0 +1,1453 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>8.5in</PageHeight>
+  <PageWidth>11in</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <PageHeader>
+    <Height>33.2pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+    <ReportItems>
+      <Textbox Name="Textbox29">
+        <Height>18.03pt</Height>
+        <Width>757.30pt</Width>
+        <Value>="Недовозы и комментарии " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") +Iif({?start_date}={?end_date}, "", " – " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>10.60pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+  </PageHeader>
+  <Body>
+    <Height>67.3pt</Height>
+    <Columns>1</Columns>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>UndeliveriesAndComments</DataSetName>
+        <NoRows>"=("</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>20.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>38.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>221.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>43.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>121.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>44.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>58.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>48.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>105.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>49.3pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>14.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Дата заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Причина</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>Перенос</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Адрес</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>Инт-л доставки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>Водитель</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>Звонок в офис</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Value>Звонок клиенту</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox73">
+                      <Value>Виновный</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>13.7pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>6pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>=Fields!old_order_date.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>6pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>=Fields!reason.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>false</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>=Fields!transfer_date_time.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>=Fields!address.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>6pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>=Fields!old_delivery_schedule.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>=Fields!driver_name.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>=Fields!drivers_call.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Value>=Fields!dispatcher_call.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox76">
+                      <Value>=Fields!guilty.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.8pt</Left>
+        <Top>0.0pt</Top>
+      </Table>
+      <Table Name="Table2">
+        <DataSetName>Guilties</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>126.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Виновники и количество недовозов за выбранный интервал дат</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>=Fields!guilty.Value+":"</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>=Fields!qty.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>556.5pt</Left>
+        <Top>38.1pt</Top>
+        <Visibility>
+          <Hidden>=Iif(String.IsNullOrEmpty({?guilty_side}), 'false', 'true')</Hidden>
+        </Visibility>
+      </Table>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSets>
+    <DataSet Name="UndeliveriesAndComments">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	un_ord_subqry.N,
+	CONCAT_WS(
+		'\n',
+		DATE_FORMAT(un_ord_subqry.old_order_date, '%e.%m'),
+		cmnt.old_order_delivery_date
+	) AS old_order_date,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.reason,
+		cmnt.reason
+	) AS reason,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.new_order_id,
+		cmnt.action_with_invoice
+	) AS action_with_invoice,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.transfered,
+		cmnt.transfer_date_time
+	) AS transfer_date_time,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.client,
+		cmnt.client
+	) AS client,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.address,
+		cmnt.address
+	) AS address,
+	CONCAT_WS(
+		'\n',
+		IFNULL(un_ord_subqry.bottles, IFNULL(un_ord_subqry.goo_to_client, IFNULL(un_ord_subqry.goo_from_client, 'Другие товары'))),
+		cmnt.undelivered_order_items
+	) AS undelivered_order_items,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.old_interval,
+		cmnt.old_delivery_schedule
+	) AS old_delivery_schedule,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.old_order_author,
+		cmnt.old_order_author
+	) AS old_order_author,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.driver,
+		cmnt.driver_name
+	) AS driver_name,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.driver_call_time,
+		cmnt.drivers_call
+	) AS drivers_call,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.dispatcher_call_time,
+		cmnt.dispatcher_call
+	) AS dispatcher_call,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.registered_by,
+		cmnt.registrator
+	) AS registrator,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.undelivery_author,
+		cmnt.undelivery_author
+	) AS undelivery_author,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.guilty,
+		cmnt.guilty
+	) AS guilty,
+	CONCAT_WS(
+		'\n',
+		un_ord_subqry.status,
+		cmnt.status
+	) AS status
+FROM
+#поля недовоза
+(
+	SELECT 
+		un.id AS N,
+		oldo.delivery_date AS old_order_date,
+		un.reason AS reason,
+		un.new_order_id AS new_order_id,
+		CONCAT_WS('\n',newo.delivery_date, new_schedule.name) AS transfered,
+		coun.name AS client,
+		(
+			IF(
+				LOCATE(', пар', compiled_address_short) &gt; 0,
+				SUBSTRING(compiled_address_short, 1, LOCATE(', пар', compiled_address_short)-1),
+				IF(
+					LOCATE(', эт', compiled_address_short) &gt; 0,
+					SUBSTRING(compiled_address_short, 1, LOCATE(', эт', compiled_address_short)-1),
+					IF(
+						LOCATE(', кв', compiled_address_short) &gt; 0,
+						SUBSTRING(compiled_address_short, 1, LOCATE(', кв', compiled_address_short)-1),
+						compiled_address_short
+					)
+				)
+			)
+		) AS address,
+		#кол-во воды к клиенту
+		(
+			SELECT SUM(order_items.count)
+			FROM order_items
+			LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+			WHERE order_items.order_id = oldo.id AND nomenclature.category = 'water'
+		) AS bottles,
+		#товары к клиенту
+		(
+			SELECT CONCAT(
+				'К клиенту:\n',
+				TRIM(
+					GROUP_CONCAT(
+						CONCAT(
+							IF(nomenclature.short_name IS NULL, nomenclature.name, nomenclature.short_name),
+							':',
+							order_equipment.count
+							)
+						SEPARATOR '\n'
+						)
+					)
+				)
+			FROM order_equipment
+			LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+			WHERE order_equipment.order_id = oldo.id AND order_equipment.direction = 'Deliver'
+		) AS goo_to_client,
+		#товары от клиента
+		(
+			SELECT CONCAT(
+				'От клиента:\n',
+				TRIM(
+					GROUP_CONCAT(
+						CONCAT(
+							IF(nomenclature.short_name IS NULL, nomenclature.name, nomenclature.short_name),
+							':',
+							order_equipment.count
+							)
+						SEPARATOR '\n'
+						)
+					)
+				)
+			FROM order_equipment
+			LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+			WHERE order_equipment.order_id = oldo.id AND order_equipment.direction = 'PickUp'
+		) AS goo_from_client,
+		old_schedule.name AS old_interval,
+		TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(oaut.name, 1), LEFT(oaut.patronymic, 1), oaut.last_name)) AS old_order_author,
+		#водители
+		IFNULL(
+			(SELECT TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(employees.name, 1), LEFT(employees.patronymic, 1), employees.last_name))
+			FROM route_list_addresses
+			LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
+			LEFT JOIN employees ON employees.id = route_lists.driver_id
+			WHERE route_list_addresses.order_id = oldo.id),
+			'Не в МЛ'
+		) AS driver,
+		#время звонка водителя, если стаус старого заказа подходит для существования МЛ
+		(
+			IF(
+				un.undelivered_order_status IN('NewOrder','WaitForPayment','Accepted'),
+				'Не в МЛ',
+				(
+					CASE un.driver_call_type
+						WHEN 'NoCall' THEN 'Не звонил'
+						WHEN 'CallFromAddress' THEN  CONCAT_WS('\n', 'С адреса', DATE_FORMAT(un.driver_call_time, '%H:%i'))
+						WHEN 'CallFromAnywhere' THEN CONCAT_WS('\n', 'Не с адреса', DATE_FORMAT(un.driver_call_time, '%H:%i'))
+					END)
+				)
+		) AS driver_call_time,
+		DATE_FORMAT(un.dispatcher_call_time, '%H:%i') AS dispatcher_call_time,
+		TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(ureg.name, 1), LEFT(ureg.patronymic, 1), ureg.last_name)) AS registered_by,
+		TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(uaut.name, 1), LEFT(uaut.patronymic, 1), uaut.last_name)) AS undelivery_author,
+		CASE guilty_is
+			WHEN 'Client' THEN 'Клиент'
+			WHEN 'Driver' THEN 'Водитель'
+			WHEN 'Department' THEN IF(dep.name IS NULL, 'Отдел ВВ', dep.name)
+			ELSE 'Неизвестно'
+		END
+		AS guilty,
+		CASE un.status
+			WHEN 'InProcess' THEN 'В работе'
+			WHEN 'Checking' THEN 'На проверке'
+			WHEN 'Closed' THEN 'Закрыт'
+		END AS status
+	FROM undelivered_orders un
+	LEFT JOIN orders oldo ON un.undelivered_order_id = oldo.id
+	LEFT JOIN delivery_schedule old_schedule ON old_schedule.id = oldo.delivery_schedule_id
+	LEFT JOIN orders newo ON un.new_order_id = newo.id
+	LEFT JOIN delivery_schedule new_schedule ON new_schedule.id = newo.delivery_schedule_id
+	LEFT JOIN counterparty coun ON coun.id = oldo.client_id
+	LEFT JOIN delivery_points delp ON delp.id = oldo.delivery_point_id
+	LEFT JOIN employees oaut ON oaut.id = oldo.author_employee_id
+	LEFT JOIN employees ureg ON ureg.id = un.registered_by_employee_id
+	LEFT JOIN employees uaut ON uaut.id = un.author_employee_id
+	LEFT JOIN subdivisions dep ON dep.id = un.guilty_department_id
+	LEFT JOIN route_list_addresses rla ON rla.order_id = oldo.id
+	LEFT JOIN route_lists rl ON rla.route_list_id = rl.id
+	WHERE 
+		oldo.delivery_date &gt;= @start_date AND oldo.delivery_date &lt;= @end_date
+	AND
+		(oldo.id = @old_order_id OR @old_order_id = 0)
+	AND
+		(rl.driver_id = @driver_id AND @driver_id != 0 OR @driver_id = 0)
+ 	AND
+		(oldo.client_id = @client_id OR @client_id = 0)
+ 	AND
+		(oldo.delivery_point_id = @address_id OR @address_id = 0)
+ 	AND
+		(oldo.author_employee_id = @old_order_author_id OR @old_order_author_id = 0)
+ 	AND
+		(newo.delivery_date &gt;= @new_order_start_date AND newo.delivery_date &lt;= @new_order_end_date OR @new_order_start_date = '' OR @new_order_end_date = '')
+ 	AND
+		(un.guilty_is = @guilty_side OR @guilty_side = '')
+ 	AND
+		(un.guilty_department_id = @guilty_department_id OR @guilty_department_id = 0)
+  	AND
+		(un.new_order_id IS NOT NULL AND @new_invoice_created = 'true' OR un.new_order_id IS NULL AND @new_invoice_created = 'false' OR @new_invoice_created = '')
+ 	AND
+		(un.status = @undelivery_status OR @undelivery_status = '')
+ 	AND
+		(un.author_employee_id = @undelivery_author_id OR @undelivery_author_id = 0)
+) AS un_ord_subqry
+#комментарии к полям
+LEFT JOIN (
+	SELECT 
+		undelivery_id AS uid,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'OldOrderDeliveryDate',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as old_order_delivery_date,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'Reason',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as reason,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'ActionWithInvoice',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as action_with_invoice,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'TransferDateTime',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as transfer_date_time,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'Client',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as client,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'Address',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as address,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'UndeliveredOrderItems',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as undelivered_order_items,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'OldDeliverySchedule',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as old_delivery_schedule,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'OldOrderAuthor',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as old_order_author,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'driverName',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as driver_name,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'DriversCall',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as drivers_call,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'DispatcherCall',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as dispatcher_call,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'Registrator',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as registrator,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'UndeliveryAuthor',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as undelivery_author,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'Guilty',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as guilty,
+		CONCAT(
+			'--комментарии--\n',
+			GROUP_CONCAT(
+				IF(
+					field_name = 'Status',
+					CONCAT(
+						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
+						'\n',
+						CONCAT_WS(' ', e.name, e.last_name),
+						':\n',
+						cm.comment
+					),
+					null
+				)
+				ORDER BY cm.date_and_time ASC
+				SEPARATOR '\n'
+			)
+		) as status
+	FROM undelivered_orders_comments cm
+	LEFT JOIN employees e ON e.id = cm.employee_id
+	GROUP BY undelivery_id
+) AS cmnt ON cmnt.uid = un_ord_subqry.N
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="old_order_id">
+            <Value>={?old_order_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="driver_id">
+            <Value>={?driver_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="address_id">
+            <Value>={?address_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="old_order_author_id">
+            <Value>={?old_order_author_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="new_order_start_date">
+            <Value>={?new_order_start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="new_order_end_date">
+            <Value>={?new_order_end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="guilty_side">
+            <Value>={?guilty_side}</Value>
+          </QueryParameter>
+          <QueryParameter Name="guilty_department_id">
+            <Value>={?guilty_department_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="new_invoice_created">
+            <Value>={?new_invoice_created}</Value>
+          </QueryParameter>
+          <QueryParameter Name="undelivery_status">
+            <Value>={?undelivery_status}</Value>
+          </QueryParameter>
+          <QueryParameter Name="undelivery_author_id">
+            <Value>={?undelivery_author_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="N">
+          <DataField>N</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="old_order_date">
+          <DataField>old_order_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="reason">
+          <DataField>reason</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="action_with_invoice">
+          <DataField>action_with_invoice</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="transfer_date_time">
+          <DataField>transfer_date_time</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client">
+          <DataField>client</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="address">
+          <DataField>address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="undelivered_order_items">
+          <DataField>undelivered_order_items</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="old_delivery_schedule">
+          <DataField>old_delivery_schedule</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="old_order_author">
+          <DataField>old_order_author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="driver_name">
+          <DataField>driver_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="drivers_call">
+          <DataField>drivers_call</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="dispatcher_call">
+          <DataField>dispatcher_call</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="registrator">
+          <DataField>registrator</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="undelivery_author">
+          <DataField>undelivery_author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="guilty">
+          <DataField>guilty</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="status">
+          <DataField>status</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Guilties">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	COUNT(undelivered_orders.id) AS qty,
+	CASE guilty_is
+		WHEN 'Department' THEN 'Отдел ВВ'
+		WHEN 'Client' THEN 'Клиент'
+		WHEN 'Driver' THEN 'Водитель'
+		ELSE 'Не установленно'
+	END AS guilty
+FROM
+	undelivered_orders
+LEFT JOIN
+	orders oldo ON undelivered_orders.undelivered_order_id = oldo.id
+WHERE 
+	oldo.delivery_date &gt;= @start_date AND oldo.delivery_date &lt;= @end_date
+GROUP BY
+	guilty_is
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="qty">
+          <DataField>qty</DataField>
+          <TypeName>System.Int64</TypeName>
+        </Field>
+        <Field Name="guilty">
+          <DataField>guilty</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_test;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-08-01</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-08-23</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="old_order_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="driver_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="client_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="address_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="old_order_author_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="new_order_start_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="new_order_end_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="guilty_side">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="guilty_department_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="new_invoice_created">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="undelivery_status">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="undelivery_author_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

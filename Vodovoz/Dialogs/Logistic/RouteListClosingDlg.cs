@@ -15,7 +15,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
@@ -584,7 +583,7 @@ namespace Vodovoz
 
 			UoW.Save();
 
-			if(messages.Count > 0)
+			if(messages.Any())
 				MessageDialogWorks.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
 
 			return true;

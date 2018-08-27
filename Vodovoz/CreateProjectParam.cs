@@ -14,6 +14,7 @@ using QSOrmProject.Permissions;
 using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Core.Permissions;
+using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;
@@ -63,6 +64,8 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("can_add_bottles_to_order", new UserPermission("can_add_bottles_to_order", "Продажа тары", "Пользователь может добавлять тару в заказ на продажу."));
 			QSMain.ProjectPermission.Add("can_add_materials_to_order", new UserPermission("can_add_materials_to_order", "Продажа сырья", "Пользователь может добавлять сырьё в заказ на продажу."));
 			QSMain.ProjectPermission.Add("can_edit_delivery_schedule", new UserPermission("can_edit_delivery_schedule", "Изменение времени доставки", "Пользователь может изменять время доставки."));
+			QSMain.ProjectPermission.Add("can_edit_undeliveries", new UserPermission("can_edit_undeliveries", "Изменение недовозов", "Пользователь может изменять недовозы, в т.ч. менять их статус."));
+			QSMain.ProjectPermission.Add("can_close_undeliveries", new UserPermission("can_close_undeliveries", "Закрытие недовозов", "Пользователь может переводить статус недовоза в \"Закрыт\""));
 			QSMain.ProjectPermission.Add("can_archive_warehouse", new UserPermission("can_archive_warehouse", "Архивирование склада", "Пользователь может архивировать склады."));
 
 			UserProperty.PermissionViewsCreator = delegate {
@@ -120,7 +123,8 @@ namespace Vodovoz
 				OrmObjectMapping<Car>.Create().Dialog<CarsDlg>()
 					.DefaultTableView().SearchColumn("Модель а/м", x => x.Model).SearchColumn("Гос. номер", x => x.RegistrationNumber).SearchColumn("Водитель", x => x.Driver != null ? x.Driver.FullName : String.Empty).End(),
 				OrmObjectMapping<Order>.Create().Trace().Dialog <OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
-					OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<UndeliveredOrder>.Create().Trace().Dialog<UndeliveredOrderDlg>(),
+				OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<DeliverySchedule>.Create().Dialog<DeliveryScheduleDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Время доставки", x => x.DeliveryTime).End(),
 				OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<EquipmentType>.Create().Dialog<EquipmentTypeDlg>().DefaultTableView().Column("Название",equipmentType=>equipmentType.Name).End(),

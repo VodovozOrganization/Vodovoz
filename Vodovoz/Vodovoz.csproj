@@ -800,18 +800,36 @@
     <Compile Include="Dialogs\Goods\Folder1cDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.Folder1cDlg.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\NomenclatureGroupCatalog.cs" />
+    <Compile Include="Representations\UndeliveredOrdersVM.cs" />
+    <Compile Include="Dialogs\UndeliveredOrderDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveredOrderDlg.cs" />
     <Compile Include="ReportsParameters\OrderRegistryReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrderRegistryReport.cs" />
     <Compile Include="ReportsParameters\Store\EquipmentBalance.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.EquipmentBalance.cs" />
     <Compile Include="ReportsParameters\CardPaymentsOrdersReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CardPaymentsOrdersReport.cs" />
+    <Compile Include="JournalFilters\UndeliveredOrdersFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.UndeliveredOrdersFilter.cs" />
+    <Compile Include="JournalViewers\UndeliveriesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.UndeliveriesView.cs" />
+    <Compile Include="Dialogs\UndeliveredOrderCommentsDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveredOrderCommentsDlg.cs" />
     <Compile Include="Dialogs\Client\ClientCameFromDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.ClientCameFromDlg.cs" />
     <Compile Include="Dialogs\Goods\ProductGroupDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.ProductGroupDlg.cs" />
     <Compile Include="Dialogs\OnlineStore\ExportToSiteDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.OnlineStore.ExportToSiteDlg.cs" />
+    <Compile Include="ViewWidgets\UndeliveredOrderView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.UndeliveredOrderView.cs" />
+    <Compile Include="Dialogs\UndeliveryOnOrderCloseDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveryOnOrderCloseDlg.cs" />
+    <Compile Include="SidePanel\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
+    <Compile Include="SidePanel\InfoViews\UndeliveredOrdersPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.UndeliveredOrdersPanelView.cs" />
+    <Compile Include="Dialogs\UndeliveriesWithCommentsPrintDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveriesWithCommentsPrintDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1303,6 +1321,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\EquipmentBalanceRow.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\UndeliveriesWithComments.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

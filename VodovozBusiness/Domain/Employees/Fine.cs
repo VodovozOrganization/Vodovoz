@@ -9,6 +9,7 @@ using Gamma.Utilities;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -74,6 +75,22 @@ namespace Vodovoz.Domain.Employees
 		{
 			get { return routeList; }
 			set { SetField(ref routeList, value, () => RouteList); }
+		}
+
+		private UndeliveredOrder undeliveredOrder;
+
+		[Display(Name = "Недовоз")]
+		public virtual UndeliveredOrder UndeliveredOrder {
+			get { return undeliveredOrder; }
+			set {
+				if(SetField(ref undeliveredOrder, value, () => UndeliveredOrder))
+					FineReasonString = String.Format(
+						"{0}, {1}, {2}",
+						UndeliveredOrder.Title,
+						UndeliveredOrder.OldOrder.Client.Name,
+						UndeliveredOrder.OldOrder.DeliveryPoint != null ? UndeliveredOrder.OldOrder.DeliveryPoint.ShortAddress : "Самовывоз"
+					);
+			}
 		}
 
         private Employee author;

@@ -81,8 +81,6 @@ namespace Vodovoz.Domain.Client
 			get { return String.IsNullOrWhiteSpace(CompiledAddress) ? "АДРЕС ПУСТОЙ" : CompiledAddress; }
 		}
 
-		string compiledAddress;
-
 		[Display (Name = "Полный адрес")]
 		public virtual string CompiledAddress {
 			get {
@@ -106,7 +104,7 @@ namespace Vodovoz.Domain.Client
 
 				return address.TrimEnd (',', ' ');
 			}
-			set { SetField (ref compiledAddress, value, () => CompiledAddress); }
+			set {  }
 		}
 
 		[Display(Name = "Адрес без дополнения")]
@@ -155,7 +153,7 @@ namespace Vodovoz.Domain.Client
 
 				return address.TrimEnd (',', ' ');
 			}
-			set { SetField (ref shortAddress, value, () => ShortAddress); }
+			set { }
 		}
 
 		string city;

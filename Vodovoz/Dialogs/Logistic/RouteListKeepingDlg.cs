@@ -16,6 +16,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Dialogs;
 
 namespace Vodovoz
 {
@@ -182,9 +184,6 @@ namespace Vodovoz
 			UpdateNodes();
 		}
 
-		/// <summary>
-		/// Обновляет и выводит в диалог информацию о бутылях в маршрутном листе
-		/// </summary>
 		private void UpdateBottlesSummaryInfo()
 		{
 			string bottles = null;
@@ -247,7 +246,24 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			ytreeviewAddresses.ItemsDataSource = new GenericObservableList<RouteListKeepingItemNode> (items);
+			items.ForEach(i => i.StatusChanged += RLI_StatusChanged);
+
+			ytreeviewAddresses.ItemsDataSource = new GenericObservableList<RouteListKeepingItemNode>(items);
+		}
+
+		void RLI_StatusChanged(object sender, StatusChangedEventArgs e)
+		{
+			var rli = sender as RouteListKeepingItemNode;
+			var newStatus = e.NewStatus;
+			if(rli == null)
+				return;
+			if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue) {
+				UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW);
+				TabParent.AddSlaveTab(this, dlg);
+				dlg.DlgSaved += (s, ea) => rli.UpdateStatus(newStatus);
+				return;
+			}
+			rli.UpdateStatus(newStatus);
 		}
 
 		public void OnSelectionChanged(object sender, EventArgs args){
@@ -295,11 +311,12 @@ namespace Vodovoz
 				
 			foreach (var item in changedList)
 			{
-				if (item.HasChanged)
-					getChatService().SendOrderStatusNotificationToDriver(
-						currentEmployee.Id,
-						item.RouteListItem.Id
-					);
+				if(item.HasChanged)
+					getChatService()
+						.SendOrderStatusNotificationToDriver(
+							currentEmployee.Id,
+							item.RouteListItem.Id
+						);
 				if (item.ChangedDeliverySchedule)
 					getChatService().SendDeliveryScheduleNotificationToDriver(
 						currentEmployee.Id,
@@ -401,6 +418,7 @@ namespace Vodovoz
 	{
 		public bool HasChanged = false;
 		public bool ChangedDeliverySchedule = false;
+		public event EventHandler<StatusChangedEventArgs> StatusChanged;
 
 		public Gdk.Color RowColor{
 			get{
@@ -417,15 +435,13 @@ namespace Vodovoz
 			}
 		}
 
+		RouteListItemStatus status;
 		public RouteListItemStatus Status{
-			get{
-				return RouteListItem.Status;
-			}
-			set{
-				var uow = RouteListItem.RouteList.UoW;
-				RouteListItem.UpdateStatus(uow, value);
-				HasChanged = true;
-				OnPropertyChanged<RouteListItemStatus>(() => Status);
+			get => RouteListItem.Status;
+			set {
+				status = value;
+				if(StatusChanged != null)
+					StatusChanged(this, new StatusChangedEventArgs(value));
 			}
 		}
 
@@ -451,7 +467,7 @@ namespace Vodovoz
 				}
 				else
 				{
-					return "";
+					return String.Empty;
 				}
 			}
 		}
@@ -474,6 +490,23 @@ namespace Vodovoz
 				if(RouteListItem != null)
 					RouteListItem.PropertyChanged += (sender, e) => OnPropertyChanged (() => RouteListItem);
 			}
+		}
+
+		public void UpdateStatus(RouteListItemStatus value){
+			var uow = RouteListItem.RouteList.UoW;
+			RouteListItem.UpdateStatus(uow, value);
+			HasChanged = true;
+			OnPropertyChanged<RouteListItemStatus>(() => Status);
+		}
+	}
+
+	public class StatusChangedEventArgs : EventArgs
+	{
+		public RouteListItemStatus NewStatus { get; private set; }
+
+		public StatusChangedEventArgs(RouteListItemStatus newStatus)
+		{
+			NewStatus = newStatus;
 		}
 	}
 }

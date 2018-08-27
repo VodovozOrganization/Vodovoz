@@ -107,6 +107,11 @@ namespace Vodovoz.Repository
 		{
 			return QueryOver.Of<Employee> ().Where (e => !e.IsFired).OrderBy (e => e.LastName).Asc.ThenBy (e => e.Name).Asc.ThenBy (e => e.Patronymic).Asc;
 		}
+
+		public static IList<Subdivision> Subdivisions(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<Subdivision>().OrderBy(s => s.Name).Asc().List();
+		}
 	}
 }
 

@@ -246,7 +246,7 @@ namespace Vodovoz
 							.Where(item => !item.Nomenclature.IsSerial)
 							.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 						    .Any(item => !item.IsDelivered);
-						var equipmentChanged = node.Order.OrderEquipments.Any(eq => !eq.IsDelivered);
+						var equipmentChanged = node.Order.OrderEquipments.Any(eq => !eq.IsFullyDelivered);
 						if(itemChanged || equipmentChanged) {
 							color = colorLightBlue;
 						}
@@ -392,7 +392,7 @@ namespace Vodovoz
 					.Where(x => //x.Nomenclature.Category != NomenclatureCategory.water && 
 			               x.Direction == Domain.Orders.Direction.Deliver);
 			foreach(OrderEquipment orderEquip in equipList) {
-				stringParts.Add(orderEquip.IsDelivered
+				stringParts.Add(orderEquip.IsFullyDelivered
 									? string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount)
 				                	: string.Format("{0}:{1}({2:-0})", orderEquip.NameString, orderEquip.ActualCount, orderEquip.Count - orderEquip.ActualCount)
 				                );
@@ -437,7 +437,7 @@ namespace Vodovoz
 			                           //&& x.Nomenclature.Category != NomenclatureCategory.water
 			                           && x.Direction == Domain.Orders.Direction.PickUp);
 			foreach(var orderEquip in equipList) {
-				stringParts.Add(orderEquip.IsDelivered
+				stringParts.Add(orderEquip.IsFullyDelivered
 									? string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount)
 									: string.Format("{0}:{1}({2:-0})", orderEquip.NameString, orderEquip.ActualCount, orderEquip.Count - orderEquip.ActualCount)
 								);
