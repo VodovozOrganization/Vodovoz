@@ -691,22 +691,28 @@ namespace Vodovoz
 		{
 			if(treeDocuments.GetSelectedObjects().Any()) {
 				var rdlDocs = treeDocuments.GetSelectedObjects()
-				                           .Cast<IPrintableRDLDocument>()
-										   .ToList();
+										   .Cast<OrderDocument>()
+				                           .Where(d => d.PrintType == PrinterType.RDL)
+				                           .ToList();
+
 				if(rdlDocs.Any()) {
-					string whatToPrint = rdlDocs.Count > 1
+					string whatToPrint = rdlDocs.ToList().Count > 1
 												? "документов"
 					                            : "документа \"" + rdlDocs.Cast<OrderDocument>().First().Type.GetEnumTitle() + "\"";
 					if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
 						UoWGeneric.Save();
 					rdlDocs.ForEach(
-						doc => TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc), this, false)
+						doc => {
+							if(doc is IPrintableRDLDocument)
+								TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc as IPrintableRDLDocument), this, false);
+						}
 					);
 				}
 
 				var odtDocs = treeDocuments.GetSelectedObjects()
 										   .Cast<OrderDocument>()
-										   .Where(d => d.PrintType == PrinterType.ODT).ToList();
+										   .Where(d => d.PrintType == PrinterType.ODT)
+				                           .ToList();
 				if(odtDocs.Any()) {
 					foreach(var doc in odtDocs) {
 						ITdiDialog dlg = null;
