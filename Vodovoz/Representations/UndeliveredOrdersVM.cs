@@ -65,7 +65,8 @@ namespace Vodovoz.Representations
 			FineItem fineItemAlias = null;
 
 			var subqueryDriver = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
-										  .Where(() => routeListItemAlias.Order.Id == oldOrderAlias.Id)
+										  .Where(() => routeListItemAlias.Order.Id == oldOrderAlias.Id
+			                                     && routeListItemAlias.TransferedTo == null)
 										  .Left.JoinQueryOver(i => i.RouteList, () => routeListAlias)
 										  //.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 										  .Left.JoinAlias(i => i.Driver, () => driverAlias)
