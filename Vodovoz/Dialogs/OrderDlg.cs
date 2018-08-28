@@ -32,6 +32,7 @@ using Vodovoz.Repository;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz
 {
@@ -1751,6 +1752,15 @@ namespace Vodovoz
 			dlg.DlgSaved += (sender, e) => {
 				Entity.SetUndeliveredStatus(e.UndeliveredOrder.GuiltySide);
 				UpdateButtonState();
+
+				var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(UoW, Entity);
+				if(routeListItem.Status != RouteListItemStatus.Canceled) {
+					routeListItem.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
+					routeListItem.StatusLastUpdate = DateTime.Now;
+					routeListItem.FillCountsOnCanceled();
+					UoW.Save(routeListItem);
+				}
+
 				if(Save())
 					this.OnCloseTab(false);
 			};
