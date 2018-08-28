@@ -150,6 +150,14 @@ namespace Vodovoz.Repository
 				            .Where(n => n.ProductGroup.Id.IsIn(groupsIds));
 		}
 
+		public static Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow)
+		{
+			var followingNomenclaure = "номенклатура_для_выезда_с_мастером";
+			if(!MainSupport.BaseParameters.All.ContainsKey(followingNomenclaure))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура для добавления в заказа типа \"Выезд мастера\"");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[followingNomenclaure]));
+		}
+
 		#region Получение номенклатур воды
 
 		public static Nomenclature GetWaterSemiozerie(IUnitOfWork uow)

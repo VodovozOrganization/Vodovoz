@@ -1376,7 +1376,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature, bool isChangeOrder = false)
+		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature, bool isChangeOrder = false, int? cnt = null)
 		{
 			var acceptCategories = Nomenclature.GetCategoriesForSale();
 			if(!acceptCategories.Contains(nomenclature.Category)) {
@@ -1385,6 +1385,9 @@ namespace Vodovoz.Domain.Orders
 
 			var count = (nomenclature.Category == NomenclatureCategory.service
 						 || nomenclature.Category == NomenclatureCategory.deposit) && !isChangeOrder ? 1 : 0;
+
+			if(cnt.HasValue)
+				count = cnt.Value;
 
 			ObservableOrderItems.Add(new OrderItem {
 				Order = this,
@@ -1398,7 +1401,14 @@ namespace Vodovoz.Domain.Orders
 			//UpdateDocuments();
 		}
 
-		public virtual void AddMasterNomenclature(Nomenclature nomenclature, int count)
+		/// <summary>
+		/// Добавление в заказ номенклатуры типа "Выезд мастера"
+		/// </summary>
+		/// <param name="nomenclature">Номенклатура типа "Выезд мастера"</param>
+		/// <param name="count">Количество</param>
+		/// <param name="quantityOfFollowingNomenclatures">Колличество номенклатуры, указанной в параметрах БД,
+		/// которые будут добавлены в заказ вместе с мастером</param>
+		public virtual void AddMasterNomenclature(Nomenclature nomenclature, int count, int quantityOfFollowingNomenclatures = 0)
 		{
 			if(nomenclature.Category != NomenclatureCategory.master) {
 				return;
@@ -1412,6 +1422,10 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)
 			});
+
+			Nomenclature followingNomenclature = NomenclatureRepository.GetNomenclatureToAddWithMaster(UoW);
+			if(quantityOfFollowingNomenclatures > 0 && !ObservableOrderItems.Any(i => i.Nomenclature.Id == followingNomenclature.Id))
+				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
 		}
 
 		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count)

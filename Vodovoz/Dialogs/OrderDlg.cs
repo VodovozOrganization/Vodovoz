@@ -1016,7 +1016,7 @@ namespace Vodovoz
 					} else {
 						contract = Entity.Contract;
 					}
-					Entity.AddMasterNomenclature(nomenclature, 1);
+					Entity.AddMasterNomenclature(nomenclature, 1, 1);
 					break;
 				case NomenclatureCategory.deposit://Залог
 				default://rest
