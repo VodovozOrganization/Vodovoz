@@ -78,7 +78,13 @@ namespace Vodovoz.Repositories
 			                  .List<UndeliveredOrderCountNode>();
 
 			return result;
+		}
 
+		public static IList<UndeliveredOrder> GetListOfUndeliveriesForOrder(IUnitOfWork uow, Order order){
+			var query = uow.Session.QueryOver<UndeliveredOrder>()
+			               .Where(u => u.OldOrder == order)
+			               .List<UndeliveredOrder>();
+			return query;
 		}
 	}
 

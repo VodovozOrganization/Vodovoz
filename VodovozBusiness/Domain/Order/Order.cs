@@ -4,8 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
+using NHibernate.Util;
 using QSHistoryLog;
 using QSOrmProject;
+using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -18,10 +20,6 @@ using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
-using NHibernate.Criterion;
-using NHibernate.Util;
-using QSProjectsLib;
-using NHibernate.Type;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -2292,15 +2290,43 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void ChangeStatus(OrderStatus newStatus)
 		{
+			var initialStatus = OrderStatus.GetEnumTitle();
 			OrderStatus = newStatus;
-			if(newStatus == OrderStatus.Closed) {
-				OnClosedOrder();
+
+			switch(newStatus) {
+				case OrderStatus.NewOrder:
+					break;
+				case OrderStatus.WaitForPayment:
+					OnWaitingPaymentOrder();
+					break;
+				case OrderStatus.Accepted:
+					OnAcceptOrder();
+					break;
+				case OrderStatus.InTravelList:
+				case OrderStatus.OnLoading:
+				case OrderStatus.OnTheWay:
+				case OrderStatus.DeliveryCanceled:
+				case OrderStatus.Shipped:
+				case OrderStatus.UnloadingOnStock:
+				case OrderStatus.NotDelivered:
+				case OrderStatus.Closed:
+					OnClosedOrder();
+					break;
+				case OrderStatus.Canceled:
+				default:
+					break;
 			}
-			if(newStatus == OrderStatus.WaitForPayment) {
-				OnWaitingPaymentOrder();
-			}
-			if(newStatus == OrderStatus.Accepted) {
-				OnAcceptOrder();
+			if(Id == 0 || newStatus == OrderStatus.Canceled || newStatus == OrderStatus.NotDelivered)
+				return;
+			
+			var undeliveries = UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
+			if(undeliveries.Any()) {
+				var text = String.Format(
+					"сменил(а) статус заказа\nс \"{0}\" на \"{1}\"",
+					initialStatus,
+					newStatus.GetEnumTitle()
+				);
+				undeliveries.ForEach(u => u.AddCommentToTheField(UoW, CommentedFields.OldOrderStatus, text));
 			}
 		}
 

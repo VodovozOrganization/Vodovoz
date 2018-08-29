@@ -63,7 +63,6 @@ namespace Vodovoz
 			}
 		}
 
-
 		Object[] hideStatuses;
 		/// <summary>
 		/// Скрыть заказы со статусом из массива

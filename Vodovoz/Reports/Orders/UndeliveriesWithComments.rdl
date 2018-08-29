@@ -759,7 +759,8 @@ FROM
 			FROM route_list_addresses
 			LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
 			LEFT JOIN employees ON employees.id = route_lists.driver_id
-			WHERE route_list_addresses.order_id = oldo.id),
+			WHERE route_list_addresses.order_id = oldo.id
+				AND route_list_addresses.transfered_to_id IS NULL),
 			'Не в МЛ'
 		) AS driver,
 		#время звонка водителя, если стаус старого заказа подходит для существования МЛ
@@ -1282,15 +1283,6 @@ GROUP BY
       </Fields>
     </DataSet>
   </DataSets>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_test;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
@@ -1385,6 +1377,11 @@ GROUP BY
     </ReportParameter>
     <ReportParameter Name="new_order_start_date">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017-01-01</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1393,6 +1390,11 @@ GROUP BY
     </ReportParameter>
     <ReportParameter Name="new_order_end_date">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2019-01-01</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1450,4 +1452,13 @@ GROUP BY
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovozt;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

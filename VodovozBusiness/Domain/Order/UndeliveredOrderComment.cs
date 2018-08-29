@@ -128,7 +128,9 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Оштрафованные")]
 		FinedPeople,
 		[Display(Name = "Статус недовоза")]
-		Status
+		Status,
+		[Display(Name = "Статус недовезённого заказа на момент отмены")]
+		OldOrderStatus
 	}
 
 	public class UndeliveredOrderCommentsCommentedFieldsStringType : NHibernate.Type.EnumStringType

@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -57930,7 +57930,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.VBox" id="vBoxWithControls">
+          <widget class="Gtk.VBox" id="vbxWithControls">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
@@ -57986,20 +57986,36 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.HBox" id="hbox3">
+                  <widget class="Gtk.HBox" id="hbxForNewOrder">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
                       <widget class="Gtk.Label" id="lblTransferDate">
                         <property name="MemberName" />
                         <property name="LabelProp" translatable="yes">Заказ не
-создан</property>
+создан </property>
                         <property name="Justify">Center</property>
                       </widget>
                       <packing>
                         <property name="Position">0</property>
                         <property name="AutoSize">False</property>
                         <property name="Expand">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Button" id="btnChooseOrder">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextOnly</property>
+                        <property name="Label" translatable="yes">Выбрать заказ</property>
+                        <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnBtnChooseOrderClicked" />
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
                       </packing>
                     </child>
                     <child>
@@ -58012,7 +58028,7 @@ not tooltip</property>
                         <signal name="Clicked" handler="OnBtnNewOrderClicked" />
                       </widget>
                       <packing>
-                        <property name="Position">1</property>
+                        <property name="Position">2</property>
                         <property name="AutoSize">False</property>
                         <property name="Expand">False</property>
                       </packing>

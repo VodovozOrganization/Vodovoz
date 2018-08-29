@@ -50,7 +50,6 @@ namespace Vodovoz.ViewWidgets
 			this.initialStatus = initialStatus;
 			this.undelivery = undelivery;
 			UoW = uow;
-			vBoxWithControls.Sensitive = QSMain.User.Permissions["can_edit_undeliveries"] || undelivery.Id == 0;
 			oldOrder = undelivery.OldOrder;
 			newOrder = undelivery.NewOrder;
 			var filterOrders = new OrdersFilter(UoW);
@@ -61,8 +60,8 @@ namespace Vodovoz.ViewWidgets
 				if(undelivery.Id <= 0)
 					undelivery.OldOrderStatus = oldOrder.OrderStatus;
 				routeListDoesNotExist = oldOrder != null && (undelivery.OldOrderStatus == OrderStatus.NewOrder
-				                                       || undelivery.OldOrderStatus == OrderStatus.Accepted
-				                                       || undelivery.OldOrderStatus == OrderStatus.WaitForPayment);
+													   || undelivery.OldOrderStatus == OrderStatus.Accepted
+													   || undelivery.OldOrderStatus == OrderStatus.WaitForPayment);
 
 				SetSensitivities();
 				SetVisibilities();
@@ -132,6 +131,8 @@ namespace Vodovoz.ViewWidgets
 		{
 			lblTransferDate.Text = undelivery.NewOrder == null ? "Заказ не\nсоздан" : undelivery.NewOrder.Title;
 			btnNewOrder.Label = undelivery.NewOrder == null ? "Создать новый заказ" : "Открыть заказ";
+
+			SetVisibilities();
 		}
 
 		void RemoveItemsFromEnums()
@@ -152,25 +153,42 @@ namespace Vodovoz.ViewWidgets
 			lblGuiltyDepartment.Visible = yentrySubdivision.Visible = undelivery.GuiltySide == GuiltyTypes.Department;
 			lblDriverCallPlace.Visible = yEnumCMBDriverCallPlace.Visible = !routeListDoesNotExist;
 			lblDriverCallTime.Visible = yDateDriverCallTime.Visible = undelivery.DriverCallType != DriverCallType.NoCall;
+			btnChooseOrder.Visible = undelivery.NewOrder == null;
+			lblTransferDate.Visible = undelivery.NewOrder != null;
 		}
 
 		void SetSensitivities()
 		{
 			bool hasPermissionOrNew = QSMain.User.Permissions["can_edit_undeliveries"] || undelivery.Id == 0;
-			tblUndeliveryFields.Sensitive = hbxReasonAndFines.Sensitive = (
-				undelivery.OldOrder != null 
-				&& hasPermissionOrNew 
-				&& undelivery.UndeliveryStatus != UndeliveryStatus.Closed
-			);
+
+			//основные поля доступны если есть разрешение или это новый недовоз,
+			//выбран старый заказ и статус недовоза не "Закрыт"
+			yEnumCMBDriverCallPlace.Sensitive =
+				yDateDriverCallTime.Sensitive =
+					yDateDispatcherCallTime.Sensitive =
+						refRegisteredBy.Sensitive =
+							hbxReasonAndFines.Sensitive = (
+								undelivery.OldOrder != null
+								&& hasPermissionOrNew
+								&& undelivery.UndeliveryStatus != UndeliveryStatus.Closed
+							);
+
+			//выбор старого заказа доступен, если есть разрешение или это новый недовоз и не выбран старый заказ
 			hbxUndelivery.Sensitive = undelivery.OldOrder == null && hasPermissionOrNew;
+
 			//можем менять статус, если есть права или нет прав и статус не "закрыт"
 			hbxStatus.Sensitive = (
 				(
-					QSMain.User.Permissions["can_close_undeliveries"] 
+					QSMain.User.Permissions["can_close_undeliveries"]
 					|| undelivery.UndeliveryStatus != UndeliveryStatus.Closed
 				)
 				&& undelivery.OldOrder != null
 			);
+
+			//кнопки для выбора/создания нового заказа доступны всегда, если статус недовоза не "Закрыт"
+			yentrySubdivision.Sensitive =
+				yEnumCMBGuilty.Sensitive =
+					hbxForNewOrder.Sensitive = undelivery.UndeliveryStatus != UndeliveryStatus.Closed;
 		}
 
 		/// <summary>
@@ -238,6 +256,29 @@ namespace Vodovoz.ViewWidgets
 			} else {
 				OpenOrder(newOrder);
 			}
+		}
+
+		protected void OnBtnChooseOrderClicked(object sender, EventArgs e)
+		{
+			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
+			filter.HideStatuses = new Enum[] { OrderStatus.WaitForPayment };
+			filter.RestrictCounterparty = oldOrder.Client;
+			ReferenceRepresentation dlg = new ReferenceRepresentation(new OrdersVM(filter));
+			dlg.Mode = OrmReferenceMode.Select;
+			dlg.ButtonMode = ReferenceButtonMode.None;
+
+			MyTab.TabParent.AddTab(dlg, MyTab, false);
+
+			dlg.ObjectSelected += (s, ea) => {
+				if(oldOrder.Id == ea.ObjectId){
+					MessageDialogWorks.RunErrorDialog("Перенесённый заказ не может совпадать с недовезённым!");
+					OnBtnChooseOrderClicked(sender, ea);
+					return;
+				}
+				newOrder = undelivery.NewOrder = UoW.GetById<Order>(ea.ObjectId);
+				SetLabelsAcordingToNewOrder();
+				undelivery.NewDeliverySchedule = newOrder.DeliverySchedule;
+			};
 		}
 
 		/// <summary>

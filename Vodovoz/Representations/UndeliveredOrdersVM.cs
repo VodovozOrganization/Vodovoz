@@ -222,6 +222,7 @@ namespace Vodovoz.Representations
 										  .Select(() => undeliveredOrderAlias.Reason).WithAlias(() => resultAlias.Reason)
 										  .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.GuiltyDepartment)
 										  .Select(() => undeliveredOrderAlias.UndeliveryStatus).WithAlias(() => resultAlias.UndeliveryStatus)
+										  .Select(() => undeliveredOrderAlias.OldOrderStatus).WithAlias(() => resultAlias.StatusOnOldOrderCancel)
 										  .SelectSubQuery(subqueryDriver).WithAlias(() => resultAlias.OldRouteListDriverName)
 										  .SelectSubQuery(subquery19LWatterQty).WithAlias(() => resultAlias.OldOrder19LBottleQty)
 										  .SelectSubQuery(subqueryGoodsToClient).WithAlias(() => resultAlias.OldOrderGoodsToClient)
@@ -320,6 +321,9 @@ namespace Vodovoz.Representations
 								break;
 							case CommentedFields.Status:
 								com.Status = comment.Comment;
+								break;
+							case CommentedFields.OldOrderStatus:
+								com.OldOrderStatus = comment.Comment;
 								break;
 							default:
 								break;
@@ -442,6 +446,11 @@ namespace Vodovoz.Representations
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.Markup = n.Status)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
+			.AddColumn("Статус на момент\nотмены заказа").HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.OldOrderStatus)
+				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddSetter((c, n) => c.Markup = n.OldOrderStatus)
+				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig => columnsConfig;
@@ -514,6 +523,7 @@ namespace Vodovoz.Representations
 			}
 			set {; }
 		}
+
 		public virtual string UndeliveredOrderItems {
 			get {
 				if(OldOrder19LBottleQty > 0)
@@ -551,6 +561,7 @@ namespace Vodovoz.Representations
 		public virtual string UndeliveryAuthor { get => StringWorks.PersonNameWithInitials(AuthorLastName, AuthorFirstName, AuthorMidleName); set {; } }
 		public virtual string Status { get => UndeliveryStatus.GetEnumTitle(); set {; } }
 		public virtual string FinedPeople { get => Fined ?? "Не выставлено"; set {; } }
+		public virtual string OldOrderStatus { get => StatusOnOldOrderCancel.GetEnumTitle(); set {; } }
 
 		public DateTime? DispatcherCallTime { get; set; }
 		public DateTime DriverCallTime { get; set; }
@@ -569,6 +580,7 @@ namespace Vodovoz.Representations
 		public GuiltyTypes GuiltySide { get; set; }
 		public string GuiltyDepartment { get; set; }
 		public string Fined { get; set; }
+		public OrderStatus StatusOnOldOrderCancel { get; set; }
 
 		//старый заказ
 		public int OldOrderId { get; set; }
@@ -612,6 +624,8 @@ namespace Vodovoz.Representations
 		public override string Guilty { get; set; } = String.Empty;
 		public override string FinedPeople { get; set; } = String.Empty;
 		public override string Status { get; set; } = String.Empty;
+		public override string OldOrderStatus { get; set; } = String.Empty;
+
 		public override Color BGColor { get; set; }
 
 		public override UndeliveredOrdersVMNode Parent { get; set; }

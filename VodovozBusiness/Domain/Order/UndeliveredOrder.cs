@@ -201,6 +201,25 @@ namespace Vodovoz.Domain.Orders
 			return sb.ToString();
 		}
 
+		/// <summary>
+		/// Добавление комментария к полю
+		/// </summary>
+		/// <param name="uow">UoW</param>
+		/// <param name="field">Комментируемое поле</param>
+		/// <param name="text">Текст комментария</param>
+		public virtual void AddCommentToTheField(IUnitOfWork uow, CommentedFields field, string text)
+		{
+			UndeliveredOrderComment comment = new UndeliveredOrderComment {
+				Comment = text,
+				CommentDate = DateTime.Now,
+				CommentedField = field,
+				Employee = EmployeeRepository.GetEmployeeForCurrentUser(uow),
+				UndeliveredOrder = this
+			};
+
+			uow.Save(comment);
+		}
+
 		public virtual string GenerateUndeliveryInfo()
 		{
 			StringBuilder info = new StringBuilder("\n").AppendLine(String.Format("<b>Автор недовоза:</b> {0}", Author.ShortName));
@@ -252,6 +271,12 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult(
 					"Необходимо выбрать недовезённый заказ",
 					new[] { this.GetPropertyName(u => u.OldOrder) }
+				);
+
+			if(OldOrder != null && NewOrder != null && OldOrder.Id == NewOrder.Id)
+				yield return new ValidationResult(
+					"Перенесённый заказ не может совпадать с недовезённым",
+					new[] { this.GetPropertyName(u => u.OldOrder), this.GetPropertyName(u => u.NewOrder) }
 				);
 			
 			if(String.IsNullOrWhiteSpace(Reason))

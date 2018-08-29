@@ -20,7 +20,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gamma.Widgets.yEnumComboBox yEnumCMBStatus;
 
-		private global::Gtk.VBox vBoxWithControls;
+		private global::Gtk.VBox vbxWithControls;
 
 		private global::Gtk.Table tblUndeliveryFields;
 
@@ -32,9 +32,11 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.Label lblInfoCaption;
 
-		private global::Gtk.HBox hbox3;
+		private global::Gtk.HBox hbxForNewOrder;
 
 		private global::Gtk.Label lblTransferDate;
+
+		private global::Gtk.Button btnChooseOrder;
 
 		private global::Gtk.Button btnNewOrder;
 
@@ -159,10 +161,10 @@ namespace Vodovoz.ViewWidgets
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child mainBox.Gtk.Box+BoxChild
-			this.vBoxWithControls = new global::Gtk.VBox();
-			this.vBoxWithControls.Name = "vBoxWithControls";
-			this.vBoxWithControls.Spacing = 6;
-			// Container child vBoxWithControls.Gtk.Box+BoxChild
+			this.vbxWithControls = new global::Gtk.VBox();
+			this.vbxWithControls.Name = "vbxWithControls";
+			this.vbxWithControls.Spacing = 6;
+			// Container child vbxWithControls.Gtk.Box+BoxChild
 			this.tblUndeliveryFields = new global::Gtk.Table(((uint)(8)), ((uint)(3)), false);
 			this.tblUndeliveryFields.Name = "tblUndeliveryFields";
 			this.tblUndeliveryFields.RowSpacing = ((uint)(6));
@@ -195,146 +197,157 @@ namespace Vodovoz.ViewWidgets
 			w10.LeftAttach = ((uint)(2));
 			w10.RightAttach = ((uint)(3));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			// Container child hbox3.Gtk.Box+BoxChild
+			this.hbxForNewOrder = new global::Gtk.HBox();
+			this.hbxForNewOrder.Name = "hbxForNewOrder";
+			this.hbxForNewOrder.Spacing = 6;
+			// Container child hbxForNewOrder.Gtk.Box+BoxChild
 			this.lblTransferDate = new global::Gtk.Label();
 			this.lblTransferDate.Name = "lblTransferDate";
-			this.lblTransferDate.LabelProp = global::Mono.Unix.Catalog.GetString("Заказ не\nсоздан");
+			this.lblTransferDate.LabelProp = global::Mono.Unix.Catalog.GetString("Заказ не\nсоздан ");
 			this.lblTransferDate.Justify = ((global::Gtk.Justification)(2));
-			this.hbox3.Add(this.lblTransferDate);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.lblTransferDate]));
+			this.hbxForNewOrder.Add(this.lblTransferDate);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbxForNewOrder[this.lblTransferDate]));
 			w11.Position = 0;
 			w11.Expand = false;
-			// Container child hbox3.Gtk.Box+BoxChild
+			// Container child hbxForNewOrder.Gtk.Box+BoxChild
+			this.btnChooseOrder = new global::Gtk.Button();
+			this.btnChooseOrder.CanFocus = true;
+			this.btnChooseOrder.Name = "btnChooseOrder";
+			this.btnChooseOrder.UseUnderline = true;
+			this.btnChooseOrder.Label = global::Mono.Unix.Catalog.GetString("Выбрать заказ");
+			this.hbxForNewOrder.Add(this.btnChooseOrder);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbxForNewOrder[this.btnChooseOrder]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child hbxForNewOrder.Gtk.Box+BoxChild
 			this.btnNewOrder = new global::Gtk.Button();
 			this.btnNewOrder.CanFocus = true;
 			this.btnNewOrder.Name = "btnNewOrder";
 			this.btnNewOrder.UseUnderline = true;
 			this.btnNewOrder.Label = global::Mono.Unix.Catalog.GetString("Создать заказ");
-			this.hbox3.Add(this.btnNewOrder);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.btnNewOrder]));
-			w12.Position = 1;
-			w12.Expand = false;
-			this.tblUndeliveryFields.Add(this.hbox3);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.hbox3]));
-			w13.TopAttach = ((uint)(5));
-			w13.BottomAttach = ((uint)(6));
-			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.hbxForNewOrder.Add(this.btnNewOrder);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbxForNewOrder[this.btnNewOrder]));
+			w13.Position = 2;
+			w13.Expand = false;
+			this.tblUndeliveryFields.Add(this.hbxForNewOrder);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.hbxForNewOrder]));
+			w14.TopAttach = ((uint)(5));
+			w14.BottomAttach = ((uint)(6));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.lblDispatcherCallTime = new global::Gtk.Label();
 			this.lblDispatcherCallTime.Name = "lblDispatcherCallTime";
 			this.lblDispatcherCallTime.Xalign = 1F;
 			this.lblDispatcherCallTime.LabelProp = global::Mono.Unix.Catalog.GetString("Время звонка диспетчера клиенту:");
 			this.tblUndeliveryFields.Add(this.lblDispatcherCallTime);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblDispatcherCallTime]));
-			w14.TopAttach = ((uint)(4));
-			w14.BottomAttach = ((uint)(5));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblDispatcherCallTime]));
+			w15.TopAttach = ((uint)(4));
+			w15.BottomAttach = ((uint)(5));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.lblDriverCallPlace = new global::Gtk.Label();
 			this.lblDriverCallPlace.Name = "lblDriverCallPlace";
 			this.lblDriverCallPlace.Xalign = 1F;
 			this.lblDriverCallPlace.LabelProp = global::Mono.Unix.Catalog.GetString("Место из которого звонил водитель:");
 			this.tblUndeliveryFields.Add(this.lblDriverCallPlace);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblDriverCallPlace]));
-			w15.TopAttach = ((uint)(2));
-			w15.BottomAttach = ((uint)(3));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblDriverCallPlace]));
+			w16.TopAttach = ((uint)(2));
+			w16.BottomAttach = ((uint)(3));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.lblDriverCallTime = new global::Gtk.Label();
 			this.lblDriverCallTime.Name = "lblDriverCallTime";
 			this.lblDriverCallTime.Xalign = 1F;
 			this.lblDriverCallTime.LabelProp = global::Mono.Unix.Catalog.GetString("Время звонка водителя в офис:");
 			this.tblUndeliveryFields.Add(this.lblDriverCallTime);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblDriverCallTime]));
-			w16.TopAttach = ((uint)(3));
-			w16.BottomAttach = ((uint)(4));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblDriverCallTime]));
+			w17.TopAttach = ((uint)(3));
+			w17.BottomAttach = ((uint)(4));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.lblGuilty = new global::Gtk.Label();
 			this.lblGuilty.Name = "lblGuilty";
 			this.lblGuilty.Xalign = 1F;
 			this.lblGuilty.LabelProp = global::Mono.Unix.Catalog.GetString("Виновник:");
 			this.tblUndeliveryFields.Add(this.lblGuilty);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblGuilty]));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblGuilty]));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.lblGuiltyDepartment = new global::Gtk.Label();
 			this.lblGuiltyDepartment.Name = "lblGuiltyDepartment";
 			this.lblGuiltyDepartment.Xalign = 1F;
 			this.lblGuiltyDepartment.LabelProp = global::Mono.Unix.Catalog.GetString("Отдел-виновник:");
 			this.tblUndeliveryFields.Add(this.lblGuiltyDepartment);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblGuiltyDepartment]));
-			w18.TopAttach = ((uint)(1));
-			w18.BottomAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblGuiltyDepartment]));
+			w19.TopAttach = ((uint)(1));
+			w19.BottomAttach = ((uint)(2));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.lblNewDeliverySchedule = new global::Gtk.Label();
 			this.lblNewDeliverySchedule.Name = "lblNewDeliverySchedule";
 			this.lblNewDeliverySchedule.Xalign = 1F;
 			this.lblNewDeliverySchedule.LabelProp = global::Mono.Unix.Catalog.GetString("Интервал перенесенной реализации:");
 			this.tblUndeliveryFields.Add(this.lblNewDeliverySchedule);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblNewDeliverySchedule]));
-			w19.TopAttach = ((uint)(6));
-			w19.BottomAttach = ((uint)(7));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblNewDeliverySchedule]));
+			w20.TopAttach = ((uint)(6));
+			w20.BottomAttach = ((uint)(7));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.lblRegisteredBy = new global::Gtk.Label();
 			this.lblRegisteredBy.Name = "lblRegisteredBy";
 			this.lblRegisteredBy.Xalign = 1F;
 			this.lblRegisteredBy.LabelProp = global::Mono.Unix.Catalog.GetString("Зарегистрировал:");
 			this.tblUndeliveryFields.Add(this.lblRegisteredBy);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblRegisteredBy]));
-			w20.TopAttach = ((uint)(7));
-			w20.BottomAttach = ((uint)(8));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblRegisteredBy]));
+			w21.TopAttach = ((uint)(7));
+			w21.BottomAttach = ((uint)(8));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.lblTransferDateCaption = new global::Gtk.Label();
 			this.lblTransferDateCaption.Name = "lblTransferDateCaption";
 			this.lblTransferDateCaption.Xalign = 1F;
 			this.lblTransferDateCaption.LabelProp = global::Mono.Unix.Catalog.GetString("Дата переноса:");
 			this.tblUndeliveryFields.Add(this.lblTransferDateCaption);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblTransferDateCaption]));
-			w21.TopAttach = ((uint)(5));
-			w21.BottomAttach = ((uint)(6));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.lblTransferDateCaption]));
+			w22.TopAttach = ((uint)(5));
+			w22.BottomAttach = ((uint)(6));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.referenceNewDeliverySchedule = new global::Gamma.Widgets.yEntryReference();
 			this.referenceNewDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
 			this.referenceNewDeliverySchedule.Name = "referenceNewDeliverySchedule";
 			this.tblUndeliveryFields.Add(this.referenceNewDeliverySchedule);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.referenceNewDeliverySchedule]));
-			w22.TopAttach = ((uint)(6));
-			w22.BottomAttach = ((uint)(7));
-			w22.LeftAttach = ((uint)(1));
-			w22.RightAttach = ((uint)(2));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.referenceNewDeliverySchedule]));
+			w23.TopAttach = ((uint)(6));
+			w23.BottomAttach = ((uint)(7));
+			w23.LeftAttach = ((uint)(1));
+			w23.RightAttach = ((uint)(2));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.refRegisteredBy = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.refRegisteredBy.Events = ((global::Gdk.EventMask)(256));
 			this.refRegisteredBy.Name = "refRegisteredBy";
 			this.tblUndeliveryFields.Add(this.refRegisteredBy);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.refRegisteredBy]));
-			w23.TopAttach = ((uint)(7));
-			w23.BottomAttach = ((uint)(8));
-			w23.LeftAttach = ((uint)(1));
-			w23.RightAttach = ((uint)(2));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.refRegisteredBy]));
+			w24.TopAttach = ((uint)(7));
+			w24.BottomAttach = ((uint)(8));
+			w24.LeftAttach = ((uint)(1));
+			w24.RightAttach = ((uint)(2));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.yDateDispatcherCallTime = new global::Gamma.Widgets.yDatePicker();
 			this.yDateDispatcherCallTime.Events = ((global::Gdk.EventMask)(256));
@@ -344,13 +357,13 @@ namespace Vodovoz.ViewWidgets
 			this.yDateDispatcherCallTime.IsEditable = true;
 			this.yDateDispatcherCallTime.AutoSeparation = true;
 			this.tblUndeliveryFields.Add(this.yDateDispatcherCallTime);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.yDateDispatcherCallTime]));
-			w24.TopAttach = ((uint)(4));
-			w24.BottomAttach = ((uint)(5));
-			w24.LeftAttach = ((uint)(1));
-			w24.RightAttach = ((uint)(2));
-			w24.XOptions = ((global::Gtk.AttachOptions)(4));
-			w24.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.yDateDispatcherCallTime]));
+			w25.TopAttach = ((uint)(4));
+			w25.BottomAttach = ((uint)(5));
+			w25.LeftAttach = ((uint)(1));
+			w25.RightAttach = ((uint)(2));
+			w25.XOptions = ((global::Gtk.AttachOptions)(4));
+			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.yDateDriverCallTime = new global::Gamma.Widgets.yDatePicker();
 			this.yDateDriverCallTime.Events = ((global::Gdk.EventMask)(256));
@@ -360,25 +373,25 @@ namespace Vodovoz.ViewWidgets
 			this.yDateDriverCallTime.IsEditable = true;
 			this.yDateDriverCallTime.AutoSeparation = true;
 			this.tblUndeliveryFields.Add(this.yDateDriverCallTime);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.yDateDriverCallTime]));
-			w25.TopAttach = ((uint)(3));
-			w25.BottomAttach = ((uint)(4));
-			w25.LeftAttach = ((uint)(1));
-			w25.RightAttach = ((uint)(2));
-			w25.XOptions = ((global::Gtk.AttachOptions)(4));
-			w25.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.yDateDriverCallTime]));
+			w26.TopAttach = ((uint)(3));
+			w26.BottomAttach = ((uint)(4));
+			w26.LeftAttach = ((uint)(1));
+			w26.RightAttach = ((uint)(2));
+			w26.XOptions = ((global::Gtk.AttachOptions)(4));
+			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.yentrySubdivision = new global::Gamma.Widgets.yEntryReference();
 			this.yentrySubdivision.Events = ((global::Gdk.EventMask)(256));
 			this.yentrySubdivision.Name = "yentrySubdivision";
 			this.tblUndeliveryFields.Add(this.yentrySubdivision);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.yentrySubdivision]));
-			w26.TopAttach = ((uint)(1));
-			w26.BottomAttach = ((uint)(2));
-			w26.LeftAttach = ((uint)(1));
-			w26.RightAttach = ((uint)(2));
-			w26.XOptions = ((global::Gtk.AttachOptions)(4));
-			w26.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.yentrySubdivision]));
+			w27.TopAttach = ((uint)(1));
+			w27.BottomAttach = ((uint)(2));
+			w27.LeftAttach = ((uint)(1));
+			w27.RightAttach = ((uint)(2));
+			w27.XOptions = ((global::Gtk.AttachOptions)(4));
+			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.yEnumCMBDriverCallPlace = new global::Gamma.Widgets.yEnumComboBox();
 			this.yEnumCMBDriverCallPlace.Name = "yEnumCMBDriverCallPlace";
@@ -387,13 +400,13 @@ namespace Vodovoz.ViewWidgets
 			this.yEnumCMBDriverCallPlace.UseShortTitle = false;
 			this.yEnumCMBDriverCallPlace.DefaultFirst = false;
 			this.tblUndeliveryFields.Add(this.yEnumCMBDriverCallPlace);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.yEnumCMBDriverCallPlace]));
-			w27.TopAttach = ((uint)(2));
-			w27.BottomAttach = ((uint)(3));
-			w27.LeftAttach = ((uint)(1));
-			w27.RightAttach = ((uint)(2));
-			w27.XOptions = ((global::Gtk.AttachOptions)(4));
-			w27.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.yEnumCMBDriverCallPlace]));
+			w28.TopAttach = ((uint)(2));
+			w28.BottomAttach = ((uint)(3));
+			w28.LeftAttach = ((uint)(1));
+			w28.RightAttach = ((uint)(2));
+			w28.XOptions = ((global::Gtk.AttachOptions)(4));
+			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
 			this.yEnumCMBGuilty = new global::Gamma.Widgets.yEnumComboBox();
 			this.yEnumCMBGuilty.Name = "yEnumCMBGuilty";
@@ -402,17 +415,17 @@ namespace Vodovoz.ViewWidgets
 			this.yEnumCMBGuilty.UseShortTitle = false;
 			this.yEnumCMBGuilty.DefaultFirst = false;
 			this.tblUndeliveryFields.Add(this.yEnumCMBGuilty);
-			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.yEnumCMBGuilty]));
-			w28.LeftAttach = ((uint)(1));
-			w28.RightAttach = ((uint)(2));
-			w28.XOptions = ((global::Gtk.AttachOptions)(4));
-			w28.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vBoxWithControls.Add(this.tblUndeliveryFields);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vBoxWithControls[this.tblUndeliveryFields]));
-			w29.Position = 0;
-			w29.Expand = false;
-			w29.Fill = false;
-			// Container child vBoxWithControls.Gtk.Box+BoxChild
+			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.yEnumCMBGuilty]));
+			w29.LeftAttach = ((uint)(1));
+			w29.RightAttach = ((uint)(2));
+			w29.XOptions = ((global::Gtk.AttachOptions)(4));
+			w29.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.vbxWithControls.Add(this.tblUndeliveryFields);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbxWithControls[this.tblUndeliveryFields]));
+			w30.Position = 0;
+			w30.Expand = false;
+			w30.Fill = false;
+			// Container child vbxWithControls.Gtk.Box+BoxChild
 			this.hbxReasonAndFines = new global::Gtk.HBox();
 			this.hbxReasonAndFines.Name = "hbxReasonAndFines";
 			this.hbxReasonAndFines.Spacing = 6;
@@ -442,8 +455,8 @@ namespace Vodovoz.ViewWidgets
 			this.lblReason.UseMarkup = true;
 			this.frame2.LabelWidget = this.lblReason;
 			this.hbxReasonAndFines.Add(this.frame2);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbxReasonAndFines[this.frame2]));
-			w33.Position = 0;
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbxReasonAndFines[this.frame2]));
+			w34.Position = 0;
 			// Container child hbxReasonAndFines.Gtk.Box+BoxChild
 			this.frame3 = new global::Gtk.Frame();
 			this.frame3.Name = "frame3";
@@ -469,14 +482,14 @@ namespace Vodovoz.ViewWidgets
 			this.lblFines.UseMarkup = true;
 			this.frame3.LabelWidget = this.lblFines;
 			this.hbxReasonAndFines.Add(this.frame3);
-			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hbxReasonAndFines[this.frame3]));
-			w37.Position = 1;
-			this.vBoxWithControls.Add(this.hbxReasonAndFines);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vBoxWithControls[this.hbxReasonAndFines]));
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hbxReasonAndFines[this.frame3]));
 			w38.Position = 1;
-			this.mainBox.Add(this.vBoxWithControls);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.mainBox[this.vBoxWithControls]));
+			this.vbxWithControls.Add(this.hbxReasonAndFines);
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbxWithControls[this.hbxReasonAndFines]));
 			w39.Position = 1;
+			this.mainBox.Add(this.vbxWithControls);
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.mainBox[this.vbxWithControls]));
+			w40.Position = 1;
 			this.Add(this.mainBox);
 			if ((this.Child != null))
 			{
@@ -484,6 +497,7 @@ namespace Vodovoz.ViewWidgets
 			}
 			this.Hide();
 			this.yEnumCMBDriverCallPlace.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYEnumCMBDriverCallPlaceEnumItemSelected);
+			this.btnChooseOrder.Clicked += new global::System.EventHandler(this.OnBtnChooseOrderClicked);
 			this.btnNewOrder.Clicked += new global::System.EventHandler(this.OnBtnNewOrderClicked);
 		}
 	}
