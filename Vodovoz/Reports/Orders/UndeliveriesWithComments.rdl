@@ -689,7 +689,7 @@ FROM
 		oldo.delivery_date AS old_order_date,
 		un.reason AS reason,
 		un.new_order_id AS new_order_id,
-		CONCAT_WS('\n',newo.delivery_date, new_schedule.name) AS transfered,
+		IF(newo.id IS NULL, '--', CONCAT_WS('\n', DATE_FORMAT(newo.delivery_date, '%e.%m'), new_schedule.name)) AS transfered,
 		coun.name AS client,
 		(
 			IF(
@@ -755,12 +755,24 @@ FROM
 		TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(oaut.name, 1), LEFT(oaut.patronymic, 1), oaut.last_name)) AS old_order_author,
 		#водители
 		IFNULL(
-			(SELECT TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(employees.name, 1), LEFT(employees.patronymic, 1), employees.last_name))
+			(SELECT GROUP_CONCAT(
+				TRIM(
+					BOTH '.'
+					FROM CONCAT_WS(
+						'.',
+						LEFT(employees.name, 1),
+						LEFT(employees.patronymic, 1),
+						employees.last_name
+					)
+				)
+				ORDER BY route_list_addresses.id
+				DESC
+				SEPARATOR ', '
+			)
 			FROM route_list_addresses
 			LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
 			LEFT JOIN employees ON employees.id = route_lists.driver_id
-			WHERE route_list_addresses.order_id = oldo.id
-				AND route_list_addresses.transfered_to_id IS NULL),
+			WHERE route_list_addresses.order_id = oldo.id),
 			'Не в МЛ'
 		) AS driver,
 		#время звонка водителя, если стаус старого заказа подходит для существования МЛ
@@ -782,6 +794,7 @@ FROM
 		CASE guilty_is
 			WHEN 'Client' THEN 'Клиент'
 			WHEN 'Driver' THEN 'Водитель'
+			WHEN 'None' THEN 'Нет (не недовоз)'
 			WHEN 'Department' THEN IF(dep.name IS NULL, 'Отдел ВВ', dep.name)
 			ELSE 'Неизвестно'
 		END
@@ -828,6 +841,8 @@ FROM
 		(un.status = @undelivery_status OR @undelivery_status = '')
  	AND
 		(un.author_employee_id = @undelivery_author_id OR @undelivery_author_id = 0)
+	GROUP BY un.id
+	ORDER BY oldo.delivery_date
 ) AS un_ord_subqry
 #комментарии к полям
 LEFT JOIN (
@@ -1251,6 +1266,7 @@ LEFT JOIN (
 		WHEN 'Department' THEN 'Отдел ВВ'
 		WHEN 'Client' THEN 'Клиент'
 		WHEN 'Driver' THEN 'Водитель'
+		WHEN 'None' THEN 'Нет (не недовоз)'
 		ELSE 'Не установленно'
 	END AS guilty
 FROM
@@ -1452,7 +1468,7 @@ GROUP BY
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

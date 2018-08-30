@@ -201,13 +201,29 @@ namespace Vodovoz.Repository
 		public static IList<VodovozOrder> GetLatestOrdersForDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, int? count = null)
 		{
 			VodovozOrder orderAlias = null;
-			var queryResult = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias)
+			var queryResult = UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
 				.OrderBy(() => orderAlias.Id).Desc;
 			if(count != null)
 				return queryResult.Take(count.Value).List();
 			else
 				return queryResult.List();
+		}
+
+		/// <summary>
+		/// Список МЛ для заказа, отсортированный в порядке владения этим заказом, в случае переносов
+		/// </summary>
+		/// <returns>Список МЛ</returns>
+		/// <param name="UoW">UoW</param>
+		/// <param name="order">Заказ</param>
+		public static IList<RouteList> GetAllRLForOrder(IUnitOfWork UoW, VodovozOrder order)
+		{
+			var query = UoW.Session.QueryOver<RouteListItem>()
+						   .Where(i => i.Order == order)
+						   .OrderBy(i => i.Id).Desc
+						   .Select(i => i.RouteList)
+						   .List<RouteList>();
+			return query;
 		}
 
 		public static Domain.Orders.Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)

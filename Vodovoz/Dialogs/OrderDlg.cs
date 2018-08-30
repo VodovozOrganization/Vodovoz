@@ -470,7 +470,12 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<Order>(Entity);
+			var valid = new QSValidator<Order>(
+				Entity, new Dictionary<object, object>{
+					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
+				}
+			);
+
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
 
@@ -547,10 +552,13 @@ namespace Vodovoz
 
 		private bool AcceptOrder()
 		{
-			var valid = new QSValidator<Order>(Entity,
-								new Dictionary<object, object> {
-						{ "NewStatus", OrderStatus.Accepted }
-					});
+			var valid = new QSValidator<Order>(
+				Entity, new Dictionary<object, object>{
+					{ "NewStatus", OrderStatus.Accepted },
+					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
+				}
+			);
+
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
 
@@ -660,7 +668,11 @@ namespace Vodovoz
 
 		protected void OnBtnAddM2ProxyForThisOrderClicked(object sender, EventArgs e)
 		{
-			if(!new QSValidator<Order>(Entity).RunDlgIfNotValid((Window)this.Toplevel)
+			if(!new QSValidator<Order>(
+				Entity, new Dictionary<object, object>{
+					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
+				}
+			).RunDlgIfNotValid((Window)this.Toplevel)
 			   && SaveOrderBeforeContinue<M2ProxyDocument>()) {
 				var dlgM2 = OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), UoWGeneric);
 				TabParent.AddSlaveTab(this, dlgM2);
@@ -1182,7 +1194,12 @@ namespace Vodovoz
 																.ToList();
 
 			if(Entity.Id != 0) {
-				var valid = new QSValidator<Order>(Entity);
+				var valid = new QSValidator<Order>(
+					Entity, new Dictionary<object, object>{
+						{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
+					}
+				);
+
 				if(!MessageDialogWorks.RunQuestionDialog("Заказ будет сохранен после удаления товара, продолжить?")
 				   || valid.RunDlgIfNotValid((Window)this.Toplevel)) {
 					return;
@@ -1735,7 +1752,8 @@ namespace Vodovoz
 		{
 			var valid = new QSValidator<Order>(Entity,
 				new Dictionary<object, object> {
-				{ "NewStatus", OrderStatus.Canceled }
+				{ "NewStatus", OrderStatus.Canceled },
+				{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
 			});
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
@@ -1780,7 +1798,8 @@ namespace Vodovoz
 		{
 			var valid = new QSValidator<Order>(Entity,
 				new Dictionary<object, object> {
-				{ "NewStatus", OrderStatus.WaitForPayment }
+				{ "NewStatus", OrderStatus.WaitForPayment },
+				{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
 			});
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
@@ -2300,7 +2319,7 @@ namespace Vodovoz
 			}
 
 			var sameOrder = OrderRepository.GetOrderOnDateAndDeliveryPoint(UoW, Entity.DeliveryDate.Value, Entity.DeliveryPoint);
-			if(sameOrder != null) {
+			if(sameOrder != null && templateOrder == null) {
 				MessageDialogWorks.RunWarningDialog("На выбранную дату и точку доставки уже есть созданный заказ!");
 			}
 		}

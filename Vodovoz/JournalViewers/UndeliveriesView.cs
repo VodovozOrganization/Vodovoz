@@ -229,11 +229,11 @@ namespace Vodovoz.JournalViewers
 			else
 				selectedId = yTreeViewUndeliveries.GetSelectedObject<UndeliveredOrdersVMNode>().Id;
 			var dlg = new UndeliveredOrderDlg(selectedId);
-			TabParent.AddTab(dlg, this, true);
+			TabParent.OpenTab(
+				OrmMain.GenerateDialogHashName<UndeliveredOrder>(selectedId),
+				() => dlg
+			);
 			dlg.EntitySaved += dlg_EntitySaved;
-			if(TabParent is TdiSliderTab) {
-				((TdiSliderTab)TabParent).IsHideJournal = true;
-			}
 		}
 
 		void dlg_EntitySaved(object sender, EntitySavedEventArgs e)

@@ -56,7 +56,7 @@ namespace Vodovoz.ViewWidgets
 			filterOrders.HideStatuses = new Enum[] { OrderStatus.WaitForPayment };
 			yEForUndeliveredOrder.Changed += (sender, e) => {
 				oldOrder = undelivery.OldOrder;
-				lblInfo.Markup = undelivery.GenerateUndeliveryInfo();
+				lblInfo.Markup = undelivery.GetUndeliveryInfo();
 				if(undelivery.Id <= 0)
 					undelivery.OldOrderStatus = oldOrder.OrderStatus;
 				routeListDoesNotExist = oldOrder != null && (undelivery.OldOrderStatus == OrderStatus.NewOrder
@@ -109,7 +109,7 @@ namespace Vodovoz.ViewWidgets
 
 			txtReason.Binding.AddBinding(undelivery, u => u.Reason, w => w.Buffer.Text).InitializeFromSource();
 
-			lblInfo.Markup = undelivery.GenerateUndeliveryInfo();
+			lblInfo.Markup = undelivery.GetUndeliveryInfo();
 
 			yTreeFines.ColumnsConfig = ColumnsConfigFactory.Create<FinesVMNodeForUndelivery>()
 				.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())

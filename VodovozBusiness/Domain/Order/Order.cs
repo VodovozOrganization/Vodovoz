@@ -780,7 +780,7 @@ namespace Vodovoz.Domain.Orders
 						if(!hasMaster
 						   && !QSMain.User.Permissions["can_create_several_orders_for_date_and_deliv_point"]
 						   && ordersForDeliveryPoints.Any()
-						  ) {
+						   && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) {
 							yield return new ValidationResult(
 								String.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже создан заказ №{0}", ordersForDeliveryPoints.First().Id),
 								new[] { this.GetPropertyName(o => o.OrderEquipments) });
@@ -836,7 +836,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if(!IsLoadedFrom1C && ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water) &&
-			   //Если нету ни одного допсоглашения на воду подходящего на точку доставку в заказе 
+			   //Если нет ни одного допсоглашения на воду подходящего на точку доставку в заказе 
 			   //(или без точки доставки если относится на все точки)
 			   !HaveActualWaterSaleAgreementByDeliveryPoint() ) {
 				yield return new ValidationResult("В заказе выбрана точка доставки для которой нет актуального дополнительного соглашения по доставке воды");
@@ -845,8 +845,10 @@ namespace Vodovoz.Domain.Orders
 			if(!QSMain.User.Permissions["can_can_create_order_in_advance"]
 			   && DeliveryDate.HasValue && DeliveryDate.Value < DateTime.Today
 			   && OrderStatus <= OrderStatus.Accepted) {
-				yield return new ValidationResult("Указана дата заказа более ранняя чем сегодняшняя. Укажите правильную дату доставки.",
-												  new[] { this.GetPropertyName(o => o.DeliveryDate) });
+				yield return new ValidationResult(
+					"Указана дата заказа более ранняя чем сегодняшняя. Укажите правильную дату доставки.",
+					new[] { this.GetPropertyName(o => o.DeliveryDate) }
+				);
 			}
 		}
 

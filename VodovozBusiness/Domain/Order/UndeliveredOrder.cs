@@ -189,6 +189,12 @@ namespace Vodovoz.Domain.Orders
 
 		#region Методы
 
+		public virtual IList<Employee> GetDrivers()
+		{
+			var rls = OrderRepository.GetAllRLForOrder(UoW, OldOrder);
+			return rls?.Select(r => r.Driver).ToList();
+		}
+
 		public virtual string GetAllCommentsForTheField(CommentedFields field)
 		{
 			var comments = UndeliveredOrderCommentsRepository.GetComments(UoW, this, field);
@@ -220,7 +226,7 @@ namespace Vodovoz.Domain.Orders
 			uow.Save(comment);
 		}
 
-		public virtual string GenerateUndeliveryInfo()
+		public virtual string GetUndeliveryInfo()
 		{
 			StringBuilder info = new StringBuilder("\n").AppendLine(String.Format("<b>Автор недовоза:</b> {0}", Author.ShortName));
 			if(oldOrder != null) {
@@ -251,11 +257,17 @@ namespace Vodovoz.Domain.Orders
 					eqFromClient.ForEach(e => eq += String.Format("{0} - {1}\n", e.ShortName ?? e.Name, e.Count));
 					info.AppendLine(String.Format("<b>От клиента:</b> {0}", eq.Trim()));
 				}
-				var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(UoW, oldOrder);
-				if(routeListItem != null)
-					info.AppendLine(String.Format("<b>Водитель:</b> {0}", routeListItem.RouteList.Driver.ShortName));
-				if(routeListItem != null)
-					info.AppendLine(String.Format("<b>Маршрутный лист:</b> {0}", routeListItem.RouteList.Id));
+				if(GetDrivers().Any()) {
+					StringBuilder drivers = new StringBuilder();
+					GetDrivers().ForEach(d => drivers.AppendFormat("{0} ← ", d.ShortName));
+					info.AppendLine(String.Format("<b>Водитель:</b> {0}", drivers.ToString().Trim(new char[] { ' ', '←' })));
+				}
+				var routeLists = OrderRepository.GetAllRLForOrder(UoW, OldOrder);
+				if(routeLists.Any()) {
+					StringBuilder rls = new StringBuilder();
+					routeLists.ForEach(l => rls.AppendFormat("{0} ← ", l.Id));
+					info.AppendLine(String.Format("<b>Маршрутный лист:</b> {0}", rls.ToString().Trim(new char[] { ' ', '←' })));
+				}
 			}
 
 			return info.ToString();
@@ -278,7 +290,7 @@ namespace Vodovoz.Domain.Orders
 					"Перенесённый заказ не может совпадать с недовезённым",
 					new[] { this.GetPropertyName(u => u.OldOrder), this.GetPropertyName(u => u.NewOrder) }
 				);
-			
+
 			if(String.IsNullOrWhiteSpace(Reason))
 				yield return new ValidationResult(
 					"Не заполнено поле \"Причина\"",
@@ -321,7 +333,9 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Водитель")]
 		Driver,
 		[Display(Name = "Отдел ВВ")]
-		Department
+		Department,
+		[Display(Name = "Нет (не недовоз)")]
+		None
 	}
 
 	public class UndeliveredOrderGuiltySideStringType : NHibernate.Type.EnumStringType

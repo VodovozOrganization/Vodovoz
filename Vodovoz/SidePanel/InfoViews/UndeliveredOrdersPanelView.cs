@@ -15,8 +15,12 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			this.Build();
 			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<UndeliveredOrderCountNode>()
-				.AddColumn("Виновный").AddTextRenderer(n => n.GuiltySide)
-				.AddColumn("Кол-во").AddTextRenderer(n => n.CountStr)
+				.AddColumn("Виновный")
+					.AddTextRenderer(n => n.GuiltySide)
+					.WrapWidth(150).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Кол-во")
+					.AddTextRenderer(n => n.CountStr)
+					.WrapWidth(50).WrapMode(Pango.WrapMode.WordChar)
 				.Finish();
 		}
 

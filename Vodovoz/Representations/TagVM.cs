@@ -20,7 +20,7 @@ namespace Vodovoz.Representations
 		IColumnsConfig columnsConfig = FluentColumnsConfig<Tag>.Create()
 			.AddColumn("Название").AddTextRenderer(node => node.Name)
 			.AddColumn("Цвет").AddTextRenderer()
-			.AddSetter((cell, node) => { cell.Markup = String.Format("<span foreground=\"{0}\">⬤</span>", node.ColorText); })
+			.AddSetter((cell, node) => { cell.Markup = String.Format("<span foreground=\"{0}\">♥</span>", node.ColorText); })
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {

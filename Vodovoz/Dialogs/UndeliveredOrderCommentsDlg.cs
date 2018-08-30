@@ -60,11 +60,11 @@ namespace Vodovoz.Dialogs
 			yEnumCMBField.SelectedItem = Field;
 			yTreeComments.ColumnsConfig = ColumnsConfigFactory.Create<UndeliveredOrderCommentsNode>()
 				.AddColumn("Дата - Имя")
-					.AddTextRenderer().AddSetter((c, n) => c.Markup = n.UserDateAndName)
+					.AddTextRenderer(n => n.UserDateAndName, useMarkup: true)//.AddSetter((c, n) => c.Markup = n.UserDateAndName)
 				.AddColumn("Комментарий")
-					.AddTextRenderer()
+					.AddTextRenderer(n => n.MarkedupComment, useMarkup: true)
 					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
-					.AddSetter((c, n) => c.Markup = n.MarkedupComment)
+				//.AddSetter((c, n) => c.Markup = n.MarkedupComment)
 				.Finish();
 			GetComments();
 		}

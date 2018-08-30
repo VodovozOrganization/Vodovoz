@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModel
 				.Where(() => counterpartyAlias.Id == counterpartyAliasForSubquery.Id)
 			    .JoinAlias(c => c.Tags, () => tagAliasForSubquery)
 				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( CONCAT(' <span foreground=\"', ?1, '\"> ⬤</span>', ?2) SEPARATOR '\n')"),
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( CONCAT(' <span foreground=\"', ?1, '\"> ♥</span>', ?2) SEPARATOR '\n')"),
 					NHibernateUtil.String,
 					Projections.Property(() => tagAliasForSubquery.ColorText),
 					Projections.Property(() => tagAliasForSubquery.Name)
