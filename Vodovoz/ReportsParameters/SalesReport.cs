@@ -287,7 +287,8 @@ namespace Vodovoz.Reports
 						 .Select(x => x.Name).WithAlias(() => alias.Name)
 						)
 				.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
-				.List<SalesReportNode>();
+				.List<SalesReportNode>()
+				.OrderBy(x => x.Name);
 				return queryResult.ToList();
 			});
 		}

@@ -111,7 +111,6 @@ namespace Vodovoz
 				OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Стоимость", x => x.Cost.ToString()).End(),
 				OrmObjectMapping<MovementWagon>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//Остальные справочники
-				OrmObjectMapping<DiscountReason>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//OrmObjectMapping<CarProxyDocument>.Create().Dialog<ProxyDocumentDlg>().DefaultTableView().SearchColumn("Водитель", x => x.Driver != null ? x.Driver.Title : "").End(),
 				OrmObjectMapping<CarProxyDocument>.Create().Dialog<CarProxyDlg>(),
 				OrmObjectMapping<M2ProxyDocument>.Create().Dialog<M2ProxyDlg>(),
@@ -196,7 +195,10 @@ namespace Vodovoz
 			OrmMain.AddObjectDescription<Nomenclature>().Dialog<NomenclatureDlg>().JournalFilter<NomenclatureFilter>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).Column("Тип", x => x.CategoryString).End();
 			OrmMain.AddObjectDescription<Folder1c>().Dialog<Folder1cDlg>().DefaultTableView().SearchColumn("Код 1С", x => x.Code1c).SearchColumn("Название", x => x.Name).TreeConfig(new RecursiveTreeConfig<Folder1c>(x => x.Parent, x => x.Childs)).End();
 			OrmMain.AddObjectDescription<ProductGroup>().Dialog<ProductGroupDlg>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).TreeConfig(new RecursiveTreeConfig<ProductGroup>(x => x.Parent, x => x.Childs)).End();
-#endregion
+			#endregion
+
+			OrmMain.AddObjectDescription<DiscountReason>().DefaultTableView().SearchColumn("Название", x => x.Name).End();
+		
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 			OrmMain.ClassMappingList.AddRange(QSContactsMain.GetModuleMaping());

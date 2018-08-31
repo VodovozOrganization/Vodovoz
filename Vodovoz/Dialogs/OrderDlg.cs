@@ -343,8 +343,8 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(UoW.GetAll<DiscountReason>()
-					.ToList()).AddSetter((c, n) => c.Editable = n.Discount > 0)
+					.FillItems(OrderRepository.GetDiscountReasons(UoW))
+					.AddSetter((c, n) => c.Editable = n.Discount > 0)
 					.AddSetter(
 						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
 						? colorLightRed
@@ -415,7 +415,7 @@ namespace Vodovoz
 			SetSensitivityOfPaymentType();
 			depositrefunditemsview.Configure(UoWGeneric, Entity);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
-			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
+			ycomboboxReason.ItemsList = OrderRepository.GetDiscountReasons(UoW);
 
 			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += WaterSalesAgreement_ObjectUpdatedGeneric;
 			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());

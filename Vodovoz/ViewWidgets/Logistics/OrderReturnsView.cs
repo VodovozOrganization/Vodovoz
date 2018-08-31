@@ -14,6 +14,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -245,8 +246,8 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(UoW.GetAll<DiscountReason>()
-					.ToList()).AddSetter((c, n) => c.Editable = n.Discount > 0)
+					.FillItems(OrderRepository.GetDiscountReasons(UoW))
+				.AddSetter((c, n) => c.Editable = n.Discount > 0)
 				.AddSetter(
 					(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
 					? new Gdk.Color(0xff, 0x66, 0x66)

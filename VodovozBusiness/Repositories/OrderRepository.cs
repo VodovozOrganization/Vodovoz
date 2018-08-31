@@ -12,6 +12,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using FluentNHibernate.Utils;
 
 namespace Vodovoz.Repository
 {
@@ -224,6 +225,19 @@ namespace Vodovoz.Repository
 						   .Select(i => i.RouteList)
 						   .List<RouteList>();
 			return query;
+		}
+
+		/// <summary>
+		/// Возврат отсортированного списка скидок
+		/// </summary>
+		/// <returns>Список скидок</returns>
+		/// <param name="UoW">UoW</param>
+		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
+		public static IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false)
+		{
+			var query = UoW.Session.QueryOver<DiscountReason>()
+						   .OrderBy(i => i.Name);
+			return orderByDescending ? query.Desc().List() : query.Asc().List();
 		}
 
 		public static Domain.Orders.Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
