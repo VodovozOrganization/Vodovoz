@@ -12,6 +12,7 @@ using Vodovoz.JournalFilters;
 using Vodovoz.Representations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Gamma.Utilities;
 
 namespace Vodovoz.JournalViewers
 {
@@ -262,7 +263,7 @@ namespace Vodovoz.JournalViewers
 
 			foreach(var cell in args.Column.Cells.OfType<NodeCellRendererText<UndeliveredOrdersVMNode>>().Where(c => c.DataPropertyInfo != null)) {
 				if(Enum.TryParse<CommentedFields>(cell.DataPropertyName, out field)) {
-					valueOfField = cell.Text;
+					valueOfField = selectedObj.GetPropertyValue(cell.DataPropertyName).ToString();
 					break;
 				}
 				field = CommentedFields.None;

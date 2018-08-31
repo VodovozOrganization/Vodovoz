@@ -2292,7 +2292,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void ChangeStatus(OrderStatus newStatus)
 		{
-			var initialStatus = OrderStatus.GetEnumTitle();
+			var initialStatus = OrderStatus;
 			OrderStatus = newStatus;
 
 			switch(newStatus) {
@@ -2318,14 +2318,18 @@ namespace Vodovoz.Domain.Orders
 				default:
 					break;
 			}
-			if(Id == 0 || newStatus == OrderStatus.Canceled || newStatus == OrderStatus.NotDelivered)
+
+			if(Id == 0 
+			   || newStatus == OrderStatus.Canceled
+			   || newStatus == OrderStatus.NotDelivered
+			   || initialStatus == newStatus)
 				return;
 			
 			var undeliveries = UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 			if(undeliveries.Any()) {
 				var text = String.Format(
 					"сменил(а) статус заказа\nс \"{0}\" на \"{1}\"",
-					initialStatus,
+					initialStatus.GetEnumTitle(),
 					newStatus.GetEnumTitle()
 				);
 				undeliveries.ForEach(u => u.AddCommentToTheField(UoW, CommentedFields.OldOrderStatus, text));

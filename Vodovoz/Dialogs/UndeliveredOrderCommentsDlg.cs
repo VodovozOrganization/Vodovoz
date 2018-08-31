@@ -64,7 +64,6 @@ namespace Vodovoz.Dialogs
 				.AddColumn("Комментарий")
 					.AddTextRenderer(n => n.MarkedupComment, useMarkup: true)
 					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
-				//.AddSetter((c, n) => c.Markup = n.MarkedupComment)
 				.Finish();
 			GetComments();
 		}
