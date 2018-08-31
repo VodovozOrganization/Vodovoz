@@ -67,6 +67,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("can_edit_undeliveries", new UserPermission("can_edit_undeliveries", "Изменение недовозов", "Пользователь может изменять недовозы, в т.ч. менять их статус."));
 			QSMain.ProjectPermission.Add("can_close_undeliveries", new UserPermission("can_close_undeliveries", "Закрытие недовозов", "Пользователь может переводить статус недовоза в \"Закрыт\""));
 			QSMain.ProjectPermission.Add("can_archive_warehouse", new UserPermission("can_archive_warehouse", "Архивирование склада", "Пользователь может архивировать склады."));
+			QSMain.ProjectPermission.Add("can_delete_cash_documents", new UserPermission("can_delete_cash_documents", "Удаление кассовых документов", "Пользователь может удалять кассовые документы."));
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };

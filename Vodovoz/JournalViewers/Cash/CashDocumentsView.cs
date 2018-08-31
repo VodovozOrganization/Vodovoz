@@ -25,6 +25,8 @@ namespace Vodovoz
 			}
 		}
 
+		bool canDelete = QSMain.User.Permissions["can_delete_cash_documents"];
+
 		public CashDocumentsView ()
 		{
 			this.Build ();
@@ -62,7 +64,8 @@ namespace Vodovoz
 
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
-			buttonEdit.Sensitive = buttonDelete.Sensitive = tableDocuments.Selection.CountSelectedRows () > 0;
+			buttonEdit.Sensitive = tableDocuments.Selection.CountSelectedRows () > 0;
+			buttonDelete.Sensitive = canDelete && tableDocuments.Selection.CountSelectedRows() > 0;
 		}
 
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
