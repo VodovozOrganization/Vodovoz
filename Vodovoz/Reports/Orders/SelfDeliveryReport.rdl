@@ -825,86 +825,104 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>select
-    orders.id,
-    IF(orders.author_employee_id IS NOT NULL,
-		CONCAT(employees.last_name, ' ', LEFT(employees.name, 1), '.', LEFT(employees.patronymic, 1), '.'),
-        ''
-	) as author,
-    counterparty.name,
-    cast(IF(orders.sum_to_receive &lt;&gt; 0, orders.sum_to_receive,
-
-                  ifnull((SELECT SUM(order_items.price * order_items.count - (order_items.price * order_items.count * discount / 100)) 
-			  FROM order_items
-	WHERE orders.id = order_items.order_id
-	 
-                  GROUP BY order_items.order_id), 0) 
-) as decimal(12,2)) AS 
-    sum_to_receive,
-    orders.payment_type,
-    orders.order_status,
-    orders.comment,
-        (SELECT 
-    	GROUP_CONCAT(CONCAT_WS(' ', nomenclature.name, '-', order_items.count, 'шт.,', order_items.price, 'р.') SEPARATOR ', ') 
-         FROM
-	order_items
-         LEFT JOIN
-                 nomenclature ON nomenclature.id = order_items.nomenclature_id
-         WHERE orders.id = order_items.order_id
-    ) AS nom_name,
-   ifnull((select
-	 sum(order_items.count)
-           from
-	 order_items
-           left join
-	 nomenclature on nomenclature.id = order_items.nomenclature_id
-           where
- 	nomenclature.category = 'water'
-	and order_items.order_id = orders.id),0) as full_bottles_count,
-   truncate(ifnull((select
-   		sum(store_self_delivery_document_returned.amount)
-	         from
-		 store_self_delivery_document
-	         left join
-	                store_self_delivery_document_returned on store_self_delivery_document_returned.store_self_delivery_document_id = store_self_delivery_document.id
-	         left join
-		 nomenclature on nomenclature.id = store_self_delivery_document_returned.nomenclature_id
-	         where
-		 nomenclature.category = 'bottle'
-		 and store_self_delivery_document.order_id = orders.id),0),0) as returned_bottles_count,
- ifnull(group_concat(warehouses.name separator ', '), '') as warehouse_name,
-   orders.from_client_text,
-    orders.to_client_text
- 
-from
+        <CommandText>SELECT 
+	orders.id,
+	IF(orders.author_employee_id IS NOT NULL,
+		CONCAT(employees.last_name,
+				' ',
+				LEFT(employees.name, 1),
+				'.',
+				LEFT(employees.patronymic, 1),
+				'.'),
+		'') AS author,
+	counterparty.name,
+	CAST(IF(orders.sum_to_receive &lt;&gt; 0,
+			orders.sum_to_receive,
+			IFNULL((SELECT 
+							SUM(order_items.price * order_items.count - (order_items.price * order_items.count * discount / 100))
+						FROM
+							order_items
+						WHERE
+							orders.id = order_items.order_id
+						GROUP BY order_items.order_id),
+					0))
+		AS DECIMAL (12 , 2 )) AS sum_to_receive,
+	orders.payment_type,
+	orders.order_status,
+	orders.comment,
+	(SELECT 
+			GROUP_CONCAT(CONCAT_WS(' ',
+							nomenclature.name,
+							'-',
+							order_items.count,
+							'шт.,',
+							order_items.price,
+							'р.')
+					SEPARATOR ', ')
+		FROM
+			order_items
+				LEFT JOIN
+			nomenclature ON nomenclature.id = order_items.nomenclature_id
+		WHERE
+			orders.id = order_items.order_id) AS nom_name,
+	IFNULL((SELECT 
+					SUM(order_items.count)
+				FROM
+					order_items
+						LEFT JOIN
+					nomenclature ON nomenclature.id = order_items.nomenclature_id
+				WHERE
+					nomenclature.category = 'water'
+						AND order_items.order_id = orders.id),
+			0) AS full_bottles_count,
+	TRUNCATE(IFNULL((SELECT 
+						SUM(store_self_delivery_document_returned.amount)
+					FROM
+						store_self_delivery_document
+							LEFT JOIN
+						store_self_delivery_document_returned ON store_self_delivery_document_returned.store_self_delivery_document_id = store_self_delivery_document.id
+							LEFT JOIN
+						nomenclature ON nomenclature.id = store_self_delivery_document_returned.nomenclature_id
+					WHERE
+						nomenclature.category = 'bottle'
+							AND store_self_delivery_document.order_id = orders.id),
+				0),
+		0) AS returned_bottles_count,
+	IFNULL(GROUP_CONCAT(warehouses.name
+				SEPARATOR ', '),
+			'') AS warehouse_name,
+	orders.from_client_text,
+	orders.to_client_text
+FROM
 	orders
-LEFT JOIN
+		LEFT JOIN
 	order_items ON orders.id = order_items.order_id
-LEFT JOIN
+		LEFT JOIN
 	nomenclature ON nomenclature.id = order_items.nomenclature_id
-left join
-	counterparty on counterparty.id = orders.client_id
-left join
-	store_self_delivery_document on store_self_delivery_document.order_id = orders.id
-left join
-	warehouses on warehouses.id = store_self_delivery_document.warehouse_id
-left join
-	employees on employees.id = orders.author_employee_id
-where
+		LEFT JOIN
+	counterparty ON counterparty.id = orders.client_id
+		LEFT JOIN
+	store_self_delivery_document ON store_self_delivery_document.order_id = orders.id
+		LEFT JOIN
+	warehouses ON warehouses.id = store_self_delivery_document.warehouse_id
+		LEFT JOIN
+	employees ON employees.id = orders.author_employee_id
+WHERE
 	self_delivery = 1
-	and	delivery_date = DATE(@date)
-	AND orders.order_status NOT IN ('Canceled', 'WaitForPayment')
-group by
-	orders.id</CommandText>
+		AND delivery_date = DATE(@date)
+		AND orders.order_status NOT IN ('Canceled' , 'WaitForPayment')
+		AND warehouses.id != 4 #Не Псков
+GROUP BY orders.id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -967,7 +985,7 @@ group by
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-07-20</Value>
+          <Value>2018-07-19</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
