@@ -39,21 +39,14 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
-			referenceCar.SubjectType = typeof(Car);
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
-			referenceCar.Sensitive = editing;
+			referenceCar.Sensitive = false;
 
-			var filterDriver = new EmployeeFilter(UoW);
-			filterDriver.RestrictCategory = EmployeeCategory.driver;
-			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
-			referenceDriver.Sensitive = editing;
+			referenceDriver.Sensitive = false;
 
-			var filterForwarder = new EmployeeFilter(UoW);
-			filterForwarder.RestrictCategory = EmployeeCategory.forwarder;
-			referenceForwarder.RepresentationModel = new EmployeesVM(filterForwarder);
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
-			referenceForwarder.Sensitive = editing;
+			referenceForwarder.Sensitive = false;
 
 			var filterLogistican = new EmployeeFilter(UoW);
 			filterLogistican.RestrictFired = false;
