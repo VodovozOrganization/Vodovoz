@@ -31,11 +31,7 @@ namespace Vodovoz.ReportsParameters
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчет по оплатам по картам";
-			}
-		}
+		public string Title => "Отчет по оплатам по картам";
 
 		#endregion
 
@@ -46,7 +42,7 @@ namespace Vodovoz.ReportsParameters
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", ydateperiodpicker.StartDate },
-					{ "end_date", ydateperiodpicker.StartDate }
+					{ "end_date", ydateperiodpicker.EndDate }
 				}
 			};
 		}

@@ -12,7 +12,7 @@
   <RightMargin>10mm</RightMargin>
   <BottomMargin>10mm</BottomMargin>
   <PageHeader>
-    <Height>.5in</Height>
+    <Height>27.7pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -34,7 +34,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>114.2pt</Height>
+    <Height>45.2pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>orders</DataSetName>
@@ -49,7 +49,7 @@
             <Width>43.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.9pt</Width>
+            <Width>41.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>152.1pt</Width>
@@ -58,16 +58,19 @@
             <Width>221.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.6pt</Width>
+            <Width>43.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>70.3pt</Width>
+            <Width>43.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>51.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>71.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>122.2pt</Width>
+            <Width>117.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -87,6 +90,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -103,6 +107,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -119,6 +124,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -135,6 +141,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -151,6 +158,24 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>Сумма заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -167,6 +192,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -183,6 +209,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -199,6 +226,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -224,6 +252,10 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format>dd.MM.yy</Format>
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -239,6 +271,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -254,6 +289,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -268,8 +305,10 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -283,6 +322,31 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>=Iif(
+    {actual_sum} &gt; 0,
+    {actual_sum},
+    {sum}
+)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -297,8 +361,11 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -312,8 +379,11 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -328,6 +398,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -337,7 +408,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>16.5pt</Top>
+        <Top>1.3pt</Top>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -365,35 +436,40 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	orders.id as order_id,
+	orders.id AS order_id,
 	orders.delivery_date,
-    counterparty.full_name as client,
-    delivery_points.compiled_address as address,
-    orders.online_order,
-    case
-		when orders.order_status = 'NewOrder' then 'Новый'
-		when orders.order_status = 'WaitForPayment' then 'Ожидание оплаты'
-		when orders.order_status = 'Accepted' then 'Принят'
-		when orders.order_status = 'InTravelList' then 'В маршрутном листе'
-		when orders.order_status = 'OnLoading' then 'На погрузке'    
-		when orders.order_status = 'OnTheWay' then 'В пути'
-		when orders.order_status = 'Shipped' then 'Доставлен'
-        when orders.order_status = 'UnloadingOnStock' then 'Выгрузка на складе'
-        when orders.order_status = 'Closed' then 'Закрыт'
-        when orders.order_status = 'Canceled' then 'Отменён'
-        when orders.order_status = 'NotDelivered' then 'Недовоз'
-        when orders.order_status = 'DeliveryCanceled' then 'Доставка отменена'        
-		else ''
-	end as status,
-    CONCAT(employees.last_name, ' ', Left(employees.name,1), '.', Left(employees.patronymic,1), '.') as author
-from orders
+	counterparty.full_name AS client,
+	delivery_points.compiled_address AS address,
+	orders.online_order,
+	IF(SUM(actual_count * price - discount_money)&gt;0, SUM(actual_count * price - discount_money), 0) AS actual_sum,
+	IF(SUM(count * price - discount_money)&gt;0, SUM(count * price - discount_money), 0) AS sum,
+	CASE
+		WHEN orders.order_status = 'NewOrder' THEN 'Новый'
+		WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
+		WHEN orders.order_status = 'Accepted' THEN 'Принят'
+		WHEN orders.order_status = 'InTravelList' THEN 'В маршрутном листе'
+		WHEN orders.order_status = 'OnLoading' THEN 'На погрузке'	
+		WHEN orders.order_status = 'OnTheWay' THEN 'В пути'
+		WHEN orders.order_status = 'Shipped' THEN 'Доставлен'
+		WHEN orders.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
+		WHEN orders.order_status = 'Closed' THEN 'Закрыт'
+		WHEN orders.order_status = 'Canceled' THEN 'Отменён'
+		WHEN orders.order_status = 'NotDelivered' THEN 'Недовоз'
+		WHEN orders.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'		
+		ELSE ''
+	END AS status,
+	CONCAT(employees.last_name, ' ', LEFT(employees.name,1), '.', LEFT(employees.patronymic,1), '.') AS author
+FROM orders
 LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
 LEFT JOIN employees ON employees.id = orders.author_employee_id
+LEFT JOIN order_items ON order_items.order_id = orders.id
 WHERE
 	orders.payment_type = 'ByCard'
 	AND orders.delivery_date &gt;= @start_date
-	AND orders.delivery_date &lt;= @end_date</CommandText>
+	AND orders.delivery_date &lt;= @end_date
+GROUP BY orders.id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -432,6 +508,14 @@ WHERE
           <DataField>author</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="actual_sum">
+          <DataField>actual_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="sum">
+          <DataField>sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -450,6 +534,11 @@ WHERE
   <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-06-01</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -458,10 +547,16 @@ WHERE
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-09-15</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
