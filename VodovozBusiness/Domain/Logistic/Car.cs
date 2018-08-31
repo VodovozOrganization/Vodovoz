@@ -275,6 +275,8 @@ namespace Vodovoz.Domain.Logistic
 		Largus,
 		[Display(Name = "Фура")]
 		Truck,
+		[Display(Name = "ГАЗель")]
+		GAZelle,
 		[Display(Name = "Прочее")]
 		Other
 	}

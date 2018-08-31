@@ -231,11 +231,17 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		private bool largusDriver;
-
 		[Display(Name = "Сотрудник - водитель Ларгуса")]
 		public virtual bool LargusDriver{
 			get { return largusDriver; }
 			set {SetField(ref largusDriver, value, () => LargusDriver);}
+		}
+
+		private CarTypeOfUse? driverOf;
+		[Display(Name = "Водитель автомобиля типа")]
+		public virtual CarTypeOfUse? DriverOf {
+			get { return driverOf; }
+			set { SetField(ref driverOf, value, () => DriverOf); }
 		}
 
 		private float driverSpeed = 1;

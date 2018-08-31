@@ -261,7 +261,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual decimal DriverWageTotal { get { return DriverWage + DriverWageSurcharge; } }
+		public virtual decimal DriverWageTotal => DriverWage + DriverWageSurcharge;
 
 		decimal defaultTotalCash = -1;
 

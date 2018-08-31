@@ -82,7 +82,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hboxDriversParameters;
 
-		private global::Gamma.GtkWidgets.yCheckButton checkLargusDriver;
+		private global::Gamma.Widgets.yEnumComboBox cmbDriverOf;
 
 		private global::Gtk.Label llabelVisitingMaster;
 
@@ -114,9 +114,9 @@ namespace Vodovoz
 
 		private global::Gtk.Label label9;
 
-		private global::Gtk.Label labelLargusDriver;
-
 		private global::Gtk.Label labelWageCalcType;
+
+		private global::Gtk.Label lblDriverOf;
 
 		private global::QSContacts.PhonesView phonesView;
 
@@ -597,14 +597,14 @@ namespace Vodovoz
 			this.hboxDriversParameters.Name = "hboxDriversParameters";
 			this.hboxDriversParameters.Spacing = 6;
 			// Container child hboxDriversParameters.Gtk.Box+BoxChild
-			this.checkLargusDriver = new global::Gamma.GtkWidgets.yCheckButton();
-			this.checkLargusDriver.CanFocus = true;
-			this.checkLargusDriver.Name = "checkLargusDriver";
-			this.checkLargusDriver.Label = "";
-			this.checkLargusDriver.DrawIndicator = true;
-			this.checkLargusDriver.UseUnderline = true;
-			this.hboxDriversParameters.Add(this.checkLargusDriver);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hboxDriversParameters[this.checkLargusDriver]));
+			this.cmbDriverOf = new global::Gamma.Widgets.yEnumComboBox();
+			this.cmbDriverOf.Name = "cmbDriverOf";
+			this.cmbDriverOf.ShowSpecialStateAll = false;
+			this.cmbDriverOf.ShowSpecialStateNot = true;
+			this.cmbDriverOf.UseShortTitle = false;
+			this.cmbDriverOf.DefaultFirst = false;
+			this.hboxDriversParameters.Add(this.cmbDriverOf);
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hboxDriversParameters[this.cmbDriverOf]));
 			w39.Position = 0;
 			w39.Expand = false;
 			w39.Fill = false;
@@ -780,25 +780,25 @@ namespace Vodovoz
 			w55.XOptions = ((global::Gtk.AttachOptions)(4));
 			w55.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.labelLargusDriver = new global::Gtk.Label();
-			this.labelLargusDriver.Name = "labelLargusDriver";
-			this.labelLargusDriver.Xalign = 1F;
-			this.labelLargusDriver.LabelProp = global::Mono.Unix.Catalog.GetString("Водитель Ларгуса:");
-			this.datatableMain.Add(this.labelLargusDriver);
-			global::Gtk.Table.TableChild w56 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.labelLargusDriver]));
-			w56.TopAttach = ((uint)(4));
-			w56.BottomAttach = ((uint)(5));
-			w56.XOptions = ((global::Gtk.AttachOptions)(4));
-			w56.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatableMain.Gtk.Table+TableChild
 			this.labelWageCalcType = new global::Gtk.Label();
 			this.labelWageCalcType.Name = "labelWageCalcType";
 			this.labelWageCalcType.Xalign = 1F;
 			this.labelWageCalcType.LabelProp = global::Mono.Unix.Catalog.GetString("Расчёт зарплаты:");
 			this.datatableMain.Add(this.labelWageCalcType);
-			global::Gtk.Table.TableChild w57 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.labelWageCalcType]));
-			w57.TopAttach = ((uint)(14));
-			w57.BottomAttach = ((uint)(15));
+			global::Gtk.Table.TableChild w56 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.labelWageCalcType]));
+			w56.TopAttach = ((uint)(14));
+			w56.BottomAttach = ((uint)(15));
+			w56.XOptions = ((global::Gtk.AttachOptions)(4));
+			w56.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.lblDriverOf = new global::Gtk.Label();
+			this.lblDriverOf.Name = "lblDriverOf";
+			this.lblDriverOf.Xalign = 1F;
+			this.lblDriverOf.LabelProp = global::Mono.Unix.Catalog.GetString("Управляет а\\м:");
+			this.datatableMain.Add(this.lblDriverOf);
+			global::Gtk.Table.TableChild w57 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.lblDriverOf]));
+			w57.TopAttach = ((uint)(4));
+			w57.BottomAttach = ((uint)(5));
 			w57.XOptions = ((global::Gtk.AttachOptions)(4));
 			w57.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
@@ -875,7 +875,6 @@ namespace Vodovoz
 			this.vboxPageLogistic.Spacing = 6;
 			// Container child vboxPageLogistic.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(4)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild

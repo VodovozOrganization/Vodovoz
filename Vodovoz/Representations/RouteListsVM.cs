@@ -69,6 +69,8 @@ namespace Vodovoz.ViewModel
 					query.Where(() => carAlias.IsRaskat); break;
 				case RLFilterTransport.Largus:
 					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.Largus); break;
+				case RLFilterTransport.GAZelle:
+					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.GAZelle); break;
 				case RLFilterTransport.Waggon:
 					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.Truck); break;
 				case RLFilterTransport.Others:

@@ -1,6 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Employees;
-
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
@@ -33,11 +33,11 @@ namespace Vodovoz
 			Map (x => x.DateOfCreate).Column ("date_of_create");
 			Map (x => x.FirstWorkDay).Column ("first_work_day"); 
 			Map (x => x.TripPriority).Column("priority_for_trip");
-			Map (x => x.LargusDriver).Column("largus_driver");
 			Map (x => x.DriverSpeed).Column("driver_speed");
 			Map (x => x.WageCalcType).Column("wage_calc_type");
 			Map (x => x.WageCalcRate).Column("wage_calc_rate");
 			Map (x => x.VisitingMaster).Column("visiting_master");
+			Map (x => x.DriverOf).Column ("driver_of").CustomType<CarTypeOfUseStringType>();	
 
 			References (x => x.Subdivision).Column("subdivision_id");
 			References (x => x.Nationality).Column ("nationality_id");

@@ -52,8 +52,9 @@ namespace Vodovoz
 			notebookMain.ShowTabs = false;
 
 			checkIsFired.Binding.AddBinding(Entity, e => e.IsFired, w => w.Active).InitializeFromSource();
-			checkLargusDriver.Binding.AddBinding(Entity, e => e.LargusDriver, w => w.Active).InitializeFromSource();
 			checkVisitingMaster.Binding.AddBinding(Entity, e => e.VisitingMaster, w => w.Active).InitializeFromSource();
+			cmbDriverOf.ItemsEnum = typeof(CarTypeOfUse);
+			cmbDriverOf.Binding.AddBinding(Entity, e => e.DriverOf, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			dataentryLastName.Binding.AddBinding(Entity, e => e.LastName, w => w.Text).InitializeFromSource();
 			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
@@ -87,6 +88,10 @@ namespace Vodovoz
 
 			comboCategory.ItemsEnum = typeof(EmployeeCategory);
 			comboCategory.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
+			comboCategory.ChangedByUser += (sender, e) => {
+				if(Entity.Category != EmployeeCategory.driver)
+					cmbDriverOf.SelectedItemOrNull = null;
+			};
 			comboWageCalcType.ItemsEnum = typeof(WageCalculationType);
 			comboWageCalcType.Binding.AddBinding(Entity, e => e.WageCalcType, w => w.SelectedItem).InitializeFromSource();
 
@@ -195,7 +200,7 @@ namespace Vodovoz
 		protected void OnComboCategoryEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			radioTabLogistic.Visible 
-			    = checkLargusDriver.Visible
+			    = lblDriverOf.Visible
 				= hboxDriversParameters.Visible
 				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
 

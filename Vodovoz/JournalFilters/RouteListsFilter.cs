@@ -145,6 +145,8 @@ namespace Vodovoz
 		Raskat,
 		[Display(Name = "Ларгус")]
 		Largus,
+		[Display(Name = "ГАЗель")]
+		GAZelle,
 		[Display(Name = "Фура")]
 		Waggon,
 		[Display(Name = "Прочее")]

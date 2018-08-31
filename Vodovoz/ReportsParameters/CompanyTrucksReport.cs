@@ -1,9 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using QSOrmProject;
 using QSReport;
-using System.Collections.Generic;
-using Vodovoz.Domain.Logistic;
-using QSProjectsLib;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -29,11 +27,7 @@ namespace Vodovoz.ReportsParameters
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчет по загрузке ларгусов";
-			}
-		}
+		public string Title => "Отчет по загрузке наших автомобилей";
 
 		#endregion
 

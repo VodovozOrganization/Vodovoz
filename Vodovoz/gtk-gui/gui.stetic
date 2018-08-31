@@ -712,8 +712,8 @@
       </action>
       <action id="ActionCompanyTrucks">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Загрузка "Ларгусы"</property>
-        <property name="ShortLabel" translatable="yes">Загрузка "Ларгусы"</property>
+        <property name="Label" translatable="yes">Загрузка наших автомобилей</property>
+        <property name="ShortLabel" translatable="yes">Загрузка наших автомобилей</property>
         <signal name="Activated" handler="OnActionCompanyTrucksActivated" />
       </action>
       <action id="Action30">
@@ -1358,7 +1358,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2635,13 +2634,14 @@
                             <property name="MemberName" />
                             <property name="Spacing">6</property>
                             <child>
-                              <widget class="Gamma.GtkWidgets.yCheckButton" id="checkLargusDriver">
+                              <widget class="Gamma.Widgets.yEnumComboBox" id="cmbDriverOf">
                                 <property name="MemberName" />
-                                <property name="CanFocus">True</property>
-                                <property name="Label" translatable="yes" />
-                                <property name="DrawIndicator">True</property>
-                                <property name="HasLabel">True</property>
-                                <property name="UseUnderline">True</property>
+                                <property name="IsTextCombo">False</property>
+                                <property name="Items" translatable="yes" />
+                                <property name="ShowSpecialStateAll">False</property>
+                                <property name="ShowSpecialStateNot">True</property>
+                                <property name="UseShortTitle">False</property>
+                                <property name="DefaultFirst">False</property>
                               </widget>
                               <packing>
                                 <property name="Position">0</property>
@@ -2684,7 +2684,7 @@
                             <property name="BottomAttach">5</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
-                            <property name="AutoSize">True</property>
+                            <property name="AutoSize">False</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
                             <property name="XExpand">False</property>
@@ -2955,14 +2955,14 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.Label" id="labelLargusDriver">
+                          <widget class="Gtk.Label" id="labelWageCalcType">
                             <property name="MemberName" />
                             <property name="Xalign">1</property>
-                            <property name="LabelProp" translatable="yes">Водитель Ларгуса:</property>
+                            <property name="LabelProp" translatable="yes">Расчёт зарплаты:</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">4</property>
-                            <property name="BottomAttach">5</property>
+                            <property name="TopAttach">14</property>
+                            <property name="BottomAttach">15</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -2975,14 +2975,14 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.Label" id="labelWageCalcType">
+                          <widget class="Gtk.Label" id="lblDriverOf">
                             <property name="MemberName" />
                             <property name="Xalign">1</property>
-                            <property name="LabelProp" translatable="yes">Расчёт зарплаты:</property>
+                            <property name="LabelProp" translatable="yes">Управляет а\м:</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">14</property>
-                            <property name="BottomAttach">15</property>
+                            <property name="TopAttach">4</property>
+                            <property name="BottomAttach">5</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
