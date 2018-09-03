@@ -342,6 +342,14 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref productGroup, value, () => ProductGroup); }
 		}
 
+		private IList<NomenclatureImage> images;
+
+		[Display(Name = "Изображения")]
+		public virtual IList<NomenclatureImage> Images {
+			get { return images; }
+			set { SetField(ref images, value, () => Images); }
+		}
+
 		#endregion
 
 		public virtual void SetNomenclatureCreationInfo()

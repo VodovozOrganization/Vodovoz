@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using Gtk;
 using NLog;
+using QS.Helpers;
 using QSBusinessCommon.Domain;
 using QSOrmProject;
 using QSProjectsLib;
@@ -10,7 +13,6 @@ using Vodovoz.Additions.Store;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModel;
@@ -122,6 +124,8 @@ namespace Vodovoz
 			pricesView.UoWGeneric = UoWGeneric;
 			pricesView.Sensitive = QSMain.User.Permissions["can_create_and_arc_nomenclatures"];
 
+			Imageslist.ImageButtonPressEvent += Imageslist_ImageButtonPressEvent;
+
 			//make actions menu
 			var menu = new Gtk.Menu();
 			var menuItem = new Gtk.MenuItem("Заменить все ссылки на номенклатуру...");
@@ -206,11 +210,7 @@ namespace Vodovoz
 				//Entity.Serial = true;
 		}
 
-		protected void OnRadioPriceToggled (object sender, EventArgs e)
-		{
-			if (radioPrice.Active)
-				notebook1.CurrentPage = 2;
-		}
+#region Переключение вкладок
 
 		protected void OnRadioInfoToggled (object sender, EventArgs e)
 		{
@@ -224,10 +224,99 @@ namespace Vodovoz
 				notebook1.CurrentPage = 1;
 		}
 
+		protected void OnRadioImagesToggled(object sender, EventArgs e)
+		{
+			if(radioImages.Active)
+			{
+				notebook1.CurrentPage = 2;
+				ImageTabOpen();
+			}
+		}
+
+		protected void OnRadioPriceToggled (object sender, EventArgs e)
+		{
+			if (radioPrice.Active)
+				notebook1.CurrentPage = 3;
+		}
+
+		#endregion
+
+		#region Вкладка изображений
+
+		bool imageLoaded = false;
+		NomenclatureImage popupMenuOn;
+
+		private void ImageTabOpen()
+		{
+			if(!imageLoaded)
+			{
+				ReloadImages();
+				imageLoaded = true;
+			}
+		}
+
+		private void ReloadImages()
+		{
+			Imageslist.Images.Clear();
+			foreach(var imageSource in Entity.Images) {
+				Imageslist.AddImage(new Gdk.Pixbuf(imageSource.Image), imageSource);
+			}
+			Imageslist.UpdateList();
+		}
+
+		protected void OnButtonAddImageClicked(object sender, EventArgs e)
+		{
+			FileChooserDialog Chooser = new FileChooserDialog("Выберите изображение...",
+				(Window)this.Toplevel,
+				FileChooserAction.Open,
+				"Отмена", ResponseType.Cancel,
+				"Загрузить", ResponseType.Accept);
+
+			FileFilter Filter = new FileFilter();
+			Filter.AddPixbufFormats();
+			Filter.Name = "Все изображения";
+			Chooser.AddFilter(Filter);
+
+			if((ResponseType)Chooser.Run() == ResponseType.Accept) {
+				Chooser.Hide();
+				logger.Info("Загрузка изображения...");
+
+				var imageFile = ImageHelper.LoadImageToJpgBytes(Chooser.Filename);
+				Entity.Images.Add(new NomenclatureImage(Entity, imageFile));
+				ReloadImages();
+
+				logger.Info("Ok");
+			}
+			Chooser.Destroy();
+		}
+
+		void Imageslist_ImageButtonPressEvent(object sender, ImageButtonPressEventArgs e)
+		{
+			if((int)e.eventArgs.Event.Button == 3) {
+				popupMenuOn = (NomenclatureImage)e.Tag;
+				Gtk.Menu jBox = new Gtk.Menu();
+				Gtk.MenuItem MenuItem1 = new MenuItem("Удалить");
+				MenuItem1.Activated += DeleteImage_Activated;;
+				jBox.Add(MenuItem1);
+				jBox.ShowAll();
+				jBox.Popup();
+			}
+		}
+
+		void DeleteImage_Activated(object sender, EventArgs e)
+		{
+			Entity.Images.Remove(popupMenuOn);
+			popupMenuOn = null;
+			ReloadImages();
+		}
+
+  		#endregion
+
 		protected void OnDependsOnNomenclatureChanged(object sender, EventArgs e)
 		{
 			radioPrice.Sensitive = Entity.DependsOnNomenclature == null;
 		}
+
 	}
 }
 

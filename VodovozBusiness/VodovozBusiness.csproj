@@ -487,6 +487,8 @@
     <Compile Include="Repositories\UndeliveredOrdersRepository.cs" />
     <Compile Include="Tools\CommerceML\Nodes\Offers.cs" />
     <Compile Include="Tools\CommerceML\Nodes\OffersPackage.cs" />
+    <Compile Include="Domain\Goods\NomenclatureImage.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclatureImageMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -52,6 +52,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.ProductGroup).Column("group_id");
 
 			HasMany(x => x.NomenclaturePrice).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasMany(x => x.Images).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 		}
 	}
 }
