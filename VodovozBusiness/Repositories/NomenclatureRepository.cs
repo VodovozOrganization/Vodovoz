@@ -158,6 +158,14 @@ namespace Vodovoz.Repository
 			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[followingNomenclaure]));
 		}
 
+		public static Nomenclature GetForfeitNomenclature(IUnitOfWork uow)
+		{
+			var forfeitNomenclatureStr = "forfeit_nomenclature_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(forfeitNomenclatureStr))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура для \"Бутыль (Неустойка)\"");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[forfeitNomenclatureStr]));
+		}
+
 		#region Получение номенклатур воды
 
 		public static Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
