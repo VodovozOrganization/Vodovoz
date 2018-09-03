@@ -166,6 +166,14 @@ namespace Vodovoz.Repository
 			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[forfeitNomenclatureStr]));
 		}
 
+		public static Nomenclature GetSanitisationNomenclature(IUnitOfWork uow)
+		{
+			var sanitisationNomenclature = "выезд_мастера_для_сан_обр";
+			if(!MainSupport.BaseParameters.All.ContainsKey(sanitisationNomenclature))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура для \"Выезд мастера для с\\о\"");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[sanitisationNomenclature]));
+		}
+
 		#region Получение номенклатур воды
 
 		public static Nomenclature GetWaterSemiozerie(IUnitOfWork uow)

@@ -8,6 +8,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using NHibernate.Util;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
@@ -16,6 +17,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repository;
 
 namespace Vodovoz.ViewModel
 {
@@ -30,7 +32,15 @@ namespace Vodovoz.ViewModel
 			}
 		}
 
+		bool canToggleVisibilityColumns;
+		public bool CanToggleVisibilityOfColumns {
+			get => canToggleVisibilityColumns;
+			set => canToggleVisibilityColumns = value;
+		}
+
 		#region IRepresentationModel implementation
+
+		Nomenclature sanitizationNomenclature = null;
 
 		public override void UpdateNodes ()
 		{
@@ -105,11 +115,16 @@ namespace Vodovoz.ViewModel
 			if (Filter.ExceptIds != null && Filter.ExceptIds.Length > 0)
 				query.Where (o => !NHibernate.Criterion.RestrictionExtensions.IsIn (o.Id, Filter.ExceptIds));
 
-			var bottleCountSubquery = NHibernate.Criterion.QueryOver.Of<OrderItem> (() => orderItemAlias)
-				.Where (() => orderAlias.Id == orderItemAlias.Order.Id)
-				.JoinAlias (() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where (() => nomenclatureAlias.Category == NomenclatureCategory.water)
-				.Select (NHibernate.Criterion.Projections.Sum (() => orderItemAlias.Count));
+			var bottleCountSubquery = NHibernate.Criterion.QueryOver.Of<OrderItem>(() => orderItemAlias)
+				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+				.Select(NHibernate.Criterion.Projections.Sum(() => orderItemAlias.Count));
+
+			var sanitisationCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
+			                                         .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
+			                                         .Where(() => orderItemAlias.Nomenclature.Id == sanitizationNomenclature.Id)
+			                                         .Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var result = query
 				.JoinAlias (o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -137,40 +152,44 @@ namespace Vodovoz.ViewModel
 					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
 					.Select (() => deliveryPointAlias.Latitude).WithAlias (() => resultAlias.Latitude)
 					.Select (() => deliveryPointAlias.Longitude).WithAlias (() => resultAlias.Longitude)
-					.SelectSubQuery (bottleCountSubquery).WithAlias (() => resultAlias.BottleAmount)
+				    .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
+				    .SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
 				).OrderBy (x => x.DeliveryDate).Desc
 				.TransformUsing (Transformers.AliasToBean<OrdersVMNode> ())
 				.List<OrdersVMNode> ();
 
+			if(CanToggleVisibilityOfColumns)
+				ShowColumns(Filter.RestrictOnlyService);
+
 			SetItemsSource (result);
 		}
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig<OrdersVMNode>.Create ()
-			.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString ())
-			.AddColumn ("Дата").SetDataProperty (node => node.Date.ToString ("d"))
-		    .AddColumn ("Автор").SetDataProperty(node => node.Author)
-			.AddColumn ("Время").SetDataProperty (node => node.DeliveryTime)
-			.AddColumn ("Статус").SetDataProperty (node => node.StatusEnum.GetEnumTitle ())
-			.AddColumn ("Бутыли").AddTextRenderer (node => node.BottleAmount.ToString ())
-			.AddColumn ("Клиент").SetDataProperty (node => node.Counterparty)
-			.AddColumn ("Коор.").AddTextRenderer (x => x.Latitude.HasValue && x.Longitude.HasValue ? "Есть" : String.Empty)
-			.AddColumn ("Адрес").SetDataProperty (node => node.Address)
-			.AddColumn ("Изменил").SetDataProperty(node => node.LastEditor)
-			.AddColumn ("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
-		    .AddColumn ("Номер звонка").SetDataProperty(node => node.DriverCallId)
-			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
-			.Finish ();
+		IColumnsConfig columnsConfig = FluentColumnsConfig<OrdersVMNode>.Create()
+			.AddColumn("Номер").SetDataProperty(node => node.Id.ToString())
+			.AddColumn("Дата").SetDataProperty(node => node.Date.ToString("d"))
+			.AddColumn("Автор").SetDataProperty(node => node.Author)
+			.AddColumn("Время").SetDataProperty(node => node.DeliveryTime)
+			.AddColumn("Статус").SetDataProperty(node => node.StatusEnum.GetEnumTitle())
+			.AddColumn("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
+		    .AddColumn("Кол-во с/о")
+				.SetTag("Hidden")
+				.AddTextRenderer(node => node.SanitisationAmount.ToString())
+			.AddColumn("Клиент").SetDataProperty(node => node.Counterparty)
+			.AddColumn("Коор.").AddTextRenderer(x => x.Latitude.HasValue && x.Longitude.HasValue ? "Есть" : String.Empty)
+			.AddColumn("Адрес").SetDataProperty(node => node.Address)
+			.AddColumn("Изменил").SetDataProperty(node => node.LastEditor)
+			.AddColumn("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
+			.AddColumn("Номер звонка").SetDataProperty(node => node.DriverCallId)
+			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+			.Finish();
 
-		public override IColumnsConfig ColumnsConfig {
-			get { return columnsConfig; }
+		public override IColumnsConfig ColumnsConfig => columnsConfig;
+		public override bool PopupMenuExist => true;
+
+		public void ShowColumns(bool? val = null)
+		{ 
+			columnsConfig.GetColumnsByTag("Hidden").ForEach(c => c.Visible = val.HasValue ? val.Value : false);
 		}
-
-		public override bool PopupMenuExist {
-			get {
-				return true;
-			}
-		}
-
 		public override Gtk.Menu GetPopupMenu (RepresentationSelectResult [] selected)
 		{
 			lastMenuSelected = selected;
@@ -296,10 +315,7 @@ namespace Vodovoz.ViewModel
 
 		#region implemented abstract members of RepresentationModelBase
 
-		protected override bool NeedUpdateFunc (Vodovoz.Domain.Orders.Order updatedSubject)
-		{
-			return true;
-		}
+		protected override bool NeedUpdateFunc(Vodovoz.Domain.Orders.Order updatedSubject) => true;
 
 		#endregion
 
@@ -316,6 +332,8 @@ namespace Vodovoz.ViewModel
 		public OrdersVM (IUnitOfWork uow) : base ()
 		{
 			this.UoW = uow;
+			sanitizationNomenclature = NomenclatureRepository.GetSanitisationNomenclature(UoW);
+			ShowColumns(false);
 		}
 	}
 
@@ -330,6 +348,7 @@ namespace Vodovoz.ViewModel
 		public DateTime Date { get; set; }
 		public string DeliveryTime { get; set; }
 		public int BottleAmount { get; set; }
+		public int SanitisationAmount { get; set; }
 
 		[UseForSearch]
 		[SearchHighlight]
@@ -383,7 +402,6 @@ namespace Vodovoz.ViewModel
 				if (StatusEnum == OrderStatus.NotDelivered)
 					return "blue";
 				return "black";
-
 			}
 		}
 	}

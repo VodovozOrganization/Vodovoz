@@ -204,7 +204,9 @@ namespace Vodovoz
 			filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
 			filter.RestrictSelfDelivery = false;
 
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.OrdersVM(filter));
+			ViewModel.OrdersVM vm = new ViewModel.OrdersVM(filter);
+			vm.CanToggleVisibilityOfColumns = true;
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(vm);
 			SelectDialog.Mode = OrmReferenceMode.MultiSelect;
 			SelectDialog.ObjectSelected += (s, ea) => {
 				foreach(var selected in ea.Selected) {

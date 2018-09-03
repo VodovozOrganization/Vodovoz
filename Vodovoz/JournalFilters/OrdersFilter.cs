@@ -32,15 +32,11 @@ namespace Vodovoz
 		public OrdersFilter ()
 		{
 			this.Build ();
-#if SHORT
+
 			daysToAft = -CurrentUserSettings.Settings.JournalDaysToAft;
 			daysToFwd = CurrentUserSettings.Settings.JournalDaysToFwd;
 			dateperiodOrders.StartDateOrNull = DateTime.Today.AddDays(daysToAft);
 			dateperiodOrders.EndDateOrNull = DateTime.Today.AddDays(daysToFwd);
-#else
-			dateperiodOrders.StartDateOrNull = DateTime.Today.AddMonths (-1);
-			dateperiodOrders.EndDateOrNull = DateTime.Today.AddMonths (1);
-#endif
 		}
 
 		#region IReferenceFilter implementation
@@ -186,7 +182,7 @@ namespace Vodovoz
 		{
 			get
 			{
-				return checkOnlyService.Active ? true : restrictHideService;
+				return checkOnlyService.Active ? true : restrictOnlyService;
 			}
 			set
 			{
