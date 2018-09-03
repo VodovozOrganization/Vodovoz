@@ -135,10 +135,11 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			ConfigureTrees();
+
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 			spinDiscount.Adjustment.Upper = 100;
 
-			treeDocuments.Selection.Mode = SelectionMode.Multiple;
 			if(Entity.PreviousOrder != null) {
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
 				//TODO Make it clickable.
@@ -149,9 +150,6 @@ namespace Vodovoz
 
 			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
-			treeDocuments.ItemsDataSource = Entity.ObservableOrderDocuments;
-			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
-			treeServiceClaim.ItemsDataSource = Entity.ObservableInitialOrderService;
 			//TODO FIXME Добавить в таблицу закрывающие заказы.
 
 			//Подписывемся на изменения листов для засеривания клиента
@@ -243,12 +241,6 @@ namespace Vodovoz
 
 			commentsview4.UoW = UoWGeneric;
 
-			treeDocuments.Selection.Changed += (sender, e) => {
-				buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows() > 0;
-			};
-
-			treeDocuments.RowActivated += (o, args) => { OrderDocumentsOpener(); };
-
 			enumAddRentButton.ItemsEnum = typeof(OrderAgreementType);
 			enumAddRentButton.EnumItemClicked += (sender, e) => AddRentAgreement((OrderAgreementType)e.ItemEnum);
 
@@ -264,8 +256,6 @@ namespace Vodovoz
 				FixPrice(aIdx[0]);
 			};
 
-			treeItems.Selection.Changed += TreeItems_Selection_Changed;
-
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
 			dataSumDifferenceReason.Completion = new EntryCompletion();
 			dataSumDifferenceReason.Completion.Model = OrderRepository.GetListStoreSumDifferenceReasons(UoWGeneric);
@@ -276,6 +266,51 @@ namespace Vodovoz
 			labelSum.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.TotalSum), w => w.LabelProp).InitializeFromSource();
 			labelCashToReceive.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.SumToReceive), w => w.LabelProp).InitializeFromSource();
 
+			enumPaymentType.ItemsEnum = typeof(PaymentType);
+			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			SetSensitivityOfPaymentType();
+
+			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
+			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
+			enumDiverCallType.Binding.AddBinding(Entity, s => s.DriverCallType, w => w.SelectedItem).InitializeFromSource();
+
+			referenceDriverCallId.Binding.AddBinding(Entity, e => e.DriverCallId, w => w.Subject).InitializeFromSource();
+			enumareRasonType.ItemsEnum = typeof(ReasonType);
+			enumareRasonType.Binding.AddBinding(Entity, s => s.ReasonType, w => w.SelectedItem).InitializeFromSource();
+
+			UpdateButtonState();
+
+			if(Entity.DeliveryPoint == null && !string.IsNullOrWhiteSpace(Entity.Address1c)) {
+				var deliveryPoint = Counterparty.DeliveryPoints.FirstOrDefault(d => d.Address1c == Entity.Address1c);
+				if(deliveryPoint != null)
+					Entity.DeliveryPoint = deliveryPoint;
+			}
+
+			if(Entity.OrderStatus != OrderStatus.NewOrder)
+				IsUIEditable(CanChange);
+			tableTareControl.Sensitive = !(Entity.OrderStatus == OrderStatus.NewOrder || Entity.OrderStatus == OrderStatus.Accepted);
+
+			OrderItemEquipmentCountHasChanges = false;
+			ShowOrderColumnInDocumentsList();
+			ButtonCloseOrderSensitivity();
+			SetSensitivityOfPaymentType();
+			depositrefunditemsview.Configure(UoWGeneric, Entity);
+			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
+			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
+
+			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += WaterSalesAgreement_ObjectUpdatedGeneric;
+			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());
+			SetDiscountEditable();
+			SetDiscountUnitEditable();
+
+			spinSumDifference.Hide();
+			labelSumDifference.Hide();
+			dataSumDifferenceReason.Hide();
+			labelSumDifferenceReason.Hide();
+		}
+
+		private void ConfigureTrees()
+		{
 			var colorBlack = new Gdk.Color(0, 0, 0);
 			var colorBlue = new Gdk.Color(0, 0, 0xff);
 			var colorGreen = new Gdk.Color(0, 0xff, 0);
@@ -314,7 +349,7 @@ namespace Vodovoz
 						  (aa as WaterSalesAgreement).HasFixedPrice) {
 							c.ForegroundGdk = colorGreen;
 						} else if(node.IsUserPrice &&
-				                  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
+								  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 							c.ForegroundGdk = colorBlue;
 						}
 					})
@@ -356,6 +391,8 @@ namespace Vodovoz
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
+			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
+			treeItems.Selection.Changed += TreeItems_Selection_Changed;
 
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument>()
 				.AddColumn("Документ").SetDataProperty(node => node.Name)
@@ -375,6 +412,13 @@ namespace Vodovoz
 					}
 				})
 				.Finish();
+			treeDocuments.Selection.Mode = SelectionMode.Multiple;
+			treeDocuments.ItemsDataSource = Entity.ObservableOrderDocuments;
+			treeDocuments.Selection.Changed += (sender, e) => {
+				buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows() > 0;
+			};
+
+			treeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
 
 			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim>()
 				.AddColumn("Статус заявки").SetDataProperty(node => node.Status.GetEnumTitle())
@@ -383,49 +427,9 @@ namespace Vodovoz
 				.AddColumn("Причина").SetDataProperty(node => node.Reason)
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 				.Finish();
+	
+			treeServiceClaim.ItemsDataSource = Entity.ObservableInitialOrderService;
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
-
-			enumPaymentType.ItemsEnum = typeof(PaymentType);
-			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
-			SetSensitivityOfPaymentType();
-
-			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
-			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
-			enumDiverCallType.Binding.AddBinding(Entity, s => s.DriverCallType, w => w.SelectedItem).InitializeFromSource();
-
-			referenceDriverCallId.Binding.AddBinding(Entity, e => e.DriverCallId, w => w.Subject).InitializeFromSource();
-			enumareRasonType.ItemsEnum = typeof(ReasonType);
-			enumareRasonType.Binding.AddBinding(Entity, s => s.ReasonType, w => w.SelectedItem).InitializeFromSource();
-
-			UpdateButtonState();
-
-			if(Entity.DeliveryPoint == null && !string.IsNullOrWhiteSpace(Entity.Address1c)) {
-				var deliveryPoint = Counterparty.DeliveryPoints.FirstOrDefault(d => d.Address1c == Entity.Address1c);
-				if(deliveryPoint != null)
-					Entity.DeliveryPoint = deliveryPoint;
-			}
-
-			if(Entity.OrderStatus != OrderStatus.NewOrder)
-				IsUIEditable(CanChange);
-			tableTareControl.Sensitive = !(Entity.OrderStatus == OrderStatus.NewOrder || Entity.OrderStatus == OrderStatus.Accepted);
-
-			OrderItemEquipmentCountHasChanges = false;
-			ShowOrderColumnInDocumentsList();
-			ButtonCloseOrderSensitivity();
-			SetSensitivityOfPaymentType();
-			depositrefunditemsview.Configure(UoWGeneric, Entity);
-			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
-			ycomboboxReason.ItemsList = OrderRepository.GetDiscountReasons(UoW);
-
-			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += WaterSalesAgreement_ObjectUpdatedGeneric;
-			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());
-			SetDiscountEditable();
-			SetDiscountUnitEditable();
-
-			spinSumDifference.Hide();
-			labelSumDifference.Hide();
-			dataSumDifferenceReason.Hide();
-			labelSumDifferenceReason.Hide();
 		}
 
 		/// <summary>
@@ -2051,7 +2055,7 @@ namespace Vodovoz
 
 		private void ShowOrderColumnInDocumentsList()
 		{
-			var column = treeDocuments.ColumnsConfig.GetColumnsByTag("OrderNumberColumn").First();
+			var column = treeDocuments.ColumnsConfig.GetColumnsByTag("OrderNumberColumn").FirstOrDefault();
 			column.Visible = Entity.ObservableOrderDocuments.Any(x => x.Order.Id != x.AttachedToOrder.Id);
 		}
 
