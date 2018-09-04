@@ -1713,6 +1713,7 @@ namespace Vodovoz
 				MessageDialogWorks.RunWarningDialog("Сегодня? Уверены?");
 			}
 			CheckSameOrders();
+			Entity.ChangeOrderContract();
 		}
 
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
@@ -1730,13 +1731,6 @@ namespace Vodovoz
 				Entity.DocumentType = Entity.Client.DefaultDocumentType;
 			} else if(Entity.Client != null) {
 				Entity.DocumentType = DefaultDocumentType.upd;
-			}
-
-			//Выбираем конракт, если он один у контрагента
-			if(Entity.Client != null && Entity.Client.CounterpartyContracts.Count == 1) {
-				Entity.Contract = Entity.Client.CounterpartyContracts.FirstOrDefault();
-			} else {
-				Entity.Contract = null;
 			}
 
 			//Очищаем время доставки
