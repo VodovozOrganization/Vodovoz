@@ -489,6 +489,7 @@
     <Compile Include="Tools\CommerceML\Nodes\OffersPackage.cs" />
     <Compile Include="Domain\Goods\NomenclatureImage.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureImageMap.cs" />
+    <Compile Include="Tools\CommerceML\Nodes\PropertyOfGoods.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

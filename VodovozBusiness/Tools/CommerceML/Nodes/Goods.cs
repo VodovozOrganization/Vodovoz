@@ -46,13 +46,35 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 					goodxml.Add(new XElement("Картинка", $"import_files/img_{img.Id:0000000}.jpg"));
 				}
 
+				var propertiesXml = new XElement("ЗначенияСвойств");
+				if(good.Color != null)
+					propertiesXml.Add(Classifier.PropertyColor.ToValueXml(good.Color.Name));
+
+				goodxml.Add(propertiesXml);
+
 				goodxml.Add(new XElement("СтавкиНалогов", 
 				                         new XElement("СтавкаНалога", 
 				                                      new XElement("Наименование", "НДС"),
 				                                      new XElement("Ставка", good.VAT.GetEnumTitle()) )));
+
+				bool isGoods = Nomenclature.GetCategoriesForGoods().Contains(good.Category);
+				goodxml.Add(new XElement("ЗначенияРеквизитов",
+				                         makeProps("ВидНоменклатуры", good.CategoryString),
+				                         makeProps("ТипНоменклатуры", isGoods ? "Товар" : "Услуга"),
+				                         makeProps("Полное наименование", good.OfficialName),
+				                         makeProps("Вес", good.Weight)
+				                        ));
 				xml.Add(goodxml);
 			}
 			return xml;
+		}
+
+		private XElement makeProps(string name, object value)
+		{
+			return new XElement("ЗначениеРеквизита",
+			                    new XElement("Наименование", name),
+			                    new XElement("Значение", value)
+			                   );
 		}
 
 		public int[] NomenclatureIds{
