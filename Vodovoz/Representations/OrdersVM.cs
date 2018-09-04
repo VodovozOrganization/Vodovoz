@@ -126,6 +126,20 @@ namespace Vodovoz.ViewModel
 			                                         .Where(() => orderItemAlias.Nomenclature.Id == sanitizationNomenclature.Id)
 			                                         .Select(Projections.Sum(() => orderItemAlias.Count));
 
+			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
+			                                .Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+			                                .Select(
+				                                Projections.Sum(
+					                                Projections.SqlFunction(
+						                                new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2 - ?3"),
+						                                NHibernateUtil.Decimal,
+						                                Projections.Property<OrderItem>(x => x.Count),
+				                                        Projections.Property<OrderItem>(x => x.Price),
+				                                        Projections.Property<OrderItem>(x => x.DiscountMoney)
+						                               )
+					                               )
+				                               );
+
 			var result = query
 				.JoinAlias (o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (o => o.DeliverySchedule, () => deliveryScheduleAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -152,6 +166,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
 					.Select (() => deliveryPointAlias.Latitude).WithAlias (() => resultAlias.Latitude)
 					.Select (() => deliveryPointAlias.Longitude).WithAlias (() => resultAlias.Longitude)
+				    .SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
 				    .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 				    .SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
 				).OrderBy (x => x.DeliveryDate).Desc
@@ -175,6 +190,7 @@ namespace Vodovoz.ViewModel
 				.SetTag("Hidden")
 				.AddTextRenderer(node => node.SanitisationAmount.ToString())
 			.AddColumn("Клиент").SetDataProperty(node => node.Counterparty)
+			.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 			.AddColumn("Коор.").AddTextRenderer(x => x.Latitude.HasValue && x.Longitude.HasValue ? "Есть" : String.Empty)
 			.AddColumn("Адрес").SetDataProperty(node => node.Address)
 			.AddColumn("Изменил").SetDataProperty(node => node.LastEditor)
@@ -353,6 +369,8 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		[SearchHighlight]
 		public string Counterparty { get; set; }
+
+		public decimal Sum { get; set; }
 
 		public string City { get; set; }
 		public string Street { get; set; }
