@@ -182,8 +182,6 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonAddImage;
 
-		private global::Gtk.Button buttonRemoveImage;
-
 		private global::Gtk.Label label6;
 
 		private global::Gtk.Table datatable2;
@@ -1221,27 +1219,14 @@ namespace Vodovoz
 			w89.Position = 0;
 			w89.Expand = false;
 			w89.Fill = false;
-			// Container child hbox5.Gtk.Box+BoxChild
-			this.buttonRemoveImage = new global::Gtk.Button();
-			this.buttonRemoveImage.CanFocus = true;
-			this.buttonRemoveImage.Name = "buttonRemoveImage";
-			this.buttonRemoveImage.UseUnderline = true;
-			this.buttonRemoveImage.Label = global::Mono.Unix.Catalog.GetString("GtkButton");
-			global::Gtk.Image w90 = new global::Gtk.Image();
-			this.buttonRemoveImage.Image = w90;
-			this.hbox5.Add(this.buttonRemoveImage);
-			global::Gtk.Box.BoxChild w91 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonRemoveImage]));
-			w91.Position = 1;
-			w91.Expand = false;
-			w91.Fill = false;
 			this.vbox3.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w92 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox5]));
-			w92.Position = 1;
-			w92.Expand = false;
-			w92.Fill = false;
+			global::Gtk.Box.BoxChild w90 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox5]));
+			w90.Position = 1;
+			w90.Expand = false;
+			w90.Fill = false;
 			this.notebook1.Add(this.vbox3);
-			global::Gtk.Notebook.NotebookChild w93 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vbox3]));
-			w93.Position = 2;
+			global::Gtk.Notebook.NotebookChild w91 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vbox3]));
+			w91.Position = 2;
 			// Notebook tab
 			this.label6 = new global::Gtk.Label();
 			this.label6.Name = "label6";
@@ -1258,12 +1243,12 @@ namespace Vodovoz
 			this.pricesView.Events = ((global::Gdk.EventMask)(256));
 			this.pricesView.Name = "pricesView";
 			this.datatable2.Add(this.pricesView);
-			global::Gtk.Table.TableChild w94 = ((global::Gtk.Table.TableChild)(this.datatable2[this.pricesView]));
-			w94.LeftAttach = ((uint)(1));
-			w94.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w92 = ((global::Gtk.Table.TableChild)(this.datatable2[this.pricesView]));
+			w92.LeftAttach = ((uint)(1));
+			w92.RightAttach = ((uint)(2));
 			this.notebook1.Add(this.datatable2);
-			global::Gtk.Notebook.NotebookChild w95 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.datatable2]));
-			w95.Position = 3;
+			global::Gtk.Notebook.NotebookChild w93 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.datatable2]));
+			w93.Position = 3;
 			// Notebook tab
 			this.label11 = new global::Gtk.Label();
 			this.label11.Name = "label11";
@@ -1271,8 +1256,8 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.datatable2, this.label11);
 			this.label11.ShowAll();
 			this.vbox1.Add(this.notebook1);
-			global::Gtk.Box.BoxChild w96 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
-			w96.Position = 1;
+			global::Gtk.Box.BoxChild w94 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
+			w94.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

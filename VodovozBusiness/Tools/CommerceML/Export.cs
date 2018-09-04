@@ -62,6 +62,13 @@ namespace Vodovoz.Tools.CommerceML
 			ProgressUpdated?.Invoke(this, EventArgs.Empty);
 		}
 
+		public void OnProgressTextOnly(string text)
+		{
+			CurrentTaskText = text;
+			ProgressUpdated?.Invoke(this, EventArgs.Empty);
+		}
+
+
 #endregion
 
 		public Export(IUnitOfWork uow )
@@ -78,6 +85,18 @@ namespace Vodovoz.Tools.CommerceML
 			OnProgressPlusOneTask("Сохраняем import.xml");
 			using(XmlWriter writer = XmlWriter.Create(Path.Combine(dir, "import.xml"), Export.WriterSettings)) {
 				rootCatalog.ToXml().WriteTo(writer);
+			}
+
+			OnProgressPlusOneTask("Сохраняем Изображения");
+			var exportedImages = Catalog.Goods.Nomenclatures.SelectMany(x => x.Images);
+			var imageDir = Path.Combine(dir, "import_files");
+			Directory.CreateDirectory(imageDir);
+
+			foreach(var img in exportedImages)
+			{
+				var imgFileName = Path.Combine(imageDir, $"img_{img.Id:0000000}.jpg");
+				OnProgressTextOnly("Сохраняем " + imgFileName);
+				File.WriteAllBytes(imgFileName, img.Image);
 			}
 
 			OnProgressPlusOneTask("Сохраняем offers.xml");
@@ -129,6 +148,20 @@ namespace Vodovoz.Tools.CommerceML
 			}
 			response = client.Execute(request);
 			DebugResponse(response);
+
+			OnProgressPlusOneTask("Выгружаем изображения");
+			var exportedImages = Catalog.Goods.Nomenclatures.SelectMany(x => x.Images);
+
+			foreach(var img in exportedImages) {
+				var imgFileName = $"img_{img.Id:0000000}.jpg";
+				var dirImgFileName = $"import_files/" + imgFileName;
+				OnProgressTextOnly("Отправляем " + imgFileName);
+
+				request = new RestRequest("1c_exchange.php?type=catalog&mode=file&filename=" + dirImgFileName, Method.POST);
+				request.AddFile(imgFileName, img.Image, dirImgFileName);
+				response = client.Execute(request);
+				DebugResponse(response);
+			}
 
 			OnProgressPlusOneTask("Выгружаем наличие");
 

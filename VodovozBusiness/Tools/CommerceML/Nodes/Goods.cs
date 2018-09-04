@@ -41,7 +41,11 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 				}
 				goodxml.Add(new XElement("ПолноеНаименование", good.OfficialName));
 				goodxml.Add(new XElement("Группы", new XElement("Ид", good.ProductGroup.OnlineStoreGuid)));
-				//Пока пропущено картинки и свойства.
+				foreach(var img in good.Images)
+				{
+					goodxml.Add(new XElement("Картинка", $"import_files/img_{img.Id:0000000}.jpg"));
+				}
+
 				goodxml.Add(new XElement("СтавкиНалогов", 
 				                         new XElement("СтавкаНалога", 
 				                                      new XElement("Наименование", "НДС"),
