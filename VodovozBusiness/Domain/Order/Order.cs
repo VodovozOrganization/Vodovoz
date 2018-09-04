@@ -2318,6 +2318,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.Shipped:
 				case OrderStatus.UnloadingOnStock:
 				case OrderStatus.NotDelivered:
+					break;
 				case OrderStatus.Closed:
 					OnClosedOrder();
 					break;

@@ -632,14 +632,13 @@ namespace Vodovoz
 			Entity.UpdateDepositOperations(UoW);
 
 			Entity.ChangeStatus(OrderStatus.Closed);
+			Entity.ObservableOrderItems.ForEach(i => i.ActualCount = i.Count);
 			ButtonCloseOrderSensitivity();
 		}
 
 		void ButtonCloseOrderSensitivity()
 		{
-			buttonCloseOrder.Sensitive = QSMain.User.Permissions["can_close_orders"]
-											&& Entity.OrderStatus >= OrderStatus.Accepted
-											&& Entity.OrderStatus != OrderStatus.Closed;
+			buttonCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"];
 		}
 
 		#endregion
