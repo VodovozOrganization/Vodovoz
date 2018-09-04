@@ -77,7 +77,7 @@ namespace Vodovoz.ExportTo1c
 
 		public void AddOrder(Order order)
 		{
-			OrdersTotalSum += order.TotalSum;
+			OrdersTotalSum += order.OrderStatus == OrderStatus.Closed ? order.ActualTotalSum : order.TotalSum;
 			var exportSalesDocument = CreateSalesDocument(order);
 			var exportInvoiceDocument = new InvoiceDocumentNode();
 			exportInvoiceDocument.Id = ++objectCounter;
@@ -318,6 +318,7 @@ namespace Vodovoz.ExportTo1c
 					orderItem.Price));
 
 			//FIXME Не правильно, нужно переделывать ActualCount на нулабле
+			//ВНИМАНИЕ при исправлении того какая сумма берется аналогично нужно исправлять расчет OrdersTotalSum
 			var sum = orderItem.Order.OrderStatus == OrderStatus.Closed ? orderItem.ActualSum : orderItem.Sum;
 			ExportedTotalSum += sum;
 
