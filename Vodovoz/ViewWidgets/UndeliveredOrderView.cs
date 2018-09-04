@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -53,7 +54,13 @@ namespace Vodovoz.ViewWidgets
 			oldOrder = undelivery.OldOrder;
 			newOrder = undelivery.NewOrder;
 			var filterOrders = new OrdersFilter(UoW);
-			filterOrders.HideStatuses = new Enum[] { OrderStatus.WaitForPayment };
+			List<OrderStatus> hiddenStatusesList = new List<OrderStatus>();
+			var grantedStatusesArray = OrderRepository.GetStatusesForOrderCancelation();
+			foreach(OrderStatus status in Enum.GetValues(typeof(OrderStatus))) {
+				if(!grantedStatusesArray.Contains(status))
+					hiddenStatusesList.Add(status);
+			}
+			filterOrders.HideStatuses = hiddenStatusesList.Cast<Enum>().ToArray();
 			yEForUndeliveredOrder.Changed += (sender, e) => {
 				oldOrder = undelivery.OldOrder;
 				lblInfo.Markup = undelivery.GetUndeliveryInfo();

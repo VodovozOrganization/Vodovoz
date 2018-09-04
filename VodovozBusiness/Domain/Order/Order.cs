@@ -20,6 +20,7 @@ using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -2269,12 +2270,15 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="guilty">Виновный в недовезении заказа</param>
 		public virtual void SetUndeliveredStatus(GuiltyTypes? guilty)
 		{
+			var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(UoW, this);
+
 			switch(OrderStatus) {
 				case OrderStatus.NewOrder:
 				case OrderStatus.Accepted:
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnLoading:
 					ChangeStatus(OrderStatus.Canceled);
+					routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Overdue);
 					break;
 				case OrderStatus.OnTheWay:
 				case OrderStatus.DeliveryCanceled:
@@ -2282,10 +2286,13 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.UnloadingOnStock:
 				case OrderStatus.NotDelivered:
 				case OrderStatus.Closed:
-					if(guilty == GuiltyTypes.Client)
+					if(guilty == GuiltyTypes.Client) {
 						ChangeStatus(OrderStatus.DeliveryCanceled);
-					else
+						routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
+					} else {
 						ChangeStatus(OrderStatus.NotDelivered);
+						routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Overdue);
+					}
 					break;
 			}
 		}
