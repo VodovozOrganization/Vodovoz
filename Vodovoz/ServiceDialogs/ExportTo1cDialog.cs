@@ -35,7 +35,6 @@ namespace Vodovoz
 			this.exportInProgress = false;
 			UpdateExportButtonSensitivity();
 
-
 			exportData = exportOperation.Result;
 			this.labelTotalCounterparty.Text = exportData.Objects
 				.OfType<CatalogObjectNode>()
@@ -49,6 +48,11 @@ namespace Vodovoz
 				.OfType<SalesDocumentNode>()
 				.Count()
 				.ToString();
+			this.labelTotalSum.Text = exportData.OrdersTotalSum.ToString("C");
+			this.labelExportedSum.Markup = String.Format("<span foreground=\"{1}\">{0:C}</span>", 
+			                                             exportData.ExportedTotalSum,
+			                                             exportData.ExportedTotalSum == exportData.OrdersTotalSum ? "green" : "red");
+
 			this.labelTotalInvoices.Text = exportData.Objects
 				.OfType<InvoiceDocumentNode>()
 				.Count()

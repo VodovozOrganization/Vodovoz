@@ -23,6 +23,9 @@ namespace Vodovoz.ExportTo1c
 		public string ConversionRulesId{get;set;}
 		public string Comment{ get; set;}
 		public List<string> Errors = new List<string>();
+
+		public decimal OrdersTotalSum;
+		public decimal ExportedTotalSum;
 			
 		public List<ObjectNode> Objects{ get; private set; }
 		public RulesNode ExchangeRules{ get; set; }
@@ -74,6 +77,7 @@ namespace Vodovoz.ExportTo1c
 
 		public void AddOrder(Order order)
 		{
+			OrdersTotalSum += order.TotalSum;
 			var exportSalesDocument = CreateSalesDocument(order);
 			var exportInvoiceDocument = new InvoiceDocumentNode();
 			exportInvoiceDocument.Id = ++objectCounter;
@@ -313,11 +317,14 @@ namespace Vodovoz.ExportTo1c
 					Common1cTypes.Numeric,
 					orderItem.Price));
 
+			//FIXME Не правильно, нужно переделывать ActualCount на нулабле
+			var sum = orderItem.Order.OrderStatus == OrderStatus.Closed ? orderItem.ActualSum : orderItem.Sum;
+			ExportedTotalSum += sum;
+
 			record.Properties.Add(
 				new PropertyNode("Сумма",
 					Common1cTypes.Numeric,
-				                 //FIXME Не правильно, нужно переделывать ActualCount на нулабле
-				                 orderItem.Order.OrderStatus == OrderStatus.Closed ? orderItem.ActualSum : orderItem.Sum
+				                 sum
 				)
 			);
 
