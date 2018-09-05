@@ -87,7 +87,11 @@ namespace Vodovoz.Repository
 									   .Select(Projections.Sum(
 										   Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
 																   NHibernateUtil.Decimal,
-																   Projections.Property<OrderItem>(x => x.ActualCount),
+				                                                   Projections.Conditional(
+					                                                   Restrictions.Eq(Projections.Property(() => orderAlias.OrderStatus), OrderStatus.Closed),
+					                                                   Projections.Property<OrderItem>(x => x.ActualCount),
+					                                                   Projections.Property<OrderItem>(x => x.Count)
+					                                                  ),
 																   Projections.Property<OrderItem>(x => x.Price),
 																   Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( 1 - ?1 / 100 )"),
 																						   NHibernateUtil.Decimal,
