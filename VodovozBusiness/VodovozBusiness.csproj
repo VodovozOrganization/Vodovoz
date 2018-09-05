@@ -466,7 +466,6 @@
     <Compile Include="HibernateMapping\Order\UndeliveredOrderMap.cs" />
     <Compile Include="Domain\Order\Documents\InvoiceContractDoc.cs" />
     <Compile Include="Domain\Order\Documents\EquipmentReturnDocument.cs" />
-    <Compile Include="Repositories\FinesRepository.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveredOrderCommentsMap.cs" />
     <Compile Include="Domain\Order\UndeliveredOrderComment.cs" />
     <Compile Include="Repositories\UndeliveredOrderCommentsRepository.cs" />

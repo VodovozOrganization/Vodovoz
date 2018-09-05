@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Gamma.Utilities;
@@ -166,6 +167,24 @@ namespace Vodovoz.Domain.Orders
 		public virtual OrderStatus OldOrderStatus {
 			get { return oldOrderStatus; }
 			set { SetField(ref oldOrderStatus, value, () => OldOrderStatus); }
+		}
+
+		IList<Fine> fines = new List<Fine>();
+		[Display(Name = "Штрафы")]
+		public virtual IList<Fine> Fines {
+			get { return fines; }
+			set { SetField(ref fines, value, () => Fines); }
+		}
+
+		GenericObservableList<Fine> observableFines;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Fine> ObservableFines {
+			get {
+				if(observableFines == null) {
+					observableFines = new GenericObservableList<Fine>(fines);
+				}
+				return observableFines;
+			}
 		}
 
 		#endregion

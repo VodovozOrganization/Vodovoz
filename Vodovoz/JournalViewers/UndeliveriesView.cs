@@ -48,7 +48,7 @@ namespace Vodovoz.JournalViewers
 		void Configure()
 		{
 			undeliveredOrdersFilter.UoW = UoW;
-			undeliveredOrdersFilter.Refiltered += OnButtonRefreshClicked;
+			undeliveredOrdersFilter.Refiltered += (sender, e) => Refresh();
 			vm = new UndeliveredOrdersVM(UoW);
 			vm.Filter = undeliveredOrdersFilter;
 			Refresh();

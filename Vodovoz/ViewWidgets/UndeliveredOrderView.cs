@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
+using NHibernate.Util;
 using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories;
 using Vodovoz.Repository;
 using Vodovoz.ViewModel;
 
@@ -118,10 +119,10 @@ namespace Vodovoz.ViewWidgets
 
 			lblInfo.Markup = undelivery.GetUndeliveryInfo();
 
-			yTreeFines.ColumnsConfig = ColumnsConfigFactory.Create<FinesVMNodeForUndelivery>()
-				.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
-				.AddColumn("Сотудники").AddTextRenderer(node => node.EmployeesName)
-				.AddColumn("Сумма штрафа").AddTextRenderer(node => node.FineSumm.ToString())
+			yTreeFines.ColumnsConfig = ColumnsConfigFactory.Create<FineItem>()
+				.AddColumn("Номер").AddTextRenderer(node => node.Fine.Id.ToString())
+				.AddColumn("Сотудники").AddTextRenderer(node => node.Employee.ShortName)
+				.AddColumn("Сумма штрафа").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Money))
 				.Finish();
 
 			GetFines();
@@ -131,7 +132,9 @@ namespace Vodovoz.ViewWidgets
 
 		void GetFines()
 		{
-			yTreeFines.ItemsDataSource = FinesRepository.GetFinesForUndelivery(UoW, undelivery);
+			List<FineItem> fineItems = new List<FineItem>();
+			undelivery.Fines.ForEach(f => f.Items.ForEach(i => fineItems.Add(i)));
+			yTreeFines.ItemsDataSource = fineItems;
 		}
 
 		private void SetLabelsAcordingToNewOrder()

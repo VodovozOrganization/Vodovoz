@@ -22,14 +22,10 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Representations
 {
-	public class UndeliveredOrdersVM : RepresentationModelEntityBase<UndeliveredOrder, UndeliveredOrdersVMNode>
+	public class UndeliveredOrdersVM
 	{
-		public UndeliveredOrdersFilter Filter {
-			get => RepresentationFilter as UndeliveredOrdersFilter;
-			set {
-				RepresentationFilter = value as IRepresentationFilter;
-			}
-		}
+		public UndeliveredOrdersFilter Filter { get; set; }
+		public IUnitOfWork UoW { get; set; }
 
 		#region IRepresentationModel implementation
 
@@ -37,7 +33,7 @@ namespace Vodovoz.Representations
 		int currUser = 0;
 		public IList<UndeliveredOrdersVMNode> Result { get; set; }
 
-		public override void UpdateNodes()
+		public virtual void UpdateNodes()
 		{
 			UndeliveredOrdersVMNode resultAlias = null;
 			CommentNode commentsAlias = null;
@@ -63,6 +59,7 @@ namespace Vodovoz.Representations
 			UndeliveredOrderComment undeliveredOrderCommentsAlias = null;
 			Fine fineAlias = null;
 			FineItem fineItemAlias = null;
+			Employee finedEmployeeAlias = null;
 
 			var subqueryDriver = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
 			                              .Where(() => routeListItemAlias.Order.Id == oldOrderAlias.Id)
@@ -78,7 +75,8 @@ namespace Vodovoz.Representations
 					                              Projections.Property(() => routeListItemAlias.Id)
 												 )
 											 );
-			
+
+
 			if(Filter?.RestrictDriver != null)
 				subqueryDriver.Where(() => routeListAlias.Driver == Filter.RestrictDriver);
 
@@ -119,19 +117,6 @@ namespace Vodovoz.Representations
 														)
 													);
 
-			var subqueryFinedPeople = QueryOver.Of<FineItem>(() => fineItemAlias)
-			                                    .Where(() => fineItemAlias.Fine.Id == fineAlias.Id)
-			                                    .Left.JoinAlias(i => i.Fine, () => fineAlias)
-			                                    .Where(() => fineAlias.UndeliveredOrder.Id == undeliveredOrderAlias.Id)
-			                                    .Left.JoinAlias(i => i.Employee, () => employeeAlias)
-			                                    .Select(
-				                                    Projections.SqlFunction(
-					                                    new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ', ')"),
-					                                    NHibernateUtil.String,
-					                                    Projections.Property(() => employeeAlias.LastName)
-					                                   )
-				                                   );
-
 			var query = UoW.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
 						   .Left.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
 						   .Left.JoinAlias(u => u.NewOrder, () => newOrderAlias)
@@ -143,7 +128,10 @@ namespace Vodovoz.Representations
 						   .Left.JoinAlias(u => u.GuiltyDepartment, () => subdivisionAlias)
 						   .Left.JoinAlias(u => u.Author, () => authorAlias)
 						   .Left.JoinAlias(u => u.LastEditor, () => editorAlias)
-						   .Left.JoinAlias(u => u.EmployeeRegistrator, () => registratorAlias);
+						   .Left.JoinAlias(u => u.EmployeeRegistrator, () => registratorAlias)
+						   .Left.JoinAlias(() => undeliveredOrderAlias.Fines, () => fineAlias)
+			               .Left.JoinAlias(() => fineAlias.Items, () => fineItemAlias)
+			               .Left.JoinAlias(() => fineItemAlias.Employee, () => finedEmployeeAlias);
 
 			if(Filter?.RestrictOldOrder != null)
 				query.Where(() => oldOrderAlias.Id == Filter.RestrictOldOrder.Id);
@@ -192,42 +180,49 @@ namespace Vodovoz.Representations
 				query.Where(() => undeliveredOrderAlias.Id == undeliveryToShow);
 
 			Result = query.SelectList(list => list
-										  .Select(() => newOrderAlias.Id).WithAlias(() => resultAlias.NewOrderId)
-										  .Select(() => newOrderAlias.DeliveryDate).WithAlias(() => resultAlias.NewOrderDeliveryDate)
-										  .Select(() => newOrderDeliveryScheduleAlias.Name).WithAlias(() => resultAlias.NewOrderDeliverySchedule)
-										  .Select(() => undeliveredOrderAlias.Id).WithAlias(() => resultAlias.Id)
-										  .Select(() => oldOrderAlias.Id).WithAlias(() => resultAlias.OldOrderId)
-										  .Select(() => oldOrderAlias.DeliveryDate).WithAlias(() => resultAlias.OldOrderDeliveryDateTime)
-										  .Select(() => undeliveredOrderAlias.GuiltySide).WithAlias(() => resultAlias.GuiltySide)
-										  .Select(() => undeliveredOrderAlias.DispatcherCallTime).WithAlias(() => resultAlias.DispatcherCallTime)
-										  .Select(() => undeliveredOrderAlias.DriverCallNr).WithAlias(() => resultAlias.DriverCallNr)
-										  .Select(() => undeliveredOrderAlias.DriverCallTime).WithAlias(() => resultAlias.DriverCallTime)
-										  .Select(() => undeliveredOrderAlias.DriverCallType).WithAlias(() => resultAlias.DriverCallType)
-										  .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Client)
-										  .Select(() => oldOrderAuthorAlias.LastName).WithAlias(() => resultAlias.OldOrderAuthorLastName)
-										  .Select(() => oldOrderAuthorAlias.Name).WithAlias(() => resultAlias.OldOrderAuthorFirstName)
-										  .Select(() => oldOrderAuthorAlias.Patronymic).WithAlias(() => resultAlias.OldOrderAuthorMidleName)
-										  .Select(() => undeliveredOrderDeliveryPointAlias.ShortAddress).WithAlias(() => resultAlias.Address)
-										  .Select(() => undeliveredOrderDeliveryScheduleAlias.Name).WithAlias(() => resultAlias.OldDeliverySchedule)
-										  .Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
-										  .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorFirstName)
-										  .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorMidleName)
-										  .Select(() => registratorAlias.LastName).WithAlias(() => resultAlias.RegistratorLastName)
-										  .Select(() => registratorAlias.Name).WithAlias(() => resultAlias.RegistratorFirstName)
-										  .Select(() => registratorAlias.Patronymic).WithAlias(() => resultAlias.RegistratorMidleName)
-										  .Select(() => editorAlias.LastName).WithAlias(() => resultAlias.EditorLastName)
-										  .Select(() => editorAlias.Name).WithAlias(() => resultAlias.EditorFirstName)
-										  .Select(() => editorAlias.Patronymic).WithAlias(() => resultAlias.EditorMidleName)
-										  .Select(() => undeliveredOrderAlias.Reason).WithAlias(() => resultAlias.Reason)
-										  .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.GuiltyDepartment)
-										  .Select(() => undeliveredOrderAlias.UndeliveryStatus).WithAlias(() => resultAlias.UndeliveryStatus)
-										  .Select(() => undeliveredOrderAlias.OldOrderStatus).WithAlias(() => resultAlias.StatusOnOldOrderCancel)
-										  .SelectSubQuery(subqueryDriver).WithAlias(() => resultAlias.OldRouteListDriverName)
-										  .SelectSubQuery(subquery19LWatterQty).WithAlias(() => resultAlias.OldOrder19LBottleQty)
-										  .SelectSubQuery(subqueryGoodsToClient).WithAlias(() => resultAlias.OldOrderGoodsToClient)
-										  .SelectSubQuery(subqueryGoodsFromClient).WithAlias(() => resultAlias.OldOrderGoodsFromClient)
-										  .SelectSubQuery(subqueryFinedPeople).WithAlias(() => resultAlias.Fined)
-									 ).OrderBy(() => oldOrderAlias.DeliveryDate).Asc
+			                          .Select(() => newOrderAlias.Id).WithAlias(() => resultAlias.NewOrderId)
+			                          .Select(() => newOrderAlias.DeliveryDate).WithAlias(() => resultAlias.NewOrderDeliveryDate)
+			                          .Select(() => newOrderDeliveryScheduleAlias.Name).WithAlias(() => resultAlias.NewOrderDeliverySchedule)
+			                          .SelectGroup(() => undeliveredOrderAlias.Id).WithAlias(() => resultAlias.Id)
+			                          .Select(() => oldOrderAlias.Id).WithAlias(() => resultAlias.OldOrderId)
+			                          .Select(() => oldOrderAlias.DeliveryDate).WithAlias(() => resultAlias.OldOrderDeliveryDateTime)
+			                          .Select(() => undeliveredOrderAlias.GuiltySide).WithAlias(() => resultAlias.GuiltySide)
+			                          .Select(() => undeliveredOrderAlias.DispatcherCallTime).WithAlias(() => resultAlias.DispatcherCallTime)
+			                          .Select(() => undeliveredOrderAlias.DriverCallNr).WithAlias(() => resultAlias.DriverCallNr)
+			                          .Select(() => undeliveredOrderAlias.DriverCallTime).WithAlias(() => resultAlias.DriverCallTime)
+			                          .Select(() => undeliveredOrderAlias.DriverCallType).WithAlias(() => resultAlias.DriverCallType)
+			                          .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Client)
+			                          .Select(() => oldOrderAuthorAlias.LastName).WithAlias(() => resultAlias.OldOrderAuthorLastName)
+			                          .Select(() => oldOrderAuthorAlias.Name).WithAlias(() => resultAlias.OldOrderAuthorFirstName)
+			                          .Select(() => oldOrderAuthorAlias.Patronymic).WithAlias(() => resultAlias.OldOrderAuthorMidleName)
+			                          .Select(() => undeliveredOrderDeliveryPointAlias.ShortAddress).WithAlias(() => resultAlias.Address)
+			                          .Select(() => undeliveredOrderDeliveryScheduleAlias.Name).WithAlias(() => resultAlias.OldDeliverySchedule)
+			                          .Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
+			                          .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorFirstName)
+			                          .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorMidleName)
+			                          .Select(() => registratorAlias.LastName).WithAlias(() => resultAlias.RegistratorLastName)
+			                          .Select(() => registratorAlias.Name).WithAlias(() => resultAlias.RegistratorFirstName)
+			                          .Select(() => registratorAlias.Patronymic).WithAlias(() => resultAlias.RegistratorMidleName)
+			                          .Select(() => editorAlias.LastName).WithAlias(() => resultAlias.EditorLastName)
+			                          .Select(() => editorAlias.Name).WithAlias(() => resultAlias.EditorFirstName)
+			                          .Select(() => editorAlias.Patronymic).WithAlias(() => resultAlias.EditorMidleName)
+			                          .Select(() => undeliveredOrderAlias.Reason).WithAlias(() => resultAlias.Reason)
+			                          .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.GuiltyDepartment)
+			                          .Select(() => undeliveredOrderAlias.UndeliveryStatus).WithAlias(() => resultAlias.UndeliveryStatus)
+			                          .Select(() => undeliveredOrderAlias.OldOrderStatus).WithAlias(() => resultAlias.StatusOnOldOrderCancel)
+			                          .SelectSubQuery(subqueryDriver).WithAlias(() => resultAlias.OldRouteListDriverName)
+			                          .SelectSubQuery(subquery19LWatterQty).WithAlias(() => resultAlias.OldOrder19LBottleQty)
+			                          .SelectSubQuery(subqueryGoodsToClient).WithAlias(() => resultAlias.OldOrderGoodsToClient)
+			                          .SelectSubQuery(subqueryGoodsFromClient).WithAlias(() => resultAlias.OldOrderGoodsFromClient)
+			                          .Select(
+				                          Projections.SqlFunction(
+					                          new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(CONCAT_WS(': ', ?1, ?2) SEPARATOR '\n')"),
+					                          NHibernateUtil.String,
+					                          Projections.Property(() => finedEmployeeAlias.LastName),
+					                          Projections.Property(() => fineItemAlias.Money)
+					                         )
+				                         ).WithAlias(() => resultAlias.Fined)
+			                         ).OrderBy(() => oldOrderAlias.DeliveryDate).Asc
 							  .TransformUsing(Transformers.AliasToBean<UndeliveredOrdersVMNode>())
 							  .List<UndeliveredOrdersVMNode>();
 
@@ -349,8 +344,6 @@ namespace Vodovoz.Representations
 				}
 			}
 			#endregion
-
-			SetItemsSource(Result);
 		}
 		public RecursiveTreeModel<UndeliveredOrdersVMNode> RecursiveTreeModel { get; set; }
 
@@ -434,14 +427,8 @@ namespace Vodovoz.Representations
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
 			.Finish();
 
-		public override IColumnsConfig ColumnsConfig => columnsConfig;
+		public virtual IColumnsConfig ColumnsConfig => columnsConfig;
 		#endregion
-
-		#endregion
-
-		#region implemented abstract members of RepresentationModelBase
-
-		protected override bool NeedUpdateFunc(UndeliveredOrder updatedSubject) => true;
 
 		#endregion
 
@@ -452,7 +439,7 @@ namespace Vodovoz.Representations
 
 		public UndeliveredOrdersVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			CreateRepresentationFilter = () => new UndeliveredOrdersFilter(UoW);
+			Filter = new UndeliveredOrdersFilter(UoW);
 		}
 
 		public UndeliveredOrdersVM(IUnitOfWork uow) : base()
@@ -541,7 +528,7 @@ namespace Vodovoz.Representations
 		public virtual string Registrator { get => StringWorks.PersonNameWithInitials(RegistratorLastName, RegistratorFirstName, RegistratorMidleName); set {; } }
 		public virtual string UndeliveryAuthor { get => StringWorks.PersonNameWithInitials(AuthorLastName, AuthorFirstName, AuthorMidleName); set {; } }
 		public virtual string Status { get => UndeliveryStatus.GetEnumTitle(); set {; } }
-		public virtual string FinedPeople { get => Fined ?? "Не выставлено"; set {; } }
+		public virtual string FinedPeople { get => Fined == String.Empty ? "Не выставлено": Fined; set {; } }
 		public virtual string OldOrderStatus { get => StatusOnOldOrderCancel.GetEnumTitle(); set {; } }
 
 		public DateTime? DispatcherCallTime { get; set; }

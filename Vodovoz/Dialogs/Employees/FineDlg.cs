@@ -254,9 +254,11 @@ namespace Vodovoz
 		{
 			UndeliveriesView dlg = new UndeliveriesView();
 			dlg.HideFilterAndControls();
-			dlg.GetUndeliveryFilter.RestrictOldOrder = Entity.UndeliveredOrder.OldOrder;
-			dlg.GetUndeliveryFilter.RestrictOldOrderStartDate = dlg.GetUndeliveryFilter.RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate;
-			dlg.GetUndeliveryFilter.RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus;
+			dlg.GetUndeliveryFilter.SetAtOnce(
+				x => x.RestrictOldOrder = Entity.UndeliveredOrder.OldOrder,
+				x => x.RestrictOldOrderStartDate = dlg.GetUndeliveryFilter.RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
+				x => x.RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus
+			);
 			dlg.Refresh();
 			TabParent.AddSlaveTab(this, dlg);
 		}

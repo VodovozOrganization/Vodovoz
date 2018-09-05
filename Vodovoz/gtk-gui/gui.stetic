@@ -1358,6 +1358,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5044,7 +5045,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Цены</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -57111,7 +57111,6 @@ not tooltip</property>
             <property name="Events">ButtonPressMask</property>
             <property name="StartDate">0</property>
             <property name="EndDate">0</property>
-            <signal name="PeriodChanged" handler="OnDateperiodNewOrderDatePeriodChanged" />
           </widget>
           <packing>
             <property name="TopAttach">2</property>
@@ -57134,7 +57133,6 @@ not tooltip</property>
             <property name="Events">ButtonPressMask</property>
             <property name="StartDate">0</property>
             <property name="EndDate">0</property>
-            <signal name="PeriodChanged" handler="OnDateperiodOldOrderDatePeriodChanged" />
           </widget>
           <packing>
             <property name="TopAttach">1</property>
@@ -57160,7 +57158,6 @@ not tooltip</property>
             <property name="ShowSpecialStateNot">False</property>
             <property name="UseShortTitle">False</property>
             <property name="DefaultFirst">False</property>
-            <signal name="EnumItemSelected" handler="OnEnumcomboUndeliveryStatusEnumItemSelected" />
           </widget>
           <packing>
             <property name="LeftAttach">5</property>
@@ -57429,7 +57426,6 @@ not tooltip</property>
           <widget class="QSOrmProject.EntryReferenceVM" id="refClient">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
-            <signal name="Changed" handler="OnEntryreferenceClientChanged" />
           </widget>
           <packing>
             <property name="TopAttach">2</property>
@@ -57450,7 +57446,6 @@ not tooltip</property>
           <widget class="QSOrmProject.EntryReferenceVM" id="refDeliveryPoint">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
-            <signal name="Changed" handler="OnEntryreferencePointChanged" />
           </widget>
           <packing>
             <property name="TopAttach">3</property>
@@ -57471,7 +57466,6 @@ not tooltip</property>
           <widget class="Gamma.Widgets.yEntryReferenceVM" id="refDriver">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
-            <signal name="Changed" handler="OnRefDriverChanged" />
           </widget>
           <packing>
             <property name="TopAttach">1</property>
@@ -57492,7 +57486,6 @@ not tooltip</property>
           <widget class="Gamma.Widgets.yEntryReferenceVM" id="refOldOrder">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
-            <signal name="Changed" handler="OnRefOldOrderChanged" />
           </widget>
           <packing>
             <property name="LeftAttach">1</property>
@@ -57511,7 +57504,6 @@ not tooltip</property>
           <widget class="Gamma.Widgets.yEntryReferenceVM" id="refOldOrderAuthor">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
-            <signal name="Changed" handler="OnRefOldOrderAuthorChanged" />
           </widget>
           <packing>
             <property name="LeftAttach">3</property>
@@ -57530,7 +57522,6 @@ not tooltip</property>
           <widget class="Gamma.Widgets.yEntryReferenceVM" id="refUndeliveryAuthor">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
-            <signal name="Changed" handler="OnRefUndeliveryAuthorChanged" />
           </widget>
           <packing>
             <property name="TopAttach">3</property>
@@ -57608,7 +57599,6 @@ not tooltip</property>
             <property name="DefaultFirst">False</property>
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
-            <signal name="ItemSelected" handler="OnYSpecCMBGuiltyDepItemSelected" />
           </widget>
           <packing>
             <property name="TopAttach">2</property>

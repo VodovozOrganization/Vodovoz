@@ -11,15 +11,11 @@ namespace Vodovoz.JournalFilters
 {
 	[OrmDefaultIsFiltered(true)]
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UndeliveredOrdersFilter : Gtk.Bin, IRepresentationFilter
+	public partial class UndeliveredOrdersFilter : RepresentationFilterBase<UndeliveredOrdersFilter>
 	{
-		IUnitOfWork uow;
-		public IUnitOfWork UoW {
-			get => uow;
-			set {
-				uow = value;
-				Configure();
-			}
+		protected override void OnUoWSet()
+		{
+			Configure();
 		}
 
 		void Configure(){
@@ -55,18 +51,6 @@ namespace Vodovoz.JournalFilters
 		{
 			this.Build();
 		}
-
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered ()
-		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
-		}
-
-		#endregion
 
 		public Order RestrictOldOrder {
 			get => refOldOrder.Subject as Order;
@@ -182,31 +166,6 @@ namespace Vodovoz.JournalFilters
 
 		public bool? NewInvoiceCreated { get; set; }
 
-		protected void OnRefOldOrderChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnRefDriverChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnEntryreferencePointChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnRefOldOrderAuthorChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
 		protected void OnYEnumCMBActionWithInvoiceEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			switch(e.SelectedItem) {
@@ -220,12 +179,6 @@ namespace Vodovoz.JournalFilters
 					NewInvoiceCreated = null;
 					break;
 			}
-			OnRefiltered();
-		}
-
-		protected void OnEnumcomboUndeliveryStatusEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
-		{
-			OnRefiltered();
 		}
 
 		protected void OnYEnumCMBGuiltyEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -239,27 +192,6 @@ namespace Vodovoz.JournalFilters
 					ySpecCMBGuiltyDep.SelectedItem = null;
 					break;
 			}
-			OnRefiltered();
-		}
-
-		protected void OnYSpecCMBGuiltyDepItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnDateperiodOldOrderDatePeriodChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnDateperiodNewOrderDatePeriodChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnRefUndeliveryAuthorChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
 		}
 	}
 

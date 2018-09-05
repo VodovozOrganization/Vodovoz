@@ -6,7 +6,7 @@ using Vodovoz.Domain.Client;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DeliveryPointFilter : RepresentationFilterBase
+	public partial class DeliveryPointFilter : RepresentationFilterBase<DeliveryPointFilter>
 	{
 		IUnitOfWork uow;
 

@@ -354,18 +354,8 @@ namespace Vodovoz.JournalFilters
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.ySpecCMBGuiltyDep.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYSpecCMBGuiltyDepItemSelected);
 			this.yEnumCMBGuilty.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYEnumCMBGuiltyEnumItemSelected);
 			this.yEnumCMBActionWithInvoice.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYEnumCMBActionWithInvoiceEnumItemSelected);
-			this.refUndeliveryAuthor.Changed += new global::System.EventHandler(this.OnRefUndeliveryAuthorChanged);
-			this.refOldOrderAuthor.Changed += new global::System.EventHandler(this.OnRefOldOrderAuthorChanged);
-			this.refOldOrder.Changed += new global::System.EventHandler(this.OnRefOldOrderChanged);
-			this.refDriver.Changed += new global::System.EventHandler(this.OnRefDriverChanged);
-			this.refDeliveryPoint.Changed += new global::System.EventHandler(this.OnEntryreferencePointChanged);
-			this.refClient.Changed += new global::System.EventHandler(this.OnEntryreferenceClientChanged);
-			this.enumCMBUndeliveryStatus.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumcomboUndeliveryStatusEnumItemSelected);
-			this.dateperiodOldOrderDate.PeriodChanged += new global::System.EventHandler(this.OnDateperiodOldOrderDatePeriodChanged);
-			this.dateperiodNewOrderDate.PeriodChanged += new global::System.EventHandler(this.OnDateperiodNewOrderDatePeriodChanged);
 		}
 	}
 }

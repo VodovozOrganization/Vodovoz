@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using QSOrmProject;
-using Vodovoz.Domain.Orders;
 using Gamma.Utilities;
 using NHibernate.Transform;
+using QSOrmProject;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Repositories
 {

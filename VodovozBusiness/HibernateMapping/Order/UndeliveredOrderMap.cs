@@ -29,6 +29,8 @@ namespace Vodovoz.HibernateMapping.Order
 			References(x => x.EmployeeRegistrator).Column("registered_by_employee_id");
 			References(x => x.Author).Column("author_employee_id");
 			References(x => x.LastEditor).Column("editor_employee_id");
+
+			HasMany(x => x.Fines).Inverse().KeyColumn("undelivered_order_id");
 		}
 	}
 }
