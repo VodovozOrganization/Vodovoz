@@ -166,6 +166,31 @@ namespace Vodovoz.JournalFilters
 
 		public bool? NewInvoiceCreated { get; set; }
 
+		protected void OnRefOldOrderChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnRefDriverChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnRefClientChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnRefDeliveryPointChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnRefOldOrderAuthorChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
 		protected void OnYEnumCMBActionWithInvoiceEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			switch(e.SelectedItem) {
@@ -175,15 +200,21 @@ namespace Vodovoz.JournalFilters
 				case ActionsWithInvoice.notCreated:
 					NewInvoiceCreated = false;
 					break;
-				default: 
+				default:
 					NewInvoiceCreated = null;
 					break;
 			}
+			OnRefiltered();
+		}
+
+		protected void OnEnumCMBUndeliveryStatusEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			OnRefiltered();
 		}
 
 		protected void OnYEnumCMBGuiltyEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			switch(e.SelectedItem){
+			switch(e.SelectedItem) {
 				case GuiltyTypes.Department:
 					ySpecCMBGuiltyDep.Visible = lblGuiltyDep.Visible = true;
 					break;
@@ -192,6 +223,27 @@ namespace Vodovoz.JournalFilters
 					ySpecCMBGuiltyDep.SelectedItem = null;
 					break;
 			}
+			OnRefiltered();
+		}
+
+		protected void OnYSpecCMBGuiltyDepItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnDateperiodOldOrderDatePeriodChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnDateperiodNewOrderDatePeriodChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnRefUndeliveryAuthorChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
 		}
 	}
 
