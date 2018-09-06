@@ -110,7 +110,7 @@ namespace Vodovoz
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
 			var filter = new StockBalanceFilter();
-			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
+			filter.RestrictAtOnce(x => x.RestrictWarehouse = DocumentUoW.Root.Warehouse);
 			var selectOldNomenclature = new ReferenceRepresentation(new ViewModel.StockBalanceVM(filter),
 				"Выберите номенклатуру на замену");
 			selectOldNomenclature.Mode = OrmReferenceMode.Select;
@@ -157,7 +157,7 @@ namespace Vodovoz
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)
 		{
 			var filter = new StockBalanceFilter();
-			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
+			filter.RestrictAtOnce(x => x.RestrictWarehouse = DocumentUoW.Root.Warehouse);
 			var changeOldNomenclature = new ReferenceRepresentation(new ViewModel.StockBalanceVM(filter),
 				"Изменить старую номенклатуру");
 			changeOldNomenclature.Mode = OrmReferenceMode.Select;

@@ -1,21 +1,22 @@
 ﻿//NomenclatureEquipTypeFilter
 
 using System;
-using System.Collections;
-using System.Diagnostics.Contracts;
-using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.JournalFilters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class NomenclatureEquipTypeFilter : Gtk.Bin, IRepresentationFilter, IReferenceFilter
+	public partial class NomenclatureEquipTypeFilter : RepresentationFilterBase<NomenclatureEquipTypeFilter>, IReferenceFilter
 	{
+		protected override void ConfigureFilter()
+		{
+			entryrefEquipmentType.SubjectType = typeof(EquipmentType);
+			OnRefiltered();
+		}
 
 		public NomenclatureEquipTypeFilter(IUnitOfWork uow) : this()
 		{
@@ -25,33 +26,7 @@ namespace Vodovoz.JournalFilters
 		public NomenclatureEquipTypeFilter()
 		{
 			this.Build();
-			UoW = uow;
-			entryrefEquipmentType.SubjectType = typeof(EquipmentType);
-			OnRefiltered();
 		}
-
-		#region IRepresentationFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered()
-		{
-			if(Refiltered != null)
-				Refiltered(this, new EventArgs());
-		}
-
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-			}
-		}
-
-		#endregion
 
 		EquipmentType nomenEquipmentType;
 

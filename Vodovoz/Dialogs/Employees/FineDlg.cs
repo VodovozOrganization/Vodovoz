@@ -254,7 +254,7 @@ namespace Vodovoz
 		{
 			UndeliveriesView dlg = new UndeliveriesView();
 			dlg.HideFilterAndControls();
-			dlg.GetUndeliveryFilter.SetAtOnce(
+			dlg.GetUndeliveryFilter.RestrictAtOnce(
 				x => x.RestrictOldOrder = Entity.UndeliveredOrder.OldOrder,
 				x => x.RestrictOldOrderStartDate = dlg.GetUndeliveryFilter.RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
 				x => x.RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus

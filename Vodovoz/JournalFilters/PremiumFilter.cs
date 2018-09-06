@@ -5,7 +5,7 @@ using QSOrmProject.RepresentationModel;
 namespace Vodovoz.JournalFilters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class PremiumFilter : Gtk.Bin, IRepresentationFilter
+	public partial class PremiumFilter : RepresentationFilterBase<PremiumFilter>
 	{
 		public PremiumFilter()
 		{
@@ -15,31 +15,12 @@ namespace Vodovoz.JournalFilters
 		public PremiumFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
+		}
+
+		protected override void ConfigureFilter()
+		{
 			yentryreferenceSubdivisions.SubjectType = typeof(Subdivision);
 		}
-
-		#region IRepresentationFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered()
-		{
-			if(Refiltered != null)
-				Refiltered(this, new EventArgs());
-		}
-
-		private IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-			}
-		}
-
-		#endregion
 
 		#region Свойства
 
@@ -72,7 +53,6 @@ namespace Vodovoz.JournalFilters
 		{
 			OnRefiltered();
 		}
-
 
 		protected void OnDateperiodpickerPremiumDatePeriodChanged(object sender, EventArgs e)
 		{

@@ -6,38 +6,19 @@ using Vodovoz.Representations;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
-	public partial class CounterpartyFilter : Gtk.Bin, IRepresentationFilter
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class CounterpartyFilter : RepresentationFilterBase<CounterpartyFilter>
 	{
-		public CounterpartyFilter (IUnitOfWork uow)
+		protected override void ConfigureFilter()
 		{
-			this.Build();
-			UoW = uow;
 			yentryTag.RepresentationModel = new TagVM(UoW);
 		}
 
-		#region IRepresentationFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered ()
+		public CounterpartyFilter(IUnitOfWork uow)
 		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
+			this.Build();
+			UoW = uow;
 		}
-
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-			}
-		}
-
-		#endregion
 
 		public bool RestrictIncludeCustomer {
 			get { return checkCustomer.Active; }
@@ -71,8 +52,7 @@ namespace Vodovoz
 			}
 		}
 
-		public Tag Tag
-		{
+		public Tag Tag {
 			get { return yentryTag.Subject as Tag; }
 			set {
 				yentryTag.Subject = value;
@@ -80,16 +60,16 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnComboCounterpartyTypeEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		protected void OnComboCounterpartyTypeEnumItemSelected(object sender, EnumItemClickedEventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		protected void OnCheckIncludeArhiveToggled(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
-		
+
 		protected void OnYentryTagChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();

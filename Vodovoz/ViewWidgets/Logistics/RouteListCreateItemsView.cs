@@ -199,10 +199,13 @@ namespace Vodovoz
 		protected void AddOrders()
 		{
 			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
-			filter.RestrictStartDate = filter.RestrictEndDate = RouteListUoW.Root.Date.Date;
-			filter.RestrictStatus = OrderStatus.Accepted;
 			filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
-			filter.RestrictSelfDelivery = false;
+			filter.RestrictAtOnce(
+				x => x.RestrictStartDate = RouteListUoW.Root.Date.Date,
+				x => x.RestrictEndDate = RouteListUoW.Root.Date.Date,
+				x => x.RestrictStatus = OrderStatus.Accepted,
+				x => x.RestrictSelfDelivery = false
+			);
 
 			ViewModel.OrdersVM vm = new ViewModel.OrdersVM(filter);
 			vm.CanToggleVisibilityOfColumns = true;

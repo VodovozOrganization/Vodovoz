@@ -5,56 +5,36 @@ using Vodovoz.Domain.Cash;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AccountableDebtsFilter : Gtk.Bin, IRepresentationFilter
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class AccountableDebtsFilter : RepresentationFilterBase<AccountableDebtsFilter>
 	{
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-			}
+		protected override void ConfigureFilter()
+		{
+			entryreferenceExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
 		}
 
-		public AccountableDebtsFilter (IUnitOfWork uow) : this()
+		public AccountableDebtsFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
 		}
 
-		public AccountableDebtsFilter ()
+		public AccountableDebtsFilter()
 		{
-			this.Build ();
-
-			entryreferenceExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
+			this.Build();
 		}
-
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered ()
-		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
-		}
-
-		#endregion
 
 		public ExpenseCategory RestrictExpenseCategory {
-			get { return entryreferenceExpense.Subject as ExpenseCategory;}
-			set { entryreferenceExpense.Subject = value;
+			get { return entryreferenceExpense.Subject as ExpenseCategory; }
+			set {
+				entryreferenceExpense.Subject = value;
 				entryreferenceExpense.Sensitive = false;
 			}
 		}
 
-		protected void OnEntryreferenceExpenseChanged (object sender, EventArgs e)
+		protected void OnEntryreferenceExpenseChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
-
 	}
 }
 

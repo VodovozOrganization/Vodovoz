@@ -89,7 +89,7 @@ namespace Vodovoz
 			}
 				
 			var filter = new StockBalanceFilter (UnitOfWorkFactory.CreateWithoutRoot ());
-			filter.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse;
+			filter.RestrictAtOnce(x => x.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse);
 
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.StockBalanceVM (filter));
 			SelectDialog.Mode = OrmReferenceMode.Select;

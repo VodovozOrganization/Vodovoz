@@ -6,75 +6,57 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	[OrmDefaultIsFiltered (false)]
-	[System.ComponentModel.ToolboxItem (true)]
-	public partial class StockBalanceFilter : Gtk.Bin, IRepresentationFilter
+	[OrmDefaultIsFiltered(false)]
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class StockBalanceFilter : RepresentationFilterBase<StockBalanceFilter>
 	{
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-				speccomboStock.SetRenderTextFunc<Warehouse> (x => x.Name);
-				speccomboStock.ItemsList = Repository.Store.WarehouseRepository.GetActiveWarehouse (uow);
-				if (CurrentUserSettings.Settings.DefaultWarehouse != null)
-					speccomboStock.SelectedItem = uow.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id) ;				
-			}
+		protected override void ConfigureFilter()
+		{
+			speccomboStock.SetRenderTextFunc<Warehouse>(x => x.Name);
+			speccomboStock.ItemsList = Repository.Store.WarehouseRepository.GetActiveWarehouse(UoW);
+			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+				speccomboStock.SelectedItem = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 		}
 
 		bool showArchive;
 		public bool ShowArchive {
 			get => showArchive;
-			set { 
-				showArchive = checkShowArchive.Active = value; 
+			set {
+				showArchive = checkShowArchive.Active = value;
 			}
 		}
 
-		public StockBalanceFilter (IUnitOfWork uow)
+		public StockBalanceFilter(IUnitOfWork uow)
 		{
-			this.Build ();
+			this.Build();
 			UoW = uow;
 		}
 
-		public StockBalanceFilter () : this (UnitOfWorkFactory.CreateWithoutRoot())
+		public StockBalanceFilter() : this(UnitOfWorkFactory.CreateWithoutRoot())
 		{
 		}
 
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered ()
+		protected void OnEnumcomboTypeEnumItemSelected(object sender, EnumItemClickedEventArgs e)
 		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
-		}
-
-		#endregion
-
-		protected void OnEnumcomboTypeEnumItemSelected (object sender, EnumItemClickedEventArgs e)
-		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		public Warehouse RestrictWarehouse {
 			get {
-				if (speccomboStock.SelectedItem is Warehouse)
+				if(speccomboStock.SelectedItem is Warehouse)
 					return speccomboStock.SelectedItem as Warehouse;
 				else
 					return null;
 			}
-			set { speccomboStock.SelectedItem = value;
+			set {
+				speccomboStock.SelectedItem = value;
 				speccomboStock.Sensitive = false;
 			}
 		}
 
-		protected void OnSpeccomboStockItemSelected (object sender, ItemSelectedEventArgs e)
+		protected void OnSpeccomboStockItemSelected(object sender, ItemSelectedEventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		protected void OnCheckShowArchiveToggled(object sender, EventArgs e)

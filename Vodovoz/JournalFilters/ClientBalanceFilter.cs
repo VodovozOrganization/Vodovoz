@@ -6,49 +6,24 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
-	[OrmDefaultIsFiltered (true)]
-	[System.ComponentModel.ToolboxItem (true)]
-	public partial class ClientBalanceFilter : Gtk.Bin, IRepresentationFilter
+	[OrmDefaultIsFiltered(true)]
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class ClientBalanceFilter : RepresentationFilterBase<ClientBalanceFilter>
 	{
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-				entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM ();
-			}
+		protected override void ConfigureFilter()
+		{
+			entryreferenceNomenclature.SubjectType = typeof(Nomenclature);
+			entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM();
 		}
 
-		public ClientBalanceFilter (IUnitOfWork uow) : this ()
+		public ClientBalanceFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
 		}
 
-		public ClientBalanceFilter ()
+		public ClientBalanceFilter()
 		{
-			this.Build ();
-
-			entryreferenceNomenclature.SubjectType = typeof(Nomenclature);
-		}
-
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered ()
-		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
-		}
-
-		#endregion
-
-		void UpdateCreteria ()
-		{
-			OnRefiltered ();
+			this.Build();
 		}
 
 		public Counterparty RestrictCounterparty {
@@ -83,31 +58,31 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnSpeccomboStockItemSelected (object sender, EnumItemClickedEventArgs e)
+		protected void OnSpeccomboStockItemSelected(object sender, EnumItemClickedEventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnEntryreferenceClientChanged (object sender, EventArgs e)
+		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
 		{
 			entryreferencePoint.Sensitive = RestrictCounterparty != null;
-			if (RestrictCounterparty == null)
+			if(RestrictCounterparty == null)
 				entryreferencePoint.Subject = null;
 			else {
 				entryreferencePoint.Subject = null;
-				entryreferencePoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, RestrictCounterparty);
+				entryreferencePoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, RestrictCounterparty);
 			}
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnEntryreferencePointChanged (object sender, EventArgs e)
+		protected void OnEntryreferencePointChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		protected void OnCheckIncludeSoldToggled(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		protected void OnEntryreferenceNomenclatureChangedByUser(object sender, EventArgs e)

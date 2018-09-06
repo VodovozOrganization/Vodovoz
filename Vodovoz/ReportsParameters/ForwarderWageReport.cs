@@ -16,7 +16,7 @@ namespace Vodovoz.Reports
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
 			var filterForwarder = new EmployeeFilter(UoW);
-			filterForwarder.RestrictCategory = EmployeeCategory.forwarder;
+			filterForwarder.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
 			yentryreferenceForwarder.RepresentationModel = new EmployeesVM(filterForwarder);
 		}
 

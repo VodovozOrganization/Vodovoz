@@ -1,26 +1,25 @@
 ﻿using System;
+using Gamma.Widgets;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
-using Gamma.Widgets;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
 	[OrmDefaultIsFiltered(true)]
-	public partial class CashDocumentsFilter : Gtk.Bin, IRepresentationFilter
+	public partial class CashDocumentsFilter : RepresentationFilterBase<CashDocumentsFilter>
 	{
-		IUnitOfWork uow;
+		protected override void ConfigureFilter()
+		{
+			enumcomboDocumentType.ItemsEnum = typeof(CashDocumentType);
+			entryEmployee.RepresentationModel = new ViewModel.EmployeesVM(new EmployeeFilter(uow: UoW, showFired: false));
+			yentryIncome.ItemsQuery = Repository.Cash.CategoryRepository.IncomeCategoriesQuery();
+			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
 
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-				enumcomboDocumentType.ItemsEnum = typeof(CashDocumentType);
-				entryEmployee.RepresentationModel = new ViewModel.EmployeesVM(new EmployeeFilter(uow: UoW, showFired: false));
-			}
+			//Последние 30 дней.
+			dateperiodDocs.StartDateOrNull = DateTime.Today.AddDays(-30);
+			dateperiodDocs.EndDateOrNull = DateTime.Today.AddDays(1);
 		}
 
 		public CashDocumentsFilter(IUnitOfWork uow) : this()
@@ -31,25 +30,7 @@ namespace Vodovoz
 		public CashDocumentsFilter()
 		{
 			this.Build();
-			yentryIncome.ItemsQuery = Repository.Cash.CategoryRepository.IncomeCategoriesQuery();
-			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
-
-			//Последние 30 дней.
-			dateperiodDocs.StartDateOrNull = DateTime.Today.AddDays(-30);
-			dateperiodDocs.EndDateOrNull = DateTime.Today.AddDays(1);
 		}
-
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered()
-		{
-			if(Refiltered != null)
-				Refiltered(this, new EventArgs());
-		}
-
-		#endregion
 
 		public CashDocumentType? RestrictDocumentType {
 			get { return enumcomboDocumentType.SelectedItem as CashDocumentType?; }

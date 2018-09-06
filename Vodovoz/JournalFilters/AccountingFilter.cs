@@ -5,55 +5,28 @@ using QSOrmProject.RepresentationModel;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AccountingFilter : Gtk.Bin, IRepresentationFilter
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class AccountingFilter : RepresentationFilterBase<AccountingFilter>
 	{
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-			}
-		}
-
-		public AccountingFilter (IUnitOfWork iuow) : this ()
+		protected override void ConfigureFilter()
 		{
-			UoW = iuow;
-		}
-
-		public AccountingFilter ()
-		{
-			this.Build ();
 			comboType.ItemsEnum = typeof(OperationType);
 			comboType.Sensitive = true;
 			comboType.ShowSpecialStateAll = false;
 			comboType.Active = 0;
-
 		}
 
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered ()
+		public AccountingFilter(IUnitOfWork uow) : this()
 		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
+			UoW = uow;
 		}
 
-		#endregion
-
-		void UpdateCreteria ()
+		public AccountingFilter()
 		{
-			OnRefiltered ();
+			this.Build();
 		}
 
-		public OperationType RestrictOperationType {
-			get { return (OperationType)comboType.SelectedItem; }
-		}
+		public OperationType RestrictOperationType => (OperationType)comboType.SelectedItem;
 
 		public DateTime? RestrictStartDate {
 			get { return periodPicker.StartDateOrNull; }
@@ -73,7 +46,7 @@ namespace Vodovoz
 
 		public enum OperationType
 		{
-			[Display (Name = "Все")]
+			[Display(Name = "Все")]
 			all,
 			[Display(Name = "Доходы")]
 			income,
@@ -81,9 +54,9 @@ namespace Vodovoz
 			expense
 		}
 
-		protected void OnPeriodPickerPeriodChanged (object sender, EventArgs e)
+		protected void OnPeriodPickerPeriodChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		protected void OnComboTypeChangedByUser(object sender, EventArgs e)

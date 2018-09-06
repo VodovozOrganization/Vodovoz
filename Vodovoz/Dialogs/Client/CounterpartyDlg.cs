@@ -128,13 +128,13 @@ namespace Vodovoz
 			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
 			referenceDefaultExpense.Binding.AddBinding(Entity, e => e.DefaultExpenseCategory, w => w.Subject).InitializeFromSource();
 			var filterAccountant = new EmployeeFilter(UoW);
-			filterAccountant.RestrictCategory = EmployeeCategory.office;
+			filterAccountant.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			referenceAccountant.RepresentationModel = new EmployeesVM(filterAccountant);
 			var filterSalesManager = new EmployeeFilter(UoW);
-			filterSalesManager.RestrictCategory = EmployeeCategory.office;
+			filterSalesManager.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			referenceSalesManager.RepresentationModel = new EmployeesVM(filterSalesManager);
 			var filterBottleManager = new EmployeeFilter(UoW);
-			filterBottleManager.RestrictCategory = EmployeeCategory.office;
+			filterBottleManager.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			referenceBottleManager.RepresentationModel = new EmployeesVM(filterBottleManager);
 			proxiesview1.CounterpartyUoW = UoWGeneric;
 			dataentryMainContact.RepresentationModel = new ViewModel.ContactsVM(UoW, Entity);
@@ -182,7 +182,7 @@ namespace Vodovoz
 		void AllOrders_Activated(object sender, EventArgs e)
 		{
 			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
-			filter.RestrictCounterparty = Entity;
+			filter.RestrictAtOnce(x => x.RestrictCounterparty = Entity);
 
 			ReferenceRepresentation OrdersDialog = new ReferenceRepresentation(new ViewModel.OrdersVM(filter));
 			OrdersDialog.Mode = OrmReferenceMode.Normal;

@@ -54,7 +54,7 @@ namespace Vodovoz
 
 
 			var filter = new EmployeeFilter(UoW);
-			filter.RestrictCategory = EmployeeCategory.driver;
+			filter.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			dataentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
 			dataentryreferenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 

@@ -74,12 +74,12 @@ namespace Vodovoz
 			};
 
 			var filterDriver = new EmployeeFilter(UoW);
-			filterDriver.RestrictCategory = EmployeeCategory.driver;
+			filterDriver.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			var filter = new EmployeeFilter(UoW);
-			filter.RestrictCategory = EmployeeCategory.forwarder;
+			filter.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
 			referenceForwarder.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			referenceForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject).InitializeFromSource();
 			referenceForwarder.Changed += (sender, args) =>

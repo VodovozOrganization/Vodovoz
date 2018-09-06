@@ -3703,6 +3703,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -39750,7 +39751,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.DeliveryPointFilter" design-size="338 23">
+  <widget class="Gtk.Bin" id="Vodovoz.DeliveryPointFilter" design-size="325 23">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -39770,10 +39771,11 @@ not tooltip</property>
             <signal name="Toggled" handler="OnCheckOnlyNotFoundOsmToggled" />
           </widget>
           <packing>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
+            <property name="XOptions">0</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">True</property>
-            <property name="XFill">True</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">False</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
             <property name="YFill">True</property>
@@ -39793,10 +39795,11 @@ not tooltip</property>
           <packing>
             <property name="LeftAttach">1</property>
             <property name="RightAttach">2</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
+            <property name="XOptions">0</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">True</property>
-            <property name="XFill">True</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">False</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
             <property name="YFill">True</property>
@@ -54417,6 +54420,7 @@ not tooltip</property>
             <property name="Events">ButtonPressMask</property>
             <property name="StartDate">0</property>
             <property name="EndDate">0</property>
+            <signal name="PeriodChanged" handler="OnDateperiodpickerPremiumDatePeriodChanged" />
           </widget>
           <packing>
             <property name="TopAttach">1</property>

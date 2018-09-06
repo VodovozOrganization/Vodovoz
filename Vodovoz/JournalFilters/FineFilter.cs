@@ -4,9 +4,14 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[OrmDefaultIsFiltered (true)]
-	public partial class FineFilter : Gtk.Bin, IRepresentationFilter
+	[OrmDefaultIsFiltered(true)]
+	public partial class FineFilter : RepresentationFilterBase<FineFilter>
 	{
+		protected override void ConfigureFilter()
+		{
+			yentryreferenceSubdivisions.SubjectType = typeof(Subdivision);
+		}
+
 		public FineFilter()
 		{
 			this.Build();
@@ -15,68 +20,44 @@ namespace Vodovoz
 		public FineFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
-			yentryreferenceSubdivisions.SubjectType = typeof(Subdivision);
 		}
-	
-		#region IRepresentationFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered ()
-		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
-		}
-
-		private IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-			}
-		}
-
-		#endregion
 
 		#region Свойства
 
-		public  Subdivision RestrictionSubdivision {
-			get {return yentryreferenceSubdivisions.Subject as Subdivision;}
+		public Subdivision RestrictionSubdivision {
+			get { return yentryreferenceSubdivisions.Subject as Subdivision; }
 			set {
 				yentryreferenceSubdivisions.Subject = value;
 				yentryreferenceSubdivisions.Sensitive = false;
 			}
 		}
 
-		public  DateTime? RestrictionFineDateStart {
-			get {return dateperiodpickerFineDate.StartDateOrNull;}
+		public DateTime? RestrictionFineDateStart {
+			get { return dateperiodpickerFineDate.StartDateOrNull; }
 			set {
 				dateperiodpickerFineDate.StartDateOrNull = value;
 				dateperiodpickerFineDate.Sensitive = false;
 			}
 		}
 
-		public  DateTime? RestrictionFineDateEnd {
-			get {return dateperiodpickerFineDate.EndDateOrNull;}
+		public DateTime? RestrictionFineDateEnd {
+			get { return dateperiodpickerFineDate.EndDateOrNull; }
 			set {
 				dateperiodpickerFineDate.EndDateOrNull = value;
 				dateperiodpickerFineDate.Sensitive = false;
 			}
 		}
 
-		public  DateTime? RestrictionRLDateStart {
-			get {return dateperiodpickerRL.StartDateOrNull;}
+		public DateTime? RestrictionRLDateStart {
+			get { return dateperiodpickerRL.StartDateOrNull; }
 			set {
 				dateperiodpickerRL.StartDateOrNull = value;
 				dateperiodpickerRL.Sensitive = false;
 			}
 		}
 
-		public  DateTime? RestrictionRLDateEnd {
-			get {return dateperiodpickerRL.EndDateOrNull;}
+		public DateTime? RestrictionRLDateEnd {
+			get { return dateperiodpickerRL.EndDateOrNull; }
 			set {
 				dateperiodpickerRL.EndDateOrNull = value;
 				dateperiodpickerRL.Sensitive = false;
@@ -84,20 +65,20 @@ namespace Vodovoz
 		}
 
 		#endregion
-		protected void OnYentryreferenceSubdivisionsChanged (object sender, EventArgs e)
+		protected void OnYentryreferenceSubdivisionsChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 
-		protected void OnDateperiodpickerFineDatePeriodChanged (object sender, EventArgs e)
+		protected void OnDateperiodpickerFineDatePeriodChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnDateperiodpickerRLPeriodChanged (object sender, EventArgs e)
+		protected void OnDateperiodpickerRLPeriodChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 	}
 }

@@ -7,20 +7,16 @@ using Vodovoz.Domain.Employees;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UnclosedAdvancesFilter : Gtk.Bin, IRepresentationFilter
+	public partial class UnclosedAdvancesFilter : RepresentationFilterBase<UnclosedAdvancesFilter>
 	{
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-				var filter = new EmployeeFilter(UoW);
-				filter.RestrictFired = false;
-				yentryAccountable.RepresentationModel = new ViewModel.EmployeesVM(filter);
-			}
+		protected override void ConfigureFilter()
+		{
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictFired = false;
+			yentryAccountable.RepresentationModel = new ViewModel.EmployeesVM(filter);
+			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
+			yAdvancePeriod.StartDateOrNull = DateTime.Today.AddMonths(-1);
+			yAdvancePeriod.EndDateOrNull = DateTime.Today;
 		}
 
 		public UnclosedAdvancesFilter(IUnitOfWork uow) : this()
@@ -31,33 +27,20 @@ namespace Vodovoz
 		public UnclosedAdvancesFilter()
 		{
 			this.Build();
-			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
-			yAdvancePeriod.StartDateOrNull = DateTime.Today.AddMonths(-1);
-			yAdvancePeriod.EndDateOrNull = DateTime.Today;
 		}
-
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered()
-		{
-			if(Refiltered != null)
-				Refiltered(this, new EventArgs());
-		}
-
-		#endregion
 
 		public ExpenseCategory RestrictExpenseCategory {
-			get { return yentryExpense.Subject as ExpenseCategory;}
-			set { yentryExpense.Subject = value;
+			get { return yentryExpense.Subject as ExpenseCategory; }
+			set {
+				yentryExpense.Subject = value;
 				yentryExpense.Sensitive = false;
 			}
 		}
 
 		public Employee RestrictAccountable {
-			get { return yentryAccountable.Subject as Employee;}
-			set { yentryAccountable.Subject = value;
+			get { return yentryAccountable.Subject as Employee; }
+			set {
+				yentryAccountable.Subject = value;
 				yentryAccountable.Sensitive = false;
 			}
 		}

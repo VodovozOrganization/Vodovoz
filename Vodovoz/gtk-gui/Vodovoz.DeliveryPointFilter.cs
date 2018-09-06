@@ -30,6 +30,7 @@ namespace Vodovoz
 			this.checkOnlyNotFoundOsm.UseUnderline = true;
 			this.table1.Add(this.checkOnlyNotFoundOsm);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.checkOnlyNotFoundOsm]));
+			w1.XOptions = ((global::Gtk.AttachOptions)(0));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.checkWithoutStreet = new global::Gtk.CheckButton();
@@ -42,9 +43,11 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.checkWithoutStreet]));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
+			w2.XOptions = ((global::Gtk.AttachOptions)(0));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

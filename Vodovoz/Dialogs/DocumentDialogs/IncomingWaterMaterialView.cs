@@ -93,7 +93,7 @@ namespace Vodovoz
 			}
 
 			var filter = new StockBalanceFilter (UnitOfWorkFactory.CreateWithoutRoot ());
-			filter.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse;
+			filter.RestrictAtOnce(x => x.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse);
 			//FIXME возможно нужно добавить ограничение на типы номенклатур.
 
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.StockBalanceVM (filter));

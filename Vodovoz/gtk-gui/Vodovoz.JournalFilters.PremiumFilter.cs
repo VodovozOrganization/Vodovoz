@@ -69,11 +69,13 @@ namespace Vodovoz.JournalFilters
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
 			this.yentryreferenceSubdivisions.Changed += new global::System.EventHandler(this.OnYentryreferenceSubdivisionsChanged);
+			this.dateperiodpickerPremiumDate.PeriodChanged += new global::System.EventHandler(this.OnDateperiodpickerPremiumDatePeriodChanged);
 		}
 	}
 }

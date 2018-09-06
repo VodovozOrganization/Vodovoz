@@ -1,48 +1,28 @@
 ﻿using System;
-using QSOrmProject.RepresentationModel;
 using QSOrmProject;
+using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Service;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
-	public partial class ServiceClaimFilter : Gtk.Bin, IRepresentationFilter
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class ServiceClaimFilter : RepresentationFilterBase<ServiceClaimFilter>
 	{
-		public ServiceClaimFilter (IUnitOfWork uow) : this ()
+		public ServiceClaimFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
-			
 		}
 
-		public ServiceClaimFilter ()
+		public ServiceClaimFilter()
 		{
-			this.Build ();
+			this.Build();
 		}
 
-		#region IRepresentationFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered ()
+		protected override void ConfigureFilter()
 		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
+			comboStatus.ItemsEnum = typeof(ServiceClaimStatus);
+			comboType.ItemsEnum = typeof(ServiceClaimType);
 		}
-
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-				comboStatus.ItemsEnum = typeof(ServiceClaimStatus);
-				comboType.ItemsEnum = typeof(ServiceClaimType);
-			}
-		}
-
-		#endregion
 
 		public ServiceClaimStatus? RestrictServiceClaimStatus {
 			get { return comboStatus.SelectedItem as ServiceClaimStatus?; }
@@ -62,12 +42,12 @@ namespace Vodovoz
 
 		protected void OnComboTypeChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		protected void OnComboStatusChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 	}
 }

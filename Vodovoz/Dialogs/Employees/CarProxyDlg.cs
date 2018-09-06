@@ -48,7 +48,7 @@ namespace Vodovoz.Dialogs.Employees
 			};
 
 			var filterDefaultForwarder = new EmployeeFilter(UoW);
-			filterDefaultForwarder.RestrictCategory = EmployeeCategory.driver;
+			filterDefaultForwarder.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryDriver.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			yentryDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
 

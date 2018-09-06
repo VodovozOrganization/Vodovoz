@@ -18,7 +18,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			comboboxDriver.ItemsEnum = typeof(Drivers);
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var filter = new EmployeeFilter(UoW);
-			filter.RestrictCategory = EmployeeCategory.driver;
+			filter.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryDriver.RepresentationModel = new EmployeesVM(filter);
 		}
 

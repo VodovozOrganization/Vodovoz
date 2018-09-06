@@ -57,7 +57,7 @@ namespace Vodovoz.Dialogs
 					  .AddBinding(x => x.CanTextEdit, w => w.Editable).InitializeFromSource();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.RestrictIncludeArhive = false;
+			counterpartyFilter.RestrictAtOnce(x => x.RestrictIncludeArhive = false);
 
 			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceClient.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();

@@ -62,7 +62,7 @@ namespace Vodovoz
 			ydatepicker.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
 			var filterDriver = new EmployeeFilter(UoW);
-			filterDriver.RestrictCategory = EmployeeCategory.driver;
+			filterDriver.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentrydriver.RepresentationModel = new EmployeesVM(filterDriver);
 			yentrydriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 

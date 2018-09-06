@@ -331,9 +331,11 @@ namespace Vodovoz.ViewWidgets
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
-			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
-			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.equipment;
-			nomenclatureFilter.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale;
+			nomenclatureFilter.RestrictAtOnce(
+				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
+				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
+				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale
+			);
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование к клиенту";
@@ -360,9 +362,11 @@ namespace Vodovoz.ViewWidgets
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
-			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
-			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.equipment;
-			nomenclatureFilter.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale;
+			nomenclatureFilter.RestrictAtOnce(
+				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
+				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
+				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale
+			);
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование от клиента";

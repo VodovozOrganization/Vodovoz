@@ -77,7 +77,7 @@ namespace Vodovoz
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new RouteListsFilter(UoW);
-			filter.RestrictStatus = RouteListStatus.InLoading;
+			filter.RestrictAtOnce(x => x.RestrictStatus = RouteListStatus.InLoading);
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 

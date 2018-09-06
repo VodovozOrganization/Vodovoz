@@ -1,24 +1,15 @@
 ﻿using System;
-using NHibernate;
-using NHibernate.Criterion;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
-	public partial class EmployeeFilter : Gtk.Bin, IRepresentationFilter
+	public partial class EmployeeFilter : RepresentationFilterBase<EmployeeFilter>
 	{
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-				enumcomboCategory.ItemsEnum = typeof(EmployeeCategory);
-			}
+		protected override void ConfigureFilter()
+		{
+			enumcomboCategory.ItemsEnum = typeof(EmployeeCategory);
 		}
 
 		public EmployeeFilter(IUnitOfWork uow) : this()
@@ -36,18 +27,6 @@ namespace Vodovoz
 			UoW = uow;
 			RestrictFired = showFired;
 		}
-
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered()
-		{
-			if(Refiltered != null)
-				Refiltered(this, new EventArgs());
-		}
-
-		#endregion
 
 		public EmployeeCategory? RestrictCategory {
 			get { return enumcomboCategory.SelectedItem as EmployeeCategory?; }

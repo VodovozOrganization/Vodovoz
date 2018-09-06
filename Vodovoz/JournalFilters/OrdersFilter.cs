@@ -6,50 +6,31 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz
 {
-	[OrmDefaultIsFiltered (true)]
-	public partial class OrdersFilter : Gtk.Bin, IRepresentationFilter
+	[OrmDefaultIsFiltered(true)]
+	public partial class OrdersFilter : RepresentationFilterBase<OrdersFilter>
 	{
-		IUnitOfWork uow;
-		int daysToAft = 0;
-		int daysToFwd = 0;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-				enumcomboStatus.ItemsEnum = typeof(OrderStatus);
-				entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM (new CounterpartyFilter(UoW));
-			}
-		}
-
-		public OrdersFilter (IUnitOfWork uow) : this ()
+		protected override void ConfigureFilter()
 		{
-			UoW = uow;
-		}
-
-		public OrdersFilter ()
-		{
-			this.Build ();
-
+			enumcomboStatus.ItemsEnum = typeof(OrderStatus);
+			entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			daysToAft = -CurrentUserSettings.Settings.JournalDaysToAft;
 			daysToFwd = CurrentUserSettings.Settings.JournalDaysToFwd;
 			dateperiodOrders.StartDateOrNull = DateTime.Today.AddDays(daysToAft);
 			dateperiodOrders.EndDateOrNull = DateTime.Today.AddDays(daysToFwd);
 		}
 
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered ()
+		public OrdersFilter(IUnitOfWork uow) : this()
 		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
+			UoW = uow;
 		}
 
-		#endregion
+		public OrdersFilter()
+		{
+			this.Build();
+		}
+
+		int daysToAft = 0;
+		int daysToFwd = 0;
 
 		public OrderStatus? RestrictStatus {
 			get { return enumcomboStatus.SelectedItem as OrderStatus?; }
@@ -64,9 +45,9 @@ namespace Vodovoz
 		/// Скрыть заказы со статусом из массива
 		/// </summary>
 		/// <value>массив скрываемых статусов</value>
-		public Object[] HideStatuses{
+		public Object[] HideStatuses {
 			get => hideStatuses;
-			set{
+			set {
 				enumcomboStatus.AddEnumToHideList(value);
 				hideStatuses = value;
 			}
@@ -114,14 +95,11 @@ namespace Vodovoz
 
 		bool? restrictSelfDelivery;
 
-		public bool? RestrictSelfDelivery
-		{
-			get
-			{
+		public bool? RestrictSelfDelivery {
+			get {
 				return checkOnlySelfDelivery.Active ? true : restrictSelfDelivery;
 			}
-			set
-			{
+			set {
 				restrictSelfDelivery = value;
 				checkOnlySelfDelivery.Active = value == true;
 				checkOnlySelfDelivery.Sensitive = false;
@@ -130,14 +108,11 @@ namespace Vodovoz
 
 		bool? restrictWithoutSelfDelivery;
 
-		public bool? RestrictWithoutSelfDelivery
-		{
-			get
-			{
+		public bool? RestrictWithoutSelfDelivery {
+			get {
 				return checkWithoutSelfDelivery.Active ? true : restrictWithoutSelfDelivery;
 			}
-			set
-			{
+			set {
 				restrictWithoutSelfDelivery = value;
 				checkWithoutSelfDelivery.Active = value == true;
 				checkWithoutSelfDelivery.Sensitive = false;
@@ -146,14 +121,11 @@ namespace Vodovoz
 
 		bool? restrictLessThreeHours;
 
-		public bool? RestrictLessThreeHours
-		{
-			get
-			{
+		public bool? RestrictLessThreeHours {
+			get {
 				return checkLessThreeHours.Active ? true : restrictLessThreeHours;
 			}
-			set
-			{
+			set {
 				restrictLessThreeHours = value;
 				checkLessThreeHours.Active = value == true;
 				checkLessThreeHours.Sensitive = false;
@@ -162,14 +134,11 @@ namespace Vodovoz
 
 		bool? restrictHideService;
 
-		public bool? RestrictHideService
-		{
-			get
-			{
+		public bool? RestrictHideService {
+			get {
 				return checkHideService.Active ? true : restrictHideService;
 			}
-			set
-			{
+			set {
 				restrictHideService = value;
 				checkHideService.Active = value == true;
 				checkHideService.Sensitive = false;
@@ -178,45 +147,42 @@ namespace Vodovoz
 
 		bool? restrictOnlyService;
 
-		public bool? RestrictOnlyService
-		{
-			get
-			{
+		public bool? RestrictOnlyService {
+			get {
 				return checkOnlyService.Active ? true : restrictOnlyService;
 			}
-			set
-			{
+			set {
 				restrictOnlyService = value;
 				checkOnlyService.Active = value == true;
 				checkOnlyService.Sensitive = false;
 			}
 		}
 
-		public int[] ExceptIds{ get; set; }
+		public int[] ExceptIds { get; set; }
 
-		protected void OnEntryreferenceClientChanged (object sender, EventArgs e)
+		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
 		{
 			CheckLimitationForDate();
 
 			entryreferencePoint.Sensitive = RestrictCounterparty != null;
-			if (RestrictCounterparty == null)
+			if(RestrictCounterparty == null)
 				entryreferencePoint.Subject = null;
 			else {
 				entryreferencePoint.Subject = null;
-				entryreferencePoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, RestrictCounterparty);
+				entryreferencePoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, RestrictCounterparty);
 			}
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnEntryreferencePointChanged (object sender, EventArgs e)
+		protected void OnEntryreferencePointChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnDateperiodOrdersPeriodChanged (object sender, EventArgs e)
+		protected void OnDateperiodOrdersPeriodChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
-			if(CurrentUserSettings.Settings.JournalDaysToAft != daysToAft 
+			OnRefiltered();
+			if(CurrentUserSettings.Settings.JournalDaysToAft != daysToAft
 			   || CurrentUserSettings.Settings.JournalDaysToFwd != daysToFwd) {
 				CurrentUserSettings.Settings.JournalDaysToAft = daysToAft;
 				CurrentUserSettings.Settings.JournalDaysToFwd = daysToFwd;
@@ -224,26 +190,26 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnEnumcomboStatusChanged (object sender, EventArgs e)
+		protected void OnEnumcomboStatusChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		protected void OnCheckWithoutCoordinatesToggled(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		protected void OnCheckOnlySelfDeliveryToggled(object sender, EventArgs e)
 		{
 			checkWithoutSelfDelivery.Active = checkOnlySelfDelivery.Active ? false : checkWithoutSelfDelivery.Active;
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnCheckWithoutSelfDeliveryToggled (object sender, EventArgs e)
+		protected void OnCheckWithoutSelfDeliveryToggled(object sender, EventArgs e)
 		{
 			checkOnlySelfDelivery.Active = checkWithoutSelfDelivery.Active ? false : checkOnlySelfDelivery.Active;
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		protected void OnCheckLessThreeHoursToggled(object sender, EventArgs e)

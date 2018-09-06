@@ -211,7 +211,7 @@ namespace Vodovoz
 			entryOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.RestrictIncludeArhive = false;
+			counterpartyFilter.RestrictAtOnce(x => x.RestrictIncludeArhive = false);
 			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			referenceClient.CanEditReference = true;
@@ -916,8 +916,10 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.master };
-			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.master;
+			nomenclatureFilter.RestrictAtOnce(
+				x => x.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.master },
+				x => x.DefaultSelectedCategory = NomenclatureCategory.master
+			);
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Выезд мастера";
@@ -944,9 +946,11 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
-			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.water;
-			nomenclatureFilter.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale;
+			nomenclatureFilter.RestrictAtOnce(
+				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
+				x => x.DefaultSelectedCategory = NomenclatureCategory.water,
+				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
+			);
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Номенклатура на продажу";
@@ -1089,8 +1093,10 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
-			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.equipment;
+			nomenclatureFilter.RestrictAtOnce(
+				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
+				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment
+			);
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование к клиенту";
@@ -1117,8 +1123,10 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
-			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.equipment;
+			nomenclatureFilter.RestrictAtOnce(
+				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
+				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment
+			);
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Оборудование от клиента";

@@ -61,7 +61,7 @@ namespace Vodovoz.ViewWidgets
 				if(!grantedStatusesArray.Contains(status))
 					hiddenStatusesList.Add(status);
 			}
-			filterOrders.HideStatuses = hiddenStatusesList.Cast<Enum>().ToArray();
+			filterOrders.RestrictAtOnce(x => x.HideStatuses = hiddenStatusesList.Cast<Enum>().ToArray());
 			yEForUndeliveredOrder.Changed += (sender, e) => {
 				oldOrder = undelivery.OldOrder;
 				lblInfo.Markup = undelivery.GetUndeliveryInfo();
@@ -271,8 +271,10 @@ namespace Vodovoz.ViewWidgets
 		protected void OnBtnChooseOrderClicked(object sender, EventArgs e)
 		{
 			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
-			filter.HideStatuses = new Enum[] { OrderStatus.WaitForPayment };
-			filter.RestrictCounterparty = oldOrder.Client;
+			filter.RestrictAtOnce(
+				x => x.RestrictCounterparty = oldOrder.Client,
+				x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
+			);
 			ReferenceRepresentation dlg = new ReferenceRepresentation(new OrdersVM(filter));
 			dlg.Mode = OrmReferenceMode.Select;
 			dlg.ButtonMode = ReferenceButtonMode.None;

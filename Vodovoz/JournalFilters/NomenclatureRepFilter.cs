@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Linq;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
@@ -8,8 +7,16 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.JournalFilters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class NomenclatureRepFilter : Gtk.Bin, IRepresentationFilter
+	public partial class NomenclatureRepFilter : RepresentationFilterBase<NomenclatureRepFilter>
 	{
+		protected override void ConfigureFilter()
+		{
+			enumcomboCategory.ItemsEnum = typeof(NomenclatureCategory);
+			cmbEquipmentSubtype.ItemsEnum = typeof(SubtypeOfEquipmentCategory);
+			cmbEquipmentSubtype.Visible = DefaultSelectedCategory == NomenclatureCategory.equipment;
+			chkShowDilers.Visible = DefaultSelectedCategory == NomenclatureCategory.water;
+			OnRefiltered();
+		}
 
 		public NomenclatureRepFilter(IUnitOfWork uow) : this()
 		{
@@ -19,35 +26,7 @@ namespace Vodovoz.JournalFilters
 		public NomenclatureRepFilter()
 		{
 			this.Build();
-			enumcomboCategory.ItemsEnum = typeof(NomenclatureCategory);
-			cmbEquipmentSubtype.ItemsEnum = typeof(SubtypeOfEquipmentCategory);
-			cmbEquipmentSubtype.Visible = DefaultSelectedCategory == NomenclatureCategory.equipment;
-			chkShowDilers.Visible = DefaultSelectedCategory == NomenclatureCategory.water;
-			OnRefiltered();
 		}
-
-		#region IRepresentationFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered()
-		{
-			if(Refiltered != null)
-				Refiltered(this, new EventArgs());
-		}
-
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-			}
-		}
-
-		#endregion
 
 		NomenclatureCategory[] availableCategories;
 
@@ -79,9 +58,7 @@ namespace Vodovoz.JournalFilters
 			}
 		}
 
-		public bool ShowDilers {
-			get { return chkShowDilers.Active; }
-		}
+		public bool ShowDilers => chkShowDilers.Active;
 
 		public NomenclatureCategory[] SelectedCategories {
 			get {
@@ -117,7 +94,8 @@ namespace Vodovoz.JournalFilters
 			enumcomboCategory.AddEnumToHideList(hidingCategories.Cast<object>().ToArray());
 		}
 
-		void SetVisibilityOfSubcategory(){
+		void SetVisibilityOfSubcategory()
+		{
 			cmbEquipmentSubtype.Visible = enumcomboCategory.SelectedItem != null
 				&& (NomenclatureCategory)enumcomboCategory.SelectedItem == NomenclatureCategory.equipment;
 		}
@@ -134,7 +112,8 @@ namespace Vodovoz.JournalFilters
 			OnRefiltered();
 		}
 
-		protected void OnChkShowDilersToggled(object sender, EventArgs e) {
+		protected void OnChkShowDilersToggled(object sender, EventArgs e)
+		{
 			OnRefiltered();
 		}
 

@@ -165,8 +165,10 @@ namespace Vodovoz
 		{
 			equipmentToSetSerial = ytreeEquipment.GetSelectedObject<ReceptionEquipmentItemNode>();
 			var filter = new ClientBalanceFilter(UnitOfWorkFactory.CreateWithoutRoot());
-			filter.RestrictCounterparty = equipmentToSetSerial.ServiceClaim.Counterparty;
-			filter.RestrictNomenclature = filter.UoW.GetById<Nomenclature>(equipmentToSetSerial.NomenclatureId);
+			filter.RestrictAtOnce(
+				x => x.RestrictCounterparty = equipmentToSetSerial.ServiceClaim.Counterparty,
+			    x => x.RestrictNomenclature = x.UoW.GetById<Nomenclature>(equipmentToSetSerial.NomenclatureId)
+			);
 			var selectFromClientDlg = new ReferenceRepresentation(new Vodovoz.ViewModel.ClientEquipmentBalanceVM(filter));
 			selectFromClientDlg.TabName = String.Format("Оборудование у {0}",
 				StringWorks.EllipsizeEnd(equipmentToSetSerial.ServiceClaim.Counterparty.Name, 50));

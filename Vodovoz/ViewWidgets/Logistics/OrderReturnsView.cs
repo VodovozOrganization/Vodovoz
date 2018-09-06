@@ -135,9 +135,11 @@ namespace Vodovoz
 		private void OpenSelectNomenclatureDlg()
 		{
 			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
-			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForEditOrderFromRL();
-			nomenclatureFilter.DefaultSelectedCategory = NomenclatureCategory.deposit;
-			nomenclatureFilter.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale;
+			nomenclatureFilter.RestrictAtOnce(
+				x => x.AvailableCategories = Nomenclature.GetCategoriesForEditOrderFromRL(),
+				x => x.DefaultSelectedCategory = NomenclatureCategory.deposit,
+				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
+			);
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Номенклатура на продажу";
@@ -194,7 +196,7 @@ namespace Vodovoz
 		{
 			orderNode = new OrderNode(routeListItem.Order);
 			var counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.RestrictIncludeArhive = false;
+			counterpartyFilter.RestrictAtOnce(x => x.RestrictIncludeArhive = false);
 			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceClient.Binding.AddBinding(orderNode, s => s.Client, w => w.Subject).InitializeFromSource();
 			referenceClient.CanEditReference = false;

@@ -10,77 +10,62 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	[OrmDefaultIsFiltered (true)]
-	public partial class StockDocumentsFilter : Gtk.Bin, IRepresentationFilter
+	[OrmDefaultIsFiltered(true)]
+	public partial class StockDocumentsFilter : RepresentationFilterBase<StockDocumentsFilter>
 	{
-		IUnitOfWork uow;
+		protected override void ConfigureFilter()
+		{
+			enumcomboDocumentType.ItemsEnum = typeof(DocumentType);
 
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-				enumcomboDocumentType.ItemsEnum = typeof(DocumentType);
-
-				yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
-				if (CurrentUserSettings.Settings.DefaultWarehouse != null)
-					yentryrefWarehouse.Subject = uow.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id) ;
-				var filter = new EmployeeFilter(UoW);
-				filter.RestrictCategory = EmployeeCategory.driver;
-				yentryrefDriver.RepresentationModel = new EmployeesVM(filter);
-			}
+			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
+			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+				yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			yentryrefDriver.RepresentationModel = new EmployeesVM(filter);
+			dateperiodDocs.StartDate = DateTime.Today.AddDays(-7);
+			dateperiodDocs.EndDate = DateTime.Today.AddDays(1);
 		}
 
-		public StockDocumentsFilter (IUnitOfWork uow) : this()
+		public StockDocumentsFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
 		}
 
-		public StockDocumentsFilter ()
+		public StockDocumentsFilter()
 		{
-			this.Build ();
-			dateperiodDocs.StartDate = DateTime.Today.AddDays(-7); 
-			dateperiodDocs.EndDate = DateTime.Today.AddDays(1);
+			this.Build();
 		}
-
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered ()
-		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
-		}
-
-		#endregion
 
 		public DocumentType? RestrictDocumentType {
-			get { return enumcomboDocumentType.SelectedItem as DocumentType?;}
-			set { enumcomboDocumentType.SelectedItem = value;
+			get { return enumcomboDocumentType.SelectedItem as DocumentType?; }
+			set {
+				enumcomboDocumentType.SelectedItem = value;
 				enumcomboDocumentType.Sensitive = false;
 			}
-		
+
 		}
 
 		public Warehouse RestrictWarehouse {
-			get { return yentryrefWarehouse.Subject as Warehouse;}
-			set { yentryrefWarehouse.Subject = value;
+			get { return yentryrefWarehouse.Subject as Warehouse; }
+			set {
+				yentryrefWarehouse.Subject = value;
 				yentryrefWarehouse.Sensitive = false;
 			}
 		}
 
 		public Employee RestrictDriver {
-			get { return yentryrefDriver.Subject as Employee;}
-			set { yentryrefDriver.Subject = value;
+			get { return yentryrefDriver.Subject as Employee; }
+			set {
+				yentryrefDriver.Subject = value;
 				yentryrefDriver.Sensitive = false;
 			}
 		}
 
 		public DeliveryPoint RestrictDeliveryPoint {
-			get { return entryreferencePoint.Subject as DeliveryPoint;}
-			set { entryreferencePoint.Subject = value;
+			get { return entryreferencePoint.Subject as DeliveryPoint; }
+			set {
+				entryreferencePoint.Subject = value;
 				entryreferencePoint.Sensitive = false;
 			}
 		}
@@ -101,29 +86,29 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnEntryreferencePointChanged (object sender, EventArgs e)
+		protected void OnEntryreferencePointChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnEnumcomboDocumentTypeChanged (object sender, EventArgs e)
+		protected void OnEnumcomboDocumentTypeChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		protected void OnYentryrefDriverChangedByUser(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		protected void OnDateperiodDocsPeriodChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 	}
 }

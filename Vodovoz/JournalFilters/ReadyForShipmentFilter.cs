@@ -1,52 +1,32 @@
-﻿using System;
-using QSOrmProject;
+﻿using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
-	public partial class ReadyForShipmentFilter : Gtk.Bin, IRepresentationFilter
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class ReadyForShipmentFilter : RepresentationFilterBase<ReadyForShipmentFilter>
 	{
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-				yspeccomboWarehouse.ItemsList = Repository.Store.WarehouseRepository.GetActiveWarehouse (UoW);
-				if (CurrentUserSettings.Settings.DefaultWarehouse != null)
-					yspeccomboWarehouse.SelectedItem = CurrentUserSettings.Settings.DefaultWarehouse;
-			}
+		protected override void ConfigureFilter()
+		{
+			yspeccomboWarehouse.ItemsList = Repository.Store.WarehouseRepository.GetActiveWarehouse(UoW);
+			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+				yspeccomboWarehouse.SelectedItem = CurrentUserSettings.Settings.DefaultWarehouse;
 		}
 
-		public ReadyForShipmentFilter (IUnitOfWork uow) : this ()
+		public ReadyForShipmentFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
 		}
 
-		public ReadyForShipmentFilter ()
+		public ReadyForShipmentFilter()
 		{
-			this.Build ();
+			this.Build();
 		}
 
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered ()
+		void UpdateCreteria()
 		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
-		}
-
-		#endregion
-
-		void UpdateCreteria ()
-		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
 		public Warehouse RestrictWarehouse {
@@ -57,9 +37,9 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnYspeccomboWarehouseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		protected void OnYspeccomboWarehouseItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			UpdateCreteria ();
+			UpdateCreteria();
 		}
 	}
 }

@@ -7,58 +7,40 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AccountableSlipFilter : Gtk.Bin, IRepresentationFilter, IAccountableSlipsFilter
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class AccountableSlipFilter : RepresentationFilterBase<AccountableSlipFilter>, IAccountableSlipsFilter
 	{
-		IUnitOfWork uow;
+		protected override void ConfigureFilter()
+		{
+			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
 
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-			}
+			var filter = new EmployeeFilter(UoW);
+			filter.RestrictAtOnce(x => x.RestrictFired = false);
+			yentryAccountable.RepresentationModel = new EmployeesVM(filter);
 		}
 
-		public AccountableSlipFilter (IUnitOfWork uow) : this()
+		public AccountableSlipFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
 		}
 
-		public AccountableSlipFilter ()
+		public AccountableSlipFilter()
 		{
-			this.Build ();
-
-			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
-
-			var filter = new EmployeeFilter(UoW);
-			filter.RestrictFired = false;
-			yentryAccountable.RepresentationModel = new EmployeesVM(filter);
+			this.Build();
 		}
-
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered ()
-		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
-		}
-
-		#endregion
 
 		public ExpenseCategory RestrictExpenseCategory {
-			get { return yentryExpense.Subject as ExpenseCategory;}
-			set { yentryExpense.Subject = value;
+			get { return yentryExpense.Subject as ExpenseCategory; }
+			set {
+				yentryExpense.Subject = value;
 				yentryExpense.Sensitive = false;
 			}
 		}
 
 		public Employee RestrictAccountable {
-			get { return yentryAccountable.Subject as Employee;}
-			set { yentryAccountable.Subject = value;
+			get { return yentryAccountable.Subject as Employee; }
+			set {
+				yentryAccountable.Subject = value;
 				yentryAccountable.Sensitive = false;
 			}
 		}
@@ -79,24 +61,21 @@ namespace Vodovoz
 			}
 		}
 
-		public decimal? RestrictDebt {
-			get { return null;
-			}
+		public decimal? RestrictDebt => null;
+
+		protected void OnYentryAccountableChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
 		}
 
-		protected void OnYentryAccountableChanged (object sender, EventArgs e)
+		protected void OnYentryExpenseChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 
-		protected void OnYentryExpenseChanged (object sender, EventArgs e)
+		protected void OnDateperiodPeriodChanged(object sender, EventArgs e)
 		{
-			OnRefiltered ();
-		}
-
-		protected void OnDateperiodPeriodChanged (object sender, EventArgs e)
-		{
-			OnRefiltered ();
+			OnRefiltered();
 		}
 	}
 }

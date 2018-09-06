@@ -1,29 +1,22 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using Gamma.Widgets;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Logistic;
-using Gamma.Widgets;
-using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
 	[OrmDefaultIsFiltered(true)]
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteListsFilter : Gtk.Bin, IRepresentationFilter
+	public partial class RouteListsFilter : RepresentationFilterBase<RouteListsFilter>
 	{
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-				enumcomboStatus.ItemsEnum = typeof(RouteListStatus);
-				yentryreferenceShift.SubjectType = typeof(DeliveryShift);
-				//инициализация списка
-				yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport);
-			}
+		protected override void ConfigureFilter()
+		{
+			enumcomboStatus.ItemsEnum = typeof(RouteListStatus);
+			yentryreferenceShift.SubjectType = typeof(DeliveryShift);
+			//инициализация списка
+			yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport);
 		}
 
 		public RouteListsFilter(IUnitOfWork uow) : this()
@@ -35,18 +28,6 @@ namespace Vodovoz
 		{
 			this.Build();
 		}
-
-		#region IReferenceFilter implementation
-
-		public event EventHandler Refiltered;
-
-		void OnRefiltered()
-		{
-			if(Refiltered != null)
-				Refiltered(this, new EventArgs());
-		}
-
-		#endregion
 
 		public RouteListStatus? RestrictStatus {
 			get { return enumcomboStatus.SelectedItem as RouteListStatus?; }
@@ -119,7 +100,6 @@ namespace Vodovoz
 		{
 			enumcomboStatus.SelectedItem = status;
 		}
-
 
 		//возврат выбранного значения в списке ТС и засерение списка в случае программной установки значения
 		public RLFilterTransport? RestrictTransport {

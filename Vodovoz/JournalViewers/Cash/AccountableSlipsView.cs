@@ -37,9 +37,9 @@ namespace Vodovoz
 		public AccountableSlipsView(Employee accountable, ExpenseCategory expense): this()
 		{
 			if (accountable != null)
-				accountableslipfilter1.RestrictAccountable = accountable;
+				accountableslipfilter1.RestrictAtOnce(x => x.RestrictAccountable = accountable);
 			if (expense != null)
-				accountableslipfilter1.RestrictExpenseCategory = expense;
+				accountableslipfilter1.RestrictAtOnce(x => x.RestrictExpenseCategory = expense);
 		}
 
 		public AccountableSlipsView ()
