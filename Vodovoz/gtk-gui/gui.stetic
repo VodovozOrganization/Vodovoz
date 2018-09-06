@@ -48142,7 +48142,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.AtWorksDlg" design-size="2233 300">
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.AtWorksDlg" design-size="1111 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -48528,7 +48528,7 @@ not tooltip</property>
               </widget>
               <packing>
                 <property name="Position">1</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
@@ -48537,8 +48537,6 @@ not tooltip</property>
           <packing>
             <property name="Position">1</property>
             <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
           </packing>
         </child>
       </widget>
