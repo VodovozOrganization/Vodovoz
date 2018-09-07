@@ -359,9 +359,11 @@ public partial class MainWindow : Window
 
 	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
 	{
+		var vm = new RouteListsVM();
+		vm.Filter.RestrictAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<RouteListsVM>(),
-			() => new ReferenceRepresentation(new RouteListsVM())
+			() => new ReferenceRepresentation(vm)
 			.Buttons(QSMain.User.Permissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
 		);
 	}

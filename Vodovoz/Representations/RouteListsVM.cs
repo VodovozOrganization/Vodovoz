@@ -5,7 +5,6 @@ using Dialogs.Logistic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
@@ -145,9 +144,7 @@ namespace Vodovoz.ViewModel
 				Filter = new RouteListsFilter(UoW);
 		}
 
-		public override bool PopupMenuExist {
-			get { return true; }
-		}
+		public override bool PopupMenuExist => true;
 
 		private RepresentationSelectResult[] lastMenuSelected;
 
