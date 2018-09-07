@@ -1,10 +1,9 @@
 ﻿using System;
-using QSOrmProject;
-using Vodovoz.Domain.Logistic;
-using QSTDI;
 using Gtk;
-using Vodovoz.Repository;
+using QSOrmProject;
 using QSProjectsLib;
+using QSTDI;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
@@ -27,11 +26,10 @@ namespace Vodovoz
 					return;
 				uow = value;
 				viewModel = new ViewModel.RouteListsVM(value);
+				routelistsfilter1.UoW = uow;
+				routelistsfilter1.SetFilterStatus(RouteListStatus.OnClosing);
 				viewModel.Filter = routelistsfilter1;
-				viewModel.Filter.UoW = uow;
-				viewModel.Filter.SetFilterStatus(RouteListStatus.OnClosing);
 				treeRouteLists.RepresentationModel = viewModel;
-				treeRouteLists.RepresentationModel.UpdateNodes();
 			}
 		}
 

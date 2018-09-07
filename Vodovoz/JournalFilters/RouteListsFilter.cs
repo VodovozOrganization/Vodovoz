@@ -13,10 +13,11 @@ namespace Vodovoz
 	{
 		protected override void ConfigureFilter()
 		{
-			enumcomboStatus.ItemsEnum = typeof(RouteListStatus);
-			yentryreferenceShift.SubjectType = typeof(DeliveryShift);
-			//инициализация списка
-			yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport);
+			RestrictAtOnce(
+				x => x.enumcomboStatus.ItemsEnum = typeof(RouteListStatus),
+				x => x.yentryreferenceShift.SubjectType = typeof(DeliveryShift),
+				x => x.yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport)
+			);
 		}
 
 		public RouteListsFilter(IUnitOfWork uow) : this()
