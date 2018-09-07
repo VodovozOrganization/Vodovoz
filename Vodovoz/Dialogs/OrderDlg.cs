@@ -5,6 +5,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
+using Gamma.Widgets;
 using Gtk;
 using NHibernate.Proxy;
 using NHibernate.Util;
@@ -29,10 +30,10 @@ using Vodovoz.Domain.Service;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
+using Vodovoz.Repository.Logistics;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz
 {
