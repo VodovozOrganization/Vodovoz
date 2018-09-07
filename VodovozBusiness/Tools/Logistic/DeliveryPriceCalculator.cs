@@ -88,7 +88,10 @@ namespace Vodovoz.Tools.Logistic
 			var point = new Point((double)latitude, (double)longitude);
 			var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
 			result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
-			result.WithPrice = district.PriceType != DistrictWaterPrice.ByDistance || (result.ByDistance && bottlesCount.HasValue);
+			result.WithPrice = (
+				(district != null && district.PriceType != DistrictWaterPrice.ByDistance)
+				|| (result.ByDistance && bottlesCount.HasValue)
+			);
 			if(result.ByDistance) {
 				//((а * 2/100)*20*б)/в+110
 				//а - расстояние от границы города минус

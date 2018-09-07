@@ -52951,7 +52951,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ViewWidgets.DeliveryPriceView" design-size="184 300">
+  <widget class="Gtk.Bin" id="Vodovoz.ViewWidgets.DeliveryPriceView" design-size="184 441">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -52973,6 +52973,7 @@ not tooltip</property>
                 <child>
                   <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewPrices">
                     <property name="MemberName" />
+                    <property name="HeightRequest">300</property>
                     <property name="CanFocus">True</property>
                     <property name="ShowScrollbars">True</property>
                   </widget>
@@ -52980,7 +52981,7 @@ not tooltip</property>
               </widget>
               <packing>
                 <property name="Position">0</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
               </packing>
             </child>
           </widget>

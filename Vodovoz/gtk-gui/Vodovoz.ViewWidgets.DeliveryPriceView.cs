@@ -49,6 +49,7 @@ namespace Vodovoz.ViewWidgets
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.ytreeviewPrices = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewPrices.HeightRequest = 300;
 			this.ytreeviewPrices.CanFocus = true;
 			this.ytreeviewPrices.Name = "ytreeviewPrices";
 			this.GtkScrolledWindow.Add(this.ytreeviewPrices);
