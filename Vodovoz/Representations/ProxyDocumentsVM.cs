@@ -14,7 +14,9 @@ namespace Vodovoz.ViewModel
 
 		public override void UpdateNodes()
 		{
-			var proxiesList = UoW.Session.QueryOver<ProxyDocument>().List<ProxyDocument>();
+			var proxiesList = UoW.Session.QueryOver<ProxyDocument>()
+								 .OrderBy(d => d.Id).Desc
+								 .List<ProxyDocument>();
 
 			SetItemsSource(proxiesList);
 		}

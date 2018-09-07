@@ -6,7 +6,6 @@ using QSTDI;
 using Vodovoz;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
-using Vodovoz.Domain.Employees;
 using Vodovoz.JournalViewers;
 using Vodovoz.Representations;
 using Vodovoz.ViewModel;
@@ -299,9 +298,11 @@ public partial class MainWindow : Window
 
 	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
 	{
+		FinesVM vm = new FinesVM();
+		vm.Filter.RestrictAtOnce(f => f.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<FinesVM>(),
-			() => new ReferenceRepresentation(new FinesVM()).CustomTabName("Журнал штрафов")
+			() => new ReferenceRepresentation(vm).CustomTabName("Журнал штрафов")
 			.Buttons(QSMain.User.Permissions["can_delete_fines"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
 		);
 	}

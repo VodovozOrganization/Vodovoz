@@ -64,6 +64,12 @@ namespace Vodovoz
 			}
 		}
 
+		public void SetFilterDates(DateTime? startDate, DateTime? endDate)
+		{
+			dateperiodpickerFineDate.StartDateOrNull = startDate;
+			dateperiodpickerFineDate.EndDateOrNull = endDate;
+		}
+
 		#endregion
 		protected void OnYentryreferenceSubdivisionsChanged(object sender, EventArgs e)
 		{

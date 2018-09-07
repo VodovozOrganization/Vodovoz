@@ -27,7 +27,6 @@ namespace Vodovoz
 			tableDocuments.RepresentationModel = new DocumentsVM ();
 			hboxFilter.Add (tableDocuments.RepresentationModel.RepresentationFilter as Widget);
 			(tableDocuments.RepresentationModel.RepresentationFilter as Widget).Show ();
-			tableDocuments.RepresentationModel.UpdateNodes ();
 			uow = tableDocuments.RepresentationModel.UoW;
 			tableDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;

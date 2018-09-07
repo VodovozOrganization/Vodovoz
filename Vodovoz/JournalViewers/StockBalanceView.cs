@@ -15,12 +15,13 @@ namespace Vodovoz
 				if (uow == value)
 					return;
 				uow = value;
-				stockbalancefilter1.UoW = value;
+				stockbalancefilter1.RestrictAtOnce(
+					x => x.UoW = value,
+					x => x.ShowArchive = true
+				);
 				var vm = new ViewModel.StockBalanceVM (value);
 				vm.Filter = stockbalancefilter1;
-				vm.Filter.ShowArchive = true;
 				datatreeviewBalance.RepresentationModel = vm;
-				datatreeviewBalance.RepresentationModel.UpdateNodes ();
 			}
 		}
 
