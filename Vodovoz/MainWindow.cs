@@ -605,19 +605,17 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionEmployeeFinesActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.EmployeesFines();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EmployeesFines>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EmployeesFines())
 		);
 	}
 
 	protected void OnActionStockMovementsActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.StockMovements();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.StockMovements>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.StockMovements())
 		);
 	}
 
@@ -635,87 +633,77 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.SalesReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.SalesReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport())
 		);
 	}
 	protected void OnActionDriverWagesActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.DriverWagesReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.DriverWagesReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport())
 		);
 	}
 	protected void OnActionFuelReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.FuelReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.FuelReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.FuelReport())
 		);
 	}
 	protected void OnActionShortfallBattlesActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport())
 		);
 	}
 	protected void OnActionWagesOperationsActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.WagesOperationsReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.ForwarderWageReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport())
 		);
 	}
 
 	protected void OnActionEquipmentReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.EquipmentReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EquipmentReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport())
 		);
 	}
 
 	protected void OnActionForwarderWageReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.ForwarderWageReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.ForwarderWageReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport())
 		);
 	}
 
 	protected void OnActionCashierCommentsActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.CashierCommentsReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashierCommentsReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashierCommentsReport())
 		);
 	}
 
 	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.OnecCommentsReport();
 		tdiMain.OpenTab(
-					QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<OnecCommentsReport>(),
+			() => new QSReport.ReportViewDlg(new OnecCommentsReport())
 		);
 	}
 
 	protected void OnActionDriversWageBalanceActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.DriversWageBalanceReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.DriversWageBalanceReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriversWageBalanceReport())
 		);
 	}
 
@@ -727,65 +715,58 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionDeliveriesLateActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.Logistic.DeliveriesLateReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.DeliveriesLateReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.DeliveriesLateReport())
 		);
 	}
 
 	protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.Logistic.RoutesListRegisterReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.RoutesListRegisterReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.RoutesListRegisterReport())
 		);
 	}
 
 	protected void OnActionDeliveryTimeReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport())
 		);
 	}
 
 	protected void OnActionOrdersByDistrict(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.OrdersByDistrictReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<OrdersByDistrictReport>(),
+			() => new QSReport.ReportViewDlg(new OrdersByDistrictReport())
 		);
 	}
 
 	protected void OnActionCompanyTrucksActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.CompanyTrucksReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<CompanyTrucksReport>(),
+			() => new QSReport.ReportViewDlg(new CompanyTrucksReport())
 		);
 	}
 
 	protected void OnActionLastOrderReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.LastOrderByDeliveryPointReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<LastOrderByDeliveryPointReport>(),
+			() => new QSReport.ReportViewDlg(new LastOrderByDeliveryPointReport())
 		);
 	}
 
 
 	protected void OnActionOrderIncorrectPricesReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.OrderIncorrectPrices();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<OrderIncorrectPrices>(),
+			() => new QSReport.ReportViewDlg(new OrderIncorrectPrices())
 		);
 	}
 
@@ -799,37 +780,33 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionOrdersWithMinPriceLessThanActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.OrdersWithMinPriceLessThan();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<OrdersWithMinPriceLessThan>(),
+			() => new QSReport.ReportViewDlg(new OrdersWithMinPriceLessThan())
 		);
 	}
 
 	protected void OnActionRouteListsOnClosingActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Logistic.RouteListsOnClosingReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Logistic.RouteListsOnClosingReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Logistic.RouteListsOnClosingReport())
 		);
 	}
 
 	protected void OnActionOnLoadTimeActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Logistic.OnLoadTimeAtDayReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Logistic.OnLoadTimeAtDayReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Logistic.OnLoadTimeAtDayReport())
 		);
 	}
 
 	protected void OnActionSelfDeliveryReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.SelfDeliveryReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<SelfDeliveryReport>(),
+			() => new QSReport.ReportViewDlg(new SelfDeliveryReport())
 		);
 	}
 
@@ -843,46 +820,41 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionShipmentReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Logistic.ShipmentReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Logistic.ShipmentReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Logistic.ShipmentReport())
 		);
 	}
 
 	protected void OnActionBottlesMovementReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Bottles.BottlesMovementReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Bottles.BottlesMovementReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Bottles.BottlesMovementReport())
 		);
 	}
 
 	protected void OnActionMileageReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Logistic.MileageReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Logistic.MileageReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Logistic.MileageReport())
 		);
 	}
 
 	protected void OnActionMastersReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.MastersReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<MastersReport>(),
+			() => new QSReport.ReportViewDlg(new MastersReport())
 		);
 	}
 
 	protected void OnActionSuburbWaterPriceActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Sales.SuburbWaterPriceReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Sales.SuburbWaterPriceReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Sales.SuburbWaterPriceReport())
 		);
 	}
 
@@ -912,10 +884,9 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnAction43Activated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.IncomeBalanceReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
+			() => new QSReport.ReportViewDlg(new IncomeBalanceReport())
 		);
 	}
 
@@ -929,37 +900,33 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionBottlesMovementSummaryReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Bottles.BottlesMovementSummaryReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Bottles.BottlesMovementSummaryReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Bottles.BottlesMovementSummaryReport())
 		);
 	}
 
 	protected void OnActionDriveingCallsActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Logistic.DrivingCallReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Logistic.DrivingCallReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Logistic.DrivingCallReport())
 		);
 	}
 
 	protected void OnActionMastersVisitReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.MastersVisitReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
+			() => new QSReport.ReportViewDlg(new MastersVisitReport())
 		);
 	}
 
 	protected void OnActionNotDeliveredOrdersActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.NotDeliveredOrdersReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<NotDeliveredOrdersReport>(),
+			() => new QSReport.ReportViewDlg(new NotDeliveredOrdersReport())
 		);
 	}
 
@@ -977,28 +944,25 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnAction48Activated(object sender, EventArgs e)
 	{
-		var widget = new EmployeesPremiums();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<EmployeesPremiums>(),
+			() => new QSReport.ReportViewDlg(new EmployeesPremiums())
 		);
 	}
 
 	protected void OnAction49Activated(object sender, EventArgs e)
 	{
-		var widget = new OrderStatisticByWeekReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<OrderStatisticByWeekReport>(),
+			() => new QSReport.ReportViewDlg(new OrderStatisticByWeekReport())
 		);
 	}
 
 	protected void OnReportKungolovoActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.ReportForBigClient();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<ReportForBigClient>(),
+			() => new QSReport.ReportViewDlg(new ReportForBigClient())
 		);
 	}
 
@@ -1018,28 +982,25 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionOrderRegistryActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.OrderRegistryReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<OrderRegistryReport>(),
+			() => new QSReport.ReportViewDlg(new OrderRegistryReport())
 		);
 	}
 
 	protected void OnActionEquipmentBalanceActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Store.EquipmentBalance();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Store.EquipmentBalance>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Store.EquipmentBalance())
 		);
 	}
 
 	protected void OnActionCardPaymentsActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.CardPaymentsOrdersReport();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<CardPaymentsOrdersReport>(),
+			() => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport())
 		);
 	}
 

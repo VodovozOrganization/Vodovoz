@@ -231,19 +231,17 @@ public partial class MainWindow : Window
 
 	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.RevisionBottlesAndDeposits();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.RevisionBottlesAndDeposits>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits())
 		);
 	}
 
 	void ActionReportDebtorsBottles_Activated(object sender, System.EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.ReportDebtorsBottles();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.ReportDebtorsBottles>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.ReportDebtorsBottles())
 		);
 	}
 
@@ -289,10 +287,9 @@ public partial class MainWindow : Window
 
 	void ActionCashFlow_Activated(object sender, System.EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.CashFlow();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashFlow>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashFlow())
 		);
 	}
 
@@ -332,19 +329,17 @@ public partial class MainWindow : Window
 
 	void ActionRevision_Activated(object sender, System.EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.Revision();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Revision>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Revision())
 		);
 	}
 
 	void ActionAccountFlow_Activated(object sender, System.EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.AccountFlow();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg(widget)
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.AccountFlow>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.AccountFlow())
 		);
 	}
 
