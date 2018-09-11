@@ -261,9 +261,8 @@ namespace Vodovoz
 				.AddColumn("")
 				.Finish();
 
-			var order = routeListItem.Order;
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
-			yenumcomboOrderPayment.Binding.AddBinding(order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboOrderPayment.Binding.AddBinding(routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
 
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(routeListItem.Order, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
@@ -284,15 +283,6 @@ namespace Vodovoz
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM(deliveryPointFilter);
 			referenceDeliveryPoint.Binding.AddBinding(orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPoint.CanEditReference = false;
-		}
-		
-		void YenumcomboOrderPayment_Changed(object sender, EventArgs e)
-		{
-			routeListItem.RecalculateTotalCash();
-
-			if(routeListItem.Order.PaymentType == PaymentType.cashless && routeListItem.TotalCash != 0) {
-				routeListItem.RecalculateTotalCash();
-			}
 		}
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
@@ -337,11 +327,7 @@ namespace Vodovoz
 
 		protected void OnYenumcomboOrderPaymentChangedByUser(object sender, EventArgs e)
 		{
-			routeListItem.RecalculateTotalCash();
-
-			if(routeListItem.Order.PaymentType == PaymentType.cashless && routeListItem.TotalCash != 0) {
-				routeListItem.RecalculateTotalCash();
-			}
+			routeListItem.Order.ChangeOrderContract();
 		}
 
 		private void AcceptOrderChange()

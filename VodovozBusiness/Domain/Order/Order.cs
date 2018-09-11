@@ -1054,17 +1054,32 @@ namespace Vodovoz.Domain.Orders
 			//Нахождение договора созданного в текущем заказе, 
 			//который можно изменить под необходимые параметры
 			var contractInOrder = OrderDocuments.OfType<OrderContract>()
-			                                    .Where(x => x.Order == this)
-			                                    .Select(x => x.Contract)
-			                                    .FirstOrDefault();
-			if(contractInOrder != null){
+												.Where(x => x.Order.Id == Id)
+												.Select(x => x.Contract)
+												.FirstOrDefault();
+
+			//Поиск других заказов, в которых мог использоваться этот договор
+			IList<Order> ordersByContract = null;
+			bool otherOrdersForContractExist = true;
+			if(contractInOrder != null) {
+				ordersByContract = UoW.Session.QueryOver<Order>()
+									  .Where(o => o.Contract.Id == contractInOrder.Id)
+									  .List();
+				otherOrdersForContractExist = ordersByContract.Any(o => o.Id != Id);
+
 				Contract = contractInOrder;
 			}
 
 			//Изменение существующего договора под необходимые параметры
-			if(OrderDocuments.OfType<OrderContract>()
-			   .Any(x => x.Order == this && x.Contract == Contract)
-			   && actualContract == null){
+			//если он не был использован в других заказах
+			if(
+				actualContract == null
+				&& !otherOrdersForContractExist
+				&& OrderDocuments.OfType<OrderContract>().Any(
+					x => x.Order.Id == Id
+					&& x.Contract?.Id == Contract?.Id
+				)
+			){
 				using(var uowContract = UnitOfWorkFactory.CreateForRoot<CounterpartyContract>(Contract.Id)){
 					uowContract.Root.ContractType = DocTemplateRepository.GetContractTypeForPaymentType(Client.PersonType, PaymentType);
 					uowContract.Root.Organization = OrganizationRepository.GetOrganizationByPaymentType(uowContract, Client.PersonType, PaymentType);
