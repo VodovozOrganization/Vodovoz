@@ -56,13 +56,14 @@ namespace Vodovoz.ViewModel
 			var stocklist = queryStock
 				.JoinQueryOver(n => n.Unit, () => unitAlias)
 				.SelectList(list => list
-					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
-		            .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-				    .Select(() => nomenclatureAlias.IsArchive).WithAlias(() => resultAlias.NomenclatureIsArchive)					
-				    .Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
-					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
-					.SelectSubQuery (subqueryAdd).WithAlias(() => resultAlias.Append)
-					.SelectSubQuery (subqueryRemove).WithAlias(() => resultAlias.Removed)
+				            .SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
+				            .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
+				            .Select(() => nomenclatureAlias.IsArchive).WithAlias(() => resultAlias.NomenclatureIsArchive)
+				            .Select(() => nomenclatureAlias.MinStockCount).WithAlias(() => resultAlias.NomenclatureMinCount)
+				            .Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
+				            .Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
+				            .SelectSubQuery (subqueryAdd).WithAlias(() => resultAlias.Append)
+				            .SelectSubQuery (subqueryRemove).WithAlias(() => resultAlias.Removed)
 				)
 				.TransformUsing(Transformers.AliasToBean<StockBalanceVMNode>())
 				.List<StockBalanceVMNode>().Where(r => r.Amount != 0).ToList ();
@@ -70,10 +71,13 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (stocklist);
 		}
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig <StockBalanceVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig <StockBalanceVMNode>
+			.Create()
 			.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Номенклатура").SetDataProperty (node => node.NomenclatureName)
-			.AddColumn ("Кол-во").SetDataProperty (node => node.CountText)
+			.AddColumn("Кол-во").SetDataProperty (node => node.CountText)
+			.AddColumn("Мин кол-во\n на складе").SetDataProperty(node => node.CountText)
+			.AddColumn("Разница").SetDataProperty(node => node.CountText)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
@@ -135,7 +139,28 @@ namespace Vodovoz.ViewModel
 			UnitName);
 		}}
 
+		public string MinCountText {
+			get {
+				return String.Format("{0:" + String.Format("F{0}", UnitDigits) + "} {1}",
+				                     NomenclatureMinCount,
+				                     UnitName);
+			}
+		}
+
+		public string DiffCountText {
+			get {
+				return String.Format("{0:" + String.Format("F{0}", UnitDigits) + "} {1}",
+				                     DiffCount,
+				                     UnitName);
+			}
+		}
+
+
 		public decimal Amount { get { return Append - Removed; }}
+
+		public decimal NomenclatureMinCount { get; set; }
+
+		public decimal DiffCount { get { return Amount - NomenclatureMinCount; } }
 
 		public string RowColor {
 			get {

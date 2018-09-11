@@ -39,6 +39,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.TypeOfDepositCategory).Column("type_of_deposit").CustomType<TypeOfDepositCategoryStringType>();
 			Map(x => x.SubTypeOfEquipmentCategory).Column("subtype_of_equipment").CustomType<SubtypeOfEquipmentCategoryStringType>();
 			Map(x => x.OnlineStoreGuid).Column("online_store_guid");
+			Map(x => x.MinStockCount).Column("min_stock_count");
 
 			References(x => x.CreatedBy).Column("created_by");
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");

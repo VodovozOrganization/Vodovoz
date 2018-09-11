@@ -174,6 +174,14 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref unit, value, () => Unit); }
 		}
 
+		double minStockCount;
+
+		[Display(Name = "Минимальное количество на складе")]
+		public virtual double MinStockCount {
+			get { return minStockCount; }
+			set { SetField(ref minStockCount, value, () => MinStockCount); }
+		}
+
 		NomenclatureCategory category;
 
 		[Display(Name = "Категория")]

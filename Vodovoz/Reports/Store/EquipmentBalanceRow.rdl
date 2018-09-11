@@ -31,22 +31,28 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>24.9pt</Width>
+            <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>28.8pt</Width>
+            <Width>26.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>149.7pt</Width>
+            <Width>131.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>144.8pt</Width>
+            <Width>103.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>42.0pt</Width>
+            <Width>41.2pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>61.9pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>45.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>169.7pt</Width>
+            <Width>123.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -139,6 +145,41 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>Мин кол-во
+на складе</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Разница</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
@@ -179,7 +220,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -196,7 +237,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -228,7 +269,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -246,6 +287,45 @@
                         <TextAlign>Center</TextAlign>
                         <Format>#,##0</Format>
                         <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>={min_stock_count}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>={diff_count}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <Format >0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -305,7 +385,7 @@
                           <Value>={subtype_of_equipment}</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>6</ColSpan>
+                      <ColSpan>8</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -398,7 +478,38 @@
                             <TextAlign>Left</TextAlign>
                           </Style>
                           <Value>=SUM({quantity})</Value>
-                          <CanGrow >true</CanGrow>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox23">
+                          <Value>=Sum({min_stock_count})</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox26">
+                          <Value>=Sum({diff_count})</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format >0.00</Format>
+                          </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -433,7 +544,7 @@
         <Left>0.0pt</Left>
         <Top>25.4pt</Top>
       </Table>
-      <Textbox Name="Textbox20" >
+      <Textbox Name="Textbox20">
         <Height>15.77pt</Height>
         <Width>545.79pt</Width>
         <Value>=First({category_name}, "Nomenclatures")</Value>
@@ -477,7 +588,9 @@
 		ELSE ''
 	END as category_name, 
     
-	SUM(q.quantity) AS quantity,    
+	SUM(q.quantity) AS quantity,
+    q.min_stock_count as min_stock_count,
+    ROUND(SUM(q.quantity) - q.min_stock_count, 2) as diff_count,
 	GROUP_CONCAT(
 		CONCAT_WS(': ',
 			w.name,
@@ -504,6 +617,7 @@ FROM
 			nom.name AS nom_name,
 			TableAmount.wh AS incoming_wh,
 			SUM(TableAmount.quantity) AS quantity,
+            nom.min_stock_count as min_stock_count,
 			nom.unit_id AS unit_id,
 			nom.subtype_of_equipment 
 		FROM
@@ -536,7 +650,6 @@ FROM
 				(nom.category = @category AND @category = 'additional' AND '0' NOT IN (@additional) AND nom.group_id IN (@additional))*/
             )
 		GROUP BY TableAmount.nom_id, TableAmount.wh 
-		HAVING SUM(TableAmount.quantity) &gt; 0
 	) AS q
 LEFT JOIN measurement_units mu ON mu.id = q.unit_id
 LEFT JOIN warehouses w ON w.id = q.incoming_wh
@@ -583,6 +696,14 @@ ORDER BY q.type, q.manufacturer</CommandText>
           <DataField>category_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="min_stock_count">
+          <DataField>min_stock_count</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="diff_count">
+          <DataField>diff_count</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -597,7 +718,7 @@ ORDER BY q.type, q.manufacturer</CommandText>
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="category">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
