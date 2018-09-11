@@ -2114,11 +2114,15 @@ namespace Vodovoz
 				return;
 			}
 
-			buttonDelete1.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null || (items[0] as OrderItem).Nomenclature.Category == NomenclatureCategory.water
-			                                               || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.DailyRent
-			                                               || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.FreeRent
-			                                               || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.NonfreeRent
-			                                               || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.EquipmentSales
+			var deleteTypes = new AgreementType[] { 
+				AgreementType.WaterSales,
+				AgreementType.DailyRent,
+				AgreementType.FreeRent,
+				AgreementType.NonfreeRent,
+				AgreementType.EquipmentSales
+			};
+			buttonDelete1.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null
+			                                               || deleteTypes.Contains((items[0] as OrderItem).AdditionalAgreement.Type)
 			                                              );
 		}
 
