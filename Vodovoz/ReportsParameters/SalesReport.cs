@@ -342,7 +342,8 @@ namespace Vodovoz.Reports
 		{
 			return new Criterion((arg) => {
 				SalesReportNode alias = null;
-				var query = UoW.Session.QueryOver<Nomenclature>();
+				var query = UoW.Session.QueryOver<Nomenclature>()
+							   .Where(n => n.IsArchive == false);
 				if(arg != null && arg.Any()) {
 					NomenclatureCategory[] categories = new NomenclatureCategory[arg.Count()];
 					for(int i = 0; i < arg.Count(); i++) {
