@@ -1162,7 +1162,8 @@ namespace Vodovoz
 
 		public void FillOrderItems(Order order)
 		{
-			if(Entity.ObservableOrderItems.Any() && !MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите удалить все позиции текущего из заказа и заполнить его позициями из выбранного?")) {
+			if(Entity.OrderStatus != OrderStatus.NewOrder
+			   || Entity.ObservableOrderItems.Any() && !MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите удалить все позиции текущего из заказа и заполнить его позициями из выбранного?")) {
 				return;
 			}
 
