@@ -1,8 +1,9 @@
 ﻿using System;
-using Vodovoz.Domain.Logistic;
-using QSOrmProject;
-using Vodovoz.Domain.Orders;
 using System.Collections.Generic;
+using NHibernate.Util;
+using QSOrmProject;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Repository.Logistics
 {
@@ -16,6 +17,14 @@ namespace Vodovoz.Repository.Logistics
 				      .Where(rli => rli.Status != RouteListItemStatus.Transfered)
 					  .Where (() => routeListItemAlias.Order == order)
 				      .SingleOrDefault ();
+		}
+
+		public static bool WasOrderInAnyRouteList(IUnitOfWork uow, Order order)
+		{
+			return !uow.Session.QueryOver<RouteListItem>()
+				       .Where(i => i.Order == order)
+					   .List()
+					   .Any();
 		}
 
 		public static IList<RouteListItem> GetRouteListItemAtDay(IUnitOfWork uow, DateTime date, RouteListItemStatus? status)

@@ -952,6 +952,9 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual bool CanBeMovedFromClosedToAcepted => RouteListItemRepository.WasOrderInAnyRouteList(UoW, this)
+		                                                     	&& QSMain.User.Permissions["can_move_order_from_closed_to_acepted"];
+		
 		#endregion
 
 		#region Автосоздание договоров, допсоглашений при изменении подтвержденного заказа

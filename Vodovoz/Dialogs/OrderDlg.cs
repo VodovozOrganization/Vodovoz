@@ -147,7 +147,8 @@ namespace Vodovoz
 			} else
 				labelPreviousOrder.Visible = false;
 			hboxStatusButtons.Visible = OrderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
-				|| Entity.OrderStatus == OrderStatus.Canceled;
+				|| Entity.OrderStatus == OrderStatus.Canceled
+				|| Entity.OrderStatus == OrderStatus.Closed;
 
 			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
@@ -293,7 +294,7 @@ namespace Vodovoz
 
 			OrderItemEquipmentCountHasChanges = false;
 			ShowOrderColumnInDocumentsList();
-			ButtonCloseOrderSensitivity();
+			ButtonCloseOrderAccessibilityAndAppearance();
 			SetSensitivityOfPaymentType();
 			depositrefunditemsview.Configure(UoWGeneric, Entity);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
@@ -502,7 +503,7 @@ namespace Vodovoz
 			UoWGeneric.Save();
 			UoW.Session.Refresh(Entity);
 			logger.Info("Ok.");
-			ButtonCloseOrderSensitivity();
+			ButtonCloseOrderAccessibilityAndAppearance();
 			return true;
 		}
 
@@ -623,23 +624,36 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonCloseOrderClicked(object sender, EventArgs e)
 		{
-			if(!MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?")) {
-				return;
-			}
+			if(Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted) {
+				if(!MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите вернуть заказ в статус \"Принят\"?"))
+					return;
 
-			if(Entity.BottlesMovementOperation == null) {
-				Entity.CreateBottlesMovementOperation(UoW);
-			}
-			Entity.UpdateDepositOperations(UoW);
+				Entity.ChangeStatus(OrderStatus.Accepted);
+				ButtonCloseOrderAccessibilityAndAppearance();
+			} else if(Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"]) {
+				if(!MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?"))
+					return;
 
-			Entity.ChangeStatus(OrderStatus.Closed);
-			Entity.ObservableOrderItems.ForEach(i => i.ActualCount = i.Count);
-			ButtonCloseOrderSensitivity();
+				if(Entity.BottlesMovementOperation == null) {
+					Entity.CreateBottlesMovementOperation(UoW);
+				}
+				Entity.UpdateDepositOperations(UoW);
+
+				Entity.ChangeStatus(OrderStatus.Closed);
+				Entity.ObservableOrderItems.ForEach(i => i.ActualCount = i.Count);
+				ButtonCloseOrderAccessibilityAndAppearance();
+			}
 		}
 
-		void ButtonCloseOrderSensitivity()
+		void ButtonCloseOrderAccessibilityAndAppearance()
 		{
-			buttonCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"];
+			buttonCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"]
+				|| Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted;
+
+			if(Entity.OrderStatus == OrderStatus.Accepted)
+				buttonCloseOrder.Label = "Закрыть без доставки";
+			else
+				buttonCloseOrder.Label = "Вернуть в \"Принят\"";
 		}
 
 		#endregion
