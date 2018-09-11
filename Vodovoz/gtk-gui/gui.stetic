@@ -893,7 +893,7 @@
         <property name="ShortLabel" translatable="yes">Шаблоны комментариев для премий</property>
         <signal name="Activated" handler="OnAction47Activated" />
       </action>
-      <action id="Action48">
+      <action id="ActionEmployeesBonuses">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Премии сотрудников</property>
         <property name="ShortLabel" translatable="yes">Премии сотрудников</property>
@@ -1116,7 +1116,7 @@
                     <node type="Separator" />
                     <node type="Menu" action="ActionReportEmployees">
                       <node type="Menuitem" action="ActionEmployeeFines" />
-                      <node type="Menuitem" action="Action48" />
+                      <node type="Menuitem" action="ActionEmployeesBonuses" />
                       <node type="Menuitem" action="ActionWagesOperations" />
                       <node type="Menuitem" action="ActionForwarderWageReport" />
                     </node>

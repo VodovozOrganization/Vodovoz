@@ -86,6 +86,14 @@ public partial class MainWindow : Gtk.Window
 			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions["logistican"];
 		ActionStock.Sensitive = CurrentPermissions.Warehouse.Allowed().Any();
 
+		bool hasAccessToSalariesWagesBonuses = QSMain.User.Permissions["access_to_salaries_wages_bonuses"];
+		ActionEmployeesBonuses.Sensitive = hasAccessToSalariesWagesBonuses;
+		ActionEmployeeFines.Sensitive = hasAccessToSalariesWagesBonuses;
+		ActionWagesOperations.Sensitive = hasAccessToSalariesWagesBonuses;
+		ActionForwarderWageReport.Sensitive = hasAccessToSalariesWagesBonuses;
+		ActionEmployeesBonuses.Sensitive = hasAccessToSalariesWagesBonuses;
+		ActionDriverWages.Sensitive = hasAccessToSalariesWagesBonuses;
+
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle) {
