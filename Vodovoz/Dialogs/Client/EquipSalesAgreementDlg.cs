@@ -93,9 +93,10 @@ namespace Vodovoz.Dialogs.Client
 					(Entity.DocumentTemplate.DocParser as EquipmentAgreementParser).AddPricesTable(Entity.SalesEqipments.ToList());
 				}
 			};
+
+			templatewidget1.CanRevertCommon = QSProjectsLib.QSMain.User.Permissions["can_set_common_additionalagreement"];
 			templatewidget1.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
-			templatewidget1.CanRevertCommon = QSProjectsLib.QSMain.User.Permissions["can_set_common_additionalagreement"];
 		}
 
 		public override bool Save()
