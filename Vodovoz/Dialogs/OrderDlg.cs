@@ -1170,14 +1170,15 @@ namespace Vodovoz
 			Entity.ClearOrderItemsList();
 			foreach(OrderItem orderItem in order.OrderItems) {
 				switch(orderItem.Nomenclature.Category) {
-					case NomenclatureCategory.equipment:
-						Entity.AddEquipmentNomenclatureForSaleFromPreviousOrder(orderItem, UoWGeneric);
+					case NomenclatureCategory.additional:
+						Entity.AddNomenclatureForSaleFromPreviousOrder(orderItem, UoWGeneric);
 						continue;
+					case NomenclatureCategory.disposableBottleWater:
 					case NomenclatureCategory.water:
 						AddNomenclature(orderItem.Nomenclature, orderItem.Count);
 						continue;
 					default:
-						Entity.AddAnyGoodsNomenclatureForSaleFromPreviousOrder(orderItem);
+						//Entity.AddAnyGoodsNomenclatureForSaleFromPreviousOrder(orderItem);
 						continue;
 				}
 			}
@@ -1281,13 +1282,15 @@ namespace Vodovoz
 			}
 
 			deletedOrderItems.ForEach(x => Entity.RemoveItem(x));
-			Entity.Contract.AdditionalAgreements.Remove(agreement);
+			var agreementProxy = Entity.Contract.AdditionalAgreements.FirstOrDefault(x => x.Id == agreement.Id);
+			if(agreementProxy != null) {
+				Entity.Contract.AdditionalAgreements.Remove(agreementProxy);
+			}
 
 			//Принудительно сохраняем только, уже сохраненный в базе, заказ, 
 			//чтобы пользователь не смог вернуть товары связанные с не существующем доп соглашением, 
 			//отменив сохранение заказа
 			if(Entity.Id != 0) {
-				//var dfd = Entity.Contract.AdditionalAgreements.FirstOrDefault(x => x.Id == agreement.Id);
 				UoW.Delete<AdditionalAgreement>(agreement);
 				UoW.Save();
 				UoW.Commit();

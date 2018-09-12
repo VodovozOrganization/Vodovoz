@@ -1483,30 +1483,16 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		/// <param name="orderItem">Элемент заказа.</param>
 		/// <param name="UoW">IUnitOfWork</param>
-		public virtual void AddEquipmentNomenclatureForSaleFromPreviousOrder(OrderItem orderItem, IUnitOfWork UoW)
+		public virtual void AddNomenclatureForSaleFromPreviousOrder(OrderItem orderItem, IUnitOfWork UoW)
 		{
-			if(orderItem.Nomenclature.Category != NomenclatureCategory.equipment)
+			if(orderItem.Nomenclature.Category != NomenclatureCategory.additional)
 				return;
-			if(!orderItem.Nomenclature.IsSerial) {
-				ObservableOrderItems.Add(new OrderItem {
-					Order = this,
-					AdditionalAgreement = orderItem.AdditionalAgreement,
-					Count = orderItem.Count,
-					Equipment = orderItem.Equipment,
-					Nomenclature = orderItem.Nomenclature,
-					Price = orderItem.Price
-				});
-			} else {
-				ObservableOrderItems.AddWithReturn(new OrderItem {
-					Order = this,
-					AdditionalAgreement = orderItem.AdditionalAgreement,
-					Count = orderItem.Count,
-					Equipment = orderItem.Equipment,
-					Nomenclature = orderItem.Nomenclature,
-					Price = orderItem.Price
-				});
-			}
-			//UpdateDocuments();
+			ObservableOrderItems.Add(new OrderItem {
+				Order = this,
+				Count = orderItem.Count,
+				Nomenclature = orderItem.Nomenclature,
+				Price = orderItem.Price
+			});
 		}
 
 		/// <summary>
@@ -2120,10 +2106,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual void RemoveItem(OrderItem item)
 		{
 			if(item.AdditionalAgreement != null) {
-				//без обнуления ссылки на ДопСогл Nhibern не сохраняет сессию Exception:
-				//deleted object would be re-saved by cascade (remove deleted
-				//object from associations)[Vodovoz.Domain.Client.WaterSalesAgreement]
-				item.AdditionalAgreement = null;
 				ObservableOrderItems.Remove(item);
 				DeleteOrderEquipmentOnOrderItem(item);
 				DeleteOrderAgreementDocumentOnOrderItem(item);
