@@ -68,6 +68,9 @@ namespace Vodovoz
 			enumDepositType.ItemsEnum = typeof(TypeOfDepositCategory);
 			enumDepositType.Binding.AddBinding(Entity, e => e.TypeOfDepositCategory, w => w.SelectedItemOrNull).InitializeFromSource();
 
+			comboMobileCatalog.ItemsEnum = typeof(MobileCatalog);
+			comboMobileCatalog.Binding.AddBinding(Entity, e => e.MobileCatalog, w => w.SelectedItem).InitializeFromSource();
+
 			labelSubType.Visible = (Entity.Category == NomenclatureCategory.deposit || Entity.Category == NomenclatureCategory.equipment);
 
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();

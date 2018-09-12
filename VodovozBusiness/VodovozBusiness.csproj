@@ -489,6 +489,7 @@
     <Compile Include="Domain\Goods\NomenclatureImage.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureImageMap.cs" />
     <Compile Include="Tools\CommerceML\Nodes\PropertyOfGoods.cs" />
+    <Compile Include="Domain\Goods\MobileCatalog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

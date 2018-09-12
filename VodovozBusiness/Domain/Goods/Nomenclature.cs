@@ -358,6 +358,14 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref images, value, () => Images); }
 		}
 
+		private MobileCatalog mobileCatalog;
+
+		[Display(Name = "Каталог в мобильном приложении")]
+		public virtual MobileCatalog MobileCatalog {
+			get { return mobileCatalog; }
+			set { SetField(ref mobileCatalog, value, () => MobileCatalog); }
+		}
+
 		#endregion
 
 		public virtual void SetNomenclatureCreationInfo()
