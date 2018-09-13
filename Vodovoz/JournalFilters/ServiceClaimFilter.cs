@@ -18,7 +18,7 @@ namespace Vodovoz
 			this.Build();
 		}
 
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			comboStatus.ItemsEnum = typeof(ServiceClaimStatus);
 			comboType.ItemsEnum = typeof(ServiceClaimType);

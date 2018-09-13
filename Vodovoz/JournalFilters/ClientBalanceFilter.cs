@@ -10,7 +10,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ClientBalanceFilter : RepresentationFilterBase<ClientBalanceFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			entryreferenceNomenclature.SubjectType = typeof(Nomenclature);
 			entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM();

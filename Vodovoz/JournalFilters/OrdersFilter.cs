@@ -9,7 +9,7 @@ namespace Vodovoz
 	[OrmDefaultIsFiltered(true)]
 	public partial class OrdersFilter : RepresentationFilterBase<OrdersFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			enumcomboStatus.ItemsEnum = typeof(OrderStatus);
 			entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));

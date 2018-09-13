@@ -17,7 +17,7 @@ namespace Vodovoz.JournalFilters
 			UoW = uow;
 		}
 
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			yentryreferenceSubdivisions.SubjectType = typeof(Subdivision);
 		}

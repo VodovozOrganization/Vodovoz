@@ -10,7 +10,7 @@ namespace Vodovoz
 	[OrmDefaultIsFiltered(true)]
 	public partial class CashDocumentsFilter : RepresentationFilterBase<CashDocumentsFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			enumcomboDocumentType.ItemsEnum = typeof(CashDocumentType);
 			entryEmployee.RepresentationModel = new ViewModel.EmployeesVM(new EmployeeFilter(uow: UoW, showFired: false));

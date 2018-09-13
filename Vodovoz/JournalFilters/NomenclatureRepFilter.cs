@@ -9,7 +9,7 @@ namespace Vodovoz.JournalFilters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NomenclatureRepFilter : RepresentationFilterBase<NomenclatureRepFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			enumcomboCategory.ItemsEnum = typeof(NomenclatureCategory);
 			cmbEquipmentSubtype.ItemsEnum = typeof(SubtypeOfEquipmentCategory);

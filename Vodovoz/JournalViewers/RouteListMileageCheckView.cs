@@ -23,7 +23,7 @@ namespace Vodovoz
 				routelistsfilter1.UoW = uow;
 				viewModel = new ViewModel.RouteListsVM (value);
 				viewModel.Filter = routelistsfilter1;
-				viewModel.Filter.RestrictAtOnce(x => x.RestrictStatus = RouteListStatus.MileageCheck);
+				viewModel.Filter.SetAndRefilterAtOnce(x => x.RestrictStatus = RouteListStatus.MileageCheck);
 				treeRouteLists.RepresentationModel = viewModel;
 				treeRouteLists.RepresentationModel.UpdateNodes ();
 			}

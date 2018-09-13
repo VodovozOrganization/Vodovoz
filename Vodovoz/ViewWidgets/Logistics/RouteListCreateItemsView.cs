@@ -200,7 +200,7 @@ namespace Vodovoz
 		{
 			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
 			filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
-			filter.RestrictAtOnce(
+			filter.SetAndRefilterAtOnce(
 				x => x.RestrictStartDate = RouteListUoW.Root.Date.Date,
 				x => x.RestrictEndDate = RouteListUoW.Root.Date.Date,
 				x => x.RestrictStatus = OrderStatus.Accepted,

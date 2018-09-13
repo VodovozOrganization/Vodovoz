@@ -28,7 +28,7 @@ namespace Vodovoz.Reports
 			comboExpenseCategory.Sensitive = comboIncomeCategory.Sensitive = false;
 
 			var filterCasher = new EmployeeFilter(uow);
-			filterCasher.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+			filterCasher.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			yentryrefCasher.RepresentationModel = new EmployeesVM(filterCasher);
 
 			var filterEmployee = new EmployeeFilter(uow);

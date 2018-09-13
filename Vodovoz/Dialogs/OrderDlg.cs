@@ -213,7 +213,7 @@ namespace Vodovoz
 			entryOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.RestrictAtOnce(x => x.RestrictIncludeArhive = false);
+			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
 			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			referenceClient.CanEditReference = true;
@@ -931,7 +931,7 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.RestrictAtOnce(
+			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.master },
 				x => x.DefaultSelectedCategory = NomenclatureCategory.master
 			);
@@ -961,7 +961,7 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.RestrictAtOnce(
+			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.water,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
@@ -1108,7 +1108,7 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.RestrictAtOnce(
+			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment
 			);
@@ -1138,7 +1138,7 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.RestrictAtOnce(
+			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment
 			);

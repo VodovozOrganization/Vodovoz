@@ -15,7 +15,7 @@ namespace Vodovoz
 				if (uow == value)
 					return;
 				uow = value;
-				stockbalancefilter1.RestrictAtOnce(
+				stockbalancefilter1.SetAndRefilterAtOnce(
 					x => x.UoW = value,
 					x => x.ShowArchive = true
 				);

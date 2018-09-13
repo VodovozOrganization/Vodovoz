@@ -46,6 +46,6 @@ namespace Vodovoz
 			OnRefiltered();
 		}
 
-		protected override void ConfigureFilter() { }
+		protected override void ConfigureWithUow() { }
 	}
 }

@@ -13,7 +13,7 @@ namespace Vodovoz
 	[OrmDefaultIsFiltered(true)]
 	public partial class StockDocumentsFilter : RepresentationFilterBase<StockDocumentsFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			enumcomboDocumentType.ItemsEnum = typeof(DocumentType);
 
@@ -21,7 +21,7 @@ namespace Vodovoz
 			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
 				yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 			var filter = new EmployeeFilter(UoW);
-			filter.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryrefDriver.RepresentationModel = new EmployeesVM(filter);
 			dateperiodDocs.StartDate = DateTime.Today.AddDays(-7);
 			dateperiodDocs.EndDate = DateTime.Today.AddDays(1);

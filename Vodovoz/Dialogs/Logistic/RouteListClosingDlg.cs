@@ -95,21 +95,21 @@ namespace Vodovoz
 			referenceCar.Sensitive = editing;
 
 			var filterDriver = new EmployeeFilter(UoW);
-			filterDriver.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			filterDriver.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			referenceDriver.Sensitive = editing;
 
 			previousForwarder = Entity.Forwarder;
 			var filterForwarder = new EmployeeFilter(UoW);
-			filterForwarder.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
+			filterForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
 			referenceForwarder.RepresentationModel = new EmployeesVM(filterForwarder);
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.Sensitive = editing;
 			referenceForwarder.Changed += ReferenceForwarder_Changed;
 
 			var filterLogistican = new EmployeeFilter(UoW);
-			filterLogistican.RestrictAtOnce(x => x.RestrictFired = false);
+			filterLogistican.SetAndRefilterAtOnce(x => x.RestrictFired = false);
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 			referenceLogistican.Sensitive = editing;

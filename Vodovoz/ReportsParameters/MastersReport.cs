@@ -16,7 +16,7 @@ namespace Vodovoz.ReportsParameters
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var filter = new EmployeeFilter(UoW);
-			filter.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
 		}
 

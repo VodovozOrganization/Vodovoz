@@ -16,11 +16,11 @@ namespace Vodovoz.Reports
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var filterDriver = new EmployeeFilter(UoW);
-			filterDriver.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			filterDriver.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			yentryreferenceCar.SubjectType = typeof(Car);
 			var filter = new EmployeeFilter(UoW);
-			filter.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+			filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			yentryAuthor.RepresentationModel = new EmployeesVM(filter);
 		}
 

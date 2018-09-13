@@ -8,7 +8,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class AccountingFilter : RepresentationFilterBase<AccountingFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			comboType.ItemsEnum = typeof(OperationType);
 			comboType.Sensitive = true;

@@ -8,7 +8,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class AccountableDebtsFilter : RepresentationFilterBase<AccountableDebtsFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			entryreferenceExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
 		}

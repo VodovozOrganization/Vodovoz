@@ -100,15 +100,15 @@ namespace Vodovoz.ReportsParameters
 		{
 			var filter = new EmployeeFilter(UoW);
 			if(radioCatDriver.Active) {
-				filter.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+				filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			}
 
 			if(radioCatForwarder.Active) {
-				filter.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
+				filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
 			}
 
 			if(radioCatOffice.Active) {
-				filter.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+				filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			}
 			yentryDriver.RepresentationModel = new EmployeesVM(filter);
 		}

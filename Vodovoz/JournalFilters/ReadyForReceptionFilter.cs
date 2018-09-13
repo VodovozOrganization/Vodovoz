@@ -8,7 +8,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ReadyForReceptionFilter : RepresentationFilterBase<ReadyForReceptionFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			yspeccomboWarehouse.ItemsList = Repository.Store.WarehouseRepository.GetActiveWarehouse(UoW);
 			if(CurrentUserSettings.Settings.DefaultWarehouse != null)

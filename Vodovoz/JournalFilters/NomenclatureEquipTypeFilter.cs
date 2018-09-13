@@ -12,7 +12,7 @@ namespace Vodovoz.JournalFilters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NomenclatureEquipTypeFilter : RepresentationFilterBase<NomenclatureEquipTypeFilter>, IReferenceFilter
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			entryrefEquipmentType.SubjectType = typeof(EquipmentType);
 			OnRefiltered();

@@ -115,7 +115,7 @@ namespace Vodovoz
 			yentryAddition.Binding.AddBinding(Entity, e => e.АddressAddition, w => w.Text).InitializeFromSource();
 
 			var filter = new NomenclatureRepFilter(UoW);
-			filter.RestrictAtOnce(x => x.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.water });
+			filter.SetAndRefilterAtOnce(x => x.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.water });
 			yEntryRefDefWater.RepresentationModel = new NomenclatureDependsFromVM(filter);
 			yEntryRefDefWater.Binding.AddBinding(Entity, e => e.DefaultWaterNomenclature, w => w.Subject).InitializeFromSource();
 

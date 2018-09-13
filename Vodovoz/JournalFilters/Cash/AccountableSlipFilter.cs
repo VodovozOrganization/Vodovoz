@@ -10,12 +10,12 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class AccountableSlipFilter : RepresentationFilterBase<AccountableSlipFilter>, IAccountableSlipsFilter
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
 
 			var filter = new EmployeeFilter(UoW);
-			filter.RestrictAtOnce(x => x.RestrictFired = false);
+			filter.SetAndRefilterAtOnce(x => x.RestrictFired = false);
 			yentryAccountable.RepresentationModel = new EmployeesVM(filter);
 		}
 

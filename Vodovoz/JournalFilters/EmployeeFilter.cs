@@ -7,7 +7,7 @@ namespace Vodovoz
 {
 	public partial class EmployeeFilter : RepresentationFilterBase<EmployeeFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			enumcomboCategory.ItemsEnum = typeof(EmployeeCategory);
 		}

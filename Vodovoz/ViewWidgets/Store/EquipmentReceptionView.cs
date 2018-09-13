@@ -165,7 +165,7 @@ namespace Vodovoz
 		{
 			equipmentToSetSerial = ytreeEquipment.GetSelectedObject<ReceptionEquipmentItemNode>();
 			var filter = new ClientBalanceFilter(UnitOfWorkFactory.CreateWithoutRoot());
-			filter.RestrictAtOnce(
+			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCounterparty = equipmentToSetSerial.ServiceClaim.Counterparty,
 			    x => x.RestrictNomenclature = x.UoW.GetById<Nomenclature>(equipmentToSetSerial.NomenclatureId)
 			);

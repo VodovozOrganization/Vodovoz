@@ -331,7 +331,7 @@ namespace Vodovoz.ViewWidgets
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
-			nomenclatureFilter.RestrictAtOnce(
+			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale
@@ -362,7 +362,7 @@ namespace Vodovoz.ViewWidgets
 			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
-			nomenclatureFilter.RestrictAtOnce(
+			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale

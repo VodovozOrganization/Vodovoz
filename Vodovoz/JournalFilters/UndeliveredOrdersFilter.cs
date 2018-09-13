@@ -13,7 +13,7 @@ namespace Vodovoz.JournalFilters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class UndeliveredOrdersFilter : RepresentationFilterBase<UndeliveredOrdersFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			yEnumCMBGuilty.ItemsEnum = typeof(GuiltyTypes);
 			enumCMBUndeliveryStatus.ItemsEnum = typeof(UndeliveryStatus);
@@ -24,14 +24,14 @@ namespace Vodovoz.JournalFilters
 			refOldOrder.RepresentationModel = new OrdersVM(new OrdersFilter(UoW));
 
 			var DriversFilter = new EmployeeFilter(UoW);
-			DriversFilter.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			DriversFilter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			refDriver.RepresentationModel = new EmployeesVM(DriversFilter);
 
 			refClient.RepresentationModel = new CounterpartyVM(new CounterpartyFilter(UoW));
 			refDeliveryPoint.RepresentationModel = new DeliveryPointsVM(new DeliveryPointFilter(UoW));
 
 			var AuthorsFilter = new EmployeeFilter(UoW);
-			AuthorsFilter.RestrictAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+			AuthorsFilter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			refOldOrderAuthor.RepresentationModel = refUndeliveryAuthor.RepresentationModel = new EmployeesVM(AuthorsFilter);
 
 			dateperiodOldOrderDate.StartDateOrNull = DateTime.Today.AddMonths(-1);

@@ -135,7 +135,7 @@ namespace Vodovoz
 		private void OpenSelectNomenclatureDlg()
 		{
 			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
-			nomenclatureFilter.RestrictAtOnce(
+			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForEditOrderFromRL(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.deposit,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
@@ -196,7 +196,7 @@ namespace Vodovoz
 		{
 			orderNode = new OrderNode(routeListItem.Order);
 			var counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.RestrictAtOnce(x => x.RestrictIncludeArhive = false);
+			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
 			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceClient.Binding.AddBinding(orderNode, s => s.Client, w => w.Subject).InitializeFromSource();
 			referenceClient.CanEditReference = false;

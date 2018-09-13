@@ -305,7 +305,7 @@ public partial class MainWindow : Window
 			ReferenceRepresentation.GenerateHashName<FinesVM>(),
 			() => {
 				FinesVM vm = new FinesVM();
-				vm.Filter.RestrictAtOnce(f => f.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
+				vm.Filter.SetAndRefilterAtOnce(f => f.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
 				return new ReferenceRepresentation(vm).CustomTabName("Журнал штрафов")
 													  .Buttons(
 						                                  QSMain.User.Permissions["can_delete_fines"]
@@ -371,7 +371,7 @@ public partial class MainWindow : Window
 			ReferenceRepresentation.GenerateHashName<RouteListsVM>(),
 			() => {
 				var vm = new RouteListsVM();
-				vm.Filter.RestrictAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
+				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
 				return new ReferenceRepresentation(vm).Buttons(
 					QSMain.User.Permissions["can_delete"] 
 					? ReferenceButtonMode.CanAll 

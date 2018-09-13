@@ -11,9 +11,9 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListsFilter : RepresentationFilterBase<RouteListsFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
-			RestrictAtOnce(
+			SetAndRefilterAtOnce(
 				x => x.enumcomboStatus.ItemsEnum = typeof(RouteListStatus),
 				x => x.yentryreferenceShift.SubjectType = typeof(DeliveryShift),
 				x => x.yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport)

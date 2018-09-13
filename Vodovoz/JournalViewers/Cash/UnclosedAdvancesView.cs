@@ -40,9 +40,9 @@ namespace Vodovoz
 		public UnclosedAdvancesView(Employee accountable, ExpenseCategory expense): this()
 		{
 			if (accountable != null)
-				unclosedadvancesfilter1.RestrictAtOnce(x => x.RestrictAccountable = accountable);
+				unclosedadvancesfilter1.SetAndRefilterAtOnce(x => x.RestrictAccountable = accountable);
 			if (expense != null)
-				unclosedadvancesfilter1.RestrictAtOnce(x => x.RestrictExpenseCategory = expense);
+				unclosedadvancesfilter1.SetAndRefilterAtOnce(x => x.RestrictExpenseCategory = expense);
 		}
 
 		public UnclosedAdvancesView ()

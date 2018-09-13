@@ -68,7 +68,7 @@ namespace Vodovoz
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new OrdersFilter(UoW);
-			filter.RestrictAtOnce(
+			filter.SetAndRefilterAtOnce(
 				x => x.RestrictSelfDelivery = true,
 				x => x.RestrictStatus = OrderStatus.Accepted
 			);

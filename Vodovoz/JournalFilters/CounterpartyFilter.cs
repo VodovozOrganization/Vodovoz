@@ -9,7 +9,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CounterpartyFilter : RepresentationFilterBase<CounterpartyFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			yentryTag.RepresentationModel = new TagVM(UoW);
 		}

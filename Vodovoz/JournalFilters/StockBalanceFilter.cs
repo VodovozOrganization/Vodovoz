@@ -10,7 +10,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class StockBalanceFilter : RepresentationFilterBase<StockBalanceFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			speccomboStock.SetRenderTextFunc<Warehouse>(x => x.Name);
 			speccomboStock.ItemsList = Repository.Store.WarehouseRepository.GetActiveWarehouse(UoW);

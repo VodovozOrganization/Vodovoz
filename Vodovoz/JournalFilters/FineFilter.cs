@@ -7,7 +7,7 @@ namespace Vodovoz
 	[OrmDefaultIsFiltered(true)]
 	public partial class FineFilter : RepresentationFilterBase<FineFilter>
 	{
-		protected override void ConfigureFilter()
+		protected override void ConfigureWithUow()
 		{
 			yentryreferenceSubdivisions.SubjectType = typeof(Subdivision);
 		}
