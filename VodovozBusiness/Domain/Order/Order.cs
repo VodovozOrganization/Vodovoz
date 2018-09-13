@@ -1103,6 +1103,7 @@ namespace Vodovoz.Domain.Orders
 				ChangeWaterAgreement(actualContract, oldContract);
 				ChangeOrderBasedAgreements(actualContract);
 			}
+			UpdateDocuments();
 		}
 
 		/// <summary>
@@ -1123,7 +1124,7 @@ namespace Vodovoz.Domain.Orders
 			                                   .Where(x => (x.AdditionalAgreement.Self as WaterSalesAgreement) == oldWaterAgreement)
 			                                   .ToList();
 
-			if(!IsHaveWater()) {
+			if(!HasWater()) {
 				return;
 			}
 
@@ -1226,7 +1227,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual bool IsHaveWater()
+		public virtual bool HasWater()
 		{
 			var categories = Nomenclature.GetCategoriesRequirementForWaterAgreement();
 			return ObservableOrderItems.Any(x => categories.Contains(x.Nomenclature.Category));

@@ -328,6 +328,7 @@ namespace Vodovoz
 		protected void OnYenumcomboOrderPaymentChangedByUser(object sender, EventArgs e)
 		{
 			routeListItem.Order.ChangeOrderContract();
+			routeListItem.RecalculateTotalCash();
 		}
 
 		private void AcceptOrderChange()
