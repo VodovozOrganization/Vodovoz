@@ -2671,13 +2671,13 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 			if(canCloseOrder) {
-				CreateBottlesMovementOperation(uow);
+				UpdateBottlesMovementOperations(uow);
 				ChangeStatus(OrderStatus.Closed);
 			}
 			return canCloseOrder;
 		}
 
-		public virtual void CreateBottlesMovementOperation(IUnitOfWork uow)
+		public virtual void UpdateBottlesMovementOperations(IUnitOfWork uow)
 		{
 			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
 			//не должны создаваться операции перемещения тары

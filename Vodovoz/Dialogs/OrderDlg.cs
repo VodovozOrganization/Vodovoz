@@ -629,20 +629,17 @@ namespace Vodovoz
 					return;
 
 				Entity.ChangeStatus(OrderStatus.Accepted);
-				ButtonCloseOrderAccessibilityAndAppearance();
 			} else if(Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"]) {
 				if(!MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?"))
 					return;
 
-				if(Entity.BottlesMovementOperation == null) {
-					Entity.CreateBottlesMovementOperation(UoW);
-				}
+				Entity.UpdateBottlesMovementOperations(UoW);
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatus(OrderStatus.Closed);
 				Entity.ObservableOrderItems.ForEach(i => i.ActualCount = i.Count);
-				ButtonCloseOrderAccessibilityAndAppearance();
 			}
+			ButtonCloseOrderAccessibilityAndAppearance();
 		}
 
 		void ButtonCloseOrderAccessibilityAndAppearance()
@@ -2283,13 +2280,14 @@ namespace Vodovoz
 			}.Contains(Entity.OrderStatus)
 			 || (Entity.OrderStatus == OrderStatus.OnTheWay && QSMain.User.Permissions["can_edit_on_the_way_order"]);
 			
-
 			if(Counterparty?.DeliveryPoints?.FirstOrDefault(d => d.Address1c == Entity.Address1c) == null
 				&& !string.IsNullOrWhiteSpace(Entity.Address1c)
 				&& DeliveryPoint == null) {
 				buttonCreateDeliveryPoint.Sensitive = true;
 			} else
 				buttonCreateDeliveryPoint.Sensitive = false;
+
+			ButtonCloseOrderAccessibilityAndAppearance();
 		}
 
 		void UpdateProxyInfo()
