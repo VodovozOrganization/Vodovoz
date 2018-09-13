@@ -174,6 +174,13 @@ namespace Vodovoz.Repository
 			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[sanitisationNomenclature]));
 		}
 
+		public static IList<Nomenclature> GetNomenclatureWithPriceForMobileApp(IUnitOfWork uow, params MobileCatalog[] catalogs)
+		{
+			return uow.Session.QueryOver<Nomenclature>()
+			   		  .Where(n => n.MobileCatalog.IsIn(catalogs))
+			   		  .List();
+		}
+
 		#region Получение номенклатур воды
 
 		public static Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
