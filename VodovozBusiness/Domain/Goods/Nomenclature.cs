@@ -174,10 +174,10 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref unit, value, () => Unit); }
 		}
 
-		double minStockCount;
+		decimal minStockCount;
 
 		[Display(Name = "Минимальное количество на складе")]
-		public virtual double MinStockCount {
+		public virtual decimal MinStockCount {
 			get { return minStockCount; }
 			set { SetField(ref minStockCount, value, () => MinStockCount); }
 		}

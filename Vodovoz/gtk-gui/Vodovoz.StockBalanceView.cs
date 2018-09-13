@@ -33,7 +33,9 @@ namespace Vodovoz
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.stockbalancefilter1 = null;
+			this.stockbalancefilter1 = new global::Vodovoz.StockBalanceFilter();
+			this.stockbalancefilter1.Events = ((global::Gdk.EventMask)(256));
+			this.stockbalancefilter1.Name = "stockbalancefilter1";
 			this.hbox2.Add(this.stockbalancefilter1);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.stockbalancefilter1]));
 			w1.Position = 0;

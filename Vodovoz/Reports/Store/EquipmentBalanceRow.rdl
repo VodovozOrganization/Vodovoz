@@ -45,10 +45,10 @@
           <TableColumn>
             <Width>41.2pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>61.9pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>45.9pt</Width>
           </TableColumn>
           <TableColumn>
@@ -145,7 +145,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
                       <Value>Мин кол-во
@@ -163,7 +163,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
                       <Value>Разница</Value>
@@ -219,6 +219,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>10pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -236,6 +237,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>10pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -253,6 +255,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -268,6 +271,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>10pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -287,11 +291,12 @@
                         <TextAlign>Center</TextAlign>
                         <Format>#,##0</Format>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
                       <Value>={min_stock_count}</Value>
@@ -301,16 +306,16 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
                       <Value>={diff_count}</Value>
@@ -320,12 +325,12 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -343,7 +348,7 @@
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
                       </Style>
@@ -441,6 +446,7 @@
                             <TextAlign>Right</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                             <FontWeight>Bold</FontWeight>
+                            <FontSize>10pt</FontSize>
                           </Style>
                           <Value>Итого:</Value>
                         </Textbox>
@@ -476,13 +482,14 @@
                             <Format>#,##0</Format>
                             <VerticalAlign>Middle</VerticalAlign>
                             <TextAlign>Left</TextAlign>
+                            <FontSize>10pt</FontSize>
                           </Style>
                           <Value>=SUM({quantity})</Value>
                           <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox23">
                           <Value>=Sum({min_stock_count})</Value>
@@ -493,11 +500,12 @@
                             <VerticalAlign>Middle</VerticalAlign>
                             <BorderColor />
                             <BorderWidth />
+                            <FontSize>10pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox26">
                           <Value>=Sum({diff_count})</Value>
@@ -508,7 +516,8 @@
                             <VerticalAlign>Middle</VerticalAlign>
                             <BorderColor />
                             <BorderWidth />
-                            <Format >0.00</Format>
+                            <Format>0.00</Format>
+                            <FontSize>10pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -523,6 +532,7 @@
                             <VerticalAlign>Middle</VerticalAlign>
                             <BorderColor />
                             <BorderWidth />
+                            <FontSize>10pt</FontSize>
                           </Style>
                           <Value>
                           </Value>
@@ -566,7 +576,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Nomenclatures">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	q.nomenclature_id,
@@ -667,7 +677,7 @@ ORDER BY q.type, q.manufacturer</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature_id">
           <DataField>nomenclature_id</DataField>
           <TypeName>System.UInt32</TypeName>

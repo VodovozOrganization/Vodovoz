@@ -76,8 +76,8 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Номенклатура").SetDataProperty (node => node.NomenclatureName)
 			.AddColumn("Кол-во").SetDataProperty (node => node.CountText)
-			.AddColumn("Мин кол-во\n на складе").SetDataProperty(node => node.CountText)
-			.AddColumn("Разница").SetDataProperty(node => node.CountText)
+			.AddColumn("Мин кол-во\n на складе").SetDataProperty(node => node.MinCountText)
+			.AddColumn("Разница").SetDataProperty(node => node.DiffCountText)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
