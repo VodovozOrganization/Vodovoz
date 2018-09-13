@@ -195,12 +195,6 @@ public partial class MainWindow : Window
 		ActionTransferOperationJournal.Activated += ActionTransferOperationJournal_Activated;
 		ActionScheduleRestrictedDistricts.Activated += ActionScheduleRestrictedDistricts_Activated;
 		#endregion
-
-		#region Accessibility
-		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = QSMain.User.Permissions["access_to_salaries_wages_bonuses"];
-		ActionReports.Sensitive = false;
-		ActionServices.Visible = false;
-		#endregion
 	}
 
 	void ActionRouteListsPrint_Activated(object sender, System.EventArgs e)

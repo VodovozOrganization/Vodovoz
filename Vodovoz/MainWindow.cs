@@ -94,6 +94,12 @@ public partial class MainWindow : Gtk.Window
 		ActionEmployeesBonuses.Sensitive = hasAccessToSalariesWagesBonuses;
 		ActionDriverWages.Sensitive = hasAccessToSalariesWagesBonuses;
 
+		#region Accessibility
+		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = QSMain.User.Permissions["access_to_salaries_wages_bonuses"];
+		ActionReports.Sensitive = false;
+		ActionServices.Visible = false;
+		#endregion
+
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle) {
