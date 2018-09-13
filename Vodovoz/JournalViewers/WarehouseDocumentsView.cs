@@ -49,6 +49,7 @@ namespace Vodovoz
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
 			bool isSensitive = tableDocuments.Selection.CountSelectedRows() > 0;
+			buttonEdit.Sensitive = isSensitive;
 			if(isSensitive) {
 				var node = tableDocuments.GetSelectedObject<DocumentVMNode>();
 				if(node.DocTypeEnum == DocumentType.ShiftChangeDocument) {
@@ -56,7 +57,7 @@ namespace Vodovoz
 					isSensitive = isSensitive && !StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeCreate, doc.Warehouse);
 				}
 			}
-			buttonEdit.Sensitive = buttonDelete.Sensitive = isSensitive;
+			buttonDelete.Sensitive = isSensitive;
 		}
 
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)

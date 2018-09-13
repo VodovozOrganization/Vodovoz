@@ -45,13 +45,13 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			var editing = !UoW.IsNew && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
 			var canCreate = UoW.IsNew && !StoreDocumentHelper.CheckCreateDocument(WarehousePermissions.ShiftChangeCreate, Entity.Warehouse);
 
-			if(!(canCreate || editing)){
+			if(!canCreate && UoW.IsNew){
 				FailInitialize = true;
-				if(!editing && !UoW.IsNew)
-					MessageDialogWorks.RunWarningDialog("У вас нет прав на изменение этого документа.");
 				return;
 			}
 
+			if(!editing && !UoW.IsNew)
+				MessageDialogWorks.RunWarningDialog("У вас нет прав на изменение этого документа.");
 
 			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing || canCreate;
 			shiftchangewarehousedocumentitemsview1.Sensitive = editing || canCreate;
