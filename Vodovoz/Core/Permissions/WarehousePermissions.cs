@@ -25,6 +25,9 @@ namespace Vodovoz.Core.Permissions
 		[Display(Name = "Изменение инвентаризации")]
 		[DocumentType(DocumentType.InventoryDocument)]
 		InventoryEdit,
+		[Display(Name = "Создание акта передачи склада")]
+		[DocumentType(DocumentType.ShiftChangeDocument)]
+		ShiftChangeCreate,
 		[Display(Name = "Изменение акта передачи склада")]
 		[DocumentType(DocumentType.ShiftChangeDocument)]
 		ShiftChangeEdit,

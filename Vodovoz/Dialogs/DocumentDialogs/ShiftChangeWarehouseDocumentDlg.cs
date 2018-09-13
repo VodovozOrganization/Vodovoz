@@ -42,14 +42,19 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		void ConfigureDlg()
 		{
-			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.ShiftChangeEdit, Entity.Warehouse)) {
+			var editing = !UoW.IsNew && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
+			var canCreate = UoW.IsNew && !StoreDocumentHelper.CheckCreateDocument(WarehousePermissions.ShiftChangeCreate, Entity.Warehouse);
+
+			if(!(canCreate || editing)){
 				FailInitialize = true;
+				if(!editing && !UoW.IsNew)
+					MessageDialogWorks.RunWarningDialog("У вас нет прав на изменение этого документа.");
 				return;
 			}
 
-			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
-			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
-			shiftchangewarehousedocumentitemsview1.Sensitive = editing;
+
+			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing || canCreate;
+			shiftchangewarehousedocumentitemsview1.Sensitive = editing || canCreate;
 
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.ShiftChangeEdit);

@@ -6,6 +6,7 @@ using NLog;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
 using QSTDI;
+using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs.DocumentDialogs;
@@ -32,8 +33,8 @@ namespace Vodovoz
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
 			buttonAdd.ItemsEnum = typeof(DocumentType);
 
+			var allPermissions = CurrentPermissions.Warehouse.AnyEntities();
 			foreach(DocumentType doctype in Enum.GetValues(typeof(DocumentType))) {
-				var allPermissions = CurrentPermissions.Warehouse.AnyEntities();
 				if(allPermissions.Any(x => x.GetAttributes<DocumentTypeAttribute>().Any(at => at.Type.Equals(doctype))))
 					continue;
 				buttonAdd.SetSensitive(doctype, false);
@@ -47,7 +48,15 @@ namespace Vodovoz
 
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
-			buttonEdit.Sensitive = buttonDelete.Sensitive = tableDocuments.Selection.CountSelectedRows () > 0;
+			bool isSensitive = tableDocuments.Selection.CountSelectedRows() > 0;
+			if(isSensitive) {
+				var node = tableDocuments.GetSelectedObject<DocumentVMNode>();
+				if(node.DocTypeEnum == DocumentType.ShiftChangeDocument) {
+					var doc = uow.GetById<ShiftChangeWarehouseDocument>(node.Id);
+					isSensitive = isSensitive && !StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeCreate, doc.Warehouse);
+				}
+			}
+			buttonEdit.Sensitive = buttonDelete.Sensitive = isSensitive;
 		}
 
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)

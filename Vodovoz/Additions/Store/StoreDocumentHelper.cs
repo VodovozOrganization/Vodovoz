@@ -82,6 +82,10 @@ namespace Vodovoz.Additions.Store
 			return false;
 		}
 
+		/// <summary>
+		/// Проверка прав на изменение документа
+		/// </summary>
+		/// <returns>Если <c>false</c> нет прав на создание.</returns>
 		public static bool CanEditDocument(WarehousePermissions edit, params Warehouse[] warehouses)
 		{
 			warehouses = warehouses.Where(x => x != null).ToArray();
