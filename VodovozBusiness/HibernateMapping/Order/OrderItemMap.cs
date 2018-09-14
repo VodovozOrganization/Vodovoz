@@ -22,7 +22,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.Price)				.Column ("price");
 			Map (x => x.IsUserPrice)		.Column ("is_user_price");
 
-			References (x => x.AdditionalAgreement)			 .Column ("additional_agreement_id").Cascade.All();
+			References (x => x.AdditionalAgreement)			 .Column ("additional_agreement_id");
 			References (x => x.CounterpartyMovementOperation).Column ("counterparty_movement_operation_id").Cascade.All();
 			References (x => x.Equipment)					 .Column ("equipment_id");
 			References (x => x.Nomenclature)				 .Column ("nomenclature_id");
