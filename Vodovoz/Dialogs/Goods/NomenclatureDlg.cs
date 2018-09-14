@@ -93,7 +93,7 @@ namespace Vodovoz
 			ycheckNewBottle.Binding.AddBinding(Entity, e => e.IsNewBottle, w => w.Active).InitializeFromSource();
 			ycheckDefectiveBottle.Binding.AddBinding(Entity, e => e.IsDefectiveBottle, w => w.Active).InitializeFromSource();
 			chkIsDiler.Binding.AddBinding(Entity, e => e.IsDiler, w => w.Active).InitializeFromSource();
-			spinMinStockCount.Binding.AddBinding(Entity, e => e.MinStockCount, w => w.Value).InitializeFromSource();
+			spinMinStockCount.Binding.AddBinding(Entity, e => e.MinStockCount, w => w.ValueAsDecimal).InitializeFromSource();
 
 			yentryFolder1c.SubjectType = typeof(Folder1c);
 			yentryFolder1c.Binding.AddBinding(Entity, e => e.Folder1C, w => w.Subject).InitializeFromSource();
