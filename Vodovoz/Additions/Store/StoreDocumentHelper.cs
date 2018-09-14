@@ -101,12 +101,16 @@ namespace Vodovoz.Additions.Store
 							.AndNot(w => w.IsArchive);
 		}
 
-		public static QueryOver<Warehouse> GetRestrictedWarehouseQuery(WarehousePermissions permission)
+		public static QueryOver<Warehouse> GetRestrictedWarehouseQuery(params WarehousePermissions[] permissions)
 		{
-			return QueryOver.Of<Warehouse>()
-				            .Where(w => w.Id.IsIn(CurrentPermissions.Warehouse.Allowed(permission)
-				                                  .Select(x => x.Id).ToArray()))
-				            .AndNot(w => w.IsArchive);
+			var query = QueryOver.Of<Warehouse>().WhereNot(w => w.IsArchive);
+			var disjunction = new Disjunction();
+
+			foreach(var p in permissions) {
+				disjunction.Add<Warehouse>(w => w.Id.IsIn(CurrentPermissions.Warehouse.Allowed(p).Select(x => x.Id).ToArray()));
+			}
+
+			return query.Where(disjunction);
 		}
 
 		/// <summary>
