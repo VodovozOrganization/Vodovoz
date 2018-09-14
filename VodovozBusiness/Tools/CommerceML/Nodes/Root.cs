@@ -60,10 +60,18 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			return xml;
 		}
 
-		public void WriteToStream(System.IO.Stream stream)
+		public XDocument GetXDocument()
+        {
+            return new XDocument(
+                        new XDeclaration("1.0", "UTF-8", ""),
+                          ToXml()
+                    );
+        }
+
+        public void WriteToStream(System.IO.Stream stream)
 		{
 			using(XmlWriter writer = XmlWriter.Create(stream, Export.WriterSettings)) {
-				ToXml().WriteTo(writer);
+                GetXDocument().WriteTo(writer);
 			}
 		}
 	}

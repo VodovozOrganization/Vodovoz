@@ -18,7 +18,6 @@ namespace Vodovoz.Tools.CommerceML
 #region Глобальные настройки экспорта
 		static public XmlWriterSettings WriterSettings = new XmlWriterSettings
 			{
-				OmitXmlDeclaration = true,
 				Indent = true,
 				Encoding = System.Text.Encoding.UTF8,
 				NewLineChars = "\r\n"
@@ -53,7 +52,7 @@ namespace Vodovoz.Tools.CommerceML
 
 		public int CurrentTask = -1;
 
-		public int TotalTasks = 5;
+		public int TotalTasks = 10;
 
 		public void OnProgressPlusOneTask(string text)
 		{
@@ -83,11 +82,11 @@ namespace Vodovoz.Tools.CommerceML
 			CreateObjects();
 
 			OnProgressPlusOneTask("Сохраняем import.xml");
-			using(XmlWriter writer = XmlWriter.Create(Path.Combine(dir, "import.xml"), Export.WriterSettings)) {
-				rootCatalog.ToXml().WriteTo(writer);
-			}
+            using(XmlWriter writer = XmlWriter.Create(Path.Combine(dir, "import.xml"), Export.WriterSettings)) {
+            	rootCatalog.GetXDocument().Save(writer);
+            }
 
-			OnProgressPlusOneTask("Сохраняем Изображения");
+            OnProgressPlusOneTask("Сохраняем Изображения");
 			var exportedImages = Catalog.Goods.Nomenclatures.SelectMany(x => x.Images);
 			var imageDir = Path.Combine(dir, "import_files");
 			Directory.CreateDirectory(imageDir);
@@ -101,7 +100,7 @@ namespace Vodovoz.Tools.CommerceML
 
 			OnProgressPlusOneTask("Сохраняем offers.xml");
 			using(XmlWriter writer = XmlWriter.Create(Path.Combine(dir, "offers.xml"), Export.WriterSettings)) {
-				rootOffers.ToXml().WriteTo(writer);
+				rootOffers.GetXDocument().Save(writer);
 			}
 
 		}
@@ -109,6 +108,7 @@ namespace Vodovoz.Tools.CommerceML
 		public void RunToSite()
 		{
 			Errors.Clear();
+            TotalTasks = 10;
 
 			OnProgressPlusOneTask("Соединяемся с сайтом");
 			//Проверяем связь с сервером
@@ -134,7 +134,6 @@ namespace Vodovoz.Tools.CommerceML
 			DebugResponse(response);
 
 			OnProgressPlusOneTask("Выгружаем каталог");
-		
 			request = new RestRequest("1c_exchange.php?type=catalog&mode=file&filename=import.xml", Method.POST);
 			//request.AddParameter("filename", "import.xml");
 			//request.AddFile("import.xml", s => rootCatalog.WriteToStream(s), "import.xml");
@@ -204,7 +203,12 @@ namespace Vodovoz.Tools.CommerceML
 
 		void DebugResponse(IRestResponse response)
 		{
-			Errors.Add(response.ResponseUri.ToString());
+            if (response == null)
+            {
+                Errors.Add("Ответ пустой.");
+                return;
+            }
+			Errors.Add(response.ResponseUri?.ToString());
 			Errors.Add(response.StatusCode.ToString());
 			Errors.Add(response.Content);
 		}
