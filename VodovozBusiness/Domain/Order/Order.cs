@@ -2310,6 +2310,10 @@ namespace Vodovoz.Domain.Orders
 					OnWaitingPaymentOrder();
 					break;
 				case OrderStatus.Accepted:
+					//Удаляем операции перемещения тары, если возвращаем 
+					//из "закрыт" без доставки в "принят"
+					if(initialStatus == OrderStatus.Closed)
+						UpdateBottlesMovementOperation(UoW, deleteOperation: true);
 					OnAcceptOrder();
 					break;
 				case OrderStatus.InTravelList:
@@ -2671,19 +2675,27 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 			if(canCloseOrder) {
-				UpdateBottlesMovementOperations(uow);
+				UpdateBottlesMovementOperation(uow);
 				ChangeStatus(OrderStatus.Closed);
 			}
 			return canCloseOrder;
 		}
 
-		public virtual void UpdateBottlesMovementOperations(IUnitOfWork uow)
+		public virtual void UpdateBottlesMovementOperation(IUnitOfWork uow, bool deleteOperation = false)
 		{
 			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
 			//не должны создаваться операции перемещения тары
 			if(IsContractCloser)
 				return;
-			
+
+			if(deleteOperation){
+				if(BottlesMovementOperation != null) {
+					uow.Delete(BottlesMovementOperation);
+					BottlesMovementOperation = null;
+				}
+				return;
+			}
+
 			foreach(OrderItem item in OrderItems) {
 				item.ActualCount = item.Count;
 			}
@@ -2710,7 +2722,7 @@ namespace Vodovoz.Domain.Orders
 					BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
 					uow.Save(BottlesMovementOperation);
 				}
-			}
+			} 
 		}
 
 		public virtual void SaveOrderComment(){

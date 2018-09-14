@@ -56,7 +56,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		protected void OnButtonCreateBottleOperationsClicked(object sender, EventArgs e)
 		{
-			orders.ForEach(x => x.UpdateBottlesMovementOperations(uow));
+			orders.ForEach(x => x.UpdateBottlesMovementOperation(uow));
 			if(uow.HasChanges && MessageDialogWorks.RunQuestionDialog("Создано \"{0}\" недостающих операций передвижения бутылей, сохранить изменения?", 
 		                                        orders.Where(x => x.BottlesMovementOperation != null).Count())){
 				uow.Commit();

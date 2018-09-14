@@ -633,7 +633,7 @@ namespace Vodovoz
 				if(!MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?"))
 					return;
 
-				Entity.UpdateBottlesMovementOperations(UoW);
+				Entity.UpdateBottlesMovementOperation(UoW);
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatus(OrderStatus.Closed);
