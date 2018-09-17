@@ -54,7 +54,7 @@ namespace Vodovoz
 				var node = tableDocuments.GetSelectedObject<DocumentVMNode>();
 				if(node.DocTypeEnum == DocumentType.ShiftChangeDocument) {
 					var doc = uow.GetById<ShiftChangeWarehouseDocument>(node.Id);
-					isSensitive = isSensitive && !StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeCreate, doc.Warehouse);
+					isSensitive = isSensitive && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, doc.Warehouse);
 				}
 			}
 			buttonDelete.Sensitive = isSensitive;
