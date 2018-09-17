@@ -1954,12 +1954,12 @@ namespace Vodovoz.Domain.Orders
 				bool IsDaily = false;
 				int RentCount = 0;
 				if(a.Type == AgreementType.DailyRent) {
-					paidRentEquipmentList = (a as DailyRentAgreement).Equipment;
-					RentCount = (a as DailyRentAgreement).RentDays;
+					paidRentEquipmentList = (a.Self as DailyRentAgreement).Equipment;
+					RentCount = (a.Self as DailyRentAgreement).RentDays;
 					IsDaily = true;
 				} else {
-					paidRentEquipmentList = (a as NonfreeRentAgreement).PaidRentEquipments;
-					RentCount = (a as NonfreeRentAgreement).RentMonths ?? 0;
+					paidRentEquipmentList = (a.Self as NonfreeRentAgreement).PaidRentEquipments;
+					RentCount = (a.Self as NonfreeRentAgreement).RentMonths ?? 0;
 				}
 
 				foreach(PaidRentEquipment paidRentEquipment in paidRentEquipmentList) {
@@ -1967,7 +1967,7 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем номенклатуру залога
 					OrderItem orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
-							item => item.AdditionalAgreement?.Id == a.Id &&
+							item => item.AdditionalAgreement?.Id == a.Self.Id &&
 							item.Nomenclature.Id == paidRentEquipment.PaidRentPackage.DepositService.Id)) != null) {
 						orderItem.Count = paidRentEquipment.Count;
 						orderItem.Price = paidRentEquipment.Deposit;
@@ -1975,7 +1975,7 @@ namespace Vodovoz.Domain.Orders
 						ObservableOrderItems.Add(
 							new OrderItem {
 								Order = this,
-								AdditionalAgreement = a,
+								AdditionalAgreement = a.Self,
 								Count = paidRentEquipment.Count,
 								Equipment = null,
 								Nomenclature = paidRentEquipment.PaidRentPackage.DepositService,
@@ -1987,7 +1987,7 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем услугу аренды
 					orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
-							item => item.AdditionalAgreement?.Id == a.Id &&
+							item => item.AdditionalAgreement?.Id == a.Self.Id &&
 						item.Nomenclature.Id == (IsDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily.Id : paidRentEquipment.PaidRentPackage.RentServiceMonthly.Id)
 							)) != null) {
 						orderItem.Count = paidRentEquipment.Count * RentCount;
@@ -1998,7 +1998,7 @@ namespace Vodovoz.Domain.Orders
 						ItemId = ObservableOrderItems.AddWithReturn(
 							new OrderItem {
 								Order = this,
-								AdditionalAgreement = a,
+								AdditionalAgreement = a.Self,
 								Count = paidRentEquipment.Count * RentCount,
 								Equipment = null,
 								Nomenclature = nomenclature,
@@ -2035,7 +2035,7 @@ namespace Vodovoz.Domain.Orders
 					OnPropertyChanged(nameof(SumToReceive));
 				}
 			} else if(a.Type == AgreementType.FreeRent) {
-				FreeRentAgreement agreement = a as FreeRentAgreement;
+				FreeRentAgreement agreement = a.Self as FreeRentAgreement;
 				foreach(FreeRentEquipment equipment in agreement.Equipment) {
 					int ItemId;
 					//Добавляем номенклатуру залога.
@@ -2066,7 +2066,7 @@ namespace Vodovoz.Domain.Orders
 					);
 				}
 			} else if(a.Type == AgreementType.EquipmentSales) {
-				SalesEquipmentAgreement agreement = a as SalesEquipmentAgreement;
+				SalesEquipmentAgreement agreement = a.Self as SalesEquipmentAgreement;
 				foreach(SalesEquipment equipment in agreement.SalesEqipments) {
 					var oi = observableOrderItems.FirstOrDefault(x => x.AdditionalAgreement != null
 					                                             && x.AdditionalAgreement.Self == agreement

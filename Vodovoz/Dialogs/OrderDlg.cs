@@ -1402,12 +1402,12 @@ namespace Vodovoz
 
 		void AgreementSaved(object sender, AgreementSavedEventArgs e)
 		{
-			var agreement = UoWGeneric.Session.Merge(e.Agreement);
+			var agreement = UoWGeneric.Session.Load<AdditionalAgreement>(e.Agreement.Id);
 			Entity.CreateOrderAgreementDocument(agreement);
 			Entity.FillItemsFromAgreement(agreement);
 			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType)
 										  .AdditionalAgreements
-										  .Add(agreement);
+			                              .Add(agreement);
 		}
 
 		void RunContractCreateDialog(OrderAgreementType type)
