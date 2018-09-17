@@ -748,6 +748,9 @@ namespace Vodovoz
 							var agreement = (doc as OrderAgreement).AdditionalAgreement;
 							var type = NHibernateProxyHelper.GuessClass(agreement);
 							var dialog = OrmMain.CreateObjectDialog(type, agreement.Id);
+							if(dialog is IAgreementSaved) {
+								(dialog as IAgreementSaved).AgreementSaved += AgreementSaved;
+							}
 							TabParent.OpenTab(
 								OrmMain.GenerateDialogHashName(type, agreement.Id),
 								() => dialog
@@ -1393,7 +1396,18 @@ namespace Vodovoz
 
 		void RunAgreementDialog(ITdiDialog dlg)
 		{
+			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 			TabParent.AddSlaveTab(this, dlg);
+		}
+
+		void AgreementSaved(object sender, AgreementSavedEventArgs e)
+		{
+			var agreement = UoWGeneric.Session.Merge(e.Agreement);
+			Entity.CreateOrderAgreementDocument(agreement);
+			Entity.FillItemsFromAgreement(agreement);
+			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType)
+										  .AdditionalAgreements
+										  .Add(agreement);
 		}
 
 		void RunContractCreateDialog(OrderAgreementType type)
@@ -1480,8 +1494,10 @@ namespace Vodovoz
 			ITdiDialog dlg = new WaterAgreementDlg(CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType), Entity.DeliveryPoint, Entity.DeliveryDate);
 			(dlg as IAgreementSaved).AgreementSaved +=
 				(sender, e) => {
-					if(nom != null)
+					AgreementSaved(sender, e);
+					if(nom != null) {
 						AddNomenclature(nom, count);
+					}
 				};
 			TabParent.AddSlaveTab(this, dlg);
 		}
@@ -1506,6 +1522,10 @@ namespace Vodovoz
 				nom
 			);
 
+			(dlg as IAgreementSaved).AgreementSaved +=
+				(sender, e) => {
+					AgreementSaved(sender, e);
+				};
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
@@ -1920,6 +1940,7 @@ namespace Vodovoz
 				}
 				if(MessageDialogWorks.RunQuestionDialog("В заказе добавлена вода, а для данной точки доставки нет дополнительного соглашения о доставке воды, создать?")) {
 					ITdiDialog dlg = new WaterAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate);
+					(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 					TabParent.AddSlaveTab(this, dlg);
 				}
 				return false;
