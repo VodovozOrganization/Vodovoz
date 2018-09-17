@@ -275,8 +275,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -292,8 +292,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -307,10 +307,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -324,10 +324,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -341,10 +341,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -360,8 +360,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -376,8 +376,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -391,10 +391,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -408,10 +408,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -427,8 +427,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -822,8 +822,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -839,8 +839,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -854,10 +854,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -871,10 +871,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -888,10 +888,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -907,8 +907,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -923,8 +923,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -938,10 +938,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -955,10 +955,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -974,8 +974,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1369,8 +1369,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1386,8 +1386,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1401,10 +1401,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1418,10 +1418,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1437,8 +1437,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1454,8 +1454,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1470,8 +1470,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1485,10 +1485,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1502,10 +1502,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1521,8 +1521,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1769,7 +1769,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>=Sum({liters_outlayed}, "FuelOther") + Sum({liters_outlayed}, "FuelTruck") + Sum({liters_outlayed}, "FuelLargus")</Value>
+                      <Value>=Sum({liters_outlayed}, "FuelOther") + Sum({liters_outlayed}, "FuelTruck") + Sum({liters_outlayed}, "FuelLargus") + Sum({liters_outlayed}, "FuelGAZelle")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1784,7 +1784,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelOther") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelTruck") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelLargus")</Value>
+                      <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelOther") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelTruck") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelLargus") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelGAZelle")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1799,7 +1799,38 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0), "FuelOther") + Sum(Iif({fuel_type}!=3, {liters_coupons}, 0), "FuelTruck") + Sum(Iif({fuel_type}!=3, {liters_coupons}, 0), "FuelLargus")</Value>
+                      <Value>=Sum(
+    Iif(
+        {fuel_type}!=3,
+        {liters_coupons},
+        0
+    ), 
+    "FuelOther"
+) 
++ Sum(
+    Iif(
+        {fuel_type}!=3,
+        {liters_coupons},
+        0
+    ),
+    "FuelTruck"
+)
++ Sum(
+    Iif(
+        {fuel_type}!=3,
+        {liters_coupons},
+        0
+    ),
+    "FuelLargus"
+)
++ Sum(
+    Iif(
+        {fuel_type}!=3,
+        {liters_coupons},
+        0
+    ),
+    "FuelGAZelle"
+)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2086,8 +2117,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2103,8 +2134,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2118,10 +2149,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2135,10 +2166,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2154,8 +2185,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2171,8 +2202,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2187,8 +2218,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2202,10 +2233,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2219,10 +2250,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2238,8 +2269,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2900,7 +2931,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
