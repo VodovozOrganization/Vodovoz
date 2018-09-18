@@ -676,8 +676,8 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionWagesOperationsActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.ForwarderWageReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport())
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.WagesOperationsReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.WagesOperationsReport())
 		);
 	}
 
