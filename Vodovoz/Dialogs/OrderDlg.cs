@@ -34,10 +34,24 @@ using Vodovoz.Repository.Logistics;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.Repository.Logistics;
+using fyiReporting.RdlGtkViewer;
+using System.IO;
+using QSEmailSending;
+using QSSupportLib;
+using EmailService;
+using Vodovoz.Repositories;
+using fyiReporting.RDL;
+using Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz
 {
-	public partial class OrderDlg : OrmGtkDialogBase<Order>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider, IContractInfoProvider, ITdiTabAddedNotifier
+	public partial class OrderDlg : OrmGtkDialogBase<Order>,
+		ICounterpartyInfoProvider, 
+		IDeliveryPointInfoProvider, 
+		IContractInfoProvider, 
+		ITdiTabAddedNotifier, 
+		IEmailsInfoProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -53,7 +67,8 @@ namespace Vodovoz
 					PanelViewType.AdditionalAgreementPanelView,
 					PanelViewType.CounterpartyView,
 					PanelViewType.DeliveryPointView,
-					PanelViewType.DeliveryPricePanelView
+					PanelViewType.DeliveryPricePanelView,
+					PanelViewType.EmailsPanelView
 				};
 			}
 		}
@@ -63,6 +78,16 @@ namespace Vodovoz
 		public DeliveryPoint DeliveryPoint => Entity.DeliveryPoint;
 
 		public CounterpartyContract Contract => Entity.Contract;
+
+		public bool CanHaveEmails => Entity.Id != 0;
+
+		public List<StoredEmail> GetEmails()
+		{
+			if(Entity.Id == 0) {
+				return null;
+			}
+			return EmailRepository.GetAllEmailsForOrder(UoW, Entity.Id);
+		}
 
 		#endregion
 
@@ -495,16 +520,34 @@ namespace Vodovoz
 			}
 
 			logger.Info("Сохраняем заказ...");
+
+			if(Entity.NeedSendBill()){
+				var emailAddressForBill = Entity.GetEmailAddressForBill();
+				if(emailAddressForBill == null) {
+					if(!MessageDialogWorks.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
+						return false;
+					}
+				}
+				SaveOrder();
+				SendBillByEmail(emailAddressForBill);
+			}else {
+				SaveOrder();
+			}
+
+			UoW.Session.Refresh(Entity);
+			logger.Info("Ok.");
+			ButtonCloseOrderAccessibilityAndAppearance();
+			return true;
+		}
+
+		private void SaveOrder()
+		{
 			Entity.CheckAndSetOrderIsService();
 			Entity.SetOrderCreationDate();
 			Entity.SetFirstOrder();
 			SaveChanges();
 			Entity.ParseTareReason();
 			UoWGeneric.Save();
-			UoW.Session.Refresh(Entity);
-			logger.Info("Ok.");
-			ButtonCloseOrderAccessibilityAndAppearance();
-			return true;
 		}
 
 		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)
@@ -1824,7 +1867,7 @@ namespace Vodovoz
 			});
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
-
+			
 			Entity.ChangeStatus(OrderStatus.WaitForPayment);
 			UpdateButtonState();
 		}
@@ -2398,5 +2441,82 @@ namespace Vodovoz
 			}
 		}
 
+		private bool HaveEmailForBill()
+		{
+			QSContacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
+			if(clientEmail == null) {
+				if(MessageDialogWorks.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")){
+					return true;
+				}else {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		private void SendBillByEmail(QSContacts.Email emailAddressForBill)
+		{
+			if(EmailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)){
+				return;
+			}
+
+			var billDocument = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill) as BillDocument;
+			if(billDocument == null) {
+				MessageDialogWorks.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
+				return;
+			}
+			var organization = OrganizationRepository.GetCashlessOrganization(UnitOfWorkFactory.CreateWithoutRoot());
+			if(organization == null) {
+				MessageDialogWorks.RunErrorDialog("Невозможно отправить счет по электронной почте. В параметрах базы не определена организация для безналичного расчета");
+				return;
+			}
+			billDocument.HideSignature = false;
+			var billTemplate = billDocument.GetEmailTemplate();
+			ReportInfo ri = billDocument.GetReportInfo();
+			Email email = new Email();
+			email.Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title);
+			email.Text = billTemplate.Text;
+			email.HtmlText = billTemplate.TextHtml;
+			email.Recipient = new EmailContact(client.Name, emailAddressForBill.Address);
+			email.Sender = new EmailContact(organization.Name, MainSupport.BaseParameters.All["email_for_email_delivery"]);
+			email.Order = Entity.Id;
+			email.OrderDocumentType = OrderDocumentType.Bill;
+			foreach(var item in billTemplate.Attachments) {
+				email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
+			}
+			using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
+				email.AddAttachment(billDocument.Name.Trim('\\', '/', ':', '*', '?', '\"', '<', '>', '|', '+', ' ', '.', '%', '!', '@', ',') + ".pdf", stream);
+			}
+			IEmailService service = EmailServiceSetting.GetEmailService();
+			var result = service.SendEmail(email);
+
+			//Если произошла ошибка и письмо не отправлено
+			string resultMessage = "";
+			if(!result.Item1) {
+				resultMessage = "Письмо не было отправлено! Причина:\n";
+			}
+			MessageDialogWorks.RunInfoDialog(resultMessage + result.Item2);
+		}
+
+		protected void OnTreeDocumentsCursorChanged(object sender, EventArgs e)
+		{
+			var selectedDoc = treeDocuments.GetSelectedObjects().Cast<OrderDocument>().FirstOrDefault();
+			if(selectedDoc == null) {
+				return;
+			}
+
+			string email = "";
+			if(!Entity.Client.Emails.Any()) {
+				email = "";
+			} else {
+				QSContacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
+				if(clientEmail == null) {
+					clientEmail = Entity.Client.Emails.FirstOrDefault();
+				}
+				email = clientEmail.Address;
+			}
+
+			senddocumentbyemailview1.Update(selectedDoc, email);
+		}
 	}
 }

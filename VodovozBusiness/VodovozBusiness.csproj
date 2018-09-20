@@ -486,10 +486,15 @@
     <Compile Include="Repositories\UndeliveredOrdersRepository.cs" />
     <Compile Include="Tools\CommerceML\Nodes\Offers.cs" />
     <Compile Include="Tools\CommerceML\Nodes\OffersPackage.cs" />
+    <Compile Include="Domain\StoredEmails\StoredEmail.cs" />
+    <Compile Include="HibernateMapping\StoredEmails\StoredEmailMap.cs" />
+    <Compile Include="Repositories\EmailRepository.cs" />
     <Compile Include="Domain\Goods\NomenclatureImage.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureImageMap.cs" />
     <Compile Include="Tools\CommerceML\Nodes\PropertyOfGoods.cs" />
     <Compile Include="Domain\Goods\MobileCatalog.cs" />
+    <Compile Include="Domain\StoredEmails\EmailTemplate.cs" />
+    <Compile Include="Domain\StoredEmails\EmailAttachment.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -509,6 +514,9 @@
     <Folder Include="HibernateMapping\Sale\" />
     <Folder Include="Tools\CommerceML\" />
     <Folder Include="Tools\CommerceML\Nodes\" />
+    <Folder Include="Domain\StoredEmails\" />
+    <Folder Include="HibernateMapping\StoredEmails\" />
+    <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
@@ -575,5 +583,8 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\email_ad.png" />
   </ItemGroup>
 </Project>

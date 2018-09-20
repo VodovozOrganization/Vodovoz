@@ -155,6 +155,9 @@
     <Reference Include="PowerCollections">
       <HintPath>..\packages\NetTopologySuite.1.14\lib\net45\PowerCollections.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.ServiceModel.Web" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -830,6 +833,11 @@
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.UndeliveredOrdersPanelView.cs" />
     <Compile Include="Dialogs\UndeliveriesWithCommentsPrintDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveriesWithCommentsPrintDlg.cs" />
+    <Compile Include="ViewWidgets\SendDocumentByEmailView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SendDocumentByEmailView.cs" />
+    <Compile Include="SidePanel\InfoViews\EmailsPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.EmailsPanelView.cs" />
+    <Compile Include="SidePanel\InfoProviders\IEmailsInfoProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -932,6 +940,18 @@
     <ProjectReference Include="..\..\QSProjects\QSExtraGammaWidgets\QSExtraGammaWidgets.csproj">
       <Project>{3DCDD84A-20D0-4939-BE25-58B19F3961F2}</Project>
       <Name>QSExtraGammaWidgets</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSEmailSending\QSEmailSending.csproj">
+      <Project>{7AE4E4AA-B519-43CF-AACC-5856FAACDF0C}</Project>
+      <Name>QSEmailSending</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\VodovozService\EmailService\EmailService.csproj">
+      <Project>{6E76A8A0-411C-4987-A77D-64B9571C7759}</Project>
+      <Name>EmailService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
+      <Project>{C97E91F4-B310-44E2-9B6C-96775395722D}</Project>
+      <Name>RdlEngine</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

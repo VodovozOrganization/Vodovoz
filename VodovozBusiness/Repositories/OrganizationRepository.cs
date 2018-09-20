@@ -59,6 +59,14 @@ namespace Vodovoz.Repository
 				.Take (1)
 				.SingleOrDefault ();
 		}
+
+		public static Organization GetCashlessOrganization(IUnitOfWork uow)
+		{
+			if(MainSupport.BaseParameters.All.ContainsKey(CashlessOrganization)){
+				return uow.GetById<Organization>(int.Parse(MainSupport.BaseParameters.All[CashlessOrganization]));
+			}
+			return null;
+		}
 	}
 }
 

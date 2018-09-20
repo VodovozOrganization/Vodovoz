@@ -1021,6 +1021,25 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		public virtual QSContacts.Email GetEmailAddressForBill()
+		{
+			return Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
+		}
+
+		public virtual bool NeedSendBill()
+		{
+			if(OrderStatus != OrderStatus.Accepted && OrderStatus != OrderStatus.WaitForPayment) {
+				return false;
+			}
+			var docType = OrderDocumentType.Bill;
+			//Проверка должен ли формироваться счет для текущего заказа
+			var docTypes = GetRequirementDocTypes();
+			if(!docTypes.Contains(docType)) {
+				return false;
+			}
+			return true;
+		}
+
 		public virtual void ParseTareReason()
 		{
 			ReasonType = ReasonType.Unknown;
@@ -2394,16 +2413,19 @@ namespace Vodovoz.Domain.Orders
 
 		#region Работа с документами
 
-		public virtual void UpdateDocuments()
+		public virtual OrderDocumentType[] GetRequirementDocTypes()
 		{
 			//создаём объект-ключ на основе текущего заказа. Этот ключ содержит набор свойств, 
 			//по которым будет происходить подбор правила для создания набора документов
 			var key = new OrderStateKey(this);
 
 			//обращение к хранилищу правил для получения массива типов документов по ключу
-			OrderDocumentType[] typesArray = OrderDocumentRulesRepository.GetSetOfDocumets(key);
+			return OrderDocumentRulesRepository.GetSetOfDocumets(key);
+		}
 
-			CheckAndCreateDocuments(typesArray);
+		public virtual void UpdateDocuments()
+		{
+			CheckAndCreateDocuments(GetRequirementDocTypes());
 		}
 
 		[Obsolete("Метод устарел после внедрения функционала в рамках задачи I-1173", true)]
