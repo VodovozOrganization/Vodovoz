@@ -2477,7 +2477,7 @@ namespace Vodovoz
 			email.Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title);
 			email.Text = billTemplate.Text;
 			email.HtmlText = billTemplate.TextHtml;
-			email.Recipient = new EmailContact(client.Name, emailAddressForBill.Address);
+			email.Recipient = new EmailContact(Entity.Client.Name, emailAddressForBill.Address);
 			email.Sender = new EmailContact(organization.Name, MainSupport.BaseParameters.All["email_for_email_delivery"]);
 			email.Order = Entity.Id;
 			email.OrderDocumentType = OrderDocumentType.Bill;

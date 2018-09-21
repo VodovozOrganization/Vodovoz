@@ -13,6 +13,7 @@ using QSReport;
 using QSSupportLib;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Repositories;
 using Vodovoz.Repository;
 
 namespace Vodovoz.ViewWidgets
@@ -61,7 +62,7 @@ namespace Vodovoz.ViewWidgets
 				                  .List().ToList();
 			}
 			ytreeviewStoredEmails.ItemsDataSource = storedEmails;
-			buttonSendEmail.Sensitive = document.Type == OrderDocumentType.Bill && EmailRepository.CanSendByTimeout(document.Order.Id);
+			buttonSendEmail.Sensitive = document.Type == OrderDocumentType.Bill && EmailRepository.CanSendByTimeout(yvalidatedentryEmail.Text, document.Order.Id);
 		}
 
 		protected void OnYtreeviewStoredEmailsCursorChanged(object sender, EventArgs e)
