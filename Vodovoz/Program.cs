@@ -67,7 +67,14 @@ namespace Vodovoz
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
 
 			VodovozService.Chats.ChatMain.ChatServer = "vod-srv.qsolution.ru:9000";
-			EmailService.EmailServiceSetting.EmailServiceURL = "vod-srv.qsolution.ru:9000";
+
+			MainSupport.LoadBaseParameters();
+			if(MainSupport.BaseParameters.All.ContainsKey("email_service_address")) {
+				EmailService.EmailServiceSetting.EmailServiceURL = MainSupport.BaseParameters.All["email_service_address"];
+			}else {
+				EmailService.EmailServiceSetting.EmailServiceURL = null;
+			}
+			
 			QSOsm.OsmWorker.ServiceHost = "vod-srv.qsolution.ru";
 			QSOsm.OsmWorker.ServicePort = 9000;
 			QSOsm.Osrm.OsrmMain.ServerUrl = "http://vod.qsolution.ru:5000";

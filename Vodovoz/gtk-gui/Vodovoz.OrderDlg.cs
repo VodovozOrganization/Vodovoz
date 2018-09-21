@@ -460,7 +460,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 3;
+			this.notebook1.CurrentPage = 6;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vboxInfo = new global::Gtk.VBox();
 			this.vboxInfo.Name = "vboxInfo";
@@ -2058,7 +2058,6 @@ namespace Vodovoz
 			this.buttonAddExistingDocument.Clicked += new global::System.EventHandler(this.OnButtonAddExistingDocumentClicked);
 			this.btnAddM2ProxyForThisOrder.Clicked += new global::System.EventHandler(this.OnBtnAddM2ProxyForThisOrderClicked);
 			this.btnRemExistingDocument.Clicked += new global::System.EventHandler(this.OnBtnRemExistingDocumentClicked);
-			this.treeDocuments.CursorChanged += new global::System.EventHandler(this.OnTreeDocumentsCursorChanged);
 			this.buttonViewDocument.Clicked += new global::System.EventHandler(this.OnButtonViewDocumentClicked);
 			this.btnOpnPrnDlg.Clicked += new global::System.EventHandler(this.OnBtnOpnPrnDlgClicked);
 			this.buttonPrintSelected.Clicked += new global::System.EventHandler(this.OnButtonPrintSelectedClicked);

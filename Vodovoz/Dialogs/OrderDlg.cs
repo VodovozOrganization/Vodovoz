@@ -441,9 +441,7 @@ namespace Vodovoz
 				.Finish();
 			treeDocuments.Selection.Mode = SelectionMode.Multiple;
 			treeDocuments.ItemsDataSource = Entity.ObservableOrderDocuments;
-			treeDocuments.Selection.Changed += (sender, e) => {
-				buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows() > 0;
-			};
+			treeDocuments.Selection.Changed += Selection_Changed;
 
 			treeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
 
@@ -521,7 +519,7 @@ namespace Vodovoz
 
 			logger.Info("Сохраняем заказ...");
 
-			if(Entity.NeedSendBill()){
+			if(!EmailServiceSetting.CanSendEmail || Entity.NeedSendBill()){
 				var emailAddressForBill = Entity.GetEmailAddressForBill();
 				if(emailAddressForBill == null) {
 					if(!MessageDialogWorks.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
@@ -2456,7 +2454,7 @@ namespace Vodovoz
 
 		private void SendBillByEmail(QSContacts.Email emailAddressForBill)
 		{
-			if(EmailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)){
+			if(!EmailServiceSetting.CanSendEmail || EmailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)){
 				return;
 			}
 
@@ -2470,9 +2468,12 @@ namespace Vodovoz
 				MessageDialogWorks.RunErrorDialog("Невозможно отправить счет по электронной почте. В параметрах базы не определена организация для безналичного расчета");
 				return;
 			}
+			var wasHideSignature = billDocument.HideSignature;
 			billDocument.HideSignature = false;
-			var billTemplate = billDocument.GetEmailTemplate();
 			ReportInfo ri = billDocument.GetReportInfo();
+			billDocument.HideSignature = wasHideSignature;
+
+			var billTemplate = billDocument.GetEmailTemplate();
 			Email email = new Email();
 			email.Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title);
 			email.Text = billTemplate.Text;
@@ -2488,6 +2489,9 @@ namespace Vodovoz
 				email.AddAttachment(billDocument.Name.Trim('\\', '/', ':', '*', '?', '\"', '<', '>', '|', '+', ' ', '.', '%', '!', '@', ',') + ".pdf", stream);
 			}
 			IEmailService service = EmailServiceSetting.GetEmailService();
+			if(service == null) {
+				return;
+			}
 			var result = service.SendEmail(email);
 
 			//Если произошла ошибка и письмо не отправлено
@@ -2498,13 +2502,15 @@ namespace Vodovoz
 			MessageDialogWorks.RunInfoDialog(resultMessage + result.Item2);
 		}
 
-		protected void OnTreeDocumentsCursorChanged(object sender, EventArgs e)
+		void Selection_Changed(object sender, EventArgs e)
 		{
+			buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows() > 0;
+
+
 			var selectedDoc = treeDocuments.GetSelectedObjects().Cast<OrderDocument>().FirstOrDefault();
 			if(selectedDoc == null) {
 				return;
 			}
-
 			string email = "";
 			if(!Entity.Client.Emails.Any()) {
 				email = "";
@@ -2515,7 +2521,6 @@ namespace Vodovoz
 				}
 				email = clientEmail.Address;
 			}
-
 			senddocumentbyemailview1.Update(selectedDoc, email);
 		}
 	}

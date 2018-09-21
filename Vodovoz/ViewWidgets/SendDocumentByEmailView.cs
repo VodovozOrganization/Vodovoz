@@ -37,14 +37,12 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Статус").AddEnumRenderer(x => x.State)
 				.RowCells()
 				.Finish();
+
+			this.Sensitive = EmailServiceSetting.CanSendEmail;
 		}
 
 		public void Update(OrderDocument document, string email)
 		{
-			if(document is BillDocument) {
-				(document as BillDocument).HideSignature = false;
-			}
-
 			yvalidatedentryEmail.Text = email;
 
 			this.document = document;
@@ -116,6 +114,9 @@ namespace Vodovoz.ViewWidgets
 			}
 
 			IEmailService service = EmailServiceSetting.GetEmailService();
+			if(service == null) {
+				return;
+			}
 			var result = service.SendEmail(email);
 
 			//Если произошла ошибка и письмо не отправлено
@@ -132,7 +133,11 @@ namespace Vodovoz.ViewWidgets
 		{
 			if(document.Type == OrderDocumentType.Bill) {
 				var billDocument = document as BillDocument;
+				var wasHideSignature = billDocument.HideSignature;
+				billDocument.HideSignature = false;
 				ReportInfo ri = billDocument.GetReportInfo();
+				billDocument.HideSignature = wasHideSignature;
+				            
 				EmailTemplate template = billDocument.GetEmailTemplate();
 				Email email = new Email();
 				email.Title = string.Format("{0} {1}", template.Title, billDocument.Title);
@@ -141,6 +146,7 @@ namespace Vodovoz.ViewWidgets
 				foreach(var item in template.Attachments) {
 					email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
 				}
+
 				email.Recipient = new EmailContact(clientName, yvalidatedentryEmail.Text);
 				email.Sender = new EmailContact(organizationName, MainSupport.BaseParameters.All["email_for_email_delivery"]);
 				email.Order = document.Order.Id;

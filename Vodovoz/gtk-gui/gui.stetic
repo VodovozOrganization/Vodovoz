@@ -30375,7 +30375,6 @@
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="ShowScrollbars">True</property>
-                                <signal name="CursorChanged" handler="OnTreeDocumentsCursorChanged" />
                               </widget>
                             </child>
                           </widget>
