@@ -123,6 +123,7 @@ namespace Vodovoz
 			IsEditable = UoWGeneric.Root.Status == RouteListStatus.New && QSMain.User.Permissions ["logistican"];
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
+			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, false);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
 			CheckCarLoadDocuments();
 		}
