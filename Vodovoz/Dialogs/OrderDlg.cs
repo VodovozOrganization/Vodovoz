@@ -2486,7 +2486,7 @@ namespace Vodovoz
 				email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
 			}
 			using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
-				email.AddAttachment(billDocument.Name.Trim('\\', '/', ':', '*', '?', '\"', '<', '>', '|', '+', ' ', '.', '%', '!', '@', ',') + ".pdf", stream);
+				email.AddAttachment(billDocument.Name + ".pdf", stream);
 			}
 			IEmailService service = EmailServiceSetting.GetEmailService();
 			if(service == null) {

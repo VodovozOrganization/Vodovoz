@@ -152,7 +152,7 @@ namespace Vodovoz.ViewWidgets
 				email.Order = document.Order.Id;
 				email.OrderDocumentType = document.Type;
 				using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
-					email.AddAttachment(document.Name.Trim('\\', '/', ':', '*', '?', '\"', '<', '>', '|', '+', ' ', '.', '%', '!', '@', ',') + ".pdf", stream);
+					email.AddAttachment(billDocument.Name + ".pdf", stream);				
 				}
 				return email;
 			}else {
