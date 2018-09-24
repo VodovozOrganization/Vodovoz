@@ -112,7 +112,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -130,6 +130,12 @@ WHERE
 	order_items.price AS item_price,
 	order_items.include_nds,
 	order_items.discount,
+    order_items.discount_money,
+    order_items.price * IF(
+		orders.order_status IN('UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
+		actual_count,
+		count
+	) AS sum,
 	order_items.price * IF(
 		orders.order_status IN('UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
 		actual_count,
@@ -151,7 +157,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -187,6 +193,14 @@ WHERE
         <Field Name="discount">
           <DataField>discount</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="sum">
+          <DataField>sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="discount_money">
+          <DataField>discount_money</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -621,28 +635,34 @@ WHERE
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>32.8pt</Width>
+            <Width>28.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>264.3pt</Width>
+            <Width>196.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.0pt</Width>
+            <Width>39.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>30.2pt</Width>
+            <Width>27.8pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>52.0pt</Width>
+          </TableColumn>
+          <TableColumn >
             <Width>59.0pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>47.3pt</Width>
+          </TableColumn>
           <TableColumn>
-            <Width>80.9pt</Width>
+            <Width>56.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>23.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -729,10 +749,44 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>Сумма без 
+скидки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>Скидка</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>Сумма</Value>
+                      <Value>Сумма со 
+скидкой</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -840,6 +894,36 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>=Fields!sum.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>N2</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>=Fields!discount_money.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>N2</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
@@ -888,7 +972,7 @@ WHERE
                       <ZIndex>2</ZIndex>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
+                  <ColSpan>7</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -937,7 +1021,7 @@ WHERE
                       <ZIndex>2</ZIndex>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
+                  <ColSpan>7</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -983,7 +1067,7 @@ WHERE
                       <ZIndex>2</ZIndex>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>6</ColSpan>
+                  <ColSpan>8</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1012,7 +1096,7 @@ WHERE
                       <ZIndex>2</ZIndex>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>6</ColSpan>
+                  <ColSpan>8</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
