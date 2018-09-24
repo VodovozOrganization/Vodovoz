@@ -519,7 +519,7 @@ namespace Vodovoz
 
 			logger.Info("Сохраняем заказ...");
 
-			if(!EmailServiceSetting.CanSendEmail || Entity.NeedSendBill()){
+			if(EmailServiceSetting.CanSendEmail && Entity.NeedSendBill()){
 				var emailAddressForBill = Entity.GetEmailAddressForBill();
 				if(emailAddressForBill == null) {
 					if(!MessageDialogWorks.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
