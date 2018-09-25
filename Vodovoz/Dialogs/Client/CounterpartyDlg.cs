@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
-using Gtk;
 using NLog;
 using QSBanks;
 using QSContacts;
@@ -12,12 +11,10 @@ using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
-using QSWidgetLib;
-using Vodovoz.Repository;
-using FluentNHibernate.Data;
 
 namespace Vodovoz
 {
@@ -281,11 +278,14 @@ namespace Vodovoz
 		protected void OnEnumPaymentEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			enumDefaultDocumentType.Visible = labelDefaultDocumentType.Visible = (PaymentType)e.SelectedItem == PaymentType.cashless;
-			if((PaymentType)e.SelectedItem == PaymentType.cashless) {
+		}
+
+		protected void OnEnumPaymentChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.PaymentMethod == PaymentType.cashless)
 				Entity.DefaultDocumentType = DefaultDocumentType.upd;
-			} else {
+			else
 				Entity.DefaultDocumentType = null;
-			}
 		}
 
 		protected void OnReferencePreviousCounterpartyChangedByUser(object sender, EventArgs e)

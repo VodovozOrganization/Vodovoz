@@ -1310,6 +1310,7 @@ namespace Vodovoz
 			this.referenceMainCounterparty.ChangedByUser += new global::System.EventHandler(this.OnReferenceMainCounterpartyChangedByUser);
 			this.enumPersonType.Changed += new global::System.EventHandler(this.OnEnumPersonTypeChanged);
 			this.enumPayment.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumPaymentEnumItemSelected);
+			this.enumPayment.ChangedByUser += new global::System.EventHandler(this.OnEnumPaymentChangedByUser);
 			this.datalegalname1.OwnershipChanged += new global::System.EventHandler(this.OnDatalegalname1OwnershipChanged);
 			this.chkNeedNewBottles.Toggled += new global::System.EventHandler(this.OnChkNeedNewBottlesToggled);
 			this.yentrySignPost.FocusInEvent += new global::Gtk.FocusInEventHandler(this.OnYentrySignPostFocusInEvent);
