@@ -1584,9 +1584,19 @@
     route_lists.date AS date,
     route_lists.id AS route_list_number,
     IFNULL(SUM(bottles_movement_operations.returned),0) AS empty_bottles,
-   IFNULL(case when fixed_driver_wage &gt; 0 then (SELECT count FROM  route_list_addresses left join route_lists rl on rl.id = route_list_id left join order_items oi on oi.order_id = 	route_list_addresses.order_id   where  rl.id = route_lists.id)
-
-	else SUM(bottles_movement_operations.delivered) end ,0) AS full_bottles,
+	IFNULL(
+		case when fixed_driver_wage &gt; 0
+			then (
+					SELECT SUM(count)
+					FROM  route_list_addresses
+					left join route_lists rl on rl.id = route_list_id
+					left join order_items oi on oi.order_id = route_list_addresses.order_id
+					where rl.id = route_lists.id
+                )
+			else SUM(bottles_movement_operations.delivered)
+            end
+		,0
+    ) AS full_bottles,
     IFNULL(case when fixed_driver_wage &gt; 0 then fixed_driver_wage
                   else SUM(Adresses.driver_wage) + SUM(Adresses.driver_wage_surcharge)
     end ,0) AS wage,
