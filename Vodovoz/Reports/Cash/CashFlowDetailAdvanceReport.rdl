@@ -16,55 +16,55 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    cash_advance_report.id AS report_id,
-    cash_advance_report.cash_expense_category_id AS CategoryId,
-        IF(cat1.parent_id IS NULL,
-        cat1.name,
-        CONCAT((SELECT 
-                        IF(cat2.parent_id IS NULL,
-                                cat2.name,
-                                CONCAT((SELECT 
-                                                CONCAT(IF(parent_id IS NULL, '', '... '), name)
-                                            FROM
-                                                cash_expense_category AS cat3
-                                            WHERE
-                                                id = cat2.parent_id),
-                                        ' - ',
-                                        cat2.name))
-                    FROM
-                        cash_expense_category AS cat2
-                    WHERE
-                        id = cat1.parent_id),
-                ' - ',
-                cat1.name)) AS Category,
-    cash_advance_report.money AS Sum,
-    cash_advance_report.description,
-    cash_advance_report.date AS date,
-    CONCAT_WS('',
-            CONCAT(employees.last_name, ' '),
-            IF(employees.name = '',
-                '',
-                CONCAT(LEFT(employees.name, 1), '.')),
-            IF(employees.patronymic = '',
-                '',
-                CONCAT(LEFT(employees.patronymic, 1), '.'))) AS employee,
-                cash_expense.date as expense_date,
-                cash_expense.money as expense_money,
-                cash_expense.description as expense_desc
+	cash_advance_report.id AS report_id,
+	cash_advance_report.cash_expense_category_id AS CategoryId,
+		IF(cat1.parent_id IS NULL,
+		cat1.name,
+		CONCAT((SELECT 
+						IF(cat2.parent_id IS NULL,
+								cat2.name,
+								CONCAT((SELECT 
+												CONCAT(IF(parent_id IS NULL, '', '... '), name)
+											FROM
+												cash_expense_category AS cat3
+											WHERE
+												id = cat2.parent_id),
+										' - ',
+										cat2.name))
+					FROM
+						cash_expense_category AS cat2
+					WHERE
+						id = cat1.parent_id),
+				' - ',
+				cat1.name)) AS Category,
+	cash_advance_report.money AS Sum,
+	cash_advance_report.description,
+	cash_advance_report.date AS date,
+	CONCAT_WS('',
+			CONCAT(employees.last_name, ' '),
+			IF(employees.name = '',
+				'',
+				CONCAT(LEFT(employees.name, 1), '.')),
+			IF(employees.patronymic = '',
+				'',
+				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS employee,
+				cash_expense.date as expense_date,
+				cash_expense.money as expense_money,
+				cash_expense.description as expense_desc
 FROM
-    cash_advance_report
-        LEFT JOIN
-    cash_expense_category AS cat1 ON cat1.id = cash_advance_report.cash_expense_category_id
-        LEFT JOIN
-    employees ON employees.id = cash_advance_report.employee_id
-        LEFT JOIN
-    cash_advance_closing ON cash_advance_closing.advance_report_id = cash_advance_report.id
-        LEFT JOIN
-    cash_expense ON cash_expense.id = cash_advance_closing.expense_id
+	cash_advance_report
+		LEFT JOIN
+	cash_expense_category AS cat1 ON cat1.id = cash_advance_report.cash_expense_category_id
+		LEFT JOIN
+	employees ON employees.id = cash_advance_report.employee_id
+		LEFT JOIN
+	cash_advance_closing ON cash_advance_closing.advance_report_id = cash_advance_report.id
+		LEFT JOIN
+	cash_expense ON cash_expense.id = cash_advance_closing.expense_id
 WHERE
-    cash_advance_report.date &gt;= @startDate
-        AND cash_advance_report.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-        AND IF(@expenseCategoryUsed, cash_advance_report.cash_expense_category_id IN (@expenseCategory), 1)
+	cash_advance_report.date &gt;= @startDate
+		AND cash_advance_report.date &lt; @endDate
+		AND IF(@expenseCategoryUsed, cash_advance_report.cash_expense_category_id IN (@expenseCategory), 1)
 AND (@Casher = -1 OR cash_advance_report.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_advance_report.employee_id = @Employee)
 ORDER BY Category;</CommandText>
@@ -141,7 +141,7 @@ ORDER BY Category;</CommandText>
       <Textbox Name="Textbox17">
         <Height>18.03pt</Height>
         <Width>559.42pt</Width>
-        <Value>="Авансовые отчеты за период " + Format(CDate({?StartDate}), "d") + "-" + Format(CDate({?EndDate}), "d")</Value>
+        <Value>="Авансовые отчеты за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.80pt</Top>
@@ -599,7 +599,7 @@ ORDER BY Category;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <DefaultValue>

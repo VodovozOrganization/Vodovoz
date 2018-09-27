@@ -27003,7 +27003,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Reports.CashFlow" design-size="369 283">
+  <widget class="Gtk.Bin" id="Vodovoz.Reports.CashFlow" design-size="350 272">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -27142,12 +27142,49 @@
           </packing>
         </child>
         <child>
-          <widget class="QSWidgetLib.DatePeriodPicker" id="dateperiodpicker1">
+          <widget class="Gtk.HBox" id="hbox1">
             <property name="MemberName" />
-            <property name="Events">ButtonPressMask</property>
-            <property name="StartDate">0</property>
-            <property name="EndDate">0</property>
-            <signal name="PeriodChanged" handler="OnDateperiodpicker1PeriodChanged" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gamma.Widgets.yDatePicker" id="dateStart">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">True</property>
+                <property name="Date">0</property>
+                <property name="IsEditable">True</property>
+                <property name="AutoSeparation">True</property>
+                <signal name="DateChangedByUser" handler="OnDateChanged" />
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="lblMinus">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes"> - </property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.Widgets.yDatePicker" id="dateEnd">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">True</property>
+                <property name="Date">0</property>
+                <property name="IsEditable">True</property>
+                <property name="AutoSeparation">True</property>
+                <signal name="DateChanged" handler="OnDateChanged" />
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="LeftAttach">1</property>

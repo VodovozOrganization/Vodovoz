@@ -24,17 +24,17 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    cash_income_category.name AS Category,
-    SUM(cash_income.money) AS sum
+	cash_income_category.name AS Category,
+	SUM(cash_income.money) AS sum
 FROM
-    cash_income
-        LEFT JOIN
-    cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
+	cash_income
+LEFT JOIN
+	cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
 WHERE
-   cash_income.type &lt;&gt; 'Return' AND
-   cash_income.date &gt;= @startDate AND cash_income.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY) 
-   AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
-   AND (@Employee = -1 OR cash_income.employee_id = @Employee)
+	cash_income.type &lt;&gt; 'Return' AND
+	cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
+	AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
+	AND (@Employee = -1 OR cash_income.employee_id = @Employee)
 GROUP BY cash_income.cash_income_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -67,18 +67,19 @@ ORDER BY Category;</CommandText>
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    cash_expense_category.name as Category,
-    SUM(cash_expense.money) as Sum
+	cash_expense_category.name as Category,
+	SUM(cash_expense.money) as Sum
 FROM
-    cash_expense
-        LEFT JOIN
-    cash_expense_category ON cash_expense_category.id = cash_expense.cash_expense_category_id
+	cash_expense
+LEFT JOIN
+	cash_expense_category ON cash_expense_category.id = cash_expense.cash_expense_category_id
 WHERE cash_expense.type &lt;&gt; 'Advance' AND
-    cash_expense.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
+	cash_expense.date BETWEEN @startDate AND @endDate
 AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_expense.employee_id = @Employee)
 GROUP BY cash_expense.cash_expense_category_id
-ORDER BY Category;</CommandText>
+ORDER BY Category
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
@@ -109,18 +110,19 @@ ORDER BY Category;</CommandText>
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    cash_expense_category.name as Category,
-    SUM(cash_expense.money) as Sum
+	cash_expense_category.name as Category,
+	SUM(cash_expense.money) as Sum
 FROM
-    cash_expense
-        LEFT JOIN
-    cash_expense_category ON cash_expense_category.id = cash_expense.cash_expense_category_id
+	cash_expense
+LEFT JOIN
+	cash_expense_category ON cash_expense_category.id = cash_expense.cash_expense_category_id
 WHERE cash_expense.type = 'Advance' AND
-    cash_expense.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
-AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)
-AND (@Employee = -1 OR cash_expense.employee_id = @Employee)
+	cash_expense.date BETWEEN @startDate AND @endDate
+	AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)
+	AND (@Employee = -1 OR cash_expense.employee_id = @Employee)
 GROUP BY cash_expense.cash_expense_category_id
-ORDER BY Category;</CommandText>
+ORDER BY Category
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
@@ -151,17 +153,17 @@ ORDER BY Category;</CommandText>
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    cash_expense_category.name AS Category,
-    SUM(cash_income.money) AS sum
+	cash_expense_category.name AS Category,
+	SUM(cash_income.money) AS sum
 FROM
-    cash_income
-        LEFT JOIN
-    cash_expense_category ON cash_expense_category.id = cash_income.cash_expense_category_id
+	cash_income
+LEFT JOIN
+	cash_expense_category ON cash_expense_category.id = cash_income.cash_expense_category_id
 WHERE
-    cash_income.type = 'Return'
-        AND cash_income.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
-AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
-AND (@Employee = -1 OR cash_income.employee_id = @Employee)
+	cash_income.type = 'Return' 
+    AND cash_income.date BETWEEN @startDate AND @endDate
+	AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
+	AND (@Employee = -1 OR cash_income.employee_id = @Employee)
 GROUP BY cash_income.cash_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -194,16 +196,16 @@ ORDER BY Category;</CommandText>
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    cash_expense_category.name AS Category,
-    SUM(cash_advance_report.money) AS sum
+	cash_expense_category.name AS Category,
+	SUM(cash_advance_report.money) AS sum
 FROM
-    cash_advance_report
-        LEFT JOIN
-    cash_expense_category ON cash_expense_category.id = cash_advance_report.cash_expense_category_id
+	cash_advance_report
+		LEFT JOIN
+	cash_expense_category ON cash_expense_category.id = cash_advance_report.cash_expense_category_id
 WHERE
-    cash_advance_report.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
-AND (@Casher = -1 OR cash_advance_report.casher_employee_id = @Casher)
-AND (@Employee = -1 OR cash_advance_report.employee_id = @Employee)
+	cash_advance_report.date BETWEEN @startDate AND @endDate
+	AND (@Casher = -1 OR cash_advance_report.casher_employee_id = @Casher)
+	AND (@Employee = -1 OR cash_advance_report.employee_id = @Employee)
 GROUP BY cash_advance_report.cash_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -234,14 +236,14 @@ ORDER BY Category;</CommandText>
     </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>27.9pt</Height>
+    <Height>29.0pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>18.03pt</Height>
         <Width>559.42pt</Width>
-        <Value>="Доходы и расходы за период " + Format(CDate({?StartDate}), "d") + "-" + Format(CDate({?EndDate}), "d")</Value>
+        <Value>="Доходы и расходы за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>4.20pt</Top>
@@ -269,10 +271,10 @@ ORDER BY Category;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>225.1pt</Width>
+            <Width>224.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>154.9pt</Width>
+            <Width>156.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -559,7 +561,7 @@ ORDER BY Category;</CommandText>
         <Value>Приход (наличка)</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>5.8pt</Top>
+        <Top>0.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1074,7 +1076,7 @@ ORDER BY Category;</CommandText>
       </Textbox>
     </ReportItems>
     <Height>342.1pt</Height>
-    <Columns >1</Columns>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>15.3pt</Height>
@@ -1097,7 +1099,7 @@ ORDER BY Category;</CommandText>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -1130,6 +1132,6 @@ ORDER BY Category;</CommandText>
       <Prompt />
     </ReportParameter>
   </ReportParameters>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
 </Report>

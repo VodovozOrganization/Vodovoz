@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Gamma.Binding;
 using Gtk;
 using QSOrmProject;
 using QSReport;
@@ -52,11 +51,7 @@ namespace Vodovoz.Reports
 
 		#region IParametersWidget implementation
 
-		public string Title {
-			get {
-				return "Доходы и расходы";
-			}
-		}
+		public string Title => "Доходы и расходы";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
@@ -123,8 +118,8 @@ namespace Vodovoz.Reports
 			return new ReportInfo {
 				Identifier = ReportName,
 				Parameters = new Dictionary<string, object> {
-					{ "StartDate", dateperiodpicker1.StartDateOrNull.Value },
-					{ "EndDate", dateperiodpicker1.EndDateOrNull.Value },
+					{ "StartDate", dateStart.DateOrNull.Value },
+					{ "EndDate", dateEnd.DateOrNull.Value },
 					{ "IncomeCategory", inCat },
 					{ "ExpenseCategory", ids },
 					{ "ExpenseCategoryUsed", exCategorySelected ? 1 : 0 },
@@ -146,9 +141,9 @@ namespace Vodovoz.Reports
 			}
 		}
 
-		protected void OnDateperiodpicker1PeriodChanged (object sender, EventArgs e)
+		protected void OnDateChanged(object sender, EventArgs e)
 		{
-			buttonRun.Sensitive = dateperiodpicker1.EndDateOrNull != null && dateperiodpicker1.StartDateOrNull != null;
+			buttonRun.Sensitive = dateStart.DateOrNull != null && dateEnd.DateOrNull != null;
 		}
 
 		protected void OnCheckDetailToggled (object sender, EventArgs e)

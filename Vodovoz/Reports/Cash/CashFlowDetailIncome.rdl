@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataIncome">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     if(cash_income.cash_income_category_id,
@@ -40,7 +40,7 @@ FROM
     employees ON employees.id = cash_income.employee_id
 WHERE
 cash_income.type &lt;&gt; 'Return' AND 
-cash_income.date &gt;= @startDate AND cash_income.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
  AND (@incomeCategory = -1 OR cash_income_category.id = @incomeCategory)
 AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_income.employee_id = @Employee)
@@ -63,7 +63,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="CategoryType">
           <DataField>CategoryType</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
@@ -95,7 +95,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="MLatDay">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT  
 	route_lists.date as date
@@ -109,7 +109,7 @@ WHERE
         
 AND cash_income.date &gt;= @startDate
         
-AND cash_income.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+AND cash_income.date &lt; @endDate
         
  AND route_list_id IS NOT NULL
 
@@ -123,7 +123,7 @@ GROUP BY route_lists.date</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="MLdate">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -143,7 +143,7 @@ GROUP BY route_lists.date</CommandText>
       <Textbox Name="Textbox17">
         <Height>18.03pt</Height>
         <Width>558.67pt</Width>
-        <Value>="Приход за период " + Format(CDate({?StartDate}), "d") + "-" + Format(CDate({?EndDate}), "d")</Value>
+        <Value>="Приход за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.80pt</Top>
@@ -513,8 +513,8 @@ GROUP BY route_lists.date</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -530,8 +530,8 @@ GROUP BY route_lists.date</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>

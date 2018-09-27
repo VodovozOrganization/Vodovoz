@@ -64,7 +64,7 @@ FROM
 WHERE
     cash_expense.type = 'Advance'
         AND cash_expense.advance_closed = 0
-        AND cash_expense.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+        AND cash_expense.date &lt; @endDate
         AND IF(@expenseCategoryUsed,
         cash_expense.cash_expense_category_id IN (@expenseCategory),
         1)
@@ -145,7 +145,7 @@ ORDER BY Category;</CommandText>
       <Textbox Name="Textbox17">
         <Height>18.03pt</Height>
         <Width>559.42pt</Width>
-        <Value>="Незакрытые авансы на " + Format(CDate({?EndDate}), "d")</Value>
+        <Value>="Незакрытые авансы на " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.80pt</Top>
