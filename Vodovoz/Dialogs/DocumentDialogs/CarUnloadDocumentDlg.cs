@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Transform;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Service;
-using Vodovoz.Repository.Store;
-using Vodovoz.ViewWidgets.Store;
 using Vodovoz.Domain.Store;
+using Vodovoz.ViewWidgets.Store;
 
 namespace Vodovoz
 {
@@ -22,11 +20,7 @@ namespace Vodovoz
 
 		IList<Equipment> alreadyUnloadedEquipment;
 
-		public override bool HasChanges {
-			get {
-				return true;
-			}
-		}
+		public override bool HasChanges => true;
 
 		#region Конструкторы
 		public CarUnloadDocumentDlg()
@@ -56,8 +50,7 @@ namespace Vodovoz
 		}
 
 		public CarUnloadDocumentDlg(CarUnloadDocument sub) : this(sub.Id)
-		{
-		}
+		{}
 		#endregion
 
 		#region Методы
@@ -83,10 +76,14 @@ namespace Vodovoz
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarUnloadEdit, Entity.Warehouse);
 			yentryrefRouteList.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
-			returnsreceptionview1.Sensitive = bottlereceptionview1.Sensitive = nonserialequipmentreceptionview1.Sensitive = editing;
+			returnsreceptionview1.Sensitive = 
+				bottlereceptionview1.Sensitive = 
+					nonserialequipmentreceptionview1.Sensitive = 
+						defectiveitemsreceptionview1.Sensitive = editing;
 			
-			bottlereceptionview1.UoW = UoW;
-			returnsreceptionview1.UoW = UoW;
+			bottlereceptionview1.UoW = 
+				defectiveitemsreceptionview1.UoW = 
+					returnsreceptionview1.UoW = UoW;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.CarUnloadEdit);
@@ -97,7 +94,7 @@ namespace Vodovoz
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 
-			returnsreceptionview1.Warehouse = Entity.Warehouse;
+			defectiveitemsreceptionview1.Warehouse = returnsreceptionview1.Warehouse = Entity.Warehouse;
 
 			UpdateWidgetsVisible();
 			if(!UoW.IsNew)
@@ -106,7 +103,8 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			UpdateReceivedItemsOnEntity();
+			if(!UpdateReceivedItemsOnEntity())
+				return false;
 
 			var valid = new QSValidation.QSValidator<CarUnloadDocument>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
@@ -151,7 +149,8 @@ namespace Vodovoz
 
 		void fillOtherReturnsTable()
 		{
-			if(Entity.RouteList == null || Entity.Warehouse == null) return;
+			if(Entity.RouteList == null || Entity.Warehouse == null)
+				return;
 			Dictionary<int, decimal> returns = Repositories.Store.CarUnloadRepository.NomenclatureUnloaded(UoW, Entity.RouteList, Entity.Warehouse, Entity);
 
 			treeOtherReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<Nomenclature>()
@@ -175,8 +174,9 @@ namespace Vodovoz
 			if(Entity.RouteList != null) {
 				UpdateAlreadyUnloaded();
 			}
-			nonserialequipmentreceptionview1.RouteList = Entity.RouteList;
-			returnsreceptionview1.RouteList = Entity.RouteList;
+			nonserialequipmentreceptionview1.RouteList = 
+				defectiveitemsreceptionview1.RouteList =
+					returnsreceptionview1.RouteList = Entity.RouteList;
 		}
 
 		private void UpdateWidgetsVisible()
@@ -193,6 +193,9 @@ namespace Vodovoz
 					bottle.Amount = (int)item.MovementOperation.Amount;
 					continue;
 				}
+
+				if(defectiveitemsreceptionview1.Items.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id))
+					continue;
 
 				var returned = item.MovementOperation.Equipment != null
 					? returnsreceptionview1.Items.FirstOrDefault(x => x.EquipmentId == item.MovementOperation.Equipment.Id)
@@ -233,11 +236,10 @@ namespace Vodovoz
 			}
 		}
 
-		void UpdateReceivedItemsOnEntity()
+		bool UpdateReceivedItemsOnEntity()
 		{
 			//Собираем список всего на возврат из разных виджетов.
 			var tempItemList = new List<InternalItem>();
-
 			foreach(var node in bottlereceptionview1.Items) {
 				if(node.Amount == 0)
 					continue;
@@ -248,6 +250,24 @@ namespace Vodovoz
 					Amount = node.Amount
 				};
 				tempItemList.Add(item);
+			}
+
+			var defectiveItemsList = new List<InternalItem>();
+			foreach(var node in defectiveitemsreceptionview1.Items) {
+				if(node.Amount == 0)
+					continue;
+
+				var item = new InternalItem {
+					ReciveType = ReciveTypes.Defective,
+					NomenclatureId = node.NomenclatureId,
+					Amount = node.Amount,
+					MovementOperationId = node.MovementOperation != null ? node.MovementOperation.Id : 0,
+					TypeOfDefect = node.TypeOfDefect,
+					Source = node.Source
+				};
+
+				if(!defectiveItemsList.Any(i => i.EqualsToAnotherInternalItem(item)))
+					defectiveItemsList.Add(item);
 			}
 
 			foreach(var node in returnsreceptionview1.Items) {
@@ -276,6 +296,41 @@ namespace Vodovoz
 			}
 
 			//Обновляем Entity
+			foreach(var tempItem in defectiveItemsList) {
+				//валидация брака
+				if(tempItem.TypeOfDefect == null) {
+					MessageDialogWorks.RunWarningDialog("Для брака необходимо указать его вид");
+					return false;
+				}
+
+				//проверка на дубли. если несколько одинаковых, то устанавливаем кол-во в 0 для последующего удаления из коллекции
+				if(tempItem.Amount > 0 && defectiveItemsList.Count(i => i.EqualsToAnotherInternalItem(tempItem)) > 1)
+					tempItem.Amount = 0;
+			}
+
+			foreach(var tempItem in defectiveItemsList) {
+				var item = Entity.Items.FirstOrDefault(x => x.MovementOperation.Id > 0 && x.MovementOperation.Id == tempItem.MovementOperationId);
+				if(item == null) {
+					Entity.AddItem(
+						tempItem.ReciveType,
+						UoW.GetById<Nomenclature>(tempItem.NomenclatureId),
+						null,
+						tempItem.Amount,
+						null,
+						null,
+						tempItem.Source,
+						tempItem.TypeOfDefect
+					);
+				} else {
+					if(item.MovementOperation.Amount != tempItem.Amount)
+						item.MovementOperation.Amount = tempItem.Amount;
+					if(item.TypeOfDefect != tempItem.TypeOfDefect)
+						item.TypeOfDefect = tempItem.TypeOfDefect;
+					if(item.Source != tempItem.Source)
+						item.Source = tempItem.Source;
+				}
+			}
+
 			var nomenclatures = UoW.GetById<Nomenclature>(tempItemList.Select(x => x.NomenclatureId).ToArray());
 			foreach(var tempItem in tempItemList) {
 				var item = Entity.Items.FirstOrDefault(x => x.MovementOperation.Nomenclature.Id == tempItem.NomenclatureId);
@@ -298,13 +353,19 @@ namespace Vodovoz
 			}
 
 			foreach(var item in Entity.Items.ToList()) {
-				var exist = tempItemList.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature?.Id);
+				bool exist = true;
+				if(item.ReciveType != ReciveTypes.Defective)
+					exist = tempItemList.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature?.Id);
+				else
+					exist = defectiveItemsList.Any(x => x.MovementOperationId == item.MovementOperation.Id && x.Amount > 0);
 
 				if(!exist) {
 					UoW.Delete(item.MovementOperation);
 					Entity.ObservableItems.Remove(item);
 				}
 			}
+
+			return true;
 		}
 		#endregion
 
@@ -317,7 +378,7 @@ namespace Vodovoz
 			var reportInfo = new QSReport.ReportInfo {
 				Title = Entity.Title,
 				Identifier = "Store.CarUnloadDoc",
-				Parameters = new System.Collections.Generic.Dictionary<string, object>
+				Parameters = new Dictionary<string, object>
 					{
 						{ "id",  Entity.Id }
 					}
@@ -345,12 +406,26 @@ namespace Vodovoz
 
 		class InternalItem
 		{
-
 			public ReciveTypes ReciveType;
 			public int NomenclatureId;
 
 			public decimal Amount;
 			public string Redhead;
+
+			public DefectSource Source;
+			public CullingCategory TypeOfDefect;
+
+			public int MovementOperationId;
+
+			public bool EqualsToAnotherInternalItem(InternalItem item){
+				if(item.TypeOfDefect == null || TypeOfDefect == null)
+					return false;
+				bool eq = item.ReciveType == ReciveType;
+				eq &= item.Source == Source;
+				eq &= item.NomenclatureId == NomenclatureId;
+				eq &= item.TypeOfDefect.Id == TypeOfDefect.Id;
+				return eq;
+			}
 		}
 	}
 }

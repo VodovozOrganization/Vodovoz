@@ -16,6 +16,8 @@ namespace Vodovoz
 			References (x => x.MovementOperation).Column ("warehouse_movement_operation_id").Cascade.All();
 			References (x => x.ServiceClaim).Column ("service_claim_id");
 			Map(x => x.Redhead).Column("redhead");
+			References(x => x.TypeOfDefect).Column("defect_type_id");
+			Map(x => x.Source).Column("source").CustomType<DefectSourceStringType>();
 		}
 	}
 }

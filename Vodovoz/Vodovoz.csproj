@@ -838,6 +838,8 @@
     <Compile Include="SidePanel\InfoViews\EmailsPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.EmailsPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\IEmailsInfoProvider.cs" />
+    <Compile Include="ViewWidgets\Store\DefectiveItemsReceptionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Store.DefectiveItemsReceptionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

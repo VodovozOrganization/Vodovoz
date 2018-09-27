@@ -1,12 +1,10 @@
-﻿using System;
-using QSOrmProject.RepresentationModel;
-using QSOrmProject;
-using Vodovoz.Domain.Logistic;
+﻿using System.Linq;
 using Gamma.ColumnConfig;
-using Vodovoz.Domain;
 using NHibernate.Transform;
-using System.Linq;
+using QSOrmProject;
+using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModel
 {
@@ -26,7 +24,9 @@ namespace Vodovoz.ViewModel
 			BottleReceptionVMNode resultAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			var orderBottles = UoW.Session.QueryOver<Nomenclature> (() => nomenclatureAlias).Where (n => n.Category == NomenclatureCategory.bottle)
+			var orderBottles = UoW.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
+			                      .Where (n => n.Category == NomenclatureCategory.bottle)
+			                      .Where(n => !n.IsDefectiveBottle)
 				.SelectList (list => list
 					.Select (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
 					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)

@@ -1,15 +1,14 @@
 ﻿using System;
-using QSOrmProject;
-using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Documents;
-using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Store;
 using System.Collections.Generic;
-using Gamma.Utilities;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
+using QSOrmProject;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -18,9 +17,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "документ разгрузки автомобиля")]
 	public class CarUnloadDocument:Document,IValidatableObject
 	{
-		public CarUnloadDocument ()
-		{
-		}
+		public CarUnloadDocument() { }
 
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
@@ -107,6 +104,12 @@ namespace Vodovoz.Domain.Documents
 							new[] { this.GetPropertyName (o => o.Items)});
 					}
 				}
+
+				if(item.MovementOperation.Nomenclature.IsDefectiveBottle && item.TypeOfDefect == null)
+					yield return new ValidationResult(
+						String.Format("Для брака {0} необходимо указать его вид", item.MovementOperation.Nomenclature.Name),
+						new[] { this.GetPropertyName(o => o.Items) }
+					);
 			}
 
 			var hasDublicateServiceClaims = Items
@@ -128,7 +131,7 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Add (item);
 		}
 
-		public virtual void AddItem(ReciveTypes reciveType, Nomenclature nomenclature, Equipment equipment, decimal amount, Service.ServiceClaim serviceClaim, string redhead = null)
+		public virtual void AddItem(ReciveTypes reciveType, Nomenclature nomenclature, Equipment equipment, decimal amount, Service.ServiceClaim serviceClaim, string redhead = null, DefectSource source = DefectSource.None, CullingCategory typeOfDefect = null)
 		{
 			var operation = new WarehouseMovementOperation();
 			operation.Amount = amount;
@@ -140,10 +143,10 @@ namespace Vodovoz.Domain.Documents
 				ReciveType = reciveType,
 				MovementOperation = operation,
 				ServiceClaim = serviceClaim,
-				Redhead = redhead
+				Redhead = redhead,
+				Source = source,
+				TypeOfDefect = typeOfDefect
 			});
 		}
 	}
 }
-
-

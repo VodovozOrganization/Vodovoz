@@ -49,6 +49,20 @@ namespace Vodovoz.Domain.Documents
 			set { SetField(ref redhead, value, () => Redhead); }
 		}
 
+		CullingCategory typeOfDefect;
+		[Display(Name = "Тип брака")]
+		public virtual CullingCategory TypeOfDefect {
+			get { return typeOfDefect; }
+			set { SetField(ref typeOfDefect, value, () => TypeOfDefect); }
+		}
+
+		DefectSource source;
+		[Display(Name = "Источник брака")]
+		public virtual DefectSource Source {
+			get { return source; }
+			set { SetField(ref source, value, () => Source); }
+		}
+
 		public virtual string Title {
 			get {
 				return String.Format("[{2}] {0} - {1}",
@@ -67,7 +81,9 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Оборудование по заявкам")]
 		Equipment,
 		[Display (Name = "Возврат недовоза")]
-		Returnes
+		Returnes,
+		[Display(Name = "Брак")]
+		Defective
 	}
 
 	public class ReciveTypesStringType : NHibernate.Type.EnumStringType

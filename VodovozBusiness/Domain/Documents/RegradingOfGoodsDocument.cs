@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.Utilities;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
@@ -111,12 +112,13 @@ namespace Vodovoz.Domain.Documents
 					yield return new ValidationResult(String.Format("Пересортица из {0} ед. '{1}' в {0} ед. '{2}' невозможна!", item.Amount, item.NomenclatureOld.Name, item.NomenclatureNew.Name), 
 					                                  new[] { this.GetPropertyName(o => o.Items) });
 			}
+			if(ObservableItems.Any(x => x.NomenclatureNew.IsDefectiveBottle && x.TypeOfDefect == null))
+				yield return new ValidationResult("Необходимо указать вид брака.",
+				                                  new[] { this.GetPropertyName(o => o.ObservableItems) });
+			if(ObservableItems.Any(x => x.NomenclatureNew.IsDefectiveBottle && x.Source == DefectSource.None))
+				yield return new ValidationResult("Необходимо указать источник брака.",
+												  new[] { this.GetPropertyName(o => o.ObservableItems) });
 		}
-
-		public RegradingOfGoodsDocument ()
-		{
-		}
-
 	}
 }
 

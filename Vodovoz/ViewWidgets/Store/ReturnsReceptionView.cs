@@ -43,8 +43,6 @@ namespace Vodovoz
 				.AddColumn("№ Кулера").AddTextRenderer(node => node.Redhead)
 					.AddSetter((cell, node) => cell.Editable = node.NomenclatureCategory == NomenclatureCategory.additional)
 				.AddColumn("Кол-во")
-				.AddToggleRenderer(node => node.Returned, false)
-				.AddSetter((cell, node) => cell.Visible = node.Trackable)
 				.AddNumericRenderer(node => node.Amount, false)
 				.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 100, 0))
 				.AddSetter((cell, node) => cell.Editable = node.EquipmentId == 0)
@@ -52,7 +50,6 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.AddTextRenderer(i => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
-				.AddColumn("Серийный номер").AddTextRenderer(node => node.Serial)
 				.AddColumn("")
 				.Finish();
 
@@ -125,7 +122,6 @@ namespace Vodovoz
 				.JoinAlias(rli => rli.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => !nomenclatureAlias.IsSerial)
 				.Where(Restrictions.Or(
 					Restrictions.On(() => nomenclatureAlias.Warehouse).IsNull,
 					Restrictions.Eq(Projections.Property(() => nomenclatureAlias.Warehouse), Warehouse)
@@ -135,7 +131,6 @@ namespace Vodovoz
 				.SelectList(list => list
 				   .SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-				   .Select(() => false).WithAlias(() => resultAlias.Trackable)
 				   .Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 				)
 				.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
@@ -157,7 +152,6 @@ namespace Vodovoz
 				   .Select(() => equipmentAlias.Id).WithAlias(() => resultAlias.EquipmentId)
 				   .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-				   .Select(() => nomenclatureAlias.IsSerial).WithAlias(() => resultAlias.Trackable)
 				   .Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 				)
 				.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
@@ -197,7 +191,6 @@ namespace Vodovoz
 
 	public class ReceptionItemNode : PropertyChangedBase
 	{
-
 		public NomenclatureCategory NomenclatureCategory { get; set; }
 		public int NomenclatureId { get; set; }
 		public string Name { get; set; }
@@ -211,8 +204,6 @@ namespace Vodovoz
 			}
 		}
 
-		public bool Trackable { get; set; }
-
 		int equipmentId;
 		[PropertyChangedAlso("Serial")]
 		public int EquipmentId {
@@ -224,22 +215,12 @@ namespace Vodovoz
 			}
 		}
 
-		string redhead;
 		[Display(Name = "№ кулера")]
 		public string Redhead {
 			get { return CarUnloadDocumentItem.Redhead; }
 			set {
 				if(value != CarUnloadDocumentItem.Redhead)
 					CarUnloadDocumentItem.Redhead = value;
-			}
-		}
-
-		public string Serial {
-			get {
-				if(Trackable) {
-					return EquipmentId > 0 ? EquipmentId.ToString() : "(не определен)";
-				} else
-					return String.Empty;
 			}
 		}
 
@@ -305,9 +286,7 @@ namespace Vodovoz
 			}
 		}
 
-		public virtual decimal Sum {
-			get { return PrimeCost * Amount; }
-		}
+		public virtual decimal Sum => PrimeCost * Amount;
 	}
 }
 

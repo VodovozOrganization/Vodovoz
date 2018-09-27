@@ -2,9 +2,9 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -99,6 +99,20 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref fine, value, () => Fine); }
 		}
 
+		CullingCategory typeOfDefect;
+		[Display(Name = "Тип брака")]
+		public virtual CullingCategory TypeOfDefect {
+			get { return typeOfDefect; }
+			set { SetField(ref typeOfDefect, value, () => TypeOfDefect); }
+		}
+
+		DefectSource source;
+		[Display(Name = "Источник брака")]
+		public virtual DefectSource Source {
+			get { return source; }
+			set { SetField(ref source, value, () => Source); }
+		}
+
 		WarehouseMovementOperation warehouseWriteOffOperation = new WarehouseMovementOperation();
 
 		public virtual WarehouseMovementOperation WarehouseWriteOffOperation {
@@ -163,4 +177,3 @@ namespace Vodovoz.Domain.Documents
 		#endregion
 	}
 }
-

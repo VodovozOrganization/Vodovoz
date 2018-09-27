@@ -7,6 +7,7 @@ using NHibernate.Criterion;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -23,6 +24,13 @@ namespace Vodovoz
 		public RegradingOfGoodsDocumentItemsView()
 		{
 			this.Build();
+			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
+			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
+
+			List<CullingCategory> types;
+			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				types = uow.GetAll<CullingCategory>().OrderBy(c => c.Name).ToList();
+			}
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsDocumentItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
@@ -47,6 +55,34 @@ namespace Vodovoz
 				)
 				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
+				.AddColumn("Тип брака")
+					.AddComboRenderer(x => x.TypeOfDefect)
+					.SetDisplayFunc(x => x.Name)
+					.FillItems(types)
+					.AddSetter(
+						(c, n) =>
+						{
+							if(!n.NomenclatureNew.IsDefectiveBottle)
+								n.TypeOfDefect = null;
+							c.Editable = n.NomenclatureNew.IsDefectiveBottle;
+							c.BackgroundGdk = n.NomenclatureNew.IsDefectiveBottle && n.TypeOfDefect == null
+								? colorLightRed
+								: colorWhite;
+						}
+					)
+				.AddColumn("Источник\nбрака")
+					.AddEnumRenderer(x => x.Source, true, new Enum[] { DefectSource.None })
+					.AddSetter(
+						(c, n) =>
+						{
+							if(!n.NomenclatureNew.IsDefectiveBottle)
+								n.Source = DefectSource.None;
+							c.Editable = n.NomenclatureNew.IsDefectiveBottle;
+							c.BackgroundGdk = n.NomenclatureNew.IsDefectiveBottle && n.Source == DefectSource.None
+								? colorLightRed
+								: colorWhite;
+						}
+					)
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
 				.Finish();
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
@@ -138,6 +174,10 @@ namespace Vodovoz
 		void SelectNewNomenclature_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			var nomenclature = e.Subject as Nomenclature;
+			if(!nomenclature.IsDefectiveBottle){
+				newRow.Source = DefectSource.None;
+				newRow.TypeOfDefect = null;
+			}
 			newRow.NomenclatureNew = nomenclature;
 			DocumentUoW.Root.AddItem(newRow);
 		}

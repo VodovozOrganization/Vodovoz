@@ -4,7 +4,6 @@ using QSProjectsLib;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {

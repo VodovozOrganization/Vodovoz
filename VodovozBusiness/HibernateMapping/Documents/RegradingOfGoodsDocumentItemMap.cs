@@ -18,6 +18,8 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.NomenclatureNew).Column ("nomenclature_new_id").Not.Nullable ();
 			References (x => x.WarehouseWriteOffOperation).Column ("warehouse_writeoff_operation_id").Cascade.All ();
 			References (x => x.WarehouseIncomeOperation).Column ("warehouse_income_operation_id").Cascade.All ();
+			References(x => x.TypeOfDefect).Column("defect_type_id");
+			Map(x => x.Source).Column("source").CustomType<DefectSourceStringType>();
 		}
 	}
 }

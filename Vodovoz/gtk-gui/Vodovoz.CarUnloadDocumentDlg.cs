@@ -58,6 +58,8 @@ namespace Vodovoz
 
 		private global::Vodovoz.ViewWidgets.Store.NonSerialEquipmentReceptionView nonserialequipmentreceptionview1;
 
+		private global::Vodovoz.ViewWidgets.Store.DefectiveItemsReceptionView defectiveitemsreceptionview1;
+
 		private global::Vodovoz.ReturnsReceptionView returnsreceptionview1;
 
 		protected virtual void Build()
@@ -321,15 +323,22 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox1]));
 			w28.Position = 0;
 			// Container child hbox4.Gtk.Box+BoxChild
+			this.defectiveitemsreceptionview1 = new global::Vodovoz.ViewWidgets.Store.DefectiveItemsReceptionView();
+			this.defectiveitemsreceptionview1.Events = ((global::Gdk.EventMask)(256));
+			this.defectiveitemsreceptionview1.Name = "defectiveitemsreceptionview1";
+			this.hbox4.Add(this.defectiveitemsreceptionview1);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.defectiveitemsreceptionview1]));
+			w29.Position = 1;
+			// Container child hbox4.Gtk.Box+BoxChild
 			this.returnsreceptionview1 = new global::Vodovoz.ReturnsReceptionView();
 			this.returnsreceptionview1.Events = ((global::Gdk.EventMask)(256));
 			this.returnsreceptionview1.Name = "returnsreceptionview1";
 			this.hbox4.Add(this.returnsreceptionview1);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.returnsreceptionview1]));
-			w29.Position = 1;
-			this.vbox4.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox4]));
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.returnsreceptionview1]));
 			w30.Position = 2;
+			this.vbox4.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox4]));
+			w31.Position = 2;
 			this.Add(this.vbox4);
 			if ((this.Child != null))
 			{
