@@ -798,6 +798,16 @@ namespace Vodovoz.Domain.Orders
 								new[] { this.GetPropertyName(o => o.OrderEquipments) });
 					}
 				}
+
+				if(IsService && PaymentType == PaymentType.cashless
+				   && newStatus == OrderStatus.Accepted 
+				   && !QSMain.User.Permissions["can_accept_cashles_service_orders"]) {
+					yield return new ValidationResult(
+						"Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
+						new[] { this.GetPropertyName(o => o.OrderStatus) }
+					);
+				}
+
 			}
 
 			if(ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))

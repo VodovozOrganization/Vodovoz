@@ -70,6 +70,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("can_delete_cash_documents", new UserPermission("can_delete_cash_documents", "Удаление кассовых документов", "Пользователь может удалять кассовые документы."));
 			QSMain.ProjectPermission.Add("access_to_salaries_wages_bonuses", new UserPermission("access_to_salaries_wages_bonuses", "Доступ к зарплатам, премиям, штрафам и отчётам по ним", "Пользователю предоставляется доступ к отчётам по зарплатам водителей и экспедиторов, отчету по штрафам и премиям, а так же ко вкладке \"Штрафы и премии\" в \"Кадры\""));
 			QSMain.ProjectPermission.Add("can_move_order_from_closed_to_acepted", new UserPermission("can_move_order_from_closed_to_acepted", "Перевод заказа из \"Закрыт\" в \"Принят\"", "Пользователь может вернуть заказ, находящийся в статусе \"Закрыт\", в статус \"Принят\". Это касается только заказов, закрытых без доставки, то есть те, у которых нет МЛ."));
+			QSMain.ProjectPermission.Add("can_accept_cashles_service_orders", new UserPermission("can_accept_cashles_service_orders", "Проведение безналичного заказа на \"Выезд мастера\"", "Пользователь может подтверждать заказы по безналу типа \"Выезд мастера\". В случае отсутствия этого права, пользователю будет доступен только перевод заказа в статус \"Ожидание оплаты\"."));
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };

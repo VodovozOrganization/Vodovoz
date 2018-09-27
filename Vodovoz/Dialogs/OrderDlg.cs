@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.IO;
 using System.Linq;
+using EmailService;
+using fyiReporting.RDL;
+using fyiReporting.RdlGtkViewer;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
@@ -12,9 +16,11 @@ using NHibernate.Util;
 using NLog;
 using QS.Print;
 using QSDocTemplates;
+using QSEmailSending;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
+using QSSupportLib;
 using QSTDI;
 using QSValidation;
 using Vodovoz.Dialogs;
@@ -27,22 +33,15 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.JournalFilters;
+using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.Repository.Logistics;
-using fyiReporting.RdlGtkViewer;
-using System.IO;
-using QSEmailSending;
-using QSSupportLib;
-using EmailService;
-using Vodovoz.Repositories;
-using fyiReporting.RDL;
-using Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz
 {
