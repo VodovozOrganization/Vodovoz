@@ -2767,6 +2767,17 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual void SaveEntity(IUnitOfWork uow)
+		{
+			CheckAndSetOrderIsService();
+			SetOrderCreationDate();
+			SetFirstOrder();
+			LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			LastEditedTime = DateTime.Now;
+			ParseTareReason();
+			uow.Save();
+		}
+
 		#endregion
 
 		#region работа со скидками

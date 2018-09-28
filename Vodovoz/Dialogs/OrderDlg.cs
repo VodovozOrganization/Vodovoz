@@ -525,26 +525,16 @@ namespace Vodovoz
 						return false;
 					}
 				}
-				SaveOrder();
+				Entity.SaveEntity(UoWGeneric);
 				SendBillByEmail(emailAddressForBill);
 			}else {
-				SaveOrder();
+				Entity.SaveEntity(UoWGeneric);
 			}
 
 			UoW.Session.Refresh(Entity);
 			logger.Info("Ok.");
 			ButtonCloseOrderAccessibilityAndAppearance();
 			return true;
-		}
-
-		private void SaveOrder()
-		{
-			Entity.CheckAndSetOrderIsService();
-			Entity.SetOrderCreationDate();
-			Entity.SetFirstOrder();
-			SaveChanges();
-			Entity.ParseTareReason();
-			UoWGeneric.Save();
 		}
 
 		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)
@@ -651,12 +641,6 @@ namespace Vodovoz
 			var successfullySaved = Save();
 			PrintOrderDocuments();
 			return successfullySaved;
-		}
-
-		void SaveChanges()
-		{
-			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			Entity.LastEditedTime = DateTime.Now;
 		}
 
 		/// <summary>
@@ -2504,7 +2488,6 @@ namespace Vodovoz
 		void Selection_Changed(object sender, EventArgs e)
 		{
 			buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows() > 0;
-
 
 			var selectedDoc = treeDocuments.GetSelectedObjects().Cast<OrderDocument>().FirstOrDefault();
 			if(selectedDoc == null) {
