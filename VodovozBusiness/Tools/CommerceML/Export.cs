@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using QSOrmProject;
@@ -134,20 +135,8 @@ namespace Vodovoz.Tools.CommerceML
 			DebugResponse(response);
 
 			OnProgressPlusOneTask("Выгружаем каталог");
-			request = new RestRequest("1c_exchange.php?type=catalog&mode=file&filename=import.xml", Method.POST);
-			//request.AddParameter("filename", "import.xml");
-			//request.AddFile("import.xml", s => rootCatalog.WriteToStream(s), "import.xml");
-			using(MemoryStream stream = new MemoryStream())
-			{
-				rootCatalog.WriteToStream(stream);
-				stream.Position = 0;
-				var file = stream.ToArray();
-
-				request.AddFile("import.xml", file, "import.xml");
-			}
-			response = client.Execute(request);
-			DebugResponse(response);
-
+            SendFileXMLDoc(client, "import.xml", rootCatalog);
+            
 			OnProgressPlusOneTask("Выгружаем изображения");
 			var exportedImages = Catalog.Goods.Nomenclatures.SelectMany(x => x.Images);
 
@@ -156,26 +145,17 @@ namespace Vodovoz.Tools.CommerceML
 				var dirImgFileName = $"import_files/" + imgFileName;
 				OnProgressTextOnly("Отправляем " + imgFileName);
 
-				request = new RestRequest("1c_exchange.php?type=catalog&mode=file&filename=" + dirImgFileName, Method.POST);
-				request.AddFile(imgFileName, img.Image, dirImgFileName);
+                //Внимание здесь "/" после 1c_exchange.php не случаен в документации его нет, но если его не написать то на запрос без слеша,
+                // приходит ответ 301 то есть переадресация на такую же строку но со слешем, но RestSharp после переадресации уже отправляет
+                // не POST запрос а GET, из за чего, файл не принимается нормально сервером.
+                request = new RestRequest("1c_exchange.php/?type=catalog&mode=file&filename=" + dirImgFileName, Method.POST);
+                request.AddParameter("image/jpeg", img.Image, ParameterType.RequestBody);
 				response = client.Execute(request);
 				DebugResponse(response);
 			}
 
-			OnProgressPlusOneTask("Выгружаем наличие");
-
-			request = new RestRequest("1c_exchange.php?type=catalog&mode=file&filename=offers.xml", Method.POST);
-			//request.AddParameter("filename", "import.xml");
-			//request.AddFile("import.xml", s => rootCatalog.WriteToStream(s), "import.xml");
-			using(MemoryStream stream = new MemoryStream()) {
-				rootOffers.WriteToStream(stream);
-				stream.Position = 0;
-				var file = stream.ToArray();
-
-				request.AddFile("offers.xml", file, "offers.xml");
-			}
-			response = client.Execute(request);
-			DebugResponse(response);
+			OnProgressPlusOneTask("Выгружаем склад");
+            SendFileXMLDoc(client, "offers.xml", rootOffers);
 
 			SendImportCommand(client, "import.xml");
 			SendImportCommand(client, "offers.xml");
@@ -198,10 +178,29 @@ namespace Vodovoz.Tools.CommerceML
 				response = client.Execute(request);
 				DebugResponse(response);
 			} while(response.Content.StartsWith("progress"));
-
 		}
 
-		void DebugResponse(IRestResponse response)
+		private void SendFileXMLDoc(RestClient client, string filename, Root root)
+        {
+            //Внимание здесь "/" после 1c_exchange.php не случаен в документации его нет, но если его не написать то на запрос без слеша,
+			// приходит ответ 301 то есть переадресация на такую же строку но со слешем, но RestSharp после переадресации уже отправляет
+			// не POST запрос а GET, из за чего, файл не принимается нормально сервером.
+            var request = new RestRequest("1c_exchange.php/?type=catalog&mode=file&filename=" + filename, Method.POST);
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                root.WriteToStream(stream);
+                stream.Position = 0;
+                var file = stream.ToArray();
+
+                request.AddParameter("application/xml", file, ParameterType.RequestBody);
+            }
+
+            var response = client.Execute(request);
+            DebugResponse(response);
+        }
+
+        void DebugResponse(IRestResponse response)
 		{
             if (response == null)
             {
