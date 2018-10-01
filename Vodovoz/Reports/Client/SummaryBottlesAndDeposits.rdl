@@ -75,14 +75,7 @@
 				deposit_operations
 			where
 				deposit_operations.order_id = docs.doc_id
-				and deposit_operations.deposit_type = 'Bottles'), if(docs.doc_status = 'Closed',0,null)) +
-			ifnull((select
-				sum(order_items.price * order_items.actual_count)
-			from
-				order_items
-			where
-				order_items.order_id = docs.doc_id
-				AND order_items.nomenclature_id = 157), if(docs.doc_status = 'Closed',0,null)))
+				and deposit_operations.deposit_type = 'Bottles'), if(docs.doc_status = 'Closed',0,null)))
 #bottles deposit if it's transfer
 		else
 			(select
