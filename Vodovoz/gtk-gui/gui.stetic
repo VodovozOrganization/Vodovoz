@@ -2566,7 +2566,7 @@
                                 <property name="ShowSpecialStateAll">False</property>
                                 <property name="ShowSpecialStateNot">False</property>
                                 <property name="UseShortTitle">False</property>
-                                <property name="DefaultFirst">True</property>
+                                <property name="DefaultFirst">False</property>
                                 <signal name="EnumItemSelected" handler="OnComboWageCalcTypeEnumItemSelected" />
                               </widget>
                               <packing>

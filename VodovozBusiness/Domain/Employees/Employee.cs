@@ -284,10 +284,10 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		WageCalculationType wageCalcType;
+		WageCalculationType? wageCalcType;
 
 		[Display(Name = "Тип расчёта зарплаты")]
-		public virtual WageCalculationType WageCalcType
+		public virtual WageCalculationType? WageCalcType
 		{
 			get { return wageCalcType; }
 			set { SetField(ref wageCalcType, value, () => WageCalcType);}
@@ -347,33 +347,6 @@ namespace Vodovoz.Domain.Employees
 			if(String.IsNullOrEmpty(LastName))
 				yield return new ValidationResult("Фамилия должна быть заполнена", new[] { "LastName" });
 
-#if !SHORT
-			if (String.IsNullOrEmpty (Name))
-				yield return new ValidationResult ("Имя дожно быть заполнено", new[] { "Name" });
-
-			if (String.IsNullOrEmpty (Patronymic))
-				yield return new ValidationResult ("Отчество должно быть заполнено", new[] { "Patronymic" });
-
-			if(Subdivision == null)
-				yield return new ValidationResult ("Подразделение должно быть заполнено", new[] { "Subdivision" });
-
-			if(Phones.Count <= 0 || Phones.FirstOrDefault(p => p.DigitsNumber != string.Empty) == null)
-				yield return new ValidationResult ("Должен быть заполнен хотя бы один телефон", new[] { "Phones" });
-
-			if(string.IsNullOrWhiteSpace(PassportNumber))
-				yield return new ValidationResult ("Номер паспорта должен быть заполнен", new[] { "PassportNumber" });
-
-			if(string.IsNullOrWhiteSpace(PassportSeria))
-				yield return new ValidationResult ("Серия паспорта должна быть заполнена", new[] { "PassportSeria" });
-
-			if(string.IsNullOrWhiteSpace(AddressRegistration))
-				yield return new ValidationResult ("Адрес регистрации должен быть заполнен", new[] { "AddressRegistration" });
-
-			if(string.IsNullOrWhiteSpace(AddressCurrent))
-				yield return new ValidationResult ("Фактический адрес должен быть заполнен", new[] { "AddressCurrent" });
-
-#endif
-
 			var employees = UoW.Session.QueryOver<Employee>()
 				.Where(e => e.Name == this.Name && e.LastName == this.LastName && e.Patronymic == this.Patronymic)
 				.WhereNot(e => e.Id == this.Id)
@@ -388,6 +361,10 @@ namespace Vodovoz.Domain.Employees
 					yield return new ValidationResult(String.Format("Другой водитель с логином {0} для Android уже есть в БД.", AndroidLogin),
 						new[] { this.GetPropertyName(x => x.AndroidLogin) });
 			}
+
+			if(Category == EmployeeCategory.driver && !WageCalcType.HasValue) 
+				yield return new ValidationResult("Для водителя необходимо указать тип расчёта заработной платы.", new[] { this.GetPropertyName(x => x.WageCalcType) });
+
 		}
 
 		#endregion

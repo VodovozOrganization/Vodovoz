@@ -10,7 +10,6 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz

@@ -551,7 +551,7 @@ namespace Vodovoz
 			this.comboWageCalcType.ShowSpecialStateAll = false;
 			this.comboWageCalcType.ShowSpecialStateNot = false;
 			this.comboWageCalcType.UseShortTitle = false;
-			this.comboWageCalcType.DefaultFirst = true;
+			this.comboWageCalcType.DefaultFirst = false;
 			this.hboxCustomWageCalc.Add(this.comboWageCalcType);
 			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hboxCustomWageCalc[this.comboWageCalcType]));
 			w34.Position = 0;

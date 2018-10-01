@@ -386,7 +386,7 @@ namespace Vodovoz
 			var item = routeListAddressesView.Items[aIdx[0]];
 
 			var fix = new[] { WageCalculationType.fixedDay, WageCalculationType.fixedRoute };
-			if(fix.Contains(Entity.Driver.WageCalcType) || (Entity.Forwarder != null && fix.Contains(Entity.Forwarder.WageCalcType))) {
+			if(Entity.Driver.WageCalcType.HasValue && fix.Contains(Entity.Driver.WageCalcType.Value) || (Entity.Forwarder != null && Entity.Forwarder.WageCalcType.HasValue && fix.Contains(Entity.Forwarder.WageCalcType.Value))) {
 				return;
 			}
 
