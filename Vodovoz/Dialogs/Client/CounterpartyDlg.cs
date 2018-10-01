@@ -104,7 +104,7 @@ namespace Vodovoz
 			ycheckIsArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			ycheckIsArchived.Sensitive = QSMain.User.Permissions["can_arc_counterparty_and_deliverypoint"];
 
-			entryJurAddress.Binding.AddBinding(Entity, e => e.JurAddress, w => w.Text).InitializeFromSource();
+			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
 
 			yEntryVodovozNumber.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			yEntryVodovozNumber.Binding.AddBinding(Entity, e => e.VodovozInternalId, w => w.Text, new IntToStringConverter()).InitializeFromSource();

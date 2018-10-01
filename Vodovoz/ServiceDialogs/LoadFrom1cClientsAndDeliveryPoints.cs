@@ -316,7 +316,7 @@ namespace Vodovoz.ServiceDialogs
 
 			var JurAddressAttr = node.Attributes["ЮрАдрес"];
 			if(JurAddressAttr != null) {
-				counterparty.JurAddress = JurAddressAttr.Value;
+				counterparty.RawJurAddress = JurAddressAttr.Value;
 			}
 
 			var ringupPhoneAttr = node.Attributes["ТелДляОбзвона"];

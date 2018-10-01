@@ -8182,6 +8182,7 @@
                         <property name="CanFocus">True</property>
                         <property name="IsEditable">True</property>
                         <property name="InvisibleChar">●</property>
+                        <signal name="EditingDone" handler="OnEntryJurAddressEditingDone" />
                       </widget>
                       <packing>
                         <property name="TopAttach">2</property>

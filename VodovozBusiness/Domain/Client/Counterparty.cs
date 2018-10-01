@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Gamma.Utilities;
 using QSContacts;
@@ -364,6 +365,17 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref firstOrder, value, () => FirstOrder); }
 		}
 
+		#endregion
+
+		#region Calculated Properties
+		public virtual string RawJurAddress{
+			get => JurAddress;
+			set {
+				StringBuilder sb = new StringBuilder(value);
+				sb.Replace("\n", "");
+				JurAddress = sb.ToString();
+			}
+		}
 		#endregion
 
 		public Counterparty()

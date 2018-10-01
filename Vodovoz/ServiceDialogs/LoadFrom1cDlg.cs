@@ -623,7 +623,7 @@ namespace Vodovoz
 			switch(typeNode.InnerText)
 			{
 			case "ЮрАдресКонтрагента":
-				counterparty.JurAddress = presentationNode.InnerText;
+				counterparty.RawJurAddress = presentationNode.InnerText;
 				break;
 			case "ФактАдресКонтрагента":
 				counterparty.Address = presentationNode.InnerText;
