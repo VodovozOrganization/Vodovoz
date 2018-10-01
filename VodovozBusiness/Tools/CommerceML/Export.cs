@@ -16,8 +16,10 @@ namespace Vodovoz.Tools.CommerceML
 {
 	public class Export
 	{
-#region Глобальные настройки экспорта
-		static public XmlWriterSettings WriterSettings = new XmlWriterSettings
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+        #region Глобальные настройки экспорта
+        static public XmlWriterSettings WriterSettings = new XmlWriterSettings
 			{
 				Indent = true,
 				Encoding = System.Text.Encoding.UTF8,
@@ -33,8 +35,9 @@ namespace Vodovoz.Tools.CommerceML
 		public IUnitOfWork UOW { get; private set; }
 
 		public List<string> Errors = new List<string>();
+        public List<string> Results = new List<string>();
 
-		public Owner DefaultOwner { get; private set; }
+        public Owner DefaultOwner { get; private set; }
 		public Guid DefaultPriceGuid = Guid.Parse("beae9b72-cbd3-46ec-bddf-10104d5dd3e6");
 
 		public Groups ProductGroups { get; set; }
@@ -51,6 +54,8 @@ namespace Vodovoz.Tools.CommerceML
 
 		public string CurrentTaskText { get; set; }
 
+		public string CurrentStepText => $"({CurrentTask} из {TotalTasks})";
+
 		public int CurrentTask = -1;
 
 		public int TotalTasks = 10;
@@ -60,13 +65,15 @@ namespace Vodovoz.Tools.CommerceML
 			CurrentTaskText = text;
 			CurrentTask++;
 			ProgressUpdated?.Invoke(this, EventArgs.Empty);
+            logger.Info(CurrentTaskText + CurrentStepText);
 		}
 
 		public void OnProgressTextOnly(string text)
 		{
 			CurrentTaskText = text;
 			ProgressUpdated?.Invoke(this, EventArgs.Empty);
-		}
+            logger.Info(CurrentTaskText + CurrentStepText);
+        }
 
 
 #endregion
@@ -157,10 +164,13 @@ namespace Vodovoz.Tools.CommerceML
 			OnProgressPlusOneTask("Выгружаем склад");
             SendFileXMLDoc(client, "offers.xml", rootOffers);
 
+            Results.Add("Выгрузка каталога товаров:");
 			SendImportCommand(client, "import.xml");
-			SendImportCommand(client, "offers.xml");
+            Results.Add("Выгрузка склада и цен:");
+            SendImportCommand(client, "offers.xml");
 
-		}
+            Results.Add("Выгружено изображений: " + exportedImages.Count());
+        }
 
 		private void SendImportCommand(RestClient client, string filename)
 		{
@@ -177,6 +187,7 @@ namespace Vodovoz.Tools.CommerceML
 
 				response = client.Execute(request);
 				DebugResponse(response);
+                Results.Add(response.Content);
 			} while(response.Content.StartsWith("progress"));
 		}
 
@@ -204,12 +215,12 @@ namespace Vodovoz.Tools.CommerceML
 		{
             if (response == null)
             {
-                Errors.Add("Ответ пустой.");
+                logger.Error("Ответ пустой.");
                 return;
             }
-			Errors.Add(response.ResponseUri?.ToString());
-			Errors.Add(response.StatusCode.ToString());
-			Errors.Add(response.Content);
+			logger.Debug(response.ResponseUri?.ToString());
+            logger.Debug(response.StatusCode.ToString());
+            logger.Debug(response.Content);
 		}
 
 

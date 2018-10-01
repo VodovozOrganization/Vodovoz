@@ -50,8 +50,9 @@ namespace Vodovoz.Dialogs.OnlineStore
 
 				if(UpdateErrors(export.Errors))
 					return;
-					
-				progressbarTotal.Text = "Готово";
+
+                UpdateResults(export.Results);
+                progressbarTotal.Text = "Готово";
 				progressbarTotal.Adjustment.Value = progressbarTotal.Adjustment.Upper;
 			}
 		}
@@ -82,6 +83,7 @@ namespace Vodovoz.Dialogs.OnlineStore
 				if(UpdateErrors(export.Errors))
 					return;
 
+                UpdateResults(export.Results);
 				progressbarTotal.Text = "Готово";
 				progressbarTotal.Adjustment.Value = progressbarTotal.Adjustment.Upper;
 			}
@@ -91,9 +93,10 @@ namespace Vodovoz.Dialogs.OnlineStore
 		void Export_ProgressUpdated(object sender, EventArgs e)
 		{
 			var export = sender as Export;
-			progressbarTotal.Text = export.CurrentTaskText;
+			progressbarTotal.Text = export.CurrentTaskText + export.CurrentStepText;
 			progressbarTotal.Adjustment.Upper = export.TotalTasks;
 			progressbarTotal.Adjustment.Value = export.CurrentTask;
+            UpdateErrors(export.Errors);
 			QSMain.WaitRedraw();
 		}
 
@@ -116,5 +119,18 @@ namespace Vodovoz.Dialogs.OnlineStore
 			}
 			return false;
 		}
-	}
+
+		private void UpdateResults(List<string> results)
+        {
+            GtkScrolledWindowErrors.Visible = true;
+            TextTagTable textResultTags = new TextTagTable();
+            var tagResult = new TextTag("blue");
+            tagResult.Foreground = "blue";
+            textResultTags.Add(tagResult);
+            TextBuffer tempBuffer = new TextBuffer(textResultTags);
+            TextIter iter = tempBuffer.EndIter;
+            tempBuffer.InsertWithTags(ref iter, String.Join("\n", results), tagResult);
+            textviewErrors.Buffer = tempBuffer;
+        }
+    }
 }
