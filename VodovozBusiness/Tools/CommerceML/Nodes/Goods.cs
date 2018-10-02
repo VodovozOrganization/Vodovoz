@@ -18,6 +18,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 
 			var groupsIds = myExport.ProductGroups.ToExportIds();
 			Nomenclatures = NomenclatureRepository.NomenclatureInGroupsQuery(groupsIds).GetExecutableQueryOver(myExport.UOW.Session).List();
+            Nomenclatures.ToList().ForEach(n => n.CreateGuidIfNotExist(export.UOW));
 		}
 
 		Export myExport;
@@ -28,7 +29,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			foreach(var good in Nomenclatures)
 			{
 				var goodxml = new XElement("Товар");
-				goodxml.Add(new XElement("Ид", good.GetOrCreateGuid(myExport.UOW)));
+				goodxml.Add(new XElement("Ид", good.OnlineStoreGuid));
 				goodxml.Add(new XElement("Штрихкод"));
 				goodxml.Add(new XElement("Артикул", good.Id));
 				goodxml.Add(new XElement("Наименование", good.Name));
