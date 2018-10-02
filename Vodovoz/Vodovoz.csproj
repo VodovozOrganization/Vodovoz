@@ -840,6 +840,10 @@
     <Compile Include="SidePanel\InfoProviders\IEmailsInfoProvider.cs" />
     <Compile Include="ViewWidgets\Store\DefectiveItemsReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Store.DefectiveItemsReceptionView.cs" />
+    <Compile Include="ServiceDialogs\ExportCounterpartiesTo1cDlg.cs" />
+    <Compile Include="ServiceDialogs\ExportCounterpartiesTo1C.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ExportCounterpartiesTo1cDlg.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportCounterpariesData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
