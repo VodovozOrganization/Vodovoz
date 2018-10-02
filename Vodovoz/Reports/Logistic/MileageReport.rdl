@@ -40,7 +40,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>79.5pt</Height>
+    <Height>59.0pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table1">
@@ -56,13 +56,13 @@
             <Width>37.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>58.9pt</Width>
+            <Width>53.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>57.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.3pt</Width>
+            <Width>63.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>59.9pt</Width>
@@ -98,7 +98,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>37.2pt</Height>
+              <Height>42.7pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -112,6 +112,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -128,6 +129,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -144,6 +146,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -160,6 +163,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -176,6 +180,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -192,6 +197,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -209,6 +215,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -226,6 +233,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -243,6 +251,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -260,6 +269,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -277,6 +287,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -293,6 +304,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -310,6 +322,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -327,6 +340,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -350,6 +364,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -363,6 +381,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <Format >dd.MM.yy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -376,6 +399,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <Format >dd.MM.yy HH:mm</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -390,6 +418,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -397,12 +427,16 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>=Fields!cashier.Value</Value>
+                      <Value>={closed_by}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -416,6 +450,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -429,6 +467,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -442,6 +484,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -449,13 +495,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
-                      <Value>=Iif({mileage_check} = true, "V", "")</Value>
+                      <Value>=Iif({mileage_check} = true, "√", "")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -469,6 +517,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -482,6 +534,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -495,6 +551,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -508,6 +568,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -522,6 +586,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -531,7 +597,7 @@
           </TableRows>
         </Details>
         <Left>0.8pt</Left>
-        <Top>15.2pt</Top>
+        <Top>0.0pt</Top>
       </Table>
     </ReportItems>
   </Body>
@@ -559,50 +625,54 @@
     <DataSet Name="data">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>select
+        <CommandText>SELECT 
 	route_lists.id,
 	route_lists.date,
 	route_lists.closing_date,
-    drivers.last_name as driver,
-	cashiers.last_name as cashier,
-	(select
-		count(id)
-	from
-		route_list_addresses
-	where
-		route_list_addresses.route_list_id = route_lists.id) as addresses_all,
-	(select
-		count(id)
-	from
-		route_list_addresses
-	where
-		route_list_addresses.route_list_id = route_lists.id
-	and route_list_addresses.status = 'Completed') as addresses_completed,
+	drivers.last_name AS driver,
+	closed_by.last_name AS closed_by,
+	(SELECT 
+			COUNT(id)
+		FROM
+			route_list_addresses
+		WHERE
+			route_list_addresses.route_list_id = route_lists.id) AS addresses_all,
+	(SELECT 
+			COUNT(id)
+		FROM
+			route_list_addresses
+		WHERE
+			route_list_addresses.route_list_id = route_lists.id
+				AND route_list_addresses.status = 'Completed') AS addresses_completed,
 	route_lists.plan_distance,
-    route_lists.mileage_check,
+	route_lists.mileage_check,
 	route_lists.recalculated_distance,
-	truncate((tracks.distance + tracks.distance_to_base),2) as tracked_distance,
+	TRUNCATE((tracks.distance + tracks.distance_to_base),
+		2) AS tracked_distance,
 	route_lists.actual_distance,
 	route_lists.confirmed_distance,
-    route_lists.mileage_comment
-from
+	route_lists.mileage_comment
+FROM
 	route_lists
-left join
-	employees as cashiers on cashiers.id = route_lists.cashier_id
-left join
-	employees as drivers on drivers.id = route_lists.driver_id
-left join
-	tracks on tracks.route_list_id = route_lists.id
-left join
-	cars on cars.id = route_lists.car_id
-where
+		LEFT JOIN
+	employees AS closed_by ON closed_by.id = route_lists.closed_by_employee_id
+		LEFT JOIN
+	employees AS drivers ON drivers.id = route_lists.driver_id
+		LEFT JOIN
+	tracks ON tracks.route_list_id = route_lists.id
+		LEFT JOIN
+	cars ON cars.id = route_lists.car_id
+WHERE
 	route_lists.status = 'Closed'
-	and (cars.type_of_use is null or cars.type_of_use &lt;&gt; 'Truck')
-	and drivers.visiting_master = false
-	and (@start_date = -1 or route_lists.closing_date &gt;= @start_date)
-	and (@end_date = -1 or route_lists.closing_date &lt; date_add(@end_date, interval 1 day))
-order by
-	route_lists.id</CommandText>
+		AND (cars.type_of_use IS NULL
+		OR cars.type_of_use &lt;&gt; 'Truck')
+		AND drivers.visiting_master = FALSE
+		AND (@start_date = - 1
+		OR route_lists.closing_date &gt;= @start_date)
+		AND (@end_date = - 1
+		OR route_lists.closing_date &lt; DATE_ADD(@end_date, INTERVAL 1 DAY))
+ORDER BY route_lists.id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -629,8 +699,8 @@ order by
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="cashier">
-          <DataField>cashier</DataField>
+        <Field Name="closed_by">
+          <DataField>closed_by</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="addresses_all">
