@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gamma.ColumnConfig;
-using Gamma.Utilities;
-using NHibernate;
-using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
@@ -11,10 +8,6 @@ using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Operations;
-using Vodovoz.Domain;
 
 namespace Vodovoz.ViewModel
 {
@@ -82,19 +75,11 @@ namespace Vodovoz.ViewModel
 										.AddColumn("Коментарий").SetDataProperty(node => node.Comment)
 										.Finish();
 
-		public override IColumnsConfig ColumnsConfig {
-			get { return columnsConfig; }
-		}
+		public override IColumnsConfig ColumnsConfig => columnsConfig;
 
-		protected override bool NeedUpdateFunc(TransferOperationDocument updatedSubject)
-		{
-			return true;
-		}
+		protected override bool NeedUpdateFunc(TransferOperationDocument updatedSubject) => true;
 
-		public TransferOperationsVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			
-		}
+		public TransferOperationsVM() : this(UnitOfWorkFactory.CreateWithoutRoot()){}
 
 		public TransferOperationsVM(IUnitOfWork uow)
 		{
@@ -109,11 +94,19 @@ namespace Vodovoz.ViewModel
 
 		public DateTime Date { get; set; }
 
-		public string DateString { get { return Date.ToShortDateString() + " " + Date.ToShortTimeString(); } }
+		public string DateString => Date.ToShortDateString() + " " + Date.ToShortTimeString();
 
+		[UseForSearch]
+		[SearchHighlight]
 		public string FromCounterparty { get; set; }
+		[UseForSearch]
+		[SearchHighlight]
 		public string FromDeliveryPoint { get; set; }
+		[UseForSearch]
+		[SearchHighlight]
 		public string ToCounterparty { get; set; }
+		[UseForSearch]
+		[SearchHighlight]
 		public string ToDeliveryPoint { get; set; }
 
 		public string Comment { get; set; }
@@ -122,12 +115,12 @@ namespace Vodovoz.ViewModel
 		public string AuthorName { get; set; }
 		public string AuthorPatronymic { get; set; }
 
-		public string Author { get { return StringWorks.PersonNameWithInitials(AuthorSurname, AuthorName, AuthorPatronymic); } }
+		public string Author => StringWorks.PersonNameWithInitials(AuthorSurname, AuthorName, AuthorPatronymic);
 
 		public string LastEditorSurname { get; set; }
 		public string LastEditorName { get; set; }
 		public string LastEditorPatronymic { get; set; }
 
-		public string LastEditor { get { return StringWorks.PersonNameWithInitials(LastEditorSurname, LastEditorName, LastEditorPatronymic); } }
+		public string LastEditor => StringWorks.PersonNameWithInitials(LastEditorSurname, LastEditorName, LastEditorPatronymic);
 	}
 }
