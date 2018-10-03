@@ -49,6 +49,7 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.FuelOutlayedOperation).Column("fuel_outlayed_operation_id").Cascade.All();
 			References (x => x.DriverWageOperation).Column("driver_wages_movement_operations_id");
 			References (x => x.ForwarderWageOperation).Column("forwarder_wages_movement_operations_id");
+			References (x => x.ClosedBy).Column("closed_by_employee_id");
 
 			HasMany (x => x.Addresses).Cascade.AllDeleteOrphan ().Inverse ()
 				.KeyColumn ("route_list_id")

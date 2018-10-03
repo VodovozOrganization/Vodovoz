@@ -20,61 +20,65 @@
 	route_lists.date AS routeListDate,
 	route_lists.driver_id,
 	CONCAT_WS(' ',
-		employees.last_name,
-		IF(employees.name = '',
-			NULL,
-			employees.name),
-		IF(employees.patronymic = '',
-			NULL,
-			employees.patronymic)) AS driver_name,
-	IFNULL(
-		(SELECT
-			SUM(total_cash) -  IFNULL(money,0) - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected)) 
+			employees.last_name,
+			IF(employees.name = '',
+				NULL,
+				employees.name),
+			IF(employees.patronymic = '',
+				NULL,
+				employees.patronymic)) AS driver_name,
+	IFNULL((SELECT 
+					SUM(total_cash) - IFNULL(money, 0) - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected))
+				FROM
+					route_list_addresses
+				WHERE
+					route_list_addresses.status = 'Completed'
+						AND route_list_addresses.route_list_id = routeListId),
+			0) AS nal,
+	IFNULL((SELECT 
+					COUNT(*) * 2
+				FROM
+					route_list_addresses
+						LEFT JOIN
+					route_lists ON route_list_addresses.route_list_id = route_lists.id
+						LEFT JOIN
+					cars ON cars.id = route_lists.car_id
+				WHERE
+					(is_company_havings = 0
+						OR (is_company_havings = 1
+						AND (cars.type_of_use &lt;&gt; 'Truck'
+						OR cars.type_of_use IS NULL)))
+						AND route_list_addresses.status = 'Completed'
+						AND route_list_addresses.route_list_id = routeListId),
+			0) AS paytelephone,
+	(SELECT 
+			SUM(order_items.count)
 		FROM
 			route_list_addresses
+				LEFT JOIN
+			orders ON orders.id = route_list_addresses.order_id
+				LEFT JOIN
+			order_items ON order_items.order_id = orders.id
+				LEFT JOIN
+			nomenclature ON nomenclature.id = order_items.nomenclature_id
 		WHERE
-			route_list_addresses.status = 'Completed'
-			AND route_list_addresses.route_list_id = routeListId), 0) AS nal,
-	IFNULL(
-		(SELECT 
-			count(*)*2
+			nomenclature.category = 'water'
+				AND route_list_addresses.route_list_id = routeListId) AS bottles,
+	SUM(IFNULL(orders.returned_tare, 0)) AS planned_returned_bottles,
+	(SELECT 
+			ROUND(IFNULL(SUM(warehouse_movement_operations.amount),
+								0))
 		FROM
-			route_list_addresses
-		LEFT JOIN
-			route_lists ON route_list_addresses.route_list_id = route_lists.id
-		LEFT JOIN
-			cars ON cars.id = route_lists.car_id
-		WHERE
-            (is_company_havings = 0 OR (is_company_havings = 1 AND (cars.type_of_use &lt;&gt; 'Truck' OR cars.type_of_use is null)))
-            AND route_list_addresses.status = 'Completed'
-			AND route_list_addresses.route_list_id = routeListId), 0)  AS paytelephone,
-	(select
-		sum(order_items.count)
-	from
-		route_list_addresses
-	left join
-		orders on orders.id = route_list_addresses.order_id
-	left join
-		order_items on order_items.order_id = orders.id
-	left join
-		nomenclature on nomenclature.id = order_items.nomenclature_id
-	where
-		nomenclature.category = 'water'
-        and route_list_addresses.route_list_id = routeListId
-        ) as bottles,
-	sum(ifnull(orders.returned_tare,0)) as planned_returned_bottles,
-    (
-		SELECT 
-			ROUND(IFNULL(SUM(warehouse_movement_operations.amount),0))   
-		FROM 
 			warehouse_movement_operations
-			LEFT JOIN store_car_unload_document_items ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
-			LEFT JOIN store_car_unload_documents ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
-            LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+				LEFT JOIN
+			store_car_unload_document_items ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+				LEFT JOIN
+			store_car_unload_documents ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
+				LEFT JOIN
+			nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
 		WHERE
-				nomenclature.category = 'bottle'
-            AND	store_car_unload_documents.route_list_id = routeListId
-	) as returned_bottles,
+			nomenclature.category = 'bottle'
+				AND store_car_unload_documents.route_list_id = routeListId) AS returned_bottles,
 	closing_comment
 FROM
 	route_lists
@@ -86,15 +90,32 @@ LEFT JOIN
 	orders ON route_list_addresses.order_id = orders.id
 LEFT JOIN
 	cash_income ON cash_income.route_list_id = route_list_addresses.route_list_id
+LEFT JOIN
+	cars ON cars.id = route_lists.car_id
 WHERE
 	route_lists.status = 'OnClosing'
-	AND ((route_lists.date &lt; CURDATE()
-	AND @todayRloff = 1)
-	OR (@todayRloff = 0))
-GROUP BY routeListId</CommandText>
+	# скрыть сегодняшние МЛ
+	AND ((@todayRloff = 1 AND route_lists.date &lt; CURDATE()) OR @todayRloff = 0)
+	# скрыть МЛ с фурами
+	AND ((@RemTruckRLs = 1 AND !(cars.type_of_use IS NOT NULL AND cars.type_of_use = 'Truck')) OR @RemTruckRLs = 0)
+	# скрыть МЛ с выездными мастерами
+	AND ((@RemServiceRLs = 1 AND employees.visiting_master = 0) OR @RemServiceRLs = 0)
+	# скрыть МЛ наёмников (наёмник = не мастер, не фура, не собственность компании)
+	AND ((@RemMercRLs = 1 AND (employees.visiting_master = 1 OR cars.type_of_use = 'Truck' OR cars.is_company_havings = 1)) OR @RemMercRLs = 0)
+GROUP BY routeListId
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="@todayRloff">
             <Value>={?todayRloff}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@RemTruckRLs">
+            <Value>={?RemTruckRLs}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@RemServiceRLs">
+            <Value>={?RemServiceRLs}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@RemMercRLs">
+            <Value>={?RemMercRLs}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -181,10 +202,10 @@ GROUP BY routeListId</CommandText>
             <Width>34.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>59.1pt</Width>
+            <Width>50.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.4pt</Width>
+            <Width>43.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>140.7pt</Width>
@@ -225,6 +246,7 @@ GROUP BY routeListId</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -241,6 +263,7 @@ GROUP BY routeListId</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -257,6 +280,7 @@ GROUP BY routeListId</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -273,6 +297,7 @@ GROUP BY routeListId</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -289,6 +314,7 @@ GROUP BY routeListId</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -306,6 +332,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -313,7 +340,7 @@ GROUP BY routeListId</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>Предполагаемая возвратная тара</Value>
+                      <Value>Предполаг. возвратная тара</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -323,6 +350,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -341,6 +369,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -357,6 +386,7 @@ GROUP BY routeListId</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -375,6 +405,7 @@ GROUP BY routeListId</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -400,6 +431,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -415,8 +447,9 @@ GROUP BY routeListId</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>dd/MM/yyyy</Format>
+                        <Format>dd.MM.yy</Format>
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -433,6 +466,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -448,7 +482,8 @@ GROUP BY routeListId</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -465,6 +500,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -480,6 +516,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -495,6 +532,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -510,6 +548,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -525,6 +564,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -542,6 +582,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -551,7 +592,7 @@ GROUP BY routeListId</CommandText>
           </TableRows>
         </Details>
         <Left>6.1pt</Left>
-        <Top>21.0pt</Top>
+        <Top>0.2pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -562,11 +603,16 @@ GROUP BY routeListId</CommandText>
                     <Textbox Name="Textbox14">
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>ИТОГО:</Value>
                     </Textbox>
@@ -583,6 +629,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum({nal} - {paytelephone})</Value>
                     </Textbox>
@@ -599,6 +646,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -614,6 +662,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -629,6 +678,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -640,6 +690,10 @@ GROUP BY routeListId</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <Value>
                       </Value>
@@ -655,6 +709,10 @@ GROUP BY routeListId</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -670,11 +728,16 @@ GROUP BY routeListId</CommandText>
                       <Value>Бутылей зависло у водителей:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -691,6 +754,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -707,6 +771,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -723,6 +788,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -739,6 +805,7 @@ GROUP BY routeListId</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -752,6 +819,10 @@ GROUP BY routeListId</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -765,6 +836,10 @@ GROUP BY routeListId</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -775,7 +850,7 @@ GROUP BY routeListId</CommandText>
         </Footer>
       </Table>
     </ReportItems>
-    <Height>138.6pt</Height>
+    <Height>82.7pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -801,9 +876,58 @@ GROUP BY routeListId</CommandText>
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>
+        </ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
     <ReportParameter Name="todayRloff">
-      <DataType>Integer</DataType>
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RemTruckRLs">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RemServiceRLs">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RemMercRLs">
+      <DataType>Boolean</DataType>
       <DefaultValue>
         <Values>
           <Value>1</Value>
@@ -816,14 +940,4 @@ GROUP BY routeListId</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

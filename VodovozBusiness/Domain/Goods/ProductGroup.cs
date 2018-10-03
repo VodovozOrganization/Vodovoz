@@ -30,7 +30,7 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref onlineStoreGuid, value, () => OnlineStoreGuid); }
 		}
 
-		private bool exportToOnlineStore;
+        private bool exportToOnlineStore;
 
 		[Display(Name = "Выгружать товары в онлайн магазин")]
 		public virtual bool ExportToOnlineStore {
@@ -38,19 +38,18 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref exportToOnlineStore, value, () => ExportToOnlineStore); }
 		}
 
-		#endregion
+        #endregion
 
-		/// <summary>
-		/// Получает или создает новый Guid. Uow необходим для сохранения группы.
-		/// </summary>
-		public virtual Guid GetOrCreateGuid(IUnitOfWork uow)
+        /// <summary>
+        /// Cоздает новый Guid. Uow необходим для сохранения созданного Guid в базу.
+        /// </summary>
+        public virtual void CreateGuidIfNotExist(IUnitOfWork uow)
 		{
-			if(OnlineStoreGuid == null)
+			if(OnlineStoreGuid == null && ExportToOnlineStore)
 			{
 				OnlineStoreGuid = Guid.NewGuid();
 				uow.Save(this);
 			}
-			return OnlineStoreGuid.Value;
 		}
 
 		public ProductGroup()

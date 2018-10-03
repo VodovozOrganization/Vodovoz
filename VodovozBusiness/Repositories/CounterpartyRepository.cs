@@ -1,6 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate.Transform;
 using QSBanks;
+using QSContacts;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 
@@ -74,6 +80,53 @@ namespace Vodovoz.Repository
 				)
 			).SingleOrDefault<int>();
 		}
+
+		public static IList<CounterpartyTo1CNode> GetCounterpartiesWithInnAndAnyContact(IUnitOfWork uow)
+		{
+			Email emailAlias = null;
+			Phone phoneAlias = null;
+			Counterparty counterpartyAlias = null;
+			CounterpartyTo1CNode resultAlias = null;
+
+			var query = uow.Session.QueryOver<Counterparty>(() => counterpartyAlias)
+						   .Left.JoinAlias(() => counterpartyAlias.Phones, () => phoneAlias)
+						   .Left.JoinAlias(() => counterpartyAlias.Emails, () => emailAlias)
+						   .Where(c => c.INN != "")
+			               .SelectList(list => list
+									   .SelectGroup(x => x.Id).WithAlias(() => resultAlias.Id)
+									   .Select(x => x.FullName).WithAlias(() => resultAlias.Name)
+									   .Select(x => x.INN).WithAlias(() => resultAlias.Inn)
+									   .Select(
+										   Projections.SqlFunction(
+											   new SQLFunctionTemplate(
+												   NHibernateUtil.String,
+												   "GROUP_CONCAT(?1 SEPARATOR ';')"
+												  ),
+											   NHibernateUtil.String,
+											   Projections.Property(() => phoneAlias.DigitsNumber))
+										  ).WithAlias(() => resultAlias.Phones)
+									   .Select(
+										   Projections.SqlFunction(
+											   new SQLFunctionTemplate(
+												   NHibernateUtil.String,
+												   "GROUP_CONCAT(?1 SEPARATOR ';')"
+												  ),
+											   NHibernateUtil.String,
+											   Projections.Property(() => emailAlias.Address))
+										  ).WithAlias(() => resultAlias.EMails)
+			                          )
+			               .TransformUsing(Transformers.AliasToBean<CounterpartyTo1CNode>())
+			               .List<CounterpartyTo1CNode>();
+			return query.Where(x => !String.IsNullOrEmpty(x.EMails) || !String.IsNullOrEmpty(x.Phones)).ToList();
+		}
+	}
+
+	public class CounterpartyTo1CNode{
+		public int Id { get; set; }
+		public string Name { get; set; }
+		public string Inn { get; set; }
+		public string Phones { get; set; }
+		public string EMails { get; set; }
 	}
 }
 

@@ -155,7 +155,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Статус")]
 		public virtual RouteListStatus Status {
 			get { return status; }
-			set { SetField(ref status, value, () => Status); }
+			protected set { SetField(ref status, value, () => Status); }
 		}
 
 		DateTime? closingDate;
@@ -379,6 +379,13 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref mileageCheck, value, () => MileageCheck);}
 		}
 
+		Employee closedBy;
+		[Display(Name = "Закрыт сотрудником")]
+		public virtual Employee ClosedBy {
+			get => closedBy;
+			set { SetField(ref closedBy, value, () => ClosedBy); }
+		}
+
 		#endregion
 
 		#region readonly Свойства
@@ -563,21 +570,6 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				}
 			}
-#if !SHORT
-			if(closed == true)
-			{
-				var equipmentsInRoute = Repository.Logistics.RouteListRepository.GetEquipmentsInRL(uow, this);
-				foreach(var equipment in equipmentsInRoute)
-				{
-					var loaded = inLoaded.FirstOrDefault(x => x.EquipmentId == equipment.EquipmentId);
-					if(loaded == null || loaded.Amount < equipment.Amount)
-					{
-						closed = false;
-						break;
-					}
-				}
-			}
-#endif
 
 			if(closed)
 				ChangeStatus(RouteListStatus.EnRoute);
@@ -589,8 +581,9 @@ namespace Vodovoz.Domain.Logistic
 		{
 			Status = RouteListStatus.Closed;
 			ClosingDate = DateTime.Now;
+			ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(uow);
 			if(Cashier == null)
-				Cashier = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+				Cashier = ClosedBy;
 		}
 
 		public virtual void ChangeStatus(RouteListStatus newStatus)
@@ -1027,9 +1020,9 @@ namespace Vodovoz.Domain.Logistic
 
 			if(Status == RouteListStatus.Closed)
 			{
+				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 				ClosingDate = DateTime.Now;
 			}
-
 		}
 
 		public virtual void UpdateFuelOperation()

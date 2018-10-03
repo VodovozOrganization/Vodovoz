@@ -35,7 +35,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 					continue;
 
 				var goodxml = new XElement("Предложение");
-				goodxml.Add(new XElement("Ид", good.GetOrCreateGuid(myExport.UOW)));
+				goodxml.Add(new XElement("Ид", good.OnlineStoreGuid));
 				goodxml.Add(new XElement("Штрихкод"));
 				goodxml.Add(new XElement("Наименование", good.Name));
 				goodxml.Add(new XElement("Цены", 

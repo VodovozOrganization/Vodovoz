@@ -16,6 +16,9 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			myExport.OnProgressPlusOneTask("Выгружаем группы товаров");
 
 			var all = export.UOW.GetAll<ProductGroup>();
+			//Создаем Guid.
+            all.ToList().ForEach(g => g.CreateGuidIfNotExist(export.UOW));
+			//Формируем дерево.
 			treeOfGroups = all.Where(x => x.Parent == null).ToList();
 		}
 
@@ -38,7 +41,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 					continue;
 
 				var groupxml = new XElement("Группа");
-				groupxml.Add(new XElement("Ид", group.GetOrCreateGuid(myExport.UOW)));
+				groupxml.Add(new XElement("Ид", group.OnlineStoreGuid));
 				groupxml.Add(new XElement("Наименование", group.Name));
 				var childGroupsxml = new XElement("Группы");
 				AddGroups(childGroupsxml, group.Childs);

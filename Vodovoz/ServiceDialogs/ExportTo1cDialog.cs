@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Xml;
 using Gtk;
-using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.ExportTo1c;
@@ -11,13 +10,11 @@ namespace Vodovoz
 {
 	public partial class ExportTo1cDialog : TdiTabBase
 	{
-		private IUnitOfWork UoW;
-		private bool exportInProgress;
+		bool exportInProgress;
 
 		public ExportTo1cDialog()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			this.TabName="Выгрузка в 1с";
 		}
 

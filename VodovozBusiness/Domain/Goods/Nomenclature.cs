@@ -414,15 +414,14 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		/// <summary>
-		/// Получает или создает новый Guid. Uow необходим для сохранения созданного Guid в базу.
+		/// Cоздает новый Guid. Uow необходим для сохранения созданного Guid в базу.
 		/// </summary>
-		public virtual Guid GetOrCreateGuid(IUnitOfWork uow)
+		public virtual void CreateGuidIfNotExist(IUnitOfWork uow)
 		{
 			if(OnlineStoreGuid == null) {
 				OnlineStoreGuid = Guid.NewGuid();
 				uow.Save(this);
 			}
-			return OnlineStoreGuid.Value;
 		}
 
 #endregion
