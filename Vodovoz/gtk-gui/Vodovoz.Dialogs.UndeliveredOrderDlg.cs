@@ -4,6 +4,10 @@ namespace Vodovoz.Dialogs
 {
 	public partial class UndeliveredOrderDlg
 	{
+		private global::Gtk.HBox hbox1;
+
+		private global::Vodovoz.ViewWidgets.UndeliveredOrderCommentsView unOrderCmntView;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gtk.VBox mainBox;
@@ -23,12 +27,25 @@ namespace Vodovoz.Dialogs
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Dialogs.UndeliveredOrderDlg";
 			// Container child Vodovoz.Dialogs.UndeliveredOrderDlg.Gtk.Container+ContainerChild
+			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.unOrderCmntView = new global::Vodovoz.ViewWidgets.UndeliveredOrderCommentsView();
+			this.unOrderCmntView.Events = ((global::Gdk.EventMask)(256));
+			this.unOrderCmntView.Name = "unOrderCmntView";
+			this.hbox1.Add(this.unOrderCmntView);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.unOrderCmntView]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			global::Gtk.Viewport w1 = new global::Gtk.Viewport();
-			w1.ShadowType = ((global::Gtk.ShadowType)(0));
+			global::Gtk.Viewport w2 = new global::Gtk.Viewport();
+			w2.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
 			this.mainBox = new global::Gtk.VBox();
 			this.mainBox.Name = "mainBox";
@@ -43,48 +60,53 @@ namespace Vodovoz.Dialogs
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
 			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			global::Gtk.Image w2 = new global::Gtk.Image();
-			w2.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
-			this.buttonSave.Image = w2;
+			global::Gtk.Image w3 = new global::Gtk.Image();
+			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
+			this.buttonSave.Image = w3;
 			this.hbox4.Add(this.buttonSave);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonSave]));
-			w3.Position = 0;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonSave]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.buttonCancel = new global::Gtk.Button();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
-			global::Gtk.Image w4 = new global::Gtk.Image();
-			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w4;
+			global::Gtk.Image w5 = new global::Gtk.Image();
+			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
+			this.buttonCancel.Image = w5;
 			this.hbox4.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonCancel]));
-			w5.Position = 1;
-			w5.Expand = false;
-			w5.Fill = false;
-			this.mainBox.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.mainBox[this.hbox4]));
-			w6.Position = 0;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonCancel]));
+			w6.Position = 1;
 			w6.Expand = false;
 			w6.Fill = false;
+			this.mainBox.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.mainBox[this.hbox4]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child mainBox.Gtk.Box+BoxChild
 			this.undeliveryView = new global::Vodovoz.ViewWidgets.UndeliveredOrderView();
 			this.undeliveryView.Events = ((global::Gdk.EventMask)(256));
 			this.undeliveryView.Name = "undeliveryView";
 			this.mainBox.Add(this.undeliveryView);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.mainBox[this.undeliveryView]));
-			w7.Position = 1;
-			w1.Add(this.mainBox);
-			this.GtkScrolledWindow.Add(w1);
-			this.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.mainBox[this.undeliveryView]));
+			w8.Position = 1;
+			w2.Add(this.mainBox);
+			this.GtkScrolledWindow.Add(w2);
+			this.hbox1.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow]));
+			w11.Position = 1;
+			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
+			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 		}
 	}
 }

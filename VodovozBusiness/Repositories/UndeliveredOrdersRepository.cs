@@ -4,6 +4,8 @@ using System.Linq;
 using Gamma.Utilities;
 using NHibernate.Transform;
 using QSOrmProject;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Repositories
@@ -14,6 +16,8 @@ namespace Vodovoz.Repositories
 		{
 			UndeliveredOrder undeliveredOrderAlias = null;
 			Order orderAlias = null;
+			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
+
 			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias);
 
 			if(start != null && end != null)
@@ -21,11 +25,13 @@ namespace Vodovoz.Repositories
 					 .Where(() => orderAlias.DeliveryDate >= start)
 					 .Where(u => orderAlias.DeliveryDate <= end);
 
-			var result = query.SelectList(list => list
-										  .SelectGroup(() => undeliveredOrderAlias.GuiltySide)
-										  .SelectCount(() => undeliveredOrderAlias.Id)
-										 )
-							  .List<object[]>();
+			var result = query
+				.Left.JoinAlias(()=>undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
+				.SelectList(list => list
+				            .SelectGroup(() => guiltyInUndeliveryAlias.GuiltySide)
+				            .SelectCount(() => undeliveredOrderAlias.Id)
+				           )
+				.List<object[]>();
 
 			return result.ToDictionary(x => (GuiltyTypes)x[0], x => (int)x[1]);
 		}
@@ -35,6 +41,7 @@ namespace Vodovoz.Repositories
 			UndeliveredOrderCountNode resultAlias = null;
 			UndeliveredOrder undeliveredOrderAlias = null;
 			Order orderAlias = null;
+			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
 
 			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
 			               .Left.JoinAlias(u => u.OldOrder, () => orderAlias);
@@ -43,12 +50,14 @@ namespace Vodovoz.Repositories
 				query.Where(() => orderAlias.DeliveryDate >= start)
 					 .Where(u => orderAlias.DeliveryDate <= end);
 
-			var result = query.SelectList(list => list
-										  .SelectGroup(() => undeliveredOrderAlias.GuiltySide).WithAlias(() => resultAlias.Type)
-										  .SelectCount(() => undeliveredOrderAlias.Id).WithAlias(() => resultAlias.Count)
-										 )
-			                  .TransformUsing(Transformers.AliasToBean<UndeliveredOrderCountNode>())
-			                  .List<UndeliveredOrderCountNode>();
+			var result = query
+				.Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
+				.SelectList(list => list
+				            .SelectGroup(() => guiltyInUndeliveryAlias.GuiltySide).WithAlias(() => resultAlias.Type)
+							.SelectCount(() => undeliveredOrderAlias.Id).WithAlias(() => resultAlias.Count)
+				           )
+				.TransformUsing(Transformers.AliasToBean<UndeliveredOrderCountNode>())
+			    .List<UndeliveredOrderCountNode>();
 
 			return result;
 		}
@@ -59,11 +68,13 @@ namespace Vodovoz.Repositories
 			UndeliveredOrder undeliveredOrderAlias = null;
 			Subdivision subdivisionAlias = null;
 			Order orderAlias = null;
+			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
 
 			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
-						   .Where(u => u.GuiltySide == GuiltyTypes.Department)
+			               .Where(() => guiltyInUndeliveryAlias.GuiltySide == GuiltyTypes.Department)
 						   .Left.JoinAlias(u => u.OldOrder, () => orderAlias)
-						   .Left.JoinAlias(u => u.GuiltyDepartment, () => subdivisionAlias);
+			               .Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias)
+			               .Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias);
 
 			if(start != null && end != null)
 				query.Where(() => orderAlias.DeliveryDate >= start)
@@ -80,11 +91,31 @@ namespace Vodovoz.Repositories
 			return result;
 		}
 
+		public static IList<UndeliveredOrder> GetListOfUndeliveriesForOrder(IUnitOfWork uow, int orderId)
+		{
+			Order order = uow.GetById<Order>(orderId);
+			return GetListOfUndeliveriesForOrder(uow, order);
+		}
+
 		public static IList<UndeliveredOrder> GetListOfUndeliveriesForOrder(IUnitOfWork uow, Order order){
 			var query = uow.Session.QueryOver<UndeliveredOrder>()
 			               .Where(u => u.OldOrder == order)
 			               .List<UndeliveredOrder>();
 			return query;
+		}
+
+		public static IList<int> GetListOfUndeliveryIdsForDriver(IUnitOfWork uow, Employee driver)
+		{
+			Order orderAlias = null;
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+
+			var query = uow.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
+						   .Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+						   .Where(() => routeListAlias.Driver == driver)
+						   .Left.JoinQueryOver(() => routeListItemAlias.Order, () => orderAlias);
+			var q = query.List().Select(i => i.Order.Id);
+			return q.ToList();
 		}
 	}
 

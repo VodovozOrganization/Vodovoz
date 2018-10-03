@@ -6,6 +6,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModel;
+using Gamma.Widgets;
 
 namespace Vodovoz.JournalFilters
 {
@@ -19,7 +20,7 @@ namespace Vodovoz.JournalFilters
 			enumCMBUndeliveryStatus.ItemsEnum = typeof(UndeliveryStatus);
 			enumCMBUndeliveryStatus.SelectedItem = UndeliveryStatus.InProcess;
 			yEnumCMBActionWithInvoice.ItemsEnum = typeof(ActionsWithInvoice);
-			ySpecCMBGuiltyDep.ItemsList = Repository.EmployeeRepository.Subdivisions(UoW);
+			ySpecCMBinProcessAt.ItemsList = ySpecCMBGuiltyDep.ItemsList = Repository.EmployeeRepository.Subdivisions(UoW);
 
 			refOldOrder.RepresentationModel = new OrdersVM(new OrdersFilter(UoW));
 
@@ -36,6 +37,12 @@ namespace Vodovoz.JournalFilters
 
 			dateperiodOldOrderDate.StartDateOrNull = DateTime.Today.AddMonths(-1);
 			dateperiodOldOrderDate.EndDateOrNull = DateTime.Today.AddMonths(1);
+		}
+
+		public void ResetFilter(){
+			enumCMBUndeliveryStatus.SelectedItem = SpecialComboState.All;
+			dateperiodOldOrderDate.StartDateOrNull = null;
+			dateperiodOldOrderDate.EndDateOrNull = null;
 		}
 
 		public UndeliveredOrdersFilter(IUnitOfWork uow) : this()
@@ -133,6 +140,14 @@ namespace Vodovoz.JournalFilters
 			set {
 				ySpecCMBGuiltyDep.SelectedItem = value;
 				ySpecCMBGuiltyDep.Sensitive = false;
+			}
+		}
+
+		public Subdivision RestrictInProcessAtDepartment {
+			get => ySpecCMBinProcessAt.SelectedItem as Subdivision;
+			set {
+				ySpecCMBinProcessAt.SelectedItem = value;
+				ySpecCMBinProcessAt.Sensitive = false;
 			}
 		}
 
@@ -238,6 +253,11 @@ namespace Vodovoz.JournalFilters
 		}
 
 		protected void OnRefUndeliveryAuthorChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnYSpecCMBinProcessAtItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			OnRefiltered();
 		}

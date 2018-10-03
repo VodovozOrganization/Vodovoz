@@ -106,7 +106,6 @@ namespace Vodovoz
 				//Простые справочники
 				OrmObjectMapping<CullingCategory>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<Nationality>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
-				OrmObjectMapping<Subdivision>.Create().Dialog<SubdivisionDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<Manufacturer>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<EquipmentColors>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<User>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
@@ -201,7 +200,10 @@ namespace Vodovoz
 			#endregion
 
 			OrmMain.AddObjectDescription<DiscountReason>().DefaultTableView().SearchColumn("Название", x => x.Name).End();
-		
+
+			# region Простые справочники
+			OrmMain.AddObjectDescription<Subdivision>().Dialog<SubdivisionDlg>().DefaultTableView().Column("Номер", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End();
+			#endregion
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 			OrmMain.ClassMappingList.AddRange(QSContactsMain.GetModuleMaping());

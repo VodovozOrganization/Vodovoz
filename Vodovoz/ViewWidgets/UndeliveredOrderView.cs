@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Gamma.GtkWidgets;
-using Gamma.Utilities;
 using NHibernate.Util;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repositories;
 using Vodovoz.Repository;
 using Vodovoz.ViewModel;
 
@@ -21,6 +22,8 @@ namespace Vodovoz.ViewWidgets
 		Order oldOrder = null;
 		IUnitOfWork uow;
 		bool routeListDoesNotExist = false;
+		string InitialProcDepartmentName = String.Empty;
+		IList<GuiltyInUndelivery> initialGuiltyList = new List<GuiltyInUndelivery>();
 
 		public IUnitOfWork UoW {
 			get {
@@ -31,7 +34,6 @@ namespace Vodovoz.ViewWidgets
 			}
 		}
 
-		UndeliveryStatus initialStatus;
 		UndeliveredOrder undelivery;
 
 		public UndeliveredOrderView()
@@ -47,13 +49,25 @@ namespace Vodovoz.ViewWidgets
 				yEForUndeliveredOrder.OpenSelectDialog("Выбор недовезённого заказа");
 		}
 
-		public void ConfigureDlg(IUnitOfWork uow, UndeliveredOrder undelivery, UndeliveryStatus initialStatus = UndeliveryStatus.InProcess)
+		public void ConfigureDlg(IUnitOfWork uow, UndeliveredOrder undelivery)
 		{
-			this.initialStatus = initialStatus;
 			this.undelivery = undelivery;
 			UoW = uow;
 			oldOrder = undelivery.OldOrder;
 			newOrder = undelivery.NewOrder;
+			if(undelivery.Id > 0 && undelivery.InProcessAtDepartment != null)
+				InitialProcDepartmentName = undelivery.InProcessAtDepartment.Name;
+			if(undelivery.Id > 0)
+				undelivery.ObservableGuilty.ForEach(
+					g => initialGuiltyList.Add(
+						new GuiltyInUndelivery {
+							Id = g.Id,
+							UndeliveredOrder = g.UndeliveredOrder,
+							GuiltySide = g.GuiltySide,
+							GuiltyDepartment = g.GuiltyDepartment
+						}
+					)
+				);
 			var filterOrders = new OrdersFilter(UoW);
 			List<OrderStatus> hiddenStatusesList = new List<OrderStatus>();
 			var grantedStatusesArray = OrderRepository.GetStatusesForOrderCancelation();
@@ -64,13 +78,14 @@ namespace Vodovoz.ViewWidgets
 			filterOrders.SetAndRefilterAtOnce(x => x.HideStatuses = hiddenStatusesList.Cast<Enum>().ToArray());
 			yEForUndeliveredOrder.Changed += (sender, e) => {
 				oldOrder = undelivery.OldOrder;
-				lblInfo.Markup = undelivery.GetUndeliveryInfo();
+				lblInfo.Markup = undelivery.GetOldOrderInfo();
 				if(undelivery.Id <= 0)
 					undelivery.OldOrderStatus = oldOrder.OrderStatus;
 				routeListDoesNotExist = oldOrder != null && (undelivery.OldOrderStatus == OrderStatus.NewOrder
 													   || undelivery.OldOrderStatus == OrderStatus.Accepted
 													   || undelivery.OldOrderStatus == OrderStatus.WaitForPayment);
 
+				guiltyInUndeliveryView.ConfigureWidget(UoW, undelivery, !routeListDoesNotExist);
 				SetSensitivities();
 				SetVisibilities();
 				GetFines();
@@ -78,9 +93,6 @@ namespace Vodovoz.ViewWidgets
 			};
 			yEForUndeliveredOrder.RepresentationModel = new OrdersVM(filterOrders);
 			yEForUndeliveredOrder.Binding.AddBinding(undelivery, x => x.OldOrder, x => x.Subject).InitializeFromSource();
-
-			yEnumCMBGuilty.ItemsEnum = typeof(GuiltyTypes);
-			yEnumCMBGuilty.Binding.AddBinding(undelivery, g => g.GuiltySide, w => w.SelectedItem).InitializeFromSource();
 
 			yDateDriverCallTime.Binding.AddBinding(undelivery, t => t.DriverCallTime, w => w.DateOrNull).InitializeFromSource();
 			if(undelivery.Id <= 0)
@@ -101,11 +113,28 @@ namespace Vodovoz.ViewWidgets
 			SetLabelsAcordingToNewOrder();
 
 			yEnumCMBStatus.ItemsEnum = typeof(UndeliveryStatus);
-			yEnumCMBStatus.Binding.AddBinding(undelivery, s => s.UndeliveryStatus, w => w.SelectedItem).InitializeFromSource();
-			yEnumCMBStatus.ChangedByUser += (e, s) => SetSensitivities();
+			yEnumCMBStatus.SelectedItem = undelivery.UndeliveryStatus;
+			yEnumCMBStatus.EnumItemSelected += (s, e) => {
+				SetSensitivities();
+				undelivery.SetUndeliveryStatus((UndeliveryStatus)e.SelectedItem);
+			};
 
-			yentrySubdivision.SubjectType = typeof(Subdivision);
-			yentrySubdivision.Binding.AddBinding(undelivery, g => g.GuiltyDepartment, w => w.Subject).InitializeFromSource();
+			yentInProcessAtDepartment.SubjectType = typeof(Subdivision);
+			yentInProcessAtDepartment.Binding.AddBinding(undelivery, d => d.InProcessAtDepartment, w => w.Subject).InitializeFromSource();
+			yentInProcessAtDepartment.ChangedByUser += (s, e) => {
+				undelivery.AddCommentToTheField(
+					UoW, 
+					CommentedFields.Reason, 
+					String.Format(
+						"сменил(а) \"в работе у отдела\" \nс \"{0}\" на \"{1}\"",
+						InitialProcDepartmentName,
+						undelivery.InProcessAtDepartment.Name
+					)
+				);
+			};
+
+			if(undelivery.Id <= 0)
+				yentInProcessAtDepartment.Subject = SubdivisionsRepository.GetQCDepartment(UoW);
 
 			var filterRegisteredBy = new EmployeeFilter(UoW);
 			filterRegisteredBy.RestrictFired = false;
@@ -113,11 +142,10 @@ namespace Vodovoz.ViewWidgets
 			refRegisteredBy.Binding.AddBinding(undelivery, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
 
 			yEnumCMBDriverCallPlace.EnumItemSelected += CMBSelectedItemChanged;
-			yEnumCMBGuilty.EnumItemSelected += CMBSelectedItemChanged;
 
 			txtReason.Binding.AddBinding(undelivery, u => u.Reason, w => w.Buffer.Text).InitializeFromSource();
 
-			lblInfo.Markup = undelivery.GetUndeliveryInfo();
+			lblInfo.Markup = undelivery.GetOldOrderInfo();
 
 			yTreeFines.ColumnsConfig = ColumnsConfigFactory.Create<FineItem>()
 				.AddColumn("Номер").AddTextRenderer(node => node.Fine.Id.ToString())
@@ -152,15 +180,10 @@ namespace Vodovoz.ViewWidgets
 				yEnumCMBStatus.AddEnumToHideList(new Enum[] { UndeliveryStatus.Closed });
 				yEnumCMBStatus.SelectedItem = (UndeliveryStatus)undelivery.UndeliveryStatus;
 			}
-
-			//если недовезённый заказ не был в мл, то водитель не может быть виновным
-			if(routeListDoesNotExist)
-				yEnumCMBGuilty.AddEnumToHideList(new Enum[] { GuiltyTypes.Driver });
 		}
 
 		void SetVisibilities()
 		{
-			lblGuiltyDepartment.Visible = yentrySubdivision.Visible = undelivery.GuiltySide == GuiltyTypes.Department;
 			lblDriverCallPlace.Visible = yEnumCMBDriverCallPlace.Visible = !routeListDoesNotExist;
 			lblDriverCallTime.Visible = yDateDriverCallTime.Visible = undelivery.DriverCallType != DriverCallType.NoCall;
 			btnChooseOrder.Visible = undelivery.NewOrder == null;
@@ -177,7 +200,7 @@ namespace Vodovoz.ViewWidgets
 				yDateDriverCallTime.Sensitive =
 					yDateDispatcherCallTime.Sensitive =
 						refRegisteredBy.Sensitive =
-							hbxReasonAndFines.Sensitive = (
+							vbxReasonAndFines.Sensitive = (
 								undelivery.OldOrder != null
 								&& hasPermissionOrNew
 								&& undelivery.UndeliveryStatus != UndeliveryStatus.Closed
@@ -195,57 +218,64 @@ namespace Vodovoz.ViewWidgets
 				&& undelivery.OldOrder != null
 			);
 
-			//кнопки для выбора/создания нового заказа доступны всегда, если статус недовоза не "Закрыт"
-			yentrySubdivision.Sensitive =
-				yEnumCMBGuilty.Sensitive =
+			//кнопки для выбора/создания нового заказа и группа "В работе у отдела"
+			//доступны всегда, если статус недовоза не "Закрыт"
+			guiltyInUndeliveryView.Sensitive = 
+				hbxInProcessAtDepartment.Sensitive =
 					hbxForNewOrder.Sensitive = undelivery.UndeliveryStatus != UndeliveryStatus.Closed;
 		}
 
-		/// <summary>
-		/// Добавление комментариев к полям.
-		/// Если не указан текст, то к каждому полю будет добавлятся комментарий,
-		/// в соответствии с правилами внутри метода.
-		/// </summary>
-		/// <param name="field">Комментируемое поле</param>
-		/// <param name="text">Текст комментария (опционально)</param>
-		void AddComment(CommentedFields field, string text = null)
+		void AddAutocomment()
 		{
-			switch(field) {
-				case CommentedFields.Status:
-					if(text == null && initialStatus != undelivery.UndeliveryStatus)
-						text = String.Format(
-							"сменил(а) статус недовоза\nс \"{0}\" на \"{1}\"",
-							initialStatus.GetEnumTitle(),
-							undelivery.UndeliveryStatus.GetEnumTitle()
-						);
-					break;
-				default:
-					break;
+			#region удаление дублей из спсика виновных
+			IList<GuiltyInUndelivery> guiltyTempList = new List<GuiltyInUndelivery>();
+			undelivery.ObservableGuilty.ForEach(g => guiltyTempList.Add(g));
+			undelivery.ObservableGuilty.Clear();
+			guiltyTempList.Distinct().ForEach(g => undelivery.ObservableGuilty.Add(g));
+			#endregion
+
+			#region формирование и добавление автокомментарния об изменении списка виновных
+			if(undelivery.Id > 0) {
+				IList<GuiltyInUndelivery> removedGuiltyList = new List<GuiltyInUndelivery>();
+				IList<GuiltyInUndelivery> addedGuiltyList = new List<GuiltyInUndelivery>();
+				IList<GuiltyInUndelivery> toRemoveFromBoth = new List<GuiltyInUndelivery>();
+				initialGuiltyList.ForEach(r => removedGuiltyList.Add(r));
+				undelivery.ObservableGuilty.ForEach(a => addedGuiltyList.Add(a));
+				foreach(GuiltyInUndelivery gu in addedGuiltyList) {
+					removedGuiltyList.ForEach(
+						g => {
+							if(gu == g)
+								toRemoveFromBoth.Add(g);
+						}
+					);
+				}
+				toRemoveFromBoth.ForEach(
+					r => {
+						addedGuiltyList.Remove(r);
+						removedGuiltyList.Remove(r);
+					}
+				);
+				StringBuilder sb = new StringBuilder();
+				if(addedGuiltyList.Any()) {
+					sb.AppendLine("добавил(а) виновных:");
+					addedGuiltyList.ForEach(a => sb.AppendLine(String.Format("\t- {0}", a.ToString())));
+				}
+				if(removedGuiltyList.Any()) {
+					sb.AppendLine("удалил(а) виновных:");
+					removedGuiltyList.ForEach(r => sb.AppendLine(String.Format("\t- {0}", r.ToString())));
+				}
+				string text = sb.ToString().Trim();
+				if(sb.Length > 0)
+					undelivery.AddCommentToTheField(UoW, CommentedFields.Reason, text);
 			}
-			if(text == null)
-				return;
-
-			UndeliveredOrderComment comment = new UndeliveredOrderComment {
-				Comment = text,
-				CommentDate = DateTime.Now,
-				CommentedField = field,
-				Employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW),
-				UndeliveredOrder = undelivery
-			};
-
-			UoW.Save(comment);
+			#endregion
 		}
 
-		public void SaveChanges()
+		public void BeforeSaving()
 		{
-			undelivery.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			AddAutocomment();
+			undelivery.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			undelivery.LastEditedTime = DateTime.Now;
-			AddComment(CommentedFields.Status);
-			BeforeSave();
-		}
-
-		void BeforeSave()
-		{
 			if(undelivery.DriverCallType == DriverCallType.NoCall) {
 				undelivery.DriverCallTime = null;
 				undelivery.DriverCallNr = null;
@@ -254,8 +284,6 @@ namespace Vodovoz.ViewWidgets
 
 		protected void CMBSelectedItemChanged(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			if(undelivery.GuiltySide != GuiltyTypes.Department)
-				undelivery.GuiltyDepartment = null;
 			SetVisibilities();
 		}
 

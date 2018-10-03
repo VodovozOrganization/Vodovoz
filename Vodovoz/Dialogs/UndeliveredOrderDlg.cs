@@ -1,40 +1,46 @@
 ﻿using System;
+using System.Linq;
 using Gtk;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using QSValidation;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repositories;
 using Vodovoz.Repository;
 
 namespace Vodovoz.Dialogs
 {
-	public partial class UndeliveredOrderDlg : OrmGtkDialogBase<UndeliveredOrder>, ITdiTabAddedNotifier
+	public partial class UndeliveredOrderDlg : TdiTabBase, ITdiTabAddedNotifier
 	{
-		UndeliveryStatus initialStatus;
+		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
+		public event EventHandler<EventArgs> CommentAdded;
+		IUnitOfWork UoW { get; set; }
+		UndeliveredOrder UndeliveredOrder { get; set; }
 
 		public UndeliveredOrderDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<UndeliveredOrder>();
-			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			Entity.EmployeeRegistrator = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null) {
+			UoW = UnitOfWorkFactory.CreateWithNewRoot<UndeliveredOrder>();
+			UndeliveredOrder = UoW.RootObject as UndeliveredOrder;
+			UndeliveredOrder.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			UndeliveredOrder.EmployeeRegistrator = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(UndeliveredOrder.Author == null) {
 				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать недовозы, так как некого указывать в качестве автора документа.");
 				FailInitialize = true;
 				return;
 			}
-			initialStatus = UoWGeneric.Root.UndeliveryStatus = UndeliveryStatus.InProcess;
 			TabName = "Новый недовоз";
-			Entity.TimeOfCreation = DateTime.Now;
+			UndeliveredOrder.TimeOfCreation = DateTime.Now;
 			ConfigureDlg();
 		}
 
 		public UndeliveredOrderDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<UndeliveredOrder>(id);
-			initialStatus = Entity.UndeliveryStatus;
+			UoW = UnitOfWorkFactory.CreateForRoot<UndeliveredOrder>(id);
+			UndeliveredOrder = UoW.RootObject as UndeliveredOrder;
+			TabName = UndeliveredOrder.Title;
 			ConfigureDlg();
 		}
 
@@ -49,18 +55,70 @@ namespace Vodovoz.Dialogs
 
 		public void ConfigureDlg()
 		{
-			undeliveryView.ConfigureDlg(UoW, Entity, initialStatus);
+			undeliveryView.ConfigureDlg(UoW, UndeliveredOrder);
+			SetAccessibilities();
+			if(UndeliveredOrder.Id > 0) {//если недовоз новый, то не можем оставлять комментарии
+				IUnitOfWork UoWForComments = UnitOfWorkFactory.CreateWithoutRoot();
+				unOrderCmntView.Configure(UoWForComments, UndeliveredOrder, CommentedFields.Reason);
+				unOrderCmntView.CommentAdded += (sender, e) => CommentAdded(sender, e);
+				this.Destroyed += (sender, e) => {
+					if(UoWForComments != null)
+						UoWForComments.Dispose();
+				};
+			}
 		}
 
-		public override bool Save()
+		void SetAccessibilities(){
+			unOrderCmntView.Visible = UndeliveredOrder.Id > 0;
+		}
+
+		public virtual bool Save()
 		{
-			var valid = new QSValidator<UndeliveredOrder>(Entity);
+			var valid = new QSValidator<UndeliveredOrder>(UndeliveredOrder);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
-			Entity.OldOrder.SetUndeliveredStatus(Entity.GuiltySide);
-			undeliveryView.SaveChanges();
-			UoWGeneric.Save();
+			UndeliveredOrder.OldOrder.SetUndeliveredStatus();
+			undeliveryView.BeforeSaving();
+			//случай, если создавать новый недовоз не нужно, но нужно обновить старый заказ
+			if(!CanCreateUndelivery()){
+				UoW.Save(UndeliveredOrder.OldOrder);
+				UoW.Commit();
+				this.OnCloseTab(false);
+				return false;
+			}
+
+			UoW.Save(UndeliveredOrder);
+			this.OnCloseTab(false);
 			return true;
+		}
+
+		/// <summary>
+		/// Проверка на возможность создания нового недовоза
+		/// </summary>
+		/// <returns><c>true</c>, если можем создать, <c>false</c> если создать недовоз не можем,
+		/// при этом добавляется автокомментарий к существующему недовозу с содержимым
+		/// нового (но не добавленного) недовоза.</returns>
+		bool CanCreateUndelivery()
+		{
+			if(UndeliveredOrder.Id > 0)
+				return true;
+			var otherUndelivery = UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, UndeliveredOrder.OldOrder).FirstOrDefault();
+			if(otherUndelivery == null)
+				return true;
+			otherUndelivery.AddCommentToTheField(UoW, CommentedFields.Reason, UndeliveredOrder.GetUndeliveryInfo());
+			return false;
+		}
+
+		protected void OnButtonSaveClicked(object sender, EventArgs e)
+		{
+			Save();
+			if(DlgSaved != null)
+				DlgSaved(this, new UndeliveryOnOrderCloseEventArgs(UndeliveredOrder));
+		}
+
+		protected void OnButtonCancelClicked(object sender, EventArgs e)
+		{
+			this.OnCloseTab(true);
 		}
 	}
 }

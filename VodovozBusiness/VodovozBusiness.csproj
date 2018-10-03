@@ -493,6 +493,9 @@
     <Compile Include="HibernateMapping\Goods\NomenclatureImageMap.cs" />
     <Compile Include="Tools\CommerceML\Nodes\PropertyOfGoods.cs" />
     <Compile Include="Domain\Goods\MobileCatalog.cs" />
+    <Compile Include="Repositories\SubdivisionsRepository.cs" />
+    <Compile Include="HibernateMapping\Order\GuiltyInUndeliveryMap.cs" />
+    <Compile Include="Domain\Order\GuiltyInUndelivery.cs" />
     <Compile Include="Domain\StoredEmails\EmailTemplate.cs" />
     <Compile Include="Domain\StoredEmails\EmailAttachment.cs" />
   </ItemGroup>

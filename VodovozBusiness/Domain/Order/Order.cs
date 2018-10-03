@@ -2297,12 +2297,13 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Виновный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(GuiltyTypes? guilty)
+		public virtual void SetUndeliveredStatus(GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
 			var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(UoW, this);
 
 			switch(OrderStatus) {
 				case OrderStatus.NewOrder:
+				case OrderStatus.WaitForPayment:
 				case OrderStatus.Accepted:
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnLoading:
@@ -2373,7 +2374,7 @@ namespace Vodovoz.Domain.Orders
 					initialStatus.GetEnumTitle(),
 					newStatus.GetEnumTitle()
 				);
-				undeliveries.ForEach(u => u.AddCommentToTheField(UoW, CommentedFields.OldOrderStatus, text));
+				undeliveries.ForEach(u => u.AddCommentToTheField(UoW, CommentedFields.Reason, text));
 			}
 		}
 

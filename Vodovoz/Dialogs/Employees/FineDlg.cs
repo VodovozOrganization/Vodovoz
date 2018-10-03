@@ -256,10 +256,10 @@ namespace Vodovoz
 			dlg.HideFilterAndControls();
 			dlg.GetUndeliveryFilter.SetAndRefilterAtOnce(
 				x => x.RestrictOldOrder = Entity.UndeliveredOrder.OldOrder,
-				x => x.RestrictOldOrderStartDate = dlg.GetUndeliveryFilter.RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
+				x => x.RestrictOldOrderStartDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
+				x => x.RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
 				x => x.RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus
 			);
-			dlg.Refresh();
 			TabParent.AddSlaveTab(this, dlg);
 		}
 	}

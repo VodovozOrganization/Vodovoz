@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Linq;
 using Gamma.Binding;
-using Gamma.GtkWidgets.Cells;
 using Gtk;
 using QSOrmProject;
+using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
@@ -12,7 +11,6 @@ using Vodovoz.JournalFilters;
 using Vodovoz.Representations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
-using Gamma.Utilities;
 
 namespace Vodovoz.JournalViewers
 {
@@ -97,11 +95,6 @@ namespace Vodovoz.JournalViewers
 
 			Menu popupMenu = new Menu();
 
-			MenuItem menuItemEditUndelivery = new MenuItem(ButtonMode.HasFlag(ReferenceButtonMode.CanEdit) ? "Редактировать недовоз" : "Открыть недовоз на просмотр");
-			menuItemEditUndelivery.Activated += OnButtonEditClicked;
-			menuItemEditUndelivery.Sensitive = selected != null;
-			popupMenu.Add(menuItemEditUndelivery);
-
 			MenuItem menuItemOldOrder = new MenuItem("Перейти в недовезённый заказ");
 			menuItemOldOrder.Activated += MenuItemOldOrder_Activated;
 			menuItemOldOrder.Sensitive = selected != null;
@@ -117,6 +110,11 @@ namespace Vodovoz.JournalViewers
 			menuItemNewFine.Sensitive = selected != null;
 			popupMenu.Add(menuItemNewFine);
 
+			MenuItem menuItemCloseUndelivery = new MenuItem("Закрыть недовоз");
+			menuItemCloseUndelivery.Activated += MenuItemCloseUndelivery_Activated;
+			menuItemCloseUndelivery.Sensitive = QSMain.User.Permissions["can_close_undeliveries"] && selected.UndeliveryStatus != UndeliveryStatus.Closed;
+			popupMenu.Add(menuItemCloseUndelivery);
+
 			return popupMenu;
 		}
 
@@ -126,7 +124,7 @@ namespace Vodovoz.JournalViewers
 		{
 			var oldOrdersId = menusSelected.OldOrderId;
 			var dlg = new OrderDlg(oldOrdersId);
-			dlg.EntitySaved += dlg_EntitySaved;
+			dlg.EntitySaved += (s,ea) => Refresh();
 			var tdiMain = MainClass.MainWin.TdiMain;
 			tdiMain.OpenTab(
 				OrmMain.GenerateDialogHashName<Domain.Orders.Order>(oldOrdersId),
@@ -138,7 +136,7 @@ namespace Vodovoz.JournalViewers
 		{
 			var newOrdersId = menusSelected.NewOrderId;
 			var dlg = new OrderDlg(newOrdersId);
-			dlg.EntitySaved += dlg_EntitySaved;
+			dlg.EntitySaved += (s, ea) => Refresh();
 			var tdiMain = MainClass.MainWin.TdiMain;
 			tdiMain.OpenTab(
 				OrmMain.GenerateDialogHashName<Domain.Orders.Order>(newOrdersId),
@@ -157,8 +155,16 @@ namespace Vodovoz.JournalViewers
 			fineDlg.EntitySaved += (sndr, eArgs) => Refresh();
 		}
 
-		#endregion
+		void MenuItemCloseUndelivery_Activated(object sender, EventArgs e)
+		{
+			UndeliveredOrder undeliveredOrder = UoW.GetById<UndeliveredOrder>(menusSelected.Id);
+			undeliveredOrder.Close();
+			UoW.Save(undeliveredOrder);
+			UoW.Commit();
+			Refresh();
+		}
 
+		#endregion
 
 		protected void OnYTreeViewUndeliveriesButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
 		{
@@ -216,7 +222,7 @@ namespace Vodovoz.JournalViewers
 		{
 			var dlg = new UndeliveredOrderDlg();
 			TabParent.AddTab(dlg, this, true);
-			dlg.EntitySaved += dlg_EntitySaved;
+			dlg.DlgSaved += dlg_DlgSaved;
 			if(TabParent is TdiSliderTab) {
 				((TdiSliderTab)TabParent).IsHideJournal = true;
 			}
@@ -234,10 +240,11 @@ namespace Vodovoz.JournalViewers
 				OrmMain.GenerateDialogHashName<UndeliveredOrder>(selectedId),
 				() => dlg
 			);
-			dlg.EntitySaved += dlg_EntitySaved;
+			dlg.CommentAdded += (s, ea) => Refresh();
+			dlg.DlgSaved += dlg_DlgSaved;
 		}
 
-		void dlg_EntitySaved(object sender, EntitySavedEventArgs e)
+		void dlg_DlgSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
 			Refresh();
 		}
@@ -258,7 +265,8 @@ namespace Vodovoz.JournalViewers
 			if(selectedObj == null)
 				return;
 
-			CommentedFields field = CommentedFields.None;
+			//кусок старой реализации, когда по даблклику вычислялось кликнутое поле
+			/*CommentedFields field = CommentedFields.None;
 			string valueOfField = String.Empty;
 
 			foreach(var cell in args.Column.Cells.OfType<NodeCellRendererText<UndeliveredOrdersVMNode>>().Where(c => c.DataPropertyInfo != null)) {
@@ -270,12 +278,13 @@ namespace Vodovoz.JournalViewers
 			}
 
 			if(field == CommentedFields.None)
-				return;
+				return;*/
 
-			var dlg = new UndeliveredOrderCommentsDlg(UoW, selectedObj.Id, field, valueOfField);
+			var dlg = new UndeliveredOrderDlg(selectedObj.Id);
 			dlg.CommentAdded += (sender, e) => Refresh();
+			dlg.DlgSaved += dlg_DlgSaved;
 			TabParent.OpenTab(
-				OrmMain.GenerateDialogHashName<UndeliveredOrderComment>(selectedObj.Id),
+				OrmMain.GenerateDialogHashName<UndeliveredOrder>(selectedObj.Id),
 				() => dlg,
 				this
 			);

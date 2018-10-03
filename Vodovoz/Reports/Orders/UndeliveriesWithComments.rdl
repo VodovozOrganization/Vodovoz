@@ -466,7 +466,7 @@
         <Top>0.0pt</Top>
       </Table>
       <Table Name="Table2">
-        <DataSetName>Guilties</DataSetName>
+        <DataSetName>Guilty</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
           <BorderStyle>
@@ -805,7 +805,7 @@ FROM
 			WHEN 'Closed' THEN 'Закрыт'
 		END AS status
 	FROM undelivered_orders un
-	LEFT JOIN orders oldo ON un.undelivered_order_id = oldo.id
+	LEFT JOIN orders oldo ON un.old_order_id = oldo.id
 	LEFT JOIN delivery_schedule old_schedule ON old_schedule.id = oldo.delivery_schedule_id
 	LEFT JOIN orders newo ON un.new_order_id = newo.id
 	LEFT JOIN delivery_schedule new_schedule ON new_schedule.id = newo.delivery_schedule_id
@@ -1257,26 +1257,43 @@ LEFT JOIN (
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Guilties">
-      <Query>
+    <DataSet Name="Guilty">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	COUNT(undelivered_orders.id) AS qty,
-	CASE guilty_is
-		WHEN 'Department' THEN 'Отдел ВВ'
-		WHEN 'Client' THEN 'Клиент'
-		WHEN 'Driver' THEN 'Водитель'
-		WHEN 'None' THEN 'Нет (не недовоз)'
-		ELSE 'Не установленно'
-	END AS guilty
+	COUNT(T1.id) AS qty,
+	T1.guilty AS guilty
 FROM
-	undelivered_orders
-LEFT JOIN
-	orders oldo ON undelivered_orders.undelivered_order_id = oldo.id
-WHERE 
-	oldo.delivery_date &gt;= @start_date AND oldo.delivery_date &lt;= @end_date
+	(SELECT
+		undelivered_orders.id AS id,
+		GROUP_CONCAT(
+			CASE g.guilty_side
+				WHEN 'Department' THEN IFNULL(CONCAT('Отд: ', d.name), 'Отдел ВВ')
+				WHEN 'Client' THEN 'Клиент'
+				WHEN 'Driver' THEN 'Водитель'
+				WHEN 'ServiceMan' THEN 'Мастер СЦ'
+				WHEN 'None' THEN 'Нет (не недовоз)'
+				WHEN 'Unknown' THEN 'Неизвестно'
+				ELSE g.guilty_side
+			END
+			ORDER BY g.guilty_side ASC
+			SEPARATOR ' + '
+		) AS guilty
+	FROM
+		undelivered_orders
+	LEFT JOIN
+		orders oldo ON undelivered_orders.old_order_id = oldo.id
+	LEFT JOIN
+		guilty_in_undelivered_orders g ON undelivered_orders.id = g.undelivery_id
+	LEFT JOIN
+		subdivisions d ON d.id = g.guilty_department_id
+	WHERE 
+		oldo.delivery_date &gt;= @start_date AND oldo.delivery_date &lt;= @end_date
+	GROUP BY
+		undelivered_orders.id
+	) AS T1
 GROUP BY
-	guilty_is
+	T1.guilty
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">

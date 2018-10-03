@@ -1786,7 +1786,7 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (sender, e) => {
-				Entity.SetUndeliveredStatus(e.UndeliveredOrder.GuiltySide);
+				Entity.SetUndeliveredStatus(/*e.UndeliveredOrder.GuiltySide*/);
 				UpdateButtonState();
 
 				var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(UoW, Entity);

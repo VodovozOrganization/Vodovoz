@@ -17,6 +17,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.JournalViewers;
+using Vodovoz.Repositories;
 using Vodovoz.Repository;
 
 namespace Vodovoz.ViewModel
@@ -216,6 +218,11 @@ namespace Vodovoz.ViewModel
 			menuItemRouteList.Sensitive = selected.Any (x => ((OrdersVMNode)x.VMNode).StatusEnum != OrderStatus.Accepted && ((OrdersVMNode)x.VMNode).StatusEnum != OrderStatus.NewOrder);
 			popupMenu.Add (menuItemRouteList);
 
+			Gtk.MenuItem menuItemUndelivery = new MenuItem("Перейти в недовоз");
+			menuItemUndelivery.Activated += MenuItemUndelivery_Activated;;
+			menuItemUndelivery.Sensitive = selected.Any(o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, o.EntityId).Any());
+			popupMenu.Add(menuItemUndelivery);
+
 			Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem ("Открыть диалог закрытия");
 			menuItemRouteListClosingDlg.Activated += MenuItemRouteListClosingDlg_Activated;
 			menuItemRouteListClosingDlg.Sensitive = selected.Any (x => IsOrderInRouteListStatusEnRouted (x.EntityId));
@@ -283,6 +290,21 @@ namespace Vodovoz.ViewModel
 				);
 			}
 		}
+
+		void MenuItemUndelivery_Activated(object sender, EventArgs e)
+		{
+			var order = UoW.GetById<Domain.Orders.Order>(lastMenuSelected.FirstOrDefault().EntityId);
+			UndeliveriesView dlg = new UndeliveriesView();
+			dlg.HideFilterAndControls();
+			dlg.GetUndeliveryFilter.SetAndRefilterAtOnce(
+				x => x.ResetFilter(),
+				x => x.RestrictOldOrder = order,
+				x => x.RestrictOldOrderStartDate = order.DeliveryDate,
+				x => x.RestrictOldOrderEndDate = order.DeliveryDate
+			);
+			MainClass.MainWin.TdiMain.AddTab(dlg);
+		}
+
 
 		void MenuItemRouteListClosingDlg_Activated (object sender, EventArgs e)
 		{

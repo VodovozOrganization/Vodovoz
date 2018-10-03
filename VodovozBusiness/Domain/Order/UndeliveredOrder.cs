@@ -12,7 +12,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories;
 using Vodovoz.Repository;
-using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -33,8 +32,8 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Статус недовоза")]
 		public virtual UndeliveryStatus UndeliveryStatus {
-			get { return undeliveryStatus; }
-			set { SetField(ref undeliveryStatus, value, () => UndeliveryStatus); }
+			get => undeliveryStatus;
+			protected set { SetField(ref undeliveryStatus, value, () => UndeliveryStatus); }
 		}
 
 		Order oldOrder;
@@ -54,22 +53,6 @@ namespace Vodovoz.Domain.Orders
 				if(SetField(ref newOrder, value, () => NewOrder))
 					NewDeliverySchedule = value.DeliverySchedule;
 			}
-		}
-
-		GuiltyTypes? guiltySide;
-
-		[Display(Name = "Виновная сторона")]
-		public virtual GuiltyTypes? GuiltySide {
-			get { return guiltySide; }
-			set { SetField(ref guiltySide, value, () => GuiltySide); }
-		}
-
-		Subdivision guiltyDepartment;
-
-		[Display(Name = "Виновный отдел ВВ")]
-		public virtual Subdivision GuiltyDepartment {
-			get { return guiltyDepartment; }
-			set { SetField(ref guiltyDepartment, value, () => GuiltyDepartment); }
 		}
 
 		DriverCallType driverCallType;
@@ -169,6 +152,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref oldOrderStatus, value, () => OldOrderStatus); }
 		}
 
+		Subdivision inProcessAtDepartment;
+
+		[Display(Name = "В работе у отдела")]
+		public virtual Subdivision InProcessAtDepartment {
+			get { return inProcessAtDepartment; }
+			set { SetField(ref inProcessAtDepartment, value, () => InProcessAtDepartment); }
+		}
+
 		IList<Fine> fines = new List<Fine>();
 		[Display(Name = "Штрафы")]
 		public virtual IList<Fine> Fines {
@@ -187,26 +178,46 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		IList<GuiltyInUndelivery> guiltyInUndelivery = new List<GuiltyInUndelivery>();
+		[Display(Name = "Виновные в недовозе")]
+		public virtual IList<GuiltyInUndelivery> GuiltyInUndelivery {
+			get { return guiltyInUndelivery; }
+			set { SetField(ref guiltyInUndelivery, value, () => GuiltyInUndelivery); }
+		}
+
+		GenericObservableList<GuiltyInUndelivery> observableGuilty;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<GuiltyInUndelivery> ObservableGuilty {
+			get {
+				if(observableGuilty == null) {
+					observableGuilty = new GenericObservableList<GuiltyInUndelivery>(guiltyInUndelivery);
+				}
+				return observableGuilty;
+			}
+		}
+
+		UndeliveryStatus? InitialStatus { get; set; } = null;
+
 		#endregion
 
 		#region Вычисляемые свойства
 
 		public virtual string Title => String.Format("Недовоз №{0} от {1:d}", Id, TimeOfCreation);
 
-		public virtual IList<Employee> UndeliveredOrderDrivers {
-			get {
-				var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(UoW, OldOrder);
-				//UndeliveredOrderDrivers.Add(routeListItem.RouteList.Driver);
-
-				//FIX добавить водителей, если были переносы заказа
-
-				return UndeliveredOrderDrivers;
-			}
-		}
-
 		#endregion
 
 		#region Методы
+
+		/// <summary>
+		/// Смена статуса недовоза
+		/// </summary>
+		/// <param name="status">Status.</param>
+		public virtual void SetUndeliveryStatus(UndeliveryStatus status)
+		{
+			InitialStatus = UndeliveryStatus;
+			UndeliveryStatus = status;
+			AddAutoComment(CommentedFields.Reason);
+		}
 
 		public virtual IList<Employee> GetDrivers()
 		{
@@ -224,6 +235,37 @@ namespace Vodovoz.Domain.Orders
 				sb.AppendLine(comment.GetMarkedUpComment(cnt++ % 2 == 0 ? "red" : "blue"));
 			}
 			return sb.ToString();
+		}
+
+		public virtual void Close(){
+			SetUndeliveryStatus(UndeliveryStatus.Closed);
+			LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			LastEditedTime = DateTime.Now;
+		}
+
+		/// <summary>
+		/// Добавление автокомментариев к полям
+		/// </summary>
+		/// <param name="field">Комментируемое поле</param>
+		void AddAutoComment(CommentedFields field)
+		{
+			string text = String.Empty;
+			switch(field) {
+				case CommentedFields.Reason:
+					if(InitialStatus != null && InitialStatus != UndeliveryStatus && Id > 0)
+						text = String.Format(
+							"сменил(а) статус недовоза\nс \"{0}\" на \"{1}\"",
+							InitialStatus.GetEnumTitle(),
+							UndeliveryStatus.GetEnumTitle()
+						);
+					break;
+				default:
+					break;
+			}
+			if(String.IsNullOrEmpty(text))
+				return;
+
+			AddCommentToTheField(UoW, field, text);
 		}
 
 		/// <summary>
@@ -245,7 +287,11 @@ namespace Vodovoz.Domain.Orders
 			uow.Save(comment);
 		}
 
-		public virtual string GetUndeliveryInfo()
+		/// <summary>
+		/// Сбор различной информации о недоставленном заказе
+		/// </summary>
+		/// <returns>Строка</returns>
+		public virtual string GetOldOrderInfo()
 		{
 			StringBuilder info = new StringBuilder("\n").AppendLine(String.Format("<b>Автор недовоза:</b> {0}", Author.ShortName));
 			if(oldOrder != null) {
@@ -292,6 +338,33 @@ namespace Vodovoz.Domain.Orders
 			return info.ToString();
 		}
 
+		/// <summary>
+		/// Получение получение полей недовоза в виде строки
+		/// </summary>
+		/// <returns>Строка</returns>
+		public virtual string GetUndeliveryInfo()
+		{
+			StringBuilder info = new StringBuilder("\n");
+			if(InProcessAtDepartment != null)
+				info.AppendLine(String.Format("<i>В работе у отдела:</i> {0}", InProcessAtDepartment.Name));
+			if(ObservableGuilty.Any()) {
+				info.AppendLine("<i>Виновные:</i> ");
+				ObservableGuilty.ForEach(g => info.AppendLine(String.Format("\t{0}", g.ToString())));
+			}
+			var routeLists = OrderRepository.GetAllRLForOrder(UoW, OldOrder);
+			if(routeLists.Any()) {
+				info.AppendLine(String.Format("<i>Место:</i> {0}", DriverCallType.GetEnumTitle()));
+				if(DriverCallTime.HasValue)
+					info.AppendLine(String.Format("<i>Время звонка водителя:</i> {0}", DriverCallTime.Value.ToString("HH:mm")));
+			}
+			if(DriverCallTime.HasValue)
+				info.AppendLine(String.Format("<i>Время звонка клиенту:</i> {0}", DispatcherCallTime.Value.ToString("HH:mm")));
+			if(NewOrder != null)
+				info.AppendLine(String.Format("<i>Перенос:</i> {0}, {1}", NewOrder.Title, NewOrder.DeliverySchedule?.DeliveryTime ?? "инт-л не выбран"));
+			info.AppendLine(String.Format("<i>Причина:</i> {0}", Reason));
+			return info.ToString();
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
@@ -316,10 +389,16 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(u => u.Reason) }
 				);
 
-			if(GuiltySide == null)
+			if(!ObservableGuilty.Any())
 				yield return new ValidationResult(
 					"Необходимо выбрать виновного",
-					new[] { this.GetPropertyName(u => u.GuiltySide) }
+					new[] { this.GetPropertyName(u => u.ObservableGuilty) }
+				);
+
+			if(InProcessAtDepartment == null)
+				yield return new ValidationResult(
+					"Необходимо заполнить поле \"В работе у отдела\"",
+					new[] { this.GetPropertyName(u => u.InProcessAtDepartment) }
 				);
 		}
 
@@ -339,27 +418,6 @@ namespace Vodovoz.Domain.Orders
 	public class UndeliveredOrderUndeliveryStatusStringType : NHibernate.Type.EnumStringType
 	{
 		public UndeliveredOrderUndeliveryStatusStringType() : base(typeof(UndeliveryStatus))
-		{
-		}
-	}
-
-	public enum GuiltyTypes
-	{
-		[Display(Name = "Неизвестно")]
-		Unknown,
-		[Display(Name = "Клиент")]
-		Client,
-		[Display(Name = "Водитель")]
-		Driver,
-		[Display(Name = "Отдел ВВ")]
-		Department,
-		[Display(Name = "Нет (не недовоз)")]
-		None
-	}
-
-	public class UndeliveredOrderGuiltySideStringType : NHibernate.Type.EnumStringType
-	{
-		public UndeliveredOrderGuiltySideStringType() : base(typeof(GuiltyTypes))
 		{
 		}
 	}

@@ -833,6 +833,10 @@
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.UndeliveredOrdersPanelView.cs" />
     <Compile Include="Dialogs\UndeliveriesWithCommentsPrintDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveriesWithCommentsPrintDlg.cs" />
+    <Compile Include="ViewWidgets\UndeliveredOrderCommentsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.UndeliveredOrderCommentsView.cs" />
+    <Compile Include="ViewWidgets\GuiltyInUndeliveryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GuiltyInUndeliveryView.cs" />
     <Compile Include="ViewWidgets\SendDocumentByEmailView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SendDocumentByEmailView.cs" />
     <Compile Include="SidePanel\InfoViews\EmailsPanelView.cs" />
