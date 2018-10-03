@@ -50,6 +50,10 @@ namespace Vodovoz.ServiceDialogs.ExportTo1c
 						counterparty.Name
 					),
 					new XElement(
+						counterparty.GetPropertyName(x => x.Inn),
+						counterparty.Inn
+					),
+					new XElement(
 						counterparty.GetPropertyName(x => x.Phones),
 						counterparty.Phones
 					),
