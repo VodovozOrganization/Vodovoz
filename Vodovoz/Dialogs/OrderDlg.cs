@@ -498,6 +498,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			Entity.CheckAndSetOrderIsService();
 			var valid = new QSValidator<Order>(
 				Entity, new Dictionary<object, object>{
 					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
@@ -586,8 +587,9 @@ namespace Vodovoz
 			}
 		}
 
-		private bool AcceptOrder()
+		bool AcceptOrder()
 		{
+			Entity.CheckAndSetOrderIsService();
 			var valid = new QSValidator<Order>(
 				Entity, new Dictionary<object, object>{
 					{ "NewStatus", OrderStatus.Accepted },
@@ -600,38 +602,9 @@ namespace Vodovoz
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
 				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-				if(Entity.Contract == null) {
+				if(Entity.Contract == null)
 					Entity.CreateDefaultContract();
-				}
 			}
-
-			foreach(OrderItem item in Entity.ObservableOrderItems) {
-				if(item.Nomenclature.Category == NomenclatureCategory.equipment && item.Nomenclature.IsSerial) {
-					int[] alreadyAdded = Entity.OrderEquipments
-						.Where(orderEquipment => orderEquipment.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
-						.Where(orderEquipment => orderEquipment.Equipment != null)
-						.Select(orderEquipment => orderEquipment.Equipment.Id).ToArray();
-					int equipmentCount = Entity.OrderEquipments.Count(orderEquipment => orderEquipment?.Equipment?.Nomenclature?.Id == item.Nomenclature.Id);
-					int equipmentToAddCount = item.Count - equipmentCount;
-					var equipmentToAdd = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, item.Nomenclature, equipmentToAddCount, alreadyAdded);
-					for(int i = 0; i < equipmentToAddCount; i++) {
-						Entity.ObservableOrderEquipments.Add(new OrderEquipment {
-							Order = Entity,
-							Direction = Vodovoz.Domain.Orders.Direction.Deliver,
-							Equipment = equipmentToAdd[i],
-							OrderItem = item,
-							Reason = Reason.Sale
-						});
-					}
-					for(; equipmentCount > item.Count; equipmentCount--) {
-						Entity.ObservableOrderEquipments.Remove(
-							Entity.ObservableOrderEquipments.Where(orderEquipment => orderEquipment.Reason == Reason.Sale && orderEquipment.Equipment.Nomenclature.Id == item.Nomenclature.Id).First()
-						);
-					}
-				}
-			}
-
-			Entity.CheckAndSetOrderIsService();
 
 			if(Entity.OrderStatus == OrderStatus.NewOrder
 			   || Entity.OrderStatus == OrderStatus.WaitForPayment) {

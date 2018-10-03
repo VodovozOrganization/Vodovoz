@@ -807,7 +807,6 @@ namespace Vodovoz.Domain.Orders
 						new[] { this.GetPropertyName(o => o.OrderStatus) }
 					);
 				}
-
 			}
 
 			if(ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
@@ -2769,7 +2768,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void SaveEntity(IUnitOfWork uow)
 		{
-			CheckAndSetOrderIsService();
 			SetOrderCreationDate();
 			SetFirstOrder();
 			LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
