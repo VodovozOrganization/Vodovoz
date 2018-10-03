@@ -25,6 +25,9 @@ namespace Vodovoz.Reports
 			comboPart.ItemsEnum = typeof(ReportParts);
 			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (uow);
 			comboExpenseCategory.Sensitive = comboIncomeCategory.Sensitive = false;
+			var now = DateTime.Now;
+			dateStart.Date = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
+			dateEnd.Date = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
 
 			var filterCasher = new EmployeeFilter(uow);
 			filterCasher.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
