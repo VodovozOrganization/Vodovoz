@@ -1581,54 +1581,74 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    route_lists.date AS date,
-    route_lists.id AS route_list_number,
-    IFNULL(SUM(bottles_movement_operations.returned),0) AS empty_bottles,
-	IFNULL(
-		case when fixed_driver_wage &gt; 0
-			then (
-					SELECT SUM(count)
-					FROM  route_list_addresses
-					left join route_lists rl on rl.id = route_list_id
-					left join order_items oi on oi.order_id = route_list_addresses.order_id
-					where rl.id = route_lists.id
-                )
-			else SUM(bottles_movement_operations.delivered)
-            end
-		,0
-    ) AS full_bottles,
-    IFNULL(case when fixed_driver_wage &gt; 0 then fixed_driver_wage
-                  else SUM(Adresses.driver_wage) + SUM(Adresses.driver_wage_surcharge)
-    end ,0) AS wage,
-    IFNULL(COUNT(IF(Adresses.status = 'Overdue'
-	OR Adresses.status = 'Canceled', NULL, Adresses.id)),0) AS addresses_count
+	route_lists.date AS date,
+	route_lists.id AS route_list_number,
+	IFNULL(SUM(bottles_movement_operations.returned),
+			0) AS empty_bottles,
+	IFNULL(CASE
+				WHEN
+					fixed_driver_wage &gt; 0
+				THEN
+					(SELECT 
+							SUM(count)
+						FROM
+							route_list_addresses
+								LEFT JOIN
+							route_lists rl ON rl.id = route_list_id
+								LEFT JOIN
+							order_items oi ON oi.order_id = route_list_addresses.order_id
+						WHERE
+							rl.id = route_lists.id)
+				ELSE SUM(bottles_movement_operations.delivered)
+			END,
+			0) AS full_bottles,
+	IFNULL(CASE
+				WHEN 
+					IFNULL(
+						COUNT(
+							IF(
+								Adresses.status = 'Overdue' OR Adresses.status = 'Canceled',
+								NULL,
+								Adresses.id
+							)
+						),
+						0
+					) = 0 THEN 0
+				WHEN fixed_driver_wage &gt; 0 THEN fixed_driver_wage
+				ELSE SUM(Adresses.driver_wage) + SUM(Adresses.driver_wage_surcharge)
+			END,
+			0) AS wage,
+	IFNULL(COUNT(IF(Adresses.status = 'Overdue'
+					OR Adresses.status = 'Canceled',
+				NULL,
+				Adresses.id)),
+			0) AS addresses_count
 FROM
-    route_lists
+	route_lists
 		LEFT JOIN
-			#Для сравнения водителя из МЛ из которого был перенесен адрес
-			(SELECT 
-				internal_adresses.*,
-                trans_internal_adresses.id as trans_address_id,
-				trans_internal_adresses.route_list_id as trans_address_rl_id,
-                trans_internal_adresses.status as trans_status,
-				internal_trans_route_lists.id as trans_rl_id,
-				internal_trans_route_lists.driver_id as trans_rl_driver
-			FROM 
-				route_list_addresses as internal_adresses
-				LEFT JOIN route_list_addresses as trans_internal_adresses ON internal_adresses.transfered_to_id = trans_internal_adresses.id
-				LEFT JOIN route_lists as internal_trans_route_lists ON trans_internal_adresses.route_list_id = internal_trans_route_lists.id
-			) as Adresses 
-		ON 	Adresses.route_list_id = route_lists.id AND (Adresses.trans_rl_driver = route_lists.driver_id OR Adresses.trans_rl_driver IS NULL)
-        LEFT JOIN
-    bottles_movement_operations ON bottles_movement_operations.order_id = Adresses.order_id
-		
+	#Для сравнения водителя из МЛ из которого был перенесен адрес
+	(SELECT 
+		internal_adresses.*,
+			trans_internal_adresses.id AS trans_address_id,
+			trans_internal_adresses.route_list_id AS trans_address_rl_id,
+			trans_internal_adresses.status AS trans_status,
+			internal_trans_route_lists.id AS trans_rl_id,
+			internal_trans_route_lists.driver_id AS trans_rl_driver
+	FROM
+		route_list_addresses AS internal_adresses
+	LEFT JOIN route_list_addresses AS trans_internal_adresses ON internal_adresses.transfered_to_id = trans_internal_adresses.id
+	LEFT JOIN route_lists AS internal_trans_route_lists ON trans_internal_adresses.route_list_id = internal_trans_route_lists.id) AS Adresses ON Adresses.route_list_id = route_lists.id
+		AND (Adresses.trans_rl_driver = route_lists.driver_id
+		OR Adresses.trans_rl_driver IS NULL)
+		LEFT JOIN
+	bottles_movement_operations ON bottles_movement_operations.order_id = Adresses.order_id
 WHERE
-    route_lists.driver_id = @driver_id
-	AND date &gt;= @start_date
-	AND date &lt;= @end_date
-	AND (route_lists.status = 'NotDelivered'
-	OR route_lists.status = 'MileageCheck'
-	OR route_lists.status = 'Closed')
+	route_lists.driver_id = @driver_id
+		AND date &gt;= @start_date
+		AND date &lt;= @end_date
+		AND (route_lists.status = 'NotDelivered'
+		OR route_lists.status = 'MileageCheck'
+		OR route_lists.status = 'Closed')
 GROUP BY route_lists.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="driver_id">
