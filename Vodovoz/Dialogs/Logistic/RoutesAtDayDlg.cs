@@ -309,7 +309,7 @@ namespace Vodovoz
 											.Where(rl => rl.Date.Date == ydateForRoutes.Date.Date)
 											.ToList<RouteList>();
 
-			bool foundRL = routeLists?.Count > 0;
+			bool foundRL = routeLists != null && routeLists.Any();
 
 			if(foundRL) {
 				bool answer;
@@ -372,7 +372,7 @@ namespace Vodovoz
 		{
 			var selectedBottle = selected.Select(x => x.Tag).Cast<Order>().Sum(o => o.TotalDeliveredBottles);
 			labelSelected.LabelProp = String.Format("Выбрано адресов: {0}\nБутылей: {1}", selected.Count, selectedBottle);
-			menuAddToRL.Sensitive = selected.Count > 0 && routesAtDay.Count > 0 && !checkShowCompleted.Active;
+			menuAddToRL.Sensitive = selected.Any() && routesAtDay.Any() && !checkShowCompleted.Active;
 		}
 
 		Pixbuf vodovozCarIcon = Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
@@ -622,10 +622,10 @@ namespace Vodovoz
 
 			var withoutTime = ordersQuery.Where(x => x.DeliverySchedule == null).ToList();
 			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.СoordinatesExist).ToList();
-			if(withoutTime.Count > 0 || withoutLocation.Count > 0)
+			if(withoutTime.Any() || withoutLocation.Any())
 				MessageDialogWorks.RunWarningDialog("Не все заказы были загружены!" +
-													(withoutTime.Count > 0 ? ("\n* У заказов отсутсвует время доставки: " + String.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +
-													(withoutLocation.Count > 0 ? ("\n* У заказов отсутствуют координаты: " + String.Join(", ", withoutLocation.Select(x => x.Id.ToString()))) : "")
+				                                    (withoutTime.Any() ? ("\n* У заказов отсутсвует время доставки: " + String.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +
+				                                    (withoutLocation.Any() ? ("\n* У заказов отсутствуют координаты: " + String.Join(", ", withoutLocation.Select(x => x.Id.ToString()))) : "")
 												   );
 
 			ordersAtDay = ordersQuery.Where(x => x.DeliverySchedule != null)
@@ -633,9 +633,15 @@ namespace Vodovoz
 									 .Where(x => x.DeliveryPoint != null)
 									 .ToList();
 
-			var outLogisticAreas = ordersAtDay.Where(x => !logisticanDistricts.Any(a => a.Geometry.Contains(x.DeliveryPoint.NetTopologyPoint))).ToList();
-			if(outLogisticAreas.Count > 0)
-				MessageDialogWorks.RunWarningDialog("Обратите внимания координаты точек доставки для следущие заказов, не попадают не в один логистический район: "
+			var outLogisticAreas = ordersAtDay
+				.Where(
+					x => !logisticanDistricts.Any(
+						a => x.DeliveryPoint.NetTopologyPoint != null && a.Geometry.Contains(x.DeliveryPoint.NetTopologyPoint)
+					)
+				)
+				.ToList();
+			if(outLogisticAreas.Any())
+				MessageDialogWorks.RunWarningDialog("Обратите внимание, координаты точек доставки для следущих заказов не попадают ни в один логистический район: "
 													+ String.Join(", ", outLogisticAreas.Select(x => x.Id.ToString())));
 
 			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
@@ -1008,7 +1014,7 @@ namespace Vodovoz
 					warnings.Add($"Маршрут {route.Id} не был перестроен.");
 				}
 			}
-			if(warnings.Count > 0)
+			if(warnings.Any())
 				MessageDialogWorks.RunWarningDialog(String.Join("\n", warnings));
 		}
 
@@ -1190,7 +1196,7 @@ namespace Vodovoz
 			optimizer.DebugBuffer = textOrdersInfo.Buffer;
 			optimizer.CreateRoutes();
 
-			if(optimizer.ProposedRoutes.Count > 0) {
+			if(optimizer.ProposedRoutes.Any()) {
 				//Удаляем корректно адреса из уже имеющихся МЛ. Чтобы они встали в правильный статус.
 				foreach(var route in routesAtDay.Where(x => x.Id > 0)) {
 					foreach(var odrer in route.Addresses.ToList()) {
@@ -1295,7 +1301,7 @@ namespace Vodovoz
 
 		private void UpdateWarningButton()
 		{
-			buttonWarnings.Visible = optimizer.WarningMessages.Count > 0;
+			buttonWarnings.Visible = optimizer.WarningMessages.Any();
 			buttonWarnings.Label = optimizer.WarningMessages.Count.ToString();
 		}
 	}
