@@ -34,15 +34,17 @@ namespace Vodovoz.ViewWidgets
 			var colorBlack = new Gdk.Color(0, 0, 0);
 			var colorGrey = new Gdk.Color(96, 96, 96);
 			var colorWhite = new Gdk.Color(255, 255, 255);
+			var hideEnums = !driverCanBeGuilty ? new Enum[] { GuiltyTypes.Driver } : new Enum[] { };
+			var allDepartments = SubdivisionsRepository.GetAllDepartments(uow);
 			treeViewGuilty.ColumnsConfig = ColumnsConfigFactory.Create<GuiltyInUndelivery>()
 				.AddColumn("Сторона")
 					.HeaderAlignment(0.5f)
-					.AddEnumRenderer(n => n.GuiltySide, true, !driverCanBeGuilty ? new Enum[] { GuiltyTypes.Driver } : new Enum[] { }).Editing()
+					.AddEnumRenderer(n => n.GuiltySide, true, hideEnums).Editing()
 				.AddColumn("Отдел ВВ")
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(n => n.GuiltyDepartment)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(SubdivisionsRepository.GetAllDepartments(uow))
+					.FillItems(allDepartments)
 					.AddSetter(
 						(c, n) => {
 							c.Editable = n.GuiltySide == GuiltyTypes.Department;
@@ -53,8 +55,7 @@ namespace Vodovoz.ViewWidgets
 								c.Style = Pango.Style.Italic;
 								c.Text = "(Нажмите для выбора отдела)";
 								c.BackgroundGdk = colorWhite;
-							}
-							else{
+							} else {
 								c.ForegroundGdk = colorBlack;
 								c.Style = Pango.Style.Normal;
 								c.Background = null;

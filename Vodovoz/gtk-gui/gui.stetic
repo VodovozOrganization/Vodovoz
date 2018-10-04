@@ -59025,7 +59025,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.SidePanel.InfoViews.UndeliveredOrdersPanelView" design-size="166 191">
+  <widget class="Gtk.Bin" id="Vodovoz.SidePanel.InfoViews.UndeliveredOrdersPanelView" design-size="166 555">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -59050,12 +59050,12 @@ not tooltip</property>
         <child>
           <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
             <property name="MemberName" />
-            <property name="VscrollbarPolicy">Never</property>
             <property name="HscrollbarPolicy">Never</property>
             <property name="ShadowType">In</property>
             <child>
               <widget class="Gamma.GtkWidgets.yTreeView" id="yTreeView">
                 <property name="MemberName" />
+                <property name="HeightRequest">500</property>
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
               </widget>

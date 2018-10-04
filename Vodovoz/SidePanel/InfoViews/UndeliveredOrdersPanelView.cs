@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gamma.Binding;
 using Gamma.GtkWidgets;
+using Gtk;
 using Vodovoz.Repositories;
 using Vodovoz.SidePanel.InfoProviders;
 
@@ -14,19 +14,23 @@ namespace Vodovoz.SidePanel.InfoViews
 		public UndeliveredOrdersPanelView()
 		{
 			this.Build();
-			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<UndeliveredOrderCountNode>()
+			Gdk.Color wh = new Gdk.Color(255, 255, 255);
+			Gdk.Color gr = new Gdk.Color(223, 223, 223);
+			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
 				.AddColumn("Виновный")
-					.AddTextRenderer(n => n.GuiltySide)
+					.AddTextRenderer(n => n[0].ToString())
 					.WrapWidth(150).WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Кол-во")
-					.AddTextRenderer(n => n.CountStr)
+					.AddTextRenderer(n => n[1].ToString())
 					.WrapWidth(50).WrapMode(Pango.WrapMode.WordChar)
+				.RowCells()
+					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = (int)n[2] % 2 == 0 ? wh : gr)
 				.Finish();
 		}
 
 		DateTime StartDate { get; set; }
 		DateTime EndDate { get; set; }
-		List<UndeliveredOrderCountNode> guilties = new List<UndeliveredOrderCountNode>();
+		List<object[]> guilties = new List<object[]>();
 
 		#region IPanelView implementation
 
@@ -49,18 +53,8 @@ namespace Vodovoz.SidePanel.InfoViews
 				EndDate.ToString("dd.MM.yyyy")
 			);
 
-			guilties = UndeliveredOrdersRepository.GetListOfUndeliveriesCountForDates(InfoProvider.UoW, StartDate, EndDate).ToList();
-
-			if(guilties.Any(g => g.Type == Domain.Orders.GuiltyTypes.Department)) {
-				var guiltiesDpts = UndeliveredOrdersRepository.GetListOfUndeliveriesCountOnDptForDates(InfoProvider.UoW, StartDate, EndDate)
-				                                              .ToList<UndeliveredOrderCountNode>();
-				var parent = guilties.FirstOrDefault(g => g.Type == Domain.Orders.GuiltyTypes.Department);
-				parent.Children = guiltiesDpts;
-				guiltiesDpts.ForEach(d => d.Parent = parent);
-				yTreeView.YTreeModel = new RecursiveTreeModel<UndeliveredOrderCountNode>(guilties, x => x.Parent, x => x.Children);
-				yTreeView.ExpandAll();
-			} else
-				yTreeView.SetItemsSource<UndeliveredOrderCountNode>(guilties);
+			guilties = new List<object[]>(UndeliveredOrdersRepository.GetGuiltyAndCountForDates(InfoProvider.UoW, StartDate, EndDate));
+			yTreeView.ItemsDataSource = guilties;
 		}
 
 		#endregion

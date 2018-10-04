@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Repositories
 {
@@ -26,11 +30,11 @@ namespace Vodovoz.Repositories
 					 .Where(u => orderAlias.DeliveryDate <= end);
 
 			var result = query
-				.Left.JoinAlias(()=>undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
+				.Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
 				.SelectList(list => list
-				            .SelectGroup(() => guiltyInUndeliveryAlias.GuiltySide)
-				            .SelectCount(() => undeliveredOrderAlias.Id)
-				           )
+							.SelectGroup(() => guiltyInUndeliveryAlias.GuiltySide)
+							.SelectCount(() => undeliveredOrderAlias.Id)
+						   )
 				.List<object[]>();
 
 			return result.ToDictionary(x => (GuiltyTypes)x[0], x => (int)x[1]);
@@ -44,7 +48,7 @@ namespace Vodovoz.Repositories
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
 
 			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
-			               .Left.JoinAlias(u => u.OldOrder, () => orderAlias);
+						   .Left.JoinAlias(u => u.OldOrder, () => orderAlias);
 
 			if(start != null && end != null)
 				query.Where(() => orderAlias.DeliveryDate >= start)
@@ -53,11 +57,11 @@ namespace Vodovoz.Repositories
 			var result = query
 				.Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
 				.SelectList(list => list
-				            .SelectGroup(() => guiltyInUndeliveryAlias.GuiltySide).WithAlias(() => resultAlias.Type)
+							.SelectGroup(() => guiltyInUndeliveryAlias.GuiltySide).WithAlias(() => resultAlias.Type)
 							.SelectCount(() => undeliveredOrderAlias.Id).WithAlias(() => resultAlias.Count)
-				           )
+						   )
 				.TransformUsing(Transformers.AliasToBean<UndeliveredOrderCountNode>())
-			    .List<UndeliveredOrderCountNode>();
+				.List<UndeliveredOrderCountNode>();
 
 			return result;
 		}
@@ -71,22 +75,22 @@ namespace Vodovoz.Repositories
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
 
 			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
-			               .Where(() => guiltyInUndeliveryAlias.GuiltySide == GuiltyTypes.Department)
+						   .Where(() => guiltyInUndeliveryAlias.GuiltySide == GuiltyTypes.Department)
 						   .Left.JoinAlias(u => u.OldOrder, () => orderAlias)
-			               .Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias)
-			               .Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias);
+						   .Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias)
+						   .Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias);
 
 			if(start != null && end != null)
 				query.Where(() => orderAlias.DeliveryDate >= start)
 					 .Where(u => orderAlias.DeliveryDate <= end);
 
 			var result = query.SelectList(list => list
-			                              .SelectGroup(() => subdivisionAlias.Id).WithAlias(() => resultAlias.SubdivisionId)
-			                              .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.Subdivision)
+										  .SelectGroup(() => subdivisionAlias.Id).WithAlias(() => resultAlias.SubdivisionId)
+										  .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.Subdivision)
 										  .SelectCount(() => undeliveredOrderAlias.Id).WithAlias(() => resultAlias.Count)
 										 )
-			                  .TransformUsing(Transformers.AliasToBean<UndeliveredOrderCountNode>())
-			                  .List<UndeliveredOrderCountNode>();
+							  .TransformUsing(Transformers.AliasToBean<UndeliveredOrderCountNode>())
+							  .List<UndeliveredOrderCountNode>();
 
 			return result;
 		}
@@ -97,10 +101,11 @@ namespace Vodovoz.Repositories
 			return GetListOfUndeliveriesForOrder(uow, order);
 		}
 
-		public static IList<UndeliveredOrder> GetListOfUndeliveriesForOrder(IUnitOfWork uow, Order order){
+		public static IList<UndeliveredOrder> GetListOfUndeliveriesForOrder(IUnitOfWork uow, Order order)
+		{
 			var query = uow.Session.QueryOver<UndeliveredOrder>()
-			               .Where(u => u.OldOrder == order)
-			               .List<UndeliveredOrder>();
+						   .Where(u => u.OldOrder == order)
+						   .List<UndeliveredOrder>();
 			return query;
 		}
 
@@ -116,6 +121,44 @@ namespace Vodovoz.Repositories
 						   .Left.JoinQueryOver(() => routeListItemAlias.Order, () => orderAlias);
 			var q = query.List().Select(i => i.Order.Id);
 			return q.ToList();
+		}
+
+		public static IList<object[]> GetGuiltyAndCountForDates(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
+		{
+			UndeliveredOrder undeliveredOrderAlias = null;
+			Subdivision subdivisionAlias = null;
+			Order orderAlias = null;
+			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
+
+			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
+							  .Left.JoinAlias(u => u.OldOrder, () => orderAlias)
+							  .Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
+							  .Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias);
+
+			if(start != null && end != null)
+				query.Where(() => orderAlias.DeliveryDate >= start)
+				        .Where(u => orderAlias.DeliveryDate <= end);
+			int i = 0;
+			var result = query.SelectList(list => list
+										  .SelectGroup(u => u.Id)
+										  .Select(
+											  Projections.SqlFunction(
+												  new SQLFunctionTemplate(
+													  NHibernateUtil.String,
+													  "GROUP_CONCAT(CASE ?1 WHEN 'Department' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') WHEN 'Client' THEN 'Клиент' WHEN 'Driver' THEN 'Водитель' WHEN 'ServiceMan' THEN 'Мастер СЦ' WHEN 'None' THEN 'Нет (не недовоз)' WHEN 'Unknown' THEN 'Неизвестно' ELSE ?1 END ORDER BY ?1 ASC SEPARATOR '\n')"
+													 ),
+												  NHibernateUtil.String,
+												  Projections.Property(() => guiltyInUndeliveryAlias.GuiltySide),
+												  Projections.Property(() => subdivisionAlias.Name)
+												 )
+											 )
+										 )
+							  .List<object[]>()
+							  .GroupBy(x => x[1])
+							  .Select(r => new[] { r.Key, r.Count(), i++ })
+			                  .ToList();
+
+			return result;
 		}
 	}
 

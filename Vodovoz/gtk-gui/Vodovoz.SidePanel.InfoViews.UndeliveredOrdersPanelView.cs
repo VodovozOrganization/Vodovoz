@@ -36,11 +36,11 @@ namespace Vodovoz.SidePanel.InfoViews
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.VscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.yTreeView = new global::Gamma.GtkWidgets.yTreeView();
+			this.yTreeView.HeightRequest = 500;
 			this.yTreeView.CanFocus = true;
 			this.yTreeView.Name = "yTreeView";
 			this.GtkScrolledWindow.Add(this.yTreeView);
