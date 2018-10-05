@@ -112,7 +112,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -157,7 +157,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -649,10 +649,10 @@ WHERE
           <TableColumn>
             <Width>52.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>59.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>47.3pt</Width>
           </TableColumn>
           <TableColumn>
@@ -749,7 +749,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
                       <Value>Сумма без 
@@ -766,7 +766,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
                       <Value>Скидка</Value>
@@ -894,7 +894,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
                       <Value>=Fields!sum.Value</Value>
@@ -909,7 +909,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
                       <Value>=Fields!discount_money.Value</Value>
@@ -1103,14 +1103,14 @@ WHERE
           </TableRows>
         </Footer>
         <Left>31.0pt</Left>
-        <Top>316.1pt</Top>
+        <Top>317.7pt</Top>
         <ZIndex>1</ZIndex>
       </Table>
       <List Name="List3">
         <Height>122.72pt</Height>
         <Width>535.30pt</Width>
-        <Left>40.0pt</Left>
-        <Top>406.8pt</Top>
+        <Left>31.2pt</Left>
+        <Top>424.4pt</Top>
         <ReportItems>
           <Textbox Name="Textbox24">
             <Height>16.50pt</Height>
@@ -1118,7 +1118,7 @@ WHERE
             <Value>Руководитель________________</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>44.5pt</Top>
+            <Top>42.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1137,7 +1137,7 @@ WHERE
 + '.)'</Value>
             <ZIndex>1</ZIndex>
             <Left>156.8pt</Left>
-            <Top>44.5pt</Top>
+            <Top>42.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1157,7 +1157,7 @@ WHERE
 + '.)'</Value>
             <ZIndex>2</ZIndex>
             <Left>407.8pt</Left>
-            <Top>45.3pt</Top>
+            <Top>43.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1172,7 +1172,7 @@ WHERE
             <Value>Бухгалтер______________</Value>
             <ZIndex>2</ZIndex>
             <Left>283.4pt</Left>
-            <Top>43.8pt</Top>
+            <Top>42.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1185,7 +1185,7 @@ WHERE
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
             <Left>72.9pt</Left>
-            <Top>12.1pt</Top>
+            <Top>10.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1203,7 +1203,7 @@ WHERE
             <Height>102.39pt</Height>
             <Width>112.93pt</Width>
             <Left>330.7pt</Left>
-            <Top>0.8pt</Top>
+            <Top>1.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1221,7 +1221,7 @@ WHERE
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
             <Left>337.6pt</Left>
-            <Top>27.9pt</Top>
+            <Top>26.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1249,7 +1249,7 @@ WHERE
         <Value>Уважаемый клиент! Обращаем Ваше внимание, что:</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>516.0pt</Top>
+        <Top>523.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1268,7 +1268,7 @@ WHERE
 "Санитарную обработку и дезинфекцию кулера",</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>538.2pt</Top>
+        <Top>545.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1284,7 +1284,7 @@ WHERE
         <Value>даже для тех кто не является нашими клиентами, по той же стоимости.</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>560.4pt</Top>
+        <Top>567.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1301,7 +1301,7 @@ WHERE
 микрочастицы, влияющие на качество и вкус питьевой воды.</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>586.8pt</Top>
+        <Top>594.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1318,7 +1318,7 @@ WHERE
 для Вашего удобства мы предоставляем дежурный кулер совершенно бесплатно.</Value>
         <ZIndex>1</ZIndex>
         <Left>0.5pt</Left>
-        <Top>634.8pt</Top>
+        <Top>642.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1334,7 +1334,7 @@ WHERE
 номер и дату составления счета. СПАСИБО.</Value>
         <ZIndex>1</ZIndex>
         <Left>136.1pt</Left>
-        <Top>685.5pt</Top>
+        <Top>692.7pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
