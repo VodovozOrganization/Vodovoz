@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 
@@ -94,17 +95,31 @@ namespace Vodovoz.Domain.StoredEmails
 		}
 
 		private string recipientName;
-		[Display(Name = "Получатель")]
+		[Display(Name = "Имя получателя")]
 		public virtual string RecipientName {
 			get { return recipientName; }
 			set { SetField(ref recipientName, value, () => RecipientName); }
 		}
 
 		private string recipientAddress;
-		[Display(Name = "Получатель")]
+		[Display(Name = "Почта получателя")]
 		public virtual string RecipientAddress {
 			get { return recipientAddress; }
 			set { SetField(ref recipientAddress, value, () => RecipientAddress); }
+		}
+
+		private bool manualSending;
+		[Display(Name = "Отправлено вручную")]
+		public virtual bool ManualSending {
+			get { return manualSending; }
+			set { SetField(ref manualSending, value, () => ManualSending); }
+		}
+
+		private Employee author;
+		[Display(Name = "Автор")]
+		public virtual Employee Author {
+			get { return author; }
+			set { SetField(ref author, value, () => Author); }
 		}
 
 		public virtual void AddDescription(string description)

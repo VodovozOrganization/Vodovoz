@@ -2434,15 +2434,21 @@ namespace Vodovoz
 			email.Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title);
 			email.Text = billTemplate.Text;
 			email.HtmlText = billTemplate.TextHtml;
-			email.Recipient = new EmailContact(Entity.Client.Name, emailAddressForBill.Address);
-			email.Sender = new EmailContact(organization.Name, MainSupport.BaseParameters.All["email_for_email_delivery"]);
+			email.Recipient = new EmailContact("", emailAddressForBill.Address);
+			email.Sender = new EmailContact("vodovoz-spb.ru", MainSupport.BaseParameters.All["email_for_email_delivery"]);
 			email.Order = Entity.Id;
 			email.OrderDocumentType = OrderDocumentType.Bill;
 			foreach(var item in billTemplate.Attachments) {
 				email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
 			}
 			using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
-				email.AddAttachment(billDocument.Name + ".pdf", stream);
+				string billDate = billDocument.DocumentDate.HasValue ? "_" + billDocument.DocumentDate.Value.ToString("ddMMyyyy") : "";
+				email.AddAttachment($"Bill_{billDocument.Order.Id}{billDate}.pdf", stream);
+			}
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				var employee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+				email.AuthorId = employee != null ? employee.Id : 0;
+				email.ManualSending = true;
 			}
 			IEmailService service = EmailServiceSetting.GetEmailService();
 			if(service == null) {

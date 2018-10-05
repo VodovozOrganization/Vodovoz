@@ -91,12 +91,6 @@ namespace Vodovoz.ViewWidgets
 				return;
 			}
 
-			var organization = OrganizationRepository.GetCashlessOrganization(UnitOfWorkFactory.CreateWithoutRoot());
-			if(organization == null) {
-				MessageDialogWorks.RunErrorDialog("В параметрах базы не определена организация для безналичного расчета");
-				return;
-			}
-
 			if(!MainSupport.BaseParameters.All.ContainsKey("email_for_email_delivery")) {
 				MessageDialogWorks.RunErrorDialog("В параметрах базы не определена почта для рассылки");
 				return;
@@ -107,10 +101,16 @@ namespace Vodovoz.ViewWidgets
 				return;
 			}
 
-			Email email = CreateDocumentEmail(client.Name, organization.Name, document);
+			Email email = CreateDocumentEmail("", "vodovoz-spb.ru", document);
 			if(email == null) {
 				MessageDialogWorks.RunErrorDialog("Для данного типа документа не реализовано формирование письма");
 				return;
+			}
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				var employee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+				email.AuthorId = employee != null ? employee.Id : 0;
+				email.ManualSending = true;
 			}
 
 			IEmailService service = EmailServiceSetting.GetEmailService();
@@ -152,7 +152,8 @@ namespace Vodovoz.ViewWidgets
 				email.Order = document.Order.Id;
 				email.OrderDocumentType = document.Type;
 				using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
-					email.AddAttachment(billDocument.Name + ".pdf", stream);				
+					string billDate = billDocument.DocumentDate.HasValue ? "_" + billDocument.DocumentDate.Value.ToString("ddMMyyyy") : "";
+					email.AddAttachment($"Bill_{billDocument.Order.Id}{billDate}.pdf", stream);				
 				}
 				return email;
 			}else {
