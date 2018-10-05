@@ -42,15 +42,15 @@ namespace Vodovoz.Repositories
 		{
 			// Время в минутах, по истечению которых будет возможна повторная отправка
 			double timeLimit = 10;
-
-			var uow = UnitOfWorkFactory.CreateWithoutRoot();
-			var lastSendTime = uow.Session.QueryOver<StoredEmail>()
-			                      .Where(x => x.RecipientAddress == address)
-			                      .Where(x => x.Order.Id == orderId)
-								  .Select(Projections.Max<StoredEmail>(y => y.SendDate))
-								  .SingleOrDefault<DateTime>();
-			if(lastSendTime != default(DateTime)){
-				return DateTime.Now.Subtract(lastSendTime).TotalMinutes > timeLimit;
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				var lastSendTime = uow.Session.QueryOver<StoredEmail>()
+									  .Where(x => x.RecipientAddress == address)
+									  .Where(x => x.Order.Id == orderId)
+									  .Select(Projections.Max<StoredEmail>(y => y.SendDate))
+									  .SingleOrDefault<DateTime>();
+				if(lastSendTime != default(DateTime)) {
+					return DateTime.Now.Subtract(lastSendTime).TotalMinutes > timeLimit;
+				}
 			}
 			return true;
 		}
