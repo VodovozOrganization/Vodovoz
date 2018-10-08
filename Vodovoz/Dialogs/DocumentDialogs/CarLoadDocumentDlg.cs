@@ -80,6 +80,7 @@ namespace Vodovoz
 			filter.SetAndRefilterAtOnce(x => x.RestrictStatus = RouteListStatus.InLoading);
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
+			yentryrefRouteList.CanEditReference = QSMain.User.Permissions["can_delete"];
 
 			enumPrint.ItemsEnum = typeof(CarLoadPrintableDocuments);
 

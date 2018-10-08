@@ -74,6 +74,7 @@ namespace Vodovoz
 			filterRL.OnlyStatuses = new RouteListStatus[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing };
 			yEntryRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRL);
 			yEntryRouteList.Binding.AddBinding(Entity, s => s.RouteListClosing, w => w.Subject).InitializeFromSource();
+			yEntryRouteList.CanEditReference = QSMain.User.Permissions["can_delete"];
 
 			yEntryRouteList.Hidden += YEntryRouteList_ValueOrVisibilityChanged;
 			yEntryRouteList.Shown += YEntryRouteList_ValueOrVisibilityChanged;

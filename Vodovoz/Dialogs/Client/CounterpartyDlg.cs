@@ -183,6 +183,7 @@ namespace Vodovoz
 
 			ReferenceRepresentation OrdersDialog = new ReferenceRepresentation(new ViewModel.OrdersVM(filter));
 			OrdersDialog.Mode = OrmReferenceMode.Normal;
+			OrdersDialog.Buttons(QSMain.User.Permissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit));
 
 			TabParent.AddTab(OrdersDialog, this, false);
 		}

@@ -70,7 +70,8 @@ namespace Vodovoz.Dialogs.Employees
 			yEForOrder.Changed += (sender, e) => {
 				FillForOrder();
 			};
-
+			yEForOrder.CanEditReference = QSMain.User.Permissions["can_delete"];
+			          
 			yentryOrganization.SubjectType = typeof(Organization);
 			yentryOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
 			yentryOrganization.Changed += (sender, e) => {

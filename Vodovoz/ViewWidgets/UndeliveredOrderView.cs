@@ -93,6 +93,7 @@ namespace Vodovoz.ViewWidgets
 			};
 			yEForUndeliveredOrder.RepresentationModel = new OrdersVM(filterOrders);
 			yEForUndeliveredOrder.Binding.AddBinding(undelivery, x => x.OldOrder, x => x.Subject).InitializeFromSource();
+			yEForUndeliveredOrder.CanEditReference = QSMain.User.Permissions["can_delete"];
 
 			yDateDriverCallTime.Binding.AddBinding(undelivery, t => t.DriverCallTime, w => w.DateOrNull).InitializeFromSource();
 			if(undelivery.Id <= 0)
@@ -305,7 +306,7 @@ namespace Vodovoz.ViewWidgets
 			);
 			ReferenceRepresentation dlg = new ReferenceRepresentation(new OrdersVM(filter));
 			dlg.Mode = OrmReferenceMode.Select;
-			dlg.ButtonMode = ReferenceButtonMode.None;
+			dlg.Buttons(QSMain.User.Permissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit));
 
 			MyTab.TabParent.AddTab(dlg, MyTab, false);
 

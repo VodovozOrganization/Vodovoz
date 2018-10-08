@@ -1,13 +1,13 @@
 ﻿using System;
-using QSTDI;
-using QSOrmProject;
-using Vodovoz.Domain.Logistic;
-using NHibernate.Criterion;
-using Vodovoz.Domain.Documents;
-using Gamma.ColumnConfig;
-using Gamma.GtkWidgets;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
+using QSOrmProject;
+using QSProjectsLib;
+using QSTDI;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
@@ -98,6 +98,7 @@ namespace Vodovoz
 			filterFrom.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteListFrom.RepresentationModel = new ViewModel.RouteListsVM(filterFrom);
 			yentryreferenceRouteListFrom.Changed += YentryreferenceRouteListFrom_Changed;
+			yentryreferenceRouteListFrom.CanEditReference = QSMain.User.Permissions["can_delete"];
 
 			ylistcomboReceptionTicketFrom.SetRenderTextFunc<CarUnloadDocument>(d => $"Талон разгрузки №{d.Id}. {d.Warehouse.Name}");
 			ylistcomboReceptionTicketFrom.ItemSelected += YlistcomboReceptionTicketFrom_ItemSelected;
@@ -109,6 +110,7 @@ namespace Vodovoz
 			filterTo.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteListTo.RepresentationModel = new ViewModel.RouteListsVM(filterTo);
 			yentryreferenceRouteListTo.Changed += YentryreferenceRouteListTo_Changed;
+			yentryreferenceRouteListTo.CanEditReference = QSMain.User.Permissions["can_delete"];
 
 			ylistcomboReceptionTicketTo.SetRenderTextFunc<CarUnloadDocument>(d => $"Талон разгрузки №{d.Id}. {d.Warehouse.Name}");
 			ylistcomboReceptionTicketTo.ItemSelected += YlistcomboReceptionTicketTo_ItemSelected;

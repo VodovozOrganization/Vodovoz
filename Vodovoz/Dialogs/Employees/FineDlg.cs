@@ -85,6 +85,7 @@ namespace Vodovoz
 			filterRouteList.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRouteList);
 			yentryreferenceRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
+			yentryreferenceRouteList.CanEditReference = QSMain.User.Permissions["can_delete"];
 
 			Entity.ObservableItems.ListChanged += ObservableItems_ListChanged;
 			var filterAuthor = new EmployeeFilter(UoW);
