@@ -108,9 +108,9 @@ namespace Vodovoz.Domain.StoredEmails
 			set { SetField(ref recipientAddress, value, () => RecipientAddress); }
 		}
 
-		private bool manualSending;
+		private bool? manualSending;
 		[Display(Name = "Отправлено вручную")]
-		public virtual bool ManualSending {
+		public virtual bool? ManualSending {
 			get { return manualSending; }
 			set { SetField(ref manualSending, value, () => ManualSending); }
 		}

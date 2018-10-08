@@ -2448,7 +2448,7 @@ namespace Vodovoz
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				var employee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
 				email.AuthorId = employee != null ? employee.Id : 0;
-				email.ManualSending = true;
+				email.ManualSending = false;
 			}
 			IEmailService service = EmailServiceSetting.GetEmailService();
 			if(service == null) {
