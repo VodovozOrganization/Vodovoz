@@ -477,10 +477,10 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>126.3pt</Width>
+            <Width>452.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>108.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -491,9 +491,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>Виновники и количество недовозов за выбранный интервал дат</Value>
+                      <Value>Виновники и количество недовозов за выбранный интервал дат:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -567,7 +567,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>556.5pt</Left>
+        <Left>192.5pt</Left>
         <Top>38.1pt</Top>
         <Visibility>
           <Hidden>=Iif(String.IsNullOrEmpty({?guilty_side}), 'false', 'true')</Hidden>
