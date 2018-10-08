@@ -96,23 +96,39 @@ GROUP BY stored_emails.id ORDER BY state, counterparty.id, send_date</CommandTex
       </Fields>
     </DataSet>
     <DataSet Name="EmailsByState">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	CASE stored_emails.state
-		WHEN 'WaitingToSend' THEN 'Ожидание отправки'
-        WHEN 'SendingError' THEN 'Ошибка отправки'
-        WHEN 'SendingComplete' THEN 'Отправлено'
-        WHEN 'Delivered' THEN 'Доставлено'
-        WHEN 'Opened' THEN 'Открыто'        
-        WHEN 'Undelivered' THEN 'Недоставлено'
-        WHEN 'MarkedAsSpam' THEN 'Отмечено как спам'
-        ELSE stored_emails.state
-    END as state, 
-    Count(id) as count
-FROM stored_emails 
-WHERE Date(stored_emails.send_date) &gt;= @startDate AND Date(stored_emails.send_date) &lt;= @endDate
-GROUP BY state</CommandText>
+        <CommandText>SELECT
+	state_order_enum,
+	state,
+    count
+FROM
+	(SELECT 
+		CASE stored_emails.state
+			WHEN 'WaitingToSend' THEN 1        
+			WHEN 'SendingComplete' THEN 2
+			WHEN 'Delivered' THEN 3
+			WHEN 'Opened' THEN 4
+			WHEN 'SendingError' THEN 5     
+			WHEN 'Undelivered' THEN 6
+			WHEN 'MarkedAsSpam' THEN 7
+			ELSE 0
+		END as state_order_enum,
+		CASE stored_emails.state
+			WHEN 'WaitingToSend' THEN 'Ожидание отправки'        
+			WHEN 'SendingComplete' THEN 'Отправлено'
+			WHEN 'Delivered' THEN 'Доставлено'
+			WHEN 'Opened' THEN 'Открыто'
+			WHEN 'SendingError' THEN 'Ошибка отправки'     
+			WHEN 'Undelivered' THEN 'Недоставлено'
+			WHEN 'MarkedAsSpam' THEN 'Отмечено как спам'
+			ELSE stored_emails.state
+		END as state, 
+		Count(id) as count
+	FROM stored_emails 
+	WHERE Date(stored_emails.send_date) &gt;= @startDate AND Date(stored_emails.send_date) &lt;= @endDate
+	GROUP BY state) as main_query
+ORDER BY state_order_enum</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>={?startDate}</Value>
@@ -122,7 +138,7 @@ GROUP BY state</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="state">
           <DataField>state</DataField>
           <TypeName>System.String</TypeName>
@@ -176,7 +192,7 @@ GROUP BY state</CommandText>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign >Center</TextAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
@@ -191,6 +207,8 @@ GROUP BY state</CommandText>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -285,6 +303,8 @@ GROUP BY state</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <TextAlign>Left</TextAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -372,6 +392,7 @@ GROUP BY state</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -414,6 +435,7 @@ GROUP BY state</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
