@@ -154,7 +154,7 @@ namespace Vodovoz
 				fine.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 				fine.UpdateWageOperations(UoWGeneric);
 				UoWGeneric.Save(fine);
-			} else if(Entity.ConfirmedDistance > Entity.ActualDistance) {
+			} else {
 				Entity.RecalculateFuelOutlay();
 			}
 
