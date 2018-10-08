@@ -74,7 +74,8 @@ namespace Vodovoz
 			);
 			yentryrefOrder.RepresentationModel = new ViewModel.OrdersVM(filter);
 			yentryrefOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
-
+			yentryrefOrder.CanEditReference = QSMain.User.Permissions["can_delete"];
+			              
 			UpdateOrderInfo();
 			Entity.UpdateStockAmount(UoW);
 			Entity.UpdateAlreadyUnloaded(UoW);

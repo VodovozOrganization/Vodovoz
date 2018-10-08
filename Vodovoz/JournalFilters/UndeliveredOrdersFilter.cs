@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Gamma.Widgets;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModel;
-using Gamma.Widgets;
 
 namespace Vodovoz.JournalFilters
 {
@@ -23,6 +24,7 @@ namespace Vodovoz.JournalFilters
 			ySpecCMBinProcessAt.ItemsList = ySpecCMBGuiltyDep.ItemsList = Repository.EmployeeRepository.Subdivisions(UoW);
 
 			refOldOrder.RepresentationModel = new OrdersVM(new OrdersFilter(UoW));
+			refOldOrder.CanEditReference = QSMain.User.Permissions["can_delete"];
 
 			var DriversFilter = new EmployeeFilter(UoW);
 			DriversFilter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);

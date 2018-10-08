@@ -73,6 +73,7 @@ namespace Vodovoz
 			};
 			vm.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
 			yentryreferenceRLFrom.RepresentationModel = vm;
+			yentryreferenceRLFrom.CanEditReference = QSMain.User.Permissions["can_delete"];
 
 			vm = new RouteListsVM ();
 			vm.Filter.OnlyStatuses = new [] {
@@ -84,6 +85,7 @@ namespace Vodovoz
 			};
 			vm.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
 			yentryreferenceRLTo.RepresentationModel = vm;
+			yentryreferenceRLTo.CanEditReference = QSMain.User.Permissions["can_delete"];
 
 			yentryreferenceRLFrom.Changed += YentryreferenceRLFrom_Changed;
 			yentryreferenceRLTo	 .Changed += YentryreferenceRLTo_Changed;
