@@ -4,6 +4,7 @@ using QSSupportLib;
 using System;
 using Vodovoz.Domain.Goods;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz.Repository
 {
@@ -179,6 +180,25 @@ namespace Vodovoz.Repository
 			return uow.Session.QueryOver<Nomenclature>()
 			   		  .Where(n => n.MobileCatalog.IsIn(catalogs))
 			   		  .List();
+		}
+
+		/// <summary>
+		/// Возвращает Dictionary где: 
+		/// key - id номенклатуры
+		/// value - массив id картинок
+		/// </summary>
+		/// <returns>The nomenclature images identifiers.</returns>
+		public static Dictionary<int, int[]> GetNomenclatureImagesIds(IUnitOfWork uow, params int[] nomenclatureIds)
+		{
+			return uow.Session.QueryOver<NomenclatureImage>()
+						 .Where(n => n.Nomenclature.Id.IsIn(nomenclatureIds))
+						 .SelectList(list => list
+						 	.Select(i => i.Id)
+							.Select(i => i.Nomenclature.Id)
+						 )
+						 .List<object[]>()
+						 .GroupBy(x => (int)x[1])
+						 .ToDictionary(g => g.Key, g => g.Select(x => (int)x[0]).ToArray());
 		}
 
 		#region Получение номенклатур воды
