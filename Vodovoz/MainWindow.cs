@@ -1041,4 +1041,12 @@ public partial class MainWindow : Gtk.Window
 			() => new ExportToSiteDlg()
 		);
 	}
+
+	protected void OnActionSendedBillsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<SendedEmailsReport>(),
+			() => new QSReport.ReportViewDlg(new SendedEmailsReport())
+		);
+	}
 }
