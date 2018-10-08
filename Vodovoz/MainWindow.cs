@@ -78,8 +78,8 @@ public partial class MainWindow : Gtk.Window
 		UsersAction.Sensitive = QSMain.User.Admin;
 		ActionParameters.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
-		ActionCash.Sensitive = QSMain.User.Permissions["money_manage"];
-		ActionAccounting.Sensitive = QSMain.User.Permissions["money_manage"];
+		ActionCash.Sensitive = QSMain.User.Permissions["money_manage_cash"];
+		ActionAccounting.Sensitive = QSMain.User.Permissions["money_manage_bookkeeping"];
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =

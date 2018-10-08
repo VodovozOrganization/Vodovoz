@@ -32,7 +32,7 @@ namespace Vodovoz
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
-		private bool editing = QSMain.User.Permissions["money_manage"];
+		private bool editing = QSMain.User.Permissions["money_manage_cash"];
 		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;
 
