@@ -57,7 +57,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// <summary>
 		/// Максимальное количество бутелей в заказе для ларгусов.
 		/// </summary>
-		public static int MaxBottlesInOrderForLargus = 4;
+		public static int MaxBottlesInOrderForLargus = 42;
 		/// <summary>
 		/// Штраф за добавление в лагрус большего количества бутелей. Сейчас установлено больше чем стоимость недоставки заказа.
 		/// То есть такого проиходить не может.
