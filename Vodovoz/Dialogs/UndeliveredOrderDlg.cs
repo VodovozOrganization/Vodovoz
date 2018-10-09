@@ -77,7 +77,9 @@ namespace Vodovoz.Dialogs
 			var valid = new QSValidator<UndeliveredOrder>(UndeliveredOrder);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
-			UndeliveredOrder.OldOrder.SetUndeliveredStatus();
+			if(UndeliveredOrder.Id == 0) {
+				UndeliveredOrder.OldOrder.SetUndeliveredStatus();
+			}
 			undeliveryView.BeforeSaving();
 			//случай, если создавать новый недовоз не нужно, но нужно обновить старый заказ
 			if(!CanCreateUndelivery()){
