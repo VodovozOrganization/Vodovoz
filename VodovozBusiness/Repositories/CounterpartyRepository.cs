@@ -84,27 +84,17 @@ namespace Vodovoz.Repository
 		public static IList<CounterpartyTo1CNode> GetCounterpartiesWithInnAndAnyContact(IUnitOfWork uow)
 		{
 			Email emailAlias = null;
-			Phone phoneAlias = null;
 			Counterparty counterpartyAlias = null;
 			CounterpartyTo1CNode resultAlias = null;
 
 			var query = uow.Session.QueryOver<Counterparty>(() => counterpartyAlias)
-						   .Left.JoinAlias(() => counterpartyAlias.Phones, () => phoneAlias)
 						   .Left.JoinAlias(() => counterpartyAlias.Emails, () => emailAlias)
 						   .Where(c => c.INN != "")
 			               .SelectList(list => list
 									   .SelectGroup(x => x.Id).WithAlias(() => resultAlias.Id)
 									   .Select(x => x.FullName).WithAlias(() => resultAlias.Name)
 									   .Select(x => x.INN).WithAlias(() => resultAlias.Inn)
-									   .Select(
-										   Projections.SqlFunction(
-											   new SQLFunctionTemplate(
-												   NHibernateUtil.String,
-												   "GROUP_CONCAT(?1 SEPARATOR ';')"
-												  ),
-											   NHibernateUtil.String,
-											   Projections.Property(() => phoneAlias.DigitsNumber))
-										  ).WithAlias(() => resultAlias.Phones)
+			                           .Select(x => x.RingUpPhone).WithAlias(() => resultAlias.Phones)
 									   .Select(
 										   Projections.SqlFunction(
 											   new SQLFunctionTemplate(
