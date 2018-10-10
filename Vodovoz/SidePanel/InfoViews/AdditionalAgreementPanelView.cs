@@ -12,6 +12,7 @@ using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 using Vodovoz.SidePanel.InfoProviders;
 using NHibernate.Util;
+using QS.Helpers;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -143,17 +144,11 @@ namespace Vodovoz.SidePanel.InfoViews
 				fixedPricesList = new List<WaterSalesAgreementFixedPrice>();
 				return;
 			}
-			wsa.FixedPrices.ForEach(p => InfoProvider.UoW.Session.Refresh(p));
 
-			WaterSalesAgreementFixedPrice fixedPricesAlias = null;
-			var fp = InfoProvider.UoW.Session.QueryOver<WaterSalesAgreementFixedPrice>(() => fixedPricesAlias)
-								 .Where(x => x.AdditionalAgreement.Id == wsa.Id)
-								 .List()
-								 .ToList();
+			wsa.ReloadListFromDB(InfoProvider.UoW.Session, x => x.FixedPrices);
+
 			fixedPricesList = wsa.FixedPrices;
-			wsa.FixedPrices.Clear();
 
-			fp.ForEach(p => wsa.FixedPrices.Add(p));
 		}
 
 		public bool VisibleOnPanel
