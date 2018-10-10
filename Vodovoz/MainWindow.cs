@@ -25,6 +25,7 @@ using Vodovoz.ViewModel;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.Dialogs.OnlineStore;
+using Vodovoz.ReportsParameters.Store;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1047,6 +1048,14 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<SendedEmailsReport>(),
 			() => new QSReport.ReportViewDlg(new SendedEmailsReport())
+		);
+	}
+
+	protected void OnActionDefectiveItemsReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<DefectiveItemsReport>(),
+			() => new QSReport.ReportViewDlg(new DefectiveItemsReport())
 		);
 	}
 }

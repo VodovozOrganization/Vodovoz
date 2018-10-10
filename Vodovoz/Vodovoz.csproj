@@ -850,6 +850,8 @@
     <Compile Include="ServiceDialogs\ExportTo1c\ExportCounterpariesData.cs" />
     <Compile Include="ReportsParameters\SendedEmailsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SendedEmailsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.DefectiveItemsReport.cs" />
+    <Compile Include="ReportsParameters\Store\DefectiveItemsReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1359,6 +1361,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Orders\SendedBillsReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\DefectiveItemsReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
