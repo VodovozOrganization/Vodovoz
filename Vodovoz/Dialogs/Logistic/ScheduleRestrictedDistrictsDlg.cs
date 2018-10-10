@@ -171,7 +171,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			buttonDeleteDistrict.Sensitive = buttonAddSchedule.Sensitive = buttonCreateBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1;
 			buttonDeleteSchedule.Sensitive = ytreeSchedules.Selection.CountSelectedRows() == 1;
-			buttonRemoveBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1 && currentDistrict.DistrictBorder != null;
+			buttonRemoveBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1 &&  currentDistrict != null && currentDistrict.DistrictBorder != null;
 		}
 
 		IList<ScheduleRestrictedDistrict> GetAllDistricts()
