@@ -1399,7 +1399,9 @@ namespace Vodovoz
 
 		void AgreementSaved(object sender, AgreementSavedEventArgs e)
 		{
-			var agreement = UoWGeneric.Session.Load<AdditionalAgreement>(e.Agreement.Id);
+			var agreement = UoWGeneric.GetById<AdditionalAgreement>(e.Agreement.Id);
+			UoWGeneric.Session.Refresh(agreement);
+
 			Entity.CreateOrderAgreementDocument(agreement);
 			Entity.FillItemsFromAgreement(agreement);
 			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType)
