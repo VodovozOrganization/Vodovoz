@@ -28,6 +28,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		void Configure()
 		{
+			label5.Visible = labelDeposits.Visible = false;
 			labelAddress.LineWrapMode = Pango.WrapMode.WordChar;
 			labelLastOrders.LineWrapMode = Pango.WrapMode.WordChar;
 
