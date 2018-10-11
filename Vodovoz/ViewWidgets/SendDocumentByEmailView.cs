@@ -86,6 +86,16 @@ namespace Vodovoz.ViewWidgets
 				MessageDialogWorks.RunErrorDialog("Невозможно распечатать данный тип документа");
 				return;
 			}
+
+			if(document.Order.Id == 0){
+				if(!MessageDialogWorks.RunQuestionDialog("Для отправки необходимо сохранить заказ, сохранить сейчас?")) {
+					return;
+				}
+				if(!(MyOrmDialog as OrderDlg).Save()) {
+					return;
+				}
+			}
+
 			if(client == null) {
 				MessageDialogWorks.RunErrorDialog("Должен быть выбран клиент в заказе");
 				return;
