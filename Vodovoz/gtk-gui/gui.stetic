@@ -11202,9 +11202,14 @@
                                 <property name="MemberName" />
                                 <property name="Spacing">6</property>
                                 <child>
-                                  <widget class="Gtk.Label" id="labelEntrance">
+                                  <widget class="Gamma.Widgets.yEnumComboBox" id="yenumEntranceType">
                                     <property name="MemberName" />
-                                    <property name="LabelProp" translatable="yes">Парадная</property>
+                                    <property name="IsTextCombo">False</property>
+                                    <property name="Items" translatable="yes" />
+                                    <property name="ShowSpecialStateAll">False</property>
+                                    <property name="ShowSpecialStateNot">False</property>
+                                    <property name="UseShortTitle">False</property>
+                                    <property name="DefaultFirst">False</property>
                                   </widget>
                                   <packing>
                                     <property name="Position">0</property>

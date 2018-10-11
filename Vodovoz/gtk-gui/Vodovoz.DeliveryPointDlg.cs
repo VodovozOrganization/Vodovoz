@@ -82,7 +82,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox9;
 
-		private global::Gtk.Label labelEntrance;
+		private global::Gamma.Widgets.yEnumComboBox yenumEntranceType;
 
 		private global::Gamma.GtkWidgets.yEntry entryEntrance;
 
@@ -552,11 +552,14 @@ namespace Vodovoz
 			this.hbox9.Name = "hbox9";
 			this.hbox9.Spacing = 6;
 			// Container child hbox9.Gtk.Box+BoxChild
-			this.labelEntrance = new global::Gtk.Label();
-			this.labelEntrance.Name = "labelEntrance";
-			this.labelEntrance.LabelProp = global::Mono.Unix.Catalog.GetString("Парадная");
-			this.hbox9.Add(this.labelEntrance);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.labelEntrance]));
+			this.yenumEntranceType = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumEntranceType.Name = "yenumEntranceType";
+			this.yenumEntranceType.ShowSpecialStateAll = false;
+			this.yenumEntranceType.ShowSpecialStateNot = false;
+			this.yenumEntranceType.UseShortTitle = false;
+			this.yenumEntranceType.DefaultFirst = false;
+			this.hbox9.Add(this.yenumEntranceType);
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.yenumEntranceType]));
 			w38.Position = 0;
 			w38.Expand = false;
 			w38.Fill = false;

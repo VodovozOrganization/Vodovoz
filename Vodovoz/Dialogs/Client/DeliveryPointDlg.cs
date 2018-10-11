@@ -97,6 +97,9 @@ namespace Vodovoz
 			comboRoomType.ItemsEnum = typeof(RoomType);
 			comboRoomType.Binding.AddBinding(Entity, entity => entity.RoomType, widget => widget.SelectedItem)
 				.InitializeFromSource();
+			yenumEntranceType.ItemsEnum = typeof(EntranceType);
+			yenumEntranceType.Binding.AddBinding(Entity, entity => entity.EntranceType, widget => widget.SelectedItem)
+				.InitializeFromSource();
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 			referenceDeliverySchedule.Binding.AddBinding(Entity, e => e.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			entryCity.FocusOutEvent += FocusOut;
