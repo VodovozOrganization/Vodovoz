@@ -1066,7 +1066,7 @@ namespace Vodovoz
 				"Уже зафиксированные углы полигона можно перетаскивать левой кнопкой мыши.");
 		}
 
-		protected void OnYtimeToDeliveryChanged(object sender, EventArgs e)
+		protected void FillItems()
 		{
 			if(CurDate != default(DateTime))
 				FillDialogAtDay();
@@ -1303,6 +1303,21 @@ namespace Vodovoz
 		{
 			buttonWarnings.Visible = optimizer.WarningMessages.Any();
 			buttonWarnings.Label = optimizer.WarningMessages.Count.ToString();
+		}
+
+		protected void OnButtonLoadClicked(object sender, EventArgs e)
+		{
+			FillItems();
+		}
+
+		protected void OnYtimeToDeliveryWidgetEvent(object o, WidgetEventArgs args)
+		{
+			if(args.Event.Type == EventType.KeyPress) {
+				EventKey eventKey = args.Args.OfType<EventKey>().FirstOrDefault();
+				if(eventKey != null && eventKey.Key == Gdk.Key.Return){
+					FillItems();
+				}
+			}
 		}
 	}
 }
