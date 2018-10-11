@@ -5,6 +5,8 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;

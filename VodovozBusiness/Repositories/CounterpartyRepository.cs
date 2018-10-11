@@ -7,7 +7,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QSBanks;
 using QSContacts;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Repository

@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "графики доставки",
 		Nominative = "график доставки")]
 	public class DeliverySchedule: PropertyChangedBase, IDomainObject, IValidatableObject

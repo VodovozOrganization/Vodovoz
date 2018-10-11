@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.Utilities;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSContacts;
 using QSOrmProject;
 using QSValidation.Attributes;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "доверенности",
 		Nominative = "доверенность",
 		Genitive = "доверенности",

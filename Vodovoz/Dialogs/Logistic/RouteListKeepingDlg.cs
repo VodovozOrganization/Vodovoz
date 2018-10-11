@@ -18,6 +18,7 @@ using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Dialogs;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz
 {

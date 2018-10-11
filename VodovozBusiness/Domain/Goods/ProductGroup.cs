@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Basis;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Goods
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "группы товаров",
 		Nominative = "группа товаров")]
 	public class ProductGroup : DomainTreeNodeBase<ProductGroup>

@@ -6,6 +6,7 @@ using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using Polylines;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOsm;
 using QSOsm.Osrm;

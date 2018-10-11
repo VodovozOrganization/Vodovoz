@@ -1,11 +1,12 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "типы оборудования",
 		Nominative = "тип оборудования")]
 	public class EquipmentType : PropertyChangedBase, IDomainObject

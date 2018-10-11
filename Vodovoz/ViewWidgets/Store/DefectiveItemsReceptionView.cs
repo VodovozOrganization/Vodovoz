@@ -7,6 +7,8 @@ using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using NHibernate.Util;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;

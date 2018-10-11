@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GMap.NET;
 using Polylines;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOsm;
 using QSOsm.Osrm;

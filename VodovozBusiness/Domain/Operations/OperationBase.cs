@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using QSHistoryLog;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Orders;
 

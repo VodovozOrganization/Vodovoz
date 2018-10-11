@@ -1,6 +1,7 @@
 ﻿using System;
 using NHibernate;
 using NHibernate.Criterion;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 

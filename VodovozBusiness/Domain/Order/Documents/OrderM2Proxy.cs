@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using QS.DomainModel.UoW;
 using QS.Print;
 using QSDocTemplates;
-using QSOrmProject;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Employees;
 

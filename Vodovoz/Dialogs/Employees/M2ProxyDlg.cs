@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;

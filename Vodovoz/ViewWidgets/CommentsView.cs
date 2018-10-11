@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using NHibernate.Transform;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using QSTDI;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewWidgets

@@ -2,6 +2,7 @@
 using System.Linq;
 using Gtk;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
 using QSProjectsLib;

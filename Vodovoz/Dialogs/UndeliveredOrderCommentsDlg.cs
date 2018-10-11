@@ -1,6 +1,6 @@
 ﻿using System;
 using Gamma.GtkWidgets;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Employees;

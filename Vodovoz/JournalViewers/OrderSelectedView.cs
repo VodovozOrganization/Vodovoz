@@ -5,8 +5,7 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gtk;
 using NHibernate.Transform;
-using QSOrmProject;
-using QSTDI;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
 

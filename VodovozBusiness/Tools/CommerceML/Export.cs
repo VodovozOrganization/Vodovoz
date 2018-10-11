@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSSupportLib;
 using RestSharp;
 using RestSharp.Authenticators;

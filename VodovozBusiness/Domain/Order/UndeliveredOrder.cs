@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using Gamma.Utilities;
 using NHibernate.Util;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSHistoryLog;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
@@ -15,7 +17,7 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject(Gender = GrammaticalGender.Masculine,
 				NominativePlural = "недовезённые заказы",
 				Nominative = "недовезённый заказ",
 				Prepositional = "недовезённом заказе",

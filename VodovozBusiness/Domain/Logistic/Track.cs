@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using GMap.NET;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using QSOsm;
 using QSOsm.Spuntik;
@@ -11,7 +12,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 	NominativePlural = "треки",
 	Nominative = "трек")]
 	public class Track : PropertyChangedBase, IDomainObject

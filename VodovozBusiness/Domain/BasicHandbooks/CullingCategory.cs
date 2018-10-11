@@ -1,10 +1,11 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "категории выбраковки",
 		Nominative = "категория выбраковки")]
 	public class CullingCategory : PropertyChangedBase, IDomainObject

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using NHibernate.Transform;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;

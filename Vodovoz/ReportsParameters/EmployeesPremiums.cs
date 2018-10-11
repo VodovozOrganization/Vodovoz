@@ -1,9 +1,9 @@
 ﻿using System;
-using QSReport;
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QSOrmProject;
+using QSReport;
 using Vodovoz.Domain.Employees;
-using NHibernate.Criterion;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ReportsParameters

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
@@ -8,7 +9,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Operations
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "изменения залогов",
 		Nominative = "изменение залогов")]
 	public class DepositOperation: OperationBase

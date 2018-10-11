@@ -1,4 +1,4 @@
-﻿using QSOrmProject;
+﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Chats;
 using System.Collections.Generic;

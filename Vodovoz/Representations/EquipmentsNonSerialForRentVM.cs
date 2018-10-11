@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gamma.ColumnConfig;
-using Gamma.Utilities;
-using NHibernate.Criterion;
-using NHibernate.Transform;
-using QSBusinessCommon.Domain;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Orders;
-using System.Linq;
-using Vodovoz.JournalFilters;
 using Vodovoz.Domain;
+using Vodovoz.JournalFilters;
 using Vodovoz.Repository;
 
 namespace Vodovoz.Representations

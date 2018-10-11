@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using Gtk;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repository;
-using Vodovoz.Domain.Goods;
-using Gtk;
 using Vodovoz.Representations;
-using Vodovoz.JournalFilters;
 
 namespace Vodovoz
 {

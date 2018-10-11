@@ -1,11 +1,12 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Store
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки шаблона пересортицы",
 		Nominative = "строка шаблона пересортицы")]
 	public class RegradingOfGoodsTemplateItem: PropertyChangedBase, IDomainObject

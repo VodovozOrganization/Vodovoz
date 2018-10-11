@@ -5,6 +5,7 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.DomainModel.UoW;
 using QSDocTemplates;
 using QSOrmProject;
 using Vodovoz.Domain.Client;

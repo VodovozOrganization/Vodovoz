@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Goods;
 using QSHistoryLog;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения продажи оборудования",
 		Nominative = "доп. соглашение продажи оборудования")]
 	public class SalesEquipmentAgreement : AdditionalAgreement

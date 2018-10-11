@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Gamma.GtkWidgets;
 using NHibernate.Util;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.Print;
+using QS.DomainModel.Entity;
 using QSOrmProject;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы заказа",
 		Nominative = "документ заказа")]
 	public abstract class OrderDocument : PropertyChangedBase, IDomainObject, IPrintableDocument

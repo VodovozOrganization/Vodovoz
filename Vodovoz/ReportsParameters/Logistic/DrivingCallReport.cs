@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSReport;
-using System.Collections.Generic;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {

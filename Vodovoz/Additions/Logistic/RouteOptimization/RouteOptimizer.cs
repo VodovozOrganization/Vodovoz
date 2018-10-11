@@ -1,11 +1,12 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Google.OrTools.ConstraintSolver;
 using Gtk;
 using NetTopologySuite.Geometries;
-using QSOrmProject;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Tools.Logistic;

@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using NHibernate.Criterion;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;

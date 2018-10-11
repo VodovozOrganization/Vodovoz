@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain.Logistic;

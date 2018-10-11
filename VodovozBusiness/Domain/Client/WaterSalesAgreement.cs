@@ -1,17 +1,18 @@
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using QSOrmProject;
 using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Domain.Goods;
-using QSHistoryLog;
-using Vodovoz.Repository;
 using NHibernate.Util;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QSHistoryLog;
+using QSOrmProject;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Client
 {
 
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения продажи воды",
 		Nominative = "доп. соглашение продажи воды")]
 	public class WaterSalesAgreement : AdditionalAgreement

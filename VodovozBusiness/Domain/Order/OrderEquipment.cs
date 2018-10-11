@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Service;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки оборудования в заказе",
 		Nominative = "строка оборудования в заказе")]
 	public class OrderEquipment: PropertyChangedBase, IDomainObject, IValidatableObject

@@ -3,6 +3,7 @@
 using System;
 using NHibernate;
 using NHibernate.Criterion;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;

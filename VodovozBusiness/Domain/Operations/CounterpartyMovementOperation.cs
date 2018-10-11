@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -7,7 +8,7 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "передвижения товаров",
 		Nominative = "передвижение товаров")]
 	public class CounterpartyMovementOperation : OperationBase

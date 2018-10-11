@@ -6,7 +6,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz

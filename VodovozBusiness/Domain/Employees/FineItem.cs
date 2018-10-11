@@ -1,12 +1,13 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки штрафа",
 		Nominative = "строка штрафа")]
 	public class FineItem: PropertyChangedBase, IDomainObject

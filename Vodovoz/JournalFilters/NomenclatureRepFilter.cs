@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Goods;
 

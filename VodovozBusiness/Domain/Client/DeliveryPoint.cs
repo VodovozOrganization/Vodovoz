@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using NetTopologySuite.Geometries;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using QSOsm;
 using QSOsm.DTO;
@@ -13,10 +14,11 @@ using Vodovoz.Domain.Employees;
 using QSOsm.Osrm;
 using QSContacts;
 using Vodovoz.Domain.Goods;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "точки доставки",
 		Nominative = "точка доставки",
 		Accusative = "точки доставки"
