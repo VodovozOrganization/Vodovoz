@@ -102,7 +102,7 @@ namespace Vodovoz.Domain.Client
 				if (!String.IsNullOrWhiteSpace (Letter))
 					address += String.Format ("лит.{0}, ", Letter);
 				if(!string.IsNullOrWhiteSpace(Entrance))
-					address += String.Format("пар.{0}, ", Entrance);
+					address += String.Format("{0} {1}, ", entranceType.GetEnumShortTitle(), Entrance);
 				if (!string.IsNullOrWhiteSpace(Floor))
 					address += String.Format ("эт.{0}, ", Floor);
 				if (!String.IsNullOrWhiteSpace (Room))
@@ -128,7 +128,7 @@ namespace Vodovoz.Domain.Client
 				if(!String.IsNullOrWhiteSpace(Letter))
 					address += String.Format("лит.{0}, ", Letter);
 				if(!string.IsNullOrWhiteSpace(Entrance))
-					address += String.Format("пар.{0}, ", Entrance);
+					address += String.Format("{0} {1}, ", entranceType.GetEnumShortTitle(), Entrance);
 				if(!string.IsNullOrWhiteSpace(Floor))
 					address += String.Format("эт.{0}, ", Floor);
 				if(!String.IsNullOrWhiteSpace(Room))
@@ -153,7 +153,7 @@ namespace Vodovoz.Domain.Client
 				if (!String.IsNullOrWhiteSpace (Letter))
 					address += String.Format ("лит.{0}, ", Letter);
 				if(!string.IsNullOrWhiteSpace(Entrance))
-					address += String.Format("пар.{0}, ", Entrance);
+					address += String.Format("{0} {1}, ", entranceType.GetEnumShortTitle(), Entrance);
 				if(!string.IsNullOrWhiteSpace(Floor))
 					address += String.Format("эт.{0}, ", Floor);
 				if (!String.IsNullOrWhiteSpace (Room))
