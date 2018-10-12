@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Employees;

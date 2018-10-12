@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -10,7 +12,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Cash
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "приходные одера",
 		Nominative = "приходный ордер")]
 	public class Income : PropertyChangedBase, IDomainObject, IValidatableObject

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.StoredEmails

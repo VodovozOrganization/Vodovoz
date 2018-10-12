@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NHibernate;
 using NHibernate.Criterion;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 
@@ -11,7 +12,7 @@ namespace Vodovoz.Domain.Goods
 	/// <summary>
 	/// Оборудование только для посерийного учета
 	/// </summary>
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "оборудование",
 		Nominative = "оборудование",
 		Prepositional = "оборудовании"

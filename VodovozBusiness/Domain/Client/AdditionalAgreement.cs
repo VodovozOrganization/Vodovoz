@@ -4,11 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
 using NHibernate.Criterion;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "дополнительные соглашения",
 		Nominative = "дополнительное соглашение",
 		Accusative = "дополнительное соглашение",
@@ -77,10 +80,12 @@ namespace Vodovoz.Domain.Client
 
 		[Required (ErrorMessage = "Дата создания должна быть указана.")]
 		[Display (Name = "Дата подписания")]
+		[HistoryDateOnly]
 		public virtual DateTime IssueDate { get; set; }
 
 		[Required (ErrorMessage = "Дата начала действия должна быть указана.")]
 		[Display (Name = "Дата начала")]
+		[HistoryDateOnly]
 		public virtual DateTime StartDate { get; set; }
 
 		[Display (Name = "Точка доставки")]
@@ -108,7 +113,7 @@ namespace Vodovoz.Domain.Client
 
 		public AdditionalAgreement ()
 		{
-			IssueDate = StartDate = DateTime.Now;
+			IssueDate = StartDate = DateTime.Today;
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)

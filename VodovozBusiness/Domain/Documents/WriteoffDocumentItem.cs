@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -10,7 +11,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки списания",
 		Nominative = "строка списания")]
 	public class WriteoffDocumentItem: PropertyChangedBase, IDomainObject

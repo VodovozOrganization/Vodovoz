@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject.RepresentationModel;
 using QSOrmProject;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz
 {

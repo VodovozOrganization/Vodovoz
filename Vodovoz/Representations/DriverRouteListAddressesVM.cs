@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Gamma.ColumnConfig;
+using Gamma.Utilities;
+using NHibernate.Transform;
+using QS.DomainModel.UoW;
+using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using QSOrmProject;
-using NHibernate.Transform;
-using Gamma.ColumnConfig;
-using Gamma.Utilities;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModel
 {

@@ -9,6 +9,7 @@ using Vodovoz.Repository;
 using System.Collections;
 using System.Linq;
 using Vodovoz.ViewModel;
+using QS.DomainModel.UoW;
 
 namespace Dialogs.Employees
 {

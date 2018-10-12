@@ -1,12 +1,13 @@
 ﻿using System;
-using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Employees;
 using Gamma.ColumnConfig;
-using QSOrmProject;
-using NHibernate.Transform;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate;
+using NHibernate.Transform;
+using QS.DomainModel.UoW;
+using QSOrmProject;
+using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModel

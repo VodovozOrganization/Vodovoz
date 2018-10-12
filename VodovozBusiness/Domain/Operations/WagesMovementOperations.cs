@@ -1,11 +1,12 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Operations
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "передвижения зарплат",
 		Nominative = "передвижение зарплат")]
 	public class WagesMovementOperations : OperationBase

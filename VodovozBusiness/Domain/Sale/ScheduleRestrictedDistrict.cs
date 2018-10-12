@@ -2,6 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using GeoAPI.Geometries;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Sale

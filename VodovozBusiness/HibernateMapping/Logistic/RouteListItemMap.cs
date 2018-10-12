@@ -1,5 +1,5 @@
-﻿using DataAccess.NhibernateFixes;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
+using NHibernate.Type;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.HibernateMapping
@@ -34,8 +34,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.CashierCommentLastUpdate).Column("cashier_comment_last_update");
 			Map (x => x.Notified30Minutes)		.Column("notified_30minutes");
 			Map (x => x.NotifiedTimeout)		.Column("notified_timeout");
-			Map(x => x.PlanTimeStart)			.Column("plan_time_start").CustomType<TimeAsTimeSpanTypeClone>();
-			Map(x => x.PlanTimeEnd)				.Column("plan_time_end").CustomType<TimeAsTimeSpanTypeClone>();
+			Map(x => x.PlanTimeStart)			.Column("plan_time_start").CustomType<TimeAsTimeSpanType>();
+			Map(x => x.PlanTimeEnd)				.Column("plan_time_end").CustomType<TimeAsTimeSpanType>();
 
 			References (x => x.RouteList)			.Column ("route_list_id").Not.Nullable ();
 			References (x => x.Order)				.Column ("order_id").Cascade.SaveUpdate();

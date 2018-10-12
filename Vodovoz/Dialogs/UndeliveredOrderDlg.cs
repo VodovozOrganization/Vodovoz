@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gtk;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;

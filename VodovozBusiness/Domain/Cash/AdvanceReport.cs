@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Cash
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "авансовые отчеты",
 		Nominative = "авансовый отчет")]
 	public class AdvanceReport : PropertyChangedBase, IDomainObject, IValidatableObject

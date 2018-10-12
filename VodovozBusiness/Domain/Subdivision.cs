@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
@@ -6,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "подразделения",
 		Nominative = "подразделение")]
 	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject

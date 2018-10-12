@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Orders;
@@ -10,11 +11,12 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Repository;
 using Vodovoz.Tools.Logistic;
 using System.Text.RegularExpressions;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Logistic
 {
 
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "адреса маршрутного листа",
 		Nominative = "адрес маршрутного листа")]
 	public class RouteListItem : PropertyChangedBase, IDomainObject

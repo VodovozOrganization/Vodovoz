@@ -6,6 +6,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using QSProjectsLib;
 using Vodovoz.ViewModel;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz
 {

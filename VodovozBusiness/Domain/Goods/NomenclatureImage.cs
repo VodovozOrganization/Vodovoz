@@ -1,11 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Goods
 {
 
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "изображения номенклатуры",
 		Nominative = "изображение номенклатуры")]
 	public class NomenclatureImage : PropertyChangedBase, IDomainObject

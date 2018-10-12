@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gtk;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSTDI;
 using QSValidation;
 using Vodovoz.Domain.Orders;

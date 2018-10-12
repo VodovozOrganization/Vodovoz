@@ -1,7 +1,8 @@
 ﻿using System;
-using QSOrmProject;
 using NHibernate;
 using NHibernate.Criterion;
+using QS.DomainModel.UoW;
+using QSOrmProject;
 using Vodovoz.Domain;
 
 namespace Vodovoz

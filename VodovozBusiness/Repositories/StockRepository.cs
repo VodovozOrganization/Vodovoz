@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using NHibernate.Transform;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;

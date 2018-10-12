@@ -1,15 +1,14 @@
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.Utilities;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
 {
 
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения бесплатной аренды",
 		Nominative = "доп. соглашение бесплатной аренды")]
 	public class FreeRentAgreement : AdditionalAgreement

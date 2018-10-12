@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Gtk;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "настройки пользователей",
 		Nominative = "настройки пользователя")]
 	public class UserSettings: PropertyChangedBase, IDomainObject

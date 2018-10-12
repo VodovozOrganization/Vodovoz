@@ -1,4 +1,4 @@
-﻿using QSOrmProject;
+﻿using QS.DomainModel.UoW;
 using NHibernate.Criterion;
 using QSSupportLib;
 using System;

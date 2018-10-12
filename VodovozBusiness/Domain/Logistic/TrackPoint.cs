@@ -1,11 +1,12 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "точки трека",
 		Nominative = "точка трека")]
 	public class TrackPoint : PropertyChangedBase

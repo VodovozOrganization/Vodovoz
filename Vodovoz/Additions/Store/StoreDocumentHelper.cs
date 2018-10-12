@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using NHibernate.Criterion;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;

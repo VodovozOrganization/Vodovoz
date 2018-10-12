@@ -4,13 +4,10 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
-using QSBusinessCommon.Domain;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Orders;
-using System.Linq;
 using Vodovoz.JournalFilters;
 
 namespace Vodovoz.ViewModel

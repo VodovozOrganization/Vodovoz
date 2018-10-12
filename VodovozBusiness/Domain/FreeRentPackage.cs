@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "пакеты бесплатной аренды",
 		Nominative = "пакет бесплатной аренды")]
 	public class FreeRentPackage: BusinessObjectBase<FreeRentPackage>, IDomainObject, IValidatableObject

@@ -1,11 +1,12 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Chats
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "последние прочитанные сообщения",
 		Nominative = "последнее прочитанное сообщение")]
 	public class LastReadedMessage : PropertyChangedBase, IDomainObject

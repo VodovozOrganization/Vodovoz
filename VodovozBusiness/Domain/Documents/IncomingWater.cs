@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using DataAnnotationsExtensions;
 using Gamma.Utilities;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -11,7 +12,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы производства",
 		Nominative = "документ производства")]
 	public class IncomingWater: Document, IValidatableObject

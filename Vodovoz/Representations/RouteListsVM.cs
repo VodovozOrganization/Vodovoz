@@ -7,6 +7,7 @@ using Gamma.Utilities;
 using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;

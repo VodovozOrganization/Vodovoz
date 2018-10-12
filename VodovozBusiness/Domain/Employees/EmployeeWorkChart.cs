@@ -1,11 +1,12 @@
 ﻿using System;
 using Vodovoz.Domain.Employees;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 
 namespace Vodovoz
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "графики работы сотрудников",
 		Nominative = "график работы сотрудников")]
 	public class EmployeeWorkChart : PropertyChangedBase, IDomainObject

@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -8,7 +9,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "сырьё",
 		Nominative = "сырьё")]
 	public class IncomingWaterMaterial : PropertyChangedBase, IDomainObject

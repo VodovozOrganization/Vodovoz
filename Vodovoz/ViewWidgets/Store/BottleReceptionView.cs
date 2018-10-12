@@ -1,7 +1,6 @@
-﻿using System;
-using QSOrmProject;
+﻿using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using Vodovoz.ViewModel;
-using System.Collections.Generic;
 
 namespace Vodovoz
 {

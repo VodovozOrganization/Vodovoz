@@ -1,10 +1,11 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "шаблоны комментариев для штрафов",
 		Nominative = "шаблон комментария для штрафа")]
 	public class FineTemplate : PropertyChangedBase, IDomainObject, IValidatableObject

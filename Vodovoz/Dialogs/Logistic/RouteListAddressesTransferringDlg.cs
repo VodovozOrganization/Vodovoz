@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Print;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
@@ -7,7 +9,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "доверенности",
 		Nominative = "доверенность")]
 	public abstract class ProxyDocument : PropertyChangedBase, IDomainObject, IBusinessObject

@@ -1,4 +1,5 @@
-﻿using QSOrmProject;
+﻿using QS.DomainModel.UoW;
+using QSOrmProject;
 using QSTDI;
 
 namespace Vodovoz

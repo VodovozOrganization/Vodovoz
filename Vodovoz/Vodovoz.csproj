@@ -9,7 +9,7 @@
     <AssemblyName>Vodovoz</AssemblyName>
     <StartupObject>Vodovoz.MainClass</StartupObject>
     <ApplicationIcon>icons\logo.ico</ApplicationIcon>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <TargetOS>Linux</TargetOS>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -54,6 +54,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration.Contains('Win'))">
     <TargetOS>Win</TargetOS>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugWin|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -87,16 +88,10 @@
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Xml" />
-    <Reference Include="FluentNHibernate">
-      <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.3.0\lib\net40\FluentNHibernate.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Drawing" />
     <Reference Include="Mono.Cairo" />
-    <Reference Include="DiffPlex">
-      <HintPath>..\..\QSProjects\packages\DiffPlex.1.4.1\lib\netstandard1.0\DiffPlex.dll</HintPath>
-    </Reference>
     <Reference Include="Polylines">
       <HintPath>..\packages\Polylines.1.0.0\lib\Polylines.dll</HintPath>
     </Reference>
@@ -105,15 +100,6 @@
     </Reference>
     <Reference Condition=" '$(TargetOS)' == 'Win' " Include="Google.OrTools">
       <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Protobuf">
-      <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.Protobuf.dll</HintPath>
-    </Reference>
-    <Reference Include="GeoAPI">
-      <HintPath>..\packages\GeoAPI.1.7.4\lib\net45\GeoAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite">
-      <HintPath>..\packages\NetTopologySuite.1.14\lib\net45\NetTopologySuite.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="NetTopologySuite.IO">
@@ -134,30 +120,66 @@
     <Reference Include="NetTopologySuite.IO.ShapeFile.Extended">
       <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.ShapeFile.Extended.dll</HintPath>
     </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="Iesi.Collections">
-      <HintPath>..\packages\Iesi.Collections.4.0.2\lib\net40\Iesi.Collections.dll</HintPath>
+      <HintPath>..\packages\Iesi.Collections.4.0.4\lib\net461\Iesi.Collections.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Transactions" />
     <Reference Include="NHibernate">
-      <HintPath>..\packages\NHibernate.4.1.1.4000\lib\net40\NHibernate.dll</HintPath>
+      <HintPath>..\packages\NHibernate.5.1.3\lib\net461\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\..\QSProjects\packages\NLog.4.4.11\lib\net45\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data">
-      <HintPath>..\packages\MySql.Data.6.9.9\lib\net45\MySql.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.Spatial">
-      <HintPath>..\packages\NHibernate.Spatial.MySQL.4.1.1.4001\lib\net40-client\NHibernate.Spatial.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.Spatial.MySQL">
-      <HintPath>..\packages\NHibernate.Spatial.MySQL.4.1.1.4001\lib\net40-client\NHibernate.Spatial.MySQL.dll</HintPath>
-    </Reference>
-    <Reference Include="PowerCollections">
-      <HintPath>..\packages\NetTopologySuite.1.14\lib\net45\PowerCollections.dll</HintPath>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="FluentNHibernate">
+      <HintPath>bin\DebugWin\FluentNHibernate.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net" />
     <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="GeoAPI">
+      <HintPath>..\packages\GeoAPI.Core.1.7.5\lib\net45\GeoAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="GeoAPI.CoordinateSystems">
+      <HintPath>..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45\GeoAPI.CoordinateSystems.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Protobuf">
+      <HintPath>..\packages\Google.Protobuf.3.6.1\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data">
+      <HintPath>..\packages\MySql.Data.8.0.12\lib\net452\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="NetTopologySuite.CoordinateSystems">
+      <HintPath>..\packages\NetTopologySuite.CoordinateSystems.1.15.1\lib\net45\NetTopologySuite.CoordinateSystems.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite">
+      <HintPath>..\packages\NetTopologySuite.Core.1.15.1\lib\net45\NetTopologySuite.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.4.5.10\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Remotion.Linq">
+      <HintPath>..\packages\Remotion.Linq.2.2.0\lib\net45\Remotion.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="Remotion.Linq.EagerFetching">
+      <HintPath>..\packages\Remotion.Linq.EagerFetching.2.2.0\lib\net45\Remotion.Linq.EagerFetching.dll</HintPath>
+    </Reference>
+    <Reference Include="DiffPlex">
+      <HintPath>..\packages\DiffPlex.1.4.2\lib\net40\DiffPlex.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.Spatial">
+      <HintPath>..\packages\NHibernate.Spatial.MySQL.5.1.0-pre001\lib\net461\NHibernate.Spatial.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.Spatial.MySQL">
+      <HintPath>..\packages\NHibernate.Spatial.MySQL.5.1.0-pre001\lib\net461\NHibernate.Spatial.MySQL.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -966,6 +988,10 @@
     <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
       <Project>{C97E91F4-B310-44E2-9B6C-96775395722D}</Project>
       <Name>RdlEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
+      <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
+      <Name>QS.Project</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

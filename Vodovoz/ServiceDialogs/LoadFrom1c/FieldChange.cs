@@ -1,7 +1,6 @@
-﻿using System;
-using DiffPlex;
+﻿using DiffPlex;
 using DiffPlex.DiffBuilder;
-using QSHistoryLog;
+using QS.HistoryLog;
 
 namespace ServiceDialogs.LoadFrom1c
 {

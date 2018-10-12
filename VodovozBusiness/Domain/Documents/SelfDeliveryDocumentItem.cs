@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -8,7 +9,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа самовывоза",
 		Nominative = "строка документа самовывоза")]	
 	public class SelfDeliveryDocumentItem: PropertyChangedBase, IDomainObject

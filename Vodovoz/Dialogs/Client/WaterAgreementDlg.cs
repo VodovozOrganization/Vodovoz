@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
-using QSHistoryLog;
-using QSHistoryLog.Domain;
+using QS.HistoryLog.Domain;
+using QS.HistoryLog.Repositories;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.DocTemplates;
@@ -93,15 +92,11 @@ namespace Vodovoz
 					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
 				.Finish();
 
-			//FIXME андрей поправит в середине месяца. не забыть сделать соответствующую таблицу сенситив
-			/*var fixedPricesChanges = HistoryChangesRepository
-				.GetHistoryChanges<WaterSalesAgreementFixedPrice>(UoW, Entity.ObservablFixedPrices.Select(x => x.Id).ToArray());
-
-			ytreeviewFixedPricesChanges.ColumnsConfig = ColumnsConfigFactory.Create<HistoryChangeSet>()
-				.AddColumn("Время изменения").AddTextRenderer(x => x.ChangeTimeText)
-				.AddColumn("Пользователь").AddTextRenderer(x => x.UserName)
-				.AddColumn("Старое значение").AddTextRenderer(x => GetOldValue(x))
-				.AddColumn("Новое значение").AddTextRenderer(x => GetNewValue(x))
+			ytreeviewFixedPricesChanges.ColumnsConfig = ColumnsConfigFactory.Create<FieldChange>()
+				.AddColumn("Время изменения").AddTextRenderer(x => x.Entity.ChangeTimeText)
+				.AddColumn("Пользователь").AddTextRenderer(x => x.Entity.ChangeSet.UserName)
+				.AddColumn("Старое значение").AddTextRenderer(x => x.OldPangoText, useMarkup: true)
+				.AddColumn("Новое значение").AddTextRenderer(x => x.NewPangoText, useMarkup: true)
 				.Finish();
 
 			ytreeviewFixedPrices.Selection.Changed += (sender, e) => {
@@ -110,53 +105,16 @@ namespace Vodovoz
 					ytreeviewFixedPricesChanges.ItemsDataSource = null;
 					return;
 				}
-				var fixedPriceChange = fixedPricesChanges.Where(x => x.ItemId == fixedPrice.Id);
-				if(fixedPriceChange.Any()) {
-					ytreeviewFixedPricesChanges.ItemsDataSource = fixedPriceChange.OrderBy(x => x.ChangeTime).ToList();
-				} else {
-					ytreeviewFixedPricesChanges.ItemsDataSource = null;
-				}
 
-			};*/
+				var fixedPricesChanges = HistoryChangesRepository
+					.GetFieldChanges<WaterSalesAgreementFixedPrice>(UoW, new[]{fixedPrice.Id}, x => x.Price)
+					.OrderBy(x => x.Entity.ChangeTime).ToList();
+
+				ytreeviewFixedPricesChanges.ItemsDataSource = fixedPricesChanges;
+			};
 
 			ytreeviewFixedPrices.ItemsDataSource = Entity.ObservableFixedPrices;
 			ytreeviewFixedPrices.Selection.Changed += YtreeviewFixedPrices_Selection_Changed;
-		}
-
-		private string GetOldValue(HistoryChangeSet fixedPriceChanges)
-		{
-			string result = "";
-			WaterSalesAgreementFixedPrice dummy = null;
-			var type = typeof(WaterSalesAgreementFixedPrice);
-			var prop = type.GetProperty(nameof(dummy.Price));
-			DisplayAttribute attribute = prop.GetCustomAttributes(typeof(DisplayAttribute), true).FirstOrDefault() as DisplayAttribute;
-			if(attribute == null) {
-				return result;
-			}
-			string displayName = attribute.Name;
-			var priceChanges = fixedPriceChanges.Changes.Where(x => x.FieldName == displayName);
-			if(priceChanges.Any()) {
-				result = priceChanges.Select(x => x.OldValue).FirstOrDefault();
-			}
-			return result;
-		}
-
-		private string GetNewValue(HistoryChangeSet fixedPriceChanges)
-		{
-			string result = "";
-			WaterSalesAgreementFixedPrice dummy = null;
-			var type = typeof(WaterSalesAgreementFixedPrice);
-			var prop = type.GetProperty(nameof(dummy.Price));
-			DisplayAttribute attribute = prop.GetCustomAttributes(typeof(DisplayAttribute), true).FirstOrDefault() as DisplayAttribute;
-			if(attribute == null) {
-				return result;
-			}
-			string displayName = attribute.Name;
-			var priceChanges = fixedPriceChanges.Changes.Where(x => x.FieldName == displayName);
-			if(priceChanges.Any()) {
-				result = priceChanges.Select(x => x.NewValue).FirstOrDefault();
-			}
-			return result;
 		}
 
 		void YtreeviewFixedPrices_Selection_Changed(object sender, EventArgs e)

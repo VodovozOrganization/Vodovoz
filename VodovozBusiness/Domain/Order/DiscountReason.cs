@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Orders

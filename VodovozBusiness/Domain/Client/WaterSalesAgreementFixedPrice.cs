@@ -1,18 +1,17 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.Utilities;
+using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
 {
 
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "фиксированные цены",
 		Nominative = "фиксированная цена")]
+	[HistoryTrace]
 	public class WaterSalesAgreementFixedPrice : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

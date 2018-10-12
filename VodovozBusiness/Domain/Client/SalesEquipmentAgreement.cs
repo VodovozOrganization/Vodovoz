@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using QSOrmProject;
 using System.Data.Bindings.Collections.Generic;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.HistoryLog;
+using QSOrmProject;
 using Vodovoz.Domain.Goods;
-using QSHistoryLog;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения продажи оборудования",
 		Nominative = "доп. соглашение продажи оборудования")]
+	[HistoryTrace]
 	public class SalesEquipmentAgreement : AdditionalAgreement
 	{
-		[HistoryDeepCloneItems]
 		IList<SalesEquipment> salesEqipments = new List<SalesEquipment>();
 
 		[Display(Name = "Оборудование на продажу")]
@@ -24,7 +25,6 @@ namespace Vodovoz.Domain.Client
 
 		GenericObservableList<SalesEquipment> observableSalesEqipments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<SalesEquipment> ObservableSalesEqipments {
 			get {
 				if(observableSalesEqipments == null)

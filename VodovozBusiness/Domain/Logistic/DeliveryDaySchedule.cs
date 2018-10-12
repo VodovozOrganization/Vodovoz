@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject(Gender = GrammaticalGender.Masculine,
 	NominativePlural = "графики работы водителя",
 	Nominative = "график работы водителя")]
 	public class DeliveryDaySchedule : PropertyChangedBase, IDomainObject

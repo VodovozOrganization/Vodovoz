@@ -1,10 +1,11 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "национальности",
 		Nominative = "национальность")]
 	public class Nationality : PropertyChangedBase, IDomainObject

@@ -2,6 +2,7 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Goods;

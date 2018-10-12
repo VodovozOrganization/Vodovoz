@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using Gamma.ColumnConfig;
 using NHibernate.Transform;
+using QS.DomainModel.UoW;
 using QSContacts;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 

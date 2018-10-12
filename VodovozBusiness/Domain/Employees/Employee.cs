@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Gamma.Utilities;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
@@ -11,7 +12,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "сотрудники",
 		Nominative = "сотрудник")]
 	public class Employee : AccountOwnerBase, IDomainObject, IValidatableObject, ISpecialRowsRender, IBusinessObject

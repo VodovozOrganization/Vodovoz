@@ -5,7 +5,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 

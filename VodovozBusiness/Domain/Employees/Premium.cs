@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using QSOrmProject;
-using QSProjectsLib;
 using System.Linq;
 using Gamma.Utilities;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QSOrmProject;
+using QSProjectsLib;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "премии сотрудникам",
 		Nominative = "премия сотрудникам")]
 	public class Premium: PropertyChangedBase, IDomainObject, IValidatableObject

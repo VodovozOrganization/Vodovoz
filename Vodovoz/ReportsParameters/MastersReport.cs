@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSReport;
-using System.Collections.Generic;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 

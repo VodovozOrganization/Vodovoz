@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using QSBanks;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSSupportLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;

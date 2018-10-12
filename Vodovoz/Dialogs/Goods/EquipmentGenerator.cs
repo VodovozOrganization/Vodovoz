@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Gtk;
 using NHibernate.Criterion;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;

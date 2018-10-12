@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -11,7 +13,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "отпуски самовывоза",
 		Nominative = "отпуск самовывоза")]
 	public class SelfDeliveryDocument: Document, IValidatableObject

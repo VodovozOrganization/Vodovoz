@@ -1,5 +1,5 @@
 ﻿using System;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;

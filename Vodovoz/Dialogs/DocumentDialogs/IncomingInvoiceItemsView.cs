@@ -6,10 +6,10 @@ using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 

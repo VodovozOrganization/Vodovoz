@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using QSOrmProject;
-using QSReport;
-using System.Linq;
-using Vodovoz.Domain.Goods;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QSOrmProject;
+using QSReport;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ReportsParameters.Store
 {

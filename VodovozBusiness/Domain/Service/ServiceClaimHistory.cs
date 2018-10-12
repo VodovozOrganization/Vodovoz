@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Service
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки истории заявки на обслуживание",
 		Nominative = "строка истории заявки на обслуживание")]
 	public class ServiceClaimHistory: PropertyChangedBase, IDomainObject, IValidatableObject

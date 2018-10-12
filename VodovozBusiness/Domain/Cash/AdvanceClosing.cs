@@ -1,11 +1,12 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Cash
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "закрытия авансов",
 		Nominative = "связка с документом закрытия аванса")]
 	public class AdvanceClosing : PropertyChangedBase, IDomainObject, IValidatableObject

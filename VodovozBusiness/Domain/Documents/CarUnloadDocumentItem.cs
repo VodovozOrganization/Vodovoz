@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Service;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа разгрузки",
 		Nominative = "строка документа разгрузки")]	
 	public class CarUnloadDocumentItem: PropertyChangedBase, IDomainObject

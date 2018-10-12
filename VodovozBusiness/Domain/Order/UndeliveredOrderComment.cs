@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using Gdk;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject(Gender = GrammaticalGender.Masculine,
 				NominativePlural = "комментарии к недовезённому заказу",
 				Nominative = "комментарий к недовезённому заказу",
 				Prepositional = "комментарии к недовезённому заказу",
