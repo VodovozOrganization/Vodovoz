@@ -15,6 +15,7 @@ using QSOsm.Osrm;
 using QSContacts;
 using Vodovoz.Domain.Goods;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Client
 {
@@ -23,6 +24,7 @@ namespace Vodovoz.Domain.Client
 		Nominative = "точка доставки",
 		Accusative = "точки доставки"
 	)]
+	[HistoryTrace]
 	public class DeliveryPoint : PropertyChangedBase, IDomainObject
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

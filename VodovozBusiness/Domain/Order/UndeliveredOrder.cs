@@ -8,7 +8,7 @@ using Gamma.Utilities;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSHistoryLog;
+using QS.HistoryLog;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -24,6 +24,7 @@ namespace Vodovoz.Domain.Orders
 				PrepositionalPlural = "недовезённых заказах"
 			   )
 	]
+	[HistoryTrace]
 	public class UndeliveredOrder : BusinessObjectBase<UndeliveredOrder>, IDomainObject, IValidatableObject
 	{
 		#region Cвойства

@@ -4,7 +4,7 @@ using System.Data.Bindings.Collections.Generic;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSHistoryLog;
+using QS.HistoryLog;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repository;
@@ -15,9 +15,9 @@ namespace Vodovoz.Domain.Client
 	[OrmSubject (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения продажи воды",
 		Nominative = "доп. соглашение продажи воды")]
+	[HistoryTrace]
 	public class WaterSalesAgreement : AdditionalAgreement
 	{
-		[HistoryDeepCloneItems]
 		IList<WaterSalesAgreementFixedPrice> fixedPrices = new List<WaterSalesAgreementFixedPrice> ();
 
 		[Display (Name = "Фиксированные цены")]
@@ -32,7 +32,6 @@ namespace Vodovoz.Domain.Client
 
 		GenericObservableList<WaterSalesAgreementFixedPrice> observableFixedPrices;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<WaterSalesAgreementFixedPrice> ObservableFixedPrices {
 			get {
 				if (observableFixedPrices == null)

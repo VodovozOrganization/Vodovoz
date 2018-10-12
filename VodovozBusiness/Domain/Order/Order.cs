@@ -7,7 +7,7 @@ using Gamma.Utilities;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSHistoryLog;
+using QS.HistoryLog;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
@@ -33,6 +33,7 @@ namespace Vodovoz.Domain.Orders
 		Prepositional = "заказе",
 		PrepositionalPlural = "заказах"
 	)]
+	[HistoryTrace]
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -537,7 +538,6 @@ namespace Vodovoz.Domain.Orders
 			return true;
 		}
 
-		[HistoryDeepCloneItems]
 		IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem>();
 
 		[Display(Name = "Залоги заказа")]
@@ -548,7 +548,6 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<OrderDepositItem> observableOrderDepositItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<OrderDepositItem> ObservableOrderDepositItems {
 			get {
 				if(observableOrderDepositItems == null) {
@@ -559,7 +558,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		[HistoryDeepCloneItems]
 		IList<OrderDocument> orderDocuments = new List<OrderDocument>();
 
 		[Display(Name = "Документы заказа")]
@@ -570,7 +568,6 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<OrderDocument> observableOrderDocuments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments {
 			get {
 				if(observableOrderDocuments == null)
@@ -579,7 +576,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		[HistoryDeepCloneItems]
 		IList<OrderItem> orderItems = new List<OrderItem>();
 
 		[Display(Name = "Строки заказа")]
@@ -590,7 +586,6 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<OrderItem> observableOrderItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<OrderItem> ObservableOrderItems {
 			get {
 				if(observableOrderItems == null) {
@@ -602,7 +597,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		[HistoryDeepCloneItems]
 		IList<OrderEquipment> orderEquipments = new List<OrderEquipment>();
 
 		[Display(Name = "Список оборудования")]
@@ -613,7 +607,6 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<OrderEquipment> observableOrderEquipments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<OrderEquipment> ObservableOrderEquipments {
 			get {
 				if(observableOrderEquipments == null)
@@ -632,7 +625,6 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<ServiceClaim> observableInitialOrderService;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<ServiceClaim> ObservableInitialOrderService {
 			get {
 				if(observableInitialOrderService == null)
@@ -651,7 +643,6 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<ServiceClaim> observableFinalOrderService;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		[IgnoreHistoryTrace]
 		public virtual GenericObservableList<ServiceClaim> ObservableFinalOrderService {
 			get {
 				if(observableFinalOrderService == null)
@@ -884,14 +875,12 @@ namespace Vodovoz.Domain.Orders
 			get { return String.Format("Заказ №{0} от {1:d}", Id, DeliveryDate); }
 		}
 
-		[IgnoreHistoryTrace]
 		public virtual int TotalDeliveredBottles {
 			get {
 				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
 			}
 		}
 
-		[IgnoreHistoryTrace]
 		public virtual int TotalDeliveredBottlesSix {
 			get {
 				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.disposableBottleWater && x.Nomenclature.Weight > 5).Sum(x => x.Count);
@@ -904,18 +893,15 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		[IgnoreHistoryTrace]
 		public virtual int TotalWeight {
 			get {
 				return (int)OrderItems.Sum(x => x.Count * x.Nomenclature.Weight);
 			}
 		}
 
-		[IgnoreHistoryTrace]
 		public virtual string RowColor { get { return PreviousOrder == null ? "black" : "red"; } }
 
 		[PropertyChangedAlso(nameof(SumToReceive))]
-		[IgnoreHistoryTrace]
 		public virtual decimal TotalSum {
 			get {
 				Decimal sum = 0;
@@ -930,7 +916,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		[IgnoreHistoryTrace]
 		public virtual decimal ActualTotalSum {
 			get {
 				Decimal sum = 0;
@@ -945,7 +930,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		[IgnoreHistoryTrace]
 		public virtual decimal MoneyForMaster =>
 		ObservableOrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.master)
 							.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount * i.Price);
@@ -956,7 +940,6 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Количество 19л бутылей в заказе
 		/// </summary>
-		[IgnoreHistoryTrace]
 		public virtual int TotalWaterBottles {
 			get {
 				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);

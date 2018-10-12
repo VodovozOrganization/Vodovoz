@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
@@ -24,6 +25,7 @@ namespace Vodovoz.Domain.Client
 		Accusative = "контрагента",
 		Genitive = "контрагента"
 	)]
+	[HistoryTrace]
 	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IValidatableObject
 	{
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
