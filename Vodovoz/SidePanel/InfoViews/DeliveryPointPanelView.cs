@@ -28,6 +28,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		void Configure()
 		{
+			label5.Visible = labelDeposits.Visible = false;
 			labelAddress.LineWrapMode = Pango.WrapMode.WordChar;
 			labelLastOrders.LineWrapMode = Pango.WrapMode.WordChar;
 
@@ -62,7 +63,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			var bottlesAtDeliveryPoint = BottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			var bottlesAvgDeliveryPoint = DeliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);
-			labelBottles.Text = String.Format("{0} шт. (сред. зак.: {1:G3})", bottlesAtDeliveryPoint, bottlesAvgDeliveryPoint);
+			lblBottlesQty.Text = String.Format("{0} шт. (сред. зак.: {1:G3})", bottlesAtDeliveryPoint, bottlesAvgDeliveryPoint);
 			var depositsAtDeliveryPoint = DepositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
 			labelDeposits.Text = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
@@ -70,6 +71,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			var currentOrders = OrderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
 			ytreeLastOrders.SetItemsSource<Order>(currentOrders);
 			vboxLastOrders.Visible = currentOrders.Any();
+			lblBottles.Visible = 
+				lblBottlesQty.Visible =
+					!(DeliveryPoint.HaveResidue.HasValue && DeliveryPoint.HaveResidue.Value == false);
 		}
 
 		public bool VisibleOnPanel {

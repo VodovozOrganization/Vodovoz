@@ -692,19 +692,16 @@ FROM
 		IF(newo.id IS NULL, '--', CONCAT_WS('\n', DATE_FORMAT(newo.delivery_date, '%e.%m'), new_schedule.name)) AS transfered,
 		coun.name AS client,
 		(
-			IF(
-				LOCATE(', пар', compiled_address_short) &gt; 0,
-				SUBSTRING(compiled_address_short, 1, LOCATE(', пар', compiled_address_short)-1),
-				IF(
-					LOCATE(', эт', compiled_address_short) &gt; 0,
-					SUBSTRING(compiled_address_short, 1, LOCATE(', эт', compiled_address_short)-1),
-					IF(
-						LOCATE(', кв', compiled_address_short) &gt; 0,
-						SUBSTRING(compiled_address_short, 1, LOCATE(', кв', compiled_address_short)-1),
-						compiled_address_short
-					)
-				)
-			)
+			CASE
+				WHEN compiled_address_short LIKE '%, пар%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', пар', compiled_address_short)-1)
+				WHEN compiled_address_short LIKE '%, ТЦ%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', ТЦ', compiled_address_short)-1)
+				WHEN compiled_address_short LIKE '%, ТК%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', ТК', compiled_address_short)-1)
+				WHEN compiled_address_short LIKE '%, БЦ%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', БЦ', compiled_address_short)-1)
+				WHEN compiled_address_short LIKE '%, шк%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', шк', compiled_address_short)-1)
+				WHEN compiled_address_short LIKE '%, общ%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', общ', compiled_address_short)-1)
+				WHEN compiled_address_short LIKE '%, эт%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', эт', compiled_address_short)-1)
+				WHEN compiled_address_short LIKE '%, кв%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', кв', compiled_address_short)-1)
+				END			
 		) AS address,
 		#кол-во воды к клиенту
 		(

@@ -17,6 +17,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.ShortAddress)	  		.Column("compiled_address_short");
 			Map(x => x.MinutesToUnload)  		.Column("minutes_to_unload");
 			Map(x => x.Floor)			  		.Column("floor");
+			Map(x => x.EntranceType)			.Column("entrance_type").CustomType<EntranceTypeStringType>();
 			Map(x => x.Entrance)				.Column("entrance");
 			Map(x => x.City)			  		.Column("city");
 			Map(x => x.LocalityType)	  		.Column("locality_type").CustomType<LocalityTypeStringType>();

@@ -160,7 +160,7 @@ ORDER BY
       </Fields>
     </DataSet>
     <DataSet Name="InfoGuilty">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	SUM(t.amount) AS def_qty,
@@ -177,7 +177,8 @@ FROM
 		regrading.time_stamp AS date,
 		regrading_items.amount AS amount,
 		regrading_items.defect_type_id AS def_id,
-		regrading_items.source AS source
+		regrading_items.source AS source,
+		NULL AS driver_id
 	FROM
 		store_regrading_of_goods_items regrading_items
 	LEFT JOIN
@@ -190,18 +191,26 @@ FROM
 		unload.time_stamp AS date,
 		o.amount AS amount,
 		unload_items.defect_type_id AS def_id,
-		unload_items.source AS source
+		unload_items.source AS source,
+		d.id AS driver_id
 	FROM
 		store_car_unload_document_items unload_items
 	LEFT JOIN
 		store_car_unload_documents unload ON unload_items.car_unload_document_id = unload.id
 	LEFT JOIN
 		warehouse_movement_operations o ON o.id = unload_items.warehouse_movement_operation_id
-	) AS t
+	LEFT JOIN
+		route_lists rl ON unload.route_list_id = rl.id
+	LEFT JOIN
+		employees d ON d.id = rl.driver_id) AS t
 LEFT JOIN
 	culling_category defects ON defects.id = t.def_id
 WHERE
 		t.date BETWEEN @start_date AND ADDDATE(@end_date, INTERVAL 1 DAY)
+	AND
+		(t.source = @source OR @source = 'All')
+	AND
+		(t.driver_id = @driver_id OR @driver_id = 0)
 	AND
 		t.def_id IS NOT NULL
 GROUP BY
@@ -214,9 +223,15 @@ GROUP BY
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
+          <QueryParameter Name="source">
+            <Value>=Parameters!source</Value>
+          </QueryParameter>
+          <QueryParameter Name="driver_id">
+            <Value>=Parameters!driver_id</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="def_qty">
           <DataField>def_qty</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -228,7 +243,7 @@ GROUP BY
       </Fields>
     </DataSet>
     <DataSet Name="InfoDefectTypes">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	SUM(t.amount) AS def_qty,
@@ -238,7 +253,9 @@ FROM
 		regrading.id AS id,
 		regrading.time_stamp AS date,
 		regrading_items.amount AS amount,
-		regrading_items.defect_type_id AS def_id
+		regrading_items.defect_type_id AS def_id,
+		regrading_items.source AS source,
+		NULL AS driver_id
 	FROM
 		store_regrading_of_goods_items regrading_items
 	LEFT JOIN
@@ -250,18 +267,27 @@ FROM
 		unload.id AS id,
 		unload.time_stamp AS date,
 		o.amount AS amount,
-		unload_items.defect_type_id AS def_id
+		unload_items.defect_type_id AS def_id,
+		unload_items.source AS source,
+		d.id AS driver_id
 	FROM
 		store_car_unload_document_items unload_items
 	LEFT JOIN
 		store_car_unload_documents unload ON unload_items.car_unload_document_id = unload.id
 	LEFT JOIN
 		warehouse_movement_operations o ON o.id = unload_items.warehouse_movement_operation_id
-	) AS t
+	LEFT JOIN
+		route_lists rl ON unload.route_list_id = rl.id
+	LEFT JOIN
+		employees d ON d.id = rl.driver_id) AS t
 LEFT JOIN
 	culling_category defects ON defects.id = t.def_id
 WHERE
 		t.date BETWEEN @start_date AND ADDDATE(@end_date, INTERVAL 1 DAY)
+	AND
+		(t.source = @source OR @source = 'All')
+	AND
+		(t.driver_id = @driver_id OR @driver_id = 0)
 	AND
 		t.def_id IS NOT NULL
 GROUP BY
@@ -274,9 +300,15 @@ GROUP BY
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
+          <QueryParameter Name="source">
+            <Value>=Parameters!source</Value>
+          </QueryParameter>
+          <QueryParameter Name="driver_id">
+            <Value>=Parameters!driver_id</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="def_qty">
           <DataField>def_qty</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -326,6 +358,8 @@ Iif(CDate({?start_date}) = CDate({?end_date}),
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -688,6 +722,198 @@ Iif(CDate({?start_date}) = CDate({?end_date}),
         </Details>
         <Left>6.0pt</Left>
         <Top>6.6pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                      <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign >Center</TextAlign>
+                      </Style>
+                      <Value>=Sum({amount})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
       <Table Name="Table2">
         <DataSetName>InfoGuilty</DataSetName>
@@ -792,7 +1018,7 @@ Iif(CDate({?start_date}) = CDate({?end_date}),
           </TableRows>
         </Details>
         <Left>477.3pt</Left>
-        <Top>52.8pt</Top>
+        <Top>61.6pt</Top>
       </Table>
       <Table Name="Table3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>InfoDefectTypes</DataSetName>
@@ -897,7 +1123,7 @@ Iif(CDate({?start_date}) = CDate({?end_date}),
           </TableRows>
         </Details>
         <Left>477.6pt</Left>
-        <Top>81.2pt</Top>
+        <Top>90.0pt</Top>
       </Table>
     </ReportItems>
   </Body>
@@ -978,7 +1204,7 @@ Iif(CDate({?start_date}) = CDate({?end_date}),
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

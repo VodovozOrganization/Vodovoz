@@ -16,17 +16,17 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.Button btnAddPhone;
 
-		private global::Gtk.Label label4;
-
 		private global::Gtk.Label label5;
-
-		private global::Vodovoz.WrapLabel labelBottles;
 
 		private global::Vodovoz.WrapLabel labelDeposits;
 
 		private global::Vodovoz.WrapLabel labelPhone;
 
 		private global::Gtk.Label labelPhoneText;
+
+		private global::Gtk.Label lblBottles;
+
+		private global::Vodovoz.WrapLabel lblBottlesQty;
 
 		private global::Gtk.VBox vboxLastOrders;
 
@@ -106,19 +106,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			w5.XOptions = ((global::Gtk.AttachOptions)(0));
 			w5.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table2.Gtk.Table+TableChild
-			this.label4 = new global::Gtk.Label();
-			this.label4.Name = "label4";
-			this.label4.Xalign = 1F;
-			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Бутылей:");
-			this.label4.Wrap = true;
-			this.label4.Justify = ((global::Gtk.Justification)(2));
-			this.table2.Add(this.label4);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table2[this.label4]));
-			w6.TopAttach = ((uint)(1));
-			w6.BottomAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
 			this.label5 = new global::Gtk.Label();
 			this.label5.Name = "label5";
 			this.label5.Xalign = 1F;
@@ -126,54 +113,67 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.label5.Wrap = true;
 			this.label5.Justify = ((global::Gtk.Justification)(2));
 			this.table2.Add(this.label5);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table2[this.label5]));
-			w7.TopAttach = ((uint)(2));
-			w7.BottomAttach = ((uint)(3));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.labelBottles = new global::Vodovoz.WrapLabel();
-			this.labelBottles.Name = "labelBottles";
-			this.labelBottles.LabelProp = global::Mono.Unix.Catalog.GetString("wraplabel1");
-			this.labelBottles.Wrap = true;
-			this.labelBottles.Justify = ((global::Gtk.Justification)(2));
-			this.labelBottles.Selectable = true;
-			this.table2.Add(this.labelBottles);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2[this.labelBottles]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
-			w8.LeftAttach = ((uint)(1));
-			w8.RightAttach = ((uint)(3));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table2[this.label5]));
+			w6.TopAttach = ((uint)(2));
+			w6.BottomAttach = ((uint)(3));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.labelDeposits = new global::Vodovoz.WrapLabel();
 			this.labelDeposits.Name = "labelDeposits";
 			this.labelDeposits.LabelProp = global::Mono.Unix.Catalog.GetString("wraplabel3");
 			this.labelDeposits.Selectable = true;
 			this.table2.Add(this.labelDeposits);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table2[this.labelDeposits]));
-			w9.TopAttach = ((uint)(2));
-			w9.BottomAttach = ((uint)(3));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(3));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table2[this.labelDeposits]));
+			w7.TopAttach = ((uint)(2));
+			w7.BottomAttach = ((uint)(3));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(3));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.labelPhone = new global::Vodovoz.WrapLabel();
 			this.labelPhone.Name = "labelPhone";
-			this.labelPhone.LabelProp = global::Mono.Unix.Catalog.GetString("Щёлкните чтоб добавить -->");
+			this.labelPhone.LabelProp = global::Mono.Unix.Catalog.GetString("Щёлкните для добавления -->");
 			this.table2.Add(this.labelPhone);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table2[this.labelPhone]));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2[this.labelPhone]));
+			w8.LeftAttach = ((uint)(1));
+			w8.RightAttach = ((uint)(2));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.labelPhoneText = new global::Gtk.Label();
 			this.labelPhoneText.Name = "labelPhoneText";
 			this.labelPhoneText.Xalign = 1F;
 			this.labelPhoneText.LabelProp = global::Mono.Unix.Catalog.GetString("Телефон:");
 			this.table2.Add(this.labelPhoneText);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table2[this.labelPhoneText]));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table2[this.labelPhoneText]));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.lblBottles = new global::Gtk.Label();
+			this.lblBottles.Name = "lblBottles";
+			this.lblBottles.Xalign = 1F;
+			this.lblBottles.LabelProp = global::Mono.Unix.Catalog.GetString("Бутылей:");
+			this.lblBottles.Wrap = true;
+			this.lblBottles.Justify = ((global::Gtk.Justification)(2));
+			this.table2.Add(this.lblBottles);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table2[this.lblBottles]));
+			w10.TopAttach = ((uint)(1));
+			w10.BottomAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.lblBottlesQty = new global::Vodovoz.WrapLabel();
+			this.lblBottlesQty.Name = "lblBottlesQty";
+			this.lblBottlesQty.LabelProp = global::Mono.Unix.Catalog.GetString("wraplabel1");
+			this.lblBottlesQty.Wrap = true;
+			this.lblBottlesQty.Justify = ((global::Gtk.Justification)(2));
+			this.lblBottlesQty.Selectable = true;
+			this.table2.Add(this.lblBottlesQty);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table2[this.lblBottlesQty]));
+			w11.TopAttach = ((uint)(1));
+			w11.BottomAttach = ((uint)(2));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(3));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table2);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table2]));
