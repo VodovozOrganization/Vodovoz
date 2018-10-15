@@ -13,10 +13,10 @@ rm -v -f -R ../My-FyiReporting/packages/*
 rm -v -f -R ../VodovozService/packages/*
 ;;
     1|*)
-nuget restore Vodovoz/Vodovoz.sln;
-nuget restore QSProjects/QSProjectsLib.sln;
-nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln
-nuget restore VodovozService/VodovozService.sln
+nuget restore Vodovoz.sln;
+nuget restore ../QSProjects/QSProjectsLib.sln;
+nuget restore ../My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln
+nuget restore ../VodovozService/VodovozService.sln
 ;;
 esac
 
