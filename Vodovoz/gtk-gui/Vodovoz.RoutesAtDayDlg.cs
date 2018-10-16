@@ -96,6 +96,8 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox3;
 
+		private global::Gtk.Button btnRefresh;
+
 		private global::Gtk.Label labelSelected;
 
 		private global::QSWidgetLib.MenuButton menuAddToRL;
@@ -564,14 +566,28 @@ namespace Vodovoz
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
+			this.btnRefresh = new global::Gtk.Button();
+			this.btnRefresh.TooltipMarkup = "Обновить";
+			this.btnRefresh.CanFocus = true;
+			this.btnRefresh.Name = "btnRefresh";
+			this.btnRefresh.UseUnderline = true;
+			global::Gtk.Image w50 = new global::Gtk.Image();
+			w50.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Menu);
+			this.btnRefresh.Image = w50;
+			this.hbox3.Add(this.btnRefresh);
+			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.btnRefresh]));
+			w51.Position = 0;
+			w51.Expand = false;
+			w51.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.labelSelected = new global::Gtk.Label();
 			this.labelSelected.Name = "labelSelected";
 			this.labelSelected.LabelProp = global::Mono.Unix.Catalog.GetString("Адресов не выбрано");
 			this.hbox3.Add(this.labelSelected);
-			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.labelSelected]));
-			w50.Position = 0;
-			w50.Expand = false;
-			w50.Fill = false;
+			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.labelSelected]));
+			w52.Position = 1;
+			w52.Expand = false;
+			w52.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.menuAddToRL = new global::QSWidgetLib.MenuButton();
 			this.menuAddToRL.Sensitive = false;
@@ -580,14 +596,14 @@ namespace Vodovoz
 			this.menuAddToRL.UseUnderline = true;
 			this.menuAddToRL.UseMarkup = false;
 			this.menuAddToRL.Label = global::Mono.Unix.Catalog.GetString("В маршрутный лист");
-			global::Gtk.Image w51 = new global::Gtk.Image();
-			w51.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.menuAddToRL.Image = w51;
+			global::Gtk.Image w53 = new global::Gtk.Image();
+			w53.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.menuAddToRL.Image = w53;
 			this.hbox3.Add(this.menuAddToRL);
-			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.menuAddToRL]));
-			w52.Position = 1;
-			w52.Expand = false;
-			w52.Fill = false;
+			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.menuAddToRL]));
+			w54.Position = 2;
+			w54.Expand = false;
+			w54.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.checkShowDistricts = new global::Gtk.CheckButton();
 			this.checkShowDistricts.CanFocus = true;
@@ -596,8 +612,8 @@ namespace Vodovoz
 			this.checkShowDistricts.DrawIndicator = true;
 			this.checkShowDistricts.UseUnderline = true;
 			this.hbox3.Add(this.checkShowDistricts);
-			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.checkShowDistricts]));
-			w53.Position = 2;
+			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.checkShowDistricts]));
+			w55.Position = 3;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.yspinMaxTime = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
 			this.yspinMaxTime.TooltipMarkup = "Максимальное время оптимизаций, в секундах.";
@@ -611,10 +627,10 @@ namespace Vodovoz
 			this.yspinMaxTime.ValueAsDecimal = 0m;
 			this.yspinMaxTime.ValueAsInt = 0;
 			this.hbox3.Add(this.yspinMaxTime);
-			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yspinMaxTime]));
-			w54.Position = 3;
-			w54.Expand = false;
-			w54.Fill = false;
+			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yspinMaxTime]));
+			w56.Position = 4;
+			w56.Expand = false;
+			w56.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.buttonMapHelp = new global::Gtk.Button();
 			this.buttonMapHelp.TooltipMarkup = "Справка по работе с картой.";
@@ -622,15 +638,15 @@ namespace Vodovoz
 			this.buttonMapHelp.Name = "buttonMapHelp";
 			this.buttonMapHelp.UseUnderline = true;
 			this.buttonMapHelp.Relief = ((global::Gtk.ReliefStyle)(1));
-			global::Gtk.Image w55 = new global::Gtk.Image();
-			w55.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
-			this.buttonMapHelp.Image = w55;
+			global::Gtk.Image w57 = new global::Gtk.Image();
+			w57.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.buttonMapHelp.Image = w57;
 			this.hbox3.Add(this.buttonMapHelp);
-			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonMapHelp]));
-			w56.PackType = ((global::Gtk.PackType)(1));
-			w56.Position = 4;
-			w56.Expand = false;
-			w56.Fill = false;
+			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonMapHelp]));
+			w58.PackType = ((global::Gtk.PackType)(1));
+			w58.Position = 5;
+			w58.Expand = false;
+			w58.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.yenumcomboMapType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboMapType.Name = "yenumcomboMapType";
@@ -639,16 +655,16 @@ namespace Vodovoz
 			this.yenumcomboMapType.UseShortTitle = false;
 			this.yenumcomboMapType.DefaultFirst = true;
 			this.hbox3.Add(this.yenumcomboMapType);
-			global::Gtk.Box.BoxChild w57 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yenumcomboMapType]));
-			w57.PackType = ((global::Gtk.PackType)(1));
-			w57.Position = 5;
-			w57.Expand = false;
-			w57.Fill = false;
+			global::Gtk.Box.BoxChild w59 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yenumcomboMapType]));
+			w59.PackType = ((global::Gtk.PackType)(1));
+			w59.Position = 6;
+			w59.Expand = false;
+			w59.Fill = false;
 			this.vbox2.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox3]));
-			w58.Position = 0;
-			w58.Expand = false;
-			w58.Fill = false;
+			global::Gtk.Box.BoxChild w60 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox3]));
+			w60.Position = 0;
+			w60.Expand = false;
+			w60.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.gmapWidget = new global::GMap.NET.GtkSharp.GMapControl();
 			this.gmapWidget.Name = "gmapWidget";
@@ -666,14 +682,14 @@ namespace Vodovoz
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
 			this.vbox2.Add(this.gmapWidget);
-			global::Gtk.Box.BoxChild w59 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.gmapWidget]));
-			w59.Position = 1;
-			this.hbox2.Add(this.vbox2);
-			global::Gtk.Box.BoxChild w60 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox2]));
-			w60.Position = 1;
-			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w61 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			global::Gtk.Box.BoxChild w61 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.gmapWidget]));
 			w61.Position = 1;
+			this.hbox2.Add(this.vbox2);
+			global::Gtk.Box.BoxChild w62 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox2]));
+			w62.Position = 1;
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w63 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w63.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

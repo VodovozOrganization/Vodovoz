@@ -28,7 +28,6 @@
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
     <widget-library name="../../../QSProjects/QSEmailSending/bin/Debug/QSEmailSending.dll" />
     <widget-library name="../../../VodovozService/EmailService/bin/Debug/Email.dll" />
-    <widget-library name="../../../QSProjects/QS.Project/bin/Debug/QS.Project.dll" />
     <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
@@ -41437,7 +41436,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1035 363">
+  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1050 363">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -42080,12 +42079,29 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
+                      <widget class="Gtk.Button" id="btnRefresh">
+                        <property name="MemberName" />
+                        <property name="Tooltip" translatable="yes">Обновить</property>
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextAndIcon</property>
+                        <property name="Icon">stock:gtk-refresh Menu</property>
+                        <property name="Label" translatable="yes" />
+                        <property name="UseUnderline">True</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">0</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="Gtk.Label" id="labelSelected">
                         <property name="MemberName" />
                         <property name="LabelProp" translatable="yes">Адресов не выбрано</property>
                       </widget>
                       <packing>
-                        <property name="Position">0</property>
+                        <property name="Position">1</property>
                         <property name="AutoSize">True</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>
@@ -42103,7 +42119,7 @@ not tooltip</property>
                         <property name="UseMarkup">False</property>
                       </widget>
                       <packing>
-                        <property name="Position">1</property>
+                        <property name="Position">2</property>
                         <property name="AutoSize">True</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>
@@ -42120,7 +42136,7 @@ not tooltip</property>
                         <signal name="Toggled" handler="OnCheckShowDistrictsToggled" />
                       </widget>
                       <packing>
-                        <property name="Position">2</property>
+                        <property name="Position">3</property>
                         <property name="AutoSize">True</property>
                       </packing>
                     </child>
@@ -42140,7 +42156,7 @@ not tooltip</property>
                         <property name="ValueAsInt">0</property>
                       </widget>
                       <packing>
-                        <property name="Position">3</property>
+                        <property name="Position">4</property>
                         <property name="AutoSize">True</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>
@@ -42160,7 +42176,7 @@ not tooltip</property>
                       </widget>
                       <packing>
                         <property name="PackType">End</property>
-                        <property name="Position">4</property>
+                        <property name="Position">5</property>
                         <property name="AutoSize">True</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>
@@ -42179,7 +42195,7 @@ not tooltip</property>
                       </widget>
                       <packing>
                         <property name="PackType">End</property>
-                        <property name="Position">5</property>
+                        <property name="Position">6</property>
                         <property name="AutoSize">True</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>

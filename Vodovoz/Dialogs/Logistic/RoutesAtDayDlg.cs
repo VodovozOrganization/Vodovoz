@@ -55,8 +55,7 @@ namespace Vodovoz
 		private bool hasNoChanges;
 
 		public bool HasNoChanges {
-			get { return hasNoChanges; }
-
+			get => hasNoChanges; 
 			private set {
 				hasNoChanges = value;
 
@@ -65,19 +64,15 @@ namespace Vodovoz
 			}
 		}
 
-		private DateTime CurDate {
-			get { return ydateForRoutes.Date; }
-		}
+		DateTime CurDate => ydateForRoutes.Date;
 
-		private IList<AtWorkForwarder> ForwardersAtDay {
+		IList<AtWorkForwarder> ForwardersAtDay {
 			set {
 				forwardersAtDay = value;
 				observableForwardersAtDay = new GenericObservableList<AtWorkForwarder>(forwardersAtDay);
 				ytreeviewOnDayForwarders.SetItemsSource(observableForwardersAtDay);
 			}
-			get {
-				return forwardersAtDay;
-			}
+			get => forwardersAtDay;
 		}
 
 		private IList<AtWorkDriver> DriversAtDay {
@@ -86,9 +81,7 @@ namespace Vodovoz
 				observableDriversAtDay = new GenericObservableList<AtWorkDriver>(driversAtDay);
 				ytreeviewOnDayDrivers.SetItemsSource(observableDriversAtDay);
 			}
-			get {
-				return driversAtDay;
-			}
+			get => driversAtDay;
 		}
 
 		#endregion
@@ -176,6 +169,7 @@ namespace Vodovoz
 			ydateForRoutes.Date = DateTime.Today;
 
 			yspinMaxTime.Binding.AddBinding(optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt);
+			btnRefresh.Clicked += OnButtonCancelChangesClicked;
 
 			OrmMain.GetObjectDescription<RouteList>().ObjectUpdatedGeneric += RouteListExternalUpdated;
 		}
