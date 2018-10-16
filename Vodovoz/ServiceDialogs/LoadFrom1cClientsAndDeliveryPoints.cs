@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using Gtk;
-using System.Linq;
-using System.Xml;
-using Vodovoz.Domain.Client;
-using QSTDI;
-using QSProjectsLib;
-using QSBanks;
-using QSOrmProject;
-using QSWidgetLib;
-using Vodovoz.LoadFrom1c;
-using System.Text.RegularExpressions;
-using QSContacts;
-using Vodovoz.Domain.Goods;
-using NHibernate.Criterion;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Xml;
+using Gtk;
+using QS.DomainModel.UoW;
+using QSBanks;
+using QSContacts;
+using QSOrmProject;
+using QSProjectsLib;
+using QSTDI;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
+using Vodovoz.LoadFrom1c;
 
 namespace Vodovoz.ServiceDialogs
 {

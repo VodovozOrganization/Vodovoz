@@ -1,4 +1,4 @@
-﻿using QSOrmProject;
+﻿using QS.DomainModel.UoW;
 using QSBanks;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Client;

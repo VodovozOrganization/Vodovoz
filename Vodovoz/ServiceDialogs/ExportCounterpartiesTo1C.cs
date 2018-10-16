@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Repository;

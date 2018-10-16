@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Repository

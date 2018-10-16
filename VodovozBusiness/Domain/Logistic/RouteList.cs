@@ -1,8 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
@@ -18,7 +20,7 @@ using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Журнал МЛ",
 		Nominative = "маршрутный лист")]
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject

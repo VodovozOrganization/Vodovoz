@@ -1,6 +1,7 @@
 ﻿using System;
 using Gamma.Binding;
 using Gtk;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;

@@ -1,6 +1,5 @@
-﻿using System;
-using QSOrmProject;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {

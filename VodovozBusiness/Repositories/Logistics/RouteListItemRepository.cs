@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NHibernate.Util;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 

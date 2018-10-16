@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ServiceModel;
 using Gtk;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;

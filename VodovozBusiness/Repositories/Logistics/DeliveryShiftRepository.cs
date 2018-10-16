@@ -1,5 +1,5 @@
 ﻿using System;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using NHibernate.Criterion;
 using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;

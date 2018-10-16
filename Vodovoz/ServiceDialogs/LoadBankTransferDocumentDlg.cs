@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Gtk;
+using QS.DomainModel.UoW;
 using QSBanks;
 using QSBanks.Repository;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;

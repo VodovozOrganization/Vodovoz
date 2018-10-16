@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using Gamma.ColumnConfig;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModel
 {

@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
-using VodovozService.Chats;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Chats;
+using VodovozService.Chats;
 
 namespace Vodovoz.ServiceDialogs.Chat
 {

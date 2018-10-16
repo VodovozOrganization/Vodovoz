@@ -2,7 +2,7 @@
 using System.Linq;
 using NHibernate.Criterion;
 using QSBanks;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using System;
 

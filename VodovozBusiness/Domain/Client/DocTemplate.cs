@@ -2,12 +2,13 @@
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QSDocTemplates;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.DocTemplates;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "шаблоны документов",
 		Nominative = "шаблон документа")]
 	public class DocTemplate : PropertyChangedBase, IDomainObject, IDocTemplate

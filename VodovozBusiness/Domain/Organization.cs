@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QSBanks;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "организации",
 		Nominative = "организация")]
 	public class Organization : AccountOwnerBase, IDomainObject

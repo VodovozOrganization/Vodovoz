@@ -5,6 +5,7 @@ using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Transform;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;

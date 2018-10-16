@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QSContacts;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using QSProjectsLib;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "контакты",
 		Nominative = "контакт",
 		Accusative = "контакта",

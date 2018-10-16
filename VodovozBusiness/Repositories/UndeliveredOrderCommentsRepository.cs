@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using NHibernate.Transform;
 using NHibernate.Util;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;

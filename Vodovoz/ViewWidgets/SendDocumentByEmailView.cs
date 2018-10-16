@@ -6,6 +6,7 @@ using EmailService;
 using fyiReporting.RDL;
 using fyiReporting.RdlGtkViewer;
 using Gamma.GtkWidgets;
+using QS.DomainModel.UoW;
 using QSEmailSending;
 using QSOrmProject;
 using QSProjectsLib;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Documents;

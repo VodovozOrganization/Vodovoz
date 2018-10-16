@@ -1,11 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "автомобили",
 		Nominative = "автомобиль")]
 	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject

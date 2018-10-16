@@ -1,11 +1,12 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Operations
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "передвижения бутылей",
 		Nominative = "передвижение бутылей")]
 	public class BottlesMovementOperation: OperationBase

@@ -6,10 +6,9 @@ using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -51,12 +50,7 @@ namespace Vodovoz
 		}
 
 		private decimal bottleDepositPrice;
-
-		IUnitOfWork uow;
-		public IUnitOfWork UoW {
-			get => uow;
-			set => uow = value;
-		}
+		public IUnitOfWork UoW { get; set; }
 
 		private decimal equipmentDepositPrice;
 

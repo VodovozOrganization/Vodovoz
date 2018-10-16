@@ -1,6 +1,6 @@
 ﻿using System;
 using Vodovoz.Domain.Logistic;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using NHibernate.Criterion;
 using NHibernate.Transform;

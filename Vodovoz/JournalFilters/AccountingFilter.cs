@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 
 namespace Vodovoz

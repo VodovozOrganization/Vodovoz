@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Vodovoz.Domain;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using System.Linq;
 
 namespace Vodovoz.Repository

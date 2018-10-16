@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject(Gender = GrammaticalGender.Masculine,
 				NominativePlural = "виновные в недовозе",
 				Nominative = "виновный в недовозе",
 				Prepositional = "виновном в недовозе",

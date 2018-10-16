@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using Gtk;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
 using QSTDI;

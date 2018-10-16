@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Gamma.ColumnConfig;
 using NHibernate.Transform;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Goods;

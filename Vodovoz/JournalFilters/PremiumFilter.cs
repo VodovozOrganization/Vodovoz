@@ -1,5 +1,5 @@
 ﻿using System;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 
 namespace Vodovoz.JournalFilters

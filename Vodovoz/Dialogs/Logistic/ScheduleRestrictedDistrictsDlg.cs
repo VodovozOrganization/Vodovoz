@@ -10,6 +10,7 @@ using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using Gtk;
 using NetTopologySuite.Geometries;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;

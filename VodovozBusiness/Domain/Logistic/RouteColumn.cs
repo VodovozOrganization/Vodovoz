@@ -1,11 +1,12 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Logistic
 {
 
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "колонки в маршрутном листе",
 		Nominative = "колонка маршрутного листа")]
 	public class RouteColumn : PropertyChangedBase, IDomainObject

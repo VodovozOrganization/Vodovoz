@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Store
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "материалы спецификации",
 		Nominative = "материал спецификации"
 	)]

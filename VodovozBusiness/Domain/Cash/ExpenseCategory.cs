@@ -1,11 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Basis;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Cash
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "статьи расхода",
 		Nominative = "статья расхода")]
 	public class ExpenseCategory : DomainTreeNodeBase<ExpenseCategory>, IDomainObject

@@ -4,15 +4,17 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
 using QSBusinessCommon.Domain;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Goods
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "номенклатуры",
 		Nominative = "номенклатура")]
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject

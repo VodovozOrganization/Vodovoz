@@ -3,10 +3,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.Print;
 using QSDocTemplates;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repositories.Client;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Orders.Documents
 {

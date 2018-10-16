@@ -1,7 +1,6 @@
-﻿﻿using System;
+﻿using FluentNHibernate.Mapping;
+using NHibernate.Type;
 using Vodovoz.Domain.Logistic;
-using FluentNHibernate.Mapping;
-using DataAccess.NhibernateFixes;
 
 namespace Vodovoz.HibernateMapping
 {
@@ -14,7 +13,7 @@ namespace Vodovoz.HibernateMapping
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.Date).Column("date");
 			Map(x => x.PriorityAtDay).Column("piority_at_day");
-			Map(x => x.EndOfDay).Column("end_of_day").CustomType<TimeAsTimeSpanTypeClone>();
+			Map(x => x.EndOfDay).Column("end_of_day").CustomType<TimeAsTimeSpanType>();
 
 			References(x => x.Employee).Column("employee_id");
 			References(x => x.Car).Column("car_id");

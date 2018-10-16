@@ -9,6 +9,7 @@ using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using Gtk;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;

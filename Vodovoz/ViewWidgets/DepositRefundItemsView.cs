@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Data.Bindings.Collections.Generic;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;

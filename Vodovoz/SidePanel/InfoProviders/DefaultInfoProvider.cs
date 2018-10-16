@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.SidePanel.InfoProviders
 {
@@ -17,7 +18,7 @@ namespace Vodovoz.SidePanel.InfoProviders
 			}
 		}
 
-		public QSOrmProject.IUnitOfWork UoW
+		public IUnitOfWork UoW
 		{
 			get
 			{

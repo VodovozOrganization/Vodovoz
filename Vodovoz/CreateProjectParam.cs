@@ -4,6 +4,7 @@ using Gamma.Binding;
 using Gamma.Utilities;
 using NHibernate.AdoNet;
 using NHibernate.Cfg;
+using QS.HistoryLog;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
 using QSContacts;
@@ -93,10 +94,11 @@ namespace Vodovoz
 
 			// Настройка ORM
 			OrmMain.ConfigureOrm(db_config, new System.Reflection.Assembly[] {
+				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain)),
-				System.Reflection.Assembly.GetAssembly (typeof(QSHistoryLog.HistoryMain))
+				System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
 			},
 								  (cnf) => cnf.DataBaseIntegration(
 									  dbi => { dbi.BatchSize = 100; dbi.Batcher<MySqlClientBatchingBatcherFactory>(); }
@@ -125,8 +127,8 @@ namespace Vodovoz
 					.DefaultTableView().SearchColumn("Фамилия", x => x.Surname).SearchColumn("Имя", x => x.Name).SearchColumn("Отчество", x => x.Patronymic).End(),
 				OrmObjectMapping<Car>.Create().Dialog<CarsDlg>()
 					.DefaultTableView().SearchColumn("Модель а/м", x => x.Model).SearchColumn("Гос. номер", x => x.RegistrationNumber).SearchColumn("Водитель", x => x.Driver != null ? x.Driver.FullName : String.Empty).End(),
-				OrmObjectMapping<Order>.Create().Trace().Dialog <OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
-				OrmObjectMapping<UndeliveredOrder>.Create().Trace().Dialog<UndeliveredOrderDlg>(),
+				OrmObjectMapping<Order>.Create().Dialog <OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
+				OrmObjectMapping<UndeliveredOrder>.Create().Dialog<UndeliveredOrderDlg>(),
 				OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<DeliverySchedule>.Create().Dialog<DeliveryScheduleDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Время доставки", x => x.DeliveryTime).End(),
 				OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
@@ -142,7 +144,7 @@ namespace Vodovoz
 				OrmObjectMapping<DailyRentAgreement>.Create().Dialog<DailyRentAgreementDlg>(),
 				OrmObjectMapping<NonfreeRentAgreement>.Create().Dialog<NonFreeRentAgreementDlg>(),
 				OrmObjectMapping<SalesEquipmentAgreement>.Create().Dialog<EquipSalesAgreementDlg>(),
-				OrmObjectMapping<WaterSalesAgreement>.Create().Trace().Dialog<WaterAgreementDlg>(),
+				OrmObjectMapping<WaterSalesAgreement>.Create().Dialog<WaterAgreementDlg>(),
 				OrmObjectMapping<RepairAgreement>.Create().Dialog<RepairAgreementDlg>(),
 				OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView().SearchColumn("Название", x => x.FullName).End(),
 				OrmObjectMapping<Tag>.Create().Dialog<TagDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
@@ -211,7 +213,7 @@ namespace Vodovoz
 
 			#endregion
 
-			//HistoryMain.ConfigureFromOrmMain();
+			HistoryMain.Enable();
 			TemplatePrinter.InitPrinter();
 
 			//Настройка ParentReference

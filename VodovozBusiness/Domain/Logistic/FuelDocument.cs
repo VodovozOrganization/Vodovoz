@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
@@ -8,7 +10,7 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "документы выдачи топлива",
 		Nominative = "документ выдачи топлива")]
 	public class FuelDocument : PropertyChangedBase, IDomainObject, IValidatableObject

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Store;
@@ -9,7 +10,7 @@ using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "входящие накладные",
 		Nominative = "входящая накладная")]
 	public class IncomingInvoice: Document, IValidatableObject

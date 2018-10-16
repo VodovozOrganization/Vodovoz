@@ -5,6 +5,7 @@ using Vodovoz.Domain.Employees;
 using Gtk;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.ViewModel
 {

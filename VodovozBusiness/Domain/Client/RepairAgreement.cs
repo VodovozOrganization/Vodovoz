@@ -1,10 +1,12 @@
-using System;
+﻿using System;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
 {
 
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения сервиса",
 		Nominative = "доп. соглашение сервиса")]
 	public class RepairAgreement : AdditionalAgreement

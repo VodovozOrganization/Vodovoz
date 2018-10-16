@@ -1,16 +1,19 @@
 ﻿using System;
-using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.HistoryLog;
+using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using System.Linq;
-using QSHistoryLog;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
+	[HistoryTrace]
 	public class OrderItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

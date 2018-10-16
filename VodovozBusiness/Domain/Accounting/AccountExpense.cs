@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QSBanks;
+using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -9,7 +10,7 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Accounting
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "списания с р/с",
 		Nominative = "списание с р/с")]
 	public class AccountExpense: PropertyChangedBase, IDomainObject, IValidatableObject

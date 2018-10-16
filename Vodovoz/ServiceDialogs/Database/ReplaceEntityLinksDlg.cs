@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.Deletion;
 using QSTDI;

@@ -1,9 +1,10 @@
-﻿using QSOrmProject;
+﻿using QS.DomainModel.Entity;
+using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Goods
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "цены",
 		Nominative = "цена")]
 	public partial class NomenclaturePrice: PropertyChangedBase, IDomainObject
