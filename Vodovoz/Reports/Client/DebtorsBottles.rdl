@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="BottleDebt">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT DISTINCT
@@ -78,7 +78,7 @@ ORDER BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="pointid">
           <DataField>pointid</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -175,7 +175,7 @@ ORDER BY
         <Header>
           <TableRows>
             <TableRow>
-              <Height>35.3pt</Height>
+              <Height>38.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -517,10 +517,40 @@ ORDER BY
           </TableGroup>
         </TableGroups>
         <Left>0.0pt</Left>
-        <Top>19.5pt</Top>
+        <Top>40.3pt</Top>
       </Table>
+      <Textbox Name="Textbox2">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>Итого:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>326.3pt</Left>
+        <Top>24.4pt</Top>
+        <Style>
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Right</TextAlign>
+        </Style>
+        <Visibility>
+        </Visibility>
+      </Textbox>
+      <Textbox Name="Textbox3">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>=Sum(Fields!debt.Value, "BottleDebt")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>399.8pt</Left>
+        <Top>24.4pt</Top>
+        <Visibility>
+        </Visibility>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Left</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
-    <Height>138.6pt</Height>
+    <Height>148.7pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
