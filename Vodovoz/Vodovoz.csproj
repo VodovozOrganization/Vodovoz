@@ -977,10 +977,6 @@
       <Project>{3DCDD84A-20D0-4939-BE25-58B19F3961F2}</Project>
       <Name>QSExtraGammaWidgets</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSEmailSending\QSEmailSending.csproj">
-      <Project>{7AE4E4AA-B519-43CF-AACC-5856FAACDF0C}</Project>
-      <Name>QSEmailSending</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\VodovozService\EmailService\EmailService.csproj">
       <Project>{6E76A8A0-411C-4987-A77D-64B9571C7759}</Project>
       <Name>EmailService</Name>
