@@ -229,7 +229,7 @@ namespace Vodovoz
 						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
-					.AddNumericRenderer(node => node.Price)
+					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 						.Adjustment(new Gtk.Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
