@@ -17,7 +17,6 @@ namespace Vodovoz
 		[STAThread]
 		public static void Main (string[] args)
 		{
-			throw new Exception();
 			Application.Init ();
 			QSMain.SubscribeToUnhadledExceptions();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
