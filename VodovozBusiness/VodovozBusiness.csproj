@@ -593,10 +593,6 @@
       <Project>{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}</Project>
       <Name>QSSupportLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSReport\QSReport.csproj">
-      <Project>{9C0363D4-EE69-45B8-BA45-BDA24CE35A06}</Project>
-      <Name>QSReport</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSValidation\QSValidation.csproj">
       <Project>{CE5179E8-3172-4C08-9FE3-9C48C58A3831}</Project>
       <Name>QSValidation</Name>
@@ -616,6 +612,14 @@
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
+      <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
+      <Name>QS.Project</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSReport\QSReport.csproj">
+      <Project>{9C0363D4-EE69-45B8-BA45-BDA24CE35A06}</Project>
+      <Name>QSReport</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

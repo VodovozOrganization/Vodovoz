@@ -156,6 +156,7 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOperation(Counterparty counterpartySrc, DeliveryPoint pointSrc, Counterparty counterpartyDst, DeliveryPoint pointDst, DateTime time)
 		{
+			throw new InvalidOperationException("Некорректная операция. Невозможно создать перемещение \"Именное списание\"");
 			WarehouseMovementOperation = null;
 			CounterpartyMovementOperation = new CounterpartyMovementOperation {
 				IncomingCounterparty = counterpartyDst,

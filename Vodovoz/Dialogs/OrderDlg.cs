@@ -16,7 +16,6 @@ using NHibernate.Util;
 using NLog;
 using QS.Print;
 using QSDocTemplates;
-using QSEmailSending;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
