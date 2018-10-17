@@ -27,7 +27,7 @@ using Vodovoz.ServiceDialogs;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.ReportsParameters.Store;
 
-public partial class MainWindow : Gtk.Window
+public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
 	private static Logger logger = LogManager.GetCurrentClassLogger();
 	uint LastUiId;
@@ -50,28 +50,6 @@ public partial class MainWindow : Gtk.Window
 		QSMain.StatusBarLabel = labelStatus;
 		this.Title = MainSupport.GetTitle();
 		QSMain.MakeNewStatusTargetForNlog();
-
-		MainSupport.LoadBaseParameters();
-
-		MainSupport.TestVersion(this); //Проверяем версию базы
-		QSMain.CheckServer(this); // Проверяем настройки сервера
-
-		PerformanceHelper.AddTimePoint("Закончена загрузка параметров базы и проверка версии.");
-
-		if(QSMain.User.Login == "root") {
-			string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
-			MessageDialog md = new MessageDialog(this, DialogFlags.DestroyWithParent,
-								   MessageType.Info,
-								   ButtonsType.Ok,
-								   Message);
-			md.Run();
-			md.Destroy();
-			Users WinUser = new Users();
-			WinUser.Show();
-			WinUser.Run();
-			WinUser.Destroy();
-			return;
-		}
 
 		//Настраиваем модули
 		MainClass.SetupAppFromBase();
@@ -133,7 +111,7 @@ public partial class MainWindow : Gtk.Window
 		BanksUpdater.Update(false);
 	}
 
-	#region Прогресс в статус строке
+	#region IProgressBarDisplayable implementation
 
 	public void ProgressStart(double maxValue, double minValue = 0, string text = null, double startValue = 0)
 	{
