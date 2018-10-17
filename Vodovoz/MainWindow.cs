@@ -51,28 +51,6 @@ public partial class MainWindow : Gtk.Window
 		this.Title = MainSupport.GetTitle();
 		QSMain.MakeNewStatusTargetForNlog();
 
-		MainSupport.LoadBaseParameters();
-
-		MainSupport.TestVersion(this); //Проверяем версию базы
-		QSMain.CheckServer(this); // Проверяем настройки сервера
-
-		PerformanceHelper.AddTimePoint("Закончена загрузка параметров базы и проверка версии.");
-
-		if(QSMain.User.Login == "root") {
-			string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
-			MessageDialog md = new MessageDialog(this, DialogFlags.DestroyWithParent,
-								   MessageType.Info,
-								   ButtonsType.Ok,
-								   Message);
-			md.Run();
-			md.Destroy();
-			Users WinUser = new Users();
-			WinUser.Show();
-			WinUser.Run();
-			WinUser.Destroy();
-			return;
-		}
-
 		//Настраиваем модули
 		MainClass.SetupAppFromBase();
 
