@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
@@ -23,6 +24,7 @@ namespace Vodovoz.Domain.Logistic
 	[OrmSubject(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Журнал МЛ",
 		Nominative = "маршрутный лист")]
+	[HistoryTrace]
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -101,6 +103,7 @@ namespace Vodovoz.Domain.Logistic
 		DateTime date;
 
 		[Display(Name = "Дата")]
+		[HistoryDateOnly]
 		public virtual DateTime Date {
 			get { return date; }
 			set { SetField(ref date, value, () => Date); }
@@ -161,6 +164,8 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		DateTime? closingDate;
+		[Display(Name = "Дата закрытия")]
+		[HistoryDateOnly]
 		public virtual DateTime? ClosingDate {
 			get {
 				return closingDate;
@@ -179,6 +184,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		Employee cashier;
+		[IgnoreHistoryTrace]
 		public virtual Employee Cashier {
 			get {
 				return cashier;
@@ -191,6 +197,7 @@ namespace Vodovoz.Domain.Logistic
 		decimal fixedDriverWage;
 
 		[Display(Name = "Фиксированная заработанная плата водителя")]
+		[IgnoreHistoryTrace]
 		public virtual decimal FixedDriverWage {
 			get { return fixedDriverWage; }
 			set { SetField(ref fixedDriverWage, value, () => FixedDriverWage); }
@@ -199,11 +206,11 @@ namespace Vodovoz.Domain.Logistic
 		decimal fixedForwarderWage;
 
 		[Display(Name = "Фиксированная заработанная плата экспедитора")]
+		[IgnoreHistoryTrace]
 		public virtual decimal FixedForwarderWage {
 			get { return fixedForwarderWage; }
 			set { SetField(ref fixedForwarderWage, value, () => FixedForwarderWage); }
 		}
-
 
 		Fine bottleFine;
 
@@ -216,6 +223,7 @@ namespace Vodovoz.Domain.Logistic
 		private FuelOperation fuelOutlayedOperation;
 
 		[Display(Name = "Операции расхода топлива")]
+		[IgnoreHistoryTrace]
 		public virtual FuelOperation FuelOutlayedOperation {
 			get { return fuelOutlayedOperation; }
 			set { SetField(ref fuelOutlayedOperation, value, () => FuelOutlayedOperation); }
@@ -243,6 +251,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Внутренее поле говорящее о том что первоначалная подготовка маршрутного листа к закрытию выполнена.
 		/// Эта операция выполняется 1 раз при первом открытии диалога закрытия МЛ, тут оставляется пометка о том что операция выполнена.
 		/// </summary>
+		[IgnoreHistoryTrace]
 		public virtual bool ClosingFilled {
 			get { return closingFilled; }
 			set { SetField(ref closingFilled, value, () => ClosingFilled); }
@@ -304,6 +313,7 @@ namespace Vodovoz.Domain.Logistic
 		private WagesMovementOperations driverWageOperation;
 
 		[Display(Name = "Операция начисления зарплаты водителю")]
+		[IgnoreHistoryTrace]
 		public virtual WagesMovementOperations DriverWageOperation {
 			get { return driverWageOperation; }
 			set { SetField(ref driverWageOperation, value, () => DriverWageOperation); }
@@ -312,12 +322,14 @@ namespace Vodovoz.Domain.Logistic
 		private WagesMovementOperations forwarderWageOperation;
 
 		[Display(Name = "Операция начисления зарплаты экспедитору")]
+		[IgnoreHistoryTrace]
 		public virtual WagesMovementOperations ForwarderWageOperation {
 			get { return forwarderWageOperation; }
 			set { SetField(ref forwarderWageOperation, value, () => ForwarderWageOperation); }
 		}
 
 		private bool isManualAccounting;
+		[Display(Name = "Расчёт наличных вручную?")]
 		public virtual bool IsManualAccounting {
 			get { return isManualAccounting; }
 			set { SetField(ref isManualAccounting, value, () => IsManualAccounting); }
@@ -358,6 +370,7 @@ namespace Vodovoz.Domain.Logistic
 		private bool printed;
 
 		[Display(Name = "МЛ уже напечатан")]
+		[IgnoreHistoryTrace]
 		public virtual bool Printed {
 			get { return printed; }
 			set { SetField(ref printed, value, () => Printed); }
@@ -383,6 +396,7 @@ namespace Vodovoz.Domain.Logistic
 
 		Employee closedBy;
 		[Display(Name = "Закрыт сотрудником")]
+		[IgnoreHistoryTrace]
 		public virtual Employee ClosedBy {
 			get => closedBy;
 			set { SetField(ref closedBy, value, () => ClosedBy); }

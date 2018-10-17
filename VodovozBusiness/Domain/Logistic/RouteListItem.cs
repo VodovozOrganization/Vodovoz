@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.RegularExpressions;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using QSOrmProject;
 using QSProjectsLib;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Tools.Logistic;
-using System.Text.RegularExpressions;
-using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -19,6 +20,7 @@ namespace Vodovoz.Domain.Logistic
 	[OrmSubject(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "адреса маршрутного листа",
 		Nominative = "адрес маршрутного листа")]
+	[HistoryTrace]
 	public class RouteListItem : PropertyChangedBase, IDomainObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -46,7 +48,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		RouteListItemStatus status;
-
+		[Display(Name = "Статус адреса")]
 		public virtual RouteListItemStatus Status {
 			get { return status; }
 			protected set {
@@ -55,6 +57,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		DateTime? statusLastUpdate;
+		[Display(Name = "Время изменения статуса")]
 		public virtual DateTime? StatusLastUpdate {
 			get { return statusLastUpdate; }
 			set {
@@ -125,6 +128,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		string comment;
+		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get { return comment; }
 			set {
@@ -133,7 +137,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		bool withForwarder;
-
+		[Display(Name = "С экспедитором")]
 		public virtual bool WithForwarder {
 			get {
 				return withForwarder;
@@ -144,7 +148,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		int indexInRoute;
-
+		[Display(Name = "Порядковый номер в МЛ")]
 		public virtual int IndexInRoute {
 			get {
 				return indexInRoute;
@@ -155,7 +159,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		int bottlesReturned;
-
+		[Display(Name = "Возвращено бутылей")]
 		public virtual int BottlesReturned {
 			get {
 				return bottlesReturned;
@@ -166,7 +170,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		int? driverBottlesReturned;
-
+		[Display(Name = "Возвращено бутылей - водитель")]
 		public virtual int? DriverBottlesReturned {
 			get {
 				return driverBottlesReturned;
@@ -177,7 +181,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		decimal depositsCollected;
-
+		[Display(Name = "Возвращено залогов")]
 		public virtual decimal DepositsCollected {
 			get { return depositsCollected; }
 			set { SetField(ref depositsCollected, value, () => DepositsCollected); }
@@ -198,7 +202,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		decimal equipmentDepositsCollected;
-
+		[Display(Name = "Залог за оборудование возвращено")]
 		public virtual decimal EquipmentDepositsCollected {
 			get { return equipmentDepositsCollected; }
 			set { SetField(ref equipmentDepositsCollected, value, () => EquipmentDepositsCollected); }
@@ -219,7 +223,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		decimal totalCash;
-
+		[Display(Name = "Всего наличных")]
 		public virtual decimal TotalCash {
 			get {
 				return totalCash;
@@ -233,7 +237,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		decimal extraCash;
-
+		[Display(Name = "Дополнительно наличных")]
 		public virtual decimal ExtraCash {
 			get {
 				return extraCash;
@@ -244,6 +248,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		decimal driverWage;
+		[Display(Name = "ЗП водителя")]
 		public virtual decimal DriverWage {
 			get {
 				return driverWage;
@@ -254,6 +259,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		decimal driverWageSurcharge;
+		[Display(Name = "Надбавка к ЗП водителя")]
 		public virtual decimal DriverWageSurcharge {
 			get {
 				return driverWageSurcharge;
@@ -268,6 +274,7 @@ namespace Vodovoz.Domain.Logistic
 		decimal defaultTotalCash = -1;
 
 		decimal forwarderWage;
+		[Display(Name = "ЗП экспедитора")]
 		public virtual decimal ForwarderWage {
 			get {
 				return forwarderWage;
@@ -278,6 +285,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		decimal forwarderWageSurcharge;
+		[Display(Name = "Надбавка к ЗП экспедитора")]
 		public virtual decimal ForwarderWageSurcharge {
 			get {
 				return forwarderWageSurcharge;
@@ -289,7 +297,12 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal ForwarderWageTotal { get { return ForwarderWage + ForwarderWageSurcharge; } }
 
+		[Display(Name = "Оповещение за 30 минут")]
+		[IgnoreHistoryTrace]
 		public virtual bool Notified30Minutes { get; set; }
+
+		[Display(Name = "Время оповещения прошло")]
+		[IgnoreHistoryTrace]
 		public virtual bool NotifiedTimeout { get; set; }
 
 		private TimeSpan? planTimeStart;
