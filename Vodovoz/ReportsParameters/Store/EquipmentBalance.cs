@@ -7,6 +7,7 @@ using Gamma.Binding;
 using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Report;
 using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Goods;

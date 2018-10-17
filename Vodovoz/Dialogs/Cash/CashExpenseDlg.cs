@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 
@@ -135,7 +134,7 @@ namespace Vodovoz
 			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(Expense), "квитанции"))
 				Save ();
 
-			var reportInfo = new QSReport.ReportInfo {
+			var reportInfo = new QS.Report.ReportInfo {
 				Title = String.Format ("Квитанция №{0} от {1:d}", Entity.Id, Entity.Date),
 				Identifier = "Cash.Expense",
 				Parameters = new Dictionary<string, object> {

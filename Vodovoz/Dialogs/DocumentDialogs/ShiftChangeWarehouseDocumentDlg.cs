@@ -110,7 +110,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(ShiftChangeWarehouseDocument), "акта передачи склада"))
 				Save();
 
-			var reportInfo = new QSReport.ReportInfo {
+			var reportInfo = new QS.Report.ReportInfo {
 				Title = String.Format("Акт передачи склада №{0} от {1:d}", Entity.Id, Entity.TimeStamp),
 				Identifier = "Store.ShiftChangeWarehouse",
 				Parameters = new Dictionary<string, object> {

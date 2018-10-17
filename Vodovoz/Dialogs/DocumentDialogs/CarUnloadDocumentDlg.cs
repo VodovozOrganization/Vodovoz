@@ -376,7 +376,7 @@ namespace Vodovoz
 			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(CarUnloadDocument), "талона"))
 				Save();
 
-			var reportInfo = new QSReport.ReportInfo {
+			var reportInfo = new QS.Report.ReportInfo {
 				Title = Entity.Title,
 				Identifier = "Store.CarUnloadDoc",
 				Parameters = new Dictionary<string, object>

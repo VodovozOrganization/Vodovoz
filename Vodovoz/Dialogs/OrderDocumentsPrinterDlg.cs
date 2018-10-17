@@ -4,6 +4,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Report;
 using QSDocTemplates;
 using QSProjectsLib;
 using QSReport;

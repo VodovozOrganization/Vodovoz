@@ -166,7 +166,7 @@ namespace Vodovoz
 			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(CarLoadDocument), "талона"))
 				Save();
 
-			var reportInfo = new QSReport.ReportInfo {
+			var reportInfo = new QS.Report.ReportInfo {
 				Title = Entity.Title,
 				Identifier = CarLoadPrintableDocuments.Common.Equals(e.ItemEnum) ? "Store.CarLoadDoc" : "Store.CarLoadDocPallets",
 				Parameters = new System.Collections.Generic.Dictionary<string, object>

@@ -9,8 +9,8 @@ using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using QS.DomainModel.UoW;
 using QS.Print;
+using QS.Report;
 using QSProjectsLib;
-using QSReport;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
 

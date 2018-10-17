@@ -5,6 +5,7 @@ using Gamma.Binding;
 using Gamma.ColumnConfig;
 using NHibernate.Proxy;
 using QS.DomainModel.UoW;
+using QS.Report;
 using QSOrmProject;
 using QSReport;
 using QSTDI;
