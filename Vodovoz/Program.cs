@@ -5,6 +5,7 @@ using QSProjectsLib;
 using Gdk;
 using QSSupportLib;
 using Vodovoz.Additions;
+using Vodovoz.DriverTerminal;
 
 namespace Vodovoz
 {
@@ -12,6 +13,7 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		public static MainWindow MainWin;
+		public static IProgressBarDisplayable progressBarWin;
 		public static StatusIcon TrayIcon;
 
 		[STAThread]
@@ -99,16 +101,16 @@ namespace Vodovoz
 				WinUser.Run();
 				WinUser.Destroy();
 				return;
-			}else if(QSMain.User.Login == "enzogord"){
-				MessageDialog md = new MessageDialog(null, DialogFlags.Modal,
-									   MessageType.Info,
-									   ButtonsType.Ok,
-									   "Запускаем окно для печати документов водителями");
-				md.Run();
-				md.Destroy();
+			}else if(QSMain.User.Permissions["driver_terminal"]){
+				DriverTerminalWindow driverTerminal = new DriverTerminalWindow();
+				progressBarWin = driverTerminal;
+				driverTerminal.Title = "Печать документов МЛ";
+				QSMain.ErrorDlgParrent = driverTerminal;
+				driverTerminal.Show();
 			}else{
 				//Запускаем программу
 				MainWin = new MainWindow();
+				progressBarWin = MainWin;
 				MainWin.Title += string.Format(" (БД: {0})", LoginDialog.BaseName);
 				QSMain.ErrorDlgParrent = MainWin;
 				MainWin.Show();

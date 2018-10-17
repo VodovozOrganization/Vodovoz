@@ -60679,9 +60679,11 @@ not tooltip</property>
     </child>
   </widget>
   <widget class="Gtk.Window" id="Vodovoz.DriverTerminal.DriverTerminalWindow" design-size="790 396">
+    <action-group name="Default" />
     <property name="MemberName" />
     <property name="Title" translatable="yes">DriverTerminalWindow</property>
     <property name="WindowPosition">CenterOnParent</property>
+    <signal name="DeleteEvent" handler="OnDeleteEvent" />
     <child>
       <widget class="Gtk.VBox" id="vbox1">
         <property name="MemberName" />
@@ -60691,7 +60693,7 @@ not tooltip</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
-              <widget class="Gtk.Label" id="label1">
+              <widget class="Gtk.Label" id="labelRL">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Номер МЛ</property>
               </widget>
@@ -60723,6 +60725,7 @@ not tooltip</property>
                 <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Маршрутный лист</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnBtnPrintRouteListClicked" />
               </widget>
               <packing>
                 <property name="Position">2</property>
@@ -60738,6 +60741,7 @@ not tooltip</property>
                 <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Талон погрузки</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnBtnPrintLoadDocumentClicked" />
               </widget>
               <packing>
                 <property name="Position">3</property>
@@ -60753,6 +60757,7 @@ not tooltip</property>
                 <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Карта маршрута</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnBtnPrintRouteMapClicked" />
               </widget>
               <packing>
                 <property name="Position">4</property>
@@ -60773,7 +60778,64 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <placeholder />
+          <widget class="fyiReporting.RdlGtkViewer.ReportViewer" id="reportviewer">
+            <property name="MemberName" />
+            <property name="WidthRequest">0</property>
+            <property name="HeightRequest">0</property>
+            <property name="Events">ButtonPressMask</property>
+            <property name="ShowErrors">False</property>
+            <property name="ShowParameters">False</property>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Statusbar" id="statusbarMain">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="labelUser">
+                <property name="MemberName" />
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="labelStatus">
+                <property name="MemberName" />
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.ProgressBar" id="progressStatus">
+                <property name="MemberName" />
+                <property name="Visible">False</property>
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">3</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
         </child>
       </widget>
     </child>

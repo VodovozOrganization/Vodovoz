@@ -27,7 +27,7 @@ using Vodovoz.ServiceDialogs;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.ReportsParameters.Store;
 
-public partial class MainWindow : Gtk.Window
+public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
 	private static Logger logger = LogManager.GetCurrentClassLogger();
 	uint LastUiId;
@@ -111,7 +111,7 @@ public partial class MainWindow : Gtk.Window
 		BanksUpdater.Update(false);
 	}
 
-	#region Прогресс в статус строке
+	#region IProgressBarDisplayable implementation
 
 	public void ProgressStart(double maxValue, double minValue = 0, string text = null, double startValue = 0)
 	{
