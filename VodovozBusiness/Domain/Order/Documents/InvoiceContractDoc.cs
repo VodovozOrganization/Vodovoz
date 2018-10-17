@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.Print;
-using QSReport;
+using QS.Report;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
 	public class InvoiceContractDoc : OrderDocument, IAdvertisable, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
-		public virtual QSReport.ReportInfo GetReportInfo()
+		public virtual ReportInfo GetReportInfo()
 		{
-			return new QSReport.ReportInfo {
+			return new ReportInfo {
 				Title = String.Format("Накладная №{0} от {1:d} (контрактная документация)", Order.Id, Order.DeliveryDate),
 				Identifier = "Documents.InvoiceContractDoc",
 				Parameters = new Dictionary<string, object> {

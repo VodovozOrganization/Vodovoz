@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using QS.Print;
-using QSReport;
+using QS.Report;
 using QSSupportLib;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Repository;
@@ -20,9 +20,9 @@ namespace Vodovoz.Domain.Orders.Documents
 			}
 		}
 
-		public virtual QSReport.ReportInfo GetReportInfo ()
+		public virtual ReportInfo GetReportInfo ()
 		{
-			return new QSReport.ReportInfo {
+			return new ReportInfo {
 				Title = this.Title,
 				Identifier = "Documents.Bill",
 				Parameters = new Dictionary<string, object> {
