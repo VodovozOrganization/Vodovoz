@@ -874,6 +874,9 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SendedEmailsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.DefectiveItemsReport.cs" />
     <Compile Include="ReportsParameters\Store\DefectiveItemsReport.cs" />
+    <Compile Include="DriverTerminal\DriverTerminalWindow.cs" />
+    <Compile Include="gtk-gui\Vodovoz.DriverTerminal.DriverTerminalWindow.cs" />
+    <Compile Include="IProgressBarDisplayable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1041,6 +1044,7 @@
     <Folder Include="ReportsParameters\Bottles\" />
     <Folder Include="Reports\Bottles\" />
     <Folder Include="Dialogs\OnlineStore\" />
+    <Folder Include="DriverTerminal\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

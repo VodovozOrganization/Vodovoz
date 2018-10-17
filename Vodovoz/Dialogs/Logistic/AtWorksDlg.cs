@@ -189,10 +189,10 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var addDrivers = e.GetEntities<Employee>().ToList();
 			logger.Info("Получаем авто для водителей...");
-			MainClass.MainWin.ProgressStart(2);
+			MainClass.progressBarWin.ProgressStart(2);
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
 			var allCars = CarRepository.GetCarsbyDrivers(uow, onlyNew.Select(x => x.Id).ToArray());
-			MainClass.MainWin.ProgressAdd();
+			MainClass.progressBarWin.ProgressAdd();
 
 			foreach (var driver in addDrivers)
 			{
@@ -220,10 +220,10 @@ namespace Vodovoz.Dialogs.Logistic
 				}
 				driversAtDay.Add(atwork);
 			}
-			MainClass.MainWin.ProgressAdd();
+			MainClass.progressBarWin.ProgressAdd();
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 			logger.Info("Ок");
-			MainClass.MainWin.ProgressClose();
+			MainClass.progressBarWin.ProgressClose();
 		}
 
 		protected void OnButtonRemoveDriverClicked(object sender, EventArgs e)
