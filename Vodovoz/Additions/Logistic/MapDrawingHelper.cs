@@ -15,9 +15,9 @@ namespace Vodovoz.Additions.Logistic
 			List<PointLatLng> points;
 			if(geometryCalc != null) {
 				var address = routeList.GenerateHashPiontsOfRoute();
-				MainClass.MainWin.ProgressStart(address.Length);
-				points = geometryCalc.GetGeometryOfRoute(address, (val, max) => MainClass.MainWin.ProgressUpdate(val));
-				MainClass.MainWin.ProgressClose();
+				MainClass.progressBarWin.ProgressStart(address.Length);
+				points = geometryCalc.GetGeometryOfRoute(address, (val, max) => MainClass.progressBarWin.ProgressUpdate(val));
+				MainClass.progressBarWin.ProgressClose();
 			} else {
 				points = new List<PointLatLng>();
 				points.Add(DistanceCalculator.BasePoint);

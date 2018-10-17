@@ -5,6 +5,7 @@ using QSProjectsLib;
 using Gdk;
 using QSSupportLib;
 using Vodovoz.Additions;
+using Vodovoz.DriverTerminal;
 
 namespace Vodovoz
 {
@@ -12,6 +13,7 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		public static MainWindow MainWin;
+		public static IProgressBarDisplayable progressBarWin;
 		public static StatusIcon TrayIcon;
 
 		[STAThread]
@@ -81,13 +83,39 @@ namespace Vodovoz
 			
 			PerformanceHelper.StartPointsGroup ("Главное окно");
 
-			//Запускаем программу
-			MainWin = new MainWindow ();
-			MainWin.Title += string.Format(" (БД: {0})", LoginDialog.BaseName);
-			QSMain.ErrorDlgParrent = MainWin;
-			if (QSMain.User.Login == "root")
+			MainSupport.TestVersion(null); //Проверяем версию базы
+			QSMain.CheckServer(null, true); // Проверяем настройки сервера
+
+			PerformanceHelper.AddTimePoint("Закончена загрузка параметров базы и проверка версии.");
+
+			if(QSMain.User.Login == "root") {
+				string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
+				MessageDialog md = new MessageDialog(null, DialogFlags.Modal,
+									   MessageType.Info,
+									   ButtonsType.Ok,
+									   Message);
+				md.Run();
+				md.Destroy();
+				Users WinUser = new Users();
+				WinUser.Show();
+				WinUser.Run();
+				WinUser.Destroy();
 				return;
-			MainWin.Show ();
+			}else if(QSMain.User.Permissions["driver_terminal"]){
+				DriverTerminalWindow driverTerminal = new DriverTerminalWindow();
+				progressBarWin = driverTerminal;
+				driverTerminal.Title = "Печать документов МЛ";
+				QSMain.ErrorDlgParrent = driverTerminal;
+				driverTerminal.Show();
+			}else{
+				//Запускаем программу
+				MainWin = new MainWindow();
+				progressBarWin = MainWin;
+				MainWin.Title += string.Format(" (БД: {0})", LoginDialog.BaseName);
+				QSMain.ErrorDlgParrent = MainWin;
+				MainWin.Show();
+			}
+
 			PerformanceHelper.EndPointsGroup ();
 
 			PerformanceHelper.AddTimePoint (logger, "Закончен старт SAAS. Конец загрузки.");

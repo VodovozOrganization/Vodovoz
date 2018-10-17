@@ -125,6 +125,9 @@ namespace Vodovoz.Dialogs.Logistic
 		protected void OnButtonDeleteDistrictClicked(object sender, EventArgs e)
 		{
 			currentDistrict.Remove(uow);
+			var districtToDelete = bordersOverlay.Polygons.FirstOrDefault(p => (p.Tag as ScheduleRestrictedDistrict) == currentDistrict);
+			if(districtToDelete != null)
+				districtToDelete.IsVisible = false;
 			observableRestrictedDistricts.Remove(currentDistrict);
 		}
 
@@ -267,6 +270,7 @@ namespace Vodovoz.Dialogs.Logistic
 				if(district.DistrictBorder != null)
 				{
 					var border = new GMapPolygon(district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(), district.DistrictName);
+					border.Tag = district;
 					bordersOverlay.Polygons.Add(border);
 				}
 			}
