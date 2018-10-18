@@ -20,7 +20,11 @@ namespace Vodovoz.DriverTerminal
 
 		private global::Gtk.Button btnPrintRouteMap;
 
-		private global::fyiReporting.RdlGtkViewer.ReportViewer reportviewer;
+		private global::Gtk.HBox hbox2;
+
+		private global::Gtk.Button buttonClear;
+
+		private global::Gtk.HBox hboxViewer;
 
 		private global::Gtk.Statusbar statusbarMain;
 
@@ -40,7 +44,7 @@ namespace Vodovoz.DriverTerminal
 			this.AddAccelGroup(this.UIManager.AccelGroup);
 			this.Name = "Vodovoz.DriverTerminal.DriverTerminalWindow";
 			this.Title = global::Mono.Unix.Catalog.GetString("DriverTerminalWindow");
-			this.WindowPosition = ((global::Gtk.WindowPosition)(4));
+			this.WindowPosition = ((global::Gtk.WindowPosition)(1));
 			// Container child Vodovoz.DriverTerminal.DriverTerminalWindow.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
@@ -102,22 +106,37 @@ namespace Vodovoz.DriverTerminal
 			w6.Position = 4;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w7.Position = 0;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.buttonClear = new global::Gtk.Button();
+			this.buttonClear.CanFocus = true;
+			this.buttonClear.Name = "buttonClear";
+			this.buttonClear.UseUnderline = true;
+			this.buttonClear.Label = global::Mono.Unix.Catalog.GetString("Очистить");
+			this.hbox2.Add(this.buttonClear);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonClear]));
+			w7.PackType = ((global::Gtk.PackType)(1));
+			w7.Position = 2;
 			w7.Expand = false;
 			w7.Fill = false;
+			this.hbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hbox2]));
+			w8.Position = 5;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.reportviewer = new global::fyiReporting.RdlGtkViewer.ReportViewer();
-			this.reportviewer.WidthRequest = 0;
-			this.reportviewer.HeightRequest = 0;
-			this.reportviewer.Events = ((global::Gdk.EventMask)(256));
-			this.reportviewer.Name = "reportviewer";
-			this.reportviewer.ShowErrors = false;
-			this.reportviewer.ShowParameters = false;
-			this.vbox1.Add(this.reportviewer);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.reportviewer]));
-			w8.Position = 1;
+			this.hboxViewer = new global::Gtk.HBox();
+			this.hboxViewer.Name = "hboxViewer";
+			this.hboxViewer.Spacing = 6;
+			this.vbox1.Add(this.hboxViewer);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxViewer]));
+			w10.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.statusbarMain = new global::Gtk.Statusbar();
 			this.statusbarMain.Name = "statusbarMain";
@@ -126,31 +145,31 @@ namespace Vodovoz.DriverTerminal
 			this.labelUser = new global::Gtk.Label();
 			this.labelUser.Name = "labelUser";
 			this.statusbarMain.Add(this.labelUser);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelUser]));
-			w9.Position = 0;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelUser]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child statusbarMain.Gtk.Box+BoxChild
 			this.labelStatus = new global::Gtk.Label();
 			this.labelStatus.Name = "labelStatus";
 			this.statusbarMain.Add(this.labelStatus);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelStatus]));
-			w10.PackType = ((global::Gtk.PackType)(1));
-			w10.Position = 2;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelStatus]));
+			w12.PackType = ((global::Gtk.PackType)(1));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child statusbarMain.Gtk.Box+BoxChild
 			this.progressStatus = new global::Gtk.ProgressBar();
 			this.progressStatus.Name = "progressStatus";
 			this.statusbarMain.Add(this.progressStatus);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.progressStatus]));
-			w11.PackType = ((global::Gtk.PackType)(1));
-			w11.Position = 3;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.progressStatus]));
+			w13.PackType = ((global::Gtk.PackType)(1));
+			w13.Position = 3;
 			this.vbox1.Add(this.statusbarMain);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
-			w12.Position = 2;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
+			w14.Position = 2;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -164,6 +183,7 @@ namespace Vodovoz.DriverTerminal
 			this.btnPrintRouteList.Clicked += new global::System.EventHandler(this.OnBtnPrintRouteListClicked);
 			this.btnPrintLoadDocument.Clicked += new global::System.EventHandler(this.OnBtnPrintLoadDocumentClicked);
 			this.btnPrintRouteMap.Clicked += new global::System.EventHandler(this.OnBtnPrintRouteMapClicked);
+			this.buttonClear.Clicked += new global::System.EventHandler(this.OnButtonClearClicked);
 		}
 	}
 }

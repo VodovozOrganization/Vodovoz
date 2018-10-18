@@ -60682,7 +60682,7 @@ not tooltip</property>
     <action-group name="Default" />
     <property name="MemberName" />
     <property name="Title" translatable="yes">DriverTerminalWindow</property>
-    <property name="WindowPosition">CenterOnParent</property>
+    <property name="WindowPosition">Center</property>
     <signal name="DeleteEvent" handler="OnDeleteEvent" />
     <child>
       <widget class="Gtk.VBox" id="vbox1">
@@ -60767,7 +60767,37 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <placeholder />
+              <widget class="Gtk.HBox" id="hbox2">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <widget class="Gtk.Button" id="buttonClear">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">Очистить</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonClearClicked" />
+                  </widget>
+                  <packing>
+                    <property name="PackType">End</property>
+                    <property name="Position">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="Position">5</property>
+                <property name="AutoSize">True</property>
+              </packing>
             </child>
           </widget>
           <packing>
@@ -60778,13 +60808,12 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="fyiReporting.RdlGtkViewer.ReportViewer" id="reportviewer">
+          <widget class="Gtk.HBox" id="hboxViewer">
             <property name="MemberName" />
-            <property name="WidthRequest">0</property>
-            <property name="HeightRequest">0</property>
-            <property name="Events">ButtonPressMask</property>
-            <property name="ShowErrors">False</property>
-            <property name="ShowParameters">False</property>
+            <property name="Spacing">6</property>
+            <child>
+              <placeholder />
+            </child>
           </widget>
           <packing>
             <property name="Position">1</property>
