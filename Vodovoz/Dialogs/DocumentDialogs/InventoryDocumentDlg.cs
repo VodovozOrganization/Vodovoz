@@ -104,7 +104,7 @@ namespace Vodovoz
 			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(InventoryDocument), "акта инвентаризации"))
 				Save ();
 
-			var reportInfo = new QSReport.ReportInfo {
+			var reportInfo = new QS.Report.ReportInfo {
 				Title = String.Format ("Акт инвентаризации №{0} от {1:d}", Entity.Id, Entity.TimeStamp),
 				Identifier = "Store.InventoryDoc",
 				Parameters = new Dictionary<string, object> {

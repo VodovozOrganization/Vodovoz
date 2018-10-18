@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.Print;
-using QSReport;
+using QS.Report;
 using QSSupportLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repository;
@@ -13,9 +13,9 @@ namespace Vodovoz.Domain.Orders.Documents
 	public class PumpWarrantyDocument:OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
-		public virtual QSReport.ReportInfo GetReportInfo ()
+		public virtual ReportInfo GetReportInfo ()
 		{
-			return new QSReport.ReportInfo {
+			return new ReportInfo {
 				Title = String.Format ("Гарантийный талон на помпы №{0}", WarrantyFullNumber),
 				Identifier = "Documents.PumpWarranty",
 				Parameters = new Dictionary<string, object> {

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Gtk;
+using QS.Report;
 using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Cash;

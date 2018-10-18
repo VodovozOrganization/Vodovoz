@@ -109,18 +109,6 @@
     </Reference>
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="DataAnnotationsExtensions">
-      <HintPath>..\packages\DataAnnotationsExtensions.5.0.1.27\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
-    </Reference>
-    <Reference Include="DataAnnotationsExtensions">
-      <HintPath>bin\Debug\DataAnnotationsExtensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml.Linq">
-      <HintPath>..\..\..\..\..\usr\lib\mono\4.5-api\System.Xml.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml">
-      <HintPath>..\..\..\..\..\usr\lib\mono\4.0-api\System.Xml.dll</HintPath>
-    </Reference>
     <Reference Include="GeoAPI">
       <HintPath>..\packages\GeoAPI.Core.1.7.5\lib\net45\GeoAPI.dll</HintPath>
     </Reference>
@@ -159,6 +147,10 @@
       <HintPath>..\packages\RestSharp.106.5.2\lib\net452\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="DataAnnotationsExtensions">
+      <HintPath>..\packages\DataAnnotationsExtensions.5.0.1.27\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -613,13 +605,9 @@
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
-      <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
-      <Name>QS.Project</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSReport\QSReport.csproj">
-      <Project>{9C0363D4-EE69-45B8-BA45-BDA24CE35A06}</Project>
-      <Name>QSReport</Name>
+    <ProjectReference Include="..\..\QSProjects\QS.Report\QS.Report.csproj">
+      <Project>{D30A23BF-C5DC-4A1B-95FC-9C2038D46E8E}</Project>
+      <Name>QS.Report</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

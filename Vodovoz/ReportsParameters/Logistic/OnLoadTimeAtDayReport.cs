@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using QSProjectsLib;
+using QS.Report;
 using QSReport;
 
 namespace Vodovoz.ReportsParameters.Logistic

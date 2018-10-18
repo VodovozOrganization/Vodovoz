@@ -122,7 +122,7 @@ namespace Vodovoz
 			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(WriteoffDocument), "акта выбраковки"))
 				Save ();
 
-			var reportInfo = new QSReport.ReportInfo {
+			var reportInfo = new QS.Report.ReportInfo {
 				Title = String.Format ("Акт выбраковки №{0} от {1:d}", Entity.Id, Entity.TimeStamp),
 				Identifier = "Store.WriteOff",
 				Parameters = new Dictionary<string, object> {

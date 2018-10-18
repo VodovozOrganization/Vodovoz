@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.Print;
-using QSReport;
+using QS.Report;
 using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Domain.Orders.Documents
@@ -10,9 +10,9 @@ namespace Vodovoz.Domain.Orders.Documents
 	{
 		#region implemented abstract members of OrderDocument
 
-		public virtual QSReport.ReportInfo GetReportInfo()
+		public virtual ReportInfo GetReportInfo()
 		{
-			return new QSReport.ReportInfo {
+			return new ReportInfo {
 				Title = String.Format("Акт возврата залогов за оборудование"),
 				Identifier = "Documents.RefundEquipmentDeposit",
 				Parameters = new Dictionary<string, object> {

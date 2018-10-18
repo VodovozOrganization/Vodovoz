@@ -992,6 +992,10 @@
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Report\QS.Report.csproj">
+      <Project>{D30A23BF-C5DC-4A1B-95FC-9C2038D46E8E}</Project>
+      <Name>QS.Report</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />

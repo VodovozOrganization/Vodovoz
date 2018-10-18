@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Report;
 using QSReport;
 using QSTDI;
 using Vodovoz.JournalFilters;

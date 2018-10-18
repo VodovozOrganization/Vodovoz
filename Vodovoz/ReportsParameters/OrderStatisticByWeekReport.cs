@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Report;
 using QSOrmProject;
 using QSReport;
 

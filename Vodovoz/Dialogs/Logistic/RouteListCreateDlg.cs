@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
+using QS.Report;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
@@ -142,7 +143,7 @@ namespace Vodovoz
 
 		private void PrintSelectedDocument (RouteListPrintableDocuments choise)
 		{
-			QSReport.ReportInfo document = PrintRouteListHelper.GetRDL(Entity, choise, UoW);
+			ReportInfo document = PrintRouteListHelper.GetRDL(Entity, choise, UoW);
 
 			if (document != null)
 			{
@@ -152,7 +153,7 @@ namespace Vodovoz
 			}
 		}
 
-		ReportViewDlg CreateReportView(QSReport.ReportInfo document, RouteListPrintableDocuments choise)
+		ReportViewDlg CreateReportView(ReportInfo document, RouteListPrintableDocuments choise)
 		{
 			var dlg = new QSReport.ReportViewDlg(document);
 			if(choise == RouteListPrintableDocuments.RouteList)
