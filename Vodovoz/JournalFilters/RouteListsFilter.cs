@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Gamma.Widgets;
 using QS.DomainModel.UoW;
 using QSOrmProject;
@@ -63,17 +65,23 @@ namespace Vodovoz
 			}
 		}
 
-		private RouteListStatus[] onlyStatuses;
+		RouteListStatus[] onlyStatuses;
 
+		/// <summary>
+		/// Показывать только МЛ со статусом из массива
+		/// </summary>
+		/// <value>массив отображаемых статусов</value>
 		public RouteListStatus[] OnlyStatuses {
-			get {
-				return onlyStatuses;
-			}
-			set {
+			get => onlyStatuses;
+			set{
 				onlyStatuses = value;
-				if(onlyStatuses != null) {
-					RestrictStatus = null;
+				var hideList = new List<object>();
+				foreach(RouteListStatus status in Enum.GetValues(typeof(RouteListStatus))) {
+					if(!onlyStatuses.Contains(status))
+						hideList.Add(status);
 				}
+				if(hideList.Any())
+					enumcomboStatus.AddEnumToHideList(hideList.ToArray());
 			}
 		}
 
