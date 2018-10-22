@@ -20,20 +20,8 @@ namespace Vodovoz
 
 		#region IOrmDialog implementation
 
-		public IUnitOfWork UoW
-		{
-			get
-			{
-				return uow;
-			}
-		}
-
-		public object EntityObject {
-			get {
-				throw new NotImplementedException();
-			}
-		}
-
+		public IUnitOfWork UoW => UoW;
+		public object EntityObject => throw new NotImplementedException();
 		public enum OpenParameter { Sender, Receiver }
 
 		#endregion
@@ -65,27 +53,25 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			var vm = new RouteListsVM ();
-			vm.Filter.OnlyStatuses = new [] {
+			var vmFrom = new RouteListsVM ();
+			vmFrom.Filter.OnlyStatuses = new [] {
 				RouteListStatus.EnRoute,
-				RouteListStatus.MileageCheck,
-				RouteListStatus.OnClosing,
-				RouteListStatus.Closed,
+				RouteListStatus.OnClosing
 			};
-			vm.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
-			yentryreferenceRLFrom.RepresentationModel = vm;
+			GC.KeepAlive(vmFrom);
+			vmFrom.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
+			yentryreferenceRLFrom.RepresentationModel = vmFrom;
 			yentryreferenceRLFrom.CanEditReference = QSMain.User.Permissions["can_delete"];
 
-			vm = new RouteListsVM ();
-			vm.Filter.OnlyStatuses = new [] {
+			var vmTo = new RouteListsVM ();
+			vmTo.Filter.OnlyStatuses = new [] {
 				RouteListStatus.New,
 				RouteListStatus.InLoading,
 				RouteListStatus.EnRoute,
-				RouteListStatus.OnClosing,
-			//	RouteListStatus.Closed
+				RouteListStatus.OnClosing
 			};
-			vm.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
-			yentryreferenceRLTo.RepresentationModel = vm;
+			vmTo.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
+			yentryreferenceRLTo.RepresentationModel = vmTo;
 			yentryreferenceRLTo.CanEditReference = QSMain.User.Permissions["can_delete"];
 
 			yentryreferenceRLFrom.Changed += YentryreferenceRLFrom_Changed;
@@ -346,24 +332,13 @@ namespace Vodovoz
 	}
 
 	public class RouteListItemNode {
-		public string Id {
-			get {return RouteListItem.Order.Id.ToString();}
-		}
-
-		public string Date {
-			get {return RouteListItem.Order.DeliveryDate.Value.ToString("d");}
-		}
-
-		public string Address {
-			get {return RouteListItem.Order.DeliveryPoint?.ShortAddress ?? "Нет адреса";}
-		}
-
-		public RouteListItemStatus Status {
-			get {return RouteListItem.Status;}
-		}
+		public string Id => RouteListItem.Order.Id.ToString();
+		public string Date => RouteListItem.Order.DeliveryDate.Value.ToString("d");
+		public string Address => RouteListItem.Order.DeliveryPoint?.ShortAddress ?? "Нет адреса";
+		public RouteListItemStatus Status => RouteListItem.Status;
 
 		public bool NeedToReload {
-			get {return RouteListItem.NeedToReload;}
+			get => RouteListItem.NeedToReload;
 			set {
 				if(RouteListItem.WasTransfered)
 				{
@@ -374,12 +349,9 @@ namespace Vodovoz
 			}
 		}
 
-		private bool leftNeedToReload;
-
+		bool leftNeedToReload;
 		public bool LeftNeedToReload {
-			get {
-				return leftNeedToReload;
-			}
+			get => leftNeedToReload;
 			set {
 				leftNeedToReload = value;
 				if(value)
@@ -387,12 +359,9 @@ namespace Vodovoz
 			}
 		}
 
-		private bool leftNotNeedToReload;
-
+		bool leftNotNeedToReload;
 		public bool LeftNotNeedToReload {
-			get {
-				return leftNotNeedToReload;
-			}
+			get => leftNotNeedToReload;
 			set {
 				leftNotNeedToReload = value;
 				if(value)
@@ -400,13 +369,8 @@ namespace Vodovoz
 			}
 		}
 
-		public bool WasTransfered {
-			get {return RouteListItem.WasTransfered;}
-		}
-
-		public string Comment {
-			get {return RouteListItem.Comment ?? "";}
-		}
+		public bool WasTransfered => RouteListItem.WasTransfered;
+		public string Comment => RouteListItem.Comment ?? "";
 
 		public string BottlesCount {
 			get {return RouteListItem.Order.OrderItems
@@ -414,12 +378,9 @@ namespace Vodovoz
 						|| bot.Nomenclature.Category == Vodovoz.Domain.Goods.NomenclatureCategory.disposableBottleWater)
 					.Sum(bot => bot.Count).ToString();}
 		}
-			
-		public RouteListItem RouteListItem { get; set; }
 
-		public string DalyNumber { 
-			get { return RouteListItem.Order.DailyNumber.ToString(); } 
-		}
+		public RouteListItem RouteListItem { get; set; }
+		public string DalyNumber => RouteListItem.Order.DailyNumber.ToString();
 	}
 }
 

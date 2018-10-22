@@ -53,9 +53,7 @@ namespace Vodovoz
 			CreateBaseConfig ();
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 
-			//Настрока удаления
-			ConfigureDeletion ();
-			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка удаления");
+			MainSupport.LoadBaseParameters();
 
 			//Настройка карты
 			GMap.NET.MapProviders.GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
@@ -65,17 +63,7 @@ namespace Vodovoz
 				Environment.OSVersion.VersionString
 			);
 			GMap.NET.MapProviders.GMapProvider.Language = GMap.NET.LanguageType.Russian;
-
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
-
-			VodovozService.Chats.ChatMain.ChatServer = "vod-srv.qsolution.ru:9000";
-
-			MainSupport.LoadBaseParameters();
-			if(MainSupport.BaseParameters.All.ContainsKey("email_service_address")) {
-				EmailService.EmailServiceSetting.EmailServiceURL = MainSupport.BaseParameters.All["email_service_address"];
-			}else {
-				EmailService.EmailServiceSetting.EmailServiceURL = null;
-			}
 			
 			QSOsm.OsmWorker.ServiceHost = "vod-srv.qsolution.ru";
 			QSOsm.OsmWorker.ServicePort = 9000;
@@ -84,7 +72,7 @@ namespace Vodovoz
 			PerformanceHelper.StartPointsGroup ("Главное окно");
 
 			MainSupport.TestVersion(null); //Проверяем версию базы
-			QSMain.CheckServer(null, true); // Проверяем настройки сервера
+			QSMain.CheckServer(null); // Проверяем настройки сервера
 
 			PerformanceHelper.AddTimePoint("Закончена загрузка параметров базы и проверка версии.");
 
@@ -108,6 +96,18 @@ namespace Vodovoz
 				QSMain.ErrorDlgParrent = driverTerminal;
 				driverTerminal.Show();
 			}else{
+				//Настрока удаления
+				ConfigureDeletion();
+				QSProjectsLib.PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
+
+				VodovozService.Chats.ChatMain.ChatServer = "vod-srv.qsolution.ru:9000";
+
+				if(MainSupport.BaseParameters.All.ContainsKey("email_service_address")) {
+					EmailService.EmailServiceSetting.EmailServiceURL = MainSupport.BaseParameters.All["email_service_address"];
+				} else {
+					EmailService.EmailServiceSetting.EmailServiceURL = null;
+				}
+
 				//Запускаем программу
 				MainWin = new MainWindow();
 				progressBarWin = MainWin;

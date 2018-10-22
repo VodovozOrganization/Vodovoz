@@ -1,4 +1,5 @@
 ﻿using System;
+using fyiReporting.RdlGtkViewer;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
@@ -14,10 +15,14 @@ namespace Vodovoz.DriverTerminal
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
+		private ReportViewer reportViewer = null;
+
 		public DriverTerminalWindow() :
 				base(Gtk.WindowType.Toplevel)
 		{
 			this.Build();
+			ClearView();
+			entryRouteListNumber.ValidationMode = QSWidgetLib.ValidationType.numeric;
 		}
 
 		protected void OnDeleteEvent(object o, Gtk.DeleteEventArgs args)
@@ -25,12 +30,17 @@ namespace Vodovoz.DriverTerminal
 			Application.Quit();
 		}
 
-		private void LoadDocument(int rlNumber, RouteListPrintableDocuments docType)
+		private void LoadDocument(RouteListPrintableDocuments docType)
 		{
+			int rlNumber = GetRouteListNumber();
+			if(rlNumber == 0) {
+				return;
+			}
 			ReportInfo document = null;
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				RouteList rl = uow.GetById<RouteList>(rlNumber);
 				if(rl == null) {
+					MessageDialogWorks.RunErrorDialog($"Маршрутный лист с номером {rlNumber} не найден");
 					return;
 				}
 				document = PrintRouteListHelper.GetRDL(rl, docType, uow);
@@ -42,9 +52,9 @@ namespace Vodovoz.DriverTerminal
 			}
 
 			if(document.Source != null)
-				reportviewer.LoadReport(document.Source, document.GetParametersString(), document.ConnectionString, true);
+				reportViewer.LoadReport(document.Source, document.GetParametersString(), document.ConnectionString, true);
 			else
-				reportviewer.LoadReport(document.GetReportUri(), document.GetParametersString(), document.ConnectionString, true);
+				reportViewer.LoadReport(document.GetReportUri(), document.GetParametersString(), document.ConnectionString, true);
 		}
 
 		private int GetRouteListNumber()
@@ -58,17 +68,36 @@ namespace Vodovoz.DriverTerminal
 
 		protected void OnBtnPrintRouteListClicked(object sender, EventArgs e)
 		{
-			LoadDocument(GetRouteListNumber(), RouteListPrintableDocuments.RouteList);
+			LoadDocument(RouteListPrintableDocuments.RouteList);
 		}
 
 		protected void OnBtnPrintLoadDocumentClicked(object sender, EventArgs e)
 		{
-			LoadDocument(GetRouteListNumber(), RouteListPrintableDocuments.LoadSofiyskaya);
+			LoadDocument(RouteListPrintableDocuments.LoadSofiyskaya);
 		}
 
 		protected void OnBtnPrintRouteMapClicked(object sender, EventArgs e)
 		{
-			LoadDocument(GetRouteListNumber(), RouteListPrintableDocuments.RouteMap);
+			LoadDocument(RouteListPrintableDocuments.RouteMap);
+		}
+
+		protected void OnButtonClearClicked(object sender, EventArgs e)
+		{
+			ClearView();
+		}
+
+		private void ClearView()
+		{
+			if(reportViewer != null) {
+				reportViewer.Destroy();
+			}
+			reportViewer = new ReportViewer();
+			foreach(Widget w in hboxViewer.AllChildren) {
+				hboxViewer.Remove(w);
+			}
+			hboxViewer.Add(reportViewer);
+			ShowAll();
+			entryRouteListNumber.Text = "";
 		}
 
 		#region IProgressBarDisplayable implementation
