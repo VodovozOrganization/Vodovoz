@@ -13,12 +13,12 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="BottleDebt">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT DISTINCT
-	rows.delivery_point_id AS pointid,
-	rows.counterparty_id AS clientid,
+	items.delivery_point_id AS pointid,
+	items.counterparty_id AS clientid,
 	delivery_points.comment AS comment,
 	TRIM(full_name) AS fullname,
 	compiled_address,
@@ -48,13 +48,13 @@
 		AND order_status &lt;&gt; 'Canceled' AND order_status &lt;&gt; 'DeliveryCanceled'
 		AND category = 'water') AS lastorder
 FROM
-	(SELECT DISTINCT counterparty_id, delivery_point_id FROM bottles_movement_operations) as rows
+	(SELECT DISTINCT counterparty_id, delivery_point_id FROM bottles_movement_operations) as items
 LEFT JOIN
-	counterparty ON counterparty_id = counterparty.id
+	counterparty ON items.counterparty_id = counterparty.id
 LEFT JOIN
-	delivery_points ON delivery_point_id = delivery_points.id
+	delivery_points ON items.delivery_point_id = delivery_points.id
 LEFT JOIN
-	doc_residue ON rows.delivery_point_id = doc_residue.delivery_point_id
+	doc_residue ON items.delivery_point_id = doc_residue.delivery_point_id
 HAVING
 	debt &lt;&gt; 0 
 	AND ((@allshow = 0 
@@ -67,7 +67,7 @@ HAVING
 		AND @withresidue = -1))
 ORDER BY
 	debtsum DESC,
-	rows.counterparty_id ASC,
+	items.counterparty_id ASC,
 	debt DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="allshow">
@@ -78,7 +78,7 @@ ORDER BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="pointid">
           <DataField>pointid</DataField>
           <TypeName>System.UInt32</TypeName>
