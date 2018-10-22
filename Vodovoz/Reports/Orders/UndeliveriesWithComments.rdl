@@ -19,7 +19,7 @@
       <Textbox Name="Textbox29">
         <Height>18.03pt</Height>
         <Width>757.30pt</Width>
-        <Value>="Недовозы и комментарии " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") +Iif({?start_date}={?end_date}, "", " – " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
+        <Value>="Недовозы и комментарии " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + Iif({?start_date}={?end_date}, "", " – " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>10.60pt</Top>
@@ -58,25 +58,25 @@
             <Width>38.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>221.9pt</Width>
+            <Width>341.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.4pt</Width>
+            <Width>36.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>121.6pt</Width>
+            <Width>100.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.1pt</Width>
+            <Width>36.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.7pt</Width>
+            <Width>37.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>105.5pt</Width>
+            <Width>37.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>49.3pt</Width>
@@ -326,6 +326,8 @@
                         <FontSize>6pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -788,14 +790,17 @@ FROM
 		DATE_FORMAT(un.dispatcher_call_time, '%H:%i') AS dispatcher_call_time,
 		TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(ureg.name, 1), LEFT(ureg.patronymic, 1), ureg.last_name)) AS registered_by,
 		TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(uaut.name, 1), LEFT(uaut.patronymic, 1), uaut.last_name)) AS undelivery_author,
-		CASE guilty_is
-			WHEN 'Client' THEN 'Клиент'
-			WHEN 'Driver' THEN 'Водитель'
-			WHEN 'None' THEN 'Нет (не недовоз)'
-			WHEN 'Department' THEN IF(dep.name IS NULL, 'Отдел ВВ', dep.name)
-			ELSE 'Неизвестно'
-		END
-		AS guilty,
+		GROUP_CONCAT(
+			CASE g.guilty_side
+				WHEN 'Client' THEN 'Клиент'
+				WHEN 'Driver' THEN 'Водитель'
+				WHEN 'Department' THEN IF(dep.name IS NULL, 'Отдел ВВ', dep.name)
+				WHEN 'ServiceMan' THEN 'Мастер СЦ'
+				WHEN 'None' THEN 'Нет (не недовоз)'
+				ELSE g.guilty_side
+			END
+			SEPARATOR ';\n'
+		) AS guilty,
 		CASE un.status
 			WHEN 'InProcess' THEN 'В работе'
 			WHEN 'Checking' THEN 'На проверке'
@@ -811,7 +816,8 @@ FROM
 	LEFT JOIN employees oaut ON oaut.id = oldo.author_employee_id
 	LEFT JOIN employees ureg ON ureg.id = un.registered_by_employee_id
 	LEFT JOIN employees uaut ON uaut.id = un.author_employee_id
-	LEFT JOIN subdivisions dep ON dep.id = un.guilty_department_id
+	LEFT JOIN guilty_in_undelivered_orders g ON un.id = g.undelivery_id
+	LEFT JOIN subdivisions dep ON dep.id = g.guilty_department_id
 	LEFT JOIN route_list_addresses rla ON rla.order_id = oldo.id
 	LEFT JOIN route_lists rl ON rla.route_list_id = rl.id
 	WHERE 
@@ -829,9 +835,9 @@ FROM
  	AND
 		(newo.delivery_date &gt;= @new_order_start_date AND newo.delivery_date &lt;= @new_order_end_date OR @new_order_start_date = '' OR @new_order_end_date = '')
  	AND
-		(un.guilty_is = @guilty_side OR @guilty_side = '')
+		(g.guilty_side = @guilty_side OR @guilty_side = '')
  	AND
-		(un.guilty_department_id = @guilty_department_id OR @guilty_department_id = 0)
+		(g.guilty_department_id = @guilty_department_id OR @guilty_department_id = 0)
   	AND
 		(un.new_order_id IS NOT NULL AND @new_invoice_created = 'true' OR un.new_order_id IS NULL AND @new_invoice_created = 'false' OR @new_invoice_created = '')
  	AND
@@ -852,7 +858,7 @@ LEFT JOIN (
 					field_name = 'OldOrderDeliveryDate',
 					CONCAT(
 						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
-						'\n',
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -869,8 +875,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'Reason',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -887,8 +893,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'ActionWithInvoice',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -905,8 +911,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'TransferDateTime',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -923,8 +929,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'Client',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -941,8 +947,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'Address',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -959,8 +965,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'UndeliveredOrderItems',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -977,8 +983,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'OldDeliverySchedule',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -995,8 +1001,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'OldOrderAuthor',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -1013,8 +1019,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'driverName',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -1031,8 +1037,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'DriversCall',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -1049,8 +1055,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'DispatcherCall',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -1067,8 +1073,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'Registrator',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -1085,8 +1091,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'UndeliveryAuthor',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -1103,8 +1109,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'Guilty',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
@@ -1121,8 +1127,8 @@ LEFT JOIN (
 				IF(
 					field_name = 'Status',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
