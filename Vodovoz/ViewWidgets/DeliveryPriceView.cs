@@ -25,15 +25,11 @@ namespace Vodovoz.ViewWidgets
 
 		void ShowResults(DeliveryPriceNode deliveryPriceNode)
 		{
-			if(deliveryPriceNode.HaveError) {
-				OnError?.Invoke(this, deliveryPriceNode.ErrorMessage);
-			}
-			ylabelDistance.LabelProp = deliveryPriceNode.Distance;
 			labelPrice.LabelProp = deliveryPriceNode.Price;
 			labelMinBottles.LabelProp = deliveryPriceNode.MinBottles;
-			labelSchedule.LabelProp = deliveryPriceNode.Schedule;
-			hbox1.Visible = deliveryPriceNode.ByDistance;
-			label2.Visible = labelPrice.Visible = deliveryPriceNode.WithPrice;
+			ytextviewSchedule.Buffer.Text = deliveryPriceNode.Schedule;
+			hboxTreeView.Visible = deliveryPriceNode.ByDistance;
+			label2.Visible = labelPrice.Visible = hbox5.Visible = deliveryPriceNode.WithPrice;
 			ytreeviewPrices.SetItemsSource<DeliveryPriceRow>(deliveryPriceNode.Prices);
 		}
 
@@ -45,6 +41,7 @@ namespace Vodovoz.ViewWidgets
 						   .AddColumn("Количество").AddNumericRenderer(x => x.Amount)
 						   .AddColumn("Цена за бутыль").AddTextRenderer(x => x.Price)
 						   .Finish();
+
 		}
 
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.Binding;
 using Gamma.ColumnConfig;
 using GeoAPI.Geometries;
 using GMap.NET;
@@ -30,8 +31,8 @@ namespace Vodovoz.Dialogs.Logistic
 		GenericObservableList<ScheduleRestrictedDistrict> observableRestrictedDistricts;
 
 		ScheduleRestrictedDistrict currentDistrict = new ScheduleRestrictedDistrict();
-		ScheduleRestriction currentSchedule = new ScheduleRestriction();
 
+		ILevelConfig[] levelConfig;
 		bool creatingNewBorder = false;
 
 		GeometryFactory gf = new GeometryFactory(new PrecisionModel(), 3857);
@@ -45,9 +46,6 @@ namespace Vodovoz.Dialogs.Logistic
 		void Configure()
 		{
 			TabName = "Районы с графиками доставки";
-			currentDistrict.ObservableScheduleRestrictions.ElementAdded += OnObservableRestrictions_ElementAdded;
-			currentDistrict.ObservableScheduleRestrictions.ElementRemoved += OnObservableRestrictions_ElementRemoved;
-
 			ytreeDistricts.ColumnsConfig = FluentColumnsConfig<ScheduleRestrictedDistrict>.Create()
 				.AddColumn("Название").AddTextRenderer(x => x.DistrictName).Editable()
 				.AddColumn("Мин. бутылей").AddNumericRenderer(x => x.MinBottles)
@@ -60,11 +58,9 @@ namespace Vodovoz.Dialogs.Logistic
 			ytreeDistricts.SetItemsSource(ObservableRestrictedDistricts);
 			ytreeDistricts.Selection.Changed += OnYTreeDistricts_SelectionChanged;
 
-			ytreeSchedules.ColumnsConfig = FluentColumnsConfig<ScheduleRestriction>.Create()
-				.AddColumn("День недели").AddEnumRenderer(x => x.WeekDay).Editing()
-				.AddColumn("График").AddComboRenderer(x => x.Schedule)
-				.SetDisplayFunc(x => x.Name)
-				.FillItems(uow.GetAll<DeliverySchedule>().ToList()).Editing()
+			ytreeSchedules.Selection.Mode = Gtk.SelectionMode.Single;
+			ytreeSchedules.ColumnsConfig = FluentColumnsConfig<DeliverySchedule>.Create()
+				.AddColumn("График").AddTextRenderer(x => x.Name)
 				.Finish();
 			ytreeSchedules.Selection.Changed += OnYTreeSchedules_SelectionChanged;
 
@@ -89,6 +85,11 @@ namespace Vodovoz.Dialogs.Logistic
 			ShowBorders();
 		}
 
+		private void ObservableItemsField_ListContentChanged(object sender, EventArgs e)
+		{
+			ytreeSchedules.QueueDraw();
+		}
+		
 		void YenumcomboMapType_ChangedByUser(object sender, EventArgs e)
 		{
 			gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)yenumcomboMapType.SelectedItem);
@@ -96,39 +97,39 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnYTreeDistricts_SelectionChanged(object sender, EventArgs e)
 		{
-			ButtonsSensitivity();
+			UpdateCurrentDistrict();
+		}
+
+		void UpdateCurrentDistrict()
+		{
 			currentDistrict = ytreeDistricts.GetSelectedObject() as ScheduleRestrictedDistrict;
 
-			if(currentDistrict != null && currentDistrict.ObservableScheduleRestrictions != null)
-			{
-				var schedules = currentDistrict.ObservableScheduleRestrictions;
-				ytreeSchedules.SetItemsSource(schedules);
+			if(currentDistrict != null) {
+				btnMonday.Click();
 			}
 
-			if(currentDistrict != null && currentDistrict.DistrictBorder != null)
-			{
+			if(currentDistrict != null && currentDistrict.DistrictBorder != null) {
 				currentBorderVertice = GetCurrentBorderVertice();
-			} 
-			else
-			{
+			} else {
 				currentBorderVertice = new List<PointLatLng>();
 
 			}
 
 			ShowBorderVertice(currentBorderVertice);
-
+			ButtonsSensitivity();
 		}
+
 
 		protected void OnYTreeSchedules_SelectionChanged(object sender, EventArgs e)
 		{
-			currentSchedule = ytreeSchedules.GetSelectedObject() as ScheduleRestriction;
 			ButtonsSensitivity();
 		}
 
 		protected void OnButtonAddDistrictClicked(object sender, EventArgs e)
 		{
 			var district = new ScheduleRestrictedDistrict();
-			observableRestrictedDistricts.Add(district);		
+			observableRestrictedDistricts.Add(district);
+			UpdateCurrentDistrict();
 		}
 
 		protected void OnButtonDeleteDistrictClicked(object sender, EventArgs e)
@@ -138,17 +139,38 @@ namespace Vodovoz.Dialogs.Logistic
 			if(districtToDelete != null)
 				districtToDelete.IsVisible = false;
 			observableRestrictedDistricts.Remove(currentDistrict);
+			UpdateCurrentDistrict();
 		}
 
 		protected void OnButtonAddScheduleClicked(object sender, EventArgs e)
 		{
-			currentDistrict.AddSchedule(uow);
+			var SelectSchedules = new OrmReference(typeof(DeliverySchedule), uow);
+			SelectSchedules.Mode = OrmReferenceMode.MultiSelect;
+			SelectSchedules.ObjectSelected += SelectSchedules_ObjectSelected;
+			TabParent.AddSlaveTab(this, SelectSchedules);
 		}
 
-		protected void OnButtonDeleteDistrict1Clicked(object sender, EventArgs e)
+		void SelectSchedules_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			currentSchedule.Remove(uow);
-			currentDistrict.ObservableScheduleRestrictions.Remove(currentSchedule);
+			var scheduleList = (ytreeSchedules.ItemsDataSource as GenericObservableList<DeliverySchedule>);
+			if(scheduleList == null) {
+				return;
+			}
+			foreach(var item in e.Subjects) {
+				var schedule = (item as DeliverySchedule);
+				if(schedule != null && !scheduleList.Any(x => x.Id == schedule.Id)) {
+					scheduleList.Add(schedule);
+				}
+			}
+		}
+
+		protected void OnButtonDeleteScheduleClicked(object sender, EventArgs e)
+		{
+			var selectedObj = ytreeSchedules.GetSelectedObject() as DeliverySchedule;
+			var scheduleList = (ytreeSchedules.ItemsDataSource as GenericObservableList<DeliverySchedule>);
+			if(selectedObj != null && scheduleList != null) {
+				scheduleList.Remove(selectedObj);
+			}
 		}
 
 		public virtual GenericObservableList<ScheduleRestrictedDistrict> ObservableRestrictedDistricts {
@@ -172,19 +194,19 @@ namespace Vodovoz.Dialogs.Logistic
 
 		void OnObservableRestrictions_ElementAdded(object sender, int[] aIdx)
 		{
-			ytreeSchedules.SetItemsSource((ytreeDistricts.GetSelectedObject() as ScheduleRestrictedDistrict).ObservableScheduleRestrictions);
+			UpdateCurrentDistrict();
 		}
 
 		void OnObservableRestrictions_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
-			ytreeSchedules.SetItemsSource((ytreeDistricts.GetSelectedObject() as ScheduleRestrictedDistrict).ObservableScheduleRestrictions);
+			UpdateCurrentDistrict();
 		}
 
 		void ButtonsSensitivity()
 		{
-			buttonDeleteDistrict.Sensitive = buttonAddSchedule.Sensitive = buttonCreateBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1;
-			buttonDeleteSchedule.Sensitive = ytreeSchedules.Selection.CountSelectedRows() == 1;
+			buttonDeleteDistrict.Sensitive = buttonCreateBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1;
 			buttonRemoveBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1 &&  currentDistrict != null && currentDistrict.DistrictBorder != null;
+			buttonAddSchedule.Sensitive = currentDistrict != null;
 		}
 
 		IList<ScheduleRestrictedDistrict> GetAllDistricts()
@@ -329,5 +351,57 @@ namespace Vodovoz.Dialogs.Logistic
 
 			return coords.ToArray();
 		}
+
+		protected void OnBtnMondayClicked(object sender, EventArgs e)
+		{
+			currentDistrict.CreateScheduleRestriction(WeekDayName.monday);
+			ytreeSchedules.ItemsDataSource = currentDistrict.ScheduleRestrictionMonday.ObservableSchedules;
+			ytreeSchedules.QueueDraw();
+		}
+
+		protected void OnBtnTuesdayClicked(object sender, EventArgs e)
+		{
+			currentDistrict.CreateScheduleRestriction(WeekDayName.tuesday);
+			ytreeSchedules.ItemsDataSource = currentDistrict.ScheduleRestrictionTuesday.ObservableSchedules;
+			ytreeSchedules.QueueDraw();
+		}
+
+		protected void OnBtnWednesdayClicked(object sender, EventArgs e)
+		{
+			currentDistrict.CreateScheduleRestriction(WeekDayName.wednesday);
+			ytreeSchedules.ItemsDataSource = currentDistrict.ScheduleRestrictionWednesday.ObservableSchedules;
+			ytreeSchedules.QueueDraw();
+		}
+
+		protected void OnBtnThursdayClicked(object sender, EventArgs e)
+		{
+			currentDistrict.CreateScheduleRestriction(WeekDayName.thursday);
+			ytreeSchedules.ItemsDataSource = currentDistrict.ScheduleRestrictionThursday.ObservableSchedules;
+			ytreeSchedules.QueueDraw();
+		}
+
+		protected void OnBtnFridayClicked(object sender, EventArgs e)
+		{
+			currentDistrict.CreateScheduleRestriction(WeekDayName.friday);
+			ytreeSchedules.ItemsDataSource = currentDistrict.ScheduleRestrictionFriday.ObservableSchedules;
+			ytreeSchedules.QueueDraw();
+		}
+
+		protected void OnBtnSaturdayClicked(object sender, EventArgs e)
+		{
+			currentDistrict.CreateScheduleRestriction(WeekDayName.saturday);
+			ytreeSchedules.ItemsDataSource = currentDistrict.ScheduleRestrictionSaturday.ObservableSchedules;
+			ytreeSchedules.QueueDraw();
+		}
+
+		protected void OnBtnSundayClicked(object sender, EventArgs e)
+		{
+			currentDistrict.CreateScheduleRestriction(WeekDayName.sunday);
+			ytreeSchedules.ItemsDataSource = currentDistrict.ScheduleRestrictionSunday.ObservableSchedules;
+			ytreeSchedules.QueueDraw();
+		}
 	}
+
+
+
 }

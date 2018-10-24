@@ -13,8 +13,6 @@ namespace Vodovoz.SidePanel.InfoViews
 		public DeliveryPricePanelView()
 		{
 			this.Build();
-			deliverypriceview.OnError += Deliverypriceview_OnError;
-
 		}
 
 		#region IPanelView implementation
@@ -46,18 +44,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			var deliveryPrice = DeliveryPriceCalculator.Calculate(DeliveryPoint);
 			labelError.Visible = deliveryPrice.HaveError;
 			deliverypriceview.Visible = !deliveryPrice.HaveError;
-
 			deliverypriceview.DeliveryPrice = deliveryPrice;
 		}
 
 		#endregion
-
-		void Deliverypriceview_OnError(object sender, string e)
-		{
-			deliverypriceview.Hide();
-			labelError.Text = e;
-			labelError.Show();
-		}
-
 	}
 }

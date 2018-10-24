@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Sale
@@ -17,18 +19,36 @@ namespace Vodovoz.Domain.Sale
 			set { SetField(ref weekDay, value, () => WeekDay); }
 		}
 
-		ScheduleRestrictedDistrict district;
-
-		public virtual ScheduleRestrictedDistrict District{
-			get { return district; }
-			set { SetField(ref district, value, () => District);}
+		public virtual string ShedulesStr {
+			get{
+				string result = "";
+				foreach(var item in Schedules) {
+					if(!string.IsNullOrWhiteSpace(result)) {
+						result += ", ";
+					}
+					result += item.Name;
+				}
+				return result;
+			}
 		}
 
-		DeliverySchedule schedule;
+		IList<DeliverySchedule> schedules = new List<DeliverySchedule>();
 
-		public virtual DeliverySchedule Schedule{
-			get { return schedule; }
-			set { SetField(ref schedule, value, () => Schedule);}
+		[Display(Name = "Графики доставки")]
+		public virtual IList<DeliverySchedule> Schedules {
+			get { return schedules; }
+			set { SetField(ref schedules, value, () => Schedules); }
+		}
+
+		GenericObservableList<DeliverySchedule> observableSchedules;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<DeliverySchedule> ObservableSchedules {
+			get {
+				if(observableSchedules == null) {
+					observableSchedules = new GenericObservableList<DeliverySchedule>(Schedules);
+				}
+				return observableSchedules;
+			}
 		}
 
 		public virtual void Save(IUnitOfWork UoW)

@@ -117,8 +117,8 @@ namespace Vodovoz.Tools.Logistic
                 else if (district.PriceType == DistrictWaterPrice.Standart)
                     result.Price = "прайс";
                 result.MinBottles = district?.MinBottles.ToString();
-                result.Schedule = district != null && district.ScheduleRestrictions.Count > 0
-                    ? String.Join(", ", district.ScheduleRestrictions.Select(x => $"{x.WeekDay.GetEnumTitle()} {x.Schedule?.Name}"))
+				result.Schedule = district != null && district.HaveRestrictions
+					? String.Join(", ", district.GetSchedulesString())
                     : "любой день";
             }
 			return result;

@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.HibernateMapping
@@ -13,8 +14,10 @@ namespace Vodovoz.HibernateMapping
 
 			Map(x => x.WeekDay).Column("week_day").CustomType<WeekDayNameStringType>();
 
-			References(x => x.District).Column("district_id").Not.Nullable();
-			References(x => x.Schedule).Column("schedule_id");
+			HasManyToMany<DeliverySchedule>(x => x.Schedules).Table("delivery_schedules_restrictions")
+															.ParentKeyColumn("schedule_restrictions_id")
+															.ChildKeyColumn("delivery_schedule_id")
+															.LazyLoad();
 		}
 	}
 }
