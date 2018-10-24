@@ -28,7 +28,25 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.VBox vbox3;
 
-		private global::Gtk.ScrolledWindow scrollSchedules;
+		private global::Gtk.HBox hbox1;
+
+		private global::Gtk.VBox vboxButtons;
+
+		private global::Gtk.RadioButton btnMonday;
+
+		private global::Gtk.RadioButton btnTuesday;
+
+		private global::Gtk.RadioButton btnWednesday;
+
+		private global::Gtk.RadioButton btnThursday;
+
+		private global::Gtk.RadioButton btnFriday;
+
+		private global::Gtk.RadioButton btnSaturday;
+
+		private global::Gtk.RadioButton btnSunday;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeSchedules;
 
@@ -53,6 +71,8 @@ namespace Vodovoz.Dialogs.Logistic
 		private global::Gtk.Button buttonMoveVertex;
 
 		private global::Gtk.Button buttonRemoveVertex;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboMapType;
 
 		protected virtual void Build()
 		{
@@ -148,18 +168,112 @@ namespace Vodovoz.Dialogs.Logistic
 			this.vbox3.Name = "vbox3";
 			this.vbox3.Spacing = 6;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.scrollSchedules = new global::Gtk.ScrolledWindow();
-			this.scrollSchedules.Name = "scrollSchedules";
-			this.scrollSchedules.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
-			this.scrollSchedules.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child scrollSchedules.Gtk.Container+ContainerChild
+			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.vboxButtons = new global::Gtk.VBox();
+			this.vboxButtons.Name = "vboxButtons";
+			this.vboxButtons.Spacing = 6;
+			// Container child vboxButtons.Gtk.Box+BoxChild
+			this.btnMonday = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("ПН"));
+			this.btnMonday.CanFocus = true;
+			this.btnMonday.Name = "btnMonday";
+			this.btnMonday.DrawIndicator = false;
+			this.btnMonday.Group = new global::GLib.SList(global::System.IntPtr.Zero);
+			this.vboxButtons.Add(this.btnMonday);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxButtons[this.btnMonday]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child vboxButtons.Gtk.Box+BoxChild
+			this.btnTuesday = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("ВТ"));
+			this.btnTuesday.CanFocus = true;
+			this.btnTuesday.Name = "btnTuesday";
+			this.btnTuesday.DrawIndicator = false;
+			this.btnTuesday.Group = this.btnMonday.Group;
+			this.vboxButtons.Add(this.btnTuesday);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxButtons[this.btnTuesday]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child vboxButtons.Gtk.Box+BoxChild
+			this.btnWednesday = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("СР"));
+			this.btnWednesday.CanFocus = true;
+			this.btnWednesday.Name = "btnWednesday";
+			this.btnWednesday.DrawIndicator = false;
+			this.btnWednesday.Group = this.btnMonday.Group;
+			this.vboxButtons.Add(this.btnWednesday);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxButtons[this.btnWednesday]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child vboxButtons.Gtk.Box+BoxChild
+			this.btnThursday = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("ЧТ"));
+			this.btnThursday.CanFocus = true;
+			this.btnThursday.Name = "btnThursday";
+			this.btnThursday.DrawIndicator = false;
+			this.btnThursday.Group = this.btnMonday.Group;
+			this.vboxButtons.Add(this.btnThursday);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxButtons[this.btnThursday]));
+			w12.Position = 3;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child vboxButtons.Gtk.Box+BoxChild
+			this.btnFriday = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("ПТ"));
+			this.btnFriday.CanFocus = true;
+			this.btnFriday.Name = "btnFriday";
+			this.btnFriday.DrawIndicator = false;
+			this.btnFriday.Group = this.btnMonday.Group;
+			this.vboxButtons.Add(this.btnFriday);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxButtons[this.btnFriday]));
+			w13.Position = 4;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child vboxButtons.Gtk.Box+BoxChild
+			this.btnSaturday = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("СБ"));
+			this.btnSaturday.CanFocus = true;
+			this.btnSaturday.Name = "btnSaturday";
+			this.btnSaturday.DrawIndicator = false;
+			this.btnSaturday.Group = this.btnMonday.Group;
+			this.vboxButtons.Add(this.btnSaturday);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxButtons[this.btnSaturday]));
+			w14.Position = 5;
+			w14.Expand = false;
+			w14.Fill = false;
+			// Container child vboxButtons.Gtk.Box+BoxChild
+			this.btnSunday = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("ВС"));
+			this.btnSunday.CanFocus = true;
+			this.btnSunday.Name = "btnSunday";
+			this.btnSunday.DrawIndicator = false;
+			this.btnSunday.Group = this.btnMonday.Group;
+			this.vboxButtons.Add(this.btnSunday);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxButtons[this.btnSunday]));
+			w15.Position = 6;
+			w15.Expand = false;
+			w15.Fill = false;
+			this.hbox1.Add(this.vboxButtons);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vboxButtons]));
+			w16.Position = 0;
+			w16.Expand = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.ytreeSchedules = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeSchedules.CanFocus = true;
 			this.ytreeSchedules.Name = "ytreeSchedules";
-			this.scrollSchedules.Add(this.ytreeSchedules);
-			this.vbox3.Add(this.scrollSchedules);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.scrollSchedules]));
-			w10.Position = 0;
+			this.ytreeSchedules.EnableSearch = false;
+			this.GtkScrolledWindow.Add(this.ytreeSchedules);
+			this.hbox1.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow]));
+			w18.Position = 1;
+			this.vbox3.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox1]));
+			w19.Position = 0;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
@@ -171,10 +285,10 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonAddSchedule.UseUnderline = true;
 			this.buttonAddSchedule.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			this.hbox3.Add(this.buttonAddSchedule);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonAddSchedule]));
-			w11.Position = 0;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonAddSchedule]));
+			w20.Position = 0;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.buttonDeleteSchedule = new global::Gtk.Button();
 			this.buttonDeleteSchedule.CanFocus = true;
@@ -182,22 +296,25 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonDeleteSchedule.UseUnderline = true;
 			this.buttonDeleteSchedule.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			this.hbox3.Add(this.buttonDeleteSchedule);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonDeleteSchedule]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonDeleteSchedule]));
+			w21.Position = 1;
+			w21.Expand = false;
+			w21.Fill = false;
 			this.vbox3.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox3]));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox3]));
+			w22.PackType = ((global::Gtk.PackType)(1));
+			w22.Position = 1;
+			w22.Expand = false;
+			w22.Fill = false;
 			this.vbox5.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.vbox3]));
-			w14.Position = 1;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.vbox3]));
+			w23.Position = 1;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.hbox5.Add(this.vbox5);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.vbox5]));
-			w15.Position = 0;
-			w15.Expand = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.vbox5]));
+			w24.Position = 0;
+			w24.Expand = false;
 			// Container child hbox5.Gtk.Box+BoxChild
 			this.vbox4 = new global::Gtk.VBox();
 			this.vbox4.Name = "vbox4";
@@ -213,14 +330,14 @@ namespace Vodovoz.Dialogs.Logistic
 			this.gmapWidget.NegativeMode = false;
 			this.gmapWidget.HasFrame = false;
 			this.gmapWidget.Bearing = 0F;
-			this.gmapWidget.Zoom = 9;
+			this.gmapWidget.Zoom = 9D;
 			this.gmapWidget.RoutesEnabled = true;
 			this.gmapWidget.PolygonsEnabled = true;
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
 			this.vbox4.Add(this.gmapWidget);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.gmapWidget]));
-			w16.Position = 0;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.gmapWidget]));
+			w25.Position = 0;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.hbox6 = new global::Gtk.HBox();
 			this.hbox6.Name = "hbox6";
@@ -232,10 +349,10 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonCreateBorder.UseUnderline = true;
 			this.buttonCreateBorder.Label = global::Mono.Unix.Catalog.GetString("Создать границу");
 			this.hbox6.Add(this.buttonCreateBorder);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonCreateBorder]));
-			w17.Position = 0;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonCreateBorder]));
+			w26.Position = 0;
+			w26.Expand = false;
+			w26.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonRemoveBorder = new global::Gtk.Button();
 			this.buttonRemoveBorder.CanFocus = true;
@@ -243,10 +360,10 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonRemoveBorder.UseUnderline = true;
 			this.buttonRemoveBorder.Label = global::Mono.Unix.Catalog.GetString("Удалить границу");
 			this.hbox6.Add(this.buttonRemoveBorder);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRemoveBorder]));
-			w18.Position = 1;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRemoveBorder]));
+			w27.Position = 1;
+			w27.Expand = false;
+			w27.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonAddVertex = new global::Gtk.Button();
 			this.buttonAddVertex.CanFocus = true;
@@ -254,10 +371,10 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonAddVertex.UseUnderline = true;
 			this.buttonAddVertex.Label = global::Mono.Unix.Catalog.GetString("Добавить вершину");
 			this.hbox6.Add(this.buttonAddVertex);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAddVertex]));
-			w19.Position = 2;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAddVertex]));
+			w28.Position = 2;
+			w28.Expand = false;
+			w28.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonMoveVertex = new global::Gtk.Button();
 			this.buttonMoveVertex.CanFocus = true;
@@ -265,10 +382,10 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonMoveVertex.UseUnderline = true;
 			this.buttonMoveVertex.Label = global::Mono.Unix.Catalog.GetString("Переместить вершину");
 			this.hbox6.Add(this.buttonMoveVertex);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonMoveVertex]));
-			w20.Position = 3;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonMoveVertex]));
+			w29.Position = 3;
+			w29.Expand = false;
+			w29.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonRemoveVertex = new global::Gtk.Button();
 			this.buttonRemoveVertex.CanFocus = true;
@@ -276,31 +393,52 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonRemoveVertex.UseUnderline = true;
 			this.buttonRemoveVertex.Label = global::Mono.Unix.Catalog.GetString("Удалить вершину");
 			this.hbox6.Add(this.buttonRemoveVertex);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRemoveVertex]));
-			w21.Position = 4;
-			w21.Expand = false;
-			w21.Fill = false;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRemoveVertex]));
+			w30.Position = 4;
+			w30.Expand = false;
+			w30.Fill = false;
+			// Container child hbox6.Gtk.Box+BoxChild
+			this.yenumcomboMapType = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboMapType.Name = "yenumcomboMapType";
+			this.yenumcomboMapType.ShowSpecialStateAll = false;
+			this.yenumcomboMapType.ShowSpecialStateNot = false;
+			this.yenumcomboMapType.UseShortTitle = false;
+			this.yenumcomboMapType.DefaultFirst = true;
+			this.hbox6.Add(this.yenumcomboMapType);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.yenumcomboMapType]));
+			w31.PackType = ((global::Gtk.PackType)(1));
+			w31.Position = 5;
+			w31.Expand = false;
+			w31.Fill = false;
 			this.vbox4.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox6]));
-			w22.Position = 1;
-			w22.Expand = false;
-			w22.Fill = false;
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox6]));
+			w32.Position = 1;
+			w32.Expand = false;
+			w32.Fill = false;
 			this.hbox5.Add(this.vbox4);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.vbox4]));
-			w23.Position = 1;
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.vbox4]));
+			w33.Position = 1;
 			this.vbox1.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
-			w24.Position = 1;
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
+			w34.Position = 1;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
 			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
 			this.buttonAddDistrict.Clicked += new global::System.EventHandler(this.OnButtonAddDistrictClicked);
 			this.buttonDeleteDistrict.Clicked += new global::System.EventHandler(this.OnButtonDeleteDistrictClicked);
+			this.btnMonday.Clicked += new global::System.EventHandler(this.OnBtnMondayClicked);
+			this.btnTuesday.Clicked += new global::System.EventHandler(this.OnBtnTuesdayClicked);
+			this.btnWednesday.Clicked += new global::System.EventHandler(this.OnBtnWednesdayClicked);
+			this.btnThursday.Clicked += new global::System.EventHandler(this.OnBtnThursdayClicked);
+			this.btnFriday.Clicked += new global::System.EventHandler(this.OnBtnFridayClicked);
+			this.btnSaturday.Clicked += new global::System.EventHandler(this.OnBtnSaturdayClicked);
+			this.btnSunday.Clicked += new global::System.EventHandler(this.OnBtnSundayClicked);
 			this.buttonAddSchedule.Clicked += new global::System.EventHandler(this.OnButtonAddScheduleClicked);
-			this.buttonDeleteSchedule.Clicked += new global::System.EventHandler(this.OnButtonDeleteDistrict1Clicked);
+			this.buttonDeleteSchedule.Clicked += new global::System.EventHandler(this.OnButtonDeleteScheduleClicked);
 			this.gmapWidget.ButtonReleaseEvent += new global::Gtk.ButtonReleaseEventHandler(this.OnGmapWidgetButtonReleaseEvent);
 			this.buttonCreateBorder.Clicked += new global::System.EventHandler(this.OnButtonCreateBorderClicked);
 			this.buttonRemoveBorder.Clicked += new global::System.EventHandler(this.OnButtonRemoveBorderClicked);

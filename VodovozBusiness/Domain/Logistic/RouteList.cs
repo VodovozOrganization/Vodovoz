@@ -18,6 +18,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Tools.Logistic;
+using NHibernate.Util;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -440,6 +441,12 @@ namespace Vodovoz.Domain.Logistic
 				return Total - AllPayedForFuel;
 			}
 		}
+
+		/// <summary>
+		/// Количество полных 19л бутылей в МЛ для клиентов
+		/// </summary>
+		/// <returns>Количество полных 19л бутылей</returns>
+		public virtual int TotalFullBottlesToClient => Addresses.Sum(a => a.GetFullBottlesToDeliverCount());
 
 		#endregion
 

@@ -19,7 +19,7 @@
       <Textbox Name="Textbox29">
         <Height>18.03pt</Height>
         <Width>757.30pt</Width>
-        <Value>="Недовозы и комментарии " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") +Iif({?start_date}={?end_date}, "", " – " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
+        <Value>="Недовозы и комментарии " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + Iif({?start_date}={?end_date}, "", " – " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>10.60pt</Top>
@@ -58,25 +58,25 @@
             <Width>38.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>221.9pt</Width>
+            <Width>341.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.4pt</Width>
+            <Width>36.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>121.6pt</Width>
+            <Width>100.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.1pt</Width>
+            <Width>36.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.7pt</Width>
+            <Width>37.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>105.5pt</Width>
+            <Width>37.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>49.3pt</Width>
@@ -326,6 +326,8 @@
                         <FontSize>6pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -601,86 +603,44 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	un_ord_subqry.N,
-	CONCAT_WS(
-		'\n',
-		DATE_FORMAT(un_ord_subqry.old_order_date, '%e.%m'),
-		cmnt.old_order_delivery_date
-	) AS old_order_date,
+	un_ord_subqry.old_order_date AS order_by_column,
+	DATE_FORMAT(un_ord_subqry.old_order_date, '%e.%m') AS old_order_date,
 	CONCAT_WS(
 		'\n',
 		un_ord_subqry.reason,
-		cmnt.reason
+		REPLACE(
+			REPLACE(
+				cmnt.reason,
+				'&lt;i&gt;',
+				''
+			),
+			'&lt;/i&gt;',
+			''
+		)
 	) AS reason,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.new_order_id,
-		cmnt.action_with_invoice
-	) AS action_with_invoice,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.transfered,
-		cmnt.transfer_date_time
-	) AS transfer_date_time,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.client,
-		cmnt.client
-	) AS client,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.address,
-		cmnt.address
-	) AS address,
-	CONCAT_WS(
-		'\n',
-		IFNULL(un_ord_subqry.bottles, IFNULL(un_ord_subqry.goo_to_client, IFNULL(un_ord_subqry.goo_from_client, 'Другие товары'))),
-		cmnt.undelivered_order_items
+	un_ord_subqry.new_order_id AS action_with_invoice,
+	un_ord_subqry.transfered AS transfer_date_time,
+	un_ord_subqry.client AS client,
+	un_ord_subqry.address AS address,
+	IFNULL(
+		un_ord_subqry.bottles,
+		IFNULL(
+			un_ord_subqry.goo_to_client,
+			IFNULL(
+				un_ord_subqry.goo_from_client,
+				'Другие товары'
+			)
+		)
 	) AS undelivered_order_items,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.old_interval,
-		cmnt.old_delivery_schedule
-	) AS old_delivery_schedule,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.old_order_author,
-		cmnt.old_order_author
-	) AS old_order_author,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.driver,
-		cmnt.driver_name
-	) AS driver_name,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.driver_call_time,
-		cmnt.drivers_call
-	) AS drivers_call,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.dispatcher_call_time,
-		cmnt.dispatcher_call
-	) AS dispatcher_call,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.registered_by,
-		cmnt.registrator
-	) AS registrator,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.undelivery_author,
-		cmnt.undelivery_author
-	) AS undelivery_author,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.guilty,
-		cmnt.guilty
-	) AS guilty,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.status,
-		cmnt.status
-	) AS status
+	un_ord_subqry.old_interval AS old_delivery_schedule,
+	un_ord_subqry.old_order_author AS old_order_author,
+	un_ord_subqry.driver AS driver_name,
+	un_ord_subqry.driver_call_time AS drivers_call,
+	un_ord_subqry.dispatcher_call_time AS dispatcher_call,
+	un_ord_subqry.registered_by AS registrator,
+	un_ord_subqry.undelivery_author AS undelivery_author,
+	un_ord_subqry.guilty AS guilty,
+	un_ord_subqry.status AS status
 FROM
 #поля недовоза
 (
@@ -788,14 +748,17 @@ FROM
 		DATE_FORMAT(un.dispatcher_call_time, '%H:%i') AS dispatcher_call_time,
 		TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(ureg.name, 1), LEFT(ureg.patronymic, 1), ureg.last_name)) AS registered_by,
 		TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(uaut.name, 1), LEFT(uaut.patronymic, 1), uaut.last_name)) AS undelivery_author,
-		CASE guilty_is
-			WHEN 'Client' THEN 'Клиент'
-			WHEN 'Driver' THEN 'Водитель'
-			WHEN 'None' THEN 'Нет (не недовоз)'
-			WHEN 'Department' THEN IF(dep.name IS NULL, 'Отдел ВВ', dep.name)
-			ELSE 'Неизвестно'
-		END
-		AS guilty,
+		GROUP_CONCAT(
+			CASE g.guilty_side
+				WHEN 'Client' THEN 'Клиент'
+				WHEN 'Driver' THEN 'Водитель'
+				WHEN 'Department' THEN IF(dep.name IS NULL, 'Отдел ВВ', dep.name)
+				WHEN 'ServiceMan' THEN 'Мастер СЦ'
+				WHEN 'None' THEN 'Нет (не недовоз)'
+				ELSE g.guilty_side
+			END
+			SEPARATOR ';\n'
+		) AS guilty,
 		CASE un.status
 			WHEN 'InProcess' THEN 'В работе'
 			WHEN 'Checking' THEN 'На проверке'
@@ -811,7 +774,8 @@ FROM
 	LEFT JOIN employees oaut ON oaut.id = oldo.author_employee_id
 	LEFT JOIN employees ureg ON ureg.id = un.registered_by_employee_id
 	LEFT JOIN employees uaut ON uaut.id = un.author_employee_id
-	LEFT JOIN subdivisions dep ON dep.id = un.guilty_department_id
+	LEFT JOIN guilty_in_undelivered_orders g ON un.id = g.undelivery_id
+	LEFT JOIN subdivisions dep ON dep.id = g.guilty_department_id
 	LEFT JOIN route_list_addresses rla ON rla.order_id = oldo.id
 	LEFT JOIN route_lists rl ON rla.route_list_id = rl.id
 	WHERE 
@@ -829,9 +793,9 @@ FROM
  	AND
 		(newo.delivery_date &gt;= @new_order_start_date AND newo.delivery_date &lt;= @new_order_end_date OR @new_order_start_date = '' OR @new_order_end_date = '')
  	AND
-		(un.guilty_is = @guilty_side OR @guilty_side = '')
+		(g.guilty_side = @guilty_side OR @guilty_side = '')
  	AND
-		(un.guilty_department_id = @guilty_department_id OR @guilty_department_id = 0)
+		(g.guilty_department_id = @guilty_department_id OR @guilty_department_id = 0)
   	AND
 		(un.new_order_id IS NOT NULL AND @new_invoice_created = 'true' OR un.new_order_id IS NULL AND @new_invoice_created = 'false' OR @new_invoice_created = '')
  	AND
@@ -849,294 +813,25 @@ LEFT JOIN (
 			'--комментарии--\n',
 			GROUP_CONCAT(
 				IF(
-					field_name = 'OldOrderDeliveryDate',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as old_order_delivery_date,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
 					field_name = 'Reason',
 					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
+						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
+						', ',
 						CONCAT_WS(' ', e.name, e.last_name),
 						':\n',
 						cm.comment
 					),
-					null
+					NULL
 				)
 				ORDER BY cm.date_and_time ASC
 				SEPARATOR '\n'
 			)
-		) as reason,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'ActionWithInvoice',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as action_with_invoice,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'TransferDateTime',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as transfer_date_time,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'Client',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as client,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'Address',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as address,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'UndeliveredOrderItems',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as undelivered_order_items,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'OldDeliverySchedule',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as old_delivery_schedule,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'OldOrderAuthor',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as old_order_author,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'driverName',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as driver_name,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'DriversCall',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as drivers_call,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'DispatcherCall',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as dispatcher_call,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'Registrator',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as registrator,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'UndeliveryAuthor',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as undelivery_author,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'Guilty',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as guilty,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'Status',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e %b %Y, %k:%i:%s'),
-						'\n',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					null
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as status
+		) as reason
 	FROM undelivered_orders_comments cm
 	LEFT JOIN employees e ON e.id = cm.employee_id
 	GROUP BY undelivery_id
 ) AS cmnt ON cmnt.uid = un_ord_subqry.N
+ORDER BY order_by_column ASC
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
