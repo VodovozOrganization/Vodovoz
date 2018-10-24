@@ -15,7 +15,7 @@
     <DataSet Name="RouteLists">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
 	route_lists.id AS routeListId,
 	route_lists.date AS routeListDate,
 	route_lists.driver_id,
@@ -101,7 +101,7 @@ WHERE
 	# скрыть МЛ с выездными мастерами
 	AND ((@RemServiceRLs = 1 AND employees.visiting_master = 0) OR @RemServiceRLs = 0)
 	# скрыть МЛ наёмников (наёмник = не мастер, не фура, не собственность компании)
-	AND ((@RemMercRLs = 1 AND (employees.visiting_master = 1 OR cars.type_of_use = 'Truck' OR cars.is_company_havings = 1)) OR @RemMercRLs = 0)
+	AND ((@RemMercRLs = 1 AND (employees.visiting_master = 1 OR cars.type_of_use = 'Truck')) OR @RemMercRLs = 0)
 GROUP BY routeListId
 ;</CommandText>
         <QueryParameters>
