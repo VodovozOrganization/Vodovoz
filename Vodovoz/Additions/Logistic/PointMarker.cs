@@ -45,6 +45,21 @@ namespace Vodovoz.Additions.Logistic
 		color24,
 	}
 
+	public enum PointMarkerShape
+	{
+		none = 0, 
+		// < 6 бутылей
+		circle,
+		// 6 - 10 бутылей
+		triangle,
+		// 10 - 20 бутылей
+		square,
+		// 20 - 40 бутылей
+		cross,
+		// > 40 бутылей
+		star
+	}
+
 	[Serializable]
 	public class PointMarker : GMapMarker, ISerializable, IDeserializationCallback
 	{
@@ -52,7 +67,6 @@ namespace Vodovoz.Additions.Logistic
 		Bitmap BitmapShadow;
 
 		private PointMarkerType type;
-
 		public PointMarkerType Type
 		{
 			get
@@ -62,7 +76,7 @@ namespace Vodovoz.Additions.Logistic
 			set
 			{
 				type = value;
-				if (type != PointMarkerType.none)
+				if (type != PointMarkerType.none && shape != PointMarkerShape.none)
 				{
 					LoadBitmap();
 				}
@@ -80,20 +94,43 @@ namespace Vodovoz.Additions.Logistic
 			}
 		}
 
+		private PointMarkerShape shape;
+		public PointMarkerShape Shape {
+			get => shape;
+			set {
+				shape = value;
+				if(shape != PointMarkerShape.none && type != PointMarkerType.none)
+					LoadBitmap();				
+
+				if(IsVisible
+				   && Overlay != null && Overlay.Control != null
+				   && !Overlay.Control.HoldInvalidation)
+					Overlay.Control.Invalidate();
+			}
+		}
+
 		public PointMarker(PointLatLng p, PointMarkerType type)
 			: base(p)
 		{
 			this.Type = type;
 		}
 
+		public PointMarker(PointLatLng p, PointMarkerType type, PointMarkerShape shape)
+			: this(p, type)
+		{
+			this.Shape = shape;
+		}
+
 		void LoadBitmap()
 		{
-			Bitmap = GetIcon(type.ToString());
+			string iconPath = String.Format("{0}.{1}", Shape.ToString(), Type.ToString());
+			Bitmap = GetIcon(iconPath);
 			Size = new System.Drawing.Size(Bitmap.Width, Bitmap.Height);
 
 			Offset = new Point(-Size.Width / 2, -Size.Height + 1);
 
-			BitmapShadow = GetIcon("marker_shadow");
+			string shadowPath = String.Format("{0}.marker_shadow", Shape.ToString());
+			BitmapShadow = GetIcon(shadowPath);
 		}
 
 		static readonly Dictionary<string, Bitmap> iconCache = new Dictionary<string, Bitmap>();
@@ -110,9 +147,9 @@ namespace Vodovoz.Additions.Logistic
 			return ret;
 		}
 
-		public static Gdk.Pixbuf GetIconPixbuf(string name)
+		public static Gdk.Pixbuf GetIconPixbuf(string name, PointMarkerShape shape = PointMarkerShape.circle)
 		{
-			string resourceName = String.Format("Vodovoz.icons.map.points.{0}.png", name);
+			string resourceName = String.Format("Vodovoz.icons.map.points.{0}.{1}.png", shape.ToString(), name);
 			return new Gdk.Pixbuf(System.Reflection.Assembly.GetExecutingAssembly(), resourceName);
 		}
 
@@ -144,6 +181,7 @@ namespace Vodovoz.Additions.Logistic
 		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue("type", this.type);
+			info.AddValue("shape", this.shape);
 
 			base.GetObjectData(info, context);
 		}
@@ -152,6 +190,7 @@ namespace Vodovoz.Additions.Logistic
 			: base(info, context)
 		{
 			this.type = Extensions.GetStruct<PointMarkerType>(info, "type", PointMarkerType.none);
+			this.Shape = Extensions.GetStruct<PointMarkerShape>(info, "shape", PointMarkerShape.none);
 		}
 
 		#endregion
@@ -160,7 +199,7 @@ namespace Vodovoz.Additions.Logistic
 
 		public void OnDeserialization(object sender)
 		{
-			if (type != PointMarkerType.none)
+			if (type != PointMarkerType.none && Shape != PointMarkerShape.none)
 			{
 				LoadBitmap();
 			}

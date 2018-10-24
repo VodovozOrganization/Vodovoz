@@ -10,6 +10,7 @@ using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using Gtk;
 using QS.DomainModel.UoW;
+using QS.Utilities;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
@@ -144,7 +145,7 @@ namespace Vodovoz
 					.Finish();
 
 			ytreeRoutes.HasTooltip = true;
-			ytreeRoutes.QueryTooltip += YtreeRoutes_QueryTooltip; ;
+			ytreeRoutes.QueryTooltip += YtreeRoutes_QueryTooltip;
 			ytreeRoutes.Selection.Changed += YtreeRoutes_Selection_Changed;
 
 			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
@@ -593,8 +594,8 @@ namespace Vodovoz
 				.Select(NHibernate.Criterion.Projections.Sum(() => orderItemAlias.Count)).SingleOrDefault<int>();
 
 			var text = new List<string>();
-			text.Add(RusNumber.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."));
-			text.Add(RusNumber.FormatCase(totalBottles, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей"));
+			text.Add(NumberToTextRus.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."));
+			text.Add(NumberToTextRus.FormatCase(totalBottles, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей"));
 
 			ytextFullOrdersInfo.Buffer.Text = String.Join("\n", text);
 		}
@@ -705,6 +706,8 @@ namespace Vodovoz
 				}
 
 				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
+					PointMarkerShape shape = GetMarkerShape(order.TotalDeliveredBottles);
+
 					PointMarkerType type;
 					if(route == null) {
 						if((order.DeliverySchedule.To - order.DeliverySchedule.From).TotalHours <= 1)
@@ -719,7 +722,7 @@ namespace Vodovoz
 					if(selectedMarkers.FirstOrDefault(m => ((Order)m.Tag).Id == order.Id) != null)
 						type = PointMarkerType.white;
 
-					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude), type);
+					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude), type, shape);
 					addressMarker.Tag = order;
 
 					string ttText = order.DeliveryPoint.ShortAddress;
@@ -769,17 +772,17 @@ namespace Vodovoz
 		void UpdateOrdersInfo()
 		{
 			var text = new List<string>();
-			text.Add(RusNumber.FormatCase(ordersAtDay.Count, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."));
+			text.Add(NumberToTextRus.FormatCase(ordersAtDay.Count, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."));
 			if(addressesWithoutCoordinats > 0)
 				text.Add(String.Format("Из них {0} без координат.", addressesWithoutCoordinats));
 			if(addressesWithoutRoutes > 0)
 				text.Add(String.Format("Из них {0} без маршрутных листов.", addressesWithoutRoutes));
 			if(totalBottlesCountAtDay > 0)
-				text.Add(RusNumber.FormatCase(totalBottlesCountAtDay, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей"));
+				text.Add(NumberToTextRus.FormatCase(totalBottlesCountAtDay, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей"));
 			if(bottlesWithoutRL > 0)
-				text.Add(RusNumber.FormatCase(bottlesWithoutRL, "Осталась {0} бутыль", "Осталось {0} бутыли", "Осталось {0} бутылей"));
+				text.Add(NumberToTextRus.FormatCase(bottlesWithoutRL, "Осталась {0} бутыль", "Осталось {0} бутыли", "Осталось {0} бутылей"));
 
-			text.Add(RusNumber.FormatCase(routesAtDay.Count, "Всего {0} маршрутный лист.", "Всего {0} маршрутных листа.", "Всего {0} маршрутных листов."));
+			text.Add(NumberToTextRus.FormatCase(routesAtDay.Count, "Всего {0} маршрутный лист.", "Всего {0} маршрутных листа.", "Всего {0} маршрутных листов."));
 
 			textOrdersInfo.Buffer.Text = String.Join("\n", text);
 
@@ -792,10 +795,10 @@ namespace Vodovoz
 			else if(addressesWithoutRoutes == 0)
 				progressOrders.Text = "Готово.";
 			else
-				progressOrders.Text = RusNumber.FormatCase(addressesWithoutRoutes, "Остался {0} заказ", "Осталось {0} заказа", "Осталось {0} заказов");
+				progressOrders.Text = NumberToTextRus.FormatCase(addressesWithoutRoutes, "Остался {0} заказ", "Осталось {0} заказа", "Осталось {0} заказов");
 		}
 
-		private PointMarkerType[] pointMarkers = new[]{
+		private PointMarkerType[] pointMarkers = {
 			PointMarkerType.blue,
 			PointMarkerType.green,
 			PointMarkerType.orange,
@@ -832,13 +835,26 @@ namespace Vodovoz
 			return pointMarkers[markerNum];
 		}
 
+		PointMarkerShape GetMarkerShape(int bottlesCount){
+			if(bottlesCount < 6)
+				return PointMarkerShape.triangle;
+			if(bottlesCount < 10)
+				return PointMarkerShape.circle;
+			if(bottlesCount < 20)
+				return PointMarkerShape.square;
+			if(bottlesCount < 40)
+				return PointMarkerShape.cross;
+			return PointMarkerShape.star;
+		}
+
 		void UpdateRoutesPixBuf()
 		{
 			if(pixbufMarkers != null && routesAtDay.Count == pixbufMarkers.Length)
 				return;
 			pixbufMarkers = new Pixbuf[routesAtDay.Count];
 			for(int i = 0; i < routesAtDay.Count; i++) {
-				pixbufMarkers[i] = PointMarker.GetIconPixbuf(GetAddressMarker(i).ToString());
+				PointMarkerShape shape = GetMarkerShape(routesAtDay[i].TotalFullBottlesToClient);
+				pixbufMarkers[i] = PointMarker.GetIconPixbuf(GetAddressMarker(i).ToString(), shape);
 			}
 		}
 
@@ -1124,9 +1140,8 @@ namespace Vodovoz
 				Repository.EmployeeRepository.ActiveForwarderOrderedQuery()
 			);
 			SelectForwarder.Mode = OrmReferenceMode.MultiSelect;
-			SelectForwarder.ObjectSelected += SelectForwarder_ObjectSelected; ;
+			SelectForwarder.ObjectSelected += SelectForwarder_ObjectSelected;
 			TabParent.AddSlaveTab(this, SelectForwarder);
-
 		}
 
 		void SelectForwarder_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
