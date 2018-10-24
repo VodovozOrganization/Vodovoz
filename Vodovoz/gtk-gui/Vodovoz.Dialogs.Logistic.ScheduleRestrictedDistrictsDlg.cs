@@ -54,6 +54,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.Button buttonRemoveVertex;
 
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboMapType;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -213,7 +215,7 @@ namespace Vodovoz.Dialogs.Logistic
 			this.gmapWidget.NegativeMode = false;
 			this.gmapWidget.HasFrame = false;
 			this.gmapWidget.Bearing = 0F;
-			this.gmapWidget.Zoom = 9;
+			this.gmapWidget.Zoom = 9D;
 			this.gmapWidget.RoutesEnabled = true;
 			this.gmapWidget.PolygonsEnabled = true;
 			this.gmapWidget.MarkersEnabled = true;
@@ -280,19 +282,33 @@ namespace Vodovoz.Dialogs.Logistic
 			w21.Position = 4;
 			w21.Expand = false;
 			w21.Fill = false;
-			this.vbox4.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox6]));
-			w22.Position = 1;
+			// Container child hbox6.Gtk.Box+BoxChild
+			this.yenumcomboMapType = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboMapType.Name = "yenumcomboMapType";
+			this.yenumcomboMapType.ShowSpecialStateAll = false;
+			this.yenumcomboMapType.ShowSpecialStateNot = false;
+			this.yenumcomboMapType.UseShortTitle = false;
+			this.yenumcomboMapType.DefaultFirst = true;
+			this.hbox6.Add(this.yenumcomboMapType);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.yenumcomboMapType]));
+			w22.PackType = ((global::Gtk.PackType)(1));
+			w22.Position = 5;
 			w22.Expand = false;
 			w22.Fill = false;
-			this.hbox5.Add(this.vbox4);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.vbox4]));
+			this.vbox4.Add(this.hbox6);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox6]));
 			w23.Position = 1;
-			this.vbox1.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
+			w23.Expand = false;
+			w23.Fill = false;
+			this.hbox5.Add(this.vbox4);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.vbox4]));
 			w24.Position = 1;
+			this.vbox1.Add(this.hbox5);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
+			w25.Position = 1;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

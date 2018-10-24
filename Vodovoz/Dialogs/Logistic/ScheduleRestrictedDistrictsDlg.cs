@@ -7,13 +7,13 @@ using GeoAPI.Geometries;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
-using GMap.NET.MapProviders;
 using Gtk;
 using NetTopologySuite.Geometries;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
+using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
@@ -76,13 +76,22 @@ namespace Vodovoz.Dialogs.Logistic
 				= buttonRemoveVertex.Sensitive = buttonRemoveVertex.Visible 
 				= false;
 
-			gmapWidget.MapProvider = GMapProviders.OpenStreetMap;
+			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
+			yenumcomboMapType.SelectedItem = MapProviders.YandexMap;
+			yenumcomboMapType.ChangedByUser += YenumcomboMapType_ChangedByUser;
+			YenumcomboMapType_ChangedByUser(null, null);
+
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.HasFrame = true;
 			gmapWidget.Overlays.Add(bordersOverlay);
 			gmapWidget.Overlays.Add(verticeOverlay);
 			ShowBorders();
+		}
+
+		void YenumcomboMapType_ChangedByUser(object sender, EventArgs e)
+		{
+			gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)yenumcomboMapType.SelectedItem);
 		}
 
 		protected void OnYTreeDistricts_SelectionChanged(object sender, EventArgs e)
