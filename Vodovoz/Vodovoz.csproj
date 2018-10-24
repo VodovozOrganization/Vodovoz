@@ -317,7 +317,6 @@
     <EmbeddedResource Include="icons\map\points\star\color8.png" />
     <EmbeddedResource Include="icons\map\points\star\color9.png" />
     <EmbeddedResource Include="icons\map\points\star\green.png" />
-    <EmbeddedResource Include="icons\map\points\star\grey.png" />
     <EmbeddedResource Include="icons\map\points\star\marker_shadow.png" />
     <EmbeddedResource Include="icons\map\points\star\orange.png" />
     <EmbeddedResource Include="icons\map\points\star\purple.png" />
@@ -422,6 +421,7 @@
     <EmbeddedResource Include="icons\map\points\cross\white.png" />
     <EmbeddedResource Include="icons\map\points\square\blue_stripes.png" />
     <EmbeddedResource Include="icons\map\points\square\marker_shadow.png" />
+    <EmbeddedResource Include="icons\map\points\star\gray.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
