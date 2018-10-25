@@ -20,7 +20,7 @@ namespace Vodovoz
 
 		#region IOrmDialog implementation
 
-		public IUnitOfWork UoW => UoW;
+		public IUnitOfWork UoW => uow;
 		public object EntityObject => throw new NotImplementedException();
 		public enum OpenParameter { Sender, Receiver }
 
