@@ -1132,6 +1132,10 @@
       <Project>{E2228A2B-4883-4DD8-8A05-23501F7B8A33}</Project>
       <Name>QS.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\My-FyiReporting\RdlCri\RdlCri.csproj">
+      <Project>{9C9ECACA-0DEB-4517-8CF1-02C3D3EB128E}</Project>
+      <Name>RdlCri</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />
