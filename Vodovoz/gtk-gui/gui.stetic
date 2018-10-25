@@ -60979,4 +60979,56 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
+  <widget class="Gtk.Window" id="Vodovoz.Dialogs.Logistic.RouresAtDayInfoWnd" design-size="400 300">
+    <property name="MemberName" />
+    <property name="Title" translatable="yes">Описание функций и интерфейса</property>
+    <property name="TypeHint">Dialog</property>
+    <property name="WindowPosition">CenterOnParent</property>
+    <property name="Modal">True</property>
+    <property name="Resizable">False</property>
+    <property name="DestroyWithParent">True</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox2">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gamma.GtkWidgets.yLabel" id="lblInfo">
+            <property name="MemberName" />
+            <property name="LabelProp" translatable="yes">lblInfo</property>
+            <property name="Selectable">True</property>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gamma.GtkWidgets.yTreeView" id="treeMarkers">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="btnOk">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Закрыть</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnBtnOkClicked" />
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">False</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
 </stetic-interface>

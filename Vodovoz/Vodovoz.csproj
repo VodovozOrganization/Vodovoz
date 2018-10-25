@@ -1009,6 +1009,8 @@
     <Compile Include="DriverTerminal\DriverTerminalWindow.cs" />
     <Compile Include="gtk-gui\Vodovoz.DriverTerminal.DriverTerminalWindow.cs" />
     <Compile Include="IProgressBarDisplayable.cs" />
+    <Compile Include="Dialogs\Logistic\RouresAtDayInfoWnd.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.RouresAtDayInfoWnd.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
