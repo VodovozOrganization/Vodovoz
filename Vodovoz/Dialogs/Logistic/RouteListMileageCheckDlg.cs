@@ -39,6 +39,8 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			referenceCar.SubjectType = typeof(Car);
+			referenceCar.ItemsQuery = CarRepository.ActiveCarsQuery();
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = false;
 

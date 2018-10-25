@@ -63,6 +63,7 @@ namespace Vodovoz
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
 			referenceCar.SubjectType = typeof(Car);
+			referenceCar.ItemsQuery = CarRepository.ActiveCarsQuery();
 			referenceCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			referenceCar.ChangedByUser += (sender, e) => {
 				if(Entity.Car != null) {

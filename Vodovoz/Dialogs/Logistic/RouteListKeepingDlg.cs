@@ -78,6 +78,7 @@ namespace Vodovoz
 			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;;
 
 			referenceCar.SubjectType = typeof (Car);
+			referenceCar.ItemsQuery = CarRepository.ActiveCarsQuery();
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = logisticanEditing;
 

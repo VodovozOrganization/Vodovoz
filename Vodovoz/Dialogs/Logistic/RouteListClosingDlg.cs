@@ -91,6 +91,7 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 			referenceCar.SubjectType = typeof(Car);
+			referenceCar.ItemsQuery = CarRepository.ActiveCarsQuery();
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = editing;
 
