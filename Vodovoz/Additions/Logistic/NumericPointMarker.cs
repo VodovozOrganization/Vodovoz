@@ -75,7 +75,7 @@ namespace Vodovoz.Additions.Logistic
 			Bitmap ret;
 			if (!iconCache.TryGetValue(name, out ret))
 			{
-				string resourceName = String.Format("Vodovoz.icons.map.points.{0}.png", name);
+				string resourceName = String.Format("Vodovoz.icons.map.points.circle.{0}.png", name);
 				ret = new Bitmap(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName));
 				iconCache.Add(name, ret);
 			}
@@ -84,7 +84,7 @@ namespace Vodovoz.Additions.Logistic
 
 		public static Gdk.Pixbuf GetIconPixbuf(string name)
 		{
-			string resourceName = String.Format("Vodovoz.icons.map.points.{0}.png", name);
+			string resourceName = String.Format("Vodovoz.icons.map.points.circle.{0}.png", name);
 			return new Gdk.Pixbuf(System.Reflection.Assembly.GetExecutingAssembly(), resourceName);
 		}
 
