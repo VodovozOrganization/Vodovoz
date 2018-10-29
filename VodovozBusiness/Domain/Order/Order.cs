@@ -527,6 +527,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref isContractCloser, value, () => IsContractCloser); }
 		}
 
+		bool isReasonTypeChangedByUser;
+		[Display(Name = "Причина невозврата тары указана пользователем")]
+		[IgnoreHistoryTrace]
+		public virtual bool IsReasonTypeChangedByUser {
+			get => isReasonTypeChangedByUser;
+			set { SetField(ref isReasonTypeChangedByUser, value, () => IsReasonTypeChangedByUser); }
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()
@@ -1036,14 +1044,16 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void ParseTareReason()
 		{
-			ReasonType = ReasonType.Unknown;
-			if(!string.IsNullOrWhiteSpace(Comment)) {
-				if(Comment.ToUpper().Contains("НОВЫЙ АДРЕС"))
-					ReasonType = ReasonType.NewAddress;
-				if(Comment.ToUpper().Contains("УВЕЛИЧЕНИЕ ЗАКАЗА"))
-					ReasonType = ReasonType.OrderIncrease;
-				if(Comment.ToUpper().Contains("ПЕРВЫЙ ЗАКАЗ"))
-					ReasonType = ReasonType.FirstOrder;
+			if(!IsReasonTypeChangedByUser) {
+				ReasonType = ReasonType.Unknown;
+				if(!string.IsNullOrWhiteSpace(Comment)) {
+					if(Comment.ToUpper().Contains("НОВЫЙ АДРЕС"))
+						ReasonType = ReasonType.NewAddress;
+					if(Comment.ToUpper().Contains("УВЕЛИЧЕНИЕ ЗАКАЗА"))
+						ReasonType = ReasonType.OrderIncrease;
+					if(Comment.ToUpper().Contains("ПЕРВЫЙ ЗАКАЗ"))
+						ReasonType = ReasonType.FirstOrder;
+				}
 			}
 		}
 
