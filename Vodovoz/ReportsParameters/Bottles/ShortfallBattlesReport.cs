@@ -84,14 +84,25 @@ namespace Vodovoz.ReportsParameters.Bottles
 				parameters.Add("driver_id", -1);
 			}
 
-			if(comboboxDriver.SelectedItem.Equals(Drivers.AllDriver))
-				parameters.Add("driver_call", -1);
-			else if(comboboxDriver.SelectedItem.Equals(Drivers.NoCall))
-				parameters.Add("driver_call", 2);
-			else if(comboboxDriver.SelectedItem.Equals(Drivers.Largus))
-				parameters.Add("driver_call", 1);
-			else if(comboboxDriver.SelectedItem.Equals(Drivers.Hirelings))
-				parameters.Add("driver_call", 0);
+			switch((Drivers)comboboxDriver.SelectedItem) {
+				case Drivers.AllDriver:
+					parameters.Add("driver_call", -1);
+					break;
+				case Drivers.CallFromAnywhere:
+					parameters.Add("driver_call", 3);
+					break;
+				case Drivers.NoCall:
+					parameters.Add("driver_call", 2);
+					break;
+				case Drivers.Largus:
+					parameters.Add("driver_call", 1);
+					break;
+				case Drivers.Hirelings:
+					parameters.Add("driver_call", 0);
+					break;
+				default:
+					break;
+			}
 
 			return new ReportInfo {
 				Identifier = "Bottles.ShortfallBattlesReport",
@@ -129,6 +140,8 @@ namespace Vodovoz.ReportsParameters.Bottles
 		{
 			[Display(Name = "Все")]
 			AllDriver,
+			[Display(Name = "Отзвон не с адреса")]
+			CallFromAnywhere,
 			[Display(Name = "Без отзвона")]
 			NoCall,
 			[Display(Name = "Ларгусы")]
