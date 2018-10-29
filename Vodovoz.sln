@@ -87,6 +87,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Utilities", "..\QSProjec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Report", "..\QSProjects\QS.Report\QS.Report.csproj", "{D30A23BF-C5DC-4A1B-95FC-9C2038D46E8E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozBusinessTests", "VodovozBusinessTests\VodovozBusinessTests.csproj", "{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -712,6 +714,24 @@ Global
 		{6E76A8A0-411C-4987-A77D-64B9571C7759}.DebugShortWin|x86.Build.0 = Debug|Any CPU
 		{6E76A8A0-411C-4987-A77D-64B9571C7759}.DebugWin|x86.ActiveCfg = Release|Any CPU
 		{6E76A8A0-411C-4987-A77D-64B9571C7759}.DebugWin|x86.Build.0 = Release|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.Debug|x86.Build.0 = Debug|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.Release|x86.ActiveCfg = Release|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.Release|x86.Build.0 = Release|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.Debug|x64.Build.0 = Debug|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.Release|x64.ActiveCfg = Release|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.Release|x64.Build.0 = Release|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.v4.0-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.v4.0-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.v4.0-Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.v4.0-Release|Any CPU.Build.0 = Debug|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.Debug-short|x86.ActiveCfg = Debug|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.Debug-short|x86.Build.0 = Debug|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.DebugShortWin|x86.ActiveCfg = Debug|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.DebugShortWin|x86.Build.0 = Debug|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.DebugWin|x86.ActiveCfg = Release|Any CPU
+		{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}.DebugWin|x86.Build.0 = Release|Any CPU
 		{28A78143-42E3-40E7-86F5-DD7E1679BE86}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{28A78143-42E3-40E7-86F5-DD7E1679BE86}.Debug|x86.Build.0 = Debug|Any CPU
 		{28A78143-42E3-40E7-86F5-DD7E1679BE86}.Release|x86.ActiveCfg = Release|Any CPU
