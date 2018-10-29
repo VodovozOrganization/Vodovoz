@@ -99,17 +99,20 @@ namespace Vodovoz.Reports
 			Employee employeeAlias = null;
 
 			driversList = UoW.Session.QueryOver<Employee>(() => employeeAlias)
-			                 .Where(() => !employeeAlias.IsFired && (employeeAlias.Category == EmployeeCategory.driver 
-			                                                         || employeeAlias.Category == EmployeeCategory.forwarder) )
-				.SelectList(list => list
-					.Select(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => employeeAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.LastName)
-			        .Select(() => employeeAlias.Category).WithAlias (() => resultAlias.Category)
-			        .Select(() => employeeAlias.FirstWorkDay).WithAlias(() => resultAlias.FirstWorkDay))
-				.OrderBy(e => e.LastName).Asc.ThenBy(x => x.Name).Asc
-				.TransformUsing(Transformers.AliasToBean<DriverNode>())
-				.List<DriverNode>();
+			                 .Where(
+				                 () => !employeeAlias.IsFired
+				                 && (employeeAlias.Category == EmployeeCategory.driver || employeeAlias.Category == EmployeeCategory.forwarder)
+				                 && !employeeAlias.VisitingMaster
+				                )
+			                 .SelectList(list => list
+			                             .Select(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
+			                             .Select(() => employeeAlias.Name).WithAlias(() => resultAlias.Name)
+			                             .Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.LastName)
+			                             .Select(() => employeeAlias.Category).WithAlias (() => resultAlias.Category)
+			                             .Select(() => employeeAlias.FirstWorkDay).WithAlias(() => resultAlias.FirstWorkDay))
+			                 .OrderBy(e => e.LastName).Asc.ThenBy(x => x.Name).Asc
+			                 .TransformUsing(Transformers.AliasToBean<DriverNode>())
+			                 .List<DriverNode>();
 		}
 
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)

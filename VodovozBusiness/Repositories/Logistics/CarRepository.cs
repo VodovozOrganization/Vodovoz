@@ -29,5 +29,11 @@ namespace Vodovoz.Repository.Logistics
 			return QueryOver.Of<Car>()
 							.Where(x => x.IsCompanyHavings && !x.IsArchive);
 		}
+
+		public static QueryOver<Car> ActiveCarsQuery()
+		{
+			return QueryOver.Of<Car>()
+							.Where(x => !x.IsArchive);
+		}
 	}
 }

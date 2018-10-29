@@ -42,7 +42,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.DefaultExpenseCategory).Column("default_cash_expense_category_id");
 			References(x => x.CameFrom).Column("counterparty_camefrom_id");
 			References(x => x.FirstOrder).Column("first_order_id");
-			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad()
+			HasMany(x => x.Phones).Cascade.All().LazyLoad()
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");

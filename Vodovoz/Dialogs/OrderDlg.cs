@@ -366,17 +366,20 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 					.AddSetter((c, node) => c.Editable = node.CanEditPrice())
 					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) => {
-						c.ForegroundGdk = colorBlack;
-						if(node.AdditionalAgreement == null) {
-							return;
-						}
-						AdditionalAgreement aa = node.AdditionalAgreement.Self;
-						if(aa is WaterSalesAgreement &&
-						  (aa as WaterSalesAgreement).HasFixedPrice) {
-							c.ForegroundGdk = colorGreen;
-						} else if(node.IsUserPrice &&
-								  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
-							c.ForegroundGdk = colorBlue;
+						if(Entity.OrderStatus == OrderStatus.NewOrder || Entity.OrderStatus == OrderStatus.WaitForPayment)//костыль. на Win10 не видна цветная цена, если виджет засерен
+						{
+							c.ForegroundGdk = colorBlack;
+							if(node.AdditionalAgreement == null) {
+								return;
+							}
+							AdditionalAgreement aa = node.AdditionalAgreement.Self;
+							if(aa is WaterSalesAgreement &&
+							  (aa as WaterSalesAgreement).HasFixedPrice) {
+								c.ForegroundGdk = colorGreen;
+							} else if(node.IsUserPrice &&
+									  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
+								c.ForegroundGdk = colorBlue;
+							}
 						}
 					})
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)

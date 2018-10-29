@@ -63,10 +63,11 @@ namespace Vodovoz
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
 			referenceCar.SubjectType = typeof(Car);
+			referenceCar.ItemsQuery = CarRepository.ActiveCarsQuery();
 			referenceCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			referenceCar.ChangedByUser += (sender, e) => {
 				if(Entity.Car != null) {
-					Entity.Driver = Entity.Car.Driver;
+					Entity.Driver = (Entity.Car.Driver != null && !Entity.Car.Driver.IsFired) ? Entity.Car.Driver : null;
 					referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyHavings;
 					//Водители на Авто компании катаются без экспедитора
 					Entity.Forwarder = Entity.Car.IsCompanyHavings ? null : Entity.Forwarder;
