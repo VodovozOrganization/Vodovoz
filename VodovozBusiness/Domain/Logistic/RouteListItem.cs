@@ -336,11 +336,8 @@ namespace Vodovoz.Domain.Logistic
 			return TotalCash != defaultTotalCash;
 		}
 
-		public virtual string Title {
-			get {
-				return String.Format("Адрес в МЛ {0}", Order.DeliveryPoint.CompiledAddress);
-			}
-		}
+		public virtual string Title => String.Format("Адрес в МЛ №{0} - {1}", RouteList.Id, Order.DeliveryPoint.CompiledAddress);
+
 		//FIXME запуск оборудования - временный фикс
 		public virtual int CoolersToClient {
 			get {
