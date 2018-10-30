@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using NLog;
+using QS.DomainModel.UoW;
 using QSContacts;
 using QSOrmProject;
 using QSValidation;

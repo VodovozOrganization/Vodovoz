@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;

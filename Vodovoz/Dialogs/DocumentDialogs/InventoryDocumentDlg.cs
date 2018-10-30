@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {

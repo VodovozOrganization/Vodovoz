@@ -2,6 +2,8 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using NHibernate.Util;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
@@ -11,7 +13,6 @@ using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel.InfoProviders;
-using NHibernate.Util;
 
 namespace Vodovoz.SidePanel.InfoViews
 {

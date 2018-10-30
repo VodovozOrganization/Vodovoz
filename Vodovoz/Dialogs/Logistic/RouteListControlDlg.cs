@@ -3,6 +3,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Goods;

@@ -1,8 +1,8 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
+using QS.DomainModel.UoW;
 using QS.HistoryLog.Domain;
 using QS.HistoryLog.Repositories;
 using QS.Project.Dialogs;

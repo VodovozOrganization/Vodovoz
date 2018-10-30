@@ -1,6 +1,5 @@
-﻿using System;
-using Gtk;
-using QSOrmProject;
+﻿using Gtk;
+using QS.DomainModel.UoW;
 using QSValidation;
 using Vodovoz.Domain.Client;
 

@@ -1,4 +1,5 @@
 using System;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;

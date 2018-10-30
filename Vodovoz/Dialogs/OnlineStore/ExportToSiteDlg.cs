@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml;
 using Gtk;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Tools.CommerceML;

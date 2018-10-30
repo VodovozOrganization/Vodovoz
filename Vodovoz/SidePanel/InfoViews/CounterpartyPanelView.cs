@@ -2,6 +2,7 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;

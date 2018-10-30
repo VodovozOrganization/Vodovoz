@@ -1,5 +1,5 @@
 ﻿using System;
-using Gamma.ColumnConfig;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Logistic;

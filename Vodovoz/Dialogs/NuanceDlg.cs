@@ -1,11 +1,8 @@
 ﻿using System;
 using Gtk;
-using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
-using QSValidation;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;

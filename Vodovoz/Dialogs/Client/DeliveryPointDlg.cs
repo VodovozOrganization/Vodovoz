@@ -9,6 +9,7 @@ using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using NHibernate.Criterion;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOsm.DTO;
 using QSProjectsLib;

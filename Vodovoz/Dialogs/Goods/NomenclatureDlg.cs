@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Gtk;
 using NLog;
+using QS.DomainModel.UoW;
 using QS.Helpers;
 using QSBusinessCommon.Domain;
 using QSOrmProject;

@@ -1,8 +1,6 @@
-﻿using System;
-using Vodovoz;
+﻿using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
-using NLog;
-using Vodovoz.Domain.Employees;
 using QSValidation;
 using Vodovoz.ViewModel;
 

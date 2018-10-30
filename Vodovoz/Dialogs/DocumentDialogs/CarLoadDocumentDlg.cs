@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Additions.Store;

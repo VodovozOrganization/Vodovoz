@@ -4,6 +4,8 @@ using System.Linq;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
+using QS.DomainModel.UoW;
+using QS.Report;
 using QS.Print;
 using QSOrmProject;
 using QSProjectsLib;

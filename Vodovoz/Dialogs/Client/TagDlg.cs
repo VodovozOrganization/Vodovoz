@@ -1,6 +1,5 @@
-﻿using System;
-using NLog;
-using QSOrmProject;
+﻿using NLog;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Dialogs.Client

@@ -1,5 +1,6 @@
 ﻿using System;
 using NLog;
+using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QSOrmProject;
 using QSValidation;

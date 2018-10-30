@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -9,7 +10,6 @@ using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz

@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QSOrmProject;
 using QSProjectsLib;

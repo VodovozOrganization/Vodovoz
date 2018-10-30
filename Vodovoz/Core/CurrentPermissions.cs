@@ -1,5 +1,4 @@
-﻿using System;
-using QSOrmProject;
+﻿using QS.DomainModel.UoW;
 using QSOrmProject.Permissions;
 using QSProjectsLib;
 using Vodovoz.Core.Permissions;

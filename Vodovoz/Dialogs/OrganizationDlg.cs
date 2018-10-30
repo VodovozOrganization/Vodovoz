@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using NLog;
+using QS.DomainModel.UoW;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz

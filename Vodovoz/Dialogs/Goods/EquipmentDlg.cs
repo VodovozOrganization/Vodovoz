@@ -2,6 +2,7 @@
 using System.IO;
 using NHibernate.Criterion;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;

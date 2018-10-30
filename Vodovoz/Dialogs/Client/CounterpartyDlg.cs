@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
+using QS.DomainModel.UoW;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;

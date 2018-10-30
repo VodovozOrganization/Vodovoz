@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Dialogs.Logistic;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using NLog;
+using QS.DomainModel.UoW;
 using QSContacts;
 using QSOrmProject;
 using QSValidation;

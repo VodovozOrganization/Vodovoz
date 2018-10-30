@@ -14,6 +14,7 @@ using Gtk;
 using NHibernate.Proxy;
 using NHibernate.Util;
 using NLog;
+using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Dialogs;
 using QS.Report;

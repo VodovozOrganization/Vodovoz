@@ -28,6 +28,7 @@
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
     <widget-library name="../../../VodovozService/EmailService/bin/Debug/Email.dll" />
     <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../../../QSProjects/QS.Project.Gtk/bin/Debug/QS.Project.Gtk.dll" />
   </import>
   <icon-factory>
     <icon-set id="users">
