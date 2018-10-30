@@ -14,6 +14,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories;
 using Vodovoz.Repository;
+using QSProjectsLib;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -309,7 +310,7 @@ namespace Vodovoz.Domain.Orders
 					info.AppendLine(String.Format("<b>Интервал:</b> {0}", "Самовывоз"));
 				else
 					info.AppendLine(String.Format("<b>Интервал:</b> {0}", oldOrder.DeliverySchedule.Name));
-
+				info.AppendLine(String.Format("<b>Сумма отменённого заказа:</b> {0}", CurrencyWorks.GetShortCurrencyString(oldOrder.TotalSum)));
 				int watter19LQty = OrderRepository.Get19LWatterQtyForOrder(UoW, oldOrder);
 				var eqToClient = OrderRepository.GetEquipmentToClientForOrder(UoW, oldOrder);
 				var eqFromClient = OrderRepository.GetEquipmentFromClientForOrder(UoW, oldOrder);
@@ -318,22 +319,26 @@ namespace Vodovoz.Domain.Orders
 					info.AppendLine(String.Format("<b>19л вода:</b> {0}", watter19LQty));
 				} else if(eqToClient.Any()) {
 					string eq = String.Empty;
-					eqToClient.ForEach(e => eq += String.Format("{0} - {1}, ", e.ShortName ?? e.Name, e.Count));
+					foreach(var e in eqToClient)
+						eq += String.Format("{0} - {1}, ", e.ShortName ?? e.Name, e.Count);
 					info.AppendLine(String.Format("<b>К клиенту:</b> {0}", eq.Trim(new Char[] { ' ', ',' })));
 				} else if(eqFromClient.Any()) {
 					string eq = String.Empty;
-					eqFromClient.ForEach(e => eq += String.Format("{0} - {1}\n", e.ShortName ?? e.Name, e.Count));
+					foreach(var e in eqFromClient) 
+						eq += String.Format("{0} - {1}\n", e.ShortName ?? e.Name, e.Count);
 					info.AppendLine(String.Format("<b>От клиента:</b> {0}", eq.Trim()));
 				}
 				if(GetDrivers().Any()) {
 					StringBuilder drivers = new StringBuilder();
-					GetDrivers().ForEach(d => drivers.AppendFormat("{0} ← ", d.ShortName));
+					foreach(var d in GetDrivers())
+						drivers.AppendFormat("{0} ← ", d.ShortName);
 					info.AppendLine(String.Format("<b>Водитель:</b> {0}", drivers.ToString().Trim(new char[] { ' ', '←' })));
 				}
 				var routeLists = OrderRepository.GetAllRLForOrder(UoW, OldOrder);
 				if(routeLists.Any()) {
 					StringBuilder rls = new StringBuilder();
-					routeLists.ForEach(l => rls.AppendFormat("{0} ← ", l.Id));
+					foreach(var l in routeLists)
+						rls.AppendFormat("{0} ← ", l.Id);
 					info.AppendLine(String.Format("<b>Маршрутный лист:</b> {0}", rls.ToString().Trim(new char[] { ' ', '←' })));
 				}
 			}
@@ -342,7 +347,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Получение получение полей недовоза в виде строки
+		/// Получение полей недовоза в виде строки
 		/// </summary>
 		/// <returns>Строка</returns>
 		public virtual string GetUndeliveryInfo()
@@ -352,7 +357,8 @@ namespace Vodovoz.Domain.Orders
 				info.AppendLine(String.Format("<i>В работе у отдела:</i> {0}", InProcessAtDepartment.Name));
 			if(ObservableGuilty.Any()) {
 				info.AppendLine("<i>Виновные:</i> ");
-				ObservableGuilty.ForEach(g => info.AppendLine(String.Format("\t{0}", g.ToString())));
+				foreach(GuiltyInUndelivery g in ObservableGuilty)
+					info.AppendLine(String.Format("\t{0}", g));
 			}
 			var routeLists = OrderRepository.GetAllRLForOrder(UoW, OldOrder);
 			if(routeLists.Any()) {

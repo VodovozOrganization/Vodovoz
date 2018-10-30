@@ -144,9 +144,9 @@ namespace Vodovoz
 
 		private global::Gtk.Table tableTareControl;
 
-		private global::Gamma.Widgets.yEnumComboBox enumareRasonType;
-
 		private global::Gamma.Widgets.yEnumComboBox enumDiverCallType;
+
+		private global::Gamma.Widgets.yEnumComboBox enumReasonType;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow6;
 
@@ -1099,21 +1099,6 @@ namespace Vodovoz
 			this.tableTareControl.RowSpacing = ((uint)(6));
 			this.tableTareControl.ColumnSpacing = ((uint)(6));
 			// Container child tableTareControl.Gtk.Table+TableChild
-			this.enumareRasonType = new global::Gamma.Widgets.yEnumComboBox();
-			this.enumareRasonType.Name = "enumareRasonType";
-			this.enumareRasonType.ShowSpecialStateAll = false;
-			this.enumareRasonType.ShowSpecialStateNot = false;
-			this.enumareRasonType.UseShortTitle = false;
-			this.enumareRasonType.DefaultFirst = false;
-			this.tableTareControl.Add(this.enumareRasonType);
-			global::Gtk.Table.TableChild w69 = ((global::Gtk.Table.TableChild)(this.tableTareControl[this.enumareRasonType]));
-			w69.TopAttach = ((uint)(4));
-			w69.BottomAttach = ((uint)(5));
-			w69.LeftAttach = ((uint)(1));
-			w69.RightAttach = ((uint)(2));
-			w69.XOptions = ((global::Gtk.AttachOptions)(4));
-			w69.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableTareControl.Gtk.Table+TableChild
 			this.enumDiverCallType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumDiverCallType.Name = "enumDiverCallType";
 			this.enumDiverCallType.ShowSpecialStateAll = false;
@@ -1121,11 +1106,26 @@ namespace Vodovoz
 			this.enumDiverCallType.UseShortTitle = false;
 			this.enumDiverCallType.DefaultFirst = false;
 			this.tableTareControl.Add(this.enumDiverCallType);
-			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.tableTareControl[this.enumDiverCallType]));
+			global::Gtk.Table.TableChild w69 = ((global::Gtk.Table.TableChild)(this.tableTareControl[this.enumDiverCallType]));
+			w69.LeftAttach = ((uint)(1));
+			w69.RightAttach = ((uint)(2));
+			w69.XOptions = ((global::Gtk.AttachOptions)(4));
+			w69.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child tableTareControl.Gtk.Table+TableChild
+			this.enumReasonType = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumReasonType.Name = "enumReasonType";
+			this.enumReasonType.ShowSpecialStateAll = false;
+			this.enumReasonType.ShowSpecialStateNot = false;
+			this.enumReasonType.UseShortTitle = false;
+			this.enumReasonType.DefaultFirst = false;
+			this.tableTareControl.Add(this.enumReasonType);
+			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.tableTareControl[this.enumReasonType]));
+			w70.TopAttach = ((uint)(4));
+			w70.BottomAttach = ((uint)(5));
 			w70.LeftAttach = ((uint)(1));
 			w70.RightAttach = ((uint)(2));
 			w70.XOptions = ((global::Gtk.AttachOptions)(4));
-			w70.YOptions = ((global::Gtk.AttachOptions)(0));
+			w70.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableTareControl.Gtk.Table+TableChild
 			this.GtkScrolledWindow6 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow6.Name = "GtkScrolledWindow6";
@@ -2039,8 +2039,8 @@ namespace Vodovoz
 			this.enumPaymentType.ChangedByUser += new global::System.EventHandler(this.OnEnumPaymentTypeChangedByUser);
 			this.chkContractCloser.Toggled += new global::System.EventHandler(this.OnChkContractCloserToggled);
 			this.buttonCreateDeliveryPoint.Clicked += new global::System.EventHandler(this.OnButtonCreateDeliveryPointClicked);
+			this.enumReasonType.ChangedByUser += new global::System.EventHandler(this.OnEnumReasonTypeChangedByUser);
 			this.enumDiverCallType.Changed += new global::System.EventHandler(this.OnEnumDiverCallTypeChanged);
-			this.enumareRasonType.Changed += new global::System.EventHandler(this.OnEnumDiverCallTypeChanged);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler(this.OnButtonAddForSaleClicked);
 			this.buttonAddMaster.Clicked += new global::System.EventHandler(this.OnButtonAddMasterClicked);
 			this.buttonDelete1.Clicked += new global::System.EventHandler(this.OnButtonDelete1Clicked);

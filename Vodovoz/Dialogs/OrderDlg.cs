@@ -301,8 +301,8 @@ namespace Vodovoz
 			enumDiverCallType.Binding.AddBinding(Entity, s => s.DriverCallType, w => w.SelectedItem).InitializeFromSource();
 
 			referenceDriverCallId.Binding.AddBinding(Entity, e => e.DriverCallId, w => w.Subject).InitializeFromSource();
-			enumareRasonType.ItemsEnum = typeof(ReasonType);
-			enumareRasonType.Binding.AddBinding(Entity, s => s.ReasonType, w => w.SelectedItem).InitializeFromSource();
+			enumReasonType.ItemsEnum = typeof(ReasonType);
+			enumReasonType.Binding.AddBinding(Entity, s => s.ReasonType, w => w.SelectedItem).InitializeFromSource();
 
 			UpdateButtonState();
 
@@ -1871,6 +1871,11 @@ namespace Vodovoz
 				else
 					Entity.DriverCallId = 1;
 			}
+		}
+
+		protected void OnEnumReasonTypeChangedByUser(object sender, EventArgs e)
+		{
+			Entity.IsReasonTypeChangedByUser = true;
 		}
 
 		protected void OnEntryBottlesReturnChanged(object sender, EventArgs e)

@@ -58,17 +58,18 @@ namespace Vodovoz.ViewWidgets
 			newOrder = undelivery.NewOrder;
 			if(undelivery.Id > 0 && undelivery.InProcessAtDepartment != null)
 				InitialProcDepartmentName = undelivery.InProcessAtDepartment.Name;
-			if(undelivery.Id > 0)
-				undelivery.ObservableGuilty.ForEach(
-					g => initialGuiltyList.Add(
+			if(undelivery.Id > 0){
+				foreach(GuiltyInUndelivery g in undelivery.ObservableGuilty) {
+					initialGuiltyList.Add(
 						new GuiltyInUndelivery {
 							Id = g.Id,
 							UndeliveredOrder = g.UndeliveredOrder,
 							GuiltySide = g.GuiltySide,
 							GuiltyDepartment = g.GuiltyDepartment
 						}
-					)
-				);
+					);
+				}
+			}
 			var filterOrders = new OrdersFilter(UoW);
 			List<OrderStatus> hiddenStatusesList = new List<OrderStatus>();
 			var grantedStatusesArray = OrderRepository.GetStatusesForOrderCancelation();
@@ -163,13 +164,17 @@ namespace Vodovoz.ViewWidgets
 		void GetFines()
 		{
 			List<FineItem> fineItems = new List<FineItem>();
-			undelivery.Fines.ForEach(f => f.Items.ForEach(i => fineItems.Add(i)));
+			foreach(Fine f in undelivery.Fines)
+				foreach(FineItem i in f.Items)
+					fineItems.Add(i);
 			yTreeFines.ItemsDataSource = fineItems;
 		}
 
 		private void SetLabelsAcordingToNewOrder()
 		{
-			lblTransferDate.Text = undelivery.NewOrder == null ? "Заказ не\nсоздан" : undelivery.NewOrder.Title;
+			lblTransferDate.Text = undelivery.NewOrder == null ?
+				"Заказ не\nсоздан" :
+				undelivery.NewOrder.Title + " на сумму " + String.Format(CurrencyWorks.GetShortCurrencyString(undelivery.NewOrder.TotalSum));
 			btnNewOrder.Label = undelivery.NewOrder == null ? "Создать новый заказ" : "Открыть заказ";
 
 			SetVisibilities();
@@ -231,9 +236,11 @@ namespace Vodovoz.ViewWidgets
 		{
 			#region удаление дублей из спсика виновных
 			IList<GuiltyInUndelivery> guiltyTempList = new List<GuiltyInUndelivery>();
-			undelivery.ObservableGuilty.ForEach(g => guiltyTempList.Add(g));
+			foreach(GuiltyInUndelivery g in undelivery.ObservableGuilty)
+				guiltyTempList.Add(g);
 			undelivery.ObservableGuilty.Clear();
-			guiltyTempList.Distinct().ForEach(g => undelivery.ObservableGuilty.Add(g));
+			foreach(GuiltyInUndelivery g in guiltyTempList.Distinct())
+				undelivery.ObservableGuilty.Add(g);
 			#endregion
 
 			#region формирование и добавление автокомментарния об изменении списка виновных
@@ -241,30 +248,29 @@ namespace Vodovoz.ViewWidgets
 				IList<GuiltyInUndelivery> removedGuiltyList = new List<GuiltyInUndelivery>();
 				IList<GuiltyInUndelivery> addedGuiltyList = new List<GuiltyInUndelivery>();
 				IList<GuiltyInUndelivery> toRemoveFromBoth = new List<GuiltyInUndelivery>();
-				initialGuiltyList.ForEach(r => removedGuiltyList.Add(r));
-				undelivery.ObservableGuilty.ForEach(a => addedGuiltyList.Add(a));
+				foreach(GuiltyInUndelivery r in initialGuiltyList)
+					removedGuiltyList.Add(r);
+				foreach(GuiltyInUndelivery a in undelivery.ObservableGuilty)
+					addedGuiltyList.Add(a);
 				foreach(GuiltyInUndelivery gu in addedGuiltyList) {
-					removedGuiltyList.ForEach(
-						g => {
-							if(gu == g)
-								toRemoveFromBoth.Add(g);
-						}
-					);
+					foreach(var g in removedGuiltyList)
+						if(gu == g)
+							toRemoveFromBoth.Add(g);
 				}
-				toRemoveFromBoth.ForEach(
-					r => {
-						addedGuiltyList.Remove(r);
-						removedGuiltyList.Remove(r);
-					}
-				);
+				foreach(var r in toRemoveFromBoth) {
+					addedGuiltyList.Remove(r);
+					removedGuiltyList.Remove(r);
+				}
 				StringBuilder sb = new StringBuilder();
 				if(addedGuiltyList.Any()) {
 					sb.AppendLine("добавил(а) виновных:");
-					addedGuiltyList.ForEach(a => sb.AppendLine(String.Format("\t- {0}", a.ToString())));
+					foreach(var a in addedGuiltyList)
+						sb.AppendLine(String.Format("\t- {0}", a));
 				}
 				if(removedGuiltyList.Any()) {
 					sb.AppendLine("удалил(а) виновных:");
-					removedGuiltyList.ForEach(r => sb.AppendLine(String.Format("\t- {0}", r.ToString())));
+					foreach(var r in removedGuiltyList)
+						sb.AppendLine(String.Format("\t- {0}", r));
 				}
 				string text = sb.ToString().Trim();
 				if(sb.Length > 0)

@@ -17,6 +17,7 @@ using QSTDI;
 using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -1066,7 +1067,7 @@ namespace Vodovoz
 
 		protected void OnButtonMapHelpClicked(object sender, EventArgs e)
 		{
-			MessageDialogWorks.RunInfoDialog("Черные маркеры — не добавленные в МЛ адреса.\n" +
+			/*MessageDialogWorks.RunInfoDialog("Черные маркеры — не добавленные в МЛ адреса.\n" +
 				"Полосатые маркеры — адреса с временем доставки после 18:00.\n" +
 				"Маркеры с красным контуром — график доставки продолжительностью менее часа.\n\n" +
 				"Перетаскивание карты, правой кнопкой мыши.\n" +
@@ -1074,7 +1075,9 @@ namespace Vodovoz
 				"Для выделения по одному маркеру, зажмите Alt и левой кнопкой мыши для выделения\\удаления, кликните по нему\n" +
 				"Для выделения полигоном(сложной формой), зажмите CTRL и левой кнопкой установите углы очерчивающие полигон. " +
 				"В процессе работы CTRL можно отпускать и зажимат заново для добавления новых углов. " +
-				"Уже зафиксированные углы полигона можно перетаскивать левой кнопкой мыши.");
+				"Уже зафиксированные углы полигона можно перетаскивать левой кнопкой мыши.");*/
+
+			new RouresAtDayInfoWnd().Show();
 		}
 
 		protected void FillItems()

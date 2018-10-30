@@ -1397,31 +1397,18 @@
         <CommandText>SELECT 
 	bottles_movement_operations.delivery_point_id AS pointid,
 	orders.id AS ordersIdAlias,
-    IF(orders.author_employee_id IS NOT NULL,
+	IF(
+		orders.author_employee_id IS NOT NULL,
 		CONCAT(employees_author.last_name, ' ', LEFT(employees_author.name, 1), '.', LEFT(employees_author.patronymic, 1), '.'),
-        ''
-	) as author,
+		''
+	) AS author,
 	TRIM(counterparty.full_name) AS counterparty,
 	delivery_points.compiled_address_short AS address,
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
 	orders.comment AS comment,
-	(SELECT 
-		SUM(order_items.actual_count)
-	FROM
-		orders
-	LEFT JOIN
-		order_items ON order_id = orders.id
-	LEFT JOIN
-		nomenclature ON nomenclature.id = order_items.nomenclature_id
-	WHERE
-		orders.id = ordersIdAlias AND nomenclature.category = 'water')  AS actual_count,
-	delivered,
-	returned,
-    
-	TRUNCATE(IFNULL(CAST(bottles_return AS SIGNED),0) - IFNULL(CAST(returned AS SIGNED),0),0) AS bottles,
-    
-	IFNULL((SELECT 
-			order_items.count
+	(
+		SELECT 
+			SUM(order_items.actual_count)
 		FROM
 			orders
 		LEFT JOIN
@@ -1429,19 +1416,43 @@
 		LEFT JOIN
 			nomenclature ON nomenclature.id = order_items.nomenclature_id
 		WHERE
-			orders.id = ordersIdAlias
-		AND nomenclature.id = (SELECT 
-				str_value
+			orders.id = ordersIdAlias AND nomenclature.category = 'water'
+	)  AS actual_count,
+	delivered,
+	returned,
+	TRUNCATE(
+		IFNULL(CAST(bottles_return AS SIGNED),0) - IFNULL(CAST(returned AS SIGNED),0),
+		0) AS bottles,
+	IFNULL(
+		(
+			SELECT 
+				order_items.count
 			FROM
-				base_parameters
+				orders
+			LEFT JOIN
+				order_items ON order_id = orders.id
+			LEFT JOIN
+				nomenclature ON nomenclature.id = order_items.nomenclature_id
 			WHERE
-				base_parameters.name = 'forfeit_nomenclature_id')),(IFNULL(received_deposit,0)-IFNULL(refund_deposit,0))) AS forfeitAndDeposit,
-    CASE reason_type
+				orders.id = ordersIdAlias
+			AND nomenclature.id = (
+				SELECT 
+					str_value
+				FROM
+					base_parameters
+				WHERE
+					base_parameters.name = 'forfeit_nomenclature_id'
+				)
+			),
+			(IFNULL(received_deposit,0)-IFNULL(refund_deposit,0)
+		)
+	) AS forfeitAndDeposit,
+	CASE reason_type
 		WHEN 'Unknown' THEN 'неизв.'
 		WHEN 'NewAddress' THEN 'новый адрес'
 		WHEN 'OrderIncrease' THEN 'увелич. заказа'
 		WHEN 'FirstOrder' THEN 'первый заказ'
-		END AS reason_type_status,
+	END AS reason_type_status,
 	bottles_return,
 	information_on_tara,
 	driver_call_id,
@@ -1449,16 +1460,18 @@
 		WHEN 'NoCall'  THEN 'не звонил'
 		WHEN 'CallFromAddress' THEN 'с адреса'
 		WHEN 'CallFromAnywhere' THEN 'не с адреса'
-		END AS driver_call_string,
+	END AS driver_call_string,
 	comment_manager,
 	bottle_reserv,
    	IF(delivery_points.have_residue = 0, "Нет", "Да") AS enteredresidue,
-	(SELECT 
-		SUM(delivered) - SUM(returned)
-	FROM
-		bottles_movement_operations
-	WHERE
-		pointid = bottles_movement_operations.delivery_point_id) AS debt
+	(
+		SELECT 
+			SUM(delivered) - SUM(returned)
+		FROM
+			bottles_movement_operations
+		WHERE
+			pointid = bottles_movement_operations.delivery_point_id
+	) AS debt
 FROM
 	orders
 LEFT JOIN
@@ -1482,8 +1495,7 @@ LEFT JOIN
 LEFT JOIN 
 	cars ON cars.id = route_lists.car_id
 LEFT JOIN
-	employees as employees_author on employees_author.id = orders.author_employee_id
-
+	employees AS employees_author ON employees_author.id = orders.author_employee_id
 WHERE
 	orders.delivery_date = DATE(@date)
 	AND(route_lists.status = 'Closed'
@@ -1491,28 +1503,38 @@ WHERE
 	AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
 	AND (@reason = -1 OR @reason = reason_type)
 	AND (@driver_id = -1 OR @driver_id = employees.id)
-	AND (    
-		(@driver_call = 1 
+	AND (	
+		(	
+			@driver_call = 1 
 			AND type_of_use = 'Largus' 
 			AND driver_call_type = 'NoCall' 
 			AND returned &lt; delivered 
 			AND (CAST(bottles_return AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
-		) 
-		OR 
-        ( @driver_call = 2 
-            AND driver_call_type = 'NoCall'  
-			AND returned &lt; delivered 
-            AND (CAST(bottles_return AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
 		)
-        OR 
-        ( @driver_call = 0 
-			AND type_of_use is null 
-            AND driver_call_type = 'NoCall' 
-            AND returned &lt; delivered 
-            AND (CAST(bottles_return AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
+		OR 
+		(
+			@driver_call = 2 
+			AND driver_call_type = 'NoCall'  
+			AND returned &lt; delivered 
+			AND (CAST(bottles_return AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
+		)
+		OR 
+		(
+			@driver_call = 3 
+			AND driver_call_type = 'CallFromAnywhere'  
+			AND returned &lt; delivered 
+			AND (CAST(bottles_return AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
+		)
+		OR 
+		(
+			@driver_call = 0 
+			AND type_of_use IS NULL 
+			AND driver_call_type = 'NoCall' 
+			AND returned &lt; delivered 
+			AND (CAST(bottles_return AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
 		)
 		OR (@driver_call = -1)
-    )
+	)
 	AND NOT (orders.order_status = 'Canceled' OR orders.order_status = 'DeliveryCanceled' OR orders.order_status = 'NotDelivered')
 GROUP BY ordersIdAlias
 ORDER BY reason_type_status</CommandText>
