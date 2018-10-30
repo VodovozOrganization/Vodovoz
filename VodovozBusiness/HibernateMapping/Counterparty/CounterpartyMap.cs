@@ -30,7 +30,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.PersonType).Column("person_type").CustomType<PersonTypeStringType>();
 			Map(x => x.NewBottlesNeeded).Column("need_new_bottles");
 			Map(x => x.DefaultDocumentType).Column("default_document_type").CustomType<DefaultDocumentTypeStringType>();
-			Map(x => x.VodovozInternalId).Column("vod_internal_id");
+			Map(x => x.VodovozInternalId).Column("vod_internal_id").ReadOnly();
 			Map(x => x.RingUpPhone).Column("ringup_phone");
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");

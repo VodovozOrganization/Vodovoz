@@ -38,6 +38,7 @@ namespace Vodovoz.ServiceDialogs
 
 		public LoadFrom1cClientsAndDeliveryPoints()
 		{
+			throw new ApplicationException("Сюда сейчас нельзя.");//Counterparty.VodInternalId генерируется тригером на стороне БД. Исправить соответствующий код ниже.
 			this.Build();
 
 			TabName = "Загрузка из 1с";
@@ -613,9 +614,8 @@ namespace Vodovoz.ServiceDialogs
 
 			VodovozCounterparties = counterpartyQuery4.ToList();
 
-			internalNumbers = VodovozCounterparties.Where(x => x.VodovozInternalId != null)
-												   .Distinct()
-												   .ToDictionary(x => x.Id, x => x.VodovozInternalId.Value);
+			internalNumbers = VodovozCounterparties.Distinct()
+												   .ToDictionary(x => x.Id, x => x.VodovozInternalId);
 		}
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)

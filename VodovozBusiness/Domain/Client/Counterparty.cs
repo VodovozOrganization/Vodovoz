@@ -77,8 +77,6 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-
-
 		private IList<Contact> contact = new List<Contact>();
 
 		[Display(Name = "Контактные лица")]
@@ -137,10 +135,12 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref fullName, value, () => FullName); }
 		}
 
-		int? vodovozInternalId;
-
+		/// <summary>
+		/// Генерируется триггером на строне БД.
+		/// </summary>
+		int vodovozInternalId;
 		[Display(Name = "Внутренний номер контрагента")]
-		public virtual int? VodovozInternalId {
+		public virtual int VodovozInternalId {
 			get { return vodovozInternalId; }
 			set { SetField(ref vodovozInternalId, value, () => VodovozInternalId); }
 		}

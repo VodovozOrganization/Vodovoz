@@ -94,6 +94,8 @@ namespace Vodovoz
 
 		private global::Gtk.Label lblPaymentType;
 
+		private global::Gamma.GtkWidgets.yLabel lblVodovozNumber;
+
 		private global::Gamma.Widgets.yEntryReference referenceDefaultExpense;
 
 		private global::Gamma.Widgets.yEntryReferenceVM referenceMainCounterparty;
@@ -101,8 +103,6 @@ namespace Vodovoz
 		private global::Gamma.Widgets.yEntryReferenceVM referencePreviousCounterparty;
 
 		private global::Gamma.GtkWidgets.ySpinButton spinMaxCredit;
-
-		private global::Gamma.Widgets.yValidatedEntry yEntryVodovozNumber;
 
 		private global::Gtk.Label label1;
 
@@ -390,7 +390,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 2;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -703,41 +703,55 @@ namespace Vodovoz
 			w45.XOptions = ((global::Gtk.AttachOptions)(4));
 			w45.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.lblVodovozNumber = new global::Gamma.GtkWidgets.yLabel();
+			this.lblVodovozNumber.Name = "lblVodovozNumber";
+			this.lblVodovozNumber.Xalign = 0F;
+			this.lblVodovozNumber.LabelProp = global::Mono.Unix.Catalog.GetString("00");
+			this.lblVodovozNumber.Selectable = true;
+			this.table1.Add(this.lblVodovozNumber);
+			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1[this.lblVodovozNumber]));
+			w46.TopAttach = ((uint)(1));
+			w46.BottomAttach = ((uint)(2));
+			w46.LeftAttach = ((uint)(1));
+			w46.RightAttach = ((uint)(2));
+			w46.XOptions = ((global::Gtk.AttachOptions)(4));
+			w46.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.referenceDefaultExpense = new global::Gamma.Widgets.yEntryReference();
 			this.referenceDefaultExpense.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDefaultExpense.Name = "referenceDefaultExpense";
 			this.table1.Add(this.referenceDefaultExpense);
-			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceDefaultExpense]));
-			w46.TopAttach = ((uint)(8));
-			w46.BottomAttach = ((uint)(9));
-			w46.LeftAttach = ((uint)(3));
-			w46.RightAttach = ((uint)(4));
-			w46.XOptions = ((global::Gtk.AttachOptions)(4));
-			w46.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceDefaultExpense]));
+			w47.TopAttach = ((uint)(8));
+			w47.BottomAttach = ((uint)(9));
+			w47.LeftAttach = ((uint)(3));
+			w47.RightAttach = ((uint)(4));
+			w47.XOptions = ((global::Gtk.AttachOptions)(4));
+			w47.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.referenceMainCounterparty = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceMainCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.referenceMainCounterparty.Name = "referenceMainCounterparty";
 			this.table1.Add(this.referenceMainCounterparty);
-			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceMainCounterparty]));
-			w47.TopAttach = ((uint)(5));
-			w47.BottomAttach = ((uint)(6));
-			w47.LeftAttach = ((uint)(1));
-			w47.RightAttach = ((uint)(4));
-			w47.XOptions = ((global::Gtk.AttachOptions)(4));
-			w47.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w48 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceMainCounterparty]));
+			w48.TopAttach = ((uint)(5));
+			w48.BottomAttach = ((uint)(6));
+			w48.LeftAttach = ((uint)(1));
+			w48.RightAttach = ((uint)(4));
+			w48.XOptions = ((global::Gtk.AttachOptions)(4));
+			w48.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.referencePreviousCounterparty = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referencePreviousCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.referencePreviousCounterparty.Name = "referencePreviousCounterparty";
 			this.table1.Add(this.referencePreviousCounterparty);
-			global::Gtk.Table.TableChild w48 = ((global::Gtk.Table.TableChild)(this.table1[this.referencePreviousCounterparty]));
-			w48.TopAttach = ((uint)(6));
-			w48.BottomAttach = ((uint)(7));
-			w48.LeftAttach = ((uint)(1));
-			w48.RightAttach = ((uint)(4));
-			w48.XOptions = ((global::Gtk.AttachOptions)(4));
-			w48.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w49 = ((global::Gtk.Table.TableChild)(this.table1[this.referencePreviousCounterparty]));
+			w49.TopAttach = ((uint)(6));
+			w49.BottomAttach = ((uint)(7));
+			w49.LeftAttach = ((uint)(1));
+			w49.RightAttach = ((uint)(4));
+			w49.XOptions = ((global::Gtk.AttachOptions)(4));
+			w49.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.spinMaxCredit = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 100D);
 			this.spinMaxCredit.CanFocus = true;
@@ -748,23 +762,9 @@ namespace Vodovoz
 			this.spinMaxCredit.ValueAsDecimal = 0m;
 			this.spinMaxCredit.ValueAsInt = 0;
 			this.table1.Add(this.spinMaxCredit);
-			global::Gtk.Table.TableChild w49 = ((global::Gtk.Table.TableChild)(this.table1[this.spinMaxCredit]));
-			w49.TopAttach = ((uint)(8));
-			w49.BottomAttach = ((uint)(9));
-			w49.LeftAttach = ((uint)(1));
-			w49.RightAttach = ((uint)(2));
-			w49.XOptions = ((global::Gtk.AttachOptions)(4));
-			w49.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.yEntryVodovozNumber = new global::Gamma.Widgets.yValidatedEntry();
-			this.yEntryVodovozNumber.CanFocus = true;
-			this.yEntryVodovozNumber.Name = "yEntryVodovozNumber";
-			this.yEntryVodovozNumber.IsEditable = false;
-			this.yEntryVodovozNumber.InvisibleChar = '•';
-			this.table1.Add(this.yEntryVodovozNumber);
-			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.table1[this.yEntryVodovozNumber]));
-			w50.TopAttach = ((uint)(1));
-			w50.BottomAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.table1[this.spinMaxCredit]));
+			w50.TopAttach = ((uint)(8));
+			w50.BottomAttach = ((uint)(9));
 			w50.LeftAttach = ((uint)(1));
 			w50.RightAttach = ((uint)(2));
 			w50.XOptions = ((global::Gtk.AttachOptions)(4));

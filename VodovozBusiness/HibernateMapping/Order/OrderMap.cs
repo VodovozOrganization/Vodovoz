@@ -31,7 +31,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Address1c)					.Column("address_1c");
 			Map(x => x.Address1cCode)				.Column("address_1c_code");
 			Map(x => x.DeliverySchedule1c)			.Column("delivery_schedule_1c");
-			Map(x => x.DailyNumber)					.Column("daily_number_1c");
+			Map(x => x.DailyNumber)					.Column("daily_number_1c").ReadOnly();
 			Map(x => x.ClientPhone)					.Column("client_phone");
 			Map(x => x.LastEditedTime)				.Column("last_edited_time");
 			Map(x => x.CommentManager)				.Column("comment_manager");
