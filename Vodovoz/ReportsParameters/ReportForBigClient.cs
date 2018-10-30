@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QS.Report;
 using QSOrmProject;
 using QSReport;
@@ -8,7 +9,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class ReportForBigClient : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class ReportForBigClient : Gtk.Bin, IEntityDialog, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 

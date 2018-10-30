@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QS.Report;
 using QSOrmProject;
 using QSReport;
@@ -9,7 +10,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz.Reports
 {
-	public partial class EmployeesFines : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class EmployeesFines : Gtk.Bin, IEntityDialog, IParametersWidget
 	{
 		public EmployeesFines()
 		{

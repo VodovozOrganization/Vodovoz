@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs.Gtk;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain.Client;
@@ -42,7 +43,7 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			var parentDlg = OrmMain.FindMyDialog (this);
+			var parentDlg = DialogHelper.FindParentDialog (this);
 			if (parentDlg == null)
 				return;
 

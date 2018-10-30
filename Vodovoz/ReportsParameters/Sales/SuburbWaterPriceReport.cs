@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QS.Report;
 using QSOrmProject;
 using QSReport;
 
 namespace Vodovoz.ReportsParameters.Sales
 {
-	public partial class SuburbWaterPriceReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class SuburbWaterPriceReport : Gtk.Bin, IEntityDialog, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 

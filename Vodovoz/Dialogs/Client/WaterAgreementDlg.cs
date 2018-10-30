@@ -5,6 +5,7 @@ using Gamma.GtkWidgets;
 using NLog;
 using QS.HistoryLog.Domain;
 using QS.HistoryLog.Repositories;
+using QS.Project.Dialogs;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.DocTemplates;

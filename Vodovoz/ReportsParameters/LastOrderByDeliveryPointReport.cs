@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QS.Report;
-using QSOrmProject;
 using QSReport;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class LastOrderByDeliveryPointReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class LastOrderByDeliveryPointReport : Gtk.Bin, IEntityDialog, IParametersWidget
 	{
 		public LastOrderByDeliveryPointReport()
 		{

@@ -1141,6 +1141,10 @@
       <Project>{9C9ECACA-0DEB-4517-8CF1-02C3D3EB128E}</Project>
       <Name>RdlCri</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project.Gtk\QS.Project.Gtk.csproj">
+      <Project>{3C0F3944-CBD5-4BD6-83D4-CF33AD6FC68C}</Project>
+      <Name>QS.Project.Gtk</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />

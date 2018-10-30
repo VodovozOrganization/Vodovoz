@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QS.Report;
 using QSOrmProject;
 using QSReport;
@@ -10,7 +11,7 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class EmployeesPremiums : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class EmployeesPremiums : Gtk.Bin, IEntityDialog, IParametersWidget
 	{
 		public EmployeesPremiums()
 		{

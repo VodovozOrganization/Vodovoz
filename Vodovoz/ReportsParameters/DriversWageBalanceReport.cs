@@ -6,6 +6,7 @@ using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QS.Report;
 using QSOrmProject;
 using QSProjectsLib;
@@ -14,7 +15,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Reports
 {
-	public partial class DriversWageBalanceReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class DriversWageBalanceReport : Gtk.Bin, IEntityDialog, IParametersWidget
 	{
 		private class DriverNode
 		{

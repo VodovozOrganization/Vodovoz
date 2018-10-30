@@ -5,6 +5,7 @@ using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
@@ -13,7 +14,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class RouteListAddressesTransferringDlg : TdiTabBase, IOrmDialog
+	public partial class RouteListAddressesTransferringDlg : TdiTabBase, IEntityDialog
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();

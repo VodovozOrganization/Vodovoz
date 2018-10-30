@@ -15,6 +15,7 @@ using NHibernate.Proxy;
 using NHibernate.Util;
 using NLog;
 using QS.Print;
+using QS.Project.Dialogs;
 using QS.Report;
 using QSDocTemplates;
 using QSOrmProject;

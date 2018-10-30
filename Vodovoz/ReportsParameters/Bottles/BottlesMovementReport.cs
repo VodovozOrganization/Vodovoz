@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QS.Report;
-using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class BottlesMovementReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class BottlesMovementReport : Gtk.Bin, IEntityDialog, IParametersWidget
 	{
 		public BottlesMovementReport()
 		{

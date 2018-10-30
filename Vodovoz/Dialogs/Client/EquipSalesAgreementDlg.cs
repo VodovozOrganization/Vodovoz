@@ -2,6 +2,7 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
+using QS.Project.Dialogs;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.DocTemplates;
