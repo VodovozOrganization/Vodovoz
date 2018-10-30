@@ -42,7 +42,6 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
-			Entity.VodovozInternalId = CounterpartyRepository.GetMaximalInternalID(UoW) + 1;
 			ConfigureDlg();
 		}
 
@@ -107,9 +106,7 @@ namespace Vodovoz
 
 			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
 
-			yEntryVodovozNumber.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			yEntryVodovozNumber.Binding.AddBinding(Entity, e => e.VodovozInternalId, w => w.Text, new IntToStringConverter()).InitializeFromSource();
-
+			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
 			var counterpatiesView = new ViewModel.CounterpartyVM(UoW);
 			referenceMainCounterparty.RepresentationModel = counterpatiesView;
 			referenceMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
