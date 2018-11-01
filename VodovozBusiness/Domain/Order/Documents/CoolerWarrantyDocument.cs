@@ -14,7 +14,6 @@ namespace Vodovoz.Domain.Orders.Documents
 	{
 		
 		#region implemented abstract members of OrderDocument
-
 		public virtual ReportInfo GetReportInfo ()
 		{
 			return new ReportInfo {
@@ -28,6 +27,8 @@ namespace Vodovoz.Domain.Orders.Documents
 				}
 			};
 		}
+		public virtual Dictionary<object, object> Parameters { get; set; }
+		#endregion
 
 		public override OrderDocumentType Type {
 			get {
@@ -38,8 +39,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override DateTime? DocumentDate {
 			get { return Order?.DeliveryDate; }
 		}
-
-		#endregion
 
 		public override string Name { get { return String.Format ("Гарантийный талон на кулера №{0}", WarrantyFullNumber); } }
 

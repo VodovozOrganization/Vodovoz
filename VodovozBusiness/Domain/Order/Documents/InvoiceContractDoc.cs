@@ -9,6 +9,10 @@ namespace Vodovoz.Domain.Orders.Documents
 	public class InvoiceContractDoc : OrderDocument, IAdvertisable, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
+		public override OrderDocumentType Type => OrderDocumentType.InvoiceContractDoc;
+		#endregion
+
+		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
@@ -20,9 +24,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				}
 			};
 		}
-
-		public override OrderDocumentType Type => OrderDocumentType.InvoiceContractDoc;
-
+		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
 		public override string Name => String.Format("Накладная №{0} (контрактная документация)", Order.Id);

@@ -200,7 +200,7 @@ namespace Vodovoz.Additions.Logistic
 			};
 		}
 
-		public static ReportInfo GetRDLRouteMap(IUnitOfWork uow, RouteList routeList)
+		public static ReportInfo GetRDLRouteMap(IUnitOfWork uow, RouteList routeList, bool batchPrint)
 		{
 			string documentName = "RouteMap";
 
@@ -225,7 +225,7 @@ namespace Vodovoz.Additions.Logistic
 			map.SetFakeAllocationSize(new Gdk.Rectangle(0, 0, 900, 900));
 			map.ZoomAndCenterRoutes("route");
 			byte[] img;
-			using(var bitmap = map.ToBitmap((int count) => logger.Info("Загружаем плитки карты(осталось {0})...", count))) {
+			using(var bitmap = map.ToBitmap((int count) => logger.Info("Загружаем плитки карты(осталось {0})...", count), !batchPrint)) {
 				using(MemoryStream stream = new MemoryStream()) {
 					bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
 					img = stream.ToArray();
@@ -285,7 +285,7 @@ namespace Vodovoz.Additions.Logistic
 			};
 		}
 
-		public static ReportInfo GetRDL(RouteList routeList, RouteListPrintableDocuments type, IUnitOfWork uow = null)
+		public static ReportInfo GetRDL(RouteList routeList, RouteListPrintableDocuments type, IUnitOfWork uow = null, bool batchPrint = false)
 		{
 			switch(type) {
 				case RouteListPrintableDocuments.LoadDocument:
@@ -295,7 +295,7 @@ namespace Vodovoz.Additions.Logistic
 				case RouteListPrintableDocuments.RouteList:
 					return GetRDLRouteList(uow, routeList);
 				case RouteListPrintableDocuments.RouteMap:
-					return GetRDLRouteMap(uow, routeList);
+					return GetRDLRouteMap(uow, routeList, batchPrint);
 				case RouteListPrintableDocuments.TimeList:
 					return GetRDLTimeList(routeList.Id);
 				case RouteListPrintableDocuments.DailyList:
@@ -337,10 +337,12 @@ namespace Vodovoz.Additions.Logistic
 			this.type 		 = type;
 		}
 
-		#region IPrintableDocument implementation
+		#region IPrintableRDLDocument implementation 
+		public ReportInfo GetReportInfo() => PrintRouteListHelper.GetRDL(routeList, type, UoW, IsBatchPrint);
+		public Dictionary<object, object> Parameters { get; set; } = new Dictionary<object, object>();
+		#endregion
 
-		public ReportInfo GetReportInfo() => PrintRouteListHelper.GetRDL(routeList, type, UoW);
-
+		#region IPrintableDocument implementation 
 		public PrinterType PrintType => PrinterType.RDL;
 
 		public DocumentOrientation Orientation {
@@ -358,13 +360,12 @@ namespace Vodovoz.Additions.Logistic
 		public string Name => type.GetEnumTitle();
 
 		public int CopiesToPrint { get; set; }
-
 		#endregion
 
-		private IUnitOfWork UoW;
-		private RouteList routeList;
-		private RouteListPrintableDocuments type;
-
+		IUnitOfWork UoW;
+		RouteList routeList;
+		RouteListPrintableDocuments type;
+		bool IsBatchPrint => Parameters.ContainsKey("IsBatchPrint") && (bool)Parameters["IsBatchPrint"];
 	}
 }
 

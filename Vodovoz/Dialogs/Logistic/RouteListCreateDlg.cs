@@ -116,8 +116,9 @@ namespace Vodovoz
 
 			buttonAccept.Visible = (UoWGeneric.Root.Status == RouteListStatus.New || UoWGeneric.Root.Status == RouteListStatus.InLoading);
 			if (UoWGeneric.Root.Status == RouteListStatus.InLoading) {
-				var icon = new Image ();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
+				var icon = new Image {
+					Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
+				};
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Редактировать";
 			}
@@ -137,7 +138,7 @@ namespace Vodovoz
 			}
 
 			var docs = RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id);
-			if(docs.Count() > 0) {
+			if(docs.Any()) {
 				IsEditable = false;
 			}
 		}
@@ -186,8 +187,9 @@ namespace Vodovoz
 			if(Entity.Status == RouteListStatus.New)
 			{
 				IsEditable = (true);
-				var icon = new Image ();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
+				var icon = new Image {
+					Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
+				};
 				buttonAccept.Image = icon;
 				enumPrint.Sensitive = false;
 				buttonAccept.Label = "Подтвердить";
@@ -195,8 +197,9 @@ namespace Vodovoz
 			if(Entity.Status == RouteListStatus.InLoading)
 			{
 				IsEditable = (false);
-				var icon = new Image ();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
+				var icon = new Image {
+					Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
+				};
 				buttonAccept.Image = icon;
 				enumPrint.Sensitive = true;
 				buttonAccept.Label = "Редактировать";
