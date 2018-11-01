@@ -37,7 +37,7 @@ namespace Vodovoz.Repository.Chats
 			var resultList = chatQuery.JoinAlias(() => chatAlias.LastReaded, () => lastReadedAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin, Restrictions.Where(() => lastReadedAlias.Employee.Id == forEmployee.Id))
 									  .JoinAlias(() => chatAlias.Messages, () => chatMessageAlias)
 			                          .JoinAlias(() => chatAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where (() => (lastReadedAlias.LastDateTime == null && chatMessageAlias.DateTime > forEmployee.DateOfCreate) || 
+				.Where (() => (lastReadedAlias.LastDateTime == null && chatMessageAlias.DateTime > forEmployee.CreationDate) || 
 							  (lastReadedAlias.LastDateTime != null && chatMessageAlias.DateTime > lastReadedAlias.LastDateTime))
 				.SelectList(list => list
 			                .SelectGroup(() => chatAlias.Id).WithAlias(() => resultAlias.ChatId)

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using NLog;
+using QS.DomainModel.UoW;
+using QS.Project.Repositories;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
@@ -17,6 +19,8 @@ namespace Vodovoz
 	public partial class EmployeeDlg : OrmGtkDialogBase<Employee>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+
+		private EmployeeCategory[] hiddenCategory;
 
 		public EmployeeDlg()
 		{
@@ -36,6 +40,17 @@ namespace Vodovoz
 
 		public EmployeeDlg(Employee sub) : this(sub.Id)
 		{
+		}
+
+		public EmployeeDlg(IUnitOfWorkGeneric<Employee> uow)
+		{
+			this.Build();
+			UoWGeneric = uow;
+			if(!QSMain.User.Permissions["can_change_trainee_to_driver"]) {
+				hiddenCategory = new EmployeeCategory[] { EmployeeCategory.driver, EmployeeCategory.forwarder };
+			}
+			ConfigureDlg();
+
 		}
 
 		private void ConfigureDlg()
@@ -59,8 +74,6 @@ namespace Vodovoz
 			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			dataentryPatronymic.Binding.AddBinding(Entity, e => e.Patronymic, w => w.Text).InitializeFromSource();
 
-			dataentryPassportSeria.Binding.AddBinding(Entity, e => e.PassportSeria, w => w.Text).InitializeFromSource();
-			dataentryPassportNumber.Binding.AddBinding(Entity, e => e.PassportNumber, w => w.Text).InitializeFromSource();
 			ytextviewPassportIssuedOrg.Binding.AddBinding(Entity, e => e.PassportIssuedOrg, w => w.Buffer.Text).InitializeFromSource();
 			ydatePassportIssuedDate.Binding.AddBinding(Entity, e => e.PassportIssuedDate, w => w.DateOrNull).InitializeFromSource();
 			entryAddressCurrent.Binding.AddBinding(Entity, e => e.AddressCurrent, w => w.Text).InitializeFromSource();
@@ -86,6 +99,9 @@ namespace Vodovoz
 			referenceUser.Binding.AddBinding(Entity, e => e.User, w => w.Subject).InitializeFromSource();
 
 			comboCategory.ItemsEnum = typeof(EmployeeCategory);
+			if(hiddenCategory != null && hiddenCategory.Any()){
+				comboCategory.AddEnumToHideList(hiddenCategory.Cast<object>().ToArray());
+			}
 			comboCategory.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 			comboCategory.ChangedByUser += (sender, e) => {
 				if(Entity.Category != EmployeeCategory.driver)
@@ -98,7 +114,7 @@ namespace Vodovoz
 			photoviewEmployee.GetSaveFileName = () => Entity.FullName;
 
 			attachmentFiles.AttachToTable = OrmMain.GetDBTableName(typeof(Employee));
-			if(!UoWGeneric.IsNew) {
+			if(Entity.Id != 0) {
 				attachmentFiles.ItemId = UoWGeneric.Root.Id;
 				attachmentFiles.UpdateFileList();
 			}

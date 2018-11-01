@@ -71,7 +71,7 @@ namespace Vodovoz
 				if (showMessagePeriod < readDays)
 					showMessagePeriod = readDays;
 			} else {
-				var readDays = (DateTime.Today - currentEmployee.DateOfCreate.Date).Days;
+				var readDays = (DateTime.Today - currentEmployee.CreationDate.Date).Days;
 				if (showMessagePeriod < readDays)
 					showMessagePeriod = readDays;
 			}

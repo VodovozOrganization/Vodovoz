@@ -1011,6 +1011,9 @@
     <Compile Include="IProgressBarDisplayable.cs" />
     <Compile Include="Dialogs\Logistic\RouresAtDayInfoWnd.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.RouresAtDayInfoWnd.cs" />
+    <Compile Include="Dialogs\Employees\TraineeDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.TraineeDlg.cs" />
+    <Compile Include="Representations\TraineeVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

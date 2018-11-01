@@ -26,6 +26,7 @@ using Vodovoz.ReportsParameters;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.ReportsParameters.Store;
+using Vodovoz.Representations;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -1034,6 +1035,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<DefectiveItemsReport>(),
 			() => new QSReport.ReportViewDlg(new DefectiveItemsReport())
+		);
+	}
+
+	protected void OnActionTraineeActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<TraineeVM>(),
+			() => new ReferenceRepresentation(new TraineeVM())
 		);
 	}
 }
