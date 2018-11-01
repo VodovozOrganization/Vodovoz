@@ -661,7 +661,7 @@ namespace Vodovoz
 		{
 			if(Entity.OrderDocuments.Any()) {
 				if(MessageDialogWorks.RunQuestionDialog("Открыть документы для печати?")) {
-					var documentPrinterDlg = new OrderDocumentsPrinterDlg(Entity);
+					var documentPrinterDlg = new DocumentsPrinterDlg(Entity);
 					TabParent.AddSlaveTab(this, documentPrinterDlg);
 				}
 			}
@@ -779,7 +779,7 @@ namespace Vodovoz
 		private void PrintDocuments(IList<OrderDocument> docList)
 		{
 			if(docList.Any()) {
-				DocumentPrinter.PrintAll(docList);
+				new DocumentPrinter().PrintAll(docList);
 			}
 		}
 
@@ -1689,7 +1689,7 @@ namespace Vodovoz
 			var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
 				.Where(doc => doc.PrintType == PrinterType.RDL).ToList();
 			if(selectedPrintableRDLDocuments.Any()) {
-				DocumentPrinter.PrintAll(selectedPrintableRDLDocuments);
+				new DocumentPrinter().PrintAll(selectedPrintableRDLDocuments);
 			}
 
 			var selectedPrintableODTDocuments = treeDocuments.GetSelectedObjects()
@@ -1702,7 +1702,7 @@ namespace Vodovoz
 		protected void OnBtnOpnPrnDlgClicked(object sender, EventArgs e)
 		{
 			if(Entity.OrderDocuments.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT))
-				TabParent.AddSlaveTab(this, new OrderDocumentsPrinterDlg(Entity));
+				TabParent.AddSlaveTab(this, new DocumentsPrinterDlg(Entity));
 		}
 
 		protected void OnEnumPaymentTypeChanged(object sender, EventArgs e)

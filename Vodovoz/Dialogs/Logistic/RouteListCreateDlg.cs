@@ -4,13 +4,13 @@ using System.Linq;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
-using QS.Report;
+using QS.Print;
 using QSOrmProject;
 using QSProjectsLib;
-using QSReport;
 using QSValidation;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
@@ -142,30 +142,31 @@ namespace Vodovoz
 			}
 		}
 
-		private void PrintSelectedDocument (RouteListPrintableDocuments choise)
+		void PrintSelectedDocument (RouteListPrintableDocuments choise)
 		{
-			ReportInfo document = PrintRouteListHelper.GetRDL(Entity, choise, UoW);
+			TabParent.OpenTab(
+				QSTDI.TdiTabBase.GenerateHashName<DocumentsPrinterDlg>(),
+				() => CreateDocumentsPrinterDlg(choise)
+			);
 
-			if (document != null)
-			{
-				this.TabParent.OpenTab(
-					QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
-					() => CreateReportView(document, choise));
-			}
 		}
 
-		ReportViewDlg CreateReportView(ReportInfo document, RouteListPrintableDocuments choise)
+		DocumentsPrinterDlg CreateDocumentsPrinterDlg(RouteListPrintableDocuments choise)
 		{
-			var dlg = new QSReport.ReportViewDlg(document);
-			if(choise == RouteListPrintableDocuments.RouteList)
-				dlg.ReportPrinted += Dlg_ReportPrinted;
+			var dlg = new DocumentsPrinterDlg(UoW, Entity, choise);
+			dlg.DocumentsPrinted += Dlg_DocumentsPrinted;
 			return dlg;
 		}
 
-		void Dlg_ReportPrinted(object sender, EventArgs e)
+		void Dlg_DocumentsPrinted(object sender, EventArgs e)
 		{
-			Entity.Printed = true;
-			Save();
+			if(!Entity.Printed && e is EndPrintArgs) {
+				var printArgs = e as EndPrintArgs;
+				if(printArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle())) {
+					Entity.Printed = true;
+					Save();
+				}
+			}
 		}
 
 		public override bool Save ()
