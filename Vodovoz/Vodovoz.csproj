@@ -916,7 +916,7 @@
     <Compile Include="SidePanel\InfoViews\DeliveryPricePanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.DeliveryPricePanelView.cs" />
     <Compile Include="ViewWidgets\DeliveryPriceView.cs" />
-    <Compile Include="Dialogs\OrderDocumentsPrinterDlg.cs" />
+    <Compile Include="Dialogs\DocumentsPrinterDlg.cs" />
     <Compile Include="Representations\NomenclatureDependsFromVM.cs" />
     <Compile Include="Dialogs\DocumentDialogs\ShiftChangeWarehouseDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentDlg.cs" />
@@ -949,7 +949,7 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.M2ProxyDlg.cs" />
     <Compile Include="ReportsParameters\ReportForBigClient.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ReportForBigClient.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderDocumentsPrinterDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentsPrinterDlg.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1cClientsAndDeliveryPoints.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.LoadFrom1cClientsAndDeliveryPoints.cs" />
     <Compile Include="ViewWidgets\OrderEquipmentItemsView.cs" />

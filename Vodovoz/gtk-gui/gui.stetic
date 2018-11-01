@@ -53643,7 +53643,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.OrderDocumentsPrinterDlg" design-size="726 512">
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.DocumentsPrinterDlg" design-size="726 512">
     <action-group name="Default" />
     <property name="MemberName" />
     <property name="Visible">False</property>

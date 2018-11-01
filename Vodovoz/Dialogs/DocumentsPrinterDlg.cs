@@ -4,24 +4,30 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSDocTemplates;
 using QSProjectsLib;
 using QSReport;
 using QSTDI;
+using Vodovoz.Additions.Logistic;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrderDocumentsPrinterDlg : TdiTabBase
+	public partial class DocumentsPrinterDlg : TdiTabBase
 	{
 		Order currentOrder;
+		RouteList currentRouteList;
 		MultipleDocumentPrinter multipleDocumentPrinter = new MultipleDocumentPrinter();
 		List<SelectablePrintDocument> printDocuments = new List<SelectablePrintDocument>();
+		SelectablePrintDocument selectedDocument;
+		public event EventHandler DocumentsPrinted;
 
-		public OrderDocumentsPrinterDlg(Order order)
+		public DocumentsPrinterDlg(Order order)
 		{
 			this.Build();
 
@@ -69,6 +75,24 @@ namespace Vodovoz.Dialogs
 			Configure();
 		}
 
+		public DocumentsPrinterDlg(IUnitOfWork uow, RouteList routeList, RouteListPrintableDocuments selectedType)
+		{
+			this.Build();
+			TabName = "Печать документов МЛ";
+			currentRouteList = routeList;
+
+			foreach(RouteListPrintableDocuments rlDocType in Enum.GetValues(typeof(RouteListPrintableDocuments))) {
+				if(rlDocType == RouteListPrintableDocuments.LoadDocument || rlDocType == RouteListPrintableDocuments.All)
+					continue;
+				var rlDoc = new RouteListPrintableDocs(uow, currentRouteList, rlDocType);
+				bool isSelected = selectedType == RouteListPrintableDocuments.All || selectedType == rlDocType;
+				SelectablePrintDocument doc = new SelectablePrintDocument(rlDoc, rlDoc.CopiesToPrint) { Selected = isSelected };
+				printDocuments.Add(doc);
+			}
+
+			Configure();
+		}
+
 		int DefaultCopies(OrderDocumentType orderDocType)
 		{
 			switch(orderDocType) {
@@ -88,7 +112,7 @@ namespace Vodovoz.Dialogs
 		void Configure()
 		{
 			multipleDocumentPrinter.PrintableDocuments = new GenericObservableList<SelectablePrintDocument>(printDocuments);
-
+			multipleDocumentPrinter.DocumentsPrinted += MultipleDocumentPrinter_DocumentsPrinted;
 			ytreeviewDocuments.ColumnsConfig = ColumnsConfigFactory.Create<SelectablePrintDocument>()
 				.AddColumn("✓").AddToggleRenderer(x => x.Selected)
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.Name)
@@ -102,28 +126,51 @@ namespace Vodovoz.Dialogs
 			DefaultPreviewDocument();
 		}
 
+		void MultipleDocumentPrinter_DocumentsPrinted(object o, EventArgs args)
+		{
+			DocumentsPrinted?.Invoke(o, args);
+		}
+
 		protected void DefaultPreviewDocument()
 		{
-			var documents = printDocuments.Where(x => x.Document is OrderDocument)
-										  .Where(x => (x.Document as OrderDocument).Order.Id == currentOrder.Id);
+			if(currentOrder != null) { //если этот диалог вызван из заказа
+				var documents = printDocuments.Where(x => x.Document is OrderDocument)
+											  .Where(x => (x.Document as OrderDocument).Order.Id == currentOrder.Id);
 
-			var driverTicket = documents.Where(x => x.Document is DriverTicketDocument).FirstOrDefault();
-			var invoiceDocument = documents.Where(x => x.Document is InvoiceDocument).FirstOrDefault();
-			if(driverTicket != null && currentOrder.PaymentType == Domain.Client.PaymentType.cashless) {
-				PreviewDocument(driverTicket);
-			} else if(invoiceDocument != null) {
-				PreviewDocument(invoiceDocument);
+				var driverTicket = documents.FirstOrDefault(x => x.Document is DriverTicketDocument);
+				var invoiceDocument = documents.FirstOrDefault(x => x.Document is InvoiceDocument);
+				if(driverTicket != null && currentOrder.PaymentType == Domain.Client.PaymentType.cashless) {
+					selectedDocument = driverTicket;
+					PreviewDocument();
+				}
+				else if(invoiceDocument != null) {
+					selectedDocument = invoiceDocument;
+					PreviewDocument();
+				}
+			} else if(currentRouteList != null){ //если этот диалог вызван из МЛ
+				selectedDocument = printDocuments.FirstOrDefault(x => x.Selected) ?? printDocuments.FirstOrDefault();
+				PreviewDocument();
 			}
 		}
 
-		void PreviewDocument(SelectablePrintDocument selectedDocument)
+		void PreviewDocument()
 		{
 			var rdldoc = selectedDocument.Document as IPrintableRDLDocument;
 			if(rdldoc == null)
 				return;
 
+			reportviewer.ReportPrinted -= Reportviewer_ReportPrinted;
+			reportviewer.ReportPrinted += Reportviewer_ReportPrinted;
 			var reportInfo = rdldoc.GetReportInfo();
-			reportviewer.LoadReport(reportInfo.GetReportUri(), reportInfo.GetParametersString(), reportInfo.ConnectionString, true);
+			if(reportInfo.Source != null)
+				reportviewer.LoadReport(reportInfo.Source, reportInfo.GetParametersString(), reportInfo.ConnectionString, true);
+			else
+				reportviewer.LoadReport(reportInfo.GetReportUri(), reportInfo.GetParametersString(), reportInfo.ConnectionString, true);
+		}
+
+		void Reportviewer_ReportPrinted(object sender, EventArgs e)
+		{
+			DocumentsPrinted?.Invoke(this, new EndPrintArgs { Args = new[] { selectedDocument.Document }});
 		}
 
 		protected void OnButtonPrintAllClicked(object sender, EventArgs e)
@@ -133,7 +180,6 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			var selectedDocument = ytreeviewDocuments.GetSelectedObject() as SelectablePrintDocument;
 			if(selectedDocument == null) {
 				return;
 			}
@@ -142,7 +188,8 @@ namespace Vodovoz.Dialogs
 
 		protected void OnYtreeviewDocumentsRowActivated(object o, RowActivatedArgs args)
 		{
-			PreviewDocument(ytreeviewDocuments.GetSelectedObject() as SelectablePrintDocument);
+			selectedDocument = ytreeviewDocuments.GetSelectedObject() as SelectablePrintDocument;
+			PreviewDocument();
 		}
 
 		protected void OnButtonCancelClicked(object sender, EventArgs e)

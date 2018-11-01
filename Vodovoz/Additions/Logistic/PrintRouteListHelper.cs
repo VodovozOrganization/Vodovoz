@@ -339,30 +339,23 @@ namespace Vodovoz.Additions.Logistic
 
 		#region IPrintableDocument implementation
 
-		public ReportInfo GetReportInfo()
-		{
-			return PrintRouteListHelper.GetRDL(routeList, type, UoW);
-		}
+		public ReportInfo GetReportInfo() => PrintRouteListHelper.GetRDL(routeList, type, UoW);
 
-		public PrinterType PrintType {
-			get	{ return PrinterType.RDL; }
-		}
+		public PrinterType PrintType => PrinterType.RDL;
 
 		public DocumentOrientation Orientation {
-			get
-			{
-				if (type == RouteListPrintableDocuments.RouteList)
-					return DocumentOrientation.Landscape;
-				return DocumentOrientation.Portrait;
+			get {
+				switch(type) {
+					case RouteListPrintableDocuments.RouteList:
+					case RouteListPrintableDocuments.OrderOfAddresses:
+						return DocumentOrientation.Landscape;
+					default:
+						return DocumentOrientation.Portrait;
+				}
 			}
 		}
 
-		public string Name {
-			get
-			{
-				return RouteListPrintableDocuments.LoadDocument.GetEnumTitle();
-			}
-		}
+		public string Name => type.GetEnumTitle();
 
 		public int CopiesToPrint { get; set; }
 
