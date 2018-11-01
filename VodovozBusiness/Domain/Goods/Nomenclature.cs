@@ -214,12 +214,12 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref typeOfDepositCategory, value, () => TypeOfDepositCategory); }
 		}
 
-		EquipmentColors color;
+		EquipmentColors equipmentColor;
 
 		[Display(Name = "Цвет оборудования")]
-		public virtual EquipmentColors Color {
-			get { return color; }
-			set { SetField(ref color, value, () => Color); }
+		public virtual EquipmentColors EquipmentColor {
+			get { return equipmentColor; }
+			set { SetField(ref equipmentColor, value, () => EquipmentColor); }
 		}
 
 		EquipmentType type;

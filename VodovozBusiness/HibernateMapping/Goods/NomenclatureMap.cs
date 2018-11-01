@@ -45,7 +45,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.CreatedBy).Column("created_by");
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
 			References(x => x.Unit).Column("unit_id").Not.LazyLoad();
-			References(x => x.Color).Column("color_id");
+			References(x => x.EquipmentColor).Column("color_id");
 			References(x => x.Type).Column("type_id");
 			References(x => x.Manufacturer).Column("manufacturer_id");
 			References(x => x.RouteListColumn).Column("route_column_id");

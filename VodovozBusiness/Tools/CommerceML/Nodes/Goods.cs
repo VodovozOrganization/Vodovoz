@@ -48,8 +48,8 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 				}
 
 				var propertiesXml = new XElement("ЗначенияСвойств");
-				if(good.Color != null)
-					propertiesXml.Add(Classifier.PropertyColor.ToValueXml(good.Color.Name));
+				if(good.EquipmentColor != null)
+					propertiesXml.Add(Classifier.PropertyColor.ToValueXml(good.EquipmentColor.Name));
 
 				goodxml.Add(propertiesXml);
 
