@@ -13,13 +13,10 @@ namespace Vodovoz.Domain.Orders.Documents
 	public class BillDocument:OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
+		public override OrderDocumentType Type => OrderDocumentType.Bill;
+		#endregion
 
-		public override OrderDocumentType Type {
-			get {
-				return OrderDocumentType.Bill;
-			}
-		}
-
+		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo ()
 		{
 			return new ReportInfo {
@@ -32,7 +29,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				}
 			};
 		}
-
+		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
 		public virtual string Title => String.Format("Счет №{0} от {1:d}", Order.Id, Order.BillDate);

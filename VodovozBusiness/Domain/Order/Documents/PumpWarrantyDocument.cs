@@ -13,10 +13,15 @@ namespace Vodovoz.Domain.Orders.Documents
 	public class PumpWarrantyDocument:OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
-		public virtual ReportInfo GetReportInfo ()
+		public override OrderDocumentType Type => OrderDocumentType.PumpWarranty;
+		public override DateTime? DocumentDate => Order?.DeliveryDate;
+		#endregion
+
+		#region implemented abstract members of IPrintableRDLDocument
+		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Title = String.Format ("Гарантийный талон на помпы №{0}", WarrantyFullNumber),
+				Title = String.Format("Гарантийный талон на помпы №{0}", WarrantyFullNumber),
 				Identifier = "Documents.PumpWarranty",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },
@@ -26,16 +31,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				}
 			};
 		}
-		public override OrderDocumentType Type {
-			get {
-				return OrderDocumentType.PumpWarranty;
-			}
-		}
-
-		public override DateTime? DocumentDate {
-			get { return Order?.DeliveryDate; }
-		}
-
+		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
 		public override string Name { get { return String.Format ("Гарантийный талон на помпы №{0}", WarrantyFullNumber); } }

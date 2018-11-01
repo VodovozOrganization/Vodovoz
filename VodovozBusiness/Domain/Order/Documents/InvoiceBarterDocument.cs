@@ -8,21 +8,21 @@ namespace Vodovoz.Domain.Orders.Documents
 	public class InvoiceBarterDocument : OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
-		public virtual ReportInfo GetReportInfo ()
+		public override OrderDocumentType Type => OrderDocumentType.InvoiceBarter;
+		#endregion
+
+		#region implemented abstract members of IPrintableRDLDocument
+		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Title = String.Format ("Накладная №{0} от {1:d} (безденежно)", Order.Id, Order.DeliveryDate),
+				Title = String.Format("Накладная №{0} от {1:d} (безденежно)", Order.Id, Order.DeliveryDate),
 				Identifier = "Documents.InvoiceBarter",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id }
 				}
 			};
 		}
-		public override OrderDocumentType Type {
-			get {
-				return OrderDocumentType.InvoiceBarter;
-			}
-		}
+		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
 		public override string Name { get { return String.Format ("Накладная №{0} (бартер)",Order.Id); }  }

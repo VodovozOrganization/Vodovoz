@@ -8,7 +8,10 @@ namespace Vodovoz.Domain.Orders.Documents
 	public class RefundBottleDepositDocument : OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
+		public override OrderDocumentType Type => OrderDocumentType.RefundBottleDeposit;
+		#endregion
 
+		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
@@ -19,13 +22,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				}
 			};
 		}
-
-		public override OrderDocumentType Type {
-			get {
-				return OrderDocumentType.RefundBottleDeposit;
-			}
-		}
-
+		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
 		public override string Name { get { return String.Format("Акт возврата залогов за бутыли"); } }

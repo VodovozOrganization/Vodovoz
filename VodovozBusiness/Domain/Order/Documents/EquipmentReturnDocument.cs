@@ -8,8 +8,11 @@ namespace Vodovoz.Domain.Orders.Documents
 	public class EquipmentReturnDocument:OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
+		public override OrderDocumentType Type => OrderDocumentType.EquipmentReturn;
+		#endregion
 
-		public virtual ReportInfo GetReportInfo ()
+		#region implemented abstract members of IPrintableRDLDocument
+		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
 				Title = Name,
@@ -19,13 +22,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				}
 			};
 		}
-
-		public override OrderDocumentType Type {
-			get {
-				return OrderDocumentType.EquipmentReturn;
-			}
-		}
-
+		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
 		public override string Name {
