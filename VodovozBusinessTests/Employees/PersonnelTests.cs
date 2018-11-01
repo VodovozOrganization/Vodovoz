@@ -25,7 +25,11 @@ namespace VodovozBusinessTests.Employees
 
 		void CreateTraineeMock()
 		{
-			traineeMock = Substitute.For<ITrainee>();
+			traineeMock = Substitute.For(
+				new[] { typeof(ITrainee), typeof(Trainee) },
+				new object[0]
+			) as ITrainee;
+			traineeMock.Id.Returns(1);
 			traineeMock.CreationDate.Returns(DateTime.Now);
 			traineeMock.Name.Returns("TestName");
 			traineeMock.LastName.Returns("TestLastName");
@@ -62,6 +66,7 @@ namespace VodovozBusinessTests.Employees
 		{
 			uowEmployeeMock = Substitute.For<IUnitOfWorkGeneric<Employee>>();
 			uowEmployeeMock.Root.Returns(employeeMock);
+			uowEmployeeMock.GetById<Trainee>(traineeMock.Id).Returns(traineeMock);
 		}
 
 		#endregion
