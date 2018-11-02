@@ -524,6 +524,7 @@
     <Compile Include="Domain\Employees\Trainee.cs" />
     <Compile Include="HibernateMapping\Employees\PersonnelMap.cs" />
     <Compile Include="Domain\Employees\IEmployee.cs" />
+    <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

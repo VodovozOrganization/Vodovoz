@@ -41,6 +41,27 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OnlineStoreGuid).Column("online_store_guid");
 			Map(x => x.MinStockCount).Column("min_stock_count");
 			Map(x => x.MobileCatalog).Column("mobile_catalog").CustomType<MobileCatalogStringType>();
+			Map(x => x.Description).Column("description");
+
+			//Характеристики товара
+			Map(x => x.Color).Column("color");
+			Map(x => x.Material).Column("material");
+			Map(x => x.Liters).Column("liters");
+			Map(x => x.Size).Column("size");
+			Map(x => x.Package).Column("package");
+			Map(x => x.DegreeOfRoast).Column("degree_of_roast");
+			Map(x => x.Smell).Column("smell");
+			Map(x => x.Taste).Column("taste");
+			Map(x => x.RefrigeratorCapacity).Column("refrigerator_capacity");
+			Map(x => x.CoolingType).Column("cooling_type");
+			Map(x => x.HeatingPower).Column("heating_power");
+			Map(x => x.CoolingPower).Column("cooling_power");
+			Map(x => x.HeatingPerformance).Column("heating_performance");
+			Map(x => x.CoolingPerformance).Column("cooling_performance");
+			Map(x => x.NumberOfCartridges).Column("number_of_cartridges");
+			Map(x => x.CharacteristicsOfCartridges).Column("characteristics_of_cartridges");
+			Map(x => x.CountryOfOrigin).Column("country_of_origin");
+			Map(x => x.AmountInAPackage).Column("amount_in_a_package");
 
 			References(x => x.CreatedBy).Column("created_by");
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
