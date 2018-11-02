@@ -26,13 +26,13 @@
 		WHEN 'BySeal' THEN 'По печати'
 		WHEN 'ByProxy' THEN 'По доверенности'
 		WHEN 'ProxyOnDeliveryPoint' THEN 'Доверенность на адресе'
-		ELSE ''                
+		ELSE orders.signature_type
 	END AS order_signature_type,
 	CASE orders.payment_type 
 		WHEN 'cash' THEN 'НАЛ'
 		WHEN 'cashless' THEN 'БЕЗНАЛ'
 		WHEN 'ByCard' THEN 'ПО КАРТЕ'
-		ELSE ''
+		ELSE orders.payment_type
 	END AS pay_type,
 	orders.payment_type AS order_payment_type,
 	orders.online_order AS order_online_number,
@@ -43,7 +43,11 @@
 	counterparty.full_name AS client_name,
 	counterparty.address AS client_address,
 	organizations.full_name AS org_name,
-	organizations.address AS org_address,
+	CONCAT(
+		organizations.jur_address,
+		'\n',
+		CONCAT('ИНН:', organizations.INN)
+	) AS org_address,
 	delivery_points.comment AS delivery_point_comment,
 	delivery_points.address_addition AS delivery_point_address_addition,
 
@@ -69,7 +73,7 @@
 	IF(
 		orders.order_status = 'Closed',
 		MAX(route_list_addresses.bottles_returned),
-		 '    '
+		 '	'
 	) AS bottles_in_fact,
 	orders.self_delivery
 FROM
@@ -91,7 +95,8 @@ FROM
 		LEFT JOIN
 	employees ON employees.id = orders.author_employee_id
 WHERE
-	orders.id = @order_id;</CommandText>
+	orders.id = @order_id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -2229,7 +2234,7 @@ GROUP BY name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Top</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
@@ -2242,7 +2247,7 @@ GROUP BY name</CommandText>
     {order_payment_type} != 'ByCard',
     "",
     "Тинькоф\\"
-) + {org_name} + ' ' + {org_address}</Value>
+) + {org_name} + ', ' + {org_address}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2276,7 +2281,7 @@ GROUP BY name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Top</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
@@ -2319,7 +2324,7 @@ GROUP BY name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Top</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
@@ -2415,7 +2420,7 @@ GROUP BY name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Top</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
@@ -2458,7 +2463,7 @@ GROUP BY name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Top</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
@@ -3195,7 +3200,7 @@ GROUP BY name</CommandText>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>272090</Value>
+          <Value>342863</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -3217,7 +3222,7 @@ GROUP BY name</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

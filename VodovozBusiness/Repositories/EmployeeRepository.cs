@@ -32,12 +32,10 @@ namespace Vodovoz.Repository
 
 		public static Employee GetDriverByAndroidLogin(IUnitOfWork uow, string login)
 		{
-			Employee employeeAlias = null;
-
-			return  uow.Session.QueryOver<Employee> (() => employeeAlias)
-				.Where (() => employeeAlias.AndroidLogin == login)
-				.Where (() => employeeAlias.IsFired == false)
-				.SingleOrDefault ();
+			return uow.Session.QueryOver<Employee>()
+				.Where(e => e.AndroidLogin == login)
+				//.Where (() => employeeAlias.IsFired == false) - отключено, т.к. поле android_login в БД уникально!
+				.SingleOrDefault();
 		}
 
 		public static IList<Employee> GetEmployeesForUser (IUnitOfWork uow, int userId)
