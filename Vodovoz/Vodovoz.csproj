@@ -1014,6 +1014,8 @@
     <Compile Include="Dialogs\Employees\TraineeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.TraineeDlg.cs" />
     <Compile Include="Representations\TraineeVM.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureCharacteristicsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.NomenclatureCharacteristicsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
