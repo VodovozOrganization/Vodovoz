@@ -46,6 +46,16 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref additionalAgreement, value, () => AdditionalAgreement); }
 		}
 
+		public WaterSalesAgreementFixedPrice()
+		{
+		}
+
+		public WaterSalesAgreementFixedPrice(Nomenclature nomenclature, decimal price)
+		{
+			this.nomenclature = nomenclature;
+			this.price = price;
+		}
+
 	}
 	
 }

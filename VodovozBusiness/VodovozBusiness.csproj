@@ -520,6 +520,7 @@
     <Compile Include="Domain\Order\GuiltyInUndelivery.cs" />
     <Compile Include="Domain\StoredEmails\EmailTemplate.cs" />
     <Compile Include="Domain\StoredEmails\EmailAttachment.cs" />
+    <Compile Include="Tools\AdditionalAgreements\WaterFixedPriceGenerator.cs" />
     <Compile Include="Domain\Employees\Personnel.cs" />
     <Compile Include="Domain\Employees\Trainee.cs" />
     <Compile Include="HibernateMapping\Employees\PersonnelMap.cs" />
@@ -547,6 +548,7 @@
     <Folder Include="Domain\StoredEmails\" />
     <Folder Include="HibernateMapping\StoredEmails\" />
     <Folder Include="Resources\" />
+    <Folder Include="Tools\AdditionalAgreements\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
