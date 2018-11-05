@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NLog;
+using QS.DomainModel.UoW;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
