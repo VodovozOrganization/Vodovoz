@@ -4,6 +4,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.DomainModel.Entity;
 using QSOrmProject;
+using System.Collections.Generic;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -40,12 +41,36 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref exportToOnlineStore, value, () => ExportToOnlineStore); }
 		}
 
-        #endregion
+		[Display(Name = "Характеристики товаров")]
+		public virtual string CharacteristicsText {
+			get { return String.Join(",", characteristics); }
+			set {
+				characteristics.Clear();
+				var parts = value.Split(',');
+				foreach(var characteristic in parts) {
+					NomenclatureProperties property;
+					if(Enum.TryParse<NomenclatureProperties>(characteristic, out property))
+						characteristics.Add(property);
+					else
+						logger.Error($"Характеристика товара {characteristic}, не была найдена в перечислении {typeof(NomenclatureProperties).Name}, поэтому была отброшена.");
+				}
+			}
+		}
 
-        /// <summary>
-        /// Cоздает новый Guid. Uow необходим для сохранения созданного Guid в базу.
-        /// </summary>
-        public virtual void CreateGuidIfNotExist(IUnitOfWork uow)
+		private List<NomenclatureProperties> characteristics = new List<NomenclatureProperties>();
+
+		[Display(Name = "Характеристики товаров")]
+		public virtual List<NomenclatureProperties> Characteristics {
+			get { return characteristics; }
+			set { SetField(ref characteristics, value); }
+		}
+
+		#endregion
+
+		/// <summary>
+		/// Cоздает новый Guid. Uow необходим для сохранения созданного Guid в базу.
+		/// </summary>
+		public virtual void CreateGuidIfNotExist(IUnitOfWork uow)
 		{
 			if(OnlineStoreGuid == null && ExportToOnlineStore)
 			{

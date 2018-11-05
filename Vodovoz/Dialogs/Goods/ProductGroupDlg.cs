@@ -1,4 +1,5 @@
 ﻿using System;
+using Gamma.Widgets.Additions;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
@@ -37,6 +38,9 @@ namespace Vodovoz.Dialogs.Goods
 
 			yentryParent.SubjectType = typeof(ProductGroup);
 			yentryParent.Binding.AddBinding(Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
+
+			checklistCharacteristics.EnumType = typeof(NomenclatureProperties);
+			checklistCharacteristics.Binding.AddBinding(Entity, e => e.Characteristics, w => w.SelectedValuesList, new EnumsListConverter<NomenclatureProperties>()).InitializeFromSource();
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
