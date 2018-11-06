@@ -160,7 +160,7 @@ namespace Vodovoz
 				}
 			}
 
-			phonesView.SaveChanges();
+			phonesView.RemoveEmpty();
 			logger.Info("Сохраняем сотрудника...");
 			try {
 				UoWGeneric.Save();

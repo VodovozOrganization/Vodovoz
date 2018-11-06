@@ -78,7 +78,7 @@ namespace Vodovoz
 				return false;
 			logger.Info ("Сохраняем организацию...");
 			try {
-				phonesview1.SaveChanges ();
+				phonesview1.RemoveEmpty ();
 				UoWGeneric.Save ();
 				return true;
 			} catch (Exception ex) {
