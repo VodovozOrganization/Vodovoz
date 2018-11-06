@@ -20,6 +20,13 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			Type = typeValue;
 		}
 
+		public PropertyOfGoods(Guid guid, string name, PropertyTypeValue typeValue)
+		{
+			Guid = guid;
+			Name = name;
+			Type = typeValue;
+		}
+
 		public XElement ToXml()
 		{
 			var xml = new XElement("Свойство");

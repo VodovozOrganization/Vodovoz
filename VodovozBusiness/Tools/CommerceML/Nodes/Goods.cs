@@ -52,6 +52,10 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 					propertiesXml.Add(Classifier.PropertyColor.ToValueXml(good.EquipmentColor.Name));
 
 				goodxml.Add(propertiesXml);
+				foreach(var characteristic in good.ProductGroup.Characteristics) {
+					var value = good.GetPropertyValue(characteristic.ToString());
+					propertiesXml.Add(myExport.Classifier.Characteristics[characteristic].ToValueXml(value));
+				}
 
 				goodxml.Add(new XElement("СтавкиНалогов", 
 				                         new XElement("СтавкаНалога", 

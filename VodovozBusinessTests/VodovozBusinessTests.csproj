@@ -57,9 +57,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Employees\" />
+    <Folder Include="Goods\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Employees\PersonnelTests.cs" />
+    <Compile Include="Goods\NomenclaturePropertiesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
@@ -81,6 +83,10 @@
     <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
       <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
       <Name>QSOrmProject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GammaBinding\GammaUtil\GammaUtil.csproj">
+      <Project>{1BF2A638-420D-456C-96A7-36873A0FB894}</Project>
+      <Name>GammaUtil</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
