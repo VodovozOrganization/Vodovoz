@@ -61,8 +61,8 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем  контактное лицо...");
-			phonesView.SaveChanges ();
-			emailsView.SaveChanges ();
+			phonesView.RemoveEmpty();
+			emailsView.RemoveEmpty();
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
 			return true;

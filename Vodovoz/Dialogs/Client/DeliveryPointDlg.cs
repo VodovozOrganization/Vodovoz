@@ -376,7 +376,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			phonesview1.SaveChanges();
+			phonesview1.RemoveEmpty();
 			UoWGeneric.Save();
 			return true;
 		}

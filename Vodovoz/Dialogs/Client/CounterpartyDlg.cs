@@ -12,7 +12,6 @@ using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
@@ -195,8 +194,8 @@ namespace Vodovoz
 				return false;
 
 			logger.Info("Сохраняем контрагента...");
-			phonesView.SaveChanges();
-			emailsView.SaveChanges();
+			phonesView.RemoveEmpty();
+			emailsView.RemoveEmpty();
 			UoWGeneric.Save();
 			logger.Info("Ok.");
 			return true;

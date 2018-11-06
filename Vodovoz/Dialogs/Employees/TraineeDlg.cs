@@ -93,7 +93,7 @@ namespace Vodovoz.Dialogs.Employees
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel)) {
 				return false;
 			}
-			phonesView.SaveChanges();
+			phonesView.RemoveEmpty();
 			logger.Info("Сохраняем стажера...");
 			try {
 				UoWGeneric.Save();

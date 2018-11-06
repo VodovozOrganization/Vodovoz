@@ -7,7 +7,6 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QSDocTemplates;
-using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 
@@ -94,7 +93,21 @@ namespace Vodovoz.Repositories.Client
 							  ).WithAlias(() => nodeAlias.Water4)
 						   //Id номенклатуры 4
 						   .Select(() => waterPrintNom.Count() > 3 ? waterPrintNom[3].Id : 0).WithAlias(() => nodeAlias.Id4)
-				          
+
+						   //Цена номенклатуры 5
+						   .Select(Projections.Max(
+							   waterPrintNom.Count() > 4
+							   ? Projections.Conditional(
+								   Restrictions.Eq(Projections.Property(() => nomenclatureAlias.Id), waterPrintNom[4].Id),
+								   Projections.Cast(
+									   NHibernateUtil.AnsiString,
+									   Projections.Property(() => nomenclaturePriceAlias.Price)),
+								   Projections.Constant("", NHibernateUtil.AnsiString))
+							   : Projections.Constant("", NHibernateUtil.AnsiString))
+							  ).WithAlias(() => nodeAlias.Water5)
+						   //Id номенклатуры 5
+						   .Select(() => waterPrintNom.Count() > 4 ? waterPrintNom[4].Id : 0).WithAlias(() => nodeAlias.Id5)
+
 				          ).TransformUsing(Transformers.AliasToBean<WaterPriceNode>())
 			   .List<WaterPriceNode>();
 			foreach(var item in resultPrices) {
@@ -112,10 +125,11 @@ namespace Vodovoz.Repositories.Client
 			//Шапка с названиями
 			result.Add(new WaterPriceNode() {
 				StringCount = "Бутыли 19 л",
-				Water1 = (waterPrintNom.Count() > 0 ? waterPrintNom[0].OfficialName : ""),
-				Water2 = (waterPrintNom.Count() > 1 ? waterPrintNom[1].OfficialName : ""),
-				Water3 = (waterPrintNom.Count() > 2 ? waterPrintNom[2].OfficialName : ""),
-				Water4 = (waterPrintNom.Count() > 3 ? waterPrintNom[3].OfficialName : "")
+				Water1 = waterPrintNom.Any()? waterPrintNom[0].OfficialName : "",
+				Water2 = waterPrintNom.Count() > 1 ? waterPrintNom[1].OfficialName : "",
+				Water3 = waterPrintNom.Count() > 2 ? waterPrintNom[2].OfficialName : "",
+				Water4 = waterPrintNom.Count() > 3 ? waterPrintNom[3].OfficialName : "",
+				Water5 = waterPrintNom.Count() > 4 ? waterPrintNom[4].OfficialName : ""
 			});
 
 			return result;
@@ -130,7 +144,7 @@ namespace Vodovoz.Repositories.Client
 			return waterNomenclatures.Where(x => x.NomenclaturePrice.Any())
 												  .OrderBy(x => x.NomenclaturePrice.Min(y => y.Price))
 												  .Distinct()
-												  .Take(4)
+												  .Take(5)
 												  .ToArray();
 		}
 
@@ -168,12 +182,8 @@ namespace Vodovoz.Repositories.Client
 		string stringCount = null;
 		[Display(Name = "Количество строка")]
 		public string StringCount {
-			get {
-				return stringCount ?? String.Format("от {0} шт.", Count);
-			}
-			set{
-				stringCount = value;
-			}
+			get => stringCount ?? String.Format("от {0} шт.", Count);
+			set => stringCount = value;
 		}
 		[Display(Name = "Вода1")]
 		public string Water1 { get; set; }
@@ -191,5 +201,9 @@ namespace Vodovoz.Repositories.Client
 		public string Water4 { get; set; }
 		[Display(Name = "Идентификатор4")]
 		public int Id4 { get; set; }
+		[Display(Name = "Вода5")]
+		public string Water5 { get; set; }
+		[Display(Name = "Идентификатор5")]
+		public int Id5 { get; set; }
 	}
 }
