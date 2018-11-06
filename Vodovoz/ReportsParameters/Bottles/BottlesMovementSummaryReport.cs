@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Report;
-using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class BottlesMovementSummaryReport : Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class BottlesMovementSummaryReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public BottlesMovementSummaryReport()
 		{
@@ -20,12 +19,6 @@ namespace Vodovoz.ReportsParameters.Bottles
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		#endregion
 

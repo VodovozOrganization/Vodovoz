@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Report;
-using QSOrmProject;
 using QSReport;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ReportDebtorsBottles : Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class ReportDebtorsBottles : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 
@@ -30,12 +29,6 @@ namespace Vodovoz.ReportsParameters
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		#endregion
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		void OnUpdate(bool hide = false)
 		{

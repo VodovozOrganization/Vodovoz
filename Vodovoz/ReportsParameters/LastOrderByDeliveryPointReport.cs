@@ -7,7 +7,7 @@ using QSReport;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class LastOrderByDeliveryPointReport : Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class LastOrderByDeliveryPointReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public LastOrderByDeliveryPointReport()
 		{
@@ -18,12 +18,6 @@ namespace Vodovoz.ReportsParameters
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		#endregion
 

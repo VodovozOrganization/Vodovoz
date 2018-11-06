@@ -9,7 +9,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Reports
 {
-	public partial class RevisionBottlesAndDeposits : Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class RevisionBottlesAndDeposits : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set;}
 
@@ -33,14 +33,6 @@ namespace Vodovoz.Reports
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		#endregion
-
-		public object EntityObject
-		{
-			get
-			{
-				return null;
-			}
-		}
 
 		void OnUpdate(bool hide = false)
 		{

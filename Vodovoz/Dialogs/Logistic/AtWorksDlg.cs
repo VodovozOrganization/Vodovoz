@@ -14,7 +14,7 @@ using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Dialogs.Logistic
 {
-	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, IEntityDialog
+	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
@@ -172,8 +172,6 @@ namespace Vodovoz.Dialogs.Logistic
 				return uow.HasChanges;
 			}
 		}
-
-		public object EntityObject => throw new NotImplementedException();
 
 		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
 		{

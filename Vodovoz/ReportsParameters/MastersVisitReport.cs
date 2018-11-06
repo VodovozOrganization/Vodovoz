@@ -12,7 +12,7 @@ using Vodovoz.Repository;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MastersVisitReport : Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class MastersVisitReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		IUnitOfWork uow;
 
@@ -27,12 +27,6 @@ namespace Vodovoz.ReportsParameters
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get { return uow; } private set {; } }
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		#endregion
 

@@ -9,7 +9,7 @@ using QSReport;
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class EquipmentReport : Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class EquipmentReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public EquipmentReport()
 		{
@@ -19,12 +19,6 @@ namespace Vodovoz.Reports
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		#endregion
 

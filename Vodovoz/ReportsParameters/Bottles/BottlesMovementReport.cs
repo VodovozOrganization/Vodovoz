@@ -9,7 +9,7 @@ using QSReport;
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class BottlesMovementReport : Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class BottlesMovementReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public BottlesMovementReport()
 		{
@@ -19,12 +19,6 @@ namespace Vodovoz.ReportsParameters.Bottles
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		#endregion
 

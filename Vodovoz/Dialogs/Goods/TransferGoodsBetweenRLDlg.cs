@@ -5,7 +5,6 @@ using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
-using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Documents;
@@ -13,7 +12,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
-	public partial class TransferGoodsBetweenRLDlg : TdiTabBase, ITdiDialog, IEntityDialog
+	public partial class TransferGoodsBetweenRLDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
 		#region Поля
 
@@ -86,8 +85,6 @@ namespace Vodovoz
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get { return uow; } }
-
-		public object EntityObject { get { return null; } }
 
 		#endregion
 

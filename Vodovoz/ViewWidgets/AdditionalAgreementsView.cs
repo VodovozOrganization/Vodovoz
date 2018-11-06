@@ -59,7 +59,7 @@ namespace Vodovoz
 		void OnButtonAddClicked (AgreementType type)
 		{
 			if (MyOrmDialog.UoW.IsNew) {
-				if (CommonDialogs.SaveBeforeCreateSlaveEntity (MyOrmDialog.EntityObject.GetType (), typeof(AdditionalAgreement))) {
+				if (CommonDialogs.SaveBeforeCreateSlaveEntity (MyEntityDialog.EntityObject.GetType (), typeof(AdditionalAgreement))) {
 					if (!MyTdiDialog.Save ())
 						return;
 				} else

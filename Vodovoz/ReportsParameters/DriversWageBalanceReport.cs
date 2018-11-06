@@ -8,14 +8,13 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Report;
-using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Reports
 {
-	public partial class DriversWageBalanceReport : Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class DriversWageBalanceReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		private class DriverNode
 		{
@@ -46,8 +45,6 @@ namespace Vodovoz.Reports
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject { get {return null;} }
 
 		#endregion
 

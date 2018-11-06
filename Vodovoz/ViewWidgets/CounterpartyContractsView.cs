@@ -43,7 +43,7 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			var parentDlg = DialogHelper.FindParentDialog (this);
+			var parentDlg = DialogHelper.FindParentEntityDialog (this);
 			if (parentDlg == null)
 				return;
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Report;
-using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using Vodovoz.Domain.Employees;
@@ -12,7 +11,7 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class WagesOperationsReport: Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class WagesOperationsReport: Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public WagesOperationsReport()
 		{
@@ -28,12 +27,6 @@ namespace Vodovoz.Reports
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		#endregion
 

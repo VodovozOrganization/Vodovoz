@@ -8,7 +8,7 @@ using QSReport;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CardPaymentsOrdersReport : Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class CardPaymentsOrdersReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public CardPaymentsOrdersReport()
 		{
@@ -20,12 +20,6 @@ namespace Vodovoz.ReportsParameters
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		#endregion
 

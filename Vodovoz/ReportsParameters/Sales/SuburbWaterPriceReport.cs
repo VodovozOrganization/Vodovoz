@@ -3,20 +3,13 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Report;
-using QSOrmProject;
 using QSReport;
 
 namespace Vodovoz.ReportsParameters.Sales
 {
-	public partial class SuburbWaterPriceReport : Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class SuburbWaterPriceReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 

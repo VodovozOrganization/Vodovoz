@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Report;
-using QSOrmProject;
 using QSReport;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MileageReport : Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class MileageReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public MileageReport()
 		{
@@ -20,12 +19,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		#endregion
 

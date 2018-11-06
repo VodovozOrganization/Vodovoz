@@ -14,7 +14,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class RouteListAddressesTransferringDlg : TdiTabBase, IEntityDialog
+	public partial class RouteListAddressesTransferringDlg : TdiTabBase, ISingleUoWDialog
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
@@ -22,7 +22,6 @@ namespace Vodovoz
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW => uow;
-		public object EntityObject => throw new NotImplementedException();
 		public enum OpenParameter { Sender, Receiver }
 
 		#endregion

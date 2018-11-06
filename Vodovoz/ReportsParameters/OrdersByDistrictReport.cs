@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Report;
-using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using Vodovoz.Domain.Logistic;
@@ -11,7 +10,7 @@ using Vodovoz.Domain.Logistic;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrdersByDistrictReport : Gtk.Bin, IEntityDialog, IParametersWidget
+	public partial class OrdersByDistrictReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public OrdersByDistrictReport()
 		{
@@ -23,8 +22,6 @@ namespace Vodovoz.ReportsParameters
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject { get { return null; } }
 
 		#endregion
 
