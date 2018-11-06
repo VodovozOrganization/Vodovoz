@@ -6,7 +6,6 @@ using QSContacts;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -14,6 +13,13 @@ namespace Vodovoz
 	public partial class OrganizationDlg : OrmGtkDialogBase<Organization>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		public override bool HasChanges {
+			get {
+				phonesview1.RemoveEmpty();
+				return base.HasChanges;
+			}
+			set => base.HasChanges = value;
+		}
 
 		public OrganizationDlg ()
 		{

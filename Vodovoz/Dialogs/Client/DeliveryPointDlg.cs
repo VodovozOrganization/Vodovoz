@@ -39,12 +39,13 @@ namespace Vodovoz
 		string streetBeforeChange = null;
 		string buildingBeforeChange = null;
 
-		public PanelViewType[] InfoWidgets {
+		public PanelViewType[] InfoWidgets => new[] { PanelViewType.DeliveryPricePanelView };
+		public override bool HasChanges {
 			get {
-				return new[]{
-					PanelViewType.DeliveryPricePanelView
-				};
+				phonesview1.RemoveEmpty();
+				return base.HasChanges;
 			}
+			set => base.HasChanges = value;
 		}
 
 		public DeliveryPointDlg(Counterparty counterparty)
