@@ -56,6 +56,8 @@ namespace Vodovoz.DocTemplates
 						node.Water3 = fPrice.Price.ToString();
 					if(fPrice.Nomenclature.Id == node.Id4)
 						node.Water4 = fPrice.Price.ToString();
+					if(fPrice.Nomenclature.Id == node.Id5)
+						node.Water5 = fPrice.Price.ToString();
 				}
 			}
 
