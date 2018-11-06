@@ -42,6 +42,9 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 				}
 				goodxml.Add(new XElement("ПолноеНаименование", good.OfficialName));
 				goodxml.Add(new XElement("Группы", new XElement("Ид", good.ProductGroup.OnlineStoreGuid)));
+
+				goodxml.Add(new XElement("Описание", good.Description));
+
 				foreach(var img in good.Images)
 				{
 					goodxml.Add(new XElement("Картинка", $"import_files/img_{img.Id:0000000}.jpg"));
