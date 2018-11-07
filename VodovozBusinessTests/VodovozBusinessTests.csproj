@@ -57,6 +57,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Employees\" />
+    <Folder Include="Counterparties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Employees\PersonnelTests.cs" />
+    <Compile Include="Counterparties\CounterpartyTests.cs" />
     <Folder Include="Goods\" />
   </ItemGroup>
   <ItemGroup>

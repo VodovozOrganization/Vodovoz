@@ -57,6 +57,9 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Тип оплаты")]
 		public PaymentType PaymentType { get; set; }
 
+		[Display(Name = "Есть ли специальные поля для печати в контрагенте?")]
+		public bool HaveSpecialFields { get; set; }
+
 		[Display(Name = "Тип документа")]
 		public DefaultDocumentType? DefaultDocumentType { get; set; } = Client.DefaultDocumentType.upd;
 
@@ -75,6 +78,7 @@ namespace Vodovoz.Domain.Orders
 			this.NeedToReturnBottles = Order.BottlesReturn > 0;
 			this.NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any(x => x.PaymentDirection == PaymentDirection.ToClient);
 			this.PaymentType = Order.PaymentType;
+			this.HaveSpecialFields = Order.Client.UseSpecialDocFields;
 			this.NeedMaster = Order.OrderItems.Any(i => i.Nomenclature.Category == Goods.NomenclatureCategory.master);
 			this.IsSelfDelivery = Order.SelfDelivery;
 		}

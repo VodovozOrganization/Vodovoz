@@ -5,28 +5,28 @@ using QS.Report;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class UPDDocument:OrderDocument, IPrintableRDLDocument
+	public class SpecialUPDDocument : OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
-		public override OrderDocumentType Type => OrderDocumentType.UPD;
+		public override OrderDocumentType Type => OrderDocumentType.SpecialUPD;
 		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Title = String.Format("УПД {0} от {1:d}", Order.Id, Order.DeliveryDate),
+				Title = String.Format("Особый УПД {0} от {1:d}", Order.Id, Order.DeliveryDate),
 				Identifier = "Documents.UPD",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },
-					{ "special", false }
+					{ "special", true }
 				}
 			};
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name { get { return String.Format ("УПД №{0}", Order.Id); } }
+		public override string Name { get { return String.Format("Особый УПД №{0}", Order.Id); } }
 
 		public override DateTime? DocumentDate {
 			get { return Order?.DeliveryDate; }
@@ -38,9 +38,8 @@ namespace Vodovoz.Domain.Orders.Documents
 			}
 		}
 
-		public override DocumentOrientation Orientation
-		{
-			get	{
+		public override DocumentOrientation Orientation {
+			get {
 				return DocumentOrientation.Landscape;
 			}
 		}

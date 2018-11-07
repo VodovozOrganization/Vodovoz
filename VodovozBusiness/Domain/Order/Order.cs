@@ -2611,8 +2611,14 @@ namespace Vodovoz.Domain.Orders
 				case OrderDocumentType.Bill:
 					newDoc = new BillDocument();
 					break;
+				case OrderDocumentType.SpecialBill:
+					newDoc = new SpecialBillDocument();
+					break;
 				case OrderDocumentType.UPD:
 					newDoc = new UPDDocument();
+					break;
+				case OrderDocumentType.SpecialUPD:
+					newDoc = new SpecialUPDDocument();
 					break;
 				case OrderDocumentType.Invoice:
 					newDoc = new InvoiceDocument();

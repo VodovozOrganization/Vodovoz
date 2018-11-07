@@ -525,6 +525,8 @@
     <Compile Include="Domain\Employees\Trainee.cs" />
     <Compile Include="HibernateMapping\Employees\PersonnelMap.cs" />
     <Compile Include="Domain\Employees\IEmployee.cs" />
+    <Compile Include="Domain\Order\Documents\SpecialBill.cs" />
+    <Compile Include="Domain\Order\Documents\SpecialUPD.cs" />
     <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
     <Compile Include="Attributes\OnlineStoreGuidAttribute.cs" />
   </ItemGroup>

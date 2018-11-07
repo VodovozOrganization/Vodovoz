@@ -31,6 +31,13 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.NewBottlesNeeded).Column("need_new_bottles");
 			Map(x => x.DefaultDocumentType).Column("default_document_type").CustomType<DefaultDocumentTypeStringType>();
 			Map(x => x.VodovozInternalId).Column("vod_internal_id").ReadOnly();
+			Map(x => x.UseSpecialDocFields).Column("use_special_doc_fields");
+			Map(x => x.CargoReceiver).Column("special_cargo_receiver");
+			Map(x => x.SpecialCustomer).Column("special_customer");
+			Map(x => x.SpecialContractNumber).Column("special_contract_number");
+			Map(x => x.SpecialKPP).Column("spectial_kpp");
+			Map(x => x.GovContract).Column("special_gov_contract");
+			Map(x => x.SpecialDeliveryAddress).Column("special_delivery_address");
 			Map(x => x.RingUpPhone).Column("ringup_phone");
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");

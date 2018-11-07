@@ -10,39 +10,40 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class BillDocument:OrderDocument, IPrintableRDLDocument
+	public class SpecialBillDocument : OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
-		public override OrderDocumentType Type => OrderDocumentType.Bill;
+		public override OrderDocumentType Type => OrderDocumentType.SpecialBill;
 		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
-		public virtual ReportInfo GetReportInfo ()
+		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
 				Title = this.Title,
+				//печатная форма идентична основному счету
 				Identifier = "Documents.Bill",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
 					{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization]) },
 					{ "hide_signature", HideSignature },
-					{ "special", false }
+					{ "special", true }
 				}
 			};
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public virtual string Title => String.Format("Счет №{0} от {1:d}", Order.Id, Order.BillDate);
+		public virtual string Title => String.Format("Особый счет №{0} от {1:d}", Order.Id, Order.BillDate);
 
 		public override string Name {
-			get { return String.Format ("Счет №{0}", Order.Id); }
-		}			
+			get { return String.Format("Особый счет №{0}", Order.Id); }
+		}
 
 		public override DateTime? DocumentDate {
 			get { return Order?.BillDate; }
 		}
-			
+
 		public override PrinterType PrintType {
 			get {
 				return PrinterType.RDL;
@@ -113,8 +114,8 @@ namespace Vodovoz.Domain.Orders.Documents
 						"<p>Мы ВКонтакте: <a href=\"https://vk.com/vodovoz_spb\" target=\"_blank\">vk.com/vodovoz_spb</a></p>\n" +
 						"<p>Мы в Instagram: @vodovoz_lifestyle</p>\n" +
 						"<p>Наш официальный сайт: <a href=\"http://www.vodovoz-spb.ru/\" target=\"_blank\">www.vodovoz-spb.ru</a></p>\n" +
-				        string.Format("<img src=\"cid:{0}\">", imageId);
-			
+						string.Format("<img src=\"cid:{0}\">", imageId);
+
 			return template;
 		}
 

@@ -369,6 +369,76 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref firstOrder, value, () => FirstOrder); }
 		}
 
+		bool useSpecialDocFields;
+
+		[Display(Name = "Особая печать документов ")]
+		public virtual bool UseSpecialDocFields {
+			get { return useSpecialDocFields; }
+			set { SetField(ref useSpecialDocFields, value, () => UseSpecialDocFields); }
+		}
+
+		string contractNumber;
+		[Display(Name = "Особый номер договора")]
+		public virtual string SpecialContractNumber {
+			get { return contractNumber; }
+			set { SetField(ref contractNumber, value, () => SpecialContractNumber); }
+		}
+
+		string specialKPP;
+		[Display(Name = "Особый КПП")]
+		public virtual string SpecialKPP {
+			get { return specialKPP; }
+			set { SetField(ref specialKPP, value, () => SpecialKPP); }
+		}
+
+		string cargoReceiver;
+		[Display(Name = "Грузополучатель")]
+		public virtual string CargoReceiver {
+			get { return cargoReceiver; }
+			set { SetField(ref cargoReceiver, value, () => CargoReceiver); }
+		}
+
+		string customer;
+		[Display(Name = "Особый покупатель")]
+		public virtual string SpecialCustomer {
+			get { return customer; }
+			set { SetField(ref customer, value, () => SpecialCustomer); }
+		}
+
+		string govContract;
+		[Display(Name = "Идентификатор государственного контракта")]
+		public virtual string GovContract {
+			get { return govContract; }
+			set { SetField(ref govContract, value, () => GovContract); }
+		}
+
+		string deliveryAddress;
+		[Display(Name = "Особый адрес доставки")]
+		public virtual string SpecialDeliveryAddress {
+			get { return deliveryAddress; }
+			set { SetField(ref deliveryAddress, value, () => SpecialDeliveryAddress); }
+		}
+
+		private void CheckSpecialField(ref bool result, string fieldValue)
+		{
+			if(!string.IsNullOrWhiteSpace(fieldValue)) {
+				result = true;
+			}
+		}
+
+		public virtual bool IsNotEmpty {
+			get {
+				bool result = false;
+				CheckSpecialField(ref result, SpecialContractNumber);
+				CheckSpecialField(ref result, SpecialKPP);
+				CheckSpecialField(ref result, CargoReceiver);
+				CheckSpecialField(ref result, SpecialCustomer);
+				CheckSpecialField(ref result, GovContract);
+				CheckSpecialField(ref result, SpecialDeliveryAddress);
+				return result;
+			}
+		}
+
 		#endregion
 
 		#region Calculated Properties
@@ -411,7 +481,10 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult("Контрагент с данным ИНН уже существует.",
 				                                  new[] { this.GetPropertyName(o => o.INN) });
 			}
-
+			if(UseSpecialDocFields && SpecialKPP.Length != 9) {
+				yield return new ValidationResult("Длина КПП для документов должна равнятся 9-ти.",
+						new[] { this.GetPropertyName(o => o.KPP) });
+			}
 			if(PersonType == PersonType.legal) {
 				if(KPP.Length != 9 && KPP.Length != 0 && TypeOfOwnership != "ИП")
 					yield return new ValidationResult("Длина КПП должна равнятся 9-ти.",

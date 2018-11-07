@@ -75,6 +75,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		[Display(Name = "Счет")]
 		Bill,
 		[DocumentOfOrder]
+		[Display(Name = "Особый счет")]
+		SpecialBill,
+		[DocumentOfOrder]
 		[Display(Name = "Акт выполненных работ")]
 		DoneWorkReport,
 		[DocumentOfOrder]
@@ -95,6 +98,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		[DocumentOfOrder]
 		[Display(Name = "УПД")]
 		UPD,
+		[DocumentOfOrder]
+		[Display(Name = "Особый УПД")]
+		SpecialUPD,
 		[Display(Name = "Гарантийный талон для кулеров")]
 		CoolerWarranty,
 		[Display(Name = "Гарантийный талон для помп")]
