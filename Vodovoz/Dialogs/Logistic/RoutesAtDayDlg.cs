@@ -9,11 +9,11 @@ using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using Gtk;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Utilities;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Tdi;
 using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
@@ -27,11 +27,10 @@ using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz
 {
-	public partial class RoutesAtDayDlg : QS.Dialog.Gtk.TdiTabBase, ITdiDialog
+	public partial class RoutesAtDayDlg : SingleUowDialogBase
 	{
 		#region Поля
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
@@ -105,6 +104,8 @@ namespace Vodovoz
 		public RoutesAtDayDlg()
 		{
 			this.Build();
+
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			if(progressOrders.Adjustment == null)
 				progressOrders.Adjustment = new Gtk.Adjustment(0, 0, 0, 1, 1, 0);
@@ -584,11 +585,11 @@ namespace Vodovoz
 			Nomenclature nomenclatureAlias = null;
 
 			int totalOrders = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, true)
-				.GetExecutableQueryOver(uow.Session)
+				.GetExecutableQueryOver(UoW.Session)
 				.Select(NHibernate.Criterion.Projections.Count<Order>(x => x.Id)).SingleOrDefault<int>();
 
 			int totalBottles = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, true)
-				.GetExecutableQueryOver(uow.Session)
+				.GetExecutableQueryOver(UoW.Session)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water)
@@ -605,15 +606,15 @@ namespace Vodovoz
 		{
 			logger.Info("Загружаем заказы на {0:d}...", ydateForRoutes.Date);
 			MainClass.progressBarWin.ProgressStart(5);
-			uow.Session.Clear();
+			UoW.Session.Clear();
 
 			var ordersQuery = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
-				.GetExecutableQueryOver(uow.Session)
+				.GetExecutableQueryOver(UoW.Session)
 				.Fetch(x => x.DeliveryPoint).Eager
 				.Future();
 
 			Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
-				.GetExecutableQueryOver(uow.Session)
+				.GetExecutableQueryOver(UoW.Session)
 				.Fetch(x => x.OrderItems).Eager
 				.Future();
 
@@ -645,7 +646,7 @@ namespace Vodovoz
 			MainClass.progressBarWin.ProgressAdd();
 
 			var routesQuery1 = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
-				.GetExecutableQueryOver(uow.Session);
+				.GetExecutableQueryOver(UoW.Session);
 			if(!checkShowCompleted.Active)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
 			var routesQuery = routesQuery1
@@ -653,7 +654,7 @@ namespace Vodovoz
 				.Future();
 
 			var routesQuery2 = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
-				.GetExecutableQueryOver(uow.Session);
+				.GetExecutableQueryOver(UoW.Session);
 			if(!checkShowCompleted.Active)
 				routesQuery2.Where(x => x.Status == RouteListStatus.New);
 			routesQuery2
@@ -663,7 +664,7 @@ namespace Vodovoz
 				.Future();
 
 			routesAtDay = routesQuery.ToList();
-			routesAtDay.ToList().ForEach(rl => rl.UoW = uow);
+			routesAtDay.ToList().ForEach(rl => rl.UoW = UoW);
 			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
 			routesAtDay.ToList().ForEach(rl => rl.CheckAddressOrder());
 
@@ -673,11 +674,11 @@ namespace Vodovoz
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем водителей на {0:d}...", ydateForRoutes.Date);
-			DriversAtDay = Repository.Logistics.AtWorkRepository.GetDriversAtDay(uow, ydateForRoutes.Date);
+			DriversAtDay = Repository.Logistics.AtWorkRepository.GetDriversAtDay(UoW, ydateForRoutes.Date);
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем экспедиторов на {0:d}...", ydateForRoutes.Date);
-			ForwardersAtDay = Repository.Logistics.AtWorkRepository.GetForwardersAtDay(uow, ydateForRoutes.Date);
+			ForwardersAtDay = Repository.Logistics.AtWorkRepository.GetForwardersAtDay(UoW, ydateForRoutes.Date);
 
 			MainClass.progressBarWin.ProgressAdd();
 			UpdateAddressesOnMap();
@@ -897,7 +898,7 @@ namespace Vodovoz
 					if(toRemoveAddress.IndexInRoute == 0)
 						recalculateLoading = true;
 					alreadyIn.RemoveAddress(toRemoveAddress);
-					uow.Save(alreadyIn);
+					UoW.Save(alreadyIn);
 				}
 				var item = route.AddAddressFromOrder(order);
 				if(item.IndexInRoute == 0)
@@ -905,7 +906,7 @@ namespace Vodovoz
 			}
 			route.RecalculatePlanTime(distanceCalculator);
 			route.RecalculatePlanedDistance(distanceCalculator);
-			uow.Save(route);
+			UoW.Save(route);
 			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			if(recalculateLoading)
 				RecalculateOnLoadTime();
@@ -954,7 +955,7 @@ namespace Vodovoz
 
 		protected void OnButtonCancelChangesClicked(object sender, EventArgs e)
 		{
-			uow.Session.Clear();
+			UoW.Session.Clear();
 			HasNoChanges = true;
 			FillDialogAtDay();
 		}
@@ -964,7 +965,7 @@ namespace Vodovoz
 			var row = ytreeRoutes.GetSelectedObject<RouteListItem>();
 			var route = row.RouteList;
 			route.RemoveAddress(row);
-			uow.Save(route);
+			UoW.Save(route);
 			UpdateAddressesOnMap();
 			route.RecalculatePlanTime(distanceCalculator);
 			route.RecalculatePlanedDistance(distanceCalculator);
@@ -979,27 +980,20 @@ namespace Vodovoz
 
 		#region TDIDialog
 
-		public event EventHandler<EntitySavedEventArgs> EntitySaved;
-
-		public bool Save()
+		public override bool Save()
 		{
 			//Перестраиваем все маршруты
 			RebuildAllRoutes();
-			routesAtDay.ToList().ForEach(x => uow.Save(x));
+			routesAtDay.ToList().ForEach(x => UoW.Save(x));
 			//DriversAtDay.ToList().ForEach(x => uow.Save(x));
 			//ForwardersAtDay.ToList().ForEach(x => uow.Save(x));
-			uow.Commit();
+			UoW.Commit();
 			HasNoChanges = true;
 			FillDialogAtDay();
 			return true;
 		}
 
-		public void SaveAndClose()
-		{
-			throw new NotImplementedException();
-		}
-
-		public bool HasChanges {
+		public override bool HasChanges {
 			get {
 				return !HasNoChanges;
 			}
@@ -1090,7 +1084,7 @@ namespace Vodovoz
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			logisticanDistricts = LogisticAreaRepository.AreaWithGeometry(uow);
+			logisticanDistricts = LogisticAreaRepository.AreaWithGeometry(UoW);
 			foreach(var district in logisticanDistricts) {
 				var poligon = new GMapPolygon(
 					district.Geometry.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList()
@@ -1108,7 +1102,7 @@ namespace Vodovoz
 		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
 		{
 			var SelectDrivers = new OrmReference(
-				uow,
+				UoW,
 				Repository.EmployeeRepository.ActiveDriversOrderedQuery()
 			);
 			SelectDrivers.Mode = OrmReferenceMode.MultiSelect;
@@ -1122,7 +1116,7 @@ namespace Vodovoz
 			logger.Info("Получаем авто для водителей...");
 			MainClass.progressBarWin.ProgressStart(2);
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
-			var allCars = CarRepository.GetCarsbyDrivers(uow, onlyNew.Select(x => x.Id).ToArray());
+			var allCars = CarRepository.GetCarsbyDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 			MainClass.progressBarWin.ProgressAdd();
 
 			foreach(var driver in addDrivers) {
@@ -1139,7 +1133,7 @@ namespace Vodovoz
 		protected void OnButtonAddForwarderClicked(object sender, EventArgs e)
 		{
 			var SelectForwarder = new OrmReference(
-				uow,
+				UoW,
 				Repository.EmployeeRepository.ActiveForwarderOrderedQuery()
 			);
 			SelectForwarder.Mode = OrmReferenceMode.MultiSelect;
@@ -1165,7 +1159,7 @@ namespace Vodovoz
 			var toDel = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>();
 			foreach(var driver in toDel) {
 				if(driver.Id > 0)
-					uow.Delete(driver);
+					UoW.Delete(driver);
 				observableDriversAtDay.Remove(driver);
 			}
 		}
@@ -1175,7 +1169,7 @@ namespace Vodovoz
 			var toDel = ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>();
 			foreach(var forwarder in toDel) {
 				if(forwarder.Id > 0)
-					uow.Delete(forwarder);
+					UoW.Delete(forwarder);
 				observableForwardersAtDay.Remove(forwarder);
 			}
 		}
@@ -1184,7 +1178,7 @@ namespace Vodovoz
 
 		protected void OnButtonAutoCreateClicked(object sender, EventArgs e)
 		{
-			var logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			var logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(logistican == null) {
 				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				return;
@@ -1200,7 +1194,7 @@ namespace Vodovoz
 			creatingInProgress = true;
 			buttonAutoCreate.Label = "Остановить";
 
-			optimizer.UoW = uow;
+			optimizer.UoW = UoW;
 			optimizer.Routes = routesAtDay;
 			optimizer.Orders = ordersAtDay;
 			optimizer.Drivers = driversAtDay;
@@ -1219,7 +1213,7 @@ namespace Vodovoz
 
 				foreach(var propose in optimizer.ProposedRoutes) {
 					var rl = propose.Trip.OldRoute ?? new RouteList();
-					rl.UoW = uow;
+					rl.UoW = UoW;
 					rl.Car = propose.Trip.Car;
 					rl.Driver = propose.Trip.Driver;
 					rl.Shift = propose.Trip.Shift;
@@ -1252,7 +1246,7 @@ namespace Vodovoz
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
 			var SelectDriverCar = new OrmReference(
-				uow,
+				UoW,
 				Repository.Logistics.CarRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();

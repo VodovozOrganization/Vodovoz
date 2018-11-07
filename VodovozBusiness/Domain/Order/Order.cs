@@ -2761,7 +2761,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SaveOrderComment(){
 			if(Id == 0) return;
 			
-			using(var uow = UnitOfWorkFactory.CreateForRoot<Order>(Id)) {
+			using(var uow = UnitOfWorkFactory.CreateForRoot<Order>(Id, "Кнопка сохранить только комментарий к заказу")) {
 				uow.Root.Comment = Comment;
 				uow.Save();
 				uow.Commit();

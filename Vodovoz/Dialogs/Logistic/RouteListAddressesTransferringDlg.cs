@@ -4,11 +4,10 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
-using QS.DomainModel.UoW;
 using QS.Dialog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Tdi;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
 
