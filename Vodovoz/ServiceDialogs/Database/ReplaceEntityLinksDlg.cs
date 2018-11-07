@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.Deletion;
+using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Goods;
 
@@ -33,6 +33,12 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		private void ConfigureDlg()
 		{
+			if(!QSMain.User.Permissions["database_maintenance"]) {
+				MessageDialogWorks.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
+				FailInitialize = true;
+				return;
+			}
+
 			entryreference1.SubjectType = typeof(Nomenclature);
 			entryreference2.SubjectType = typeof(Nomenclature);
 		}

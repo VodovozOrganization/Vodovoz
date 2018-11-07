@@ -40,6 +40,7 @@ namespace Vodovoz
 		static void CreateProjectParam()
 		{
 			QSMain.ProjectPermission = new Dictionary<string, UserPermission>();
+			QSMain.ProjectPermission.Add("driver_terminal", new UserPermission("driver_terminal", "ВНИМАНИЕ! Аккаунт будет использоватся только для печати документов МЛ", "Для использования отдельного окна для печати документов МЛ без доступа к остальным частям системы."));
 			QSMain.ProjectPermission.Add("max_loan_amount", new UserPermission("max_loan_amount", "Установка максимального кредита", "Пользователь имеет права для установки максимальной суммы кредита."));
 			QSMain.ProjectPermission.Add("logistican", new UserPermission("logistican", "Логист", "Пользователь является логистом."));
 			QSMain.ProjectPermission.Add("logistic_admin", new UserPermission("logistic_admin", "Логист- пересчет топлива в закрытых МЛ", "Пользователь может пересчитывать километраж в закрытых МЛ"));
@@ -74,7 +75,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("can_move_order_from_closed_to_acepted", new UserPermission("can_move_order_from_closed_to_acepted", "Перевод заказа из \"Закрыт\" в \"Принят\"", "Пользователь может вернуть заказ, находящийся в статусе \"Закрыт\", в статус \"Принят\". Это касается только заказов, закрытых без доставки, то есть те, у которых нет МЛ."));
 			QSMain.ProjectPermission.Add("can_accept_cashles_service_orders", new UserPermission("can_accept_cashles_service_orders", "Проведение безналичного заказа на \"Выезд мастера\"", "Пользователь может подтверждать заказы по безналу типа \"Выезд мастера\". В случае отсутствия этого права, пользователю будет доступен только перевод заказа в статус \"Ожидание оплаты\"."));
 			QSMain.ProjectPermission.Add("can_change_trainee_to_driver", new UserPermission("can_change_trainee_to_driver", "Перевод стажера в водителя или экспедитора", "Позволяет перевести стажера в статус водителя или экспедитора"));
-			QSMain.ProjectPermission.Add("driver_terminal", new UserPermission("driver_terminal", "ВНИМАНИЕ! Аккаунт будет использоватся только для печати документов МЛ", "Для использования отдельного окна для печати документов МЛ без доступа к остальным частям системы."));
+			QSMain.ProjectPermission.Add("database_maintenance", new UserPermission("database_maintenance", "Обслуживание базы данных", "Предоставить пользователю права на доступ ко вкладке База --> Обслуживание"));
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };

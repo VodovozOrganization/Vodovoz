@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Client;
@@ -19,6 +18,12 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		public CalculateDistanceToPointsDlg()
 		{
+			if(!QSMain.User.Permissions["database_maintenance"]) {
+				MessageDialogWorks.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
+				FailInitialize = true;
+				return;
+			}
+
 			this.Build();
 			uow.Session.SetBatchSize(SaveBy);
 		}

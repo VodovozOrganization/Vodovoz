@@ -4,7 +4,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Documents;
@@ -22,6 +21,12 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		public OrdersWithoutBottlesOperationDlg()
 		{
+			if(!QSMain.User.Permissions["database_maintenance"]) {
+				MessageDialogWorks.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
+				FailInitialize = true;
+				return;
+			}
+
 			this.Build();
 
 			TabName = "Заказы без передвижения бутылей";

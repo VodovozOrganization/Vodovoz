@@ -724,7 +724,7 @@
         <property name="ShortLabel" translatable="yes">Отчет по последнему заказу</property>
         <signal name="Activated" handler="OnActionLastOrderReportActivated" />
       </action>
-      <action id="Action27">
+      <action id="ActionMaintenance">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Обслуживание</property>
         <property name="ShortLabel" translatable="yes">Обслуживание</property>
@@ -1009,7 +1009,7 @@
                     <node type="Menuitem" action="ActionParameters" />
                     <node type="Menuitem" action="propertiesAction" />
                     <node type="Menuitem" action="ActionHistoryLog" />
-                    <node type="Menu" action="Action27">
+                    <node type="Menu" action="ActionMaintenance">
                       <node type="Menuitem" action="Action45" />
                       <node type="Menuitem" action="ActionAddressDuplicetes" />
                       <node type="Menuitem" action="ActionDistanceFromCenter" />
