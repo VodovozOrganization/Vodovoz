@@ -6,7 +6,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Operations;
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки премии",
 		Nominative = "строка премии")]
 	public class PremiumItem: PropertyChangedBase, IDomainObject

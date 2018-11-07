@@ -11,7 +11,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class IncomingInvoiceDlg : OrmGtkDialogBase<IncomingInvoice>
+	public partial class IncomingInvoiceDlg : QS.Dialog.Gtk.EntityDialogBase<IncomingInvoice>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 

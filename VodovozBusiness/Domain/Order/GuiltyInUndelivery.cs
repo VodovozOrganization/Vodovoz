@@ -5,7 +5,7 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 				NominativePlural = "виновные в недовозе",
 				Nominative = "виновный в недовозе",
 				Prepositional = "виновном в недовозе",

@@ -8,7 +8,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	public partial class ContactDlg : OrmGtkDialogBase<Contact>
+	public partial class ContactDlg : QS.Dialog.Gtk.EntityDialogBase<Contact>
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 

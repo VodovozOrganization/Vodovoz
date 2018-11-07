@@ -11,7 +11,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
+using QS.Dialog;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain;

@@ -1,11 +1,10 @@
-﻿using System;
+﻿using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	public partial class RegradingOfGoodsTemplateDlg : OrmGtkDialogBase<RegradingOfGoodsTemplate>
+	public partial class RegradingOfGoodsTemplateDlg : QS.Dialog.Gtk.EntityDialogBase<RegradingOfGoodsTemplate>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

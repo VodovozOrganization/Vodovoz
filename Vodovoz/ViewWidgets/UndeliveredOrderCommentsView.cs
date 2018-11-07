@@ -10,7 +10,7 @@ using Vodovoz.Repository;
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UndeliveredOrderCommentsView : WidgetOnDialogBase
+	public partial class UndeliveredOrderCommentsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		public UndeliveredOrderCommentsView()
 		{

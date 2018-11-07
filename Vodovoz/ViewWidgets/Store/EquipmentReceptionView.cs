@@ -17,7 +17,7 @@ using Vodovoz.Repository;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class EquipmentReceptionView : WidgetOnDialogBase
+	public partial class EquipmentReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		IList<ServiceClaim> serviceClaims;
 

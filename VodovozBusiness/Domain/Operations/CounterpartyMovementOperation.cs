@@ -8,7 +8,7 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz
 {
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "передвижения товаров",
 		Nominative = "передвижение товаров")]
 	public class CounterpartyMovementOperation : OperationBase

@@ -1,13 +1,12 @@
-﻿using System;
+﻿using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	
-	public partial class WarehouseDlg : OrmGtkDialogBase<Warehouse>
+
+	public partial class WarehouseDlg : QS.Dialog.Gtk.EntityDialogBase<Warehouse>
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

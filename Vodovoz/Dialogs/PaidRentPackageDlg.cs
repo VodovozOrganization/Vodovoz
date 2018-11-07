@@ -9,7 +9,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
-	public partial class PaidRentPackageDlg : OrmGtkDialogBase<PaidRentPackage>
+	public partial class PaidRentPackageDlg : QS.Dialog.Gtk.EntityDialogBase<PaidRentPackage>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 

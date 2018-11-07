@@ -5,7 +5,7 @@ using Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository;
@@ -15,7 +15,7 @@ using VodovozService.Chats;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ChatWidget : TdiTabBase, IChatCallbackObserver
+	public partial class ChatWidget : QS.Dialog.Gtk.TdiTabBase, IChatCallbackObserver
 	{
 		private int showMessagePeriod = 2;
 		private bool isActive;

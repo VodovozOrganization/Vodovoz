@@ -9,7 +9,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "доверенности",
 		Nominative = "доверенность")]
 	public abstract class ProxyDocument : PropertyChangedBase, IDomainObject, IBusinessObject

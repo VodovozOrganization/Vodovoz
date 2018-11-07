@@ -9,7 +9,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "сотрудники",
 		Nominative = "сотрудник")]
 	public class Employee : Personnel, ISpecialRowsRender, IEmployee

@@ -3,13 +3,13 @@ using System.ComponentModel;
 using QS.DomainModel.UoW;
 using QSOrmProject.Deletion;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
 	[DisplayName("Замена ссылок на объекты")]
-	public partial class ReplaceEntityLinksDlg : TdiTabBase
+	public partial class ReplaceEntityLinksDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

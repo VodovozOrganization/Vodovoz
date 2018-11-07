@@ -12,7 +12,7 @@ using Vodovoz.Domain.Logistic;
 namespace Vodovoz.Dialogs.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteListControlDlg : OrmGtkDialogBase<RouteList>
+	public partial class RouteListControlDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 

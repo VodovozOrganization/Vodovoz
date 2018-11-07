@@ -12,7 +12,7 @@ using Vodovoz.Repository.Logistics;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteListDiscrepancyView : WidgetOnDialogBase
+	public partial class RouteListDiscrepancyView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		public RouteListDiscrepancyView()
 		{

@@ -8,7 +8,7 @@ using Vodovoz.Domain.Client;
 namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CommentDlg : OrmGtkDialogBase<CommentsTemplates>
+	public partial class CommentDlg : QS.Dialog.Gtk.EntityDialogBase<CommentsTemplates>
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 

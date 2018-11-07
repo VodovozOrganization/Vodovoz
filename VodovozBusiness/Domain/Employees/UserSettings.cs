@@ -7,7 +7,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "настройки пользователей",
 		Nominative = "настройки пользователя")]
 	public class UserSettings: PropertyChangedBase, IDomainObject

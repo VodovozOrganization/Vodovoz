@@ -22,7 +22,7 @@ using NHibernate.Util;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Журнал МЛ",
 		Nominative = "маршрутный лист")]
 	[HistoryTrace]

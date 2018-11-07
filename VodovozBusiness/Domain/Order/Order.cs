@@ -27,7 +27,7 @@ using Vodovoz.Repository.Logistics;
 namespace Vodovoz.Domain.Orders
 {
 
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "заказы",
 		Nominative = "заказ",
 		Prepositional = "заказе",

@@ -5,14 +5,14 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrdersWithoutBottlesOperationDlg : TdiTabBase
+	public partial class OrdersWithoutBottlesOperationDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		GenericObservableList<Order> observableOrders;

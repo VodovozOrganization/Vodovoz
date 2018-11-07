@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NHibernate.Transform;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -16,7 +17,7 @@ using Vodovoz.Repository;
 
 namespace Vodovoz
 {
-	public partial class SelfDeliveryDocumentDlg : OrmGtkDialogBase<SelfDeliveryDocument>
+	public partial class SelfDeliveryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<SelfDeliveryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

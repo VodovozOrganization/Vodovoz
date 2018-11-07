@@ -6,7 +6,7 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "теги",
 		Nominative = "тег")]
 	public class Tag : PropertyChangedBase, IDomainObject

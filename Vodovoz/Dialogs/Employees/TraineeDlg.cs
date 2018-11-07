@@ -12,7 +12,7 @@ using Vodovoz.Domain.Employees;
 namespace Vodovoz.Dialogs.Employees
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class TraineeDlg : OrmGtkDialogBase<Trainee>
+	public partial class TraineeDlg : QS.Dialog.Gtk.EntityDialogBase<Trainee>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 

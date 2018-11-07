@@ -13,7 +13,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы разгрузки автомобилей",
 		Nominative = "документ разгрузки автомобиля")]
 	public class CarUnloadDocument:Document,IValidatableObject

@@ -7,7 +7,7 @@ using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы заказа",
 		Nominative = "документ заказа")]
 	public abstract class OrderDocument : PropertyChangedBase, IDomainObject, IPrintableDocument

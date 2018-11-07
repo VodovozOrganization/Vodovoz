@@ -8,7 +8,7 @@ using Vodovoz.Domain.Documents;
 
 namespace Vodovoz
 {
-	public partial class RegradingOfGoodsDocumentDlg : OrmGtkDialogBase<RegradingOfGoodsDocument>
+	public partial class RegradingOfGoodsDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<RegradingOfGoodsDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

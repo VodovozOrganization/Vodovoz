@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
+using QS.Dialog;
 using QS.Report;
 using QSReport;
 using Vodovoz.Additions.Store;

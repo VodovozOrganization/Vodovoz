@@ -12,7 +12,7 @@ using Vodovoz.Repository;
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DepositRefundItemsView : WidgetOnDialogBase
+	public partial class DepositRefundItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		IUnitOfWork uow;
 

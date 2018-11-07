@@ -10,7 +10,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class FuelDocumentDlg : OrmGtkDialogBase<FuelDocument>
+	public partial class FuelDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<FuelDocument>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

@@ -9,7 +9,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
-	public partial class CashExpenseDlg : OrmGtkDialogBase<Expense>
+	public partial class CashExpenseDlg : QS.Dialog.Gtk.EntityDialogBase<Expense>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private decimal currentEmployeeWage = default(decimal);

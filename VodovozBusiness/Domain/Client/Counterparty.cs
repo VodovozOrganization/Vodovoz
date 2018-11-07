@@ -19,7 +19,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "контрагенты",
 		Nominative = "контрагент",
 		Accusative = "контрагента",

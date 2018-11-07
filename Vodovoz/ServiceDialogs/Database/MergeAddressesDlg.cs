@@ -11,12 +11,12 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QSOrmProject.Deletion;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
-	public partial class MergeAddressesDlg : TdiTabBase
+	public partial class MergeAddressesDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		List<DublicateNode> Duplicates;

@@ -14,7 +14,7 @@ using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Goods
 {
-	[OrmSubject(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "номенклатуры",
 		Nominative = "номенклатура")]
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject

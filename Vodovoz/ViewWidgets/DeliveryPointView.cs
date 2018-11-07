@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DeliveryPointView : WidgetOnDialogBase
+	public partial class DeliveryPointView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		IUnitOfWorkGeneric<Counterparty> deliveryPointUoW;
 

@@ -5,16 +5,16 @@ using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
+using QS.Dialog;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class RouteListAddressesTransferringDlg : TdiTabBase, ISingleUoWDialog
+	public partial class RouteListAddressesTransferringDlg : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();

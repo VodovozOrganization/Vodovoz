@@ -11,7 +11,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	public partial class ProxyDlg : OrmGtkDialogBase<Proxy>
+	public partial class ProxyDlg : QS.Dialog.Gtk.EntityDialogBase<Proxy>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 

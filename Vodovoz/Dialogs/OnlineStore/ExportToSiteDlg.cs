@@ -8,7 +8,7 @@ using Vodovoz.Tools.CommerceML;
 
 namespace Vodovoz.Dialogs.OnlineStore
 {
-	public partial class ExportToSiteDlg : QSTDI.TdiTabBase
+	public partial class ExportToSiteDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		public ExportToSiteDlg()
 		{

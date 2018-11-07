@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
-	public partial class CalculateDistanceToPointsDlg : TdiTabBase
+	public partial class CalculateDistanceToPointsDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		int SaveBy = 300;

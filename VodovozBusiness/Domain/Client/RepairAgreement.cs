@@ -6,7 +6,7 @@ using QSOrmProject;
 namespace Vodovoz.Domain.Client
 {
 
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения сервиса",
 		Nominative = "доп. соглашение сервиса")]
 	public class RepairAgreement : AdditionalAgreement

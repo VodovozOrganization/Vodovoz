@@ -6,7 +6,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "автомобили",
 		Nominative = "автомобиль")]
 	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject

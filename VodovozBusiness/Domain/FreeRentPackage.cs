@@ -7,7 +7,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "пакеты бесплатной аренды",
 		Nominative = "пакет бесплатной аренды")]
 	public class FreeRentPackage: BusinessObjectBase<FreeRentPackage>, IDomainObject, IValidatableObject

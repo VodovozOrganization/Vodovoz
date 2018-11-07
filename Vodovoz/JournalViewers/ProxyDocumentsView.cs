@@ -4,13 +4,13 @@ using NLog;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.JournalViewers
 {
-	public partial class ProxyDocumentsView : TdiTabBase
+	public partial class ProxyDocumentsView : QS.Dialog.Gtk.TdiTabBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 

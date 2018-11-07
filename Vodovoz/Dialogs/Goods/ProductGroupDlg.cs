@@ -6,7 +6,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Dialogs.Goods
 {
-	public partial class ProductGroupDlg : OrmGtkDialogBase<ProductGroup>
+	public partial class ProductGroupDlg : QS.Dialog.Gtk.EntityDialogBase<ProductGroup>
 	{
 
 		public ProductGroupDlg()

@@ -9,7 +9,7 @@ using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ServiceDialogs
 {
-	public partial class ExportCounterpartiesTo1cDlg : QSTDI.TdiTabBase
+	public partial class ExportCounterpartiesTo1cDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		bool exportInProgress;
 

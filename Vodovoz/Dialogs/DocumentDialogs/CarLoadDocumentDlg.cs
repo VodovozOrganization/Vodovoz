@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -12,7 +13,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	public partial class CarLoadDocumentDlg : OrmGtkDialogBase<CarLoadDocument>
+	public partial class CarLoadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarLoadDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		bool editing = false;

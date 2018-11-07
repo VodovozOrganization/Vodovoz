@@ -5,7 +5,7 @@ using Vodovoz.Tools.Logistic;
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DeliveryPriceView : WidgetOnDialogBase
+	public partial class DeliveryPriceView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		DeliveryPriceNode deliveryPrice;
 		public DeliveryPriceNode DeliveryPrice {

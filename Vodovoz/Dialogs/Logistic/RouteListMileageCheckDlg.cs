@@ -15,7 +15,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class RouteListMileageCheckDlg : OrmGtkDialogBase<RouteList>
+	public partial class RouteListMileageCheckDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
 	{
 		#region Поля
 

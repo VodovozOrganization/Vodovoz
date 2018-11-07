@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "категории выбраковки",
 		Nominative = "категория выбраковки")]
 	public class CullingCategory : PropertyChangedBase, IDomainObject

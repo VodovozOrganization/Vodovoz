@@ -12,7 +12,7 @@ using Vodovoz.Representations;
 namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class NuanceDlg : OrmGtkDialogBase<Comments>
+	public partial class NuanceDlg : QS.Dialog.Gtk.EntityDialogBase<Comments>
 	{
 		object UoWforeign;
 

@@ -12,7 +12,7 @@ using Vodovoz.Domain.Operations;
 namespace Vodovoz.Domain.Documents
 {
 
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "переносы",
 		Nominative = "перенос")]
 	public class TransferOperationDocument: Document, IValidatableObject, IDomainObject

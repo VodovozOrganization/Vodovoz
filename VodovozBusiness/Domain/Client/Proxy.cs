@@ -12,7 +12,7 @@ using QSValidation.Attributes;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "доверенности",
 		Nominative = "доверенность",
 		Genitive = "доверенности",

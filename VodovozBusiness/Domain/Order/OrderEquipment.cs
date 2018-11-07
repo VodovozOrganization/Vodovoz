@@ -8,7 +8,7 @@ using Vodovoz.Domain.Service;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки оборудования в заказе",
 		Nominative = "строка оборудования в заказе")]
 	[HistoryTrace]

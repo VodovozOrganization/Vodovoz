@@ -6,7 +6,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "номенклатура штрафа",
 		Nominative = "номенклатура штрафа")]
 	public class FineNomenclature: PropertyChangedBase, IDomainObject

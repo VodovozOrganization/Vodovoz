@@ -17,7 +17,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class MovementDocumentDlg : OrmGtkDialogBase<MovementDocument>
+	public partial class MovementDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<MovementDocument>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 

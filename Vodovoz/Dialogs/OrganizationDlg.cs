@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NLog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSBanks;
 using QSContacts;
@@ -11,7 +12,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class OrganizationDlg : OrmGtkDialogBase<Organization>
+	public partial class OrganizationDlg : QS.Dialog.Gtk.EntityDialogBase<Organization>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		public override bool HasChanges {

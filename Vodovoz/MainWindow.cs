@@ -2,15 +2,18 @@
 using System.Linq;
 using Gtk;
 using NLog;
+using QS.Dialog.Gtk;
+using QS.Project.Dialogs;
+using QS.Tdi.Gtk;
 using QSBanks;
 using QSBusinessCommon.Domain;
 using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSSupportLib;
-using QSTDI;
 using Vodovoz;
 using Vodovoz.Core;
+using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -19,14 +22,13 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.ReportsParameters;
+using Vodovoz.ReportsParameters.Store;
+using Vodovoz.Representations;
+using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
-using Vodovoz.ReportsParameters;
-using Vodovoz.ServiceDialogs;
-using Vodovoz.Dialogs.OnlineStore;
-using Vodovoz.ReportsParameters.Store;
-using Vodovoz.Representations;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {

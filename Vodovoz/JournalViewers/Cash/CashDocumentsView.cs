@@ -6,13 +6,13 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Cash;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class CashDocumentsView : TdiTabBase, ITdiJournal
+	public partial class CashDocumentsView : QS.Dialog.Gtk.TdiTabBase, ITdiJournal
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 

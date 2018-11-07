@@ -6,7 +6,7 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "графики работы сотрудников",
 		Nominative = "график работы сотрудников")]
 	public class EmployeeWorkChart : PropertyChangedBase, IDomainObject

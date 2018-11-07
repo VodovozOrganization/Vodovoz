@@ -15,7 +15,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
-	public partial class TransferOperationDocumentDlg : OrmGtkDialogBase<TransferOperationDocument>
+	public partial class TransferOperationDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<TransferOperationDocument>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 

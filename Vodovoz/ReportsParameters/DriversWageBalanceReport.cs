@@ -6,7 +6,7 @@ using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
+using QS.Dialog;
 using QS.Report;
 using QSProjectsLib;
 using QSReport;

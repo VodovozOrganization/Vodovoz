@@ -10,7 +10,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
-	public partial class EquipmentDlg : OrmGtkDialogBase<Equipment>
+	public partial class EquipmentDlg : QS.Dialog.Gtk.EntityDialogBase<Equipment>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 

@@ -10,7 +10,7 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "залоги в заказе",
 		Nominative = "залог в заказе"
 	)]

@@ -5,7 +5,7 @@ using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
+using QS.Dialog;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -20,7 +20,7 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.Dialogs.Employees
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class M2ProxyDlg : OrmGtkDialogBase<M2ProxyDocument>, IEditableDialog
+	public partial class M2ProxyDlg : QS.Dialog.Gtk.EntityDialogBase<M2ProxyDocument>, IEditableDialog
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private List<OrderEquipment> equipmentList;

@@ -9,7 +9,7 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "остатки",
 		Nominative = "остаток")]
 	public class Residue : PropertyChangedBase, IDomainObject//, IValidatableObject

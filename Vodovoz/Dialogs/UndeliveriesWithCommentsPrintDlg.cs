@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using QS.Report;
 using QSReport;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.JournalFilters;
 
 namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UndeliveriesWithCommentsPrintDlg : TdiTabBase
+	public partial class UndeliveriesWithCommentsPrintDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		int oldOrderId = 0;
 		int driverId = 0;

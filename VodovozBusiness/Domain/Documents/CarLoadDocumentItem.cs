@@ -8,7 +8,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа погрузки",
 		Nominative = "строка документа погрузки")]	
 	public class CarLoadDocumentItem: PropertyChangedBase, IDomainObject

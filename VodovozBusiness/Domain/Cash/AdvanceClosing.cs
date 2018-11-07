@@ -6,7 +6,7 @@ using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Cash
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "закрытия авансов",
 		Nominative = "связка с документом закрытия аванса")]
 	public class AdvanceClosing : PropertyChangedBase, IDomainObject, IValidatableObject

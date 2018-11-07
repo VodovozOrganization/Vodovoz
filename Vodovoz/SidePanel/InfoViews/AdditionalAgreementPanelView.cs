@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using NHibernate.Proxy;
+using NHibernate.Util;
+using QS.Helpers;
+using QS.Tdi.Gtk;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 using Vodovoz.SidePanel.InfoProviders;
-using NHibernate.Util;
-using QS.Helpers;
 
 namespace Vodovoz.SidePanel.InfoViews
 {

@@ -6,7 +6,7 @@ using NLog;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
@@ -16,7 +16,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class WarehouseDocumentsView : TdiTabBase
+	public partial class WarehouseDocumentsView : QS.Dialog.Gtk.TdiTabBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 

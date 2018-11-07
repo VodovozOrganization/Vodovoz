@@ -6,7 +6,7 @@ using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -14,7 +14,7 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class InventoryDocumentItemsView : WidgetOnDialogBase
+	public partial class InventoryDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		InventoryDocumentItem FineEditItem;
 

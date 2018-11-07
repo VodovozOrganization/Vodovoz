@@ -5,7 +5,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
-	public partial class FuelTypeDlg : OrmGtkDialogBase<FuelType>
+	public partial class FuelTypeDlg : QS.Dialog.Gtk.EntityDialogBase<FuelType>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

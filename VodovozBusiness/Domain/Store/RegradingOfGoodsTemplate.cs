@@ -7,7 +7,7 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Store
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "шаблоны пересортицы",
 		Nominative = "шаблон пересортицы")]
 	public class RegradingOfGoodsTemplate: PropertyChangedBase, IDomainObject

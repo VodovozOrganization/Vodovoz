@@ -1,5 +1,6 @@
 ﻿using System;
 using NLog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSValidation;
@@ -9,7 +10,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class CarsDlg : OrmGtkDialogBase<Car>
+	public partial class CarsDlg : QS.Dialog.Gtk.EntityDialogBase<Car>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 

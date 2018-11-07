@@ -5,7 +5,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
-	public partial class UserSettingsDlg : OrmGtkDialogBase<UserSettings>
+	public partial class UserSettingsDlg : QS.Dialog.Gtk.EntityDialogBase<UserSettings>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

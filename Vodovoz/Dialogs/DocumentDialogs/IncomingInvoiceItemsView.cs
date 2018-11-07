@@ -6,10 +6,12 @@ using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
 using NLog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 
@@ -80,7 +82,7 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			ITdiTab mytab = DialogHelper.FindParentTab (this);
 			if (mytab == null) {
 				logger.Warn ("Родительская вкладка не найдена.");
 				return;
@@ -97,7 +99,7 @@ namespace Vodovoz
 		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			if ((e.Subject as Nomenclature).IsSerial) {
-				ITdiTab mytab = TdiHelper.FindMyTab (this);
+				ITdiTab mytab = DialogHelper.FindParentTab (this);
 				if (mytab == null) {
 					logger.Warn ("Родительская вкладка не найдена.");
 					return;
@@ -143,7 +145,7 @@ namespace Vodovoz
 
 		protected void OnButtonCreateClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			ITdiTab mytab = DialogHelper.FindParentTab (this);
 			if (mytab == null) {
 				logger.Warn ("Родительская вкладка не найдена.");
 				return;

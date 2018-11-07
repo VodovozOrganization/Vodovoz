@@ -7,7 +7,7 @@ using Vodovoz.Domain.Store;
 namespace Vodovoz
 {
 
-	public partial class ProductSpecificationDlg : OrmGtkDialogBase<ProductSpecification>
+	public partial class ProductSpecificationDlg : QS.Dialog.Gtk.EntityDialogBase<ProductSpecification>
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

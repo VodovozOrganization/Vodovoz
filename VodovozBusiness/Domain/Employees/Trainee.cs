@@ -6,7 +6,7 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "стажеры",
 		Nominative = "стажер")]
 	public class Trainee : Personnel, ITrainee

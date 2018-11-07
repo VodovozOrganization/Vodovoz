@@ -14,7 +14,7 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.Dialogs.Employees
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CarProxyDlg : OrmGtkDialogBase<CarProxyDocument>
+	public partial class CarProxyDlg : QS.Dialog.Gtk.EntityDialogBase<CarProxyDocument>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 

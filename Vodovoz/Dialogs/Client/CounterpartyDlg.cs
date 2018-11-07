@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
@@ -18,7 +19,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class CounterpartyDlg : OrmGtkDialogBase<Counterparty>, ICounterpartyInfoProvider
+	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;

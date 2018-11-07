@@ -6,7 +6,7 @@ using Vodovoz.Domain;
 
 namespace Vodovoz
 {
-	public partial class FineTemplateDlg : OrmGtkDialogBase<FineTemplate>
+	public partial class FineTemplateDlg : QS.Dialog.Gtk.EntityDialogBase<FineTemplate>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 

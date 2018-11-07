@@ -9,7 +9,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject(Gender = GrammaticalGender.Neuter,
+	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения продажи оборудования",
 		Nominative = "доп. соглашение продажи оборудования")]
 	[HistoryTrace]

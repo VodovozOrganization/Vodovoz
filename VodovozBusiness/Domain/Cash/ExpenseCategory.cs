@@ -6,7 +6,7 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Cash
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "статьи расхода",
 		Nominative = "статья расхода")]
 	public class ExpenseCategory : DomainTreeNodeBase<ExpenseCategory>, IDomainObject

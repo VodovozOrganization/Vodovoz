@@ -8,7 +8,7 @@ using QSOrmProject;
 namespace Vodovoz.Domain.Client
 {
 
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения бесплатной аренды",
 		Nominative = "доп. соглашение бесплатной аренды")]
 	public class FreeRentAgreement : AdditionalAgreement

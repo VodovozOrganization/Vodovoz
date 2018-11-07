@@ -6,7 +6,7 @@ using System.Data.Bindings;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "типы оборудования",
 		Nominative = "тип оборудования")]
 	public class EquipmentType : PropertyChangedBase, IDomainObject

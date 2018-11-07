@@ -10,7 +10,7 @@ using Vodovoz.Domain.Documents;
 
 namespace Vodovoz
 {
-	public partial class InventoryDocumentDlg : OrmGtkDialogBase<InventoryDocument>
+	public partial class InventoryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<InventoryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

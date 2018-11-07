@@ -11,7 +11,7 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "дополнительные соглашения",
 		Nominative = "дополнительное соглашение",
 		Accusative = "дополнительное соглашение",

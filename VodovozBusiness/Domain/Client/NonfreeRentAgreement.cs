@@ -9,7 +9,7 @@ using QSOrmProject;
 namespace Vodovoz.Domain.Client
 {
 
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения платной аренды",
 		Nominative = "доп. соглашение платной аренды")]
 	public class NonfreeRentAgreement : AdditionalAgreement

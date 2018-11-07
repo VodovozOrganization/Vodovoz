@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using NLog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QS.Project.Repositories;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
@@ -16,7 +16,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class EmployeeDlg : OrmGtkDialogBase<Employee>
+	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		public override bool HasChanges {

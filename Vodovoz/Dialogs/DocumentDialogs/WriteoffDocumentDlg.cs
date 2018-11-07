@@ -14,7 +14,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class WriteoffDocumentDlg : OrmGtkDialogBase<WriteoffDocument>
+	public partial class WriteoffDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<WriteoffDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

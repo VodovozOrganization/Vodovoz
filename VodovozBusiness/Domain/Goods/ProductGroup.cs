@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Vodovoz.Domain.Goods
 {
-	[OrmSubject(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "группы товаров",
 		Nominative = "группа товаров")]
 	public class ProductGroup : DomainTreeNodeBase<ProductGroup>

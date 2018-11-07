@@ -9,7 +9,7 @@ using Pango;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
@@ -22,7 +22,7 @@ using VodovozService.Chats;
 
 namespace Vodovoz
 {
-	public partial class RouteListTrackDlg : TdiTabBase, IChatCallbackObserver
+	public partial class RouteListTrackDlg : QS.Dialog.Gtk.TdiTabBase, IChatCallbackObserver
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();

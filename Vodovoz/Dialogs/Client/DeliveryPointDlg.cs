@@ -10,6 +10,7 @@ using GMap.NET.MapProviders;
 using NHibernate.Criterion;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.Tdi.Gtk;
 using QSOrmProject;
 using QSOsm.DTO;
 using QSProjectsLib;
@@ -25,7 +26,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class DeliveryPointDlg : OrmGtkDialogBase<DeliveryPoint>, IDeliveryPointInfoProvider
+	public partial class DeliveryPointDlg : QS.Dialog.Gtk.EntityDialogBase<DeliveryPoint>, IDeliveryPointInfoProvider
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
@@ -277,7 +278,7 @@ namespace Vodovoz
 
 		void Rightsidepanel1_PanelHided(object sender, EventArgs e)
 		{
-			var slider = TabParent as QSTDI.TdiSliderTab;
+			var slider = TabParent as TdiSliderTab;
 			if(slider != null) {
 				slider.IsHideJournal = false;
 			}
@@ -285,7 +286,7 @@ namespace Vodovoz
 
 		void Rightsidepanel1_PanelOpened(object sender, EventArgs e)
 		{
-			var slider = TabParent as QSTDI.TdiSliderTab;
+			var slider = TabParent as TdiSliderTab;
 			if(slider != null) {
 				slider.IsHideJournal = true;
 			}

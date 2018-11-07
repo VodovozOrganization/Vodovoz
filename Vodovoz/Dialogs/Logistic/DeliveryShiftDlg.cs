@@ -7,7 +7,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Dialogs.Logistic
 {
-	public partial class DeliveryShiftDlg : OrmGtkDialogBase<DeliveryShift>
+	public partial class DeliveryShiftDlg : QS.Dialog.Gtk.EntityDialogBase<DeliveryShift>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

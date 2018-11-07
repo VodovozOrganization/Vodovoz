@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Cash
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "статьи дохода",
 		Nominative = "статья дохода")]
 	public class IncomeCategory : PropertyChangedBase, IDomainObject

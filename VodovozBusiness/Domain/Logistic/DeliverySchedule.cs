@@ -7,7 +7,7 @@ using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "графики доставки",
 		Nominative = "график доставки")]
 	public class DeliverySchedule: PropertyChangedBase, IDomainObject, IValidatableObject

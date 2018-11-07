@@ -8,7 +8,7 @@ using Vodovoz.Repositories;
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class GuiltyInUndeliveryView : WidgetOnDialogBase
+	public partial class GuiltyInUndeliveryView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		IUnitOfWork uow;
 		UndeliveredOrder undeliveredOrder;

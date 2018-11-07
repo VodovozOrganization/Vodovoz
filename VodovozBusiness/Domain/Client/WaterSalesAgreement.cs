@@ -14,7 +14,7 @@ using Vodovoz.Tools.AdditionalAgreements;
 namespace Vodovoz.Domain.Client
 {
 
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения продажи воды",
 		Nominative = "доп. соглашение продажи воды")]
 	[HistoryTrace]

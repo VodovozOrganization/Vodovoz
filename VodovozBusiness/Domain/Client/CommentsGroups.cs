@@ -5,7 +5,7 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 	NominativePlural = "группы комментариев",
 	Nominative = "группа комментариев")]
 	public class CommentsGroups : PropertyChangedBase, IDomainObject

@@ -9,7 +9,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Operations
 {
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "изменения залогов",
 		Nominative = "изменение залогов")]
 	public class DepositOperation: OperationBase

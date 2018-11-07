@@ -10,13 +10,13 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Dialogs.Logistic
 {
-	public partial class PrintRouteDocumentsDlg : TdiTabBase
+	public partial class PrintRouteDocumentsDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

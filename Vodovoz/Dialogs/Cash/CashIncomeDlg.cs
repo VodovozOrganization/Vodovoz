@@ -11,7 +11,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
-	public partial class CashIncomeDlg : OrmGtkDialogBase<Income>
+	public partial class CashIncomeDlg : QS.Dialog.Gtk.EntityDialogBase<Income>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

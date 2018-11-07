@@ -13,7 +13,7 @@ using QS.DomainModel.UoW;
 using QS.Utilities;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
@@ -27,7 +27,7 @@ using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz
 {
-	public partial class RoutesAtDayDlg : TdiTabBase, ITdiDialog
+	public partial class RoutesAtDayDlg : QS.Dialog.Gtk.TdiTabBase, ITdiDialog
 	{
 		#region Поля
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

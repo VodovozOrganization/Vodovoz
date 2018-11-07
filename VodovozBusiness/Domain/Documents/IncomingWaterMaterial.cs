@@ -9,7 +9,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "сырьё",
 		Nominative = "сырьё")]
 	public class IncomingWaterMaterial : PropertyChangedBase, IDomainObject

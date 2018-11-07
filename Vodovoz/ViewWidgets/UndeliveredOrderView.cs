@@ -5,6 +5,7 @@ using System.Text;
 using Gamma.GtkWidgets;
 using NHibernate.Util;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
@@ -17,7 +18,7 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UndeliveredOrderView : WidgetOnDialogBase
+	public partial class UndeliveredOrderView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		Order newOrder = null;
 		Order oldOrder = null;

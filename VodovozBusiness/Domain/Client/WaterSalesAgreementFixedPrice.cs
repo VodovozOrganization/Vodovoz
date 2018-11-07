@@ -8,7 +8,7 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.Domain.Client
 {
 
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "фиксированные цены",
 		Nominative = "фиксированная цена")]
 	[HistoryTrace]

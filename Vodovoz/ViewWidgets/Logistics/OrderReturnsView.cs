@@ -4,11 +4,12 @@ using System.ComponentModel;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Dialog.Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
 using QSValidation;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
@@ -20,7 +21,7 @@ using Vodovoz.Repository;
 
 namespace Vodovoz
 {
-	public partial class OrderReturnsView : TdiTabBase, ITDICloseControlTab
+	public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab
 	{
 		class OrderNode : PropertyChangedBase
 		{

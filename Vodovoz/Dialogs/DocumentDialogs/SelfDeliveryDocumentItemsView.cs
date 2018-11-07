@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gamma.GtkWidgets;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using Vodovoz.Domain.Documents;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class SelfDeliveryDocumentItemsView : WidgetOnDialogBase
+	public partial class SelfDeliveryDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		public SelfDeliveryDocumentItemsView()
 		{

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "точки трека",
 		Nominative = "точка трека")]
 	public class TrackPoint : PropertyChangedBase

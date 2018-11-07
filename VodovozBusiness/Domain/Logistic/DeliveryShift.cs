@@ -8,7 +8,7 @@ using Gamma.Utilities;
 namespace Vodovoz.Domain.Logistic
 {
 
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "смены доставки",
 		Nominative = "смена доставки")]
 	public class DeliveryShift : PropertyChangedBase, IDomainObject, IValidatableObject

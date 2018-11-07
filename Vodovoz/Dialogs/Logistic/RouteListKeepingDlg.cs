@@ -11,7 +11,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -22,7 +22,7 @@ using VodovozService.Chats;
 
 namespace Vodovoz
 {
-	public partial class RouteListKeepingDlg : OrmGtkDialogBase<RouteList>
+	public partial class RouteListKeepingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
 	{
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private bool allEditing = true;

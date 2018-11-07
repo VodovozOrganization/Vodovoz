@@ -1,4 +1,5 @@
 ﻿using Gtk;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSValidation;
 using Vodovoz.Domain.Client;
@@ -6,7 +7,7 @@ using Vodovoz.Domain.Client;
 namespace Vodovoz.Dialogs.Client
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ClientCameFromDlg : QSOrmProject.OrmGtkDialogBase<ClientCameFrom>
+	public partial class ClientCameFromDlg : EntityDialogBase<ClientCameFrom>
 	{
 		public ClientCameFromDlg()
 		{

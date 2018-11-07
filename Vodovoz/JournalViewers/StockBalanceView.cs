@@ -1,10 +1,10 @@
 ﻿using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSTDI;
+using QS.Tdi;
 
 namespace Vodovoz
 {
-	public partial class StockBalanceView : TdiTabBase
+	public partial class StockBalanceView : QS.Dialog.Gtk.TdiTabBase
 	{
 		private IUnitOfWork uow;
 

@@ -4,11 +4,12 @@ using System.Linq;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
 using NHibernate.Proxy;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Report;
+using QS.Tdi;
 using QSOrmProject;
 using QSReport;
-using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -154,7 +155,7 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab(this);
+			ITdiTab mytab = DialogHelper.FindParentTab(this);
 			if(mytab == null)
 				return;
 

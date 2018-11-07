@@ -9,7 +9,7 @@ using QS.DomainModel.UoW;
 using QSBanks;
 using QSContacts;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.LoadFrom1c;
@@ -17,7 +17,7 @@ using Vodovoz.LoadFrom1c;
 namespace Vodovoz.ServiceDialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class LoadFrom1cClientsAndDeliveryPoints : TdiTabBase
+	public partial class LoadFrom1cClientsAndDeliveryPoints : QS.Dialog.Gtk.TdiTabBase
 	{
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 

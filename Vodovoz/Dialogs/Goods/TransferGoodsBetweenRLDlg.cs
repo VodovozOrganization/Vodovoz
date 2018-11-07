@@ -4,15 +4,15 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
+using QS.Dialog;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
-	public partial class TransferGoodsBetweenRLDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
+	public partial class TransferGoodsBetweenRLDlg : QS.Dialog.Gtk.TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
 		#region Поля
 

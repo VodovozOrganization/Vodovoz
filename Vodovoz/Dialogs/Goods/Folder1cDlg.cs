@@ -5,7 +5,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Dialogs.Goods
 {
-	public partial class Folder1cDlg : OrmGtkDialogBase<Folder1c>
+	public partial class Folder1cDlg : QS.Dialog.Gtk.EntityDialogBase<Folder1c>
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

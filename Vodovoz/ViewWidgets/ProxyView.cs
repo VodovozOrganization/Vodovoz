@@ -1,8 +1,8 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs.Gtk;
+using QS.Dialog.Gtk;
 using QSOrmProject;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz
@@ -42,7 +42,7 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			ITdiTab mytab = DialogHelper.FindParentTab (this);
 			if (mytab == null)
 				return;
 
@@ -63,7 +63,7 @@ namespace Vodovoz
 
 		protected void OnButtonEditClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			ITdiTab mytab = DialogHelper.FindParentTab (this);
 			if (mytab == null)
 				return;
 

@@ -1,8 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using Gtk;
 using NLog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Helpers;
 using QSBusinessCommon.Domain;
@@ -20,7 +20,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class NomenclatureDlg : OrmGtkDialogBase<Nomenclature>
+	public partial class NomenclatureDlg : QS.Dialog.Gtk.EntityDialogBase<Nomenclature>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 

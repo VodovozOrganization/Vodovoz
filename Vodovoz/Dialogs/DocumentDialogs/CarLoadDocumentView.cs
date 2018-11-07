@@ -10,7 +10,7 @@ using Vodovoz.Domain.Documents;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CarLoadDocumentView : WidgetOnDialogBase
+	public partial class CarLoadDocumentView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		public CarLoadDocumentView()
 		{

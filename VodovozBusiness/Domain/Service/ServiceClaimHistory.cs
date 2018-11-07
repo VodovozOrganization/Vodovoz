@@ -7,7 +7,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Service
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки истории заявки на обслуживание",
 		Nominative = "строка истории заявки на обслуживание")]
 	public class ServiceClaimHistory: PropertyChangedBase, IDomainObject, IValidatableObject

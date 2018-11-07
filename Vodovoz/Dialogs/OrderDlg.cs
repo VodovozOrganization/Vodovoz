@@ -14,16 +14,19 @@ using Gtk;
 using NHibernate.Proxy;
 using NHibernate.Util;
 using NLog;
+using QS.Dialog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Dialogs;
 using QS.Report;
+using QS.Tdi;
+using QS.Tdi.Gtk;
 using QSDocTemplates;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using QSSupportLib;
-using QSTDI;
 using QSValidation;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
@@ -47,7 +50,7 @@ using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz
 {
-	public partial class OrderDlg : OrmGtkDialogBase<Order>,
+	public partial class OrderDlg : QS.Dialog.Gtk.EntityDialogBase<Order>,
 		ICounterpartyInfoProvider, 
 		IDeliveryPointInfoProvider, 
 		IContractInfoProvider, 
@@ -839,7 +842,7 @@ namespace Vodovoz
 
 		protected void OnTreeServiceClaimRowActivated(object o, RowActivatedArgs args)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab(this);
+			ITdiTab mytab = DialogHelper.FindParentTab(this);
 			if(mytab == null)
 				return;
 
@@ -907,7 +910,7 @@ namespace Vodovoz
 		{
 			var claim = treeServiceClaim.GetSelectedObject<ServiceClaim>();
 			OpenTab(
-				OrmGtkDialogBase<ServiceClaim>.GenerateHashName(claim.Id),
+				EntityDialogBase<ServiceClaim>.GenerateHashName(claim.Id),
 				() => new ServiceClaimDlg(claim)
 			);
 		}
