@@ -100,8 +100,7 @@ namespace Vodovoz
 				.AddColumn("Новое значение").AddTextRenderer(x => x.NewPangoText, useMarkup: true)
 				.Finish();
 
-			//FIXME кидает nullrefexcp после включения мониторинга
-			/*ytreeviewFixedPrices.Selection.Changed += (sender, e) => {
+			ytreeviewFixedPrices.Selection.Changed += (sender, e) => {
 				var fixedPrice = (ytreeviewFixedPrices.GetSelectedObject() as WaterSalesAgreementFixedPrice);
 				if(fixedPrice == null) {
 					ytreeviewFixedPricesChanges.ItemsDataSource = null;
@@ -113,7 +112,7 @@ namespace Vodovoz
 					.OrderBy(x => x.Entity.ChangeTime).ToList();
 
 				ytreeviewFixedPricesChanges.ItemsDataSource = fixedPricesChanges;
-			};*/
+			};
 
 			ytreeviewFixedPrices.ItemsDataSource = Entity.ObservableFixedPrices;
 			ytreeviewFixedPrices.Selection.Changed += YtreeviewFixedPrices_Selection_Changed;

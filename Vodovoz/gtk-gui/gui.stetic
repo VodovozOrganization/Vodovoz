@@ -9750,7 +9750,6 @@
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
                 <property name="MemberName" />
-                <property name="Sensitive">False</property>
                 <property name="ShadowType">In</property>
                 <child>
                   <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewFixedPricesChanges">
