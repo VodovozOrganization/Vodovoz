@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="RouteLists">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	route_lists.id AS routeListId,
@@ -64,7 +64,7 @@
 		WHERE
 			nomenclature.category = 'water'
 				AND route_list_addresses.route_list_id = routeListId) AS bottles,
-	SUM(IFNULL(orders.returned_tare, 0)) AS planned_returned_bottles,
+	SUM(IFNULL(orders.bottles_return, 0)) AS planned_returned_bottles,
 	(SELECT 
 			ROUND(IFNULL(SUM(warehouse_movement_operations.amount),
 								0))
@@ -119,7 +119,7 @@ GROUP BY routeListId
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="routeListId">
           <DataField>routeListId</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -886,7 +886,7 @@ GROUP BY routeListId
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="todayRloff">
       <DataType>Boolean</DataType>
       <DefaultValue>
