@@ -14,6 +14,13 @@ namespace Vodovoz
 	public partial class OrganizationDlg : OrmGtkDialogBase<Organization>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		public override bool HasChanges {
+			get {
+				phonesview1.RemoveEmpty();
+				return base.HasChanges;
+			}
+			set => base.HasChanges = value;
+		}
 
 		public OrganizationDlg ()
 		{

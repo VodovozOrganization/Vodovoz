@@ -23,19 +23,16 @@ namespace Vodovoz
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
-		public PanelViewType[] InfoWidgets {
-			get {
-				return new[]
-				{
-					PanelViewType.CounterpartyView,
-				};
-			}
-		}
+		public PanelViewType[] InfoWidgets => new[] { PanelViewType.CounterpartyView };
 
-		public Counterparty Counterparty {
-			get {
-				return UoWGeneric.Root;
+		public Counterparty Counterparty => UoWGeneric.Root;
+		public override bool HasChanges {
+			get{
+				phonesView.RemoveEmpty();
+				emailsView.RemoveEmpty();
+				return base.HasChanges;
 			}
+			set => base.HasChanges = value;
 		}
 
 		public CounterpartyDlg()
@@ -61,17 +58,16 @@ namespace Vodovoz
 			notebook1.ShowTabs = false;
 			//Initializing null fields
 			emailsView.UoW = UoWGeneric;
-			phonesView.UoW = UoWGeneric;
 			if(UoWGeneric.Root.Emails == null)
 				UoWGeneric.Root.Emails = new List<Email>();
 			emailsView.Emails = UoWGeneric.Root.Emails;
+			phonesView.UoW = UoWGeneric;
 			if(UoWGeneric.Root.Phones == null)
 				UoWGeneric.Root.Phones = new List<Phone>();
 			phonesView.Phones = UoWGeneric.Root.Phones;
 			if(UoWGeneric.Root.CounterpartyContracts == null) {
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
-
 			commentsview4.UoW = UoW;
 			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
@@ -192,7 +188,6 @@ namespace Vodovoz
 			var valid = new QSValidator<Counterparty>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
-
 			logger.Info("Сохраняем контрагента...");
 			phonesView.RemoveEmpty();
 			emailsView.RemoveEmpty();
@@ -209,11 +204,7 @@ namespace Vodovoz
 		{
 			string INN = UoWGeneric.Root.INN;
 			IList<Counterparty> counterarties = Repository.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
-			if(counterarties == null)
-				return false;
-			if(counterarties.Count(x => x.Id != UoWGeneric.Root.Id) > 0)
-				return true;
-			return false;
+			return counterarties != null && counterarties.Any(x => x.Id != UoWGeneric.Root.Id);
 		}
 
 		protected void OnRadioInfoToggled(object sender, EventArgs e)

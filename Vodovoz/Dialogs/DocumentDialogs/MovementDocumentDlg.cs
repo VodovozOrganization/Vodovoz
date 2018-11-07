@@ -96,7 +96,9 @@ namespace Vodovoz
 			enumMovementType.ItemsEnum = typeof(MovementDocumentCategory);
 			enumMovementType.AddEnumToHideList(MovementDocumentList);
 			enumMovementType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
-			Entity.Category = MovementDocumentCategory.Transportation;
+			if(Entity.Id == 0) {
+				Entity.Category = MovementDocumentCategory.Transportation;
+			}
 
 			buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged 
 				&& CurrentPermissions.Warehouse[WarehousePermissions.MovementEdit, Entity.ToWarehouse];

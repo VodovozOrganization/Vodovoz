@@ -19,6 +19,13 @@ namespace Vodovoz
 	public partial class EmployeeDlg : OrmGtkDialogBase<Employee>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		public override bool HasChanges {
+			get {
+				phonesView.RemoveEmpty();
+				return UoWGeneric.HasChanges || attachmentFiles.HasChanges;
+			}
+			set => base.HasChanges = value;
+		}
 
 		private EmployeeCategory[] hiddenCategory;
 
@@ -138,10 +145,6 @@ namespace Vodovoz
 			ytreeviewDistricts.SetItemsSource(Entity.ObservableDistricts);
 
 			logger.Info("Ok");
-		}
-
-		public override bool HasChanges {
-			get { return UoWGeneric.HasChanges || attachmentFiles.HasChanges; }
 		}
 
 		void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
