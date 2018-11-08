@@ -3,9 +3,9 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Util;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Tdi.Gtk;
-using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -16,7 +16,6 @@ using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DeliveryPointPanelView : Gtk.Bin, IPanelView
 	{
 		DeliveryPoint DeliveryPoint { get; set; }
@@ -132,7 +131,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
-			using(var uow = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id)) {
+			using(var uow = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить комментарий» на панели точки доставки")) {
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();
 			}
@@ -141,7 +140,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
 			TDIMain.MainNotebook.OpenTab(
-				OrmMain.GenerateDialogHashName<DeliveryPoint>(DeliveryPoint.Id),
+				DialogHelper.GenerateDialogHashName<DeliveryPoint>(DeliveryPoint.Id),
 				() => new DeliveryPointDlg(DeliveryPoint.Id)
 			);
 		}

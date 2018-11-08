@@ -2,7 +2,6 @@
 using System.Linq;
 using Gtk;
 using QS.DomainModel.UoW;
-using QS.Tdi;
 using QSValidation;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories;
@@ -10,20 +9,10 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Dialogs
 {
-	public partial class UndeliveryOnOrderCloseDlg : QS.Dialog.Gtk.TdiTabBase
+	public partial class UndeliveryOnOrderCloseDlg : QS.Dialog.Gtk.SingleUowTabBase
 	{
-		IUnitOfWork uow;
 		UndeliveredOrder undelivery;
 		Order order;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-			}
-		}
 
 		public UndeliveryOnOrderCloseDlg()
 		{

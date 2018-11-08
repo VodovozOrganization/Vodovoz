@@ -2,9 +2,10 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Tdi.Gtk;
-using QSOrmProject;
+using QS.Utilities;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -77,7 +78,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					"{0} ({1} {2} назад)",
 					latestOrder.DeliveryDate.Value.ToShortDateString(),
 					daysFromLastOrder,
-					RusNumber.Case(daysFromLastOrder, "день", "дня", "дней")
+					NumberToTextRus.Case(daysFromLastOrder, "день", "дня", "дней")
 				);
 			}
 			else
@@ -111,7 +112,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
-			using(var uow = UnitOfWorkFactory.CreateForRoot<Counterparty>(Counterparty.Id))
+			using(var uow = UnitOfWorkFactory.CreateForRoot<Counterparty>(Counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
 			{
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();
@@ -123,7 +124,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			var dlg = new CounterpartyDlg(Counterparty.Id);
 			dlg.ActivateContactsTab();
 			TDIMain.MainNotebook.OpenTab(
-				OrmMain.GenerateDialogHashName<Counterparty>(Counterparty.Id),
+				DialogHelper.GenerateDialogHashName<Counterparty>(Counterparty.Id),
 				() => dlg
 			);
 		}
