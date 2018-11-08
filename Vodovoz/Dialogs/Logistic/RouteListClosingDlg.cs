@@ -245,6 +245,8 @@ namespace Vodovoz
 			ylabelRecalculatedMileage.Binding.AddFuncBinding(Entity, e => e.RecalculatedDistance.HasValue ? $" {e.RecalculatedDistance} км" : "", w => w.LabelProp).InitializeFromSource();
 			checkSendToMileageCheck.Binding.AddBinding(Entity, x => x.MileageCheck, w => w.Active).InitializeFromSource();
 			Entity.PropertyChanged += Entity_PropertyChanged;
+
+			UoW.CanCheckIfDirty = false;
 		}
 
 		/// <summary>

@@ -5,9 +5,7 @@ using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.Report;
 using QS.Print;
-using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Additions.Logistic;
@@ -126,6 +124,8 @@ namespace Vodovoz
 			}
 
 			IsEditable = UoWGeneric.Root.Status == RouteListStatus.New && QSMain.User.Permissions ["logistican"];
+
+			UoW.CanCheckIfDirty = false;
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, false);

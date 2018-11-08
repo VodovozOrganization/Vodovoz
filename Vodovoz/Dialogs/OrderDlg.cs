@@ -333,8 +333,7 @@ namespace Vodovoz
 			dataSumDifferenceReason.Hide();
 			labelSumDifferenceReason.Hide();
 
-			buttonCancel.Clicked -= OnButtonCancelClicked;
-			buttonCancel.Clicked += (sender, e) => OnCloseTab(false);
+			UoW.CanCheckIfDirty = false;
 		}
 
 		private void ConfigureTrees()
