@@ -481,7 +481,7 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult("Контрагент с данным ИНН уже существует.",
 				                                  new[] { this.GetPropertyName(o => o.INN) });
 			}
-			if(UseSpecialDocFields && SpecialKPP.Length != 9) {
+			if(UseSpecialDocFields && SpecialKPP != null && SpecialKPP.Length != 9) {
 				yield return new ValidationResult("Длина КПП для документов должна равнятся 9-ти.",
 						new[] { this.GetPropertyName(o => o.KPP) });
 			}

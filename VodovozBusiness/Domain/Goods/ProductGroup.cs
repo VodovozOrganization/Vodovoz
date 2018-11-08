@@ -46,6 +46,9 @@ namespace Vodovoz.Domain.Goods
 			get { return String.Join(",", characteristics); }
 			set {
 				characteristics.Clear();
+				if(value == null) {
+					return;
+				}
 				var parts = value.Split(',');
 				foreach(var characteristic in parts) {
 					NomenclatureProperties property;

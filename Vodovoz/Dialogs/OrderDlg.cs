@@ -332,6 +332,8 @@ namespace Vodovoz
 			labelSumDifference.Hide();
 			dataSumDifferenceReason.Hide();
 			labelSumDifferenceReason.Hide();
+			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
+			HasChanges = true;
 
 			UoW.CanCheckIfDirty = false;
 		}
