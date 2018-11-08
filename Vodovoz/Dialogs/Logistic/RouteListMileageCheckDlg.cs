@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Dialogs.Logistic;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -14,7 +15,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class RouteListMileageCheckDlg : OrmGtkDialogBase<RouteList>
+	public partial class RouteListMileageCheckDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
 	{
 		#region Поля
 

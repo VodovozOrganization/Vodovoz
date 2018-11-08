@@ -6,7 +6,7 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "логистические районы",
 		Nominative = "логистический район")]
 	public class LogisticsArea: PropertyChangedBase, IDomainObject

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "подразделения",
 		Nominative = "подразделение")]
 	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject

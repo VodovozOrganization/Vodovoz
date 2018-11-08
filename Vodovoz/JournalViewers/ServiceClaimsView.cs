@@ -1,5 +1,5 @@
 ﻿using System;
-using QSTDI;
+using QS.Tdi;
 using NLog;
 using Vodovoz.ViewModel;
 using QSOrmProject.UpdateNotification;
@@ -9,7 +9,7 @@ using Gtk;
 
 namespace Vodovoz
 {
-	public partial class ServiceClaimsView : TdiTabBase, ITdiJournal
+	public partial class ServiceClaimsView : QS.Dialog.Gtk.TdiTabBase, ITdiJournal
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 

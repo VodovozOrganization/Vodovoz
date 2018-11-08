@@ -9,7 +9,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Chats
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "чаты",
 		Nominative = "чат")]
 	public class Chat : PropertyChangedBase, IDomainObject

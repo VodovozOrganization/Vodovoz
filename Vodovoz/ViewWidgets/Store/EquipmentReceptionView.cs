@@ -5,6 +5,7 @@ using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Goods;
@@ -16,7 +17,7 @@ using Vodovoz.Repository;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class EquipmentReceptionView : WidgetOnDialogBase
+	public partial class EquipmentReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		IList<ServiceClaim> serviceClaims;
 

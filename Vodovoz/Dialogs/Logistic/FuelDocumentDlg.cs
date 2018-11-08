@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class FuelDocumentDlg : OrmGtkDialogBase<FuelDocument>
+	public partial class FuelDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<FuelDocument>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

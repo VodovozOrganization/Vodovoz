@@ -1,10 +1,11 @@
 ﻿using System;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Dialogs.Logistic
 {
-	public partial class LogisticsAreaDlg : OrmGtkDialogBase<LogisticsArea>
+	public partial class LogisticsAreaDlg : QS.Dialog.Gtk.EntityDialogBase<LogisticsArea>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

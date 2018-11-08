@@ -1,8 +1,9 @@
-using Dialogs.Employees;
+﻿using Dialogs.Employees;
 using Gtk;
+using QS.Dialog.Gtk;
+using QS.Project.Dialogs;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
 using Vodovoz;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;

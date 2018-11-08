@@ -4,16 +4,16 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class RouteListAddressesTransferringDlg : TdiTabBase, IOrmDialog
+	public partial class RouteListAddressesTransferringDlg : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
@@ -21,7 +21,6 @@ namespace Vodovoz
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW => uow;
-		public object EntityObject => throw new NotImplementedException();
 		public enum OpenParameter { Sender, Receiver }
 
 		#endregion

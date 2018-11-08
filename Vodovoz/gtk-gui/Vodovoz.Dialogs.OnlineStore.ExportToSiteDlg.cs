@@ -104,8 +104,8 @@ namespace Vodovoz.Dialogs.OnlineStore
 			// Container child table1.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Внимание</b>. Настройки указанный здесь так же используютмя при автоматической" +
-					" выгруке сервером.");
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Внимание</b>. Настройки указанные здесь так же используются при автоматической" +
+					" выгрузке сервером.");
 			this.label2.UseMarkup = true;
 			this.table1.Add(this.label2);
 			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));

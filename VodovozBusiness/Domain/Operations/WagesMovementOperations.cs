@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Operations
 {
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "передвижения зарплат",
 		Nominative = "передвижение зарплат")]
 	public class WagesMovementOperations : OperationBase

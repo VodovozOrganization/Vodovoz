@@ -50,9 +50,46 @@
     <Reference Include="NSubstitute">
       <HintPath>..\packages\NSubstitute.3.1.0\lib\net46\NSubstitute.dll</HintPath>
     </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Employees\" />
+    <Folder Include="Counterparties\" />
+    <Folder Include="Goods\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Counterparties\CounterpartyTests.cs" />
+    <Compile Include="Employees\PersonnelTests.cs" />
+    <Compile Include="Goods\NomenclaturePropertiesTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
+      <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
+      <Name>VodovozBusiness</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
+      <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
+      <Name>QS.Project</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
+      <Project>{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}</Project>
+      <Name>QSBanks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSContacts\QSContacts.csproj">
+      <Project>{A236518F-E4D0-4CFF-B23F-769802B2821F}</Project>
+      <Name>QSContacts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
+      <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
+      <Name>QSOrmProject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GammaBinding\GammaUtil\GammaUtil.csproj">
+      <Project>{1BF2A638-420D-456C-96A7-36873A0FB894}</Project>
+      <Name>GammaUtil</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

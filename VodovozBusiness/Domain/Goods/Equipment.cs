@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Goods
 	/// <summary>
 	/// Оборудование только для посерийного учета
 	/// </summary>
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "оборудование",
 		Nominative = "оборудование",
 		Prepositional = "оборудовании"

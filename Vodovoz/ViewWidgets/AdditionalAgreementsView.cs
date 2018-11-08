@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using Gtk;
 using QS.DomainModel.UoW;
+using QS.Dialog;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Domain.Client;
+using QS.Dialog.Gtk;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementsView : WidgetOnDialogBase, IEditableDialog
+	public partial class AdditionalAgreementsView : QS.Dialog.Gtk.WidgetOnDialogBase, IEditableDialog
 	{
 		IUnitOfWorkGeneric<CounterpartyContract> agreementUoW;
 
@@ -58,7 +60,7 @@ namespace Vodovoz
 		void OnButtonAddClicked (AgreementType type)
 		{
 			if (MyOrmDialog.UoW.IsNew) {
-				if (CommonDialogs.SaveBeforeCreateSlaveEntity (MyOrmDialog.EntityObject.GetType (), typeof(AdditionalAgreement))) {
+				if (CommonDialogs.SaveBeforeCreateSlaveEntity (MyEntityDialog.EntityObject.GetType (), typeof(AdditionalAgreement))) {
 					if (!MyTdiDialog.Save ())
 						return;
 				} else
@@ -98,7 +100,7 @@ namespace Vodovoz
 
 		protected void OnButtonEditClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			ITdiTab mytab = DialogHelper.FindParentTab (this);
 			if (mytab == null)
 				return;
 
@@ -117,7 +119,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			ITdiTab mytab = DialogHelper.FindParentTab (this);
 			if (mytab == null)
 				return;
 

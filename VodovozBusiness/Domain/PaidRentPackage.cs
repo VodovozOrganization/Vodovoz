@@ -8,7 +8,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "условия платной аренды",
 		Nominative = "условие платной аренды",
 		Accusative = "условие платной аренды"

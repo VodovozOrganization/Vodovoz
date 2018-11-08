@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -13,7 +14,7 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.Dialogs.Employees
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CarProxyDlg : OrmGtkDialogBase<CarProxyDocument>
+	public partial class CarProxyDlg : QS.Dialog.Gtk.EntityDialogBase<CarProxyDocument>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 

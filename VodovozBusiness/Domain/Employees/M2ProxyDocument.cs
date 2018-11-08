@@ -10,7 +10,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "Доверенности М-2",
 		Nominative = "Доверенность М-2")]
 	public class M2ProxyDocument : ProxyDocument, IValidatableObject

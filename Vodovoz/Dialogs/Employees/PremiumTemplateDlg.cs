@@ -1,5 +1,6 @@
 ﻿using System;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Employees;
@@ -7,7 +8,7 @@ using Vodovoz.Domain.Employees;
 namespace Vodovoz.Dialogs.Employees
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class PremiumTemplateDlg : OrmGtkDialogBase<PremiumTemplate>
+	public partial class PremiumTemplateDlg : QS.Dialog.Gtk.EntityDialogBase<PremiumTemplate>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 

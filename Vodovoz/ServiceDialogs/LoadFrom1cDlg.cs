@@ -1,17 +1,16 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSBanks;
 using QSBusinessCommon.Domain;
 using QSBusinessCommon.Repository;
-using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
 using QSWidgetLib;
 using ServiceDialogs.LoadFrom1c;
 using Vodovoz.Domain.Client;
@@ -23,7 +22,7 @@ using Vodovoz.Repository.Client;
 
 namespace Vodovoz
 {
-	public partial class LoadFrom1cDlg : TdiTabBase
+	public partial class LoadFrom1cDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

@@ -3,12 +3,12 @@ using System.Linq;
 using System.Xml;
 using Gtk;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.ExportTo1c;
 
 namespace Vodovoz
 {
-	public partial class ExportTo1cDialog : TdiTabBase
+	public partial class ExportTo1cDialog : QS.Dialog.Gtk.TdiTabBase
 	{
 		bool exportInProgress;
 

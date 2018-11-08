@@ -9,7 +9,7 @@ using QS.Report;
 using QSDocTemplates;
 using QSProjectsLib;
 using QSReport;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -18,7 +18,7 @@ using Vodovoz.Domain.Orders.Documents;
 namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DocumentsPrinterDlg : TdiTabBase
+	public partial class DocumentsPrinterDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		Order currentOrder;
 		RouteList currentRouteList;

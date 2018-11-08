@@ -294,7 +294,6 @@
     <Compile Include="HibernateMapping\Documents\SelfDeliveryDocumentReturnedMap.cs" />
     <Compile Include="HibernateMapping\Documents\WriteoffDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\WriteoffDocumentMap.cs" />
-    <Compile Include="HibernateMapping\Employees\EmployeeMap.cs" />
     <Compile Include="HibernateMapping\Employees\FineItemMap.cs" />
     <Compile Include="HibernateMapping\Employees\FineMap.cs" />
     <Compile Include="HibernateMapping\Employees\NationalityMap.cs" />
@@ -521,6 +520,15 @@
     <Compile Include="Domain\Order\GuiltyInUndelivery.cs" />
     <Compile Include="Domain\StoredEmails\EmailTemplate.cs" />
     <Compile Include="Domain\StoredEmails\EmailAttachment.cs" />
+    <Compile Include="Tools\AdditionalAgreements\WaterFixedPriceGenerator.cs" />
+    <Compile Include="Domain\Employees\Personnel.cs" />
+    <Compile Include="Domain\Employees\Trainee.cs" />
+    <Compile Include="HibernateMapping\Employees\PersonnelMap.cs" />
+    <Compile Include="Domain\Employees\IEmployee.cs" />
+    <Compile Include="Domain\Order\Documents\SpecialBill.cs" />
+    <Compile Include="Domain\Order\Documents\SpecialUPD.cs" />
+    <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
+    <Compile Include="Attributes\OnlineStoreGuidAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -543,6 +551,7 @@
     <Folder Include="Domain\StoredEmails\" />
     <Folder Include="HibernateMapping\StoredEmails\" />
     <Folder Include="Resources\" />
+    <Folder Include="Tools\AdditionalAgreements\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

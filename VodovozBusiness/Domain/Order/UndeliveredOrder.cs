@@ -18,7 +18,7 @@ using QSProjectsLib;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 				NominativePlural = "недовезённые заказы",
 				Nominative = "недовезённый заказ",
 				Prepositional = "недовезённом заказе",

@@ -67,7 +67,7 @@ namespace Vodovoz
 				SqlSelect = "SELECT id, name FROM @tablename ",
 				DisplayString = "{1}",
 				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<Nomenclature> (item => item.Color)
+					ClearDependenceInfo.Create<Nomenclature> (item => item.EquipmentColor)
 				}
 			}.FillFromMetaInfo ()
 			);

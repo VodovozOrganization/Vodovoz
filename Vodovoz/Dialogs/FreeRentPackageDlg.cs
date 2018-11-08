@@ -1,6 +1,7 @@
 ﻿using System;
 using NHibernate.Criterion;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
@@ -8,7 +9,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
-	public partial class FreeRentPackageDlg : OrmGtkDialogBase<FreeRentPackage>
+	public partial class FreeRentPackageDlg : QS.Dialog.Gtk.EntityDialogBase<FreeRentPackage>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 

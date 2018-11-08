@@ -1,10 +1,11 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
+using QS.DomainModel.UoW;
 using QS.HistoryLog.Domain;
 using QS.HistoryLog.Repositories;
+using QS.Dialog;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.DocTemplates;
@@ -14,7 +15,7 @@ using Vodovoz.Repositories.Client;
 
 namespace Vodovoz
 {
-	public partial class WaterAgreementDlg : OrmGtkDialogBase<WaterSalesAgreement>, IAgreementSaved, IEditableDialog
+	public partial class WaterAgreementDlg : QS.Dialog.Gtk.EntityDialogBase<WaterSalesAgreement>, IAgreementSaved, IEditableDialog
 	{
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
 		public event EventHandler<ContractSavedEventArgs> ContractSaved;

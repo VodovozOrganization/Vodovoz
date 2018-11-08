@@ -10,7 +10,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки перемещения",
 		Nominative = "строка перемещения")]
 	public class MovementDocumentItem : PropertyChangedBase, IDomainObject

@@ -9,7 +9,7 @@ using Vodovoz.Domain.Store;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RegradingOfGoodsTemplateItemsView : WidgetOnDialogBase
+	public partial class RegradingOfGoodsTemplateItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		RegradingOfGoodsTemplateItem newRow;
 

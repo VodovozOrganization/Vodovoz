@@ -6,7 +6,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Chats
 {
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "последние прочитанные сообщения",
 		Nominative = "последнее прочитанное сообщение")]
 	public class LastReadedMessage : PropertyChangedBase, IDomainObject

@@ -40,6 +40,7 @@ namespace Vodovoz
 		static void CreateProjectParam()
 		{
 			QSMain.ProjectPermission = new Dictionary<string, UserPermission>();
+			QSMain.ProjectPermission.Add("driver_terminal", new UserPermission("driver_terminal", "ВНИМАНИЕ! Аккаунт будет использоватся только для печати документов МЛ", "Для использования отдельного окна для печати документов МЛ без доступа к остальным частям системы."));
 			QSMain.ProjectPermission.Add("max_loan_amount", new UserPermission("max_loan_amount", "Установка максимального кредита", "Пользователь имеет права для установки максимальной суммы кредита."));
 			QSMain.ProjectPermission.Add("logistican", new UserPermission("logistican", "Логист", "Пользователь является логистом."));
 			QSMain.ProjectPermission.Add("logistic_admin", new UserPermission("logistic_admin", "Логист- пересчет топлива в закрытых МЛ", "Пользователь может пересчитывать километраж в закрытых МЛ"));
@@ -73,7 +74,8 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("access_to_salaries_wages_bonuses", new UserPermission("access_to_salaries_wages_bonuses", "Доступ к зарплатам, премиям, штрафам и отчётам по ним", "Пользователю предоставляется доступ к отчётам по зарплатам водителей и экспедиторов, отчету по штрафам и премиям, а так же ко вкладке \"Штрафы и премии\" в \"Кадры\""));
 			QSMain.ProjectPermission.Add("can_move_order_from_closed_to_acepted", new UserPermission("can_move_order_from_closed_to_acepted", "Перевод заказа из \"Закрыт\" в \"Принят\"", "Пользователь может вернуть заказ, находящийся в статусе \"Закрыт\", в статус \"Принят\". Это касается только заказов, закрытых без доставки, то есть те, у которых нет МЛ."));
 			QSMain.ProjectPermission.Add("can_accept_cashles_service_orders", new UserPermission("can_accept_cashles_service_orders", "Проведение безналичного заказа на \"Выезд мастера\"", "Пользователь может подтверждать заказы по безналу типа \"Выезд мастера\". В случае отсутствия этого права, пользователю будет доступен только перевод заказа в статус \"Ожидание оплаты\"."));
-			QSMain.ProjectPermission.Add("driver_terminal", new UserPermission("driver_terminal", "ВНИМАНИЕ! Аккаунт будет использоватся только для печати документов МЛ", "Для использования отдельного окна для печати документов МЛ без доступа к остальным частям системы."));
+			QSMain.ProjectPermission.Add("can_change_trainee_to_driver", new UserPermission("can_change_trainee_to_driver", "Перевод стажера в водителя или экспедитора", "Позволяет перевести стажера в статус водителя или экспедитора"));
+			QSMain.ProjectPermission.Add("database_maintenance", new UserPermission("database_maintenance", "Обслуживание базы данных", "Предоставить пользователю права на доступ ко вкладке База --> Обслуживание"));
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
@@ -157,8 +159,6 @@ namespace Vodovoz
 				//Справочники с фильтрами
 				OrmObjectMapping<Equipment>.Create().Dialog<EquipmentDlg>().JournalFilter<EquipmentFilter>()
 					.DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Номенклатура", x => x.NomenclatureName).Column("Тип", x => x.Nomenclature.Type.Name).SearchColumn("Серийный номер", x => x.Serial).Column("Дата последней обработки", x => x.LastServiceDate.ToShortDateString ()).End(),
-				OrmObjectMapping<Employee>.Create().Dialog<EmployeeDlg>()//.JournalFilter<EmployeeFilter>()
-					.DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Ф.И.О.", x => x.FullName).Column("Категория", x => x.Category.GetEnumTitle()).OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic).End(),
 				//Логисткика
 				OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateDlg>()
 					.DefaultTableView().SearchColumn("Номер", x => x.Id.ToString()).Column("Дата", x => x.Date.ToShortDateString()).Column("Статус", x => x.Status.GetEnumTitle ()).SearchColumn("Водитель", x => String.Format ("{0} - {1}", x.Driver.FullName, x.Car.Title)).End(),
@@ -207,6 +207,17 @@ namespace Vodovoz
 
 			# region Простые справочники
 			OrmMain.AddObjectDescription<Subdivision>().Dialog<SubdivisionDlg>().DefaultTableView().Column("Номер", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End();
+			OrmMain.AddObjectDescription<Employee>().Dialog<EmployeeDlg>().DefaultTableView()
+			       .Column("Код", x => x.Id.ToString())
+			       .SearchColumn("Ф.И.О.", x => x.FullName)
+			       .Column("Категория", x => x.Category.GetEnumTitle())
+			       .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
+			       .End();
+			OrmMain.AddObjectDescription<Trainee>().Dialog<TraineeDlg>().DefaultTableView()
+				   .Column("Код", x => x.Id.ToString())
+				   .SearchColumn("Ф.И.О.", x => x.FullName)
+				   .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
+				   .End();
 			#endregion
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
@@ -225,6 +236,9 @@ namespace Vodovoz
 				AddNewChild = (c, a) => c.AddAccount(a)
 			});
 			ParentReferenceConfig.AddActions(new ParentReferenceActions<Employee, QSBanks.Account> {
+				AddNewChild = (c, a) => c.AddAccount(a)
+			});
+			ParentReferenceConfig.AddActions(new ParentReferenceActions<Trainee, QSBanks.Account> {
 				AddNewChild = (c, a) => c.AddAccount(a)
 			});
 		}

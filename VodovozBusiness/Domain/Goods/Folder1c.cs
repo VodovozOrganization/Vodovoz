@@ -5,7 +5,7 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Goods
 {
-	[OrmSubject(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 	NominativePlural = "папки номенклатуры в 1с",
 	Nominative = "папка номенклатуры в 1с")]
 	public class Folder1c : DomainTreeNodeBase<Folder1c>

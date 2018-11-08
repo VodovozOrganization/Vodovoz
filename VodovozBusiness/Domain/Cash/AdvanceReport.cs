@@ -9,7 +9,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Cash
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "авансовые отчеты",
 		Nominative = "авансовый отчет")]
 	public class AdvanceReport : PropertyChangedBase, IDomainObject, IValidatableObject

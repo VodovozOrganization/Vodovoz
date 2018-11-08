@@ -10,7 +10,7 @@ using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Dialogs.Sale
 {
-	public partial class DeliveryPriceDlg : QSTDI.TdiTabBase
+	public partial class DeliveryPriceDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
 

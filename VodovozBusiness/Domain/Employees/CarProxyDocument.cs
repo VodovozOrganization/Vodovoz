@@ -10,7 +10,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "Доверенности на ТС",
 		Nominative = "Доверенность на ТС")]
 	public class CarProxyDocument : ProxyDocument, IValidatableObject

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Xml;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using Vodovoz.Repository;
 
 namespace Vodovoz.ExportTo1c

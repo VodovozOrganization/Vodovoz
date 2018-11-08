@@ -16,7 +16,7 @@ using Vodovoz.Representations;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class FreeRentPackagesView : WidgetOnDialogBase
+	public partial class FreeRentPackagesView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 

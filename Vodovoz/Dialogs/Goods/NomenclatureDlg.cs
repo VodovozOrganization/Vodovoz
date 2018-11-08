@@ -1,8 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using Gtk;
 using NLog;
+using QS.Dialog.Gtk;
+using QS.DomainModel.UoW;
 using QS.Helpers;
 using QSBusinessCommon.Domain;
 using QSOrmProject;
@@ -19,7 +20,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class NomenclatureDlg : OrmGtkDialogBase<Nomenclature>
+	public partial class NomenclatureDlg : QS.Dialog.Gtk.EntityDialogBase<Nomenclature>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -104,7 +105,7 @@ namespace Vodovoz
 			yentryrefEqupmentType.SubjectType = typeof(EquipmentType);
 			yentryrefEqupmentType.Binding.AddBinding(Entity, e => e.Type, w => w.Subject).InitializeFromSource();
 			referenceColor.SubjectType = typeof(EquipmentColors);
-			referenceColor.Binding.AddBinding(Entity, e => e.Color, w => w.Subject).InitializeFromSource();
+			referenceColor.Binding.AddBinding(Entity, e => e.EquipmentColor, w => w.Subject).InitializeFromSource();
 			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
 			referenceWarehouse.Binding.AddBinding (Entity, n => n.Warehouse, w => w.Subject).InitializeFromSource ();
 			referenceRouteColumn.SubjectType = typeof (Domain.Logistic.RouteColumn);
@@ -118,6 +119,13 @@ namespace Vodovoz
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			checkIsArchive.Sensitive = QSMain.User.Permissions["can_create_and_arc_nomenclatures"];
 
+			#region Вкладка характиристики
+
+			ytextDescription.Binding.AddBinding(Entity, e => e.Description, w => w.Buffer.Text).InitializeFromSource();
+			nomenclaturecharacteristicsview1.Uow = UoWGeneric;
+
+			#endregion
+
 			int currNomenclatureOfDependence = (Entity.DependsOnNomenclature == null ? 0 : Entity.DependsOnNomenclature.Id);
 
 			dependsOnNomenclature.RepresentationModel = new NomenclatureDependsFromVM(Entity);
@@ -130,6 +138,8 @@ namespace Vodovoz
 
 			Imageslist.ImageButtonPressEvent += Imageslist_ImageButtonPressEvent;
 
+			Entity.PropertyChanged += Entity_PropertyChanged;
+
 			//make actions menu
 			var menu = new Gtk.Menu();
 			var menuItem = new Gtk.MenuItem("Заменить все ссылки на номенклатуру...");
@@ -139,6 +149,13 @@ namespace Vodovoz
 			menu.ShowAll();
 			menuActions.Sensitive = !UoWGeneric.IsNew;
 		}
+
+		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.ProductGroup))
+				nomenclaturecharacteristicsview1.RefreshWidgets();
+		}
+
 
 		void MenuItem_ReplaceLinks_Activated(object sender, EventArgs e)
 		{
@@ -228,11 +245,17 @@ namespace Vodovoz
 				notebook1.CurrentPage = 1;
 		}
 
+		protected void OnRadioCharacteristicsToggled(object sender, EventArgs e)
+		{
+			if(radioCharacteristics.Active)
+				notebook1.CurrentPage = 2;
+		}
+
 		protected void OnRadioImagesToggled(object sender, EventArgs e)
 		{
 			if(radioImages.Active)
 			{
-				notebook1.CurrentPage = 2;
+				notebook1.CurrentPage = 3;
 				ImageTabOpen();
 			}
 		}
@@ -240,7 +263,7 @@ namespace Vodovoz
 		protected void OnRadioPriceToggled (object sender, EventArgs e)
 		{
 			if (radioPrice.Active)
-				notebook1.CurrentPage = 3;
+				notebook1.CurrentPage = 4;
 		}
 
 		#endregion
@@ -320,7 +343,6 @@ namespace Vodovoz
 		{
 			radioPrice.Sensitive = Entity.DependsOnNomenclature == null;
 		}
-
 	}
 }
 

@@ -4,25 +4,25 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
-using VodovozService.Chats;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
+using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Dialogs;
-using QS.DomainModel.Entity;
+using VodovozService.Chats;
 
 namespace Vodovoz
 {
-	public partial class RouteListKeepingDlg : OrmGtkDialogBase<RouteList>
+	public partial class RouteListKeepingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
 	{
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private bool allEditing = true;

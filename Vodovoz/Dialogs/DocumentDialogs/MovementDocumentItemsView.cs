@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Gtk;
 using NLog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 
@@ -73,7 +75,7 @@ namespace Vodovoz
 				return;
 			}
 
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			ITdiTab mytab = DialogHelper.FindParentTab (this);
 			if (mytab == null) {
 				logger.Warn ("Родительская вкладка не найдена.");
 				return;

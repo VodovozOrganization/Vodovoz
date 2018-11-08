@@ -9,7 +9,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Goods;
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "оборудование для продажи",
 		Nominative = "оборудование для продажи")]
 	public class SalesEquipment : PropertyChangedBase, IDomainObject

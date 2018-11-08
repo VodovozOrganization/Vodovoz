@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using NLog;
+using QS.DomainModel.UoW;
 using QSContacts;
 using QSOrmProject;
 using QSValidation;
@@ -7,7 +8,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	public partial class ContactDlg : OrmGtkDialogBase<Contact>
+	public partial class ContactDlg : QS.Dialog.Gtk.EntityDialogBase<Contact>
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -60,8 +61,8 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем  контактное лицо...");
-			phonesView.RemoveEmpty ();
-			emailsView.RemoveEmpty ();
+			phonesView.RemoveEmpty();
+			emailsView.RemoveEmpty();
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
 			return true;

@@ -42,16 +42,23 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 				}
 				goodxml.Add(new XElement("ПолноеНаименование", good.OfficialName));
 				goodxml.Add(new XElement("Группы", new XElement("Ид", good.ProductGroup.OnlineStoreGuid)));
+
+				goodxml.Add(new XElement("Описание", good.Description));
+
 				foreach(var img in good.Images)
 				{
 					goodxml.Add(new XElement("Картинка", $"import_files/img_{img.Id:0000000}.jpg"));
 				}
 
 				var propertiesXml = new XElement("ЗначенияСвойств");
-				if(good.Color != null)
-					propertiesXml.Add(Classifier.PropertyColor.ToValueXml(good.Color.Name));
+				if(good.EquipmentColor != null)
+					propertiesXml.Add(Classifier.PropertyColor.ToValueXml(good.EquipmentColor.Name));
 
 				goodxml.Add(propertiesXml);
+				foreach(var characteristic in good.ProductGroup.Characteristics) {
+					var value = good.GetPropertyValue(characteristic.ToString());
+					propertiesXml.Add(myExport.Classifier.Characteristics[characteristic].ToValueXml(value));
+				}
 
 				goodxml.Add(new XElement("СтавкиНалогов", 
 				                         new XElement("СтавкаНалога", 

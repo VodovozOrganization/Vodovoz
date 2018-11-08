@@ -1011,6 +1011,11 @@
     <Compile Include="IProgressBarDisplayable.cs" />
     <Compile Include="Dialogs\Logistic\RouresAtDayInfoWnd.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.RouresAtDayInfoWnd.cs" />
+    <Compile Include="Dialogs\Employees\TraineeDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.TraineeDlg.cs" />
+    <Compile Include="Representations\TraineeVM.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureCharacteristicsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.NomenclatureCharacteristicsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1021,10 +1026,6 @@
     <ProjectReference Include="..\..\QSProjects\QSSupportLib\QSSupportLib.csproj">
       <Project>{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}</Project>
       <Name>QSSupportLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSTDI\QSTDI.csproj">
-      <Project>{4B35C969-8C74-440F-8189-57047C9215FD}</Project>
-      <Name>QSTDI</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSWidgetLib\QSWidgetLib.csproj">
       <Project>{5A2BB01E-E124-432E-8099-D1343D3897B9}</Project>
@@ -1137,6 +1138,10 @@
     <ProjectReference Include="..\..\My-FyiReporting\RdlCri\RdlCri.csproj">
       <Project>{9C9ECACA-0DEB-4517-8CF1-02C3D3EB128E}</Project>
       <Name>RdlCri</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project.Gtk\QS.Project.Gtk.csproj">
+      <Project>{3C0F3944-CBD5-4BD6-83D4-CF33AD6FC68C}</Project>
+      <Name>QS.Project.Gtk</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

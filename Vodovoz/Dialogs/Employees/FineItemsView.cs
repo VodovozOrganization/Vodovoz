@@ -11,7 +11,7 @@ using QS.DomainModel.UoW;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class FineItemsView : WidgetOnDialogBase
+	public partial class FineItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		public FineItemsView()
 		{

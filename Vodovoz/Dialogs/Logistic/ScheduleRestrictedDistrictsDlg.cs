@@ -13,14 +13,14 @@ using NetTopologySuite.Geometries;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Dialogs.Logistic
 {
-	public partial class ScheduleRestrictedDistrictsDlg : TdiTabBase
+	public partial class ScheduleRestrictedDistrictsDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 

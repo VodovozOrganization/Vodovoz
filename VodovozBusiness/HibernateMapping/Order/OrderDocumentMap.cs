@@ -54,6 +54,16 @@ namespace Vodovoz.HibernateMapping
 		}
 	}
 
+	public class SpecialBillDocumentMap : SubclassMap<SpecialBillDocument>
+	{
+		public SpecialBillDocumentMap()
+		{
+			DiscriminatorValue("SpecialBill");
+
+			Map(x => x.HideSignature).Column("hide_signature");
+		}
+	}
+
 	public class CoolerWarrantyDocumentMap:SubclassMap<CoolerWarrantyDocument>
 	{
 		public CoolerWarrantyDocumentMap()
@@ -134,6 +144,14 @@ namespace Vodovoz.HibernateMapping
 		public UPDDocumentMap()
 		{
 			DiscriminatorValue ("UPD");
+		}
+	}
+
+	public class SpecialUPDDocumentMap : SubclassMap<SpecialUPDDocument>
+	{
+		public SpecialUPDDocumentMap()
+		{
+			DiscriminatorValue("SpecialUPD");
 		}
 	}
 

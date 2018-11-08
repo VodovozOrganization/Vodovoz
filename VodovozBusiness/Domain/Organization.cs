@@ -9,7 +9,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "организации",
 		Nominative = "организация")]
 	public class Organization : AccountOwnerBase, IDomainObject

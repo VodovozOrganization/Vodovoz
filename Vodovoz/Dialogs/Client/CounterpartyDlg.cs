@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
+using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
@@ -17,7 +19,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class CounterpartyDlg : OrmGtkDialogBase<Counterparty>, ICounterpartyInfoProvider
+	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
@@ -131,6 +133,16 @@ namespace Vodovoz
 			dataentryMainContact.Binding.AddBinding(Entity, e => e.MainContact, w => w.Subject).InitializeFromSource();
 			dataentryFinancialContact.RepresentationModel = new ViewModel.ContactsVM(UoW, Entity);
 			dataentryFinancialContact.Binding.AddBinding(Entity, e => e.FinancialContact, w => w.Subject).InitializeFromSource();
+			ycheckSpecialDocuments.Binding.AddBinding(Entity, e => e.UseSpecialDocFields, w => w.Active).InitializeFromSource();
+			radioSpecialDocFields.Visible = Entity.UseSpecialDocFields;
+			yentryCargoReceiver.Binding.AddBinding(Entity, e => e.CargoReceiver, w => w.Text).InitializeFromSource();
+			yentryCustomer.Binding.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text).InitializeFromSource();
+			yentrySpecialContract.Binding.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text).InitializeFromSource();
+			yentrySpecialKPP.Binding.AddBinding(Entity, e => e.SpecialKPP, w => w.Text).InitializeFromSource();
+			yentryGovContract.Binding.AddBinding(Entity, e => e.GovContract, w => w.Text).InitializeFromSource();
+			yentrySpecialDeliveryAddress.Binding.AddBinding(Entity, e => e.SpecialDeliveryAddress, w => w.Text).InitializeFromSource();
+			buttonLoadFromDP.Clicked += ButtonLoadFromDP_Clicked;
+
 			//Setting Contacts
 			contactsview1.CounterpartyUoW = UoWGeneric;
 			//Setting permissions
@@ -162,6 +174,24 @@ namespace Vodovoz
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
 			referenceCameFrom.Sensitive = Entity.Id == 0;
 		}
+
+		void ButtonLoadFromDP_Clicked(object sender, EventArgs e)
+		{
+			var deliveryPointSelectDlg = new ReferenceRepresentation(new ViewModel.ClientDeliveryPointsVM(UoW, Entity));
+			deliveryPointSelectDlg.Mode = OrmReferenceMode.Select;
+			deliveryPointSelectDlg.ObjectSelected += DeliveryPointRep_ObjectSelected;
+			TabParent.AddSlaveTab(this, deliveryPointSelectDlg);
+		}
+
+		void DeliveryPointRep_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		{
+			var node = e.VMNode as DeliveryPointVMNode;
+			if(node == null) {
+				return;
+			}
+			yentrySpecialDeliveryAddress.Text = node.CompiledAddress;
+		}
+
 
 		public void ActivateContactsTab()
 		{
@@ -351,6 +381,17 @@ namespace Vodovoz
 		protected void OnChkNeedNewBottlesToggled(object sender, EventArgs e)
 		{
 			Entity.NewBottlesNeeded = chkNeedNewBottles.Active;
+		}
+
+		protected void OnRadioSpecialDocFieldsToggled(object sender, EventArgs e)
+		{
+			if(radioSpecialDocFields.Active)
+				notebook1.CurrentPage = 9;
+		}
+
+		protected void OnYcheckSpecialDocumentsToggled(object sender, EventArgs e)
+		{
+			radioSpecialDocFields.Visible = ycheckSpecialDocuments.Active;
 		}
 	}
 }

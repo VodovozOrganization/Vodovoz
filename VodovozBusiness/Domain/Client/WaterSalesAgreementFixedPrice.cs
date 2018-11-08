@@ -8,7 +8,7 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.Domain.Client
 {
 
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "фиксированные цены",
 		Nominative = "фиксированная цена")]
 	[HistoryTrace]
@@ -44,6 +44,16 @@ namespace Vodovoz.Domain.Client
 		public virtual AdditionalAgreement AdditionalAgreement{
 			get { return additionalAgreement; }
 			set { SetField (ref additionalAgreement, value, () => AdditionalAgreement); }
+		}
+
+		public WaterSalesAgreementFixedPrice()
+		{
+		}
+
+		public WaterSalesAgreementFixedPrice(Nomenclature nomenclature, decimal price)
+		{
+			this.nomenclature = nomenclature;
+			this.price = price;
 		}
 
 	}

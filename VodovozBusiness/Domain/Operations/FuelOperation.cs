@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "операции с топливом",
 		Nominative = "операция с топливом")]
 	public partial class FuelOperation : OperationBase

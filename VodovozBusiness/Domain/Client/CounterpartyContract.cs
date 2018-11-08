@@ -11,7 +11,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject(
+	[Appellative(
 		Gender = GrammaticalGender.Masculine,
 		NominativePlural = "договоры контрагента",
 		Nominative = "договор",

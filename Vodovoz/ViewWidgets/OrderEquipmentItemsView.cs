@@ -12,7 +12,7 @@ using Vodovoz.JournalFilters;
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrderEquipmentItemsView : WidgetOnDialogBase
+	public partial class OrderEquipmentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		public IUnitOfWork UoW { get; set; }
 

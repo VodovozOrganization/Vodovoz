@@ -8,9 +8,8 @@ using Gtk;
 using QS.DomainModel.UoW;
 using QSBanks;
 using QSContacts;
-using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.LoadFrom1c;
@@ -18,7 +17,7 @@ using Vodovoz.LoadFrom1c;
 namespace Vodovoz.ServiceDialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class LoadFrom1cClientsAndDeliveryPoints : TdiTabBase
+	public partial class LoadFrom1cClientsAndDeliveryPoints : QS.Dialog.Gtk.TdiTabBase
 	{
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -38,7 +37,14 @@ namespace Vodovoz.ServiceDialogs
 
 		public LoadFrom1cClientsAndDeliveryPoints()
 		{
+			if(!QSMain.User.Permissions["database_maintenance"]) {
+				MessageDialogWorks.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
+				FailInitialize = true;
+				return;
+			}
+
 			throw new ApplicationException("Сюда сейчас нельзя.");//Counterparty.VodInternalId генерируется тригером на стороне БД. Исправить соответствующий код ниже.
+
 			this.Build();
 
 			TabName = "Загрузка из 1с";

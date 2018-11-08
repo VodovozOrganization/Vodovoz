@@ -2,6 +2,7 @@
 using System.IO;
 using NHibernate.Criterion;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -9,7 +10,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
-	public partial class EquipmentDlg : OrmGtkDialogBase<Equipment>
+	public partial class EquipmentDlg : QS.Dialog.Gtk.EntityDialogBase<Equipment>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 

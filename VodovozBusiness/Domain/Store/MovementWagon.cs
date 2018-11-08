@@ -5,7 +5,7 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Store
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "фуры",
 		Nominative = "фура")]
 	public class MovementWagon : PropertyChangedBase, IDomainObject

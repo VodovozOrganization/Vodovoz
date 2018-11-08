@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "шаблоны комментариев для штрафов",
 		Nominative = "шаблон комментария для штрафа")]
 	public class FineTemplate : PropertyChangedBase, IDomainObject, IValidatableObject

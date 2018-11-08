@@ -1,14 +1,12 @@
-﻿using System;
-using Vodovoz;
+﻿using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
-using NLog;
-using Vodovoz.Domain.Employees;
 using QSValidation;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class SubdivisionDlg : OrmGtkDialogBase<Subdivision>
+	public partial class SubdivisionDlg : QS.Dialog.Gtk.EntityDialogBase<Subdivision>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 

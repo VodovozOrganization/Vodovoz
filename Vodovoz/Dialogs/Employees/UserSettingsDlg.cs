@@ -1,12 +1,11 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	public partial class UserSettingsDlg : OrmGtkDialogBase<UserSettings>
+	public partial class UserSettingsDlg : QS.Dialog.Gtk.EntityDialogBase<UserSettings>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

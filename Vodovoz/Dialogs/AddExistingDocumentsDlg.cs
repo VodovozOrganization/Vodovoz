@@ -4,14 +4,14 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Dialogs
 {
-	public partial class AddExistingDocumentsDlg : TdiTabBase
+	public partial class AddExistingDocumentsDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		public IUnitOfWorkGeneric<Order> UoW { get; private set; }
 

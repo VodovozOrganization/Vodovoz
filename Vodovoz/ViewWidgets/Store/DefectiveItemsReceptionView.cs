@@ -20,7 +20,7 @@ using Vodovoz.Domain.Store;
 namespace Vodovoz.ViewWidgets.Store
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DefectiveItemsReceptionView : WidgetOnDialogBase
+	public partial class DefectiveItemsReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		GenericObservableList<DefectiveItemNode> defectiveList = new GenericObservableList<DefectiveItemNode>();
 

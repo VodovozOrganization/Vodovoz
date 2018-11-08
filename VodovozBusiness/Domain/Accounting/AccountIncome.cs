@@ -9,7 +9,7 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Accounting
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "поступления на р/с",
 		Nominative = "поступление на р/с")]
 	public class AccountIncome: PropertyChangedBase, IDomainObject, IValidatableObject

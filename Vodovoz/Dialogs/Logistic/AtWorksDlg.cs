@@ -1,19 +1,20 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
+using QS.Dialog;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Dialogs.Logistic
 {
-	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, IOrmDialog
+	public partial class AtWorksDlg : QS.Dialog.Gtk.TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
@@ -171,8 +172,6 @@ namespace Vodovoz.Dialogs.Logistic
 				return uow.HasChanges;
 			}
 		}
-
-		public object EntityObject => throw new NotImplementedException();
 
 		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
 		{

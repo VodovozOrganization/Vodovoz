@@ -110,6 +110,13 @@ SELECT
 	counterparty.jur_address AS client_address,
 	counterparty.inn AS client_inn,
 	counterparty.kpp AS client_kpp,
+	counterparty.use_special_doc_fields,
+	counterparty.special_cargo_receiver,
+	counterparty.special_customer,
+	counterparty.special_contract_number,
+	counterparty.spectial_kpp,
+	counterparty.special_gov_contract,
+	counterparty.special_delivery_address,
 	organizations.full_name AS org_name,
 	organizations.jur_address AS org_address,
 	delivery_points.compiled_address_short AS del_point_address,
@@ -247,6 +254,34 @@ WHERE
           <DataField>del_point_address_composite</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="use_special_doc_fields">
+          <DataField>use_special_doc_fields</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="special_cargo_receiver">
+          <DataField>special_cargo_receiver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_customer">
+          <DataField>special_customer</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_contract_number">
+          <DataField>special_contract_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="spectial_kpp">
+          <DataField>spectial_kpp</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_gov_contract">
+          <DataField>special_gov_contract</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_delivery_address">
+          <DataField>special_delivery_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -260,7 +295,7 @@ WHERE
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List2">
-        <Height>168.91pt</Height>
+        <Height>173.41pt</Height>
         <Width>701.55pt</Width>
         <Left>93.00pt</Left>
         <Top>2.00pt</Top>
@@ -628,7 +663,7 @@ WHERE
           <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>411.50pt</Width>
-            <Value>=Fields!client_name.Value + ', ' + {client_address}</Value>
+            <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_cargo_receiver}) = false, {special_cargo_receiver},Fields!client_name.Value) + ', ' + Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_delivery_address}) = false, {special_delivery_address}, {client_address})</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
             <Top>76.60pt</Top>
@@ -661,7 +696,7 @@ WHERE
           <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>411.50pt</Width>
-            <Value>=Fields!client_name.Value</Value>
+            <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_customer}) = false, {special_customer}, {client_name})</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
             <Top>100.60pt</Top>
@@ -693,7 +728,7 @@ WHERE
           <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>493.25pt</Width>
-            <Value>=Fields!client_inn.Value + '\\' + Fields!client_kpp.Value</Value>
+            <Value>=Fields!client_inn.Value + '\\' + Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({spectial_kpp}) = false, {spectial_kpp}, Fields!client_kpp.Value)</Value>
             <ZIndex>1</ZIndex>
             <Left>155.50pt</Left>
             <Top>124.60pt</Top>
@@ -877,31 +912,14 @@ WHERE
             </Style>
           </Textbox>
           <Textbox Name="Textbox178" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>374.52pt</Width>
+            <Height>12.74pt</Height>
+            <Width>383.55pt</Width>
             <Value>Идентификатор государственного контракта, договора (соглашения) (при наличии)</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>148.2pt</Top>
+            <Left>0.00pt</Left>
+            <Top>148.20pt</Top>
             <Style>
               <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>8pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox179" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>6.00pt</Height>
-            <Width>194.75pt</Width>
-            <Value>
-            </Value>
-            <ZIndex>1</ZIndex>
-            <Left>2.4pt</Left>
-            <Top>161.2pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
@@ -922,13 +940,12 @@ WHERE
             </Style>
           </Textbox>
           <Textbox Name="Textbox185" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>6.75pt</Height>
-            <Width>405.50pt</Width>
-            <Value>
-            </Value>
+            <Height>12pt</Height>
+            <Width>493.25pt</Width>
+            <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_gov_contract}) = false, {special_gov_contract}, "")</Value>
             <ZIndex>1</ZIndex>
-            <Left>244.2pt</Left>
-            <Top>160.6pt</Top>
+            <Left>155.40pt</Left>
+            <Top>159.00pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2372,13 +2389,13 @@ WHERE
           </TableRows>
         </Footer>
         <Left>11.7pt</Left>
-        <Top>173.2pt</Top>
+        <Top>177.2pt</Top>
       </Table>
       <List Name="List4">
         <Height>236.54pt</Height>
         <Width>792.25pt</Width>
-        <Left>2.30pt</Left>
-        <Top>261.60pt</Top>
+        <Left>2.3pt</Left>
+        <Top>265.6pt</Top>
         <ReportItems>
           <Textbox Name="Textbox131">
             <Height>15.03pt</Height>
@@ -3343,7 +3360,7 @@ WHERE
           <Textbox Name="Textbox128">
             <Height>11.25pt</Height>
             <Width>326.90pt</Width>
-            <Value>=Fields!contract_number.Value + ' от ' + Fields!contract_date.Value</Value>
+            <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_contract_number}) = false,{special_contract_number},Fields!contract_number.Value) + ' от ' + Fields!contract_date.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>258.7pt</Left>
             <Top>45.7pt</Top>
@@ -3606,6 +3623,15 @@ WHERE
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
@@ -3620,14 +3646,12 @@ WHERE
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="special">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

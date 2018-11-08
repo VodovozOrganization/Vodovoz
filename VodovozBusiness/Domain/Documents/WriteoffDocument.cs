@@ -12,7 +12,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "акты списания ТМЦ",
 		Nominative = "акт списания ТМЦ",
 		Prepositional = "акте списания"

@@ -2,9 +2,10 @@
 using Gamma.Binding;
 using Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Tdi.Gtk;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -15,7 +16,7 @@ using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.JournalViewers
 {
-	public partial class UndeliveriesView : TdiTabBase, IUndeliveredOrdersInfoProvider//, ITdiJournal
+	public partial class UndeliveriesView : QS.Dialog.Gtk.TdiTabBase, IUndeliveredOrdersInfoProvider//, ITdiJournal
 	{
 		IUnitOfWork uow;
 

@@ -15,7 +15,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Employees
 {
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "штрафы сотрудникам",
 		Nominative = "штраф сотрудникам")]
 	public class Fine : PropertyChangedBase, IDomainObject, IValidatableObject

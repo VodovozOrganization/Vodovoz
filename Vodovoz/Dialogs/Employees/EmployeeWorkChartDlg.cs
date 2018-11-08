@@ -1,19 +1,18 @@
 ﻿using System;
-using QSOrmProject;
-using System.ComponentModel.DataAnnotations;
-using Vodovoz;
-using QSTDI;
-using Vodovoz.Domain.Employees;
 using System.Collections.Generic;
-using Vodovoz.Repository;
-using System.Collections;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Vodovoz.ViewModel;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Tdi;
+using Vodovoz;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Repository;
+using Vodovoz.ViewModel;
 
 namespace Dialogs.Employees
 {
-	public partial class EmployeeWorkChartDlg : TdiTabBase, ITdiDialog
+	public partial class EmployeeWorkChartDlg : QS.Dialog.Gtk.TdiTabBase, ITdiDialog
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

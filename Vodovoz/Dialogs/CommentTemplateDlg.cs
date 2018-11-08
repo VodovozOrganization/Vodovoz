@@ -1,11 +1,12 @@
 ﻿using NLog;
-using QSOrmProject;
+using QS.Dialog.Gtk;
+using QS.DomainModel.UoW;
 using QSValidation;
 using Vodovoz.Domain;
 
 namespace Vodovoz
 {
-	public partial class CommentTemplateDlg : OrmGtkDialogBase<CommentTemplate>
+	public partial class CommentTemplateDlg : QS.Dialog.Gtk.EntityDialogBase<CommentTemplate>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 

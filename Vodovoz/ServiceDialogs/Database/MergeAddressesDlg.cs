@@ -9,15 +9,14 @@ using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QSOrmProject;
 using QSOrmProject.Deletion;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
-	public partial class MergeAddressesDlg : TdiTabBase
+	public partial class MergeAddressesDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		List<DublicateNode> Duplicates;
@@ -25,6 +24,12 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		public MergeAddressesDlg()
 		{
+			if(!QSMain.User.Permissions["database_maintenance"]) {
+				MessageDialogWorks.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
+				FailInitialize = true;
+				return;
+			}
+
 			this.Build();
 
 			TabName = "Дубликаты адресов";

@@ -9,7 +9,7 @@ using QSOrmProject;
 namespace Vodovoz.Domain.Client
 {
 
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения посуточной аренды",
 		Nominative = "доп. соглашение посуточной аренды")]
 	public class DailyRentAgreement : AdditionalAgreement
@@ -59,7 +59,7 @@ namespace Vodovoz.Domain.Client
 
 		public static IUnitOfWorkGeneric<DailyRentAgreement> Create (CounterpartyContract contract)
 		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<DailyRentAgreement> ();
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<DailyRentAgreement> ($"Создание нового доп. соглашения посуточной аренды для договора {contract.Number}.");
 			uow.Root.Contract = uow.GetById<CounterpartyContract>(contract.Id);
 			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithType (uow.Root.Contract, AgreementType.DailyRent);
 			return uow;

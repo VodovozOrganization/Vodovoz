@@ -3,14 +3,14 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AccountableSlipsView : TdiTabBase
+	public partial class AccountableSlipsView : QS.Dialog.Gtk.TdiTabBase
 	{
 		private IUnitOfWork uow;
 

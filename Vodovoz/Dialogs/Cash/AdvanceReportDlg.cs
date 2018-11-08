@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -10,7 +11,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
-	public partial class AdvanceReportDlg : OrmGtkDialogBase<AdvanceReport>
+	public partial class AdvanceReportDlg : QS.Dialog.Gtk.EntityDialogBase<AdvanceReport>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

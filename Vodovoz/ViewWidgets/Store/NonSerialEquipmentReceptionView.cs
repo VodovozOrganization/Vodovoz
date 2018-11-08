@@ -13,7 +13,7 @@ using Vodovoz.Repository;
 namespace Vodovoz.ViewWidgets.Store
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class NonSerialEquipmentReceptionView : WidgetOnDialogBase
+	public partial class NonSerialEquipmentReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		GenericObservableList<ReceptionNonSerialEquipmentItemNode> ReceptionNonSerialEquipmentList = new GenericObservableList<ReceptionNonSerialEquipmentItemNode>();
 

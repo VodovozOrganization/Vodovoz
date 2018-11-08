@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Gamma.Utilities;
+using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain;
@@ -14,7 +16,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class FineDlg : OrmGtkDialogBase<Fine>
+	public partial class FineDlg : QS.Dialog.Gtk.EntityDialogBase<Fine>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

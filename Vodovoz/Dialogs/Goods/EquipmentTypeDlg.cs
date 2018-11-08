@@ -1,10 +1,10 @@
-﻿using System;
+﻿using QS.Dialog.Gtk;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain;
-using QSOrmProject;
 
 namespace Vodovoz
 {
-	public partial class EquipmentTypeDlg : OrmGtkDialogBase<EquipmentType>{
+	public partial class EquipmentTypeDlg : QS.Dialog.Gtk.EntityDialogBase<EquipmentType>{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
 		public EquipmentTypeDlg ()

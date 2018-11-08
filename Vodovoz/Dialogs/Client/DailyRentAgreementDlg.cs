@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Linq;
 using NLog;
+using QS.DomainModel.UoW;
+using QS.Dialog;
 using QSOrmProject;
 using QSValidation;
-using Vodovoz.Domain.Client;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
-using System.Linq;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	public partial class DailyRentAgreementDlg : OrmGtkDialogBase<DailyRentAgreement>, IAgreementSaved, IEditableDialog
+	public partial class DailyRentAgreementDlg : QS.Dialog.Gtk.EntityDialogBase<DailyRentAgreement>, IAgreementSaved, IEditableDialog
 	{
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
 

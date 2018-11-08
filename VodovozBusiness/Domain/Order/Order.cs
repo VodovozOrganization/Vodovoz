@@ -27,7 +27,7 @@ using Vodovoz.Repository.Logistics;
 namespace Vodovoz.Domain.Orders
 {
 
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "заказы",
 		Nominative = "заказ",
 		Prepositional = "заказе",
@@ -2611,8 +2611,14 @@ namespace Vodovoz.Domain.Orders
 				case OrderDocumentType.Bill:
 					newDoc = new BillDocument();
 					break;
+				case OrderDocumentType.SpecialBill:
+					newDoc = new SpecialBillDocument();
+					break;
 				case OrderDocumentType.UPD:
 					newDoc = new UPDDocument();
+					break;
+				case OrderDocumentType.SpecialUPD:
+					newDoc = new SpecialUPDDocument();
 					break;
 				case OrderDocumentType.Invoice:
 					newDoc = new InvoiceDocument();
@@ -2755,7 +2761,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SaveOrderComment(){
 			if(Id == 0) return;
 			
-			using(var uow = UnitOfWorkFactory.CreateForRoot<Order>(Id)) {
+			using(var uow = UnitOfWorkFactory.CreateForRoot<Order>(Id, "Кнопка сохранить только комментарий к заказу")) {
 				uow.Root.Comment = Comment;
 				uow.Save();
 				uow.Commit();

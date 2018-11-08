@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -10,7 +11,7 @@ using Vodovoz.Domain.Documents;
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ShiftChangeWarehouseDocumentDlg : OrmGtkDialogBase<ShiftChangeWarehouseDocument>
+	public partial class ShiftChangeWarehouseDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<ShiftChangeWarehouseDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

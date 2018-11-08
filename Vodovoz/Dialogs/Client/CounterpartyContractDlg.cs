@@ -1,15 +1,17 @@
 ﻿using System;
+using QS.DomainModel.UoW;
+using QS.Dialog;
 using QSOrmProject;
+using QSProjectsLib;
 using QSValidation;
+using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.DocTemplates;
-using QSProjectsLib;
 using Vodovoz.Repository.Client;
 
 namespace Vodovoz
 {
-	public partial class CounterpartyContractDlg : OrmGtkDialogBase<CounterpartyContract>, IEditableDialog, IContractSaved
+	public partial class CounterpartyContractDlg : QS.Dialog.Gtk.EntityDialogBase<CounterpartyContract>, IEditableDialog, IContractSaved
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

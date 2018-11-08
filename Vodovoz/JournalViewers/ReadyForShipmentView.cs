@@ -1,11 +1,11 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSTDI;
+using QS.Tdi;
 
 namespace Vodovoz
 {
-	public partial class ReadyForShipmentView : TdiTabBase
+	public partial class ReadyForShipmentView : QS.Dialog.Gtk.TdiTabBase
 	{
 		private IUnitOfWork uow;
 

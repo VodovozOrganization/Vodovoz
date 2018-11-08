@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Vodovoz.Domain.Logistic
 {
 
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "колонки в маршрутном листе",
 		Nominative = "колонка маршрутного листа")]
 	public class RouteColumn : PropertyChangedBase, IDomainObject

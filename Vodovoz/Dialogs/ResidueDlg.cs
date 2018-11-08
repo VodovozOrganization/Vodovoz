@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -8,7 +9,7 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz
 {
-	public partial class ResidueDlg :  OrmGtkDialogBase<Residue>
+	public partial class ResidueDlg :  QS.Dialog.Gtk.EntityDialogBase<Residue>
 	{
 		public ResidueDlg()
 		{

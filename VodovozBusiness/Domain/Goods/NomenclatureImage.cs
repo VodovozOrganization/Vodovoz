@@ -6,7 +6,7 @@ using QSOrmProject;
 namespace Vodovoz.Domain.Goods
 {
 
-	[OrmSubject(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "изображения номенклатуры",
 		Nominative = "изображение номенклатуры")]
 	public class NomenclatureImage : PropertyChangedBase, IDomainObject

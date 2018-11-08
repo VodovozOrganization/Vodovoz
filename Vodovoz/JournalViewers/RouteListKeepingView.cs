@@ -1,13 +1,13 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteListKeepingView : TdiTabBase
+	public partial class RouteListKeepingView : QS.Dialog.Gtk.TdiTabBase
 	{
 		private IUnitOfWork uow;
 

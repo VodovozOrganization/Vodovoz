@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using QS.Dialog;
 using QS.Report;
-using QSOrmProject;
 using QSReport;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DrivingCallReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class DrivingCallReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public DrivingCallReport()
 		{
@@ -18,12 +18,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		#endregion
 

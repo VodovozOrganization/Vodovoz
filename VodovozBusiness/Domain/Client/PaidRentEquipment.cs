@@ -8,7 +8,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки ПА соглашения",
 		Nominative = "строка ПА соглашения")]
 	public class PaidRentEquipment : PropertyChangedBase, IDomainObject, IValidatableObject

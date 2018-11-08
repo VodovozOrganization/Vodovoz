@@ -14,7 +14,7 @@ using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Goods
 {
-	[OrmSubject(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "номенклатуры",
 		Nominative = "номенклатура")]
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
@@ -214,12 +214,12 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref typeOfDepositCategory, value, () => TypeOfDepositCategory); }
 		}
 
-		EquipmentColors color;
+		EquipmentColors equipmentColor;
 
 		[Display(Name = "Цвет оборудования")]
-		public virtual EquipmentColors Color {
-			get { return color; }
-			set { SetField(ref color, value, () => Color); }
+		public virtual EquipmentColors EquipmentColor {
+			get { return equipmentColor; }
+			set { SetField(ref equipmentColor, value, () => EquipmentColor); }
 		}
 
 		EquipmentType type;
@@ -368,15 +368,163 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref mobileCatalog, value, () => MobileCatalog); }
 		}
 
+		private string description;
+
+		[Display(Name = "Описание товара")]
+		public virtual string Description {
+			get { return description; }
+			set { SetField(ref description, value); }
+		}
+
 		#endregion
 
-		public virtual void SetNomenclatureCreationInfo()
-		{
-			if(Id == 0 && !CreateDate.HasValue) {
-				CreateDate = DateTime.Now;
-				CreatedBy = UserRepository.GetCurrentUser(UoW);
-			}
+		#region Свойства товаров для магазина
+
+		private string color;
+
+		[Display(Name = "Цвет")]
+		public virtual string Color {
+			get { return color; }
+			set { SetField(ref color, value); }
 		}
+
+		private string material;
+
+		[Display(Name = "Материал")]
+		public virtual string Material {
+			get { return material; }
+			set { SetField(ref material, value); }
+		}
+
+		private string liters;
+
+		[Display(Name = "Объем")]
+		public virtual string Liters {
+			get { return liters; }
+			set { SetField(ref liters, value); }
+		}
+
+		private string size;
+
+		[Display(Name = "Размеры")]
+		public virtual string Size {
+			get { return size; }
+			set { SetField(ref size, value); }
+		}
+
+		private string package;
+
+		[Display(Name = "Тип упаковки")]
+		public virtual string Package {
+			get { return package; }
+			set { SetField(ref package, value); }
+		}
+
+		private string degreeOfRoast;
+
+		[Display(Name = "Степень обжарки")]
+		public virtual string DegreeOfRoast {
+			get { return degreeOfRoast; }
+			set { SetField(ref degreeOfRoast, value); }
+		}
+
+		private string smell;
+
+		[Display(Name = "Запах")]
+		public virtual string Smell {
+			get { return smell; }
+			set { SetField(ref smell, value); }
+		}
+
+		private string taste;
+
+		[Display(Name = "Вкус")]
+		public virtual string Taste {
+			get { return taste; }
+			set { SetField(ref taste, value); }
+		}
+
+		private string refrigeratorCapacity;
+
+		[Display(Name = "Объем шкафчика/холодильника")]
+		public virtual string RefrigeratorCapacity {
+			get { return refrigeratorCapacity; }
+			set { SetField(ref refrigeratorCapacity, value); }
+		}
+
+		private string coolingType;
+
+		[Display(Name = "Тип охлаждения")]
+		public virtual string CoolingType {
+			get { return coolingType; }
+			set { SetField(ref coolingType, value); }
+		}
+
+		private string heatingPower;
+
+		[Display(Name = "Мощность нагрева")]
+		public virtual string HeatingPower {
+			get { return heatingPower; }
+			set { SetField(ref heatingPower, value); }
+		}
+
+		private string coolingPower;
+
+		[Display(Name = "Мощность охлаждения")]
+		public virtual string CoolingPower {
+			get { return coolingPower; }
+			set { SetField(ref coolingPower, value); }
+		}
+
+		private string heatingPerformance;
+
+		[Display(Name = "Производительность нагрева")]
+		public virtual string HeatingPerformance {
+			get { return heatingPerformance; }
+			set { SetField(ref heatingPerformance, value); }
+		}
+
+		private string coolingPerformance;
+
+		[Display(Name = "Производительность охлаждения")]
+		public virtual string CoolingPerformance {
+			get { return coolingPerformance; }
+			set { SetField(ref coolingPerformance, value); }
+		}
+
+		private string numberOfCartridges;
+
+		[Display(Name = "Количество картриджей")]
+		public virtual string NumberOfCartridges {
+			get { return numberOfCartridges; }
+			set { SetField(ref numberOfCartridges, value); }
+		}
+
+		private string characteristicsOfCartridges;
+
+		[Display(Name = "Характеристика картриджей")]
+		public virtual string CharacteristicsOfCartridges {
+			get { return characteristicsOfCartridges; }
+			set { SetField(ref characteristicsOfCartridges, value); }
+		}
+
+		private string countryOfOrigin;
+
+		[Display(Name = "Страна происхождения")]
+		public virtual string CountryOfOrigin {
+			get { return countryOfOrigin; }
+			set { SetField(ref countryOfOrigin, value); }
+		}
+
+		private string amountInAPackage;
+
+		[Display(Name = "Количество  в упаковке")]
+		public virtual string AmountInAPackage {
+			get { return amountInAPackage; }
+			set { SetField(ref amountInAPackage, value); }
+		}
+
+		#endregion
 
 		#region Рассчетные
 
@@ -392,6 +540,14 @@ namespace Vodovoz.Domain.Goods
 
 		}
 
+		public virtual void SetNomenclatureCreationInfo()
+		{
+			if(Id == 0 && !CreateDate.HasValue) {
+				CreateDate = DateTime.Now;
+				CreatedBy = UserRepository.GetCurrentUser(UoW);
+			}
+		}
+		
 		public Nomenclature()
 		{
 			Category = NomenclatureCategory.water;

@@ -19,7 +19,7 @@ using Vodovoz.Repository;
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class SendDocumentByEmailView : WidgetOnDialogBase
+	public partial class SendDocumentByEmailView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private OrderDocument document;
 		private bool canSend => document is IPrintableRDLDocument;

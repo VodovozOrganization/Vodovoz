@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using NLog;
+using QS.DomainModel.UoW;
 using QSContacts;
 using QSOrmProject;
 using QSValidation;
@@ -10,7 +11,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	public partial class ProxyDlg : OrmGtkDialogBase<Proxy>
+	public partial class ProxyDlg : QS.Dialog.Gtk.EntityDialogBase<Proxy>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 

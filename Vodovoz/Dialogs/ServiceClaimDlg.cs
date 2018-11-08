@@ -3,12 +3,12 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using QSValidation;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -17,10 +17,11 @@ using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
+using QS.Project.Dialogs;
 
 namespace Vodovoz
 {
-	public partial class ServiceClaimDlg : OrmGtkDialogBase<ServiceClaim>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
+	public partial class ServiceClaimDlg : QS.Dialog.Gtk.EntityDialogBase<ServiceClaim>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
 	{
 		#region IPanelInfoProvider implementation
 		public PanelViewType[] InfoWidgets{

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using QS.Dialog;
 using QS.Report;
 using QSOrmProject;
 using QSProjectsLib;
@@ -11,7 +12,7 @@ using Vodovoz.Repository;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MastersVisitReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class MastersVisitReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		IUnitOfWork uow;
 
@@ -26,12 +27,6 @@ namespace Vodovoz.ReportsParameters
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get { return uow; } private set {; } }
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		#endregion
 

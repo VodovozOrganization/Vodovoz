@@ -1,5 +1,6 @@
 ﻿using System;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSValidation;
 using QSWidgetLib;
@@ -7,7 +8,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
-	public partial class DeliveryScheduleDlg : OrmGtkDialogBase<DeliverySchedule>
+	public partial class DeliveryScheduleDlg : QS.Dialog.Gtk.EntityDialogBase<DeliverySchedule>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 

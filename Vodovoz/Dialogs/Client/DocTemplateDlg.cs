@@ -1,15 +1,16 @@
 ﻿using System;
 using Gamma.Utilities;
+using QS.DomainModel.UoW;
 using QSDocTemplates;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	public partial class DocTemplateDlg : OrmGtkDialogBase<DocTemplate>
+	public partial class DocTemplateDlg : QS.Dialog.Gtk.EntityDialogBase<DocTemplate>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private FileWorker worker = new FileWorker();

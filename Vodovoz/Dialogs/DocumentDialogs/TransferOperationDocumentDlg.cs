@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Repository.Operations;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
-	public partial class TransferOperationDocumentDlg : OrmGtkDialogBase<TransferOperationDocument>
+	public partial class TransferOperationDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<TransferOperationDocument>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 

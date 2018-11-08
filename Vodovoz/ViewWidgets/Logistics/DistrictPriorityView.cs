@@ -8,7 +8,7 @@ using Vodovoz.Domain.Logistic;
 namespace Vodovoz.ViewWidgets.Logistics
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DistrictPriorityView : WidgetOnDialogBase
+	public partial class DistrictPriorityView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		GenericObservableList<AtWorkDriverDistrictPriority> observableDistricts;
 

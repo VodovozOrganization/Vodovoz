@@ -14,7 +14,7 @@ using Vodovoz.Domain.Orders;
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CommentsView : WidgetOnDialogBase
+	public partial class CommentsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private IUnitOfWork uow;
 
@@ -197,7 +197,7 @@ namespace Vodovoz.ViewWidgets
 
 
 
-//ITdiTab mytab = TdiHelper.FindMyTab(this);
+//ITdiTab mytab = DialogHelper.FindParentTab(this);
 //if(mytab == null)
 //return;
 // использование WidgetOnDialogBase вместо Gtk позволяет не писать код выше, а сразу обращаться через this к окну

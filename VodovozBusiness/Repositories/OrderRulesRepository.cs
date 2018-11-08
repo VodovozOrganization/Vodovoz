@@ -101,12 +101,30 @@ namespace Vodovoz.Repositories
 					}
 				)
 			);
+			//Special UPD
+			rules.Add(
+				new Rule(
+					key => GetConditionForSpecialUPD(key),
+					new[] {
+						OrderDocumentType.SpecialUPD
+					}
+				)
+			);
 			//Bill
 			rules.Add(
 				new Rule(
 					key => GetConditionForBill(key),
 					new[] {
 						OrderDocumentType.Bill
+					}
+				)
+			);
+			//Special Bill
+			rules.Add(
+				new Rule(
+					key => GetConditionForSpecialBill(key),
+					new[] {
+						OrderDocumentType.SpecialBill
 					}
 				)
 			);
@@ -196,6 +214,12 @@ namespace Vodovoz.Repositories
 			&& key.OrderStatus >= OrderStatus.Accepted
 		);
 
+		static bool GetConditionForSpecialUPD(OrderStateKey key) =>
+		(
+			GetConditionForUPD(key)
+			&& key.HaveSpecialFields
+		);
+
 		static bool GetConditionForBill(OrderStateKey key) =>
 		(
 			key.PaymentType == PaymentType.cashless
@@ -203,6 +227,12 @@ namespace Vodovoz.Repositories
 			&& !key.NeedToRefundDepositToClient
 			&& key.HasOrderItems
 		);
+
+		static bool GetConditionForSpecialBill(OrderStateKey key) =>
+	(
+		GetConditionForBill(key)
+		&& key.HaveSpecialFields
+	);
 
 		static bool GetConditionForTORG12(OrderStateKey key) =>
 		(

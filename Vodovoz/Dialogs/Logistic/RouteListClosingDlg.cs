@@ -6,6 +6,7 @@ using System.Text;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSSupportLib;
@@ -24,7 +25,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class RouteListClosingDlg : OrmGtkDialogBase<RouteList>
+	public partial class RouteListClosingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
 	{
 		#region поля
 
@@ -244,6 +245,8 @@ namespace Vodovoz
 			ylabelRecalculatedMileage.Binding.AddFuncBinding(Entity, e => e.RecalculatedDistance.HasValue ? $" {e.RecalculatedDistance} км" : "", w => w.LabelProp).InitializeFromSource();
 			checkSendToMileageCheck.Binding.AddBinding(Entity, x => x.MileageCheck, w => w.Active).InitializeFromSource();
 			Entity.PropertyChanged += Entity_PropertyChanged;
+
+			UoW.CanCheckIfDirty = false;
 		}
 
 		/// <summary>
@@ -689,7 +692,7 @@ namespace Vodovoz
 			{
 				var document = Additions.Logistic.PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
 				this.TabParent.OpenTab(
-					QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
+					QS.Dialog.Gtk.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
 					() => new QSReport.ReportViewDlg(document));
 			}
 		}
@@ -699,7 +702,7 @@ namespace Vodovoz
 			{
 				var document = Additions.Logistic.PrintRouteListHelper.GetRDLFine(Entity);
 				this.TabParent.OpenTab(
-					QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
+					QS.Dialog.Gtk.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
 					() => new QSReport.ReportViewDlg(document));
 			}
 		}
@@ -730,14 +733,14 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, fineDlg);
 		}
 
-		void FineDlgNew_EntitySaved(object sender, QSTDI.EntitySavedEventArgs e)
+		void FineDlgNew_EntitySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
 		{
 			Entity.BottleFine = e.Entity as Fine;
 			CalculateTotal();
 			UpdateButtonState();
 		}
 
-		void FineDlgExist_EntitySaved(object sender, QSTDI.EntitySavedEventArgs e)
+		void FineDlgExist_EntitySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
 		{
 			UoW.Session.Refresh(Entity.BottleFine);
 			CalculateTotal();
@@ -1038,7 +1041,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, tab);
 		}
 
-		void FuelDoc_EntitySaved(object sender, QSTDI.EntitySavedEventArgs e)
+		void FuelDoc_EntitySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
 		{
 			Entity.ObservableFuelDocuments.Add(e.Entity as FuelDocument);
 			UoWGeneric.Save();

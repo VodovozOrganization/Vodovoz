@@ -1,11 +1,8 @@
 ﻿using System;
 using Gtk;
-using NLog;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
-using QSValidation;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -15,7 +12,7 @@ using Vodovoz.Representations;
 namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class NuanceDlg : OrmGtkDialogBase<Comments>
+	public partial class NuanceDlg : QS.Dialog.Gtk.EntityDialogBase<Comments>
 	{
 		object UoWforeign;
 

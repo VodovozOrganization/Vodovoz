@@ -6,7 +6,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Operations
 {
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "передвижения товаров",
 		Nominative = "передвижение товаров")]
 	public class WarehouseMovementOperation: OperationBase

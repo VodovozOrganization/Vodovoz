@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DeliveryPointView : WidgetOnDialogBase
+	public partial class DeliveryPointView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		IUnitOfWorkGeneric<Counterparty> deliveryPointUoW;
 
@@ -51,7 +51,7 @@ namespace Vodovoz
 		void OnButtonAddClicked(object sender, EventArgs e)
 		{
 			if(MyOrmDialog.UoW.IsNew) {
-				if(CommonDialogs.SaveBeforeCreateSlaveEntity(MyOrmDialog.EntityObject.GetType(), typeof(DeliveryPoint))) {
+				if(CommonDialogs.SaveBeforeCreateSlaveEntity(MyEntityDialog.EntityObject.GetType(), typeof(DeliveryPoint))) {
 					if(!MyTdiDialog.Save())
 						return;
 				} else

@@ -10,7 +10,7 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject(Gender = GrammaticalGender.Neuter,
+	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "документы выдачи топлива",
 		Nominative = "документ выдачи топлива")]
 	public class FuelDocument : PropertyChangedBase, IDomainObject, IValidatableObject

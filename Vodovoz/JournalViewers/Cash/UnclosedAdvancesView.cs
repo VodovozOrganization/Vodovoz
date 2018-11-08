@@ -1,14 +1,14 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class UnclosedAdvancesView : TdiTabBase
+	public partial class UnclosedAdvancesView : QS.Dialog.Gtk.TdiTabBase
 	{
 		private IUnitOfWork uow;
 

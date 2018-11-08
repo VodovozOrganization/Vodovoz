@@ -7,7 +7,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Store
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "материалы спецификации",
 		Nominative = "материал спецификации"
 	)]

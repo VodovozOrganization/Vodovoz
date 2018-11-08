@@ -85,6 +85,7 @@ namespace Vodovoz.Tools.CommerceML
 		public void RunToDirectory(string dir)
 		{
 			Errors.Clear();
+			TotalTasks = 7;
 
 			CreateObjects();
 

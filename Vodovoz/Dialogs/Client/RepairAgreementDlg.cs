@@ -1,13 +1,15 @@
 ﻿using System;
 using NLog;
+using QS.DomainModel.UoW;
+using QS.Dialog;
 using QSOrmProject;
 using QSValidation;
-using Vodovoz.Domain.Client;
 using Vodovoz.DocTemplates;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	public partial class RepairAgreementDlg : OrmGtkDialogBase<RepairAgreement>, IAgreementSaved, IEditableDialog
+	public partial class RepairAgreementDlg : QS.Dialog.Gtk.EntityDialogBase<RepairAgreement>, IAgreementSaved, IEditableDialog
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 

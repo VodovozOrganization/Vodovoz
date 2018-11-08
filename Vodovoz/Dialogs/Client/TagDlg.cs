@@ -1,12 +1,12 @@
-﻿using System;
-using NLog;
-using QSOrmProject;
+﻿using NLog;
+using QS.Dialog.Gtk;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Dialogs.Client
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class TagDlg : QSOrmProject.OrmGtkDialogBase<Tag>
+	public partial class TagDlg : EntityDialogBase<Tag>
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 

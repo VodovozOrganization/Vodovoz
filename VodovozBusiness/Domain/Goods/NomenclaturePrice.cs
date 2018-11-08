@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Goods
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "цены",
 		Nominative = "цена")]
 	public partial class NomenclaturePrice: PropertyChangedBase, IDomainObject

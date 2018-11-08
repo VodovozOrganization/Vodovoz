@@ -14,14 +14,19 @@ using Gtk;
 using NHibernate.Proxy;
 using NHibernate.Util;
 using NLog;
+using QS.Dialog;
+using QS.Dialog.Gtk;
+using QS.DomainModel.UoW;
 using QS.Print;
+using QS.Project.Dialogs;
 using QS.Report;
+using QS.Tdi;
+using QS.Tdi.Gtk;
 using QSDocTemplates;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using QSSupportLib;
-using QSTDI;
 using QSValidation;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
@@ -45,7 +50,7 @@ using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz
 {
-	public partial class OrderDlg : OrmGtkDialogBase<Order>,
+	public partial class OrderDlg : QS.Dialog.Gtk.EntityDialogBase<Order>,
 		ICounterpartyInfoProvider, 
 		IDeliveryPointInfoProvider, 
 		IContractInfoProvider, 
@@ -80,13 +85,7 @@ namespace Vodovoz
 
 		public bool CanHaveEmails => Entity.Id != 0;
 
-		public List<StoredEmail> GetEmails()
-		{
-			if(Entity.Id == 0) {
-				return null;
-			}
-			return EmailRepository.GetAllEmailsForOrder(UoW, Entity.Id);
-		}
+		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? EmailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
 
 		#endregion
 
@@ -333,6 +332,8 @@ namespace Vodovoz
 			labelSumDifference.Hide();
 			dataSumDifferenceReason.Hide();
 			labelSumDifferenceReason.Hide();
+
+			UoW.CanCheckIfDirty = false;
 		}
 
 		private void ConfigureTrees()
@@ -427,10 +428,10 @@ namespace Vodovoz
 				.AddColumn("Документ").SetDataProperty(node => node.Name)
 				.AddColumn("Дата документа").AddTextRenderer(node => node.DocumentDateText)
 				.AddColumn("Заказ №").SetTag("OrderNumberColumn").AddTextRenderer(node => node.Order.Id != node.AttachedToOrder.Id ? node.Order.Id.ToString() : "")
-				.AddColumn("Без рекламы").AddToggleRenderer(x => x is IAdvertisable ? (x as IAdvertisable).WithoutAdvertising : false)
+				.AddColumn("Без рекламы").AddToggleRenderer(x => x is IAdvertisable && (x as IAdvertisable).WithoutAdvertising)
 				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<IAdvertisable>(x => x.WithoutAdvertising))
 				.AddSetter((c, n) => c.Visible = n.Type == OrderDocumentType.Invoice || n.Type == OrderDocumentType.InvoiceContractDoc)
-				.AddColumn("Без подписей и печати").AddToggleRenderer(x => x is BillDocument ? (x as BillDocument).HideSignature : false)
+				.AddColumn("Без подписей и печати").AddToggleRenderer(x => x is BillDocument && (x as BillDocument).HideSignature)
 				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<BillDocument>(x => x.HideSignature))
 				.AddSetter((c, n) => c.Visible = n.Type == OrderDocumentType.Bill)
 				.AddColumn("")
@@ -637,7 +638,9 @@ namespace Vodovoz
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatus(OrderStatus.Closed);
-				Entity.ObservableOrderItems.ForEach(i => i.ActualCount = i.Count);
+				foreach(OrderItem i in Entity.ObservableOrderItems) {
+					i.ActualCount = i.Count;
+				}
 			}
 			ButtonCloseOrderAccessibilityAndAppearance();
 		}
@@ -647,10 +650,7 @@ namespace Vodovoz
 			buttonCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"]
 				|| Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted;
 
-			if(Entity.OrderStatus == OrderStatus.Accepted)
-				buttonCloseOrder.Label = "Закрыть без доставки";
-			else
-				buttonCloseOrder.Label = "Вернуть в \"Принят\"";
+			buttonCloseOrder.Label = Entity.OrderStatus == OrderStatus.Accepted ? "Закрыть без доставки" : "Вернуть в \"Принят\"";
 		}
 
 		#endregion
@@ -837,7 +837,7 @@ namespace Vodovoz
 
 		protected void OnTreeServiceClaimRowActivated(object o, RowActivatedArgs args)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab(this);
+			ITdiTab mytab = DialogHelper.FindParentTab(this);
 			if(mytab == null)
 				return;
 
@@ -857,9 +857,14 @@ namespace Vodovoz
 		{
 			if(!SaveOrderBeforeContinue<ServiceClaim>())
 				return;
-			OrmReference SelectDialog = new OrmReference(typeof(ServiceClaim), UoWGeneric,
-											ServiceClaimRepository.GetDoneClaimsForClient(Entity)
-				.GetExecutableQueryOver(UoWGeneric.Session).RootCriteria);
+			OrmReference SelectDialog = new OrmReference(
+				typeof(ServiceClaim), 
+				UoWGeneric,
+				ServiceClaimRepository
+					.GetDoneClaimsForClient(Entity)
+					.GetExecutableQueryOver(UoWGeneric.Session)
+					.RootCriteria
+			);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
 			SelectDialog.ObjectSelected += DoneServiceSelected;
@@ -905,7 +910,7 @@ namespace Vodovoz
 		{
 			var claim = treeServiceClaim.GetSelectedObject<ServiceClaim>();
 			OpenTab(
-				OrmGtkDialogBase<ServiceClaim>.GenerateHashName(claim.Id),
+				EntityDialogBase<ServiceClaim>.GenerateHashName(claim.Id),
 				() => new ServiceClaimDlg(claim)
 			);
 		}
@@ -1278,7 +1283,7 @@ namespace Vodovoz
 				}
 			}
 
-			deletedOrderItems.ForEach(x => Entity.RemoveItem(x));
+			deletedOrderItems.ForEach(Entity.RemoveItem);
 			var agreementProxy = Entity.Contract.AdditionalAgreements.FirstOrDefault(x => x.Id == agreement.Id);
 			if(agreementProxy != null) {
 				Entity.Contract.AdditionalAgreements.Remove(agreementProxy);
@@ -1524,10 +1529,7 @@ namespace Vodovoz
 				nom
 			);
 
-			(dlg as IAgreementSaved).AgreementSaved +=
-				(sender, e) => {
-					AgreementSaved(sender, e);
-				};
+			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
@@ -1662,11 +1664,7 @@ namespace Vodovoz
 		{
 			if(!HaveAgreementForDeliveryPoint()) {
 				Order originalOrder = UoW.GetById<Order>(Entity.Id);
-				if(originalOrder != null && originalOrder.DeliveryPoint != null) {
-					Entity.DeliveryPoint = originalOrder.DeliveryPoint;
-				} else {
-					Entity.DeliveryPoint = null;
-				}
+				Entity.DeliveryPoint = originalOrder != null && originalOrder.DeliveryPoint != null ? originalOrder.DeliveryPoint : null;
 			}
 
 			CheckSameOrders();
@@ -1866,10 +1864,7 @@ namespace Vodovoz
 
 			if(listDriverCallType != (DriverCallType)enumDiverCallType.SelectedItem) {
 				var max = UoW.Session.QueryOver<Order>().Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DriverCallId)).SingleOrDefault<int>();
-				if(max != 0)
-					Entity.DriverCallId = max + 1;
-				else
-					Entity.DriverCallId = 1;
+				Entity.DriverCallId = max != 0 ? max + 1 : 1;
 			}
 		}
 
@@ -1939,12 +1934,7 @@ namespace Vodovoz
 				//У выбранной точки доставки нет соглашения о доставке воды, предлагаем создать.
 				//Если пользователь создаст соглашение, то запишется выбранная точка доставки
 				//если не создаст то ничего не произойдет и точка доставки останется прежней
-				CounterpartyContract contract;
-				if(Entity.Contract != null) {
-					contract = Entity.Contract;
-				} else {
-					contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-				}
+				CounterpartyContract contract = Entity.Contract ?? CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
 				if(MessageDialogWorks.RunQuestionDialog("В заказе добавлена вода, а для данной точки доставки нет дополнительного соглашения о доставке воды, создать?")) {
 					ITdiDialog dlg = new WaterAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate);
 					(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
@@ -2228,11 +2218,7 @@ namespace Vodovoz
 
 		private void IsUIEditable(bool val = true)
 		{
-			if(Entity.Client != null) {
-				enumPaymentType.Sensitive = val;
-			} else {
-				enumPaymentType.Sensitive = false;
-			}
+			enumPaymentType.Sensitive = Entity.Client != null && val;
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable =
 				referenceClient.IsEditable = val;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =// enumStatus.Sensitive = 
@@ -2261,13 +2247,8 @@ namespace Vodovoz
 
 		void SetPadInfoSensitive(bool value)
 		{
-			foreach(var widget in table1.Children) {
-				if(widget.Name == vboxOrderComment.Name) {
-					widget.Sensitive = true;
-				}else {
-					widget.Sensitive = value;
-				}
-			}
+			foreach(var widget in table1.Children) 
+				widget.Sensitive = widget.Name == vboxOrderComment.Name || value;
 		}
 
 		void SetSensitivityOfPaymentType()
@@ -2359,11 +2340,11 @@ namespace Vodovoz
 
 		void SetDiscountEditable(bool? canEdit = null)
 		{
-			spinDiscount.Sensitive = canEdit.HasValue ? canEdit.Value : enumDiscountUnit.SelectedItem != null;
+			spinDiscount.Sensitive = canEdit ?? enumDiscountUnit.SelectedItem != null;
 		}
 
 		void SetDiscountUnitEditable(bool? canEdit = null){
-			enumDiscountUnit.Sensitive = canEdit.HasValue ? canEdit.Value : ycomboboxReason.SelectedItem != null;
+			enumDiscountUnit.Sensitive = canEdit ?? ycomboboxReason.SelectedItem != null;
 		}
 
 		/// <summary>
@@ -2374,8 +2355,8 @@ namespace Vodovoz
 		/// <see langword="null"/>переключает видимость с невидимого на видимый и обратно.</param>
 		private void ToggleVisibilityOfDeposits(bool? visibly = null)
 		{
-			depositrefunditemsview.Visible = visibly.HasValue ? visibly.Value : !depositrefunditemsview.Visible;
-			labelDeposit1.Visible = visibly.HasValue ? visibly.Value : !labelDeposit1.Visible;
+			depositrefunditemsview.Visible = visibly ?? !depositrefunditemsview.Visible;
+			labelDeposit1.Visible = visibly ?? !labelDeposit1.Visible;
 		}
 
 		private void SetProxyForOrder()
@@ -2384,7 +2365,7 @@ namespace Vodovoz
 			   && Entity.DeliveryDate.HasValue
 			   && (Entity.Client?.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)) {
 				var proxies = Entity.Client.Proxies.Where(p => p.IsActiveProxy(Entity.DeliveryDate.Value) && (p.DeliveryPoints == null || p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, Entity.DeliveryPoint))));
-				if(proxies.Count() > 0) {
+				if(proxies.Any()) {
 					enumSignatureType.SelectedItem = OrderSignatureType.ByProxy;
 				}
 			}
@@ -2408,14 +2389,7 @@ namespace Vodovoz
 		private bool HaveEmailForBill()
 		{
 			QSContacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
-			if(clientEmail == null) {
-				if(MessageDialogWorks.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")){
-					return true;
-				}else {
-					return false;
-				}
-			}
-			return true;
+			return clientEmail != null || MessageDialogWorks.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?");
 		}
 
 		private void SendBillByEmail(QSContacts.Email emailAddressForBill)

@@ -11,8 +11,8 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Dialog;
 using QS.Report;
-using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -22,7 +22,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Reports
 {
-	public partial class SalesReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class SalesReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		class SalesReportNode : PropertyChangedBase
 		{
@@ -376,12 +376,6 @@ namespace Vodovoz.Reports
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		#endregion
 

@@ -12,7 +12,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Cash
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "приходные одера",
 		Nominative = "приходный ордер")]
 	public class Income : PropertyChangedBase, IDomainObject, IValidatableObject

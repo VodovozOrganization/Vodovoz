@@ -1,14 +1,16 @@
-﻿﻿using System;
+﻿using System;
 using NLog;
+using QS.DomainModel.UoW;
+using QS.Dialog;
 using QSOrmProject;
 using QSValidation;
-using Vodovoz.Domain.Client;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	public partial class FreeRentAgreementDlg : OrmGtkDialogBase<FreeRentAgreement>, IAgreementSaved, IEditableDialog
+	public partial class FreeRentAgreementDlg : QS.Dialog.Gtk.EntityDialogBase<FreeRentAgreement>, IAgreementSaved, IEditableDialog
 	{
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
 

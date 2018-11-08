@@ -6,7 +6,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Store
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки шаблона пересортицы",
 		Nominative = "строка шаблона пересортицы")]
 	public class RegradingOfGoodsTemplateItem: PropertyChangedBase, IDomainObject

@@ -4,8 +4,8 @@ using System.Linq;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
+using QS.DomainModel.UoW;
 using QS.Print;
-using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Additions.Logistic;
@@ -18,7 +18,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class RouteListCreateDlg : OrmGtkDialogBase<RouteList>
+	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -125,6 +125,8 @@ namespace Vodovoz
 
 			IsEditable = UoWGeneric.Root.Status == RouteListStatus.New && QSMain.User.Permissions ["logistican"];
 
+			UoW.CanCheckIfDirty = false;
+
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, false);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
@@ -146,7 +148,7 @@ namespace Vodovoz
 		void PrintSelectedDocument (RouteListPrintableDocuments choise)
 		{
 			TabParent.OpenTab(
-				QSTDI.TdiTabBase.GenerateHashName<DocumentsPrinterDlg>(),
+				QS.Dialog.Gtk.TdiTabBase.GenerateHashName<DocumentsPrinterDlg>(),
 				() => CreateDocumentsPrinterDlg(choise)
 			);
 

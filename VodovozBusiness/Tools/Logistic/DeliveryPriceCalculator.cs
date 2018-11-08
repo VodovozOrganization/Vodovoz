@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
 using NetTopologySuite.Geometries;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSOsm;
 using QSOsm.Osrm;
 using Vodovoz.Domain.Client;

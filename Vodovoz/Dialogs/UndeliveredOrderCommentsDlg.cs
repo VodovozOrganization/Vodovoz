@@ -2,7 +2,7 @@
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories;
@@ -10,7 +10,7 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Dialogs
 {
-	public partial class UndeliveredOrderCommentsDlg : TdiTabBase
+	public partial class UndeliveredOrderCommentsDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		IUnitOfWork UoW { get; set; }
 		UndeliveredOrderComment Comment { get; set; }

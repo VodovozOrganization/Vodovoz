@@ -8,7 +8,7 @@ using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Domain.StoredEmails
 {
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Электронные почты для отправки",
 	    Nominative = "Электронная почта для отправки"
 	)]

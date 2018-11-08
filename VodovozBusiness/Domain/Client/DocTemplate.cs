@@ -8,7 +8,7 @@ using Vodovoz.DocTemplates;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "шаблоны документов",
 		Nominative = "шаблон документа")]
 	public class DocTemplate : PropertyChangedBase, IDomainObject, IDocTemplate

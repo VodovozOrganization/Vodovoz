@@ -1,12 +1,12 @@
 ﻿using System;
-using Gamma.ColumnConfig;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Dialogs.Logistic
 {
-	public partial class DeliveryDayScheduleDlg : OrmGtkDialogBase<DeliveryDaySchedule>
+	public partial class DeliveryDayScheduleDlg : QS.Dialog.Gtk.EntityDialogBase<DeliveryDaySchedule>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

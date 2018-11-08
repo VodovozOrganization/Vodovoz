@@ -1,14 +1,15 @@
 ﻿using System;
-using QSTDI;
 using NLog;
-using Vodovoz.ViewModel;
+using QS.DomainModel.UoW;
 using QSOrmProject;
+using QS.Tdi;
 using Vodovoz.Domain.Accounting;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AccountingView : TdiTabBase, ITdiJournal
+	public partial class AccountingView : QS.Dialog.Gtk.TdiTabBase, ITdiJournal
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 

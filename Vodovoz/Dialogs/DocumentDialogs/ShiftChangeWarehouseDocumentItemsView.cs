@@ -12,7 +12,7 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ShiftChangeWarehouseDocumentItemsView : WidgetOnDialogBase
+	public partial class ShiftChangeWarehouseDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 
 		public ShiftChangeWarehouseDocumentItemsView()

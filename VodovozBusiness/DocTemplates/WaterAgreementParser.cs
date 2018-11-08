@@ -56,6 +56,8 @@ namespace Vodovoz.DocTemplates
 						node.Water3 = fPrice.Price.ToString();
 					if(fPrice.Nomenclature.Id == node.Id4)
 						node.Water4 = fPrice.Price.ToString();
+					if(fPrice.Nomenclature.Id == node.Id5)
+						node.Water5 = fPrice.Price.ToString();
 				}
 			}
 
@@ -64,7 +66,9 @@ namespace Vodovoz.DocTemplates
 				.AddColumn(x => x.Water1, PatternFieldType.FString)
 				.AddColumn(x => x.Water2, PatternFieldType.FString)
 				.AddColumn(x => x.Water3, PatternFieldType.FString)
-				.AddColumn(x => x.Water4, PatternFieldType.FString);
+				.AddColumn(x => x.Water4, PatternFieldType.FString)
+				.AddColumn(x => x.Water5, PatternFieldType.FString)
+				;
 
 			SortFields();
 		}

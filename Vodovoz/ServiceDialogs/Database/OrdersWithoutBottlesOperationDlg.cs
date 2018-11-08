@@ -4,16 +4,15 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrdersWithoutBottlesOperationDlg : TdiTabBase
+	public partial class OrdersWithoutBottlesOperationDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		GenericObservableList<Order> observableOrders;
@@ -22,6 +21,12 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		public OrdersWithoutBottlesOperationDlg()
 		{
+			if(!QSMain.User.Permissions["database_maintenance"]) {
+				MessageDialogWorks.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
+				FailInitialize = true;
+				return;
+			}
+
 			this.Build();
 
 			TabName = "Заказы без передвижения бутылей";

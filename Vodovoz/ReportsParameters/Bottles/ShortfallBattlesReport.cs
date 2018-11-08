@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.UoW;
+using QS.Dialog;
 using QS.Report;
-using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
@@ -11,7 +11,7 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ShortfallBattlesReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class ShortfallBattlesReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public ShortfallBattlesReport()
 		{
@@ -27,12 +27,6 @@ namespace Vodovoz.ReportsParameters.Bottles
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
-
-		public object EntityObject {
-			get	{
-				return null;
-			}
-		}
 
 		#endregion
 

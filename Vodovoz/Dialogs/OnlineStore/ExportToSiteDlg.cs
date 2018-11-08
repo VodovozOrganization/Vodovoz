@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml;
 using Gtk;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Tools.CommerceML;
 
 namespace Vodovoz.Dialogs.OnlineStore
 {
-	public partial class ExportToSiteDlg : QSTDI.TdiTabBase
+	public partial class ExportToSiteDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		public ExportToSiteDlg()
 		{
+			if(!QSMain.User.Permissions["database_maintenance"]) {
+				MessageDialogWorks.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
+				FailInitialize = true;
+				return;
+			}
+
 			this.Build();
 			TabName = "Экспорт интернет магазин";
 			if(MainSupport.BaseParameters.All.ContainsKey(Export.OnlineStoreUrlParameterName))

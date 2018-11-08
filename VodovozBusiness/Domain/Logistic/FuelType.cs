@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Vodovoz.Domain.Logistic
 {
 
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "виды топлива",
 		Nominative = "вид топлива")]
 	public class FuelType : PropertyChangedBase, IDomainObject, IValidatableObject

@@ -2,15 +2,18 @@
 using System.Linq;
 using Gtk;
 using NLog;
+using QS.Dialog.Gtk;
+using QS.Project.Dialogs;
+using QS.Tdi.Gtk;
 using QSBanks;
 using QSBusinessCommon.Domain;
 using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSSupportLib;
-using QSTDI;
 using Vodovoz;
 using Vodovoz.Core;
+using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -19,13 +22,13 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.ReportsParameters;
+using Vodovoz.ReportsParameters.Store;
+using Vodovoz.Representations;
+using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
-using Vodovoz.ReportsParameters;
-using Vodovoz.ServiceDialogs;
-using Vodovoz.Dialogs.OnlineStore;
-using Vodovoz.ReportsParameters.Store;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -77,6 +80,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = QSMain.User.Permissions["access_to_salaries_wages_bonuses"];
 		ActionReports.Sensitive = false;
 		ActionServices.Visible = false;
+		ActionMaintenance.Sensitive = QSMain.User.Permissions["database_maintenance"];
 		#endregion
 
 		unreadedMessagesWidget.MainTab = tdiMain;
@@ -1034,6 +1038,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<DefectiveItemsReport>(),
 			() => new QSReport.ReportViewDlg(new DefectiveItemsReport())
+		);
+	}
+
+	protected void OnActionTraineeActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<TraineeVM>(),
+			() => new ReferenceRepresentation(new TraineeVM())
 		);
 	}
 }

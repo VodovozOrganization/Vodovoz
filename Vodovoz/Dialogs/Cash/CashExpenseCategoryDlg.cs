@@ -1,11 +1,12 @@
 ﻿using System;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Cash;
 
 namespace Vodovoz
 {
 	
-	public partial class CashExpenseCategoryDlg : OrmGtkDialogBase<ExpenseCategory>
+	public partial class CashExpenseCategoryDlg : QS.Dialog.Gtk.EntityDialogBase<ExpenseCategory>
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

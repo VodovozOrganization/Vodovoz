@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -10,7 +11,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	public partial class IncomingWaterDlg : OrmGtkDialogBase<IncomingWater>
+	public partial class IncomingWaterDlg : QS.Dialog.Gtk.EntityDialogBase<IncomingWater>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

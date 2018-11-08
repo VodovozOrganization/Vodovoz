@@ -12,7 +12,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 	NominativePlural = "треки",
 	Nominative = "трек")]
 	public class Track : PropertyChangedBase, IDomainObject

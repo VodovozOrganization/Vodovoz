@@ -2,6 +2,8 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
+using QS.DomainModel.UoW;
+using QS.Dialog;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.DocTemplates;
@@ -11,7 +13,7 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.Dialogs.Client
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class EquipSalesAgreementDlg : OrmGtkDialogBase<SalesEquipmentAgreement>, IAgreementSaved, IEditableDialog
+	public partial class EquipSalesAgreementDlg : QS.Dialog.Gtk.EntityDialogBase<SalesEquipmentAgreement>, IAgreementSaved, IEditableDialog
 	{
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
 

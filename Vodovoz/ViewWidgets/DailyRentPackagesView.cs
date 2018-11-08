@@ -5,6 +5,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -16,7 +17,7 @@ using Vodovoz.Representations;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class DailyRentPackagesView : WidgetOnDialogBase
+	public partial class DailyRentPackagesView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 

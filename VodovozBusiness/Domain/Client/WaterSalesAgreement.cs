@@ -6,18 +6,23 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QSOrmProject;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repository;
+using Vodovoz.Tools.AdditionalAgreements;
 
 namespace Vodovoz.Domain.Client
 {
 
-	[OrmSubject (Gender = GrammaticalGender.Neuter,
+	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения продажи воды",
 		Nominative = "доп. соглашение продажи воды")]
 	[HistoryTrace]
-	public class WaterSalesAgreement : AdditionalAgreement
+	public class WaterSalesAgreement : AdditionalAgreement, IBusinessObject
 	{
+		public virtual IUnitOfWorkGeneric<WaterSalesAgreement> UoWGeneric { set; get; }
+		public virtual IUnitOfWork UoW { set; get; }
+
 		IList<WaterSalesAgreementFixedPrice> fixedPrices = new List<WaterSalesAgreementFixedPrice> ();
 
 		[Display (Name = "Фиксированные цены")]
@@ -62,13 +67,42 @@ namespace Vodovoz.Domain.Client
 
 		public virtual void  AddFixedPrice(Nomenclature nomenclature, decimal price)
 		{
+			if(ObservableFixedPrices.Any(x => x.Nomenclature != null && x.Nomenclature.Id == nomenclature.Id)) {
+				return;
+			}
 			var nomenculaturePrice = new WaterSalesAgreementFixedPrice{
 				Nomenclature = nomenclature,
 				AdditionalAgreement = this,
 				Price = price
 			};
 
+			nomenculaturePrice.PropertyChanged += (sender, e) => {
+				if(e.PropertyName == nameof(nomenculaturePrice.Price)) {
+					var fixedPrice = (sender as WaterSalesAgreementFixedPrice);
+					if(fixedPrice == null) {
+						return;
+					}
+					AddDependsFixedPrice(UoW, fixedPrice.Nomenclature, fixedPrice.Price);
+				}
+			};
 			ObservableFixedPrices.Add(nomenculaturePrice);
+		}
+
+
+		public virtual void AddDependsFixedPrice(IUnitOfWork uow, Nomenclature nomenclature, decimal price)
+		{
+			WaterFixedPriceGenerator fixPriceGenerator = new WaterFixedPriceGenerator(uow);
+			var allPrices = fixPriceGenerator.GenerateFixedPrices(nomenclature.Id, price);
+
+			foreach(var p in allPrices) {
+				//Не перезаписываем уже указанные фиксированные цены
+				if(ObservableFixedPrices.Any(x => x.Nomenclature.Id == p.Nomenclature.Id)) {
+					continue;
+				}
+
+				p.AdditionalAgreement = this;
+				ObservableFixedPrices.Add(p);
+			}
 		}
 
 		/// <summary>
@@ -111,7 +145,7 @@ namespace Vodovoz.Domain.Client
 
 		public static IUnitOfWorkGeneric<WaterSalesAgreement> Create (CounterpartyContract contract)
 		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<WaterSalesAgreement> ();
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<WaterSalesAgreement> ($"Создание нового доп. соглашения на воду для договора {contract.Number}.");
 			uow.Root.Contract = uow.GetById<CounterpartyContract>(contract.Id);
 			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithType (uow.Root.Contract, AgreementType.WaterSales);
 			return uow;

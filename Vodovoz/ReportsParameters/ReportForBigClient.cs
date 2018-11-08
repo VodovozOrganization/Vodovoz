@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using QS.Dialog;
 using QS.Report;
-using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class ReportForBigClient : Gtk.Bin, IOrmDialog, IParametersWidget
+	public partial class ReportForBigClient : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 
@@ -30,12 +30,6 @@ namespace Vodovoz.ReportsParameters
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		#endregion
-
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
 
 		void OnUpdate(bool hide = false)
 		{

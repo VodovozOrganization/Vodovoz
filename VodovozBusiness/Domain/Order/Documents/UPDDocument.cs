@@ -18,7 +18,8 @@ namespace Vodovoz.Domain.Orders.Documents
 				Title = String.Format("УПД {0} от {1:d}", Order.Id, Order.DeliveryDate),
 				Identifier = "Documents.UPD",
 				Parameters = new Dictionary<string, object> {
-					{ "order_id", Order.Id }
+					{ "order_id", Order.Id },
+					{ "special", false }
 				}
 			};
 		}
@@ -39,8 +40,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override DocumentOrientation Orientation
 		{
-			get
-			{
+			get	{
 				return DocumentOrientation.Landscape;
 			}
 		}

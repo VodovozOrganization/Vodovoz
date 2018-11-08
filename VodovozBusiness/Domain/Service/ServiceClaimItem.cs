@@ -6,7 +6,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Service
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки заявки на обслуживание",
 		Nominative = "строка заявки на обслуживание")]
 	public class ServiceClaimItem: PropertyChangedBase, IDomainObject

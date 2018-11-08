@@ -1,15 +1,14 @@
 ﻿using System;
 using Gtk;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteListClosingView : TdiTabBase
+	public partial class RouteListClosingView : QS.Dialog.Gtk.TdiTabBase
 	{
 
 		private IUnitOfWork uow;

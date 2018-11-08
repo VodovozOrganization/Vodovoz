@@ -10,7 +10,7 @@ using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "входящие накладные",
 		Nominative = "входящая накладная")]
 	public class IncomingInvoice: Document, IValidatableObject

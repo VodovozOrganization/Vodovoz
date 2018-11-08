@@ -19,7 +19,7 @@ using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Client
 {
-	[OrmSubject (Gender = GrammaticalGender.Feminine,
+	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "точки доставки",
 		Nominative = "точка доставки",
 		Accusative = "точки доставки"

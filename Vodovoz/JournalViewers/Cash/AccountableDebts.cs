@@ -1,13 +1,13 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class AccountableDebts : TdiTabBase
+	public partial class AccountableDebts : QS.Dialog.Gtk.TdiTabBase
 	{
 		private IUnitOfWork uow;
 

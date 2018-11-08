@@ -7,7 +7,7 @@ using QSBanks;
 using QSBanks.Repository;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
+using QS.Tdi;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -17,7 +17,7 @@ using Vodovoz.Repository.Cash;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class LoadBankTransferDocumentDlg : TdiTabBase
+	public partial class LoadBankTransferDocumentDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		private BankTransferDocumentParser parser;
 		private IUnitOfWork uow;

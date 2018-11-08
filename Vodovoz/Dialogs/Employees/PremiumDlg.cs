@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Gamma.GtkWidgets;
+using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
@@ -10,7 +12,7 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.Dialogs.Employees
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class PremiumDlg : OrmGtkDialogBase<Premium>
+	public partial class PremiumDlg : QS.Dialog.Gtk.EntityDialogBase<Premium>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

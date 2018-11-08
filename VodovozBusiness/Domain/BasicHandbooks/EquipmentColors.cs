@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
+	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "цвета оборудования",
 		Nominative = "цвет оборудования")]
 	public class EquipmentColors : PropertyChangedBase, IDomainObject

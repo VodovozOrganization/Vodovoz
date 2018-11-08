@@ -8,7 +8,7 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[OrmSubject(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 	NominativePlural = "графики работы водителя",
 	Nominative = "график работы водителя")]
 	public class DeliveryDaySchedule : PropertyChangedBase, IDomainObject
