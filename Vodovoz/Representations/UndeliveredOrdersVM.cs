@@ -475,7 +475,9 @@ namespace Vodovoz.Representations
 		public UndeliveredOrdersVM(IUnitOfWork uow) : base()
 		{
 			this.UoW = uow;
-			currUser = EmployeeRepository.GetEmployeeForCurrentUser(uow).Id;
+			var currEmployee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			if(currEmployee != null)
+				currUser = currEmployee.Id;
 		}
 
 		public UndeliveredOrdersVM(IUnitOfWork uow, int undeliveryToShow) : this(uow)
