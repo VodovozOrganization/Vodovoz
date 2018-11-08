@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Client
 	{
 		public static IUnitOfWorkGeneric<RepairAgreement> Create (CounterpartyContract contract)
 		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<RepairAgreement> ();
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<RepairAgreement> ($"Создание нового доп. соглашения на ремонт для договора {contract.Number}.");
 			uow.Root.Contract = uow.GetById<CounterpartyContract>(contract.Id);
 			uow.Root.DeliveryPoint = null;
 			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithType (uow.Root.Contract, AgreementType.Repair);

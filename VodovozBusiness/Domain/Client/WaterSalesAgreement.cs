@@ -145,7 +145,7 @@ namespace Vodovoz.Domain.Client
 
 		public static IUnitOfWorkGeneric<WaterSalesAgreement> Create (CounterpartyContract contract)
 		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<WaterSalesAgreement> ();
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<WaterSalesAgreement> ($"Создание нового доп. соглашения на воду для договора {contract.Number}.");
 			uow.Root.Contract = uow.GetById<CounterpartyContract>(contract.Id);
 			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithType (uow.Root.Contract, AgreementType.WaterSales);
 			return uow;
