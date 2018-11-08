@@ -125,7 +125,10 @@ namespace Vodovoz
 
 			IsEditable = UoWGeneric.Root.Status == RouteListStatus.New && QSMain.User.Permissions ["logistican"];
 
+			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
+			HasChanges = true;
 			UoW.CanCheckIfDirty = false;
+
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, false);
