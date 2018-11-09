@@ -603,6 +603,11 @@ namespace Vodovoz.Domain.Goods
 					String.Format("Не указан тип залога."),
 					new[] { this.GetPropertyName(o => o.TypeOfDepositCategory) });
 
+			if(Unit == null)
+				yield return new ValidationResult(
+					String.Format("Не указаны единицы измерения"),
+					new[] { this.GetPropertyName(o => o.Unit) });
+
 			//Проверка зависимостей номенклатур #1: если есть зависимые
 			if(DependsOnNomenclature != null) {
 				IList<Nomenclature> dependedNomenclatures = Repository.NomenclatureRepository.GetDependedNomenclatures(UoW, this);
@@ -633,6 +638,8 @@ namespace Vodovoz.Domain.Goods
 						String.Format("Код 1с использует префикс автоматического формирования кодов '{0}'. При этом пропускает некоторое количество значений. Используйте в качестве следующего кода {1} или оставьте это поле пустым для автозаполенения.",
 						              PrefixOfCode1c, next),
 						new[] { this.GetPropertyName(o => o.Code1c) });
+
+
 
 			}
 		}
