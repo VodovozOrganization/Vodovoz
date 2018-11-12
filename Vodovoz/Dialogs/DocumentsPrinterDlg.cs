@@ -9,7 +9,6 @@ using QS.Report;
 using QSDocTemplates;
 using QSProjectsLib;
 using QSReport;
-using QS.Tdi;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -82,7 +81,7 @@ namespace Vodovoz.Dialogs
 			currentRouteList = routeList;
 
 			foreach(RouteListPrintableDocuments rlDocType in Enum.GetValues(typeof(RouteListPrintableDocuments))) {
-				if(rlDocType == RouteListPrintableDocuments.LoadDocument || rlDocType == RouteListPrintableDocuments.All)
+				if(rlDocType == RouteListPrintableDocuments.All)
 					continue;
 				var rlDoc = new RouteListPrintableDocs(uow, currentRouteList, rlDocType);
 				bool isSelected = selectedType == RouteListPrintableDocuments.All || selectedType == rlDocType;
