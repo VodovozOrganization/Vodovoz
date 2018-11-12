@@ -753,7 +753,7 @@ namespace Vodovoz
 								(dialog as IAgreementSaved).AgreementSaved += AgreementSaved;
 							}
 							TabParent.OpenTab(
-								OrmMain.GenerateDialogHashName(type, agreement.Id),
+								DialogHelper.GenerateDialogHashName(type, agreement.Id),
 								() => dialog
 							);
 						} else if(doc is OrderContract) {

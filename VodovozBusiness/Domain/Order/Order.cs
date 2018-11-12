@@ -539,11 +539,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanChangeContractor()
 		{
-			if((NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) && OrderDocuments.Count > 0) ||
-				(NHibernate.NHibernateUtil.IsInitialized(InitialOrderService) && InitialOrderService.Count > 0) ||
-				(NHibernate.NHibernateUtil.IsInitialized(FinalOrderService) && FinalOrderService.Count > 0))
-				return false;
-			return true;
+			return (!NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) || !OrderDocuments.Any())
+				&& (!NHibernate.NHibernateUtil.IsInitialized(InitialOrderService) || !InitialOrderService.Any())
+				&& (!NHibernate.NHibernateUtil.IsInitialized(FinalOrderService) || !FinalOrderService.Any());
 		}
 
 		IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem>();
@@ -670,12 +668,13 @@ namespace Vodovoz.Domain.Orders
 
 		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author)
 		{
-			var order = new Order();
-			order.client = service.Counterparty;
-			order.DeliveryPoint = service.DeliveryPoint;
-			order.DeliveryDate = service.ServiceStartDate;
-			order.PaymentType = service.Payment;
-			order.Author = author;
+			var order = new Order {
+				client = service.Counterparty,
+				DeliveryPoint = service.DeliveryPoint,
+				DeliveryDate = service.ServiceStartDate,
+				PaymentType = service.Payment,
+				Author = author
+			};
 			service.InitialOrder = order;
 			order.AddServiceClaimAsInitial(service);
 			return order;
@@ -827,18 +826,18 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 
-			if(ObservableOrderEquipments
+			if(
+				ObservableOrderEquipments
 			   .Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
-			   .Where(x => x.OwnType == OwnTypes.None)
-			   .Any()
+			   .Any(x => x.OwnType == OwnTypes.None)
 			  )
 				yield return new ValidationResult("У оборудования в заказе должна быть выбрана принадлежность.");
 
-			if(ObservableOrderEquipments
+			if(
+				ObservableOrderEquipments
 			   .Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
 			   .Where(x => x.DirectionReason == DirectionReason.None && x.OwnType != OwnTypes.Duty)
-			   .Where(x => x.Nomenclature?.SubTypeOfEquipmentCategory != SubtypeOfEquipmentCategory.forSale)
-			   .Any()
+			   .Any(x => x.Nomenclature?.SubTypeOfEquipmentCategory != SubtypeOfEquipmentCategory.forSale)
 			  )
 				yield return new ValidationResult("У оборудования в заказе должна быть указана причина забор-доставки.");
 
@@ -1030,16 +1029,10 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool NeedSendBill()
 		{
-			if(OrderStatus != OrderStatus.Accepted && OrderStatus != OrderStatus.WaitForPayment) {
-				return false;
-			}
-			var docType = OrderDocumentType.Bill;
-			//Проверка должен ли формироваться счет для текущего заказа
-			var docTypes = GetRequirementDocTypes();
-			if(!docTypes.Contains(docType)) {
-				return false;
-			}
-			return true;
+			if(OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
+				//Проверка должен ли формироваться счет для текущего заказа
+				return GetRequirementDocTypes().Contains(OrderDocumentType.Bill);
+			return false;
 		}
 
 		public virtual void ParseTareReason()
@@ -1258,10 +1251,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void CheckAndSetOrderIsService()
 		{
-			if(OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master))
-				IsService = true;
-			else
-				IsService = false;
+			IsService = OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master);
 		}
 
 		public virtual void SetOrderCreationDate()
@@ -2368,7 +2358,9 @@ namespace Vodovoz.Domain.Orders
 					initialStatus.GetEnumTitle(),
 					newStatus.GetEnumTitle()
 				);
-				undeliveries.ForEach(u => u.AddCommentToTheField(UoW, CommentedFields.Reason, text));
+				foreach(var u in undeliveries) {
+					u.AddCommentToTheField(UoW, CommentedFields.Reason, text);
+				}
 			}
 		}
 
@@ -2494,7 +2486,7 @@ namespace Vodovoz.Domain.Orders
 
 			// Кулера для продажи
 			var orderItemsCoolerWarrantyForSale = orderItemsWithCoolerWarranty.Where(x => x.AdditionalAgreement == null);
-			if(orderItemsCoolerWarrantyForSale.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+			if(orderItemsCoolerWarrantyForSale.Any() && OrderStatus == OrderStatus.Accepted) {
 				AddWarrantyDocumentIfNotExist(new CoolerWarrantyDocument {
 					WarrantyNumber = CoolerWarrantyDocument.GetNumber(this),
 					Order = this,
@@ -2506,7 +2498,7 @@ namespace Vodovoz.Domain.Orders
 
 			// Кулера в аренду
 			var orderItemsCoolerWarrantyForRent = orderItemsWithCoolerWarranty.Where(x => x.AdditionalAgreement != null);
-			if(orderItemsCoolerWarrantyForRent.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+			if(orderItemsCoolerWarrantyForRent.Any() && OrderStatus == OrderStatus.Accepted) {
 				var orderItemsDistinctAgreements = orderItemsWithCoolerWarranty.Select(x => x.AdditionalAgreement).Distinct().ToList();
 				foreach(var oItem in orderItemsDistinctAgreements) {
 					AddWarrantyDocumentIfNotExist(new CoolerWarrantyDocument {
@@ -2525,7 +2517,7 @@ namespace Vodovoz.Domain.Orders
 
 			// Помпы для продажи
 			var orderItemsPumpWarrantyForSale = orderItemsWithPumpWarranty.Where(x => x.AdditionalAgreement == null);
-			if(orderItemsPumpWarrantyForSale.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+			if(orderItemsPumpWarrantyForSale.Any() && OrderStatus == OrderStatus.Accepted) {
 				AddWarrantyDocumentIfNotExist(new PumpWarrantyDocument {
 					WarrantyNumber = PumpWarrantyDocument.GetNumber(this),
 					Order = this,
@@ -2537,7 +2529,7 @@ namespace Vodovoz.Domain.Orders
 
 			// Помпы в аренду
 			var orderItemsPumpWarrantyForRent = orderItemsWithPumpWarranty.Where(x => x.AdditionalAgreement != null);
-			if(orderItemsPumpWarrantyForRent.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+			if(orderItemsPumpWarrantyForRent.Any() && OrderStatus == OrderStatus.Accepted) {
 				var orderItemsDistinctAgreements = orderItemsWithPumpWarranty.Select(x => x.AdditionalAgreement).Distinct().ToList();
 				foreach(var oItem in orderItemsDistinctAgreements) {
 					AddWarrantyDocumentIfNotExist(new PumpWarrantyDocument {
@@ -2558,20 +2550,16 @@ namespace Vodovoz.Domain.Orders
 				haveDocuments = ObservableOrderDocuments
 					.Where(doc => doc.Order.Id == Id)
 					.OfType<CoolerWarrantyDocument>()
-					.Where(x => x.AdditionalAgreement == (document as CoolerWarrantyDocument).AdditionalAgreement)
-					.Any();
+					.Any(x => x.AdditionalAgreement == (document as CoolerWarrantyDocument).AdditionalAgreement);
 			}
 			if(document is PumpWarrantyDocument) {
 				haveDocuments = ObservableOrderDocuments
 					.Where(doc => doc.Order.Id == Id)
 					.OfType<PumpWarrantyDocument>()
-					.Where(x => x.AdditionalAgreement == (document as PumpWarrantyDocument).AdditionalAgreement)
-					.Any();
+					.Any(x => x.AdditionalAgreement == (document as PumpWarrantyDocument).AdditionalAgreement);
 			}
-			if(!haveDocuments) {
+			if(!haveDocuments)
 				ObservableOrderDocuments.Add(document);
-			}
-
 		}
 
 		private void CheckAndCreateDocuments(params OrderDocumentType[] needed)
@@ -2596,9 +2584,8 @@ namespace Vodovoz.Domain.Orders
 			}
 			//Создаем отсутствующие
 			foreach(var type in needCreate) {
-				if(ObservableOrderDocuments.Any(x => x.Order?.Id == Id && x.Type == type)) {
+				if(ObservableOrderDocuments.Any(x => x.Order?.Id == Id && x.Type == type))
 					continue;
-				}
 				ObservableOrderDocuments.Add(CreateDocumentOfOrder(type));
 			}
 		}
@@ -2781,7 +2768,9 @@ namespace Vodovoz.Domain.Orders
 
 		#region работа со скидками
 		public virtual void SetDiscountUnitsForAll(DiscountUnits unit){
-			ObservableOrderItems.ForEach(i => i.IsDiscountInMoney = unit == DiscountUnits.money);
+			foreach(OrderItem i in ObservableOrderItems) {
+				i.IsDiscountInMoney = unit == DiscountUnits.money;
+			}
 		}
 
 		/// <summary>
@@ -2802,10 +2791,7 @@ namespace Vodovoz.Domain.Orders
 				discount = 100 * discount / sum;
 			}
 			foreach(OrderItem item in ObservableOrderItems) {
-				if(unit == DiscountUnits.money)
-					item.DiscountForPreview = discount * item.Price * item.CurrentCount / 100;
-				else
-					item.DiscountForPreview = discount;
+				item.DiscountForPreview = unit == DiscountUnits.money ? discount * item.Price * item.CurrentCount / 100 : discount;
 				item.DiscountReason = reason;
 			}
 		}
@@ -2813,14 +2799,7 @@ namespace Vodovoz.Domain.Orders
 
 		#region	Внутренние функции
 
-		decimal GetFixedPrice(OrderItem item)
-		{
-			var fixedPrice = item.GetWaterFixedPrice();
-			if(fixedPrice.HasValue) {
-				return fixedPrice.Value;
-			}
-			return default(decimal);
-		}
+		decimal GetFixedPrice(OrderItem item) => item.GetWaterFixedPrice() ?? default(decimal);
 
 		decimal GetNomenclaturePrice(OrderItem item)
 		{
@@ -2860,16 +2839,10 @@ namespace Vodovoz.Domain.Orders
 			else
 				byFormula += CalculateGoDoorCount(bottels, 4) * 1 * 60; //1 минута на 4 бутыли c экспедитором.
 
-			if(byFormula < 5 * 60) // минимальное время нахождения на адресе.
-				return 5 * 60;
-			else
-				return byFormula;
+			return byFormula < 5 * 60 ? 5 * 60 : byFormula;
 		}
 
-		private int CalculateGoDoorCount(int bottles, int atTime)
-		{
-			return bottles / atTime + (bottles % atTime > 0 ? 1 : 0);
-		}
+		int CalculateGoDoorCount(int bottles, int atTime) => bottles / atTime + (bottles % atTime > 0 ? 1 : 0);
 
 		/// <summary>
 		/// Расчёт веса товаров и оборудования к клиенту для этого заказа
@@ -2919,8 +2892,8 @@ namespace Vodovoz.Domain.Orders
 			var result = new List<DepositOperation>();
 			DepositOperation bottlesOperation = null;
 			DepositOperation equipmentOperation = null;
-			bottlesOperation = DepositOperations.Where(x => x.DepositType == DepositType.Bottles).FirstOrDefault();
-			equipmentOperation = DepositOperations.Where(x => x.DepositType == DepositType.Equipment).FirstOrDefault();
+			bottlesOperation = DepositOperations.FirstOrDefault(x => x.DepositType == DepositType.Bottles);
+			equipmentOperation = DepositOperations.FirstOrDefault(x => x.DepositType == DepositType.Equipment);
 
 			//Залоги
 			var bottleReceivedDeposit = OrderItems.Where(x => x.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.BottleDeposit)
