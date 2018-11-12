@@ -422,6 +422,26 @@
     <EmbeddedResource Include="icons\map\points\square\blue_stripes.png" />
     <EmbeddedResource Include="icons\map\points\square\marker_shadow.png" />
     <EmbeddedResource Include="icons\map\points\star\gray.png" />
+    <EmbeddedResource Include="icons\map\points\circle\yellow_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\circle\green_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\circle\grey_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\circle\red_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\cross\green_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\cross\grey_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\cross\red_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\cross\yellow_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\square\yellow_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\square\green_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\square\red_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\square\grey_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\star\red_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\star\green_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\star\grey_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\star\yellow_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\triangle\yellow_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\triangle\red_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\triangle\green_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\triangle\grey_stripes.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />

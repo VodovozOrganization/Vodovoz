@@ -310,11 +310,7 @@ namespace Vodovoz
 			bool foundRL = routeLists != null && routeLists.Any();
 
 			if(foundRL) {
-				bool answer;
-				if(HasNoChanges)
-					answer = false;
-				else
-					answer = MessageDialogWorks.RunQuestionDialog(
+				bool answer = !HasNoChanges && MessageDialogWorks.RunQuestionDialog(
 						"Сохраненный маршрут открыт на вкладке маршруты за день." +
 						"При продолжении работы в этой вкладке, внесенные внешние изменения могут быть потеряны. " +
 						"При отмене данные в этом диалоге будут перезаписаны." +
@@ -714,10 +710,16 @@ namespace Vodovoz
 					if(route == null) {
 						if((order.DeliverySchedule.To - order.DeliverySchedule.From).TotalHours <= 1)
 							type = PointMarkerType.black_and_red;
-						else if(order.DeliverySchedule.From.Hours >= 17)
-							type = PointMarkerType.blue_stripes;
-						else
-							type = PointMarkerType.black;
+						else {
+							if(order.DeliverySchedule.To.TotalMinutes <= 720)//<= 12:00
+								type = PointMarkerType.red_stripes;
+							else if(order.DeliverySchedule.To.TotalMinutes <= 900)//<=15:00
+								type = PointMarkerType.yellow_stripes;
+							else if(order.DeliverySchedule.To.TotalMinutes <= 1080)//<= 18:00
+								type = PointMarkerType.green_stripes;
+							else
+								type = PointMarkerType.grey_stripes;
+						}
 					} else
 						type = GetAddressMarker(routesAtDay.IndexOf(route));
 
@@ -773,8 +775,9 @@ namespace Vodovoz
 
 		void UpdateOrdersInfo()
 		{
-			var text = new List<string>();
-			text.Add(NumberToTextRus.FormatCase(ordersAtDay.Count, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."));
+			var text = new List<string> {
+				NumberToTextRus.FormatCase(ordersAtDay.Count, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов.")
+			};
 			if(addressesWithoutCoordinats > 0)
 				text.Add(String.Format("Из них {0} без координат.", addressesWithoutCoordinats));
 			if(addressesWithoutRoutes > 0)
@@ -1031,7 +1034,7 @@ namespace Vodovoz
 			if(row is RouteListItem) {
 				Domain.Orders.Order order = (row as RouteListItem).Order;
 				TabParent.OpenTab(
-					OrmMain.GenerateDialogHashName<Domain.Orders.Order>(order.Id),
+					DialogHelper.GenerateDialogHashName<Domain.Orders.Order>(order.Id),
 					() => new OrderDlg(order)
 				);
 			}
@@ -1045,7 +1048,7 @@ namespace Vodovoz
 						return;
 				}
 				TabParent.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(routeList.Id),
+					DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id),
 					() => new RouteListCreateDlg(routeList)
 				);
 			}
@@ -1061,16 +1064,6 @@ namespace Vodovoz
 
 		protected void OnButtonMapHelpClicked(object sender, EventArgs e)
 		{
-			/*MessageDialogWorks.RunInfoDialog("Черные маркеры — не добавленные в МЛ адреса.\n" +
-				"Полосатые маркеры — адреса с временем доставки после 18:00.\n" +
-				"Маркеры с красным контуром — график доставки продолжительностью менее часа.\n\n" +
-				"Перетаскивание карты, правой кнопкой мыши.\n" +
-				"Обычное(прямоугольное) выделение адресов на карте осуществляется перемещением мыши с нажатой левой кнопкой.\n" +
-				"Для выделения по одному маркеру, зажмите Alt и левой кнопкой мыши для выделения\\удаления, кликните по нему\n" +
-				"Для выделения полигоном(сложной формой), зажмите CTRL и левой кнопкой установите углы очерчивающие полигон. " +
-				"В процессе работы CTRL можно отпускать и зажимат заново для добавления новых углов. " +
-				"Уже зафиксированные углы полигона можно перетаскивать левой кнопкой мыши.");*/
-
 			new RouresAtDayInfoWnd().Show();
 		}
 

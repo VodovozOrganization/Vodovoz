@@ -1,72 +1,88 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using Gamma.ColumnConfig;
 using Gdk;
-using NHibernate.Util;
 using Vodovoz.Additions.Logistic;
-using System;
 
 namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class RouresAtDayInfoWnd : Gtk.Window
 	{
-		public RouresAtDayInfoWnd() :
-				base(Gtk.WindowType.Toplevel)
+		public RouresAtDayInfoWnd() : base(Gtk.WindowType.Toplevel)
 		{
 			this.Build();
 			ConfigureWnd();
 		}
 
 		void ConfigureWnd(){
-			var ms = new List<object[]>();
-			ms.Add(new object[] { 
-				PointMarker.GetIconPixbuf("red", PointMarkerShape.triangle),
-				PointMarker.GetIconPixbuf("orange", PointMarkerShape.triangle),
-				PointMarker.GetIconPixbuf("green", PointMarkerShape.triangle),
-				"Адрес с количеством бутылей менее 6 шт." 
-			});
-			ms.Add(new object[] {
-				PointMarker.GetIconPixbuf("red", PointMarkerShape.circle),
-				PointMarker.GetIconPixbuf("orange", PointMarkerShape.circle),
-				PointMarker.GetIconPixbuf("green", PointMarkerShape.circle),
-				"Адрес с количеством бутылей 6-10 шт."
-			});
-			ms.Add(new object[] {
-				PointMarker.GetIconPixbuf("red", PointMarkerShape.square),
-				PointMarker.GetIconPixbuf("orange", PointMarkerShape.square),
-				PointMarker.GetIconPixbuf("green", PointMarkerShape.square),
-				"Адрес с количеством бутылей 10-20 шт."
-			});
-			ms.Add(new object[] {
-				PointMarker.GetIconPixbuf("red", PointMarkerShape.cross),
-				PointMarker.GetIconPixbuf("orange", PointMarkerShape.cross),
-				PointMarker.GetIconPixbuf("green", PointMarkerShape.cross),
-				"Адрес с количеством бутылей 20-40 шт."
-			});
-			ms.Add(new object[] {
-				PointMarker.GetIconPixbuf("red", PointMarkerShape.star),
-				PointMarker.GetIconPixbuf("orange", PointMarkerShape.star),
-				PointMarker.GetIconPixbuf("green", PointMarkerShape.star),
-				"Адрес с количеством бутылей более 40 шт." 
-			});
-			ms.Add(new object[] {
-				PointMarker.GetIconPixbuf("black", PointMarkerShape.circle),
-				PointMarker.GetIconPixbuf("black", PointMarkerShape.triangle),
-				PointMarker.GetIconPixbuf("black", PointMarkerShape.star),
-				"Адрес не в маршрутном листе"
-			});
-			ms.Add(new object[] {
-				PointMarker.GetIconPixbuf("blue_stripes", PointMarkerShape.circle),
-				PointMarker.GetIconPixbuf("blue_stripes", PointMarkerShape.triangle),
-				PointMarker.GetIconPixbuf("blue_stripes", PointMarkerShape.star),
-				"Адрес с временем доставки после 18:00"
-			});
-			ms.Add(new object[] {
-				PointMarker.GetIconPixbuf("black_and_red", PointMarkerShape.circle),
-				PointMarker.GetIconPixbuf("black_and_red", PointMarkerShape.triangle),
-				PointMarker.GetIconPixbuf("black_and_red", PointMarkerShape.star),
-				"График доставки продолжительностью менее часа"
-			});
+			var ms = new List<object[]> {
+				new object[] {
+					PointMarker.GetIconPixbuf("red", PointMarkerShape.triangle),
+					PointMarker.GetIconPixbuf("orange", PointMarkerShape.triangle),
+					PointMarker.GetIconPixbuf("green", PointMarkerShape.triangle),
+					"Адрес с количеством бутылей менее 6 шт."
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("red", PointMarkerShape.circle),
+					PointMarker.GetIconPixbuf("orange", PointMarkerShape.circle),
+					PointMarker.GetIconPixbuf("green", PointMarkerShape.circle),
+					"Адрес с количеством бутылей 6-10 шт."
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("red", PointMarkerShape.square),
+					PointMarker.GetIconPixbuf("orange", PointMarkerShape.square),
+					PointMarker.GetIconPixbuf("green", PointMarkerShape.square),
+					"Адрес с количеством бутылей 10-20 шт."
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("red", PointMarkerShape.cross),
+					PointMarker.GetIconPixbuf("orange", PointMarkerShape.cross),
+					PointMarker.GetIconPixbuf("green", PointMarkerShape.cross),
+					"Адрес с количеством бутылей 20-40 шт."
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("red", PointMarkerShape.star),
+					PointMarker.GetIconPixbuf("orange", PointMarkerShape.star),
+					PointMarker.GetIconPixbuf("green", PointMarkerShape.star),
+					"Адрес с количеством бутылей более 40 шт."
+				},
+					new object[] {
+					PointMarker.GetIconPixbuf("black", PointMarkerShape.circle),
+					PointMarker.GetIconPixbuf("black", PointMarkerShape.triangle),
+					PointMarker.GetIconPixbuf("black", PointMarkerShape.star),
+					"Адрес не в маршрутном листе"
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("black_and_red", PointMarkerShape.circle),
+					PointMarker.GetIconPixbuf("black_and_red", PointMarkerShape.triangle),
+					PointMarker.GetIconPixbuf("black_and_red", PointMarkerShape.star),
+					"График доставки продолжительностью менее часа"
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("red_stripes", PointMarkerShape.circle),
+					PointMarker.GetIconPixbuf("red_stripes", PointMarkerShape.triangle),
+					PointMarker.GetIconPixbuf("red_stripes", PointMarkerShape.star),
+					"Адрес с временем доставки до 12:00"
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("yellow_stripes", PointMarkerShape.circle),
+					PointMarker.GetIconPixbuf("yellow_stripes", PointMarkerShape.triangle),
+					PointMarker.GetIconPixbuf("yellow_stripes", PointMarkerShape.star),
+					"Адрес с временем доставки до 15:00"
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("green_stripes", PointMarkerShape.circle),
+					PointMarker.GetIconPixbuf("green_stripes", PointMarkerShape.triangle),
+					PointMarker.GetIconPixbuf("green_stripes", PointMarkerShape.star),
+					"Адрес с временем доставки до 18:00"
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("grey_stripes", PointMarkerShape.circle),
+					PointMarker.GetIconPixbuf("grey_stripes", PointMarkerShape.triangle),
+					PointMarker.GetIconPixbuf("grey_stripes", PointMarkerShape.star),
+					"Адрес с временем доставки после 18:00"
+				}
+			};
 
 			lblInfo.Text = "Перетаскивание карты, правой кнопкой мыши.\n" +
 				"Обычное(прямоугольное) выделение адресов на карте осуществляется перемещением мыши с нажатой левой кнопкой.\n" +

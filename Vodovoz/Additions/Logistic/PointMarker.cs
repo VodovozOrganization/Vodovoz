@@ -43,6 +43,10 @@ namespace Vodovoz.Additions.Logistic
 		color22,
 		color23,
 		color24,
+		red_stripes,
+		yellow_stripes,
+		green_stripes,
+		grey_stripes
 	}
 
 	public enum PointMarkerShape
