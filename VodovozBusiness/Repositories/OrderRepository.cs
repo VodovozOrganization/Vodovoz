@@ -136,7 +136,7 @@ namespace Vodovoz.Repository
 			var _19LWatterQty = uow.Session.QueryOver<OrderItem>(() => orderItemAlias)
 										  .Where(() => orderItemAlias.Order.Id == order.Id)
 										  .Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
-										  .Where(n => n.Category == NomenclatureCategory.water)
+										  .Where(n => n.Category == NomenclatureCategory.water && n.TareVolume == TareVolume.Vol19L)
 										  .List()
 										  .Sum(i => i.Count);
 			return _19LWatterQty;

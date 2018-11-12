@@ -417,8 +417,7 @@ namespace Vodovoz.Domain.Orders
 
 			//влияющая номенклатура
 			Nomenclature infuentialNomenclature = Nomenclature?.DependsOnNomenclature;
-			if(Nomenclature.Category == NomenclatureCategory.water
-			   || Nomenclature.Category == NomenclatureCategory.disposableBottleWater) {
+			if(Nomenclature.Category == NomenclatureCategory.water) {
 				var waterSalesAgreement = AdditionalAgreement.Self as WaterSalesAgreement;
 				if(waterSalesAgreement == null) {
 					return result;
@@ -446,17 +445,20 @@ namespace Vodovoz.Domain.Orders
 
 		private Decimal? GetDefaultPrice()
 		{
-			if(Nomenclature?.DependsOnNomenclature == null) {
-				if(Nomenclature?.Category == NomenclatureCategory.water) {
-					return Nomenclature?.GetPrice(Order.GetTotalWaterCount());
+			if(Nomenclature == null) {
+				return 0m;
+			}
+			if(Nomenclature.DependsOnNomenclature == null) {
+				if(Nomenclature.IsWater19L) {
+					return Nomenclature.GetPrice(Order.GetTotalWaterCount());
 				} else {
-					return Nomenclature?.GetPrice(Count);
+					return Nomenclature.GetPrice(Count);
 				}
 			} else {
-				if(Nomenclature?.Category == NomenclatureCategory.water) {
-					return Nomenclature?.DependsOnNomenclature.GetPrice(Order.GetTotalWaterCount());
+				if(Nomenclature.IsWater19L) {
+					return Nomenclature.DependsOnNomenclature.GetPrice(Order.GetTotalWaterCount());
 				} else {
-					return Nomenclature?.DependsOnNomenclature.GetPrice(Count);
+					return Nomenclature.DependsOnNomenclature.GetPrice(Count);
 				}
 			}
 		}

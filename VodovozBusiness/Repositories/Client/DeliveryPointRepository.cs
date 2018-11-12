@@ -44,7 +44,7 @@ namespace Vodovoz.Repository.Client
 				.Where(() => orderAlias.OrderStatus != OrderStatus.Canceled)
 				.JoinAlias(()=>orderAlias.OrderItems,()=>orderItemAlias)
 				.JoinAlias(()=>orderItemAlias.Nomenclature,()=>nomenclatureAlias)
-				.Where(()=>nomenclatureAlias.Category==NomenclatureCategory.water)
+				.Where(()=>nomenclatureAlias.Category==NomenclatureCategory.water && !nomenclatureAlias.IsDisposableTare)
 				.Select(Projections.Sum(()=>orderItemAlias.Count)).List<int?>();
 			
 			var confirmedQueryResult = uow.Session.QueryOver<Order>(() => orderAlias)
@@ -53,7 +53,7 @@ namespace Vodovoz.Repository.Client
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
 				.JoinAlias(()=>orderAlias.OrderItems,()=>orderItemAlias)
 				.JoinAlias(()=>orderItemAlias.Nomenclature,()=>nomenclatureAlias)
-				.Where(()=>nomenclatureAlias.Category==NomenclatureCategory.water)
+				.Where(()=>nomenclatureAlias.Category==NomenclatureCategory.water && !nomenclatureAlias.IsDisposableTare)
 				.Select(Projections.Sum(()=>orderItemAlias.ActualCount)).List<int?>();
 			
 			var bottlesOrdered = notConfirmedQueryResult.FirstOrDefault().GetValueOrDefault() 
@@ -72,7 +72,7 @@ namespace Vodovoz.Repository.Client
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && !nomenclatureAlias.IsDisposableTare)
 				.OrderByAlias(() => orderAlias.DeliveryDate).Desc;
 			if (countLastOrders.HasValue)
 				confirmedQueryResult.Take(countLastOrders.Value);

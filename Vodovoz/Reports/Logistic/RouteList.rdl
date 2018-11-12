@@ -1619,7 +1619,7 @@ CONCAT_WS(
         (EXISTS(
             SELECT oi.id
             FROM order_items oi LEFT JOIN nomenclature n
-            ON (oi.nomenclature_id=n.id AND n.category IN ('water', 'equipment', 'spare_parts', 'additional', 'bottle', 'material', 'disposableBottleWater'))
+            ON (oi.nomenclature_id=n.id AND n.category IN ('water', 'equipment', 'spare_parts', 'additional', 'bottle', 'material'))
         	WHERE oi.order_id=orders.id
 		) OR
         EXISTS(

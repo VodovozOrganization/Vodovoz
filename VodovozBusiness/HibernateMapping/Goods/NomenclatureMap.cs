@@ -27,6 +27,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.IsDuty).Column("is_duty");
 			Map(x => x.IsSerial).Column("serial");
 			Map(x => x.Category).Column("category").CustomType<NomenclatureCategoryStringType>();
+			Map(x => x.TareVolume).Column("tare_volume").CustomType<TareVolumeStringType>();
+			Map(x => x.IsDisposableTare).Column("is_disposable_tare");
 			Map(x => x.Code1c).Column("code_1c");
 			Map(x => x.SumOfDamage).Column("sum_of_damage");
 			Map(x => x.ShortName).Column("short_name");

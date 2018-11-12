@@ -49,7 +49,7 @@ namespace Vodovoz.ViewModel
                	.JoinAlias(rli => rli.Order, () => orderAlias)
                	.JoinAlias(() => orderAlias.OrderItems, () => ordItemsAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
                	.JoinAlias(() => ordItemsAlias.Nomenclature, () => nomenclatureAlias)
-			   	.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+			   	.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.Select(Projections.Sum(() => ordItemsAlias.Count));
 
 			var trackSubquery = QueryOver.Of<Track>()

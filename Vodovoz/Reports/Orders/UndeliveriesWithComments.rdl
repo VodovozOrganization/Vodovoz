@@ -668,7 +668,7 @@ FROM
 			SELECT SUM(order_items.count)
 			FROM order_items
 			LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-			WHERE order_items.order_id = oldo.id AND nomenclature.category = 'water'
+			WHERE order_items.order_id = oldo.id AND nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
 		) AS bottles,
 		#товары к клиенту
 		(

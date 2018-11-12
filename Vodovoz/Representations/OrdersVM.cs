@@ -121,7 +121,7 @@ namespace Vodovoz.ViewModel
 			var bottleCountSubquery = NHibernate.Criterion.QueryOver.Of<OrderItem>(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.Select(NHibernate.Criterion.Projections.Sum(() => orderItemAlias.Count));
 
 			var sanitisationCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)

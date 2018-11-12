@@ -1568,7 +1568,7 @@ FROM
 							route_list_addresses.status = 'Completed' 
 							AND(					
 								(
-									nomenclature.category in ('water', 'equipment', 'disposableBottleWater', 'additional', 'bottle')
+									nomenclature.category in ('water', 'equipment', 'additional', 'bottle')
 									AND nomenclature.serial = false					
 									AND order_items.count != order_items.actual_count
 								)

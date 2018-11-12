@@ -588,7 +588,7 @@ namespace Vodovoz
 				.GetExecutableQueryOver(UoW.Session)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.Select(NHibernate.Criterion.Projections.Sum(() => orderItemAlias.Count)).SingleOrDefault<int>();
 
 			var text = new List<string>();

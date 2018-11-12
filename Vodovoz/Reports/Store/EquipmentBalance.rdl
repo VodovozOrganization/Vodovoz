@@ -17,7 +17,8 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT DISTINCT
     Max(IF(nomenclature.category = 'rent', 'rent', null)) as rent,
-    Max(IF(nomenclature.category = 'water', 'water', null)) as water,
+    Max(IF(nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare, 'water', null)) as water,
+    Max(IF(nomenclature.category = 'water' AND nomenclature.is_disposable_tare, 'disposableBottleWater', null)) as disposableBottleWater,
     Max(IF(nomenclature.category = 'deposit', 'deposit', null)) as deposit,
     Max(IF(nomenclature.category = 'spare_parts', 'spare_parts', null)) as spare_parts,
     Max(IF(nomenclature.category = 'equipment', 'equipment', null)) as equipment,
@@ -25,7 +26,6 @@
     Max(IF(nomenclature.category = 'service', 'service', null)) as service,
     Max(IF(nomenclature.category = 'bottle', 'bottle', null)) as bottle,
     Max(IF(nomenclature.category = 'material', 'material', null)) as material,
-    Max(IF(nomenclature.category = 'disposableBottleWater', 'disposableBottleWater', null)) as disposableBottleWater,
     Max(IF(nomenclature.category = 'master', 'master', null)) as master
 FROM nomenclature 
 WHERE '0' NOT IN (@categories) AND nomenclature.category in (@categories)</CommandText>

@@ -318,7 +318,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT DISTINCT
 	counterparty_mq.id AS cl_id,
@@ -359,7 +359,7 @@ INNER JOIN
 		LEFT JOIN
 			nomenclature ON nomenclature.id = order_items.nomenclature_id
 		WHERE
-				nomenclature.category = 'water'
+				nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'
 			AND
 				order_items.price BETWEEN 0.01 AND 99.99
 			AND 
@@ -385,7 +385,7 @@ GROUP BY
 			orders.address_1c_code = dpoint_id
 	)</CommandText>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="cl_id">
           <DataField>cl_id</DataField>
           <TypeName>System.UInt32</TypeName>

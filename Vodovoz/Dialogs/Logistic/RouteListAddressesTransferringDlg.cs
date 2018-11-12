@@ -8,6 +8,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
 
@@ -372,10 +373,13 @@ namespace Vodovoz
 		public string Comment => RouteListItem.Comment ?? "";
 
 		public string BottlesCount {
-			get {return RouteListItem.Order.OrderItems
-					.Where(bot => bot.Nomenclature.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water
-						|| bot.Nomenclature.Category == Vodovoz.Domain.Goods.NomenclatureCategory.disposableBottleWater)
-					.Sum(bot => bot.Count).ToString();}
+			get {
+				return RouteListItem.Order.OrderItems
+					.Where(bot => bot.Nomenclature.Category == NomenclatureCategory.water && !bot.Nomenclature.IsDisposableTare)
+					.Sum(bot => bot.Count)
+					.ToString();
+			}
+		
 		}
 
 		public RouteListItem RouteListItem { get; set; }

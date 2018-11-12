@@ -16,6 +16,7 @@ namespace Vodovoz
 			UoW = uow;
 			IsFiltred = false;
 			enumcomboType.ItemsEnum = typeof(NomenclatureCategory);
+			UpdateVisibility();
 		}
 
 		#region IReferenceFilter implementation
@@ -35,6 +36,11 @@ namespace Vodovoz
 					UpdateCreteria ();
 				return filtredCriteria;
 			}		
+		}
+
+		private void UpdateVisibility()
+		{
+			chkOnlyDisposableTare.Visible = chkShowDilers.Visible = (NomenclatureCategory)enumcomboType.SelectedItem == NomenclatureCategory.water;
 		}
 
 		void OnRefiltered ()
@@ -64,7 +70,12 @@ namespace Vodovoz
 				IsFiltred = true;
 			}
 
-			if (enumcomboType.SelectedItem is NomenclatureCategory) {
+			if((NomenclatureCategory)enumcomboType.SelectedItem == NomenclatureCategory.water) {
+				FiltredCriteria.Add(Restrictions.Eq(Projections.Property<Nomenclature>(x => x.IsDisposableTare), chkOnlyDisposableTare.Active));
+				IsFiltred = true;
+			}
+
+			if(enumcomboType.SelectedItem is NomenclatureCategory) {
 				FiltredCriteria.Add (Restrictions.Eq ("Category", enumcomboType.SelectedItem));
 				IsFiltred = true;
 			} else
@@ -85,6 +96,16 @@ namespace Vodovoz
 		protected void OnChkShowDilersToggled(object sender, EventArgs e)
 		{
 			UpdateCreteria();
+		}
+
+		protected void OnChkOnlyDisposableTareToggled(object sender, EventArgs e)
+		{
+			UpdateCreteria();
+		}
+
+		protected void OnEnumcomboTypeChangedByUser(object sender, EventArgs e)
+		{
+			UpdateVisibility();
 		}
 	}
 }

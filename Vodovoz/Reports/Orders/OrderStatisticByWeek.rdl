@@ -2814,7 +2814,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	T.week_begin,
@@ -2917,7 +2917,7 @@ FROM
 					order_items
 					LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
 				WHERE
-					nomenclature.category = 'water'
+					nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
 				GROUP BY order_items.order_id
 			) AS order_sum ON order_sum.order_id = orders.id
 		LEFT JOIN
@@ -2947,7 +2947,7 @@ ORDER BY week_begin</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="week_begin">
           <DataField>week_begin</DataField>
           <TypeName>System.DateTime</TypeName>

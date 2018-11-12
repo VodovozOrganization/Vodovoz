@@ -19,6 +19,7 @@ using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using VodovozService.Chats;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
@@ -138,9 +139,7 @@ namespace Vodovoz
 				.AddSetter((c, n) => c.Editable = allEditing && n.Status != RouteListItemStatus.Transfered)
 				.AddColumn("Отгрузка")
 				.AddNumericRenderer(node => node.RouteListItem.Order.OrderItems
-					.Where(b => 
-						b.Nomenclature.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water ||
-						b.Nomenclature.Category == Vodovoz.Domain.Goods.NomenclatureCategory.disposableBottleWater)
+					.Where(b => b.Nomenclature.Category == NomenclatureCategory.water && b.Nomenclature.TareVolume == TareVolume.Vol19L)
 					.Sum(b => b.Count))
 				.AddColumn("Возврат тары")
 					.AddNumericRenderer(node => node.RouteListItem.Order.BottlesReturn)

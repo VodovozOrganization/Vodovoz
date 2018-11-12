@@ -212,7 +212,7 @@
 						where
 							order_equipment.order_id = docs.doc_id
 							and order_equipment.direction = 'PickUp'
-							and nomenclature.category NOT IN('water','bottle','disposableBottleWater','master')
+							and nomenclature.category NOT IN('water','bottle','master')
 #equipment from client from store_self_delivery_document
 						),
 						',\n',
@@ -239,7 +239,7 @@
 						LEFT JOIN
 							counterparty ON counterparty.id = orders.client_id
 						WHERE 
-							nomenclature.category NOT IN('water','bottle','disposableBottleWater','master')
+							nomenclature.category NOT IN('water','bottle','master')
 							AND orders.id = docs.doc_id
 						)
 					))

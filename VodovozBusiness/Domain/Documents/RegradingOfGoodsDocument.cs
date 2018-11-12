@@ -108,7 +108,7 @@ namespace Vodovoz.Domain.Documents
 						new[] { this.GetPropertyName (o => o.Items) });
 
 				if(item.NomenclatureOld.Category == NomenclatureCategory.bottle
-				   && item.NomenclatureNew.Category == NomenclatureCategory.water
+				   && item.NomenclatureNew.Category == NomenclatureCategory.water && !item.NomenclatureNew.IsDisposableTare
 				   && item.Amount > 39)
 					yield return new ValidationResult(String.Format("Пересортица из {0} ед. '{1}' в {0} ед. '{2}' невозможна!", item.Amount, item.NomenclatureOld.Name, item.NomenclatureNew.Name), 
 					                                  new[] { this.GetPropertyName(o => o.Items) });

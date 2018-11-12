@@ -62,7 +62,7 @@
 				LEFT JOIN
 			nomenclature ON nomenclature.id = order_items.nomenclature_id
 		WHERE
-			nomenclature.category = 'water'
+			nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
 				AND route_list_addresses.route_list_id = routeListId) AS bottles,
 	SUM(IFNULL(orders.bottles_return, 0)) AS planned_returned_bottles,
 	(SELECT 

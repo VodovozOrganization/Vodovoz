@@ -61,6 +61,10 @@ namespace Vodovoz
 			enumType.ItemsEnum = typeof(NomenclatureCategory);
 			enumType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
+			enumTareVolume.ItemsEnum = typeof(TareVolume);
+			enumTareVolume.Binding.AddBinding(Entity, e => e.TareVolume, w => w.SelectedItemOrNull).InitializeFromSource();
+			ycheckDisposableTare.Binding.AddBinding(Entity, e => e.IsDisposableTare, w => w.Active).InitializeFromSource();
+
 			enumEquipmentSubtype.Visible = Entity.Category == NomenclatureCategory.equipment;
 			enumEquipmentSubtype.ItemsEnum = typeof(SubtypeOfEquipmentCategory);
 			enumEquipmentSubtype.Binding.AddBinding(Entity, e => e.SubTypeOfEquipmentCategory, w => w.SelectedItem).InitializeFromSource();
@@ -83,7 +87,7 @@ namespace Vodovoz
 			ycheckRentPriority.Binding.AddBinding(Entity, e => e.RentPriority, w => w.Active).InitializeFromSource();
 			checkNotReserve.Binding.AddBinding(Entity, e => e.DoNotReserve, w => w.Active).InitializeFromSource();
 			checkcanPrintPrice.Binding.AddBinding (Entity, e => e.CanPrintPrice, w => w.Active).InitializeFromSource ();
-			labelCanPrintPrice.Visible = checkcanPrintPrice.Visible = Entity.Category == NomenclatureCategory.water;
+			labelCanPrintPrice.Visible = checkcanPrintPrice.Visible = Entity.Category == NomenclatureCategory.water && !Entity.IsDisposableTare;
 			checkHide.Binding.AddBinding (Entity, e => e.Hide, w => w.Active).InitializeFromSource ();
 			entryCode1c.Binding.AddBinding (Entity, e => e.Code1c, w => w.Text).InitializeFromSource();
 			yspinSumOfDamage.Binding.AddBinding(Entity, e => e.SumOfDamage, w => w.ValueAsDecimal).InitializeFromSource();
@@ -223,8 +227,9 @@ namespace Vodovoz
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelRentPriority.Sensitive = ycheckRentPriority.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
-			labelCanPrintPrice.Visible = checkcanPrintPrice.Visible = Entity.Category == NomenclatureCategory.water;
+			labelCanPrintPrice.Visible = checkcanPrintPrice.Visible = Entity.Category == NomenclatureCategory.water && !Entity.IsDisposableTare;
 
+			labelTypeTare.Visible = hboxTare.Visible = selected == NomenclatureCategory.water;
 			labelBottle.Sensitive = ycheckNewBottle.Sensitive = ycheckDefectiveBottle.Sensitive = selected == NomenclatureCategory.bottle;
 			//FIXME запуск оборудования - временный фикс
 			//if (Entity.Category == NomenclatureCategory.equipment)

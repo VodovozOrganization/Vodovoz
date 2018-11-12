@@ -60,7 +60,7 @@
   </ReportParameters>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     nomenclature.name AS nomenclature,
@@ -159,7 +159,7 @@ FROM
     nomenclature 
         LEFT JOIN
     measurement_units ON measurement_units.id = nomenclature.unit_id
-    WHERE (nomenclature.category = 'water' OR nomenclature.category = 'bottle') AND nomenclature.is_archive = 0
+    WHERE ((nomenclature.category = 'water' AND  nomenclature.tare_volume = 'Vol19L') OR nomenclature.category = 'bottle') AND nomenclature.is_archive = 0
 HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 0 OR warehouse_4 &lt;&gt; 0 OR wagons &lt;&gt; 0 
     ORDER BY nomenclature.category, nomenclature.name</CommandText>
         <QueryParameters>
@@ -180,7 +180,7 @@ HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -308,8 +308,8 @@ HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>

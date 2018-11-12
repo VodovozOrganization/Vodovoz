@@ -171,6 +171,8 @@ namespace Dialogs.Employees
 			this.hbox6.Add(this.yentryEmployee);
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.yentryEmployee]));
 			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.vbox2.Add(this.hbox6);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox6]));
 			w14.Position = 3;

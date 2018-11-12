@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Report;
 using QSProjectsLib;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
 
@@ -162,8 +163,8 @@ namespace Vodovoz.Additions.Logistic
 						"<TypeName>System.Int32</TypeName>" +
 						"</Field>", "Water_fact" + column.Id.ToString ());
 				}
-				//Формула итоговой суммы по всем бутялым.
-				if(RouteColumnRepository.NomenclaturesForColumn(uow, column).Any(x => x.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water))
+				//Формула итоговой суммы по всем бутылям.
+				if(RouteColumnRepository.NomenclaturesForColumn(uow, column).Any(x => x.Category == NomenclatureCategory.water && x.TareVolume == TareVolume.Vol19L))
 				{
 					if(isClosed)
 						TotalSum += $"+ Sum(Iif(Fields!Status.Value = \"Completed\", {{Water_fact{column.Id}}}, 0))";

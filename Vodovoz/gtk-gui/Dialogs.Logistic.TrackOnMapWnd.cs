@@ -265,7 +265,6 @@ namespace Dialogs.Logistic
 			this.label2 = new global::Gtk.Label();
 			this.label2.Sensitive = false;
 			this.label2.Name = "label2";
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("label1");
 			this.vbox3.Add(this.label2);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.label2]));
 			w19.Position = 1;

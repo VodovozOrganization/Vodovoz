@@ -55,7 +55,7 @@ namespace Vodovoz.Repository.Logistics
 						  .Where(x => x.OrderStatus == Domain.Orders.OrderStatus.Accepted || x.OrderStatus == Domain.Orders.OrderStatus.InTravelList)
 						  .JoinQueryOver(x => x.OrderItems, () => orderItemsAlias)
 						  .JoinQueryOver(x => x.Nomenclature)
-						  .Where(x => x.Category == Domain.Goods.NomenclatureCategory.water)
+						  .Where(x => x.Category == Domain.Goods.NomenclatureCategory.water && !x.IsDisposableTare)
 				                                .JoinAlias(()=> orderAlias.DeliveryPoint, ()=> deliveryPointAlias)
 			                .SelectList(list => list.SelectGroup(x => x.Id).WithAlias(() => resultAlias.OrderId)
 			                            .SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.WaterCount)

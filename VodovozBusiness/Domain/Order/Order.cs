@@ -707,7 +707,7 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("В заказе не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName(o => o.SignatureType) });
 
-					if(!IsLoadedFrom1C && bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water))
+					if(!IsLoadedFrom1C && bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare))
 						yield return new ValidationResult("В заказе не указана планируемая тара.",
 							new[] { this.GetPropertyName(o => o.Contract) });
 					if(!IsLoadedFrom1C && trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.TotalSum > 0m)
@@ -846,7 +846,7 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В возврате залогов в заказе необходимо вводить положительную сумму.");
 			}
 
-			if(!IsLoadedFrom1C && ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water) &&
+			if(!IsLoadedFrom1C && ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.IsDisposableTare) &&
 			   //Если нет ни одного допсоглашения на воду подходящего на точку доставку в заказе 
 			   //(или без точки доставки если относится на все точки)
 			   !HaveActualWaterSaleAgreementByDeliveryPoint() ) {
@@ -885,19 +885,19 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual int TotalDeliveredBottles {
 			get {
-				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
+				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 			}
 		}
 
 		public virtual int TotalDeliveredBottlesSix {
 			get {
-				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.disposableBottleWater && x.Nomenclature.Weight > 5).Sum(x => x.Count);
+				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
 			}
 		}
 
 		public virtual int TotalDeliveredBottlesSmall {
 			get {
-				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.disposableBottleWater && x.Nomenclature.Weight <= 5).Sum(x => x.Count);
+				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
 			}
 		}
 
@@ -950,7 +950,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual int TotalWaterBottles {
 			get {
-				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
+				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 			}
 		}
 
@@ -1302,7 +1302,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual int GetTotalWaterCount()
 		{
 			return ObservableOrderItems
-				.Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
+				.Where(x => x.Nomenclature.IsWater19L)
 				.Sum(x => x.Count);
 		}
 
@@ -1473,8 +1473,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count)
 		{
-			if(!(nomenclature.Category == NomenclatureCategory.water 
-			     || nomenclature.Category == NomenclatureCategory.disposableBottleWater))
+			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 				return;
 
 			decimal price;
@@ -1526,7 +1525,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual void AddAnyGoodsNomenclatureForSaleFromPreviousOrder(OrderItem orderItem)
 		{
 			if(orderItem.Nomenclature.Category != NomenclatureCategory.additional && orderItem.Nomenclature.Category != NomenclatureCategory.bottle &&
-				orderItem.Nomenclature.Category != NomenclatureCategory.service && orderItem.Nomenclature.Category != NomenclatureCategory.disposableBottleWater)
+				orderItem.Nomenclature.Category != NomenclatureCategory.service)
 				return;
 			ObservableOrderItems.Add(new OrderItem {
 				Order = this,
@@ -1964,7 +1963,7 @@ namespace Vodovoz.Domain.Orders
 				return 0;
 
 			var waterItemsCount = ObservableOrderItems.Select(item => item)
-				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 				.Sum(item => item.Count);
 
 			return waterItemsCount - BottlesReturn ?? 0;
@@ -2734,7 +2733,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			int amountDelivered = OrderItems
-					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 					.Sum(item => item.ActualCount);
 
 			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
@@ -2826,15 +2825,11 @@ namespace Vodovoz.Domain.Orders
 		decimal GetNomenclaturePrice(OrderItem item)
 		{
 			decimal nomenclaturePrice = 0M;
-			if(item.Nomenclature.Category == NomenclatureCategory.water) {
-				int totalWaterCount = ObservableOrderItems
-											   .Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
-											   .Sum(x => x.Count);
-				nomenclaturePrice = item.Nomenclature.GetPrice(totalWaterCount);
+			if(item.Nomenclature.IsWater19L) {
+				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWaterCount());
 			} else {
 				nomenclaturePrice = item.Nomenclature.GetPrice(item.Count);
 			}
-
 			return nomenclaturePrice;
 		}
 
