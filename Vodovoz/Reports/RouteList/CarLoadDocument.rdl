@@ -92,7 +92,7 @@ FROM
 		LEFT JOIN
 	cars ON cars.id = route_lists.car_id
 WHERE
-	route_lists.id = 31056
+	route_lists.id = @id
 GROUP BY route_lists.id
 LIMIT 1
 ;</CommandText>
@@ -132,19 +132,35 @@ LIMIT 1
     <DataSet Name="Equipment">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
+        <CommandText>SELECT 
 	n.official_name,
-	eq.count
-FROM
-	order_equipment eq
+	SUM(eq.count) AS count
+FROM(
+	SELECT
+		nomenclature_id,
+		order_id,
+		count
+	FROM
+		order_equipment
+	WHERE
+		direction = 'Deliver'
+	UNION ALL
+	SELECT
+		nomenclature_id,
+		order_id,
+		count
+	FROM
+		order_items
+	) AS eq
 LEFT JOIN 
 	route_list_addresses rla ON eq.order_id = rla.order_id
 LEFT JOIN
 	nomenclature n ON eq.nomenclature_id = n.id
 WHERE
-	eq.direction = 'Deliver'
-	AND
 	rla.route_list_id = @id
+AND
+	(rla.was_transfered = true AND rla.need_to_reload = true OR rla.was_transfered = false)
+GROUP BY eq.nomenclature_id
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
@@ -173,8 +189,7 @@ WHERE
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Data</DataSetName>
-        <NoRows>
-        </NoRows>
+        <NoRows>Нет отгрузки воды со склада воды</NoRows>
         <Style>
           <BorderStyle>
             <Default>None</Default>
@@ -743,14 +758,17 @@ WHERE
       </Textbox>
       <Table Name="Table2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
-        <NoRows>Нет отгрузки</NoRows>
         <Style>
           <BorderStyle>
-            <Default>Solid</Default>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
-          <PaddingTop>50pt</PaddingTop>
+          <PaddingTop>0pt</PaddingTop>
         </Style>
         <TableColumns>
           <TableColumn>
@@ -900,6 +918,7 @@ WHERE
             </TableRow>
           </TableRows>
         </Footer>
+        <NoRows>Нет отгрузки со склада воды</NoRows>
       </Table>
       <Line Name="Line2">
         <Height>-150.25pt</Height>
@@ -916,8 +935,7 @@ WHERE
       </Line>
       <Table Name="Table3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
-        <NoRows>
-        </NoRows>
+        <NoRows>Нет отгрузки товаров со склада воды</NoRows>
         <Style>
           <BorderStyle>
             <Default>None</Default>
@@ -1002,12 +1020,18 @@ WHERE
               <FilterValue>water</FilterValue>
             </FilterValues>
           </Filter>
+          <Filter>
+            <FilterExpression>={category}</FilterExpression>
+            <Operator>NotEqual</Operator>
+            <FilterValues>
+              <FilterValue>equipment</FilterValue>
+            </FilterValues>
+          </Filter>
         </Filters>
       </Table>
       <Table Name="Table5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
-        <NoRows>
-        </NoRows>
+        <NoRows>Нет отгрузки воды со склада воды</NoRows>
         <Style>
           <BorderStyle>
             <Default>None</Default>
@@ -1405,15 +1429,14 @@ WHERE
       </Table>
       <Table Name="Table6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
-        <NoRows>
-        </NoRows>
+        <NoRows>Нет отгрузки товаров со склада воды</NoRows>
         <Style>
           <BorderStyle>
-            <Default>Solid</Default>
-            <Left>Solid</Left>
-            <Right>Solid</Right>
-            <Top>Solid</Top>
-            <Bottom>Solid</Bottom>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
@@ -1491,12 +1514,18 @@ WHERE
               <FilterValue>water</FilterValue>
             </FilterValues>
           </Filter>
+          <Filter>
+            <FilterExpression>={category}</FilterExpression>
+            <Operator>NotEqual</Operator>
+            <FilterValues>
+              <FilterValue>equipment</FilterValue>
+            </FilterValues>
+          </Filter>
         </Filters>
       </Table>
       <Table Name="Table4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
-        <NoRows>
-        </NoRows>
+        <NoRows>Нет отгрузки воды со склада воды</NoRows>
         <Style>
           <BorderStyle>
             <Default>None</Default>
@@ -1891,15 +1920,14 @@ WHERE
       </Table>
       <Table Name="Table7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
-        <NoRows>
-        </NoRows>
+        <NoRows>Нет отгрузки товаров со склада воды</NoRows>
         <Style>
           <BorderStyle>
-            <Default>Solid</Default>
-            <Left>Solid</Left>
-            <Right>Solid</Right>
-            <Top>Solid</Top>
-            <Bottom>Solid</Bottom>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
@@ -1973,6 +2001,13 @@ WHERE
             <Operator>NotEqual</Operator>
             <FilterValues>
               <FilterValue>water</FilterValue>
+            </FilterValues>
+          </Filter>
+          <Filter>
+            <FilterExpression>={category}</FilterExpression>
+            <Operator>NotEqual</Operator>
+            <FilterValues>
+              <FilterValue>equipment</FilterValue>
             </FilterValues>
           </Filter>
         </Filters>
@@ -2450,10 +2485,14 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
       </Line>
       <Table Name="Table13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Equipment</DataSetName>
-        <NoRows>Нет отгрузки</NoRows>
+        <NoRows>Нет отгрузки оборудования</NoRows>
         <Style>
           <BorderStyle>
-            <Default>Solid</Default>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
@@ -2652,10 +2691,14 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
       </Table>
       <Table Name="Table15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Equipment</DataSetName>
-        <NoRows>Нет отгрузки</NoRows>
+        <NoRows>Нет отгрузки оборудования</NoRows>
         <Style>
           <BorderStyle>
-            <Default>Solid</Default>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
@@ -2805,7 +2848,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>31056</Value>
+          <Value>26318</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
