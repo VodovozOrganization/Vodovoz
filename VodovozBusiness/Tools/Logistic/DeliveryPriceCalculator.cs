@@ -57,7 +57,7 @@ namespace Vodovoz.Tools.Logistic
                 //Координаты
                 if (latitude == null || longitude == null)
                 {
-                    result.ErrorMessage = String.Format("Не указаны координаты. Невозможно расчитать растояние.");
+                    result.ErrorMessage = String.Format("Не указаны координаты. Невозможно расчитать расстояние.");
                     return result;
                 }
 
@@ -70,7 +70,7 @@ namespace Vodovoz.Tools.Logistic
                     var osrmResult = OsrmMain.GetRoute(route, false, GeometryOverview.False);
                     if (osrmResult == null)
                     {
-                        result.ErrorMessage = String.Format("Ошибка на сервере расчета расстояний, невозможно расчитать растояние.");
+                        result.ErrorMessage = String.Format("Ошибка на сервере расчета расстояний, невозможно расчитать расстояние.");
                         return result;
                     }
                     if (osrmResult.Code != "Ok")
@@ -86,15 +86,18 @@ namespace Vodovoz.Tools.Logistic
                 }
                 result.Distance = distance.ToString("N1") + " км";
 
-                result.Prices = Enumerable.Range(1, 100).Select(x => new DeliveryPriceRow
-                {
-                    Amount = x,
-                    Price = priceByDistance(x).ToString("C2")
-                }).ToList();
+				result.Prices = Enumerable.Range(1, 100)
+					.Select(
+						x => new DeliveryPriceRow {
+							Amount = x,
+							Price = PriceByDistance(x).ToString("C2")
+						}
+					).ToList();
 
                 //Расчет цены
                 var point = new Point((double)latitude, (double)longitude);
                 var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
+				result.DistrictName = district.DistrictName;
                 result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
                 result.WithPrice = (
                     (district != null && district.PriceType != DistrictWaterPrice.ByDistance)
@@ -108,7 +111,7 @@ namespace Vodovoz.Tools.Logistic
                     //в - кол-во бут
                     if (bottlesCount.HasValue)
                     {
-                        result.Price = priceByDistance(bottlesCount.Value).ToString("C2");
+                        result.Price = PriceByDistance(bottlesCount.Value).ToString("C2");
                     }
                 }
                 else if (district.PriceType == DistrictWaterPrice.FixForDistrict)
@@ -123,7 +126,7 @@ namespace Vodovoz.Tools.Logistic
 			return result;
 		}
 
-		static double priceByDistance(int bootles)
+		static double PriceByDistance(int bootles)
 		{
 			return ((distance * 2 / 100) * 20 * fuelCost) / bootles + 125;
 		}
@@ -138,7 +141,9 @@ namespace Vodovoz.Tools.Logistic
 		public List<DeliveryPriceRow> Prices { get; set; }
 		public bool ByDistance { get; set; }
 		public bool WithPrice { get; set; }
-		private string errorMessage;
+		public string DistrictName { get; set; }
+
+		string errorMessage;
 		public string ErrorMessage {
 			get => errorMessage;
 			set {
@@ -147,24 +152,21 @@ namespace Vodovoz.Tools.Logistic
 			}
 		}
 
-		public bool HaveError {
-			get {
-				return !String.IsNullOrEmpty(errorMessage);
-			}
-		}
+		public bool HasError => !String.IsNullOrEmpty(ErrorMessage);
 
 		public DeliveryPriceNode()
 		{
 			ClearValues();
-			ErrorMessage = "";
+			ErrorMessage = String.Empty;
 		}
 
 		public void ClearValues()
 		{
-			Distance = "";
-			Price = "";
-			MinBottles = "";
-			Schedule = "";
+			Distance = String.Empty;
+			Price = String.Empty;
+			MinBottles = String.Empty;
+			Schedule = String.Empty;
+			DistrictName = String.Empty;
 			Prices = new List<DeliveryPriceRow>();
 		}
 	}
