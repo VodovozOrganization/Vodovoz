@@ -36,7 +36,7 @@ GROUP BY nomenclature.id
 ORDER BY category , nomenclature;</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
-            <Value>=Parameters!id</Value>
+            <Value>={?route_list_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -98,7 +98,7 @@ LIMIT 1
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="@id">
-            <Value>={?id}</Value>
+            <Value>={?route_list_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -160,11 +160,13 @@ WHERE
 	rla.route_list_id = @id
 AND
 	(rla.was_transfered = true AND rla.need_to_reload = true OR rla.was_transfered = false)
+AND
+	(n.category IN ('equipment', 'additional') OR n.category = 'spare_parts')
 GROUP BY eq.nomenclature_id
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
-            <Value>=Parameters!id</Value>
+            <Value>={?route_list_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -734,7 +736,7 @@ GROUP BY eq.nomenclature_id
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
         <Left>148.1pt</Left>
-        <Top>136.4pt</Top>
+        <Top>110.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -748,7 +750,7 @@ GROUP BY eq.nomenclature_id
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
         <Left>1.7pt</Left>
-        <Top>136.6pt</Top>
+        <Top>110.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -921,7 +923,7 @@ GROUP BY eq.nomenclature_id
         <NoRows>Нет отгрузки со склада воды</NoRows>
       </Table>
       <Line Name="Line2">
-        <Height>-150.25pt</Height>
+        <Height>-114.91pt</Height>
         <Width>0.01pt</Width>
         <Style>
           <BorderStyle>
@@ -931,104 +933,8 @@ GROUP BY eq.nomenclature_id
           <BorderWidth />
         </Style>
         <Left>300.00pt</Left>
-        <Top>150.25pt</Top>
+        <Top>114.91pt</Top>
       </Line>
-      <Table Name="Table3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <DataSetName>Data</DataSetName>
-        <NoRows>Нет отгрузки товаров со склада воды</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>None</Default>
-            <Left>None</Left>
-            <Right>None</Right>
-            <Top>None</Top>
-            <Bottom>None</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>232.5pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>56.2pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Details>
-          <TableRows>
-            <TableRow>
-              <Height>14.4pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox26">
-                      <Value>={nomenclature}</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>10pt</FontSize>
-                        <TextAlign>Left</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox27">
-                      <Value>={amount}</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>10pt</FontSize>
-                        <Format>N0</Format>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
-        <Left>0.0pt</Left>
-        <Top>105.8pt</Top>
-        <Filters>
-          <Filter>
-            <FilterExpression>={category}</FilterExpression>
-            <Operator>NotEqual</Operator>
-            <FilterValues>
-              <FilterValue>water</FilterValue>
-            </FilterValues>
-          </Filter>
-          <Filter>
-            <FilterExpression>={category}</FilterExpression>
-            <Operator>NotEqual</Operator>
-            <FilterValues>
-              <FilterValue>equipment</FilterValue>
-            </FilterValues>
-          </Filter>
-        </Filters>
-      </Table>
       <Table Name="Table5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
         <NoRows>Нет отгрузки воды со склада воды</NoRows>
@@ -1291,7 +1197,7 @@ GROUP BY eq.nomenclature_id
           </TableRows>
         </Details>
         <Left>38.0pt</Left>
-        <Top>188.3pt</Top>
+        <Top>161.9pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1423,102 +1329,6 @@ GROUP BY eq.nomenclature_id
             <Operator>Equal</Operator>
             <FilterValues>
               <FilterValue>water</FilterValue>
-            </FilterValues>
-          </Filter>
-        </Filters>
-      </Table>
-      <Table Name="Table6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <DataSetName>Data</DataSetName>
-        <NoRows>Нет отгрузки товаров со склада воды</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>None</Default>
-            <Left>None</Left>
-            <Right>None</Right>
-            <Top>None</Top>
-            <Bottom>None</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>293.2pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>49.9pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Details>
-          <TableRows>
-            <TableRow>
-              <Height>14.4pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox67">
-                      <Value>={nomenclature}</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>10pt</FontSize>
-                        <TextAlign>Left</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox68">
-                      <Value>={amount}</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>10pt</FontSize>
-                        <Format>N0</Format>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
-        <Left>38.4pt</Left>
-        <Top>232.9pt</Top>
-        <Filters>
-          <Filter>
-            <FilterExpression>={category}</FilterExpression>
-            <Operator>NotEqual</Operator>
-            <FilterValues>
-              <FilterValue>water</FilterValue>
-            </FilterValues>
-          </Filter>
-          <Filter>
-            <FilterExpression>={category}</FilterExpression>
-            <Operator>NotEqual</Operator>
-            <FilterValues>
-              <FilterValue>equipment</FilterValue>
             </FilterValues>
           </Filter>
         </Filters>
@@ -1785,7 +1595,7 @@ GROUP BY eq.nomenclature_id
           </TableRows>
         </Details>
         <Left>39.0pt</Left>
-        <Top>284.2pt</Top>
+        <Top>247.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1918,107 +1728,13 @@ GROUP BY eq.nomenclature_id
           </Filter>
         </Filters>
       </Table>
-      <Table Name="Table7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <DataSetName>Data</DataSetName>
-        <NoRows>Нет отгрузки товаров со склада воды</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>None</Default>
-            <Left>None</Left>
-            <Right>None</Right>
-            <Top>None</Top>
-            <Bottom>None</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>293.2pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>49.9pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Details>
-          <TableRows>
-            <TableRow>
-              <Height>14.4pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox78">
-                      <Value>={nomenclature}</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>10pt</FontSize>
-                        <TextAlign>Left</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox79">
-                      <Value>={amount}</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>10pt</FontSize>
-                        <Format>N0</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
-        <Left>39.8pt</Left>
-        <Top>330.2pt</Top>
-        <Filters>
-          <Filter>
-            <FilterExpression>={category}</FilterExpression>
-            <Operator>NotEqual</Operator>
-            <FilterValues>
-              <FilterValue>water</FilterValue>
-            </FilterValues>
-          </Filter>
-          <Filter>
-            <FilterExpression>={category}</FilterExpression>
-            <Operator>NotEqual</Operator>
-            <FilterValues>
-              <FilterValue>equipment</FilterValue>
-            </FilterValues>
-          </Filter>
-        </Filters>
-      </Table>
       <Textbox Name="Textbox80" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.24pt</Height>
         <Width>132.50pt</Width>
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
         <Left>41.3pt</Left>
-        <Top>358.7pt</Top>
+        <Top>298.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2032,7 +1748,7 @@ GROUP BY eq.nomenclature_id
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
         <Left>309.7pt</Left>
-        <Top>357.7pt</Top>
+        <Top>297.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2053,7 +1769,7 @@ GROUP BY eq.nomenclature_id
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>378.3pt</Top>
+        <Top>322.3pt</Top>
       </Line>
       <Textbox Name="Textbox82" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.24pt</Height>
@@ -2061,7 +1777,7 @@ GROUP BY eq.nomenclature_id
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
         <Left>42.5pt</Left>
-        <Top>457.7pt</Top>
+        <Top>401.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2075,7 +1791,7 @@ GROUP BY eq.nomenclature_id
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
         <Left>310.1pt</Left>
-        <Top>457.5pt</Top>
+        <Top>401.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2155,7 +1871,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>388.6pt</Top>
+        <Top>332.6pt</Top>
       </Table>
       <Table Name="Table8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -2229,7 +1945,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>254.6pt</Top>
+        <Top>217.8pt</Top>
       </Table>
       <Line Name="Line3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>0.07pt</Height>
@@ -2244,7 +1960,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>250.3pt</Top>
+        <Top>213.5pt</Top>
       </Line>
       <Table Name="Table9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -2318,7 +2034,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>159.8pt</Top>
+        <Top>133.4pt</Top>
       </Table>
       <Table Name="Table11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -2336,7 +2052,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>29.8pt</Height>
+              <Height>33.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -2365,7 +2081,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>12.0pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -2410,7 +2126,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>29.8pt</Height>
+              <Height>33.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -2481,7 +2197,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>156.7pt</Top>
+        <Top>130.3pt</Top>
       </Line>
       <Table Name="Table13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Equipment</DataSetName>
@@ -2597,7 +2313,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>124.5pt</Left>
-        <Top>421.1pt</Top>
+        <Top>365.1pt</Top>
         <ZIndex>2</ZIndex>
       </Table>
       <Line Name="Line4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2613,7 +2329,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>479.7pt</Top>
+        <Top>426.9pt</Top>
       </Line>
       <Table Name="Table14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -2687,7 +2403,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>489.6pt</Top>
+        <Top>436.8pt</Top>
       </Table>
       <Table Name="Table15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Equipment</DataSetName>
@@ -2803,7 +2519,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>124.4pt</Left>
-        <Top>527.1pt</Top>
+        <Top>474.3pt</Top>
         <ZIndex>2</ZIndex>
       </Table>
       <Textbox Name="Textbox93" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2812,7 +2528,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
         <Left>310.2pt</Left>
-        <Top>562.1pt</Top>
+        <Top>509.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2826,7 +2542,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
         <Left>42.6pt</Left>
-        <Top>562.3pt</Top>
+        <Top>509.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2835,7 +2551,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Style>
       </Textbox>
     </ReportItems>
-    <Height>578.7pt</Height>
+    <Height>530.3pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -2844,11 +2560,11 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
   <ReportParameters>
-    <ReportParameter Name="id">
+    <ReportParameter Name="route_list_id">
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>26318</Value>
+          <Value>34304</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
