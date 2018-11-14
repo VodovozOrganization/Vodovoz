@@ -46,7 +46,7 @@ namespace Vodovoz.Domain.Goods
 			get { return String.Join(",", characteristics); }
 			set {
 				characteristics.Clear();
-				if(value == null) {
+				if(string.IsNullOrWhiteSpace(value)) {
 					return;
 				}
 				var parts = value.Split(',');

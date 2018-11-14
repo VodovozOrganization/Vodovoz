@@ -4,7 +4,6 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 
@@ -27,7 +26,10 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Заказ")]
 		public virtual Order Order {
 			get { return order; }
-			set { SetField(ref order, value, () => Order); }
+			set {
+				if(SetField(ref order, value, () => Order))
+					RecalculateNDS();
+			}
 		}
 
 		AdditionalAgreement additionalAgreement;
@@ -71,10 +73,10 @@ namespace Vodovoz.Domain.Orders
 					}
 				}
 				if(SetField(ref price, value, () => Price)) {
-					if(additionalAgreement != null 
+					if(AdditionalAgreement != null 
 					   && Nomenclature.Category == NomenclatureCategory.equipment
-					   && additionalAgreement.Self.Type == AgreementType.EquipmentSales) {
-						var es = additionalAgreement.Self as SalesEquipmentAgreement;
+					   && AdditionalAgreement.Self.Type == AgreementType.EquipmentSales) {
+						var es = AdditionalAgreement.Self as SalesEquipmentAgreement;
 						if(es != null) {
 							var salesEquipment = es.ObservableSalesEqipments.FirstOrDefault(x => x.Nomenclature.Id == Nomenclature.Id);
 							if(salesEquipment != null) {
@@ -330,7 +332,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public int CurrentCount{
 			get{
-				if(Repository.OrderRepository.GetStatusesForActualCount().Contains(Order.OrderStatus))
+				if(Order != null && Repository.OrderRepository.GetStatusesForActualCount().Contains(Order.OrderStatus))
 					return ActualCount;
 				else
 					return Count;
@@ -379,7 +381,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string Title {
 			get {
-				return $"[{order.Title}] {Nomenclature.Name} - {Count}*{Price}={Sum}";
+				return $"[{Order.Title}] {Nomenclature.Name} - {Count}*{Price}={Sum}";
 			}
 		}
 		#endregion
@@ -434,7 +436,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculatePrice()
 		{
-			if(isUserPrice) {
+			if(IsUserPrice) {
 				return;
 			}
 			var defaultPrice = GetDefaultPrice();
@@ -538,15 +540,16 @@ namespace Vodovoz.Domain.Orders
 
 		private void RecalculateNDS()
 		{
-			if(Nomenclature == null || Sum < 0)
+			decimal s = ActualSum > 0 && ActualSum != Sum ? ActualSum : Sum;
+			if(Nomenclature == null || s < 0)
 				return;
 
 			switch(Nomenclature.VAT) {
 				case VAT.Vat18:
-					IncludeNDS = Math.Round(Sum - (Sum / 1.18m), 2);
+					IncludeNDS = Math.Round(s - (s / 1.18m), 2);
 					break;
 				case VAT.Vat10:
-					IncludeNDS = Math.Round(Sum - (Sum / 1.10m), 2);
+					IncludeNDS = Math.Round(s - (s / 1.10m), 2);
 					break;
 				default:
 					break;

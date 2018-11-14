@@ -630,6 +630,11 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult("Не выбран объем тары");
 			}
 
+			if(Unit == null)
+				yield return new ValidationResult(
+					String.Format("Не указаны единицы измерения"),
+					new[] { this.GetPropertyName(o => o.Unit) });
+
 			//Проверка зависимостей номенклатур #1: если есть зависимые
 			if(DependsOnNomenclature != null) {
 				IList<Nomenclature> dependedNomenclatures = Repository.NomenclatureRepository.GetDependedNomenclatures(UoW, this);

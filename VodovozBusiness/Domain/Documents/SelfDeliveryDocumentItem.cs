@@ -115,10 +115,22 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title {
 			get{
-				return String.Format("[{2}] {0} - {1}",
-					WarehouseMovementOperation.Nomenclature.Name, 
-				                     WarehouseMovementOperation.Nomenclature.Unit.MakeAmountShortStr(WarehouseMovementOperation.Amount),
-					Document.Title);
+				string res = String.Empty;
+				if(WarehouseMovementOperation != null)
+					res = String.Format(
+						"[{2}] {0} - {1}",
+						WarehouseMovementOperation.Nomenclature.Name,
+						WarehouseMovementOperation.Nomenclature.Unit.MakeAmountShortStr(WarehouseMovementOperation.Amount),
+						Document.Title
+					);
+				else if(Nomenclature != null)
+					res = String.Format(
+						"[{2}] {0} - {1}",
+						Nomenclature.Name,
+						Nomenclature.Unit.MakeAmountShortStr(Amount),
+						Document.Title
+					);
+				return res;
 			}
 		}
 
