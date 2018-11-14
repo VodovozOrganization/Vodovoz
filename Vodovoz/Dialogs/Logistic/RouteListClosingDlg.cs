@@ -787,7 +787,7 @@ namespace Vodovoz
 
 				balanceBeforeOp = Repository.Operations.FuelRepository.GetFuelBalance(
 					UoW, driver, car, Entity.Car.FuelType,
-					null, exclude?.ToArray());
+					Entity.ClosingDate ?? DateTime.Now, exclude?.ToArray());
 			}
 		}
 
