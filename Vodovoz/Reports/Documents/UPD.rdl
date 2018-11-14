@@ -3360,7 +3360,7 @@ WHERE
           <Textbox Name="Textbox128">
             <Height>11.25pt</Height>
             <Width>326.90pt</Width>
-            <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_contract_number}) = false,{special_contract_number},Fields!contract_number.Value) + ' от ' + Fields!contract_date.Value</Value>
+            <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_contract_number}) = false,{special_contract_number},Fields!contract_number.Value + ' от ' + Fields!contract_date.Value)</Value>
             <ZIndex>1</ZIndex>
             <Left>258.7pt</Left>
             <Top>45.7pt</Top>
