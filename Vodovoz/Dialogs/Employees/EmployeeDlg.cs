@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using NLog;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
@@ -120,7 +120,7 @@ namespace Vodovoz
 			photoviewEmployee.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewEmployee.GetSaveFileName = () => Entity.FullName;
 
-			attachmentFiles.AttachToTable = OrmMain.GetDBTableName(typeof(Employee));
+			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Employee));
 			if(Entity.Id != 0) {
 				attachmentFiles.ItemId = UoWGeneric.Root.Id;
 				attachmentFiles.UpdateFileList();

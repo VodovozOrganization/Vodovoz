@@ -5,6 +5,7 @@ using Gamma.Utilities;
 using NHibernate.AdoNet;
 using NHibernate.Cfg;
 using QS.HistoryLog;
+using QS.Project.DB;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
 using QSContacts;
@@ -96,7 +97,7 @@ namespace Vodovoz
 											.FormatSql();
 
 			// Настройка ORM
-			OrmMain.ConfigureOrm(db_config, new System.Reflection.Assembly[] {
+			OrmConfig.ConfigureOrm(db_config, new System.Reflection.Assembly[] {
 				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),

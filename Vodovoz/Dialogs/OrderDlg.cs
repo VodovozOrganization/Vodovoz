@@ -16,6 +16,7 @@ using NHibernate.Util;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Dialogs;

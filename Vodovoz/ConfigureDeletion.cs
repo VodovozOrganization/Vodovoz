@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using QS.Deletion;
 using QSBanks;
 using QSBusinessCommon.Domain;
 using QSContacts;
-using QSOrmProject.Deletion;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
@@ -731,14 +731,12 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<AccountExpense>()
 				.AddDeleteCascadeDependence(x => x.MoneyOperation);
 				
-			DeleteConfig.ExistingConfig<Account> ().DeleteItems
-				.AddRange (new List<DeleteDependenceInfo> {
-				DeleteDependenceInfo.Create<AccountIncome> (item => item.CounterpartyAccount),
-				DeleteDependenceInfo.Create<AccountIncome> (item => item.OrganizationAccount),
-				DeleteDependenceInfo.Create<AccountExpense> (item => item.CounterpartyAccount),
-				DeleteDependenceInfo.Create<AccountExpense> (item => item.OrganizationAccount),
-				DeleteDependenceInfo.Create<AccountExpense> (item => item.EmployeeAccount),
-			});
+			DeleteConfig.ExistingDeleteRule<Account> ()
+				.AddDeleteDependence<AccountIncome> (item => item.CounterpartyAccount)
+				.AddDeleteDependence<AccountIncome> (item => item.OrganizationAccount)
+				.AddDeleteDependence<AccountExpense> (item => item.CounterpartyAccount)
+				.AddDeleteDependence<AccountExpense> (item => item.OrganizationAccount)
+				.AddDeleteDependence<AccountExpense> (item => item.EmployeeAccount);
 
 			#endregion
 

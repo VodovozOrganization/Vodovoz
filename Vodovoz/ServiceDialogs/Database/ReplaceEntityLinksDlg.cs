@@ -1,9 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using QS.Deletion;
 using QS.DomainModel.UoW;
-using QSOrmProject.Deletion;
 using QSProjectsLib;
-using QS.Tdi;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ServiceDialogs.Database

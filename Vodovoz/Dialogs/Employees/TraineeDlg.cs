@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
@@ -75,7 +76,7 @@ namespace Vodovoz.Dialogs.Employees
 			accountsView.SetTitle("Банковские счета стажера");
 
 			//Файлы
-			attachmentFiles.AttachToTable = OrmMain.GetDBTableName(typeof(Trainee));
+			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Trainee));
 			if(Entity.Id != 0) {
 				attachmentFiles.ItemId = Entity.Id;
 				attachmentFiles.UpdateFileList();
