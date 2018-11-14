@@ -1800,7 +1800,7 @@ left join
 		left join
 			nomenclature on nomenclature.id = order_items.nomenclature_id
 		where
-			nomenclature.category = 'water'
+			nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
 		group by
 			order_items.order_id
 		) as o_items on o_items.order_id = orders.id
@@ -1819,7 +1819,7 @@ left join
 	left join
 		nomenclature on nomenclature.id = warehouse_movement_operations.nomenclature_id
 	where
-		nomenclature.category = 'water'
+		nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
 	group by
 		store_car_unload_documents.route_list_id) as returned_full on returned_full.route_list_id = route_lists.id
 left join
@@ -1937,7 +1937,7 @@ left join
 		left join
 			nomenclature on nomenclature.id = order_items.nomenclature_id
 		where
-			nomenclature.category = 'water'
+			nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
 		group by
 			order_items.order_id
 		) as o_items on o_items.order_id = orders.id
@@ -1956,7 +1956,7 @@ left join
 	left join
 		nomenclature on nomenclature.id = warehouse_movement_operations.nomenclature_id
 	where
-		nomenclature.category = 'water'
+		nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
 	group by
 		store_car_unload_documents.route_list_id) as returned_full on returned_full.route_list_id = route_lists.id
 left join
@@ -2071,7 +2071,7 @@ left join
 		left join
 			nomenclature on nomenclature.id = order_items.nomenclature_id
 		where
-			nomenclature.category = 'water'
+			nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
 		group by
 			order_items.order_id
 		) as o_items on o_items.order_id = orders.id
@@ -2090,7 +2090,7 @@ left join
 	left join
 		nomenclature on nomenclature.id = warehouse_movement_operations.nomenclature_id
 	where
-		nomenclature.category = 'water'
+		nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
 	group by
 		store_car_unload_documents.route_list_id) as returned_full on returned_full.route_list_id = route_lists.id
 left join

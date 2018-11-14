@@ -34,7 +34,6 @@ namespace Vodovoz
 			}
 		}
 
-
 		public RouteListCreateDlg ()
 		{
 			this.Build ();
@@ -130,21 +129,15 @@ namespace Vodovoz
 			UoW.CanCheckIfDirty = false;
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
-			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, false);
+			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadSofiyskaya, false);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
 			CheckCarLoadDocuments();
 		}
 
-		private void CheckCarLoadDocuments()
+		void CheckCarLoadDocuments()
 		{
-			if(Entity.Id == 0) {
-				return;
-			}
-
-			var docs = RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id);
-			if(docs.Any()) {
+			if(Entity.Id > 0 && RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any())
 				IsEditable = false;
-			}
 		}
 
 		void PrintSelectedDocument (RouteListPrintableDocuments choise)
@@ -153,7 +146,6 @@ namespace Vodovoz
 				QS.Dialog.Gtk.TdiTabBase.GenerateHashName<DocumentsPrinterDlg>(),
 				() => CreateDocumentsPrinterDlg(choise)
 			);
-
 		}
 
 		DocumentsPrinterDlg CreateDocumentsPrinterDlg(RouteListPrintableDocuments choise)
@@ -188,25 +180,27 @@ namespace Vodovoz
 
 		private void UpdateButtonStatus()
 		{
-			if(Entity.Status == RouteListStatus.New)
-			{
-				IsEditable = (true);
-				var icon = new Image {
-					Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
-				};
-				buttonAccept.Image = icon;
-				enumPrint.Sensitive = false;
-				buttonAccept.Label = "Подтвердить";
-			}
-			if(Entity.Status == RouteListStatus.InLoading)
-			{
-				IsEditable = (false);
-				var icon = new Image {
-					Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
-				};
-				buttonAccept.Image = icon;
-				enumPrint.Sensitive = true;
-				buttonAccept.Label = "Редактировать";
+			switch(Entity.Status) {
+				case RouteListStatus.New: {
+						IsEditable = (true);
+						var icon = new Image {
+							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
+						};
+						buttonAccept.Image = icon;
+						enumPrint.Sensitive = false;
+						buttonAccept.Label = "Подтвердить";
+						break;
+					}
+				case RouteListStatus.InLoading: {
+						IsEditable = (false);
+						var icon = new Image {
+							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
+						};
+						buttonAccept.Image = icon;
+						enumPrint.Sensitive = true;
+						buttonAccept.Label = "Редактировать";
+						break;
+					}
 			}
 		}
 
@@ -216,13 +210,14 @@ namespace Vodovoz
 				if(QSMain.User.Permissions["can_confirm_routelist_with_overweight"]) {
 					if(
 						!MessageDialogWorks.RunQuestionDialog(
-						String.Format(
-							"Вы перегрузили '{0}' на {1} кг.\nВы уверены что хотите подтвердить маршрутный лист?",
-							Entity.Car.Title,
-							Entity.Overweight()
+							String.Format(
+								"Вы перегрузили '{0}' на {1} кг.\nВы уверены что хотите подтвердить маршрутный лист?",
+								Entity.Car.Title,
+								Entity.Overweight()
 							)
 						)
-					  ) return;
+					)
+						return;
 				} else {
 					MessageDialogWorks.RunWarningDialog(
 						String.Format(
@@ -270,7 +265,6 @@ namespace Vodovoz
 
 				Save();
 
-
 				if(UoWGeneric.Root.Car.TypeOfUse == CarTypeOfUse.Truck)
 				{
 					if(MessageDialogWorks.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle()))
@@ -288,15 +282,14 @@ namespace Vodovoz
 					var forShipment = Repository.Store.WarehouseRepository.WarehouseForShipment(UoW, Entity.Id);
 					if(forShipment.Count == 0) {
 						if(MessageDialogWorks.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
-							valid = new QSValidator<RouteList>(UoWGeneric.Root,
+							valid = new QSValidator<RouteList>(
+								UoWGeneric.Root,
 								new Dictionary<object, object> {
-							{ "NewStatus", RouteListStatus.EnRoute }
-							});
-							if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
-								Entity.ChangeStatus(RouteListStatus.New);
-							} else {
-								Entity.ChangeStatus(RouteListStatus.EnRoute);
-							}
+									{ "NewStatus", RouteListStatus.EnRoute }
+								}
+							);
+
+							Entity.ChangeStatus(valid.RunDlgIfNotValid((Window)this.Toplevel) ? RouteListStatus.New : RouteListStatus.EnRoute);
 						} else {
 							Entity.ChangeStatus(RouteListStatus.New);
 						}

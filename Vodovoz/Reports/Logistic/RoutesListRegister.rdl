@@ -54,7 +54,7 @@
 			nomenclature ON nomenclature.id = order_items.nomenclature_id
 		WHERE
 			order_items.order_id = route_list_addresses.order_id
-				AND nomenclature.category = 'water')) AS water19_amount,
+				AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L')) AS water19_amount,
 	SUM((SELECT 
 			SUM(order_items.count)
 		FROM
@@ -63,7 +63,7 @@
 			nomenclature ON nomenclature.id = order_items.nomenclature_id
 		WHERE
 			order_items.order_id = route_list_addresses.order_id
-				AND nomenclature.category = 'disposableBottleWater')) AS water6_amount,
+				AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol6L')) AS water6_amount,
 		 GROUP_CONCAT(DISTINCT ' ',
 		(SELECT 
 				logistics_area.name

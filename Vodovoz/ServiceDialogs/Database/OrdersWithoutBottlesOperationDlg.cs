@@ -8,6 +8,7 @@ using QSProjectsLib;
 using QS.Tdi;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
@@ -52,7 +53,7 @@ namespace Vodovoz.ServiceDialogs.Database
 				.Where(x => x.BottlesMovementOperation == null
 					  && x.SelfDelivery
 					  && x.OrderStatus == OrderStatus.Closed
-				      && x.OrderItems.Any(oi => oi.Nomenclature?.Category == Domain.Goods.NomenclatureCategory.water))
+				      && x.OrderItems.Any(oi => oi.Nomenclature?.Category == NomenclatureCategory.water && oi.Nomenclature?.TareVolume == TareVolume.Vol19L))
 			).Distinct().ToList();
 
 			ytreeviewOrders.SetItemsSource(orders);

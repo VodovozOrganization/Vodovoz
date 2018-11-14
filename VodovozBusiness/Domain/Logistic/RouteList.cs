@@ -823,7 +823,7 @@ namespace Vodovoz.Domain.Logistic
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
 			foreach(RouteListItem address in addresesDelivered) {
 				int amountDelivered = address.Order.OrderItems
-					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 					.Sum(item => item.ActualCount);
 				if(address.Order.BottlesMovementOperation == null) {
 					if(amountDelivered != 0 || address.BottlesReturned != 0) {

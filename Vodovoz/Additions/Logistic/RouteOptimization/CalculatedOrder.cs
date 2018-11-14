@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
@@ -35,7 +36,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(notCalculate)
 				return;
 			
-			Bootles = order.OrderItems.Where(x => x.Nomenclature.Category == Domain.Goods.NomenclatureCategory.water)
+			Bootles = order.OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare)
 							 .Sum(x => x.Count);
 			Weight = order.OrderItems.Sum(x => x.Nomenclature.Weight * x.Count)
 			              + order.OrderEquipments.Where(x => x.Direction == Direction.Deliver).Sum(x => x.Nomenclature.Weight * x.Count);

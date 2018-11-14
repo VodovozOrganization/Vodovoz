@@ -32,8 +32,10 @@ namespace Vodovoz.ViewModel
 			NomenclatureDependsFromVMNode resultAlias = null;
 
 			var items = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias);
-			if(Filter != null)
+			if(Filter != null){
 				items = items.Where(n => n.Category.IsIn(Filter.SelectedCategories) && n.IsArchive == false);
+				items = items.Where(n => n.IsDisposableTare == Filter.OnlyDisposableTare);
+			}
 			if(excludingIds != null)
 				items = items.Where(n => n.Category == nomenclatureCategory && !n.Id.IsIn(excludingIds));
 			items = items.SelectList(list => list

@@ -395,6 +395,7 @@ FROM
 			SELECT
 				order_id,
                 Nom2.category,
+                Nom2.tare_volume,
 				SUM(count) as bottle_count,
                 MIN(price) as smallest_price,
                 (
@@ -410,7 +411,7 @@ FROM
 				) as minPrice
 			FROM order_items as SumOrderItems
 				LEFT JOIN nomenclature as Nom2 ON SumOrderItems.nomenclature_id = Nom2.id
-			WHERE Nom2.category = 'water'
+			WHERE Nom2.category = 'water' AND Nom2.tare_volume = 'Vol19L'
             GROUP BY SumOrderItems.order_id
         ) as BottlesTable ON BottlesTable.order_id = MainOrders.id
     LEFT JOIN counterparty ON MainOrders.client_id = counterparty.id
@@ -419,7 +420,7 @@ WHERE
 	#Находит только те записи у которых цена ниже чем задана по прайсу
 	BottlesTable.smallest_price &lt; BottlesTable.minPrice
 	AND BottlesTable.smallest_price &gt; 0
-	AND BottlesTable.category = 'water'
+	AND BottlesTable.category = 'water' AND BottlesTable.tare_volume = 'Vol19L'
 	AND (MainOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
     AND (@DateFrom = '' OR MainOrders.delivery_date &gt;= @DateFrom) AND (@DateTo = '' OR MainOrders.delivery_date &lt;= @DateTo)
     
@@ -434,6 +435,7 @@ WHERE
 					SELECT
 						order_id,
 						Nom2.category,
+                        Nom2.tare_volume,
 						SUM(count) as bottle_count,
 						MIN(price) as smallest_price,
 						(
@@ -449,7 +451,7 @@ WHERE
 						) as minPrice
 					FROM order_items as SumOrderItems
 						LEFT JOIN nomenclature as Nom2 ON SumOrderItems.nomenclature_id = Nom2.id
-					WHERE Nom2.category = 'water'
+					WHERE Nom2.category = 'water' AND Nom2.tare_volume = 'Vol19L'
 					GROUP BY SumOrderItems.order_id
 				) as SubBottlesTable ON SubBottlesTable.order_id = SubOrders.id
         WHERE 
@@ -458,7 +460,7 @@ WHERE
             #Находит только те записи у которых цена ниже чем задана по прайсу
             AND SubBottlesTable.smallest_price &lt; SubBottlesTable.minPrice
 			AND SubBottlesTable.smallest_price &gt; 0
-			AND SubBottlesTable.category = 'water'
+			AND SubBottlesTable.category = 'water' AND NOT SubBottlesTable.tare_volume = 'Vol19L'
 			AND (SubOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
     )
 GROUP BY delivery_point_id ORDER BY DeliveryDate DESC, BottlesTable.smallest_price</CommandText>

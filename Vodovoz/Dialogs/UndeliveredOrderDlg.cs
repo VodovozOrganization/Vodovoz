@@ -2,9 +2,8 @@
 using System.Linq;
 using Gtk;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QSProjectsLib;
 using QS.Tdi;
+using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories;
@@ -12,11 +11,10 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Dialogs
 {
-	public partial class UndeliveredOrderDlg : QS.Dialog.Gtk.TdiTabBase, ITdiTabAddedNotifier
+	public partial class UndeliveredOrderDlg : QS.Dialog.Gtk.SingleUowTabBase, ITdiTabAddedNotifier
 	{
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 		public event EventHandler<EventArgs> CommentAdded;
-		IUnitOfWork UoW { get; set; }
 		UndeliveredOrder UndeliveredOrder { get; set; }
 
 		public UndeliveredOrderDlg()

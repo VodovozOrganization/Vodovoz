@@ -334,7 +334,6 @@ namespace Vodovoz
 			labelSumDifferenceReason.Hide();
 			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
 			HasChanges = true;
-
 			UoW.CanCheckIfDirty = false;
 		}
 
@@ -754,7 +753,7 @@ namespace Vodovoz
 								(dialog as IAgreementSaved).AgreementSaved += AgreementSaved;
 							}
 							TabParent.OpenTab(
-								OrmMain.GenerateDialogHashName(type, agreement.Id),
+								DialogHelper.GenerateDialogHashName(type, agreement.Id),
 								() => dialog
 							);
 						} else if(doc is OrderContract) {
@@ -1011,8 +1010,7 @@ namespace Vodovoz
 				case NomenclatureCategory.equipment://Оборудование
 					RunAdditionalAgreementSalesEquipmentDialog(nomenclature);
 					break;
-				case NomenclatureCategory.disposableBottleWater://Вода в одноразовой таре
-				case NomenclatureCategory.water://Вода в многооборотной таре
+				case NomenclatureCategory.water:
 					CounterpartyContract contract = Entity.Contract;
 					if(contract == null) {
 						contract = CounterpartyContractRepository.
@@ -1177,7 +1175,6 @@ namespace Vodovoz
 					case NomenclatureCategory.additional:
 						Entity.AddNomenclatureForSaleFromPreviousOrder(orderItem, UoWGeneric);
 						continue;
-					case NomenclatureCategory.disposableBottleWater:
 					case NomenclatureCategory.water:
 						AddNomenclature(orderItem.Nomenclature, orderItem.Count);
 						continue;
@@ -1931,7 +1928,7 @@ namespace Vodovoz
 		bool HaveAgreementForDeliveryPoint()
 		{
 			bool a = Entity.HaveActualWaterSaleAgreementByDeliveryPoint();
-			if(Entity.ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water) &&
+			if(Entity.ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare) &&
 			   !a) {
 				//У выбранной точки доставки нет соглашения о доставке воды, предлагаем создать.
 				//Если пользователь создаст соглашение, то запишется выбранная точка доставки
@@ -1960,14 +1957,14 @@ namespace Vodovoz
 			if(Entity.DeliveryPoint == null)
 				return true;
 			Nomenclature defaultWater = Entity.DeliveryPoint.DefaultWaterNomenclature;
-			var orderWaters = Entity.ObservableOrderItems.Where(w => w.Nomenclature.Category == NomenclatureCategory.water);
+			var orderWaters = Entity.ObservableOrderItems.Where(w => w.Nomenclature.Category == NomenclatureCategory.water && !w.Nomenclature.IsDisposableTare);
 
 			//Если имеется для точки доставки номенклатура по умолчанию, 
 			//если имеется вода в заказе и ни одна 19 литровая вода в заказе
 			//не совпадает с номенклатурой по умолчанию, то сообщение о штрафе!
 			if(defaultWater != null
 			   && orderWaters.Any()
-			   && !Entity.ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.water
+			   && !Entity.ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.water && !i.Nomenclature.IsDisposableTare
 												   && i.Nomenclature == defaultWater)) {
 				string address = Entity.DeliveryPoint.ShortAddress;
 				string client = Entity.Client.Name;
@@ -2096,7 +2093,7 @@ namespace Vodovoz
 		void FixPrice(int id)
 		{
 			OrderItem item = Entity.ObservableOrderItems[id];
-			if(item.Nomenclature.Category == NomenclatureCategory.water) {
+			if(item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare) {
 				Entity.RecalcBottlesDeposits(UoWGeneric);
 			}
 			if((item.Nomenclature.Category == NomenclatureCategory.deposit || item.Nomenclature.Category == NomenclatureCategory.rent)

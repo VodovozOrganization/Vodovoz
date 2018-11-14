@@ -1416,7 +1416,7 @@
 		LEFT JOIN
 			nomenclature ON nomenclature.id = order_items.nomenclature_id
 		WHERE
-			orders.id = ordersIdAlias AND nomenclature.category = 'water'
+			orders.id = ordersIdAlias AND nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
 	)  AS actual_count,
 	delivered,
 	returned,

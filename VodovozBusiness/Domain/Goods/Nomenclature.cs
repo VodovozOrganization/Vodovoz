@@ -184,6 +184,22 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref minStockCount, value, () => MinStockCount); }
 		}
 
+		bool isDisposableTare;
+
+		[Display(Name = "Одноразовая тара для воды")]
+		public virtual bool IsDisposableTare {
+			get { return isDisposableTare; }
+			set { SetField(ref isDisposableTare, value, () => IsDisposableTare); }
+		}
+
+		TareVolume? tareVolume;
+
+		[Display(Name = "Объем тары для воды")]
+		public virtual TareVolume? TareVolume {
+			get { return tareVolume; }
+			set { SetField(ref tareVolume, value, () => TareVolume); }
+		}
+
 		NomenclatureCategory category;
 
 		[Display(Name = "Категория")]
@@ -532,6 +548,14 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual string ShortOrFullName => String.IsNullOrWhiteSpace(ShortName) ? Name : ShortName;
 
+		public virtual bool IsWater19L {
+			get {
+				return Category == NomenclatureCategory.water
+				&& TareVolume.HasValue
+				&& TareVolume.Value == Goods.TareVolume.Vol19L;
+			}
+		}
+
 		#endregion
 
 		public override string ToString()
@@ -602,6 +626,9 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult(
 					String.Format("Не указан тип залога."),
 					new[] { this.GetPropertyName(o => o.TypeOfDepositCategory) });
+			if((Category == NomenclatureCategory.water || Category == NomenclatureCategory.bottle) && !TareVolume.HasValue) {
+				yield return new ValidationResult("Не выбран объем тары");
+			}
 
 			if(Unit == null)
 				yield return new ValidationResult(
@@ -639,8 +666,6 @@ namespace Vodovoz.Domain.Goods
 						              PrefixOfCode1c, next),
 						new[] { this.GetPropertyName(o => o.Code1c) });
 
-
-
 			}
 		}
 
@@ -657,7 +682,6 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.additional,
 				NomenclatureCategory.equipment,
 				NomenclatureCategory.water,
-				NomenclatureCategory.disposableBottleWater,
 				NomenclatureCategory.bottle,
 				NomenclatureCategory.spare_parts,
 				NomenclatureCategory.material
@@ -675,7 +699,6 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.additional,
 				NomenclatureCategory.equipment,
 				NomenclatureCategory.water,
-				NomenclatureCategory.disposableBottleWater,
 				NomenclatureCategory.bottle,
 				NomenclatureCategory.deposit,
 				NomenclatureCategory.spare_parts,
@@ -691,7 +714,6 @@ namespace Vodovoz.Domain.Goods
 					NomenclatureCategory.additional,
 					NomenclatureCategory.equipment,
 					NomenclatureCategory.water,
-					NomenclatureCategory.disposableBottleWater,
 					NomenclatureCategory.rent,
 					NomenclatureCategory.deposit,
 					NomenclatureCategory.service
@@ -717,7 +739,6 @@ namespace Vodovoz.Domain.Goods
 			return new[] {
 				NomenclatureCategory.additional,
 				NomenclatureCategory.water,
-				NomenclatureCategory.disposableBottleWater,
 				NomenclatureCategory.bottle,
 				NomenclatureCategory.deposit,
 				NomenclatureCategory.spare_parts,
@@ -746,7 +767,6 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.material,
 				NomenclatureCategory.spare_parts, 
 				NomenclatureCategory.water, 
-				NomenclatureCategory.disposableBottleWater
 			};
 		}
 
@@ -761,7 +781,6 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.equipment,
 				NomenclatureCategory.material,
 				NomenclatureCategory.spare_parts,
-				NomenclatureCategory.disposableBottleWater
 			};
 		}
 
@@ -774,7 +793,6 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.material,
 				NomenclatureCategory.spare_parts,
 				NomenclatureCategory.water,
-				NomenclatureCategory.disposableBottleWater,
 				NomenclatureCategory.service,
 				NomenclatureCategory.deposit,
 				NomenclatureCategory.master
@@ -787,8 +805,7 @@ namespace Vodovoz.Domain.Goods
 		public static NomenclatureCategory[] GetCategoriesRequirementForWaterAgreement()
 		{
 			return new[] {
-				NomenclatureCategory.water,
-				NomenclatureCategory.disposableBottleWater
+				NomenclatureCategory.water
 			};
 		}
 		#endregion
@@ -798,7 +815,7 @@ namespace Vodovoz.Domain.Goods
 	{
 		[Display(Name = "Аренда кулеров")]
 		rent,
-		[Display(Name = "Вода в многооборотной таре")]
+		[Display(Name = "Вода")]
 		water,
 		[Display(Name = "Залог")]
 		deposit,
@@ -814,10 +831,18 @@ namespace Vodovoz.Domain.Goods
 		bottle,
 		[Display(Name = "Сырьё")]
 		material,
-		[Display(Name = "Вода в одноразовой таре")]
-		disposableBottleWater,
 		[Display(Name = "Выезд мастера")]
 		master
+	}
+
+	public enum TareVolume
+	{
+		[Display(Name = "19 л.")]
+		Vol19L = 19000,
+		[Display(Name = "6 л.")]
+		Vol6L = 6000,
+		[Display(Name = "0,6 л.")]
+		Vol600ml = 600
 	}
 
 	/// <summary>
@@ -859,6 +884,13 @@ namespace Vodovoz.Domain.Goods
 	public class TypeOfDepositCategoryStringType : NHibernate.Type.EnumStringType
 	{
 		public TypeOfDepositCategoryStringType() : base(typeof(TypeOfDepositCategory))
+		{
+		}
+	}
+
+	public class TareVolumeStringType : NHibernate.Type.EnumStringType
+	{
+		public TareVolumeStringType() : base(typeof(TareVolume))
 		{
 		}
 	}

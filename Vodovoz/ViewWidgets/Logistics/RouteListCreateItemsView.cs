@@ -239,7 +239,7 @@ namespace Vodovoz
 		void CalculateTotal()
 		{
 			var total = routeListUoW.Root.Addresses.SelectMany(a => a.Order.OrderItems)
-				.Where(i => i.Nomenclature.Category == NomenclatureCategory.water)
+				.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(i => i.Count);
 
 			labelSum.LabelProp = String.Format("Всего бутылей: {0}", total);

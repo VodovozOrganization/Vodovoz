@@ -38,7 +38,7 @@
             nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
         WHERE
             route_lists.date = byOrders.date
-                AND (nomenclature.category = 'water'
+                AND ((nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare)
                 OR nomenclature.category = 'bottle')
                 AND nomenclature.is_new_bottle = 0
                 AND nomenclature.is_defective_bottle = 0) AS car_load_count,
@@ -56,7 +56,7 @@
             nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
         WHERE
             route_lists.date = byOrders.date
-                AND (nomenclature.category = 'water'
+                AND ((nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare)
                 OR nomenclature.category = 'bottle')
                 AND nomenclature.is_new_bottle = 0
                 AND nomenclature.is_defective_bottle = 0) AS car_unload_count,

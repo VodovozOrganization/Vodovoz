@@ -16,6 +16,7 @@ namespace Vodovoz.JournalFilters
 			cmbEquipmentSubtype.Visible = DefaultSelectedCategory == NomenclatureCategory.equipment;
 			chkShowDilers.Visible = DefaultSelectedCategory == NomenclatureCategory.water;
 			OnRefiltered();
+			UpdateVisibility();
 		}
 
 		public NomenclatureRepFilter(IUnitOfWork uow) : this()
@@ -26,6 +27,11 @@ namespace Vodovoz.JournalFilters
 		public NomenclatureRepFilter()
 		{
 			this.Build();
+		}
+
+		private void UpdateVisibility()
+		{
+			chkOnlyDisposableTare.Visible = chkShowDilers.Visible = (enumcomboCategory.SelectedItem is NomenclatureCategory) && (NomenclatureCategory)enumcomboCategory.SelectedItem == NomenclatureCategory.water;
 		}
 
 		NomenclatureCategory[] availableCategories;
@@ -59,6 +65,8 @@ namespace Vodovoz.JournalFilters
 		}
 
 		public bool ShowDilers => chkShowDilers.Active;
+
+		public bool OnlyDisposableTare => chkOnlyDisposableTare.Active && SelectedCategories.Contains(NomenclatureCategory.water);
 
 		public NomenclatureCategory[] SelectedCategories {
 			get {
@@ -108,7 +116,8 @@ namespace Vodovoz.JournalFilters
 				return;
 			}
 
-			chkShowDilers.Visible = (NomenclatureCategory)enumcomboCategory.SelectedItem == NomenclatureCategory.water;
+
+			UpdateVisibility();
 			OnRefiltered();
 		}
 
@@ -118,6 +127,11 @@ namespace Vodovoz.JournalFilters
 		}
 
 		protected void OnCmbEquipmentSubtypeChangedByUser(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnChkOnlyDisposableTareToggled(object sender, EventArgs e)
 		{
 			OnRefiltered();
 		}

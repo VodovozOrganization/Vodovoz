@@ -64,7 +64,9 @@ namespace Vodovoz.ViewModel
 
 			if(!Filter.ShowDilers)
 				itemsQuery.Where(() => !nomenclatureAlias.IsDiler);
-
+			if(Filter.SelectedCategories.Contains(NomenclatureCategory.water)) {
+				itemsQuery.Where(() => nomenclatureAlias.IsDisposableTare == Filter.OnlyDisposableTare);
+			}
 			itemsQuery.Where(n => n.Category.IsIn(Filter.SelectedCategories));
 
 			if(Filter.SelectedCategories.Count() == 1 && Filter.SelectedCategories.Contains(NomenclatureCategory.equipment))

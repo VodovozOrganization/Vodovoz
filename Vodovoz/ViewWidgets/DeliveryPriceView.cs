@@ -1,5 +1,4 @@
 ﻿using System;
-using QSOrmProject;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.ViewWidgets
@@ -31,6 +30,7 @@ namespace Vodovoz.ViewWidgets
 			hboxTreeView.Visible = deliveryPriceNode.ByDistance;
 			label2.Visible = labelPrice.Visible = hbox5.Visible = deliveryPriceNode.WithPrice;
 			ytreeviewPrices.SetItemsSource<DeliveryPriceRow>(deliveryPriceNode.Prices);
+			lblDistrict.LabelProp = deliveryPriceNode.DistrictName;
 		}
 
 		public DeliveryPriceView()

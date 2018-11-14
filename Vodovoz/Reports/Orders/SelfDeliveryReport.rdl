@@ -506,7 +506,7 @@
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -542,7 +542,7 @@
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -559,7 +559,7 @@
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -877,7 +877,7 @@
 						LEFT JOIN
 					nomenclature ON nomenclature.id = order_items.nomenclature_id
 				WHERE
-					nomenclature.category = 'water'
+					nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'
 						AND order_items.order_id = orders.id),
 			0) AS full_bottles_count,
 	TRUNCATE(IFNULL((SELECT 

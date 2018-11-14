@@ -247,7 +247,6 @@ namespace Vodovoz
 			Entity.PropertyChanged += Entity_PropertyChanged;
 			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
 			HasChanges = true;
-
 			UoW.CanCheckIfDirty = false;
 		}
 
@@ -466,7 +465,8 @@ namespace Vodovoz
 		{
 			var items = routeListAddressesView.Items.Where(item => item.IsDelivered());
 			bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
-			int fullBottlesTotal = items.SelectMany(item => item.Order.OrderItems).Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+			int fullBottlesTotal = items.SelectMany(item => item.Order.OrderItems)
+				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(item => item.ActualCount);
 			decimal depositsCollectedTotal = items.Sum(item => item.GetDepositsCollected);
 			decimal equipmentDepositsCollectedTotal = items.Sum(item => item.GetEquipmentDepositsCollected);

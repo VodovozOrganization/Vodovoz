@@ -418,7 +418,7 @@
                         <Textbox Name="Textbox28">
                           <Value>=Switch(
     Fields!category.Value = 'rent', 'Аренда кулеров',
-    Fields!category.Value = 'water', 'Вода в многооборотной таре',
+    Fields!category.Value = 'water' AND Fields!is_disposable_tare.Value = false, 'Вода в многооборотной таре',
     Fields!category.Value = 'deposit', 'Залог',
     Fields!category.Value = 'spare_parts', 'Запчасти',
     Fields!category.Value = 'equipment', 'Оборудование',
@@ -426,7 +426,7 @@
     Fields!category.Value = 'service', 'Услуга',
     Fields!category.Value = 'bottle', 'Тара',
     Fields!category.Value = 'material', 'Сырьё',
-    Fields!category.Value = 'disposableBottleWater', 'Вода в одноразовой таре',
+    Fields!category.Value = 'water' AND Fields!is_disposable_tare.Value = true, 'Вода в одноразовой таре',
     Fields!category.Value = 'master', 'Выезд мастера'
 )</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -643,6 +643,7 @@
 	SUM(order_items.count) AS total_count,
 	truncate(SUM(order_items.count * order_items.price - order_items.discount_money), 2) AS total_sum,
 	nomenclature.category,
+	nomenclature.is_disposable_tare,
 	nomenclature.id as nomenclature_id
 FROM
 	order_items
@@ -799,10 +800,14 @@ GROUP BY counterparty.id, delivery_points.id, orders.id, orders.author_employee_
           <DataField>ord_details</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="is_disposable_tare">
+          <DataField>is_disposable_tare</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -980,7 +985,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>

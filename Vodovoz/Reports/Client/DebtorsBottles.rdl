@@ -46,7 +46,7 @@
 	WHERE
 		orders.delivery_point_id = pointid
 		AND order_status &lt;&gt; 'Canceled' AND order_status &lt;&gt; 'DeliveryCanceled'
-		AND category = 'water') AS lastorder
+		AND category = 'water' AND NOT is_disposable_tare) AS lastorder
 FROM
 	(SELECT DISTINCT counterparty_id, delivery_point_id FROM bottles_movement_operations) as items
 LEFT JOIN

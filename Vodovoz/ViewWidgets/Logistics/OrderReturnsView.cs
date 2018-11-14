@@ -173,7 +173,6 @@ namespace Vodovoz
 			}
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.water:
-				case NomenclatureCategory.disposableBottleWater:
 					wsa = contract.GetWaterSalesAgreement(routeListItem.Order.DeliveryPoint);
 					if(wsa == null) {
 						MessageDialogWorks.RunErrorDialog("Невозможно добавить воду, потому что нет дополнительного соглашения о продаже воды");

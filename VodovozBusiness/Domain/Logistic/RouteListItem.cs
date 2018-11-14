@@ -561,7 +561,7 @@ namespace Vodovoz.Domain.Logistic
 			var paymentForAddress = firstOrderForAddress ? rates.PaymentPerAddress : 0;
 
 			var fullBottleCount = Order.OrderItems
-							.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+							.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
 							.Sum(item => item.ActualCount);
 
 			var smallBottleCount = Order.OrderItems
@@ -591,8 +591,7 @@ namespace Vodovoz.Domain.Logistic
 			var emptyBottlesPayment = bottleCollectionOrder ? 0 : paymentPerEmptyBottle * bottlesReturned;
 			var smallFullBottlesPayment =
 				rates.SmallFullBottleRate * Order.OrderItems
-					.Where(item => item.Nomenclature.Category == NomenclatureCategory.disposableBottleWater
-						&& item.Nomenclature.Weight == 6.0)
+					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol6L)
 					.Sum(item => item.ActualCount);
 
 			var wage = equpmentPayment + largeFullBottlesPayment + smallBottlePayment
@@ -644,13 +643,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int GetFullBottlesDeliveredCount()
 		{
-			return Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+			return Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(item => item.ActualCount);
 		}
 
 		public virtual int GetFullBottlesToDeliverCount()
 		{
-			return Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+			return Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(item => item.Count);
 		}
 

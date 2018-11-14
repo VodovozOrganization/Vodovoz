@@ -83,7 +83,7 @@ namespace Vodovoz.Representations
 			var subquery19LWatterQty = QueryOver.Of<OrderItem>(() => orderItemAlias)
 												.Where(() => orderItemAlias.Order.Id == oldOrderAlias.Id)
 												.Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
-												.Where(n => n.Category == NomenclatureCategory.water)
+												.Where(n => n.Category == NomenclatureCategory.water && n.TareVolume == TareVolume.Vol19L)
 												.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var subqueryGoodsToClient = QueryOver.Of<OrderEquipment>(() => orderEquipmentAlias)
