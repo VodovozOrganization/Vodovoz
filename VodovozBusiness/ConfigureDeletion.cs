@@ -20,8 +20,10 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	partial class MainClass
+	public static class Configure
 	{
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
 		public static void ConfigureDeletion ()
 		{
 			logger.Info ("Настройка параметров удаления...");

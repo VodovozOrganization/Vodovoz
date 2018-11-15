@@ -529,6 +529,7 @@
     <Compile Include="Domain\Order\Documents\SpecialUPD.cs" />
     <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
     <Compile Include="Attributes\OnlineStoreGuidAttribute.cs" />
+    <Compile Include="ConfigureDeletion.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

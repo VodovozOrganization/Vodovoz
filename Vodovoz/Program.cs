@@ -97,7 +97,7 @@ namespace Vodovoz
 				driverTerminal.Show();
 			}else{
 				//Настрока удаления
-				ConfigureDeletion();
+				Configure.ConfigureDeletion();
 				QSProjectsLib.PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
 
 				VodovozService.Chats.ChatMain.ChatServer = "vod-srv.qsolution.ru:9000";
