@@ -35,7 +35,7 @@ namespace Vodovoz
 			#region Goods
 
 			DeleteConfig.AddHibernateDeleteInfo<Nomenclature>()
-				.AddDeleteDependenceFromBag (item => item.NomenclaturePrice)
+				.AddDeleteDependenceFromCollection (item => item.NomenclaturePrice)
 				.AddDeleteDependence<Equipment> (item => item.Nomenclature)
 				.AddDeleteDependence<OrderItem>(x => x.Nomenclature)
 				.AddDeleteDependence<OrderEquipment>(x => x.Nomenclature)
@@ -149,8 +149,8 @@ namespace Vodovoz
 			#region Organization
 
 			DeleteConfig.AddHibernateDeleteInfo<Organization>()
-				.AddDeleteDependenceFromBag (item => item.Phones)
-				.AddDeleteDependenceFromBag(item => item.Accounts)
+				.AddDeleteDependenceFromCollection (item => item.Phones)
+				.AddDeleteDependenceFromCollection(item => item.Accounts)
 				.AddDeleteDependence<CounterpartyContract> (item => item.Organization)
 				.AddDeleteDependence<AccountIncome> (item => item.Organization)
 				.AddDeleteDependence<AccountExpense> (item => item.Organization)
@@ -168,8 +168,8 @@ namespace Vodovoz
 			#region Сотрудники
 
 			DeleteConfig.AddHibernateDeleteInfo<Employee>()
-				.AddDeleteDependenceFromBag (item => item.Phones)
-				.AddDeleteDependenceFromBag(item => item.Accounts)
+				.AddDeleteDependenceFromCollection (item => item.Phones)
+				.AddDeleteDependenceFromCollection(item => item.Accounts)
 				.AddDeleteDependence<Income> (item => item.Casher)
 				.AddDeleteDependence<Expense> (item => item.Casher)
 				.AddDeleteDependence<AdvanceReport> (item => item.Casher)
@@ -284,9 +284,9 @@ namespace Vodovoz
 			#region NearCounterparty
 
 			DeleteConfig.AddHibernateDeleteInfo<Counterparty>()
-				.AddDeleteDependenceFromBag(item => item.Phones)
-				.AddDeleteDependenceFromBag(item => item.Emails)
-				.AddDeleteDependenceFromBag(item => item.Accounts)
+				.AddDeleteDependenceFromCollection(item => item.Phones)
+				.AddDeleteDependenceFromCollection(item => item.Emails)
+				.AddDeleteDependenceFromCollection(item => item.Accounts)
 				.AddDeleteDependence<DeliveryPoint>(item => item.Counterparty)
 				.AddDeleteDependence<Proxy>(item => item.Counterparty)
 				.AddDeleteDependence<Contact> (item => item.Counterparty)
@@ -314,8 +314,8 @@ namespace Vodovoz
 
 
 			DeleteConfig.AddHibernateDeleteInfo<Contact>()
-				.AddDeleteDependenceFromBag(item => item.Emails)
-				.AddDeleteDependenceFromBag(item => item.Phones)
+				.AddDeleteDependenceFromCollection(item => item.Emails)
+				.AddDeleteDependenceFromCollection(item => item.Phones)
 				.AddClearDependence<Counterparty> (item => item.MainContact)
 				.AddClearDependence<Counterparty> (item => item.FinancialContact)
 				.AddRemoveFromDependence<DeliveryPoint>(x => x.Contacts);
@@ -323,7 +323,7 @@ namespace Vodovoz
 			DeleteConfig.AddClearDependence<Post> (ClearDependenceInfo.Create<Contact> (item => item.Post));
 
 			DeleteConfig.AddHibernateDeleteInfo<Proxy>()
-				.AddDeleteDependenceFromBag(item => item.Persons);
+				.AddDeleteDependenceFromCollection(item => item.Persons);
 
 			DeleteConfig.AddHibernateDeleteInfo<CounterpartyContract>()
 				.AddDeleteDependence<AdditionalAgreement> (item => item.Contract)
@@ -340,16 +340,16 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<RepairAgreement>();
 
 			DeleteConfig.AddHibernateDeleteInfo<SalesEquipmentAgreement>()
-			    .AddDeleteDependenceFromBag(x => x.SalesEqipments);
+			    .AddDeleteDependenceFromCollection(x => x.SalesEqipments);
 
 			DeleteConfig.AddHibernateDeleteInfo<NonfreeRentAgreement>()
-				.AddDeleteDependenceFromBag(x => x.PaidRentEquipments);
+				.AddDeleteDependenceFromCollection(x => x.PaidRentEquipments);
 
 			DeleteConfig.AddHibernateDeleteInfo<FreeRentAgreement>()
-				.AddDeleteDependenceFromBag(x => x.Equipment);
+				.AddDeleteDependenceFromCollection(x => x.Equipment);
 
 			DeleteConfig.AddHibernateDeleteInfo<DailyRentAgreement>()
-				.AddDeleteDependenceFromBag(x => x.Equipment);
+				.AddDeleteDependenceFromCollection(x => x.Equipment);
 
 			DeleteConfig.AddHibernateDeleteInfo<FreeRentEquipment>();
 
@@ -448,7 +448,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<AtWorkDriverDistrictPriority>();
 
 			DeleteConfig.AddHibernateDeleteInfo<AtWorkDriver>()
-				.AddDeleteDependenceFromBag(x => x.Districts);
+				.AddDeleteDependenceFromCollection(x => x.Districts);
 
 			DeleteConfig.AddHibernateDeleteInfo<AtWorkForwarder>()
 				.AddClearDependence<AtWorkDriver>(x => x.WithForwarder);
@@ -596,7 +596,7 @@ namespace Vodovoz
 				.AddDeleteCascadeDependence(x => x.WarehouseWriteoffOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<ProductSpecification>()
-				.AddDeleteDependenceFromBag(x => x.Materials);
+				.AddDeleteDependenceFromCollection(x => x.Materials);
 
 			DeleteConfig.AddHibernateDeleteInfo<ProductSpecificationMaterial>();
 
