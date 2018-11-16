@@ -5,8 +5,7 @@ using Vodovoz;
 
 namespace VodovozBusinessTests.Deletion
 {
-	[SetUpFixture]
-	public class ConfigureOneTime
+	public static class ConfigureOneTime
 	{
 		static bool NhConfigered = false;
 		static bool DeletionConfigured = false;
@@ -42,14 +41,6 @@ namespace VodovozBusinessTests.Deletion
 			Console.WriteLine("Delete");
 			Configure.ConfigureDeletion();
 			DeletionConfigured = true;
-		}
-
-		[OneTimeSetUp]
-		public void RunBeforeAnyTests()
-		{
-			Console.WriteLine("RunBeforeAnyTests");
-			ConfigureNh();
-			ConfogureDeletion();
 		}
 	}
 }
