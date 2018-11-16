@@ -1,7 +1,5 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QS.Tdi;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 
@@ -28,14 +26,7 @@ namespace Vodovoz
 			}
 		}
 
-		public bool? UseSlider
-		{
-			get
-			{
-				return null;
-			}
-		}
-
+		public bool? UseSlider => null;
 
 		public UnclosedAdvancesView(Employee accountable, ExpenseCategory expense): this()
 		{
@@ -62,10 +53,9 @@ namespace Vodovoz
 
 		void Accountableslipfilter1_Refiltered (object sender, EventArgs e)
 		{
-			if(unclosedadvancesfilter1.RestrictAccountable == null)
-				TabName = "Незакрытые авансы";
-			else
-				TabName = String.Format ("Незакрытые авансы по {0}", unclosedadvancesfilter1.RestrictAccountable.ShortName);
+			TabName = unclosedadvancesfilter1.RestrictAccountable == null
+				? "Незакрытые авансы"
+				: String.Format ("Незакрытые авансы по {0}", unclosedadvancesfilter1.RestrictAccountable.ShortName);
 		}
 
 		protected void OnButtonReturnClicked(object sender, EventArgs e)
