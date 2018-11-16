@@ -223,7 +223,8 @@ namespace Vodovoz.Domain.Documents
 		public virtual bool FullyShiped(IUnitOfWork uow)
 		{
 			//Проверка текущего документа
-			bool closed = Items.All(x => (x.OrderItem != null ? x.OrderItem.Count : 1) == x.Amount + x.AmountUnloaded);
+			bool closed = Items.All(x => ((x.OrderItem != null ? x.OrderItem.Count : 1) == x.Amount + x.AmountUnloaded)
+				|| ((x.OrderEquipment != null ? x.OrderEquipment.Count : 1) == x.Amount + x.AmountUnloaded));
 			if(closed) {
 				return Order.TryCloseSelfDeliveryOrder(uow, this);
 			} else {
