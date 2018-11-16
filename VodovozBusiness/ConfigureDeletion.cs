@@ -139,6 +139,10 @@ namespace Vodovoz
 						.AddClearDependence<Nomenclature>(x => x.Folder1C);
 
 			DeleteConfig.AddHibernateDeleteInfo<NomenclatureImage>();
+
+			DeleteConfig.AddHibernateDeleteInfo<ProductGroup>()
+				.AddDeleteDependence<ProductGroup>(x => x.Parent)
+				.AddClearDependence<Nomenclature>(x => x.ProductGroup);
 			
 			#endregion
 
@@ -181,6 +185,9 @@ namespace Vodovoz
 				.AddDeleteDependence<WagesMovementOperations>(x => x.Employee)
 				.AddDeleteDependence<Track>(x => x.Driver)
 			    .AddDeleteDependence<Chat>(x => x.Driver)
+				.AddDeleteDependence<AtWorkDriver>(x => x.Employee)
+				.AddDeleteDependence<AtWorkForwarder>(x => x.Employee)
+				.AddDeleteDependence<DriverDistrictPriority>(x => x.Driver)
 				.AddClearDependence<Car> (item => item.Driver)
 				.AddClearDependence<Counterparty> (item => item.Accountant)
 				.AddClearDependence<Counterparty> (item => item.SalesManager)
@@ -217,7 +224,8 @@ namespace Vodovoz
 				.AddClearDependence<Residue>(x => x.Author)
 				.AddClearDependence<Residue>(x => x.LastEditAuthor)
 				.AddClearDependence<Subdivision>(x => x.Chief)
-			    .AddClearDependence<ChatMessage>(x => x.Sender);
+			    .AddClearDependence<ChatMessage>(x => x.Sender)
+				.AddClearDependence<Employee>(x => x.DefaultForwarder);
 
 
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
@@ -232,7 +240,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<User>()
 				.AddDeleteDependence<UserSettings>(x => x.User)
-				.AddClearDependence<Employee> (item => item.User);
+				.AddClearDependence<Employee> (item => item.User)
+				.AddClearDependence<QS.HistoryLog.Domain.ChangeSet>(x => x.User);
 
 			DeleteConfig.AddHibernateDeleteInfo<UserSettings>();
 
@@ -382,7 +391,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<Car>()
 				.AddDeleteDependence<RouteList>(x => x.Car)
 				.AddDeleteDependence<FuelDocument>(x => x.Car)
-				.AddDeleteDependence<FuelOperation>(x => x.Car);
+				.AddDeleteDependence<FuelOperation>(x => x.Car)
+				.AddDeleteDependence<AtWorkDriver>(x => x.Car);
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelType>()
 				.AddDeleteDependence<FuelDocument>(x => x.Fuel)
@@ -406,7 +416,9 @@ namespace Vodovoz
 				.AddClearDependence<RouteList>(x => x.Shift);
 
 			DeleteConfig.AddHibernateDeleteInfo<LogisticsArea>()
-				.AddClearDependence<DeliveryPoint> (item => item.LogisticsArea);
+				.AddDeleteDependence<AtWorkDriverDistrictPriority>(x => x.District)
+				.AddDeleteDependence<DriverDistrictPriority>(x => x.District)
+				.AddClearDependence<DeliveryPoint>(item => item.LogisticsArea);
 
 			DeleteConfig.AddHibernateDeleteInfo<RouteList>()
 				.AddDeleteDependence<RouteListItem>(x => x.RouteList)
@@ -435,13 +447,17 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<AtWorkDriverDistrictPriority>();
 
-			DeleteConfig.AddHibernateDeleteInfo<AtWorkDriver>();
+			DeleteConfig.AddHibernateDeleteInfo<AtWorkDriver>()
+				.AddDeleteDependenceFromBag(x => x.Districts);
 
-			DeleteConfig.AddHibernateDeleteInfo<AtWorkForwarder>();
+			DeleteConfig.AddHibernateDeleteInfo<AtWorkForwarder>()
+				.AddClearDependence<AtWorkDriver>(x => x.WithForwarder);
 
 			DeleteConfig.AddHibernateDeleteInfo<DriverDistrictPriority>();
 
-			DeleteConfig.AddHibernateDeleteInfo<DeliveryDaySchedule>();
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryDaySchedule>()
+				.AddDeleteDependence<AtWorkDriver>(x => x.DaySchedule)
+				.AddClearDependence<Employee>(x => x.DefaultDaySheldule);
 
 			#endregion
 
@@ -765,19 +781,17 @@ namespace Vodovoz
 			#region Журнал изменений
 			//Добавлено чтобы было, вдруг понадобится ослеживать зависимости. Сейчас это не надо для реального удаления.
 
-			DeleteConfig.AddHibernateDeleteInfo<ChangeSet>();
-			DeleteConfig.AddHibernateDeleteInfo<ChangedEntity>();
+			DeleteConfig.AddHibernateDeleteInfo<ChangeSet>()
+				.AddDeleteDependence<ChangedEntity>(x => x.ChangeSet);
+			DeleteConfig.AddHibernateDeleteInfo<ChangedEntity>()
+				.AddDeleteDependence<FieldChange>(x => x.Entity);
 			DeleteConfig.AddHibernateDeleteInfo<FieldChange>();
 
 			#endregion
 
 			//Для тетирования
-#if DEBUG
+			#if DEBUG
 			DeleteConfig.IgnoreMissingClass.Add (typeof(TrackPoint));
-			//DeleteConfig.IgnoreMissingClass.Add (typeof(DailyRentAgreement));
-			//DeleteConfig.IgnoreMissingClass.Add (typeof(FreeRentAgreement));
-			//DeleteConfig.IgnoreMissingClass.Add (typeof(WaterSalesAgreement));
-			//DeleteConfig.IgnoreMissingClass.Add (typeof(RepairAgreement));
 
 			DeleteConfig.DeletionCheck ();
 			#endif
