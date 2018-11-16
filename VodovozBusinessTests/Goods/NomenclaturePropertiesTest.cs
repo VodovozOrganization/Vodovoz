@@ -13,6 +13,8 @@ namespace VodovozBusinessTests.Goods
 		{
 			Assert.IsNotNull(item.GetAttribute<DisplayAttribute>(), $"{item} не имеет атрибута DisplayAttribute");
 			Assert.IsNotNull(item.GetAttribute<OnlineStoreGuidAttribute>(), $"{item} не имеет атрибута OnlineStoreGuidAttribute");
+			Assert.That(typeof(Nomenclature).GetProperty(item.ToString()), Is.Not.Null,
+				"Для работы выгрузки в интернет магазин для каждого значения этого перечисления в Nomenclature должно имется свойство с таким же названием.");
 		}
 	}
 }
