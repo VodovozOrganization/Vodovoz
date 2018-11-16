@@ -448,7 +448,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<AtWorkDriverDistrictPriority>();
 
 			DeleteConfig.AddHibernateDeleteInfo<AtWorkDriver>()
-				.AddDeleteDependenceFromCollection(x => x.Districts);
+				.AddDeleteDependence<AtWorkDriverDistrictPriority>(x => x.Driver);
 
 			DeleteConfig.AddHibernateDeleteInfo<AtWorkForwarder>()
 				.AddClearDependence<AtWorkDriver>(x => x.WithForwarder);
