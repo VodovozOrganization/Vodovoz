@@ -62,7 +62,7 @@ namespace Vodovoz
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
-		Order templateOrder = null;
+		Order templateOrder;
 
 		#region Работа с боковыми панелями
 
@@ -2259,6 +2259,11 @@ namespace Vodovoz
 			} else {
 				enumPaymentType.Sensitive = CanChange;
 			}
+		}
+
+		public void SetDlgToReadOnly(){
+			buttonSave.Sensitive = buttonCancel.Sensitive =
+			hboxStatusButtons.Visible = false;
 		}
 
 		void UpdateButtonState()

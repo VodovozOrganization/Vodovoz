@@ -9,17 +9,17 @@ using Gtk;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Tdi;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using VodovozService.Chats;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
@@ -72,6 +72,7 @@ namespace Vodovoz
 		Dictionary<RouteListItemStatus, Gdk.Pixbuf> statusIcons = new Dictionary<RouteListItemStatus, Gdk.Pixbuf>();
 
 		List<RouteListKeepingItemNode> items;
+		RouteListKeepingItemNode selectedItem;
 
 		public void ConfigureDlg(){
 			Entity.ObservableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
@@ -130,15 +131,15 @@ namespace Vodovoz
 				.AddColumn("Заказ")
 					.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())					
 				.AddColumn("Адрес")
-				.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint == null ? "Требуется точка доставки" : node.RouteListItem.Order.DeliveryPoint.ShortAddress)					
+					.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint == null ? "Требуется точка доставки" : node.RouteListItem.Order.DeliveryPoint.ShortAddress)					
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => statusIcons[x.Status])
-				.AddEnumRenderer(node => node.Status, excludeItems: new Enum [] { RouteListItemStatus.Transfered })
-				.AddSetter((c, n) => c.Editable = allEditing && n.Status != RouteListItemStatus.Transfered)
+					.AddEnumRenderer(node => node.Status, excludeItems: new Enum [] { RouteListItemStatus.Transfered })
+					.AddSetter((c, n) => c.Editable = allEditing && n.Status != RouteListItemStatus.Transfered)
 				.AddColumn("Отгрузка")
-				.AddNumericRenderer(node => node.RouteListItem.Order.OrderItems
+					.AddNumericRenderer(node => node.RouteListItem.Order.OrderItems
 					.Where(b => b.Nomenclature.Category == NomenclatureCategory.water && b.Nomenclature.TareVolume == TareVolume.Vol19L)
 					.Sum(b => b.Count))
 				.AddColumn("Возврат тары")
@@ -158,6 +159,7 @@ namespace Vodovoz
 			ytreeviewAddresses.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewAddresses.Selection.Changed += OnSelectionChanged;
 			ytreeviewAddresses.Sensitive = allEditing;
+			ytreeviewAddresses.RowActivated += YtreeviewAddresses_RowActivated;
 
 			//Заполняем телефоны
 			string phones = null;
@@ -183,6 +185,18 @@ namespace Vodovoz
 
 
 			UpdateNodes();
+		}
+
+		void YtreeviewAddresses_RowActivated(object o, RowActivatedArgs args)
+		{
+			selectedItem = ytreeviewAddresses.GetSelectedObjects<RouteListKeepingItemNode>().FirstOrDefault();
+			if(selectedItem != null) {
+				var dlg = new OrderDlg(selectedItem.RouteListItem.Order);
+				dlg.UoWGeneric.CanCheckIfDirty = false;
+				dlg.HasChanges = false;
+				dlg.SetDlgToReadOnly();
+				OpenSlaveTab(dlg);
+			}
 		}
 
 		private void UpdateBottlesSummaryInfo()
@@ -268,7 +282,7 @@ namespace Vodovoz
 		}
 
 		public void OnSelectionChanged(object sender, EventArgs args){
-			buttonSetStatusComplete	.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() > 0;
+			buttonSetStatusComplete.Sensitive = ytreeviewAddresses.GetSelectedObjects().Any();
 			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1 && QSMain.User.Permissions["logistic_changedeliverytime"];
 		}
 
