@@ -7,6 +7,7 @@ using QS.Deletion.Testing;
 namespace VodovozBusinessTests.Deletion
 {
 	[TestFixture]
+	[Category("Конфигурация удаления")]
 	public class ConfigClassTests : DeleteConfigTestBase
 	{
 		static ConfigClassTests()
@@ -61,6 +62,14 @@ namespace VodovozBusinessTests.Deletion
 		public override void CascadeDependenceRuleExisitForNHMappedEntityRelationTest(PersistentClass mapping, Property property, IDeleteRule related)
 		{
 			base.CascadeDependenceRuleExisitForNHMappedEntityRelationTest(mapping, property, related);
+		}
+
+		public new static IEnumerable NhibernateMappedCollection => DeleteConfigTestBase.NhibernateMappedCollection;
+
+		[Test, TestCaseSource(nameof(NhibernateMappedCollection))]
+		public override void NHMappedCollectionsAllInOneTest(PersistentClass mapping, Property property)
+		{
+			base.NHMappedCollectionsAllInOneTest(mapping, property);
 		}
 	}
 }
