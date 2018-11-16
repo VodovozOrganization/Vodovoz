@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using QS.Deletion;
+using QS.HistoryLog.Domain;
 using QSBanks;
 using QSBusinessCommon.Domain;
 using QSContacts;
@@ -59,6 +60,7 @@ namespace Vodovoz
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.Nomenclature)
 			    .AddDeleteDependence<WarehouseMovementOperation>(item => item.Nomenclature)
 				.AddDeleteDependence<CounterpartyMovementOperation>(item => item.Nomenclature)
+				.AddDeleteDependence<NomenclatureImage>(x => x.Nomenclature)
 				.AddClearDependence<PaidRentPackage>(x => x.RentServiceDaily)
 				.AddClearDependence<PaidRentPackage>(x => x.RentServiceMonthly)
 				.AddClearDependence<PaidRentPackage>(x => x.DepositService)
@@ -135,6 +137,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<Folder1c>()
 			            .AddDeleteDependence<Folder1c>(x => x.Parent)
 						.AddClearDependence<Nomenclature>(x => x.Folder1C);
+
+			DeleteConfig.AddHibernateDeleteInfo<NomenclatureImage>();
 			
 			#endregion
 
@@ -249,6 +253,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<FineItem>()
 				.AddDeleteCascadeDependence(item => item.WageOperation)
 			    .AddDeleteCascadeDependence(item => item.FuelOutlayedOperation);
+
+			DeleteConfig.AddHibernateDeleteInfo<FineTemplate>();
 
 			DeleteConfig.AddHibernateDeleteInfo<Subdivision>()
 				.AddClearDependence<Employee>(item => item.Subdivision);
@@ -424,6 +430,20 @@ namespace Vodovoz
 				.AddRemoveFromDependence<RouteList>(x => x.Addresses, x => x.RemoveAddress);
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
+
+			#region Формирование МЛ
+
+			DeleteConfig.AddHibernateDeleteInfo<AtWorkDriverDistrictPriority>();
+
+			DeleteConfig.AddHibernateDeleteInfo<AtWorkDriver>();
+
+			DeleteConfig.AddHibernateDeleteInfo<AtWorkForwarder>();
+
+			DeleteConfig.AddHibernateDeleteInfo<DriverDistrictPriority>();
+
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryDaySchedule>();
+
+			#endregion
 
 			#endregion
 
@@ -742,8 +762,17 @@ namespace Vodovoz
 
 			#endregion
 
+			#region Журнал изменений
+			//Добавлено чтобы было, вдруг понадобится ослеживать зависимости. Сейчас это не надо для реального удаления.
+
+			DeleteConfig.AddHibernateDeleteInfo<ChangeSet>();
+			DeleteConfig.AddHibernateDeleteInfo<ChangedEntity>();
+			DeleteConfig.AddHibernateDeleteInfo<FieldChange>();
+
+			#endregion
+
 			//Для тетирования
-			#if DEBUG
+#if DEBUG
 			DeleteConfig.IgnoreMissingClass.Add (typeof(TrackPoint));
 			//DeleteConfig.IgnoreMissingClass.Add (typeof(DailyRentAgreement));
 			//DeleteConfig.IgnoreMissingClass.Add (typeof(FreeRentAgreement));
