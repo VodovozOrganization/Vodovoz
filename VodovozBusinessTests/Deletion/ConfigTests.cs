@@ -8,9 +8,9 @@ namespace VodovozBusinessTests.Deletion
 {
 	[TestFixture]
 	[Category("Конфигурация удаления")]
-	public class ConfigClassTests : DeleteConfigTestBase
+	public class ConfigTests : DeleteConfigTestBase
 	{
-		static ConfigClassTests()
+		static ConfigTests()
 		{
 			ConfigureOneTime.ConfigureNh();
 			ConfigureOneTime.ConfogureDeletion();

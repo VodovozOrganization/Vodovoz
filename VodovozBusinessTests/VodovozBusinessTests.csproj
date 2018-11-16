@@ -110,7 +110,7 @@
     <Compile Include="Counterparties\CounterpartyTests.cs" />
     <Compile Include="Employees\PersonnelTests.cs" />
     <Compile Include="Goods\NomenclaturePropertiesTest.cs" />
-    <Compile Include="Deletion\ConfigClassTests.cs" />
+    <Compile Include="Deletion\ConfigTests.cs" />
     <Compile Include="ConfigureOneTime.cs" />
   </ItemGroup>
   <ItemGroup>
