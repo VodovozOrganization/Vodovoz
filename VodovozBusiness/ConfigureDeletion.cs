@@ -16,6 +16,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 
@@ -460,6 +461,8 @@ namespace Vodovoz
 				.AddClearDependence<Employee>(x => x.DefaultDaySheldule);
 
 			#endregion
+			DeleteConfig.AddHibernateDeleteInfo<ScheduleRestrictedDistrict>()
+				.AddDeleteDependence<ScheduleRestrictedDistrictRuleItem>(item => item.ScheduleRestrictedDistrict);
 
 			#endregion
 

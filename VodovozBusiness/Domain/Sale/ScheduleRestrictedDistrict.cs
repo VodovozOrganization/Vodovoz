@@ -1,13 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using GeoAPI.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Domain.Sale
 {
-	public class ScheduleRestrictedDistrict : PropertyChangedBase, IDomainObject
+	public class ScheduleRestrictedDistrict : BusinessObjectBase<ScheduleRestrictedDistrict>, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
@@ -26,11 +30,11 @@ namespace Vodovoz.Domain.Sale
 			set { SetField(ref minBottles, value, () => MinBottles); }
 		}
 
-		public virtual bool HaveRestrictions{
-			get{
-				return 
+		public virtual bool HaveRestrictions {
+			get {
+				return
 					(ScheduleRestrictionMonday != null && ScheduleRestrictionMonday.Schedules.Any()) ||
-					(scheduleRestrictionTuesday != null && scheduleRestrictionTuesday.Schedules.Any()) ||
+					(ScheduleRestrictionTuesday != null && ScheduleRestrictionTuesday.Schedules.Any()) ||
 					(ScheduleRestrictionWednesday != null && ScheduleRestrictionWednesday.Schedules.Any()) ||
 					(ScheduleRestrictionThursday != null && ScheduleRestrictionThursday.Schedules.Any()) ||
 					(ScheduleRestrictionFriday != null && ScheduleRestrictionFriday.Schedules.Any()) ||
@@ -108,9 +112,27 @@ namespace Vodovoz.Domain.Sale
 		[Display(Name = "Вид цены")]
 		public virtual DistrictWaterPrice PriceType {
 			get { return priceType; }
-			set { SetField(ref priceType, value, () => PriceType);
+			set {
+				SetField(ref priceType, value, () => PriceType);
 				if(WaterPrice != 0 && PriceType != DistrictWaterPrice.FixForDistrict)
 					WaterPrice = 0;
+			}
+		}
+
+		IList<ScheduleRestrictedDistrictRuleItem> scheduleRestrictedDistrictRuleItems = new List<ScheduleRestrictedDistrictRuleItem>();
+		[Display(Name = "Правила цены доставки")]
+		public virtual IList<ScheduleRestrictedDistrictRuleItem> ScheduleRestrictedDistrictRuleItems {
+			get { return scheduleRestrictedDistrictRuleItems; }
+			set { SetField(ref scheduleRestrictedDistrictRuleItems, value, () => ScheduleRestrictedDistrictRuleItems); }
+		}
+
+		GenericObservableList<ScheduleRestrictedDistrictRuleItem> observableScheduleRestrictedDistrictRuleItems;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ScheduleRestrictedDistrictRuleItem> ObservableScheduleRestrictedDistrictRuleItems {
+			get {
+				if(observableScheduleRestrictedDistrictRuleItems == null)
+					observableScheduleRestrictedDistrictRuleItems = new GenericObservableList<ScheduleRestrictedDistrictRuleItem>(ScheduleRestrictedDistrictRuleItems);
+				return observableScheduleRestrictedDistrictRuleItems;
 			}
 		}
 
@@ -120,27 +142,27 @@ namespace Vodovoz.Domain.Sale
 
 		public virtual string GetSchedulesString()
 		{
-			string result = "";
+			string result = String.Empty;
 			if(scheduleRestrictionMonday != null) {
-				result += ScheduleRestrictionMonday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionMonday.ShedulesStr + "; ";
+				result += ScheduleRestrictionMonday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionMonday.SchedulesStr + "; ";
 			}
 			if(ScheduleRestrictionTuesday != null) {
-				result += ScheduleRestrictionTuesday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionTuesday.ShedulesStr + "; ";
+				result += ScheduleRestrictionTuesday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionTuesday.SchedulesStr + "; ";
 			}
 			if(ScheduleRestrictionWednesday != null) {
-				result += ScheduleRestrictionWednesday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionWednesday.ShedulesStr + "; ";
+				result += ScheduleRestrictionWednesday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionWednesday.SchedulesStr + "; ";
 			}
 			if(ScheduleRestrictionThursday != null) {
-				result += ScheduleRestrictionThursday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionThursday.ShedulesStr + "; ";
+				result += ScheduleRestrictionThursday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionThursday.SchedulesStr + "; ";
 			}
 			if(ScheduleRestrictionFriday != null) {
-				result += ScheduleRestrictionFriday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionFriday.ShedulesStr + "; ";
+				result += ScheduleRestrictionFriday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionFriday.SchedulesStr + "; ";
 			}
 			if(ScheduleRestrictionSaturday != null) {
-				result += ScheduleRestrictionSaturday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionSaturday.ShedulesStr + "; ";
+				result += ScheduleRestrictionSaturday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionSaturday.SchedulesStr + "; ";
 			}
 			if(ScheduleRestrictionSunday != null) {
-				result += ScheduleRestrictionSunday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionSunday.ShedulesStr + "; ";
+				result += ScheduleRestrictionSunday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionSunday.SchedulesStr + "; ";
 			}
 			return result;
 		}
@@ -236,9 +258,25 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
-		#endregion
-	}
+		public virtual decimal GetDeliveryPrice(OrderStateKey orderStateKey)
+		{
+			var ruleItems = ScheduleRestrictedDistrictRuleItems.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule));
+			return ruleItems.Any() ? ruleItems.Max(x => x.DeliveryPrice) : 0m;
+		}
 
+		#endregion
+
+		#region IValidatableObject implementation
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(ObservableScheduleRestrictedDistrictRuleItems.Any(i => i.DeliveryPrice <= 0))
+				yield return new ValidationResult(
+					"Для всех правил доставки должны быть указаны цены",
+					new[] { this.GetPropertyName(o => o.ScheduleRestrictedDistrictRuleItems) }
+				);
+		}
+		#endregion
+	}	
 	public enum DistrictWaterPrice
 	{
 		[Display(Name = "По прайсу")]

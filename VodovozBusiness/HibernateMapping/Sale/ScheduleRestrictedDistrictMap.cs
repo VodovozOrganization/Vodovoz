@@ -4,7 +4,7 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.HibernateMapping
 {
-	public class ScheduleRestrictedDistrictMap: ClassMap<ScheduleRestrictedDistrict>
+	public class ScheduleRestrictedDistrictMap : ClassMap<ScheduleRestrictedDistrict>
 	{
 		public ScheduleRestrictedDistrictMap()
 		{
@@ -25,6 +25,8 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.ScheduleRestrictionFriday).Column("friday_restriction_id").Cascade.All();
 			References(x => x.ScheduleRestrictionSaturday).Column("saturday_restriction_id").Cascade.All();
 			References(x => x.ScheduleRestrictionSunday).Column("sunday_restriction_id").Cascade.All();
+
+			HasMany(x => x.ScheduleRestrictedDistrictRuleItems).Cascade.AllDeleteOrphan().Inverse().KeyColumn("district_id");
 		}
 	}
 }

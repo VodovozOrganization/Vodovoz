@@ -4,12 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
+using NetTopologySuite.Geometries;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QSOrmProject;
 using QSProjectsLib;
+using QSSupportLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -20,9 +22,11 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
+using Vodovoz.Repositories.Sale;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -818,6 +822,10 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult("В заказе необходимо заполнить точку доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
+			if(DeliveryPoint != null && (!DeliveryPoint.Latitude.HasValue || !DeliveryPoint.Longitude.HasValue)) {
+				yield return new ValidationResult("В точке доставки необходимо указать координаты.",
+				new[] { this.GetPropertyName(o => o.DeliveryPoint) });
+			}
 			if(Client == null)
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
@@ -1430,8 +1438,6 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)
 			});
-
-			//UpdateDocuments();
 		}
 
 		/// <summary>
@@ -1486,7 +1492,41 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				Price = price
 			});
-			//UpdateDocuments();
+		}
+
+		public virtual bool CalculateDeliveryPrice()
+		{
+			int paidDeliveryNomenclatureId = int.Parse(MainSupport.BaseParameters.All["paid_delivery_nomenclature_id"]);
+			OrderItem deliveryPriceItem = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == paidDeliveryNomenclatureId);
+			if(DeliveryPoint.AlwaysFreeDelivery) {
+				if(deliveryPriceItem != null) {
+					ObservableOrderItems.Remove(deliveryPriceItem);
+				}
+				return false;
+			}
+
+			var point = new Point((double)DeliveryPoint.Latitude.Value, (double)DeliveryPoint.Longitude.Value);
+			var districts = ScheduleRestrictionRepository.AreaWithGeometry(UoW).Where(x => x.DistrictBorder.Contains(point));
+
+			OrderStateKey orderKey = new OrderStateKey(this);
+			var price = districts.Any() ? districts.Max(x => x.GetDeliveryPrice(orderKey)) : 0m;
+
+			if(price != 0) {
+				if(deliveryPriceItem == null) {
+					deliveryPriceItem = new OrderItem();
+					deliveryPriceItem.Nomenclature = UoW.GetById<Nomenclature>(paidDeliveryNomenclatureId);
+					deliveryPriceItem.Order = this;
+					ObservableOrderItems.Add(deliveryPriceItem);
+				}
+				deliveryPriceItem.Price = price;
+				deliveryPriceItem.Count = 1;
+				return true;
+			} else {
+				if(deliveryPriceItem != null) {
+					ObservableOrderItems.Remove(deliveryPriceItem);
+				}
+				return false;
+			}
 		}
 
 		#region test_methods_for_sidebar

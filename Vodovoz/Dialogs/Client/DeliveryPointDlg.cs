@@ -133,7 +133,8 @@ namespace Vodovoz
 			codeLabel.Visible = hboxCode.Visible = !String.IsNullOrWhiteSpace(Entity.Code1c);
 			#endregion
 			spinBottlesReserv.Binding.AddBinding(Entity, e => e.BottleReserv, w => w.ValueAsInt).InitializeFromSource();
-
+			ychkAlwaysFreeDelivery.Binding.AddBinding(Entity, e => e.AlwaysFreeDelivery, w => w.Active).InitializeFromSource();
+			ychkAlwaysFreeDelivery.Visible = QSMain.User.Permissions["can_set_free_delivery"];
 			lblCounterparty.LabelProp = Entity.Counterparty.FullName;
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding(Entity,

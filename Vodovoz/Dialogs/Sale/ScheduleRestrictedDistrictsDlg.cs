@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.Binding;
 using Gamma.ColumnConfig;
 using GeoAPI.Geometries;
 using GMap.NET;
@@ -10,11 +9,12 @@ using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using Gtk;
 using NetTopologySuite.Geometries;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Tdi;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
@@ -30,9 +30,8 @@ namespace Vodovoz.Dialogs.Logistic
 		IList<PointLatLng> currentBorderVertice, newBorderVertice;
 		GenericObservableList<ScheduleRestrictedDistrict> observableRestrictedDistricts;
 
-		ScheduleRestrictedDistrict currentDistrict = new ScheduleRestrictedDistrict();
+		ScheduleRestrictedDistrict currentDistrict;
 
-		ILevelConfig[] levelConfig;
 		bool creatingNewBorder = false;
 
 		GeometryFactory gf = new GeometryFactory(new PrecisionModel(), 3857);
@@ -64,7 +63,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.Finish();
 			ytreeSchedules.Selection.Changed += OnYTreeSchedules_SelectionChanged;
 
-			ButtonsSensitivity();
+			ControlsAccessibility();
 
 			// Пока кнопочки всё равно не работают.
 			buttonAddVertex.Sensitive = buttonAddVertex.Visible 
@@ -83,6 +82,7 @@ namespace Vodovoz.Dialogs.Logistic
 			gmapWidget.Overlays.Add(bordersOverlay);
 			gmapWidget.Overlays.Add(verticeOverlay);
 			ShowBorders();
+			ControlsAccessibility();
 		}
 
 		private void ObservableItemsField_ListContentChanged(object sender, EventArgs e)
@@ -108,21 +108,19 @@ namespace Vodovoz.Dialogs.Logistic
 				btnMonday.Click();
 			}
 
-			if(currentDistrict != null && currentDistrict.DistrictBorder != null) {
+			if(currentDistrict != null && currentDistrict.DistrictBorder != null)
 				currentBorderVertice = GetCurrentBorderVertice();
-			} else {
+			else
 				currentBorderVertice = new List<PointLatLng>();
 
-			}
-
 			ShowBorderVertice(currentBorderVertice);
-			ButtonsSensitivity();
+			ControlsAccessibility();
 		}
 
 
 		protected void OnYTreeSchedules_SelectionChanged(object sender, EventArgs e)
 		{
-			ButtonsSensitivity();
+			ControlsAccessibility();
 		}
 
 		protected void OnButtonAddDistrictClicked(object sender, EventArgs e)
@@ -130,6 +128,19 @@ namespace Vodovoz.Dialogs.Logistic
 			var district = new ScheduleRestrictedDistrict();
 			observableRestrictedDistricts.Add(district);
 			UpdateCurrentDistrict();
+		}
+
+		protected void OnBtnEditDistrictClicked(object sender, EventArgs e)
+		{
+			if(currentDistrict.Id == 0
+			&& MessageDialogWorks.RunQuestionDialog("Для продолжения необходимо сохранить район, сохранить и продолжить?")) {
+				uow.Save(currentDistrict);
+				uow.Commit();
+			}
+			TabParent.OpenTab(
+				DialogHelper.GenerateDialogHashName<ScheduleRestrictedDistrict>(currentDistrict.Id),
+				() => new ScheduleRestrictedDistrictDlg(currentDistrict)
+			);
 		}
 
 		protected void OnButtonDeleteDistrictClicked(object sender, EventArgs e)
@@ -202,11 +213,12 @@ namespace Vodovoz.Dialogs.Logistic
 			UpdateCurrentDistrict();
 		}
 
-		void ButtonsSensitivity()
+		void ControlsAccessibility()
 		{
 			buttonDeleteDistrict.Sensitive = buttonCreateBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1;
 			buttonRemoveBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1 &&  currentDistrict != null && currentDistrict.DistrictBorder != null;
-			buttonAddSchedule.Sensitive = currentDistrict != null;
+			btnEditDistrict.Sensitive = buttonAddSchedule.Sensitive = currentDistrict != null;
+			vboxSchedules.Visible = currentDistrict != null;
 		}
 
 		IList<ScheduleRestrictedDistrict> GetAllDistricts()
@@ -249,7 +261,7 @@ namespace Vodovoz.Dialogs.Logistic
 				}
 			}
 
-			ButtonsSensitivity();
+			ControlsAccessibility();
 		}
 
 		protected void OnButtonRemoveBorderClicked(object sender, EventArgs e)
@@ -257,7 +269,7 @@ namespace Vodovoz.Dialogs.Logistic
 			currentDistrict.DistrictBorder = null;
 			ShowBorders();
 			ShowBorderVertice(GetCurrentBorderVertice());
-			ButtonsSensitivity();
+			ControlsAccessibility();
 		}
 
 		protected void OnButtonAddVertexClicked(object sender, EventArgs e)
@@ -401,7 +413,4 @@ namespace Vodovoz.Dialogs.Logistic
 			ytreeSchedules.QueueDraw();
 		}
 	}
-
-
-
 }

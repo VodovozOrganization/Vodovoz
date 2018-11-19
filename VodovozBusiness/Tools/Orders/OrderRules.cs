@@ -5,7 +5,7 @@ using Vodovoz.Domain.Orders.Documents;
 using System;
 using System.Linq;
 
-namespace Vodovoz.Repositories
+namespace Vodovoz.Tools.Orders
 {
 	class Rule
 	{

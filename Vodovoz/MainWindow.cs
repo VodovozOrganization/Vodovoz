@@ -29,6 +29,8 @@ using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
+using Vodovoz.Dialogs.Sale;
+using Vodovoz.Domain.Sale;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -579,7 +581,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnPropertiesActionActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			OrmMain.GenerateDialogHashName<UserSettings>(CurrentUserSettings.Settings.Id),
+			DialogHelper.GenerateDialogHashName<UserSettings>(CurrentUserSettings.Settings.Id),
 			() => new UserSettingsDlg(CurrentUserSettings.Settings)
 		);
 	}
@@ -1046,6 +1048,20 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<TraineeVM>(),
 			() => new ReferenceRepresentation(new TraineeVM())
+		);
+	}
+
+	protected void OnActionDeliveryPriceRulesActivated(object sender, EventArgs e)
+	{
+		bool right = QSMain.User.Permissions["can_edit_delivery_price_rules"];
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<DeliveryPriceRule>(),
+			() => {
+				var dlg = new OrmReference(typeof(DeliveryPriceRule)) {
+					ButtonMode = right ? ReferenceButtonMode.CanAll : ReferenceButtonMode.None
+				};
+				return dlg; 
+			}
 		);
 	}
 }

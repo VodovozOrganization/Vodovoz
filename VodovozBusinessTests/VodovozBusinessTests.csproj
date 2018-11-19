@@ -105,6 +105,8 @@
     <Folder Include="Counterparties\" />
     <Folder Include="Goods\" />
     <Folder Include="Deletion\" />
+    <Folder Include="Tools\" />
+    <Folder Include="Tools\Orders\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Counterparties\CounterpartyTests.cs" />
@@ -112,6 +114,7 @@
     <Compile Include="Goods\NomenclaturePropertiesTest.cs" />
     <Compile Include="Deletion\ConfigTests.cs" />
     <Compile Include="ConfigureOneTime.cs" />
+    <Compile Include="Tools\Orders\OrderStateKeyTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">

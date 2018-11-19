@@ -22,6 +22,7 @@ using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Dialogs.Goods;
 using Vodovoz.Dialogs.Logistic;
+using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
@@ -31,6 +32,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 
@@ -78,6 +80,8 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("can_change_trainee_to_driver", new UserPermission("can_change_trainee_to_driver", "Перевод стажера в водителя или экспедитора", "Позволяет перевести стажера в статус водителя или экспедитора"));
 			QSMain.ProjectPermission.Add("database_maintenance", new UserPermission("database_maintenance", "Обслуживание базы данных", "Предоставить пользователю права на доступ ко вкладке База --> Обслуживание"));
 			QSMain.ProjectPermission.Add("can_edit_online_store", new UserPermission("can_edit_online_store", "Изменение для онлайн магазина", "Пользователь может изменять группы товаров влияющие на выгрузку в интернет магазин."));
+			QSMain.ProjectPermission.Add("can_edit_delivery_price_rules", new UserPermission("can_edit_delivery_price_rules", "Создание и изменение правил доставки", "Пользователь может создавать и изменять правила доставки.\nДля установки цен доставки отдельных прав не нужно."));
+			QSMain.ProjectPermission.Add("can_set_free_delivery", new UserPermission("can_set_free_delivery", "Отключение для точки доставки платной доставки", "Пользователь может отмечать точки доставки флагом \"Всегда бесплатная доставка\""));
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
@@ -219,6 +223,12 @@ namespace Vodovoz
 				   .Column("Код", x => x.Id.ToString())
 				   .SearchColumn("Ф.И.О.", x => x.FullName)
 				   .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
+				   .End();
+			OrmMain.AddObjectDescription<DeliveryPriceRule>().Dialog<DeliveryPriceRuleDlg>().DefaultTableView()
+				   .Column("< 19л б.", x => x.Water19LCount.ToString())
+				   .Column("< 6л б.", x => x.Water6LCount)
+				   .Column("< 0,6л б.", x => x.Water600mlCount)
+				   .SearchColumn("Описание правила", x => x.ToString())
 				   .End();
 			#endregion
 
