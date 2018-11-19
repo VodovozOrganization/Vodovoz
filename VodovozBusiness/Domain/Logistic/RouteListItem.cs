@@ -449,9 +449,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#endregion
 
-		public RouteListItem()
-		{
-		}
+		public RouteListItem(){}
 
 		//Конструктор создания новой строки
 		public RouteListItem(RouteList routeList, Order order, RouteListItemStatus status)
@@ -583,8 +581,7 @@ namespace Vodovoz.Domain.Logistic
 			var smallBottlePayment = Math.Truncate((smallBottleCount * rates.SmallBottleRate) / 36);
 
 			var payForEquipment = fullBottleCount == 0
-				&& (Order.OrderEquipments.Count(item => item.Direction == Direction.Deliver && item.Confirmed) > 0
-							   || bottleCollectionOrder);
+				&& (Order.OrderEquipments.Any(item => item.Direction == Direction.Deliver && item.Confirmed) || bottleCollectionOrder);
 			var equpmentPayment = payForEquipment ? rates.CoolerRate : 0;
 
 			var contractCancelationPayment = bottleCollectionOrder ? rates.ContractCancelationRate : 0;
@@ -597,8 +594,6 @@ namespace Vodovoz.Domain.Logistic
 			var wage = equpmentPayment + largeFullBottlesPayment + smallBottlePayment
 				+ contractCancelationPayment + emptyBottlesPayment
 				+ smallFullBottlesPayment + paymentForAddress;
-
-#if SHORT
 
 			var payForEquipmentShort = fullBottleCount == 0
 				&& (!string.IsNullOrWhiteSpace(Order.EquipmentsToClient)
@@ -614,8 +609,6 @@ namespace Vodovoz.Domain.Logistic
 				&& this.routeList.Date > new DateTime(2018, 1, 10)) {
 				wage = rates.PaymentWithRast;
 			}
-
-#endif
 
 			return wage;
 		}
@@ -716,10 +709,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int GetGoodsAmountForColumn(int columnId)
 		{
-			if(GoodsByRouteColumns.ContainsKey(columnId))
-				return GoodsByRouteColumns[columnId];
-			else
-				return 0;
+			return GoodsByRouteColumns.ContainsKey(columnId) ? GoodsByRouteColumns[columnId] : 0;
 		}
 
 		public virtual int GetGoodsActualAmountForColumn(int columnId)

@@ -4,7 +4,6 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NHibernate.Transform;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -161,6 +160,9 @@ namespace Vodovoz
 			Entity.UpdateOperations(UoW);
 			foreach(GoodsReceptionVMNode item in BottlesReceptionList) {
 				Entity.UpdateReturnedOperation(UoW, item.NomenclatureId, item.Amount);
+				var defBottle = NomenclatureRepository.GetDefaultBottle(UoW);
+				if(item.NomenclatureId == defBottle.Id)
+					Entity.Order.ReturnedTare = item.Amount;
 			}
 			foreach(GoodsReceptionVMNode item in GoodsReceptionList) {
 				Entity.UpdateReturnedOperation(UoW, item.NomenclatureId, item.Amount);

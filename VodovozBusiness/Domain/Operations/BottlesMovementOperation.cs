@@ -33,14 +33,20 @@ namespace Vodovoz.Domain.Operations
 		}
 
 		int delivered;
-
+		/// <summary>
+		/// Движение тары к контрагенту
+		/// </summary>
+		/// <value>The delivered.</value>
 		public virtual int Delivered {
 			get { return delivered; }
 			set { SetField (ref delivered, value, () => Delivered); }
 		}
 
 		int returned;
-
+		/// <summary>
+		/// Движение тары от контрагента
+		/// </summary>
+		/// <value>The returned.</value>
 		public virtual int Returned {
 			get { return returned; }
 			set { SetField (ref returned, value, () => Returned); }

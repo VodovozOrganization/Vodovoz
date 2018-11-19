@@ -6,7 +6,6 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
@@ -224,11 +223,7 @@ namespace Vodovoz.Domain.Documents
 		{
 			//Проверка текущего документа
 			bool closed = Items.All(x => (x.OrderItem != null ? x.OrderItem.Count : 1) == x.Amount + x.AmountUnloaded);
-			if(closed) {
-				return Order.TryCloseSelfDeliveryOrder(uow, this);
-			} else {
-				return false;
-			}
+			return closed && Order.TryCloseSelfDeliveryOrder(uow, this);
 		}
 
 		#endregion
