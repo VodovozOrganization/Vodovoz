@@ -539,6 +539,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref isReasonTypeChangedByUser, value, () => IsReasonTypeChangedByUser); }
 		}
 
+		bool hasCommentForDriver;
+		[Display(Name = "Есть комментарий для водителя?")]
+		[IgnoreHistoryTrace]
+		public virtual bool HasCommentForDriver {
+			get => hasCommentForDriver;
+			set { SetField(ref hasCommentForDriver, value, () => HasCommentForDriver); }
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()
@@ -660,7 +668,6 @@ namespace Vodovoz.Domain.Orders
 				return observableFinalOrderService;
 			}
 		}
-
 
 		public Order()
 		{
