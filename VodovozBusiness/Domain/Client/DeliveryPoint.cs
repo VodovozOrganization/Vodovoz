@@ -6,16 +6,15 @@ using System.Linq;
 using Gamma.Utilities;
 using NetTopologySuite.Geometries;
 using QS.DomainModel.Entity;
-using QSOrmProject;
-using QSOsm;
-using QSOsm.DTO;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Employees;
-using QSOsm.Osrm;
-using QSContacts;
-using Vodovoz.Domain.Goods;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QSContacts;
+using QSOsm;
+using QSOsm.DTO;
+using QSOsm.Osrm;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Client
 {
@@ -378,6 +377,14 @@ namespace Vodovoz.Domain.Client
 		public virtual Nomenclature DefaultWaterNomenclature {
 			get { return defaultWaterNomenclature; }
 			set { SetField(ref defaultWaterNomenclature, value, () => DefaultWaterNomenclature); }
+		}
+
+		bool alwaysFreeDelivery;
+
+		[Display(Name = "Всегда бесплатная доставка")]
+		public virtual bool AlwaysFreeDelivery {
+			get { return alwaysFreeDelivery; }
+			set { SetField(ref alwaysFreeDelivery, value, () => AlwaysFreeDelivery); }
 		}
 
 		User coordsLastChangeUser;

@@ -97,7 +97,7 @@ namespace Vodovoz.Tools.Logistic
                 //Расчет цены
                 var point = new Point((double)latitude, (double)longitude);
                 var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
-				result.DistrictName = district?.DistrictName;
+				result.DistrictName = district?.DistrictName ?? String.Empty;
                 result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
                 result.WithPrice = (
                     (district != null && district.PriceType != DistrictWaterPrice.ByDistance)

@@ -16,6 +16,7 @@ using NHibernate.Util;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Dialogs;
@@ -47,6 +48,7 @@ using Vodovoz.Repository.Logistics;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.Tools.Orders;
 
 namespace Vodovoz
 {
@@ -61,7 +63,7 @@ namespace Vodovoz
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
-		Order templateOrder = null;
+		Order templateOrder;
 
 		#region Работа с боковыми панелями
 
@@ -548,6 +550,11 @@ namespace Vodovoz
 			Entity.SaveOrderComment();
 		}
 
+		protected void OnButtonFormOrderClicked(object sender, EventArgs e)
+		{
+			ValidateAndFormOrder();
+		}
+
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
 			if(Entity.OrderStatus == OrderStatus.OnTheWay) {
@@ -594,16 +601,7 @@ namespace Vodovoz
 
 		bool AcceptOrder()
 		{
-			Entity.CheckAndSetOrderIsService();
-			var valid = new QSValidator<Order>(
-				Entity, new Dictionary<object, object>{
-					{ "NewStatus", OrderStatus.Accepted },
-					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
-				}
-			);
-
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
-				return false;
+			ValidateAndFormOrder();
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
 				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
@@ -619,6 +617,34 @@ namespace Vodovoz
 			var successfullySaved = Save();
 			PrintOrderDocuments();
 			return successfullySaved;
+		}
+
+		private bool ValidateAndFormOrder()
+		{
+			Entity.CheckAndSetOrderIsService();
+			var valid = new QSValidator<Order>(
+				Entity, new Dictionary<object, object>{
+					{ "NewStatus", OrderStatus.Accepted },
+					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
+				}
+			);
+			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
+				return false;
+			}
+			OnFormOrderActions();
+			return true;
+		}
+
+
+		/// <summary>
+		/// Действия обрабатываемые при формировании заказа
+		/// </summary>
+		private void OnFormOrderActions()
+		{
+			//проверка и добавление платной доставки в товары
+			if(Entity.CalculateDeliveryPrice()) {
+				MessageDialogWorks.RunInfoDialog("Была изменена стоимость доставки.");
+			}
 		}
 
 		/// <summary>
@@ -2260,6 +2286,11 @@ namespace Vodovoz
 			}
 		}
 
+		public void SetDlgToReadOnly(){
+			buttonSave.Sensitive = buttonCancel.Sensitive =
+			hboxStatusButtons.Visible = false;
+		}
+
 		void UpdateButtonState()
 		{
 			IsUIEditable(Entity.OrderStatus == OrderStatus.NewOrder);
@@ -2268,12 +2299,14 @@ namespace Vodovoz
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Редактировать";
+				buttonFormOrder.Sensitive = false;
 			}
 			if(Entity.OrderStatus == OrderStatus.NewOrder) {
 				var icon = new Image();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Подтвердить";
+				buttonFormOrder.Sensitive = true;
 			}
 
 			//если новый заказ и тип платежа бартер или безнал, то вкл кнопку
@@ -2287,7 +2320,7 @@ namespace Vodovoz
 				OrderStatus.Canceled
 			}.Contains(Entity.OrderStatus)
 			 || (Entity.OrderStatus == OrderStatus.OnTheWay && QSMain.User.Permissions["can_edit_on_the_way_order"]);
-			
+
 			if(Counterparty?.DeliveryPoints?.FirstOrDefault(d => d.Address1c == Entity.Address1c) == null
 				&& !string.IsNullOrWhiteSpace(Entity.Address1c)
 				&& DeliveryPoint == null) {

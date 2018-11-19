@@ -50,7 +50,7 @@ namespace Vodovoz.Domain.Goods
 		HeatingPerformance,
 		[Display(Name = "Производительность охлаждения")]
 		[OnlineStoreGuid("74c9dd68-158e-4e76-8874-b08980a4297a")]
-		СoolingPerformance,
+		CoolingPerformance,
 		[Display(Name = "Количество картриджей")]
 		[OnlineStoreGuid("10751bcf-c490-48ba-a19b-c8b50258d01d")]
 		NumberOfCartridges,

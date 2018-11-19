@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Sale
 			set { SetField(ref weekDay, value, () => WeekDay); }
 		}
 
-		public virtual string ShedulesStr {
+		public virtual string SchedulesStr {
 			get{
 				string result = "";
 				foreach(var item in Schedules) {

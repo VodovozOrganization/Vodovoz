@@ -480,8 +480,6 @@
     <Compile Include="Domain\Employees\M2ProxyDocument.cs" />
     <Compile Include="DocTemplates\M2ProxyDocumentParser.cs" />
     <Compile Include="Domain\Order\Documents\OrderM2Proxy.cs" />
-    <Compile Include="Domain\Order\OrderStateKey.cs" />
-    <Compile Include="Repositories\OrderRulesRepository.cs" />
     <Compile Include="Domain\Goods\Folder1c.cs" />
     <Compile Include="HibernateMapping\Goods\Folder1cMap.cs" />
     <Compile Include="Domain\Order\UndeliveredOrder.cs" />
@@ -529,6 +527,15 @@
     <Compile Include="Domain\Order\Documents\SpecialUPD.cs" />
     <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
     <Compile Include="Attributes\OnlineStoreGuidAttribute.cs" />
+    <Compile Include="ConfigureDeletion.cs" />
+    <Compile Include="Tools\Orders\OrderStateKey.cs" />
+    <Compile Include="Tools\Orders\OrderRules.cs" />
+    <Compile Include="HibernateMapping\Sale\DeliveryPriceRuleMap.cs" />
+    <Compile Include="Domain\Sale\DeliveryPriceRule.cs" />
+    <Compile Include="Domain\Sale\IDeliveryPriceRule.cs" />
+    <Compile Include="Domain\Sale\ScheduleRestrictedDistrictRuleItem.cs" />
+    <Compile Include="HibernateMapping\Sale\ScheduleRestrictedDistrictRuleItemMap.cs" />
+    <Compile Include="Repositories\Sale\ScheduleRestrictedDistrictRuleRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -552,6 +559,7 @@
     <Folder Include="HibernateMapping\StoredEmails\" />
     <Folder Include="Resources\" />
     <Folder Include="Tools\AdditionalAgreements\" />
+    <Folder Include="Tools\Orders\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

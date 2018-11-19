@@ -2,6 +2,7 @@
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.Entity;
+using QS.Project.DB;
 using QSOrmProject;
 using QSProjectsLib;
 
@@ -16,9 +17,7 @@ namespace Vodovoz.Additions
 				return;
 			}
 
-			var type = OrmMain.DomainAssemlies
-			                  .Select(a => a.GetType(staleObjectStateException.EntityName))
-			                  .First(x => x != null);
+			var type = OrmConfig.FindMappingByShortClassName(staleObjectStateException.EntityName).EntityPersisterClass;
 			var objectName = DomainHelper.GetSubjectNames(type);
 
 			string message;

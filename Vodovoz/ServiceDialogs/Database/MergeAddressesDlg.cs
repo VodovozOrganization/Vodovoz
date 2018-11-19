@@ -6,12 +6,12 @@ using DiffPlex;
 using DiffPlex.DiffBuilder;
 using Gamma.ColumnConfig;
 using NHibernate.Criterion;
+using QS.Deletion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QSOrmProject.Deletion;
-using QSProjectsLib;
 using QS.Tdi;
+using QSProjectsLib;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ServiceDialogs.Database

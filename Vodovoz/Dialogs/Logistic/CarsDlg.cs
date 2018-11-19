@@ -1,8 +1,7 @@
 ﻿using System;
 using NLog;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSOrmProject;
+using QS.Project.DB;
 using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -81,7 +80,7 @@ namespace Vodovoz
 			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			attachmentFiles.AttachToTable = OrmMain.GetDBTableName (typeof(Car));
+			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName (typeof(Car));
 			if (!UoWGeneric.IsNew) {
 				attachmentFiles.ItemId = UoWGeneric.Root.Id;
 				attachmentFiles.UpdateFileList ();

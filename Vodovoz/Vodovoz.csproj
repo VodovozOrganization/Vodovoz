@@ -486,7 +486,6 @@
     <Compile Include="gtk-gui\Vodovoz.MovementDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentDlg.cs" />
-    <Compile Include="ConfigureDeletion.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentGenerator.cs" />
     <Compile Include="Representations\ContractsVM.cs" />
     <Compile Include="Representations\ProxiesVM.cs" />
@@ -885,7 +884,6 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.CalculateDistanceToPointsDlg.cs" />
     <Compile Include="ReportsParameters\OrderIncorrectPrices.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrderIncorrectPrices.cs" />
-	<Compile Include="Dialogs\Logistic\ScheduleRestrictedDistrictsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.ScheduleRestrictedDistrictsDlg.cs" />
     <Compile Include="ViewWidgets\CounterpartyDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.CounterpartyDocumentsView.cs" />
@@ -1036,6 +1034,11 @@
     <Compile Include="Representations\TraineeVM.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureCharacteristicsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.NomenclatureCharacteristicsView.cs" />
+    <Compile Include="Dialogs\Sale\ScheduleRestrictedDistrictsDlg.cs" />
+    <Compile Include="Dialogs\Sale\ScheduleRestrictedDistrictDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.ScheduleRestrictedDistrictDlg.cs" />
+    <Compile Include="Dialogs\Sale\DeliveryPriceRuleDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.DeliveryPriceRuleDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

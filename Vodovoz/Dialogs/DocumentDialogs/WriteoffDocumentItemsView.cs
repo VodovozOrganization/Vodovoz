@@ -5,6 +5,7 @@ using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Tdi;

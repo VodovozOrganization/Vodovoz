@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -48,25 +50,28 @@ namespace Vodovoz.Repository.Operations
 
 		public static int GetEmptyBottlesFromClientByOrder(IUnitOfWork uow, Order order)
 		{
-			RouteListItem routeListItemAlias = null;
+			var routeListItems = uow.Session.QueryOver<RouteListItem>()
+			                        .Where(rli => rli.Order == order)
+			                        .List();
+			if(routeListItems.Any())
+				return routeListItems.Sum(q => q.BottlesReturned);
 
-			var quantity = uow.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
-							  .Where(() => routeListItemAlias.Order == order)
-							  .List().Sum(q => q.BottlesReturned);
-			return quantity;
+			var defBottle = NomenclatureRepository.GetDefaultBottle(uow);
+			SelfDeliveryDocument selfDeliveryDocumentAlias = null;
+			var bttls = uow.Session.QueryOver<SelfDeliveryDocumentReturned>()
+			               .Left.JoinAlias(d => d.Document, () => selfDeliveryDocumentAlias)
+			               .Where(() => selfDeliveryDocumentAlias.Order == order)
+			               .Where(r => r.Nomenclature == defBottle)
+			               .Select(Projections.Sum<SelfDeliveryDocumentReturned>(s => s.Amount))
+			               .SingleOrDefault<Decimal>();
+			return (int)bttls;
 		}
 
 		class BottlesBalanceQueryResult
 		{
 			public int Delivered{get;set;}
 			public int Returned{get;set;}
-			public int BottlesDebt{
-				get{
-					return Delivered - Returned;
-				}
-			}
+			public int BottlesDebt => Delivered - Returned;
 		}
 	}
-
-
 }

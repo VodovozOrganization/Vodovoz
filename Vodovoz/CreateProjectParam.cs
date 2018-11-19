@@ -5,6 +5,7 @@ using Gamma.Utilities;
 using NHibernate.AdoNet;
 using NHibernate.Cfg;
 using QS.HistoryLog;
+using QS.Project.DB;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
 using QSContacts;
@@ -21,6 +22,7 @@ using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Dialogs.Goods;
 using Vodovoz.Dialogs.Logistic;
+using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
@@ -30,6 +32,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 
@@ -76,6 +79,9 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("can_accept_cashles_service_orders", new UserPermission("can_accept_cashles_service_orders", "Проведение безналичного заказа на \"Выезд мастера\"", "Пользователь может подтверждать заказы по безналу типа \"Выезд мастера\". В случае отсутствия этого права, пользователю будет доступен только перевод заказа в статус \"Ожидание оплаты\"."));
 			QSMain.ProjectPermission.Add("can_change_trainee_to_driver", new UserPermission("can_change_trainee_to_driver", "Перевод стажера в водителя или экспедитора", "Позволяет перевести стажера в статус водителя или экспедитора"));
 			QSMain.ProjectPermission.Add("database_maintenance", new UserPermission("database_maintenance", "Обслуживание базы данных", "Предоставить пользователю права на доступ ко вкладке База --> Обслуживание"));
+			QSMain.ProjectPermission.Add("can_edit_online_store", new UserPermission("can_edit_online_store", "Изменение для онлайн магазина", "Пользователь может изменять группы товаров влияющие на выгрузку в интернет магазин."));
+			QSMain.ProjectPermission.Add("can_edit_delivery_price_rules", new UserPermission("can_edit_delivery_price_rules", "Создание и изменение правил доставки", "Пользователь может создавать и изменять правила доставки.\nДля установки цен доставки отдельных прав не нужно."));
+			QSMain.ProjectPermission.Add("can_set_free_delivery", new UserPermission("can_set_free_delivery", "Отключение для точки доставки платной доставки", "Пользователь может отмечать точки доставки флагом \"Всегда бесплатная доставка\""));
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
@@ -96,7 +102,7 @@ namespace Vodovoz
 											.FormatSql();
 
 			// Настройка ORM
-			OrmMain.ConfigureOrm(db_config, new System.Reflection.Assembly[] {
+			OrmConfig.ConfigureOrm(db_config, new System.Reflection.Assembly[] {
 				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
@@ -200,7 +206,7 @@ namespace Vodovoz
 			#region Goods
 			OrmMain.AddObjectDescription<Nomenclature>().Dialog<NomenclatureDlg>().JournalFilter<NomenclatureFilter>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).Column("Тип", x => x.CategoryString).End();
 			OrmMain.AddObjectDescription<Folder1c>().Dialog<Folder1cDlg>().DefaultTableView().SearchColumn("Код 1С", x => x.Code1c).SearchColumn("Название", x => x.Name).TreeConfig(new RecursiveTreeConfig<Folder1c>(x => x.Parent, x => x.Childs)).End();
-			OrmMain.AddObjectDescription<ProductGroup>().Dialog<ProductGroupDlg>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).TreeConfig(new RecursiveTreeConfig<ProductGroup>(x => x.Parent, x => x.Childs)).End();
+			OrmMain.AddObjectDescription<ProductGroup>().Dialog<ProductGroupDlg>().EditPermision("can_edit_online_store").DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).TreeConfig(new RecursiveTreeConfig<ProductGroup>(x => x.Parent, x => x.Childs)).End();
 			#endregion
 
 			OrmMain.AddObjectDescription<DiscountReason>().DefaultTableView().SearchColumn("Название", x => x.Name).End();
@@ -217,6 +223,12 @@ namespace Vodovoz
 				   .Column("Код", x => x.Id.ToString())
 				   .SearchColumn("Ф.И.О.", x => x.FullName)
 				   .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
+				   .End();
+			OrmMain.AddObjectDescription<DeliveryPriceRule>().Dialog<DeliveryPriceRuleDlg>().DefaultTableView()
+				   .Column("< 19л б.", x => x.Water19LCount.ToString())
+				   .Column("< 6л б.", x => x.Water6LCount)
+				   .Column("< 0,6л б.", x => x.Water600mlCount)
+				   .SearchColumn("Описание правила", x => x.ToString())
 				   .End();
 			#endregion
 
