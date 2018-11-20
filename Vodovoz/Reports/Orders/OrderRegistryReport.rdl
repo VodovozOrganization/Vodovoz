@@ -49,10 +49,13 @@
             <Width>43.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>112.3pt</Width>
+            <Width>102.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>240.0pt</Width>
+            <Width>215.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>55.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>55.8pt</Width>
@@ -119,6 +122,22 @@
                   <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value>Номер заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Интервал доставки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -218,6 +237,20 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>={delivery_time}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox25">
                       <Value>={status}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -260,7 +293,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	daily_number_1c as daily_number,
@@ -281,10 +314,12 @@
         when orders.order_status = 'NotDelivered' then 'Недовоз'
         when orders.order_status = 'DeliveryCanceled' then 'Доставка отменена'        
 		else ''
-	end as status
+	end as status,
+    CONCAT(TIME_FORMAT(delivery_schedule.from_time, "%H:%i"), '-', TIME_FORMAT(delivery_schedule.to_time, "%H:%i")) as delivery_time
 from orders
 LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
 WHERE orders.delivery_date = DATE(@date)</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
@@ -292,7 +327,7 @@ WHERE orders.delivery_date = DATE(@date)</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="daily_number">
           <DataField>daily_number</DataField>
           <TypeName>System.Int32</TypeName>
@@ -313,12 +348,16 @@ WHERE orders.delivery_date = DATE(@date)</CommandText>
           <DataField>status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="delivery_time">
+          <DataField>delivery_time</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
@@ -328,7 +367,7 @@ WHERE orders.delivery_date = DATE(@date)</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
