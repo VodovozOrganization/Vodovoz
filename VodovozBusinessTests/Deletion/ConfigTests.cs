@@ -15,14 +15,12 @@ namespace VodovozBusinessTests.Deletion
 			ConfigureOneTime.ConfigureNh();
 			ConfigureOneTime.ConfogureDeletion();
 
-			//Так как этот класс в общей библиотеке и пока никак не используется для удаления.
-			IgnoreMissingClass.Add(typeof(QS.Project.Domain.UserBase));
-			//Технические классы пока нигде не удаляется через удаление.
-			IgnoreMissingClass.Add(typeof(Vodovoz.Domain.BaseParameter));
-			IgnoreMissingClass.Add(typeof(Vodovoz.Domain.Logistic.CachedDistance));
+			AddIgnoredClass(typeof(QS.Project.Domain.UserBase), "Этот класс в общей библиотеке и пока никак не используется для удаления.");
+			AddIgnoredClass(typeof(Vodovoz.Domain.Logistic.TrackPoint), "Удалятся вместе треком засчет конфигурации базы. Показывать пользователю все удаляемые точки смысла нет.");
 
-			//Так как удалятся вместе треком засчет конфигурации базы. Показывать пользователю все удаляемые точки смысла нет.
-			IgnoreMissingClass.Add(typeof(Vodovoz.Domain.Logistic.TrackPoint));
+			//Технические классы пока нигде не удаляется через удаление.
+			AddIgnoredClass(typeof(Vodovoz.Domain.BaseParameter), "Технический клас пока нигде не удаляется через удаление.");
+			AddIgnoredClass(typeof(Vodovoz.Domain.Logistic.CachedDistance), "Технический клас пока нигде не удаляется через удаление.");
 		}
 
 		public new static IEnumerable AllDeleteItems => DeleteConfigTestBase.AllDeleteItems;
