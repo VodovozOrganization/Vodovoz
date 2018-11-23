@@ -97,9 +97,7 @@ WHERE
     <DataSet Name="Order">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SET lc_time_names = 'ru_RU';
-
-SELECT 
+        <CommandText>SELECT 
 	orders.id AS order_id,
 	orders.delivery_date AS order_date,
 	author.last_name AS author,
