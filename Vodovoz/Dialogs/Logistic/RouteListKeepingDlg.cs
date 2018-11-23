@@ -97,7 +97,7 @@ namespace Vodovoz
 			referenceForwarder.Changed += ReferenceForwarder_Changed;
 				                   
 			var filterLogistican = new EmployeeFilter(UoW);
-			filterLogistican.SetAndRefilterAtOnce(x => x.RestrictFired = false);
+			filterLogistican.SetAndRefilterAtOnce(x => x.ShowFired = false);
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 			referenceLogistican.Sensitive = logisticanEditing;

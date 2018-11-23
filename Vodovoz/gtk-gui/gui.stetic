@@ -27,7 +27,7 @@
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
     <widget-library name="../../../VodovozService/EmailService/bin/Debug/Email.dll" />
     <widget-library name="../../../QSProjects/QS.Project.Gtk/bin/Debug/QS.Project.Gtk.dll" />
-    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -1387,6 +1387,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5777,7 +5778,7 @@
                             <child>
                               <widget class="Gamma.Widgets.yEnumComboBox" id="enumTareVolume">
                                 <property name="MemberName" />
-                                <property name="IsTextCombo">True</property>
+                                <property name="IsTextCombo">False</property>
                                 <property name="Items" translatable="yes" />
                                 <property name="ShowSpecialStateAll">False</property>
                                 <property name="ShowSpecialStateNot">False</property>

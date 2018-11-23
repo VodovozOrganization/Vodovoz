@@ -12,7 +12,7 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			var filter = new EmployeeFilter(UoW);
-			filter.RestrictFired = false;
+			filter.ShowFired = false;
 			yentryAccountable.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
 			yAdvancePeriod.StartDateOrNull = new DateTime(DateTime.Today.Year, 1, 1);

@@ -20,7 +20,7 @@ namespace Vodovoz.Reports
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
 			var filter = new EmployeeFilter(UoW);
-			filter.RestrictFired = false;
+			filter.ShowFired = false;
 			yentryreferenceEmployee.RepresentationModel = new EmployeesVM(filter);
 		}
 

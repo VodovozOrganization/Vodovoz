@@ -44,12 +44,12 @@ namespace Vodovoz
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
 			var filterCasher = new EmployeeFilter(UoW);
-			filterCasher.RestrictFired = false;
+			filterCasher.ShowFired = false;
 			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
 			var filterEmployee = new EmployeeFilter(UoW);
-			filterEmployee.RestrictFired = false;
+			filterEmployee.ShowFired = false;
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
 			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
 			yentryEmployee.ChangedByUser += (sender, e) => UpdateEmployeeBalaceInfo();

@@ -15,6 +15,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
+using QS.Dialog.Gtk;
 
 namespace Vodovoz
 {
@@ -40,7 +41,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList> ();
 			UoWGeneric.Root.Logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if (Entity.Logistican == null) {
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
+				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				FailInitialize = true;
 				return;
 			}
@@ -209,7 +210,7 @@ namespace Vodovoz
 			if(buttonAccept.Label == "Подтвердить" && Entity.HasOverweight()) {
 				if(QSMain.User.Permissions["can_confirm_routelist_with_overweight"]) {
 					if(
-						!MessageDialogWorks.RunQuestionDialog(
+						!MessageDialogHelper.RunQuestionDialog(
 							String.Format(
 								"Вы перегрузили '{0}' на {1} кг.\nВы уверены что хотите подтвердить маршрутный лист?",
 								Entity.Car.Title,
@@ -219,7 +220,7 @@ namespace Vodovoz
 					)
 						return;
 				} else {
-					MessageDialogWorks.RunWarningDialog(
+					MessageDialogHelper.RunWarningDialog(
 						String.Format(
 							"Вы перегрузили '{0}' на {1} кг.\nПодтвердить маршрутный лист нельзя.",
 							Entity.Car.Title,
@@ -246,7 +247,7 @@ namespace Vodovoz
 				}
 
 				//Строим маршрут для МЛ.
-				if(!Entity.Printed || MessageDialogWorks.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
+				if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 					RouteOptimizer optimizer = new RouteOptimizer();
 					var newRoute = optimizer.RebuidOneRoute(Entity);
 					if(newRoute != null) {
@@ -257,9 +258,9 @@ namespace Vodovoz
 						createroutelistitemsview1.DisableColumnsUpdate = false;
 						var noPlan = Entity.Addresses.Count(x => !x.PlanTimeStart.HasValue);
 						if(noPlan > 0)
-							MessageDialogWorks.RunWarningDialog($"Для маршрута незапланировано {noPlan} адресов.");
+							MessageDialogHelper.RunWarningDialog($"Для маршрута незапланировано {noPlan} адресов.");
 					} else {
-						MessageDialogWorks.RunWarningDialog($"Маршрут не был перестроен.");
+						MessageDialogHelper.RunWarningDialog($"Маршрут не был перестроен.");
 					}
 				}
 
@@ -267,7 +268,7 @@ namespace Vodovoz
 
 				if(UoWGeneric.Root.Car.TypeOfUse == CarTypeOfUse.Truck)
 				{
-					if(MessageDialogWorks.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle()))
+					if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle()))
 					{
 						Entity.ChangeStatus(RouteListStatus.OnClosing);
 						foreach(var item in UoWGeneric.Root.Addresses) {
@@ -281,7 +282,7 @@ namespace Vodovoz
 					//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
 					var forShipment = Repository.Store.WarehouseRepository.WarehouseForShipment(UoW, Entity.Id);
 					if(forShipment.Count == 0) {
-						if(MessageDialogWorks.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
+						if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
 							valid = new QSValidator<RouteList>(
 								UoWGeneric.Root,
 								new Dictionary<object, object> {
@@ -301,7 +302,7 @@ namespace Vodovoz
 			}
 			if (UoWGeneric.Root.Status == RouteListStatus.InLoading) {
 				if(RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any()) {
-					MessageDialogWorks.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
+					MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
 				}else {
 					UoWGeneric.Root.ChangeStatus(RouteListStatus.New);
 				}

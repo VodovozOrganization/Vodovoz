@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Report;
-using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Cash;
@@ -18,7 +18,6 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Tools.Logistic;
-using NHibernate.Util;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -86,7 +85,7 @@ namespace Vodovoz.Domain.Logistic
 				if(SetField(ref car, value, () => Car)){
 					ChangeFuelDocumentsChangeCar(oldCar);
 				}
-				if(value?.Driver != null)
+				if(value?.Driver != null && value?.Driver.IsFired == false)
 					Driver = value.Driver;
 			}
 		}

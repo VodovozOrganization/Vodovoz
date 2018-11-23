@@ -141,7 +141,7 @@ namespace Vodovoz.ViewWidgets
 				yentInProcessAtDepartment.Subject = SubdivisionsRepository.GetQCDepartment(UoW);
 
 			var filterRegisteredBy = new EmployeeFilter(UoW);
-			filterRegisteredBy.RestrictFired = false;
+			filterRegisteredBy.ShowFired = false;
 			refRegisteredBy.RepresentationModel = new EmployeesVM(filterRegisteredBy);
 			refRegisteredBy.Binding.AddBinding(undelivery, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
 
