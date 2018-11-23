@@ -1,6 +1,5 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
 
@@ -26,7 +25,7 @@ namespace Vodovoz
 		public EmployeeFilter(IUnitOfWork uow, bool showFired) : this()
 		{
 			UoW = uow;
-			RestrictFired = showFired;
+			ShowFired = showFired;
 		}
 
 		public EmployeeCategory? RestrictCategory {
@@ -37,7 +36,7 @@ namespace Vodovoz
 			}
 		}
 
-		public bool RestrictFired {
+		public bool ShowFired {
 			get { return checkFired.Active; }
 			set {
 				checkFired.Active = value;

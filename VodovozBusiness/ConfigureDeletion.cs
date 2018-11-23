@@ -461,8 +461,10 @@ namespace Vodovoz
 				.AddClearDependence<Employee>(x => x.DefaultDaySheldule);
 
 			#endregion
+
 			DeleteConfig.AddHibernateDeleteInfo<ScheduleRestrictedDistrict>()
 				.AddDeleteDependence<ScheduleRestrictedDistrictRuleItem>(item => item.ScheduleRestrictedDistrict);
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryPriceRule>();
 
 			#endregion
 

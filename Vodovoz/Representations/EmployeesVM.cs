@@ -29,7 +29,7 @@ namespace Vodovoz.ViewModel
 
 			var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
 
-			if(!Filter.RestrictFired) {
+			if(!Filter.ShowFired) {
 				query.Where(e => !e.IsFired);
 			}
 

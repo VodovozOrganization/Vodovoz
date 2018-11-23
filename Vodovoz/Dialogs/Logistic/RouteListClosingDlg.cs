@@ -6,6 +6,7 @@ using System.Text;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -97,21 +98,27 @@ namespace Vodovoz
 			referenceCar.Sensitive = editing;
 
 			var filterDriver = new EmployeeFilter(UoW);
-			filterDriver.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			filterDriver.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.driver,
+				x => x.ShowFired = false
+			);
 			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			referenceDriver.Sensitive = editing;
 
 			previousForwarder = Entity.Forwarder;
 			var filterForwarder = new EmployeeFilter(UoW);
-			filterForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
+			filterForwarder.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.forwarder,
+				x => x.ShowFired = false
+			);
 			referenceForwarder.RepresentationModel = new EmployeesVM(filterForwarder);
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.Sensitive = editing;
 			referenceForwarder.Changed += ReferenceForwarder_Changed;
 
 			var filterLogistican = new EmployeeFilter(UoW);
-			filterLogistican.SetAndRefilterAtOnce(x => x.RestrictFired = false);
+			filterLogistican.SetAndRefilterAtOnce(x => x.ShowFired = false);
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 			referenceLogistican.Sensitive = editing;
@@ -273,7 +280,7 @@ namespace Vodovoz
 			recalcWageMessage += String.Format("\nПересчитано.");
 
 			if(haveDiscrepancy && Entity.Status == RouteListStatus.Closed) {
-				MessageDialogWorks.RunInfoDialog(recalcWageMessage);
+				MessageDialogHelper.RunInfoDialog(recalcWageMessage);
 			}
 		}
 
@@ -348,7 +355,7 @@ namespace Vodovoz
 					break;
 				case RouteListActions.TransferAddressesToThisRL:
 					if(UoW.HasChanges) {
-						if(MessageDialogWorks.RunQuestionDialog("Необходимо сохранить документ.\nСохранить?"))
+						if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ.\nСохранить?"))
 							this.Save();
 						else
 							return;
@@ -359,7 +366,7 @@ namespace Vodovoz
 					break;
 				case RouteListActions.TransferAddressesToAnotherRL:
 					if(UoW.HasChanges) {
-						if(MessageDialogWorks.RunQuestionDialog("Необходимо сохранить документ.\nСохранить?"))
+						if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ.\nСохранить?"))
 							this.Save();
 						else
 							return;
@@ -442,7 +449,7 @@ namespace Vodovoz
 			buttonAccept.Sensitive = Entity.Status == RouteListStatus.OnClosing && isConsistentWithUnloadDocument();
 		}
 
-		private bool buttonFineEditState = false;
+		private bool buttonFineEditState;
 
 		/// <summary>
 		/// Не использовать это поле напрямую, используйте свойство DefaultBottle
@@ -451,11 +458,8 @@ namespace Vodovoz
 		Nomenclature DefaultBottle {
 			get {
 				if(defaultBottle == null) {
-					var db = Repository.NomenclatureRepository.GetDefaultBottle(UoW);
-					if(db == null) {
-						throw new Exception("Не найдена номенклатура бутыли по умолчанию, указанная в параметрах приложения: default_bottle_nomenclature");
-					}
-					defaultBottle = db;
+					var db = NomenclatureRepository.GetDefaultBottle(UoW);
+					defaultBottle = db ?? throw new Exception("Не найдена номенклатура бутыли по умолчанию, указанная в параметрах приложения: default_bottle_nomenclature");
 				}
 				return defaultBottle;
 			}
@@ -578,7 +582,7 @@ namespace Vodovoz
 			var messages = new List<string>();
 
 			if(Entity.FuelOperationHaveDiscrepancy()) {
-				if( !MessageDialogWorks.RunQuestionDialog("Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений. Продолжить сохранение?")){
+				if( !MessageDialogHelper.RunQuestionDialog("Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений. Продолжить сохранение?")){
 					return false;
 				}
 			}
@@ -590,7 +594,7 @@ namespace Vodovoz
 			UoW.Save();
 
 			if(messages.Any())
-				MessageDialogWorks.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
+				MessageDialogHelper.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
 
 			return true;
 		}
@@ -618,7 +622,7 @@ namespace Vodovoz
 			}
 
 			if(!isOrdersValid) {
-				MessageDialogWorks.RunErrorDialog(string.Format("Следующие заказы заполнены некорректно:\n {0}", orderIds));
+				MessageDialogHelper.RunErrorDialog(string.Format("Следующие заказы заполнены некорректно:\n {0}", orderIds));
 				return false;
 			}
 			return true;
@@ -629,7 +633,7 @@ namespace Vodovoz
 		{
 			var casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(casher == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
 				return;
 			}
 
@@ -655,7 +659,7 @@ namespace Vodovoz
 			Entity.Cashier = casher;
 			Entity.Confirm(checkSendToMileageCheck.Active);
 
-			if(!MessageDialogWorks.RunQuestionDialog("Перед выходом распечатать документ?"))
+			if(!MessageDialogHelper.RunQuestionDialog("Перед выходом распечатать документ?"))
 				SaveAndClose();
 			else {
 				Save();
@@ -671,7 +675,7 @@ namespace Vodovoz
 
 		void PrintSelectedDocument(RouteListPrintDocuments choise)
 		{
-			if(!MessageDialogWorks.RunQuestionDialog("Перед печатью необходимо сохранить документ.\nСохранить?"))
+			if(!MessageDialogHelper.RunQuestionDialog("Перед печатью необходимо сохранить документ.\nСохранить?"))
 				return;
 			UoW.Save();
 
@@ -934,7 +938,7 @@ namespace Vodovoz
 
 			var casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(casher == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
 				return;
 			}
 
@@ -951,7 +955,7 @@ namespace Vodovoz
 
 
 			if(messages.Count > 0)
-				MessageDialogWorks.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
+				MessageDialogHelper.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
 		}
 
 		private void EmployeeAdvanceOrder(decimal cashInput) // Метод создаёт расходник выдачи аванса из МЛ и выводит сообщение. @Дима
@@ -965,7 +969,7 @@ namespace Vodovoz
 
 			var cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(cashier == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
 				return;
 			}
 			Entity.Cashier = cashier;
@@ -976,7 +980,7 @@ namespace Vodovoz
 			cashExpense.UpdateWagesOperations(UoW);
 			UoW.Save();
 
-			MessageDialogWorks.RunInfoDialog(String.Format("{0}\n\n{1}: {2:C0}", message, ifAdvanceIsBigger, Math.Abs(cashToReturn)));
+			MessageDialogHelper.RunInfoDialog(String.Format("{0}\n\n{1}: {2:C0}", message, ifAdvanceIsBigger, Math.Abs(cashToReturn)));
 		}
 
 		protected void OnAdvanceCheckboxToggled(object sender, EventArgs e)     // Чекбокс выдачи аванса - скрыть или отобразить поле изменения. @Дима
@@ -994,8 +998,9 @@ namespace Vodovoz
 			logger.Info("Рассчет длинны маршрута...");
 			RouteGeometryCalculator routeCalculator = new RouteGeometryCalculator(DistanceProvider.Osrm);
 
-			var points = new List<long>();
-			points.Add(CachedDistance.BaseHash);
+			var points = new List<long> {
+				CachedDistance.BaseHash
+			};
 
 			#region если нет координат хотя бы у одной точки доставки
 			bool hasError = false;
@@ -1007,7 +1012,7 @@ namespace Vodovoz
 			}
 			ErMsg += "Перейдите в указанные точки доставки и добавьте (проверьте) их координаты.";
 			if(hasError) {
-				MessageDialogWorks.RunWarningDialog(ErMsg);
+				MessageDialogHelper.RunWarningDialog(ErMsg);
 				return;
 			}
 			#endregion
