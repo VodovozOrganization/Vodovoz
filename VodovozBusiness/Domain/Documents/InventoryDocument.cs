@@ -6,7 +6,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
@@ -16,6 +16,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "инвентаризации",
 		Nominative = "инвентаризация",
 		Prepositional = "инвентаризации")]
+	[HistoryTrace]
 	public class InventoryDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
@@ -69,9 +70,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual string Title { 
-			get { return String.Format ("Инвентаризация №{0} от {1:d}", Id, TimeStamp); }
-		}
+		public virtual string Title => String.Format("Инвентаризация №{0} от {1:d}", Id, TimeStamp);
 
 		#region Функции
 

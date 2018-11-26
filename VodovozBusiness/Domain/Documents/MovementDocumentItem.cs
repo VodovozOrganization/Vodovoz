@@ -2,17 +2,18 @@
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки перемещения",
 		Nominative = "строка перемещения")]
+	[HistoryTrace]
 	public class MovementDocumentItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -80,18 +81,6 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual string Name {
-			get { return Nomenclature != null ? Nomenclature.Name : ""; }
-		}
-
-		public virtual string EquipmentString {
-			get { return Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "-"; }
-		}
-
-		public virtual bool CanEditAmount {
-			get { return Nomenclature != null && !Nomenclature.IsSerial; }
-		}
-
 		WarehouseMovementOperation warehouseMovementOperation;
 
 		public virtual WarehouseMovementOperation WarehouseMovementOperation {
@@ -113,6 +102,8 @@ namespace Vodovoz.Domain.Documents
 			set { SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
 		}
 
+		#region Функции
+
 		public virtual string Title {
 			get {
 				return String.Format("[{2}] {0} - {1}",
@@ -122,7 +113,11 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		#region Функции
+		public virtual string Name => Nomenclature != null ? Nomenclature.Name : "";
+
+		public virtual string EquipmentString => Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "-";
+
+		public virtual bool CanEditAmount => Nomenclature != null && !Nomenclature.IsSerial;
 
 		public virtual void CreateOperation(Warehouse warehouseSrc, Warehouse warehouseDst, DateTime time, TransportationStatus status)
 		{
@@ -173,4 +168,3 @@ namespace Vodovoz.Domain.Documents
 		#endregion
 	}
 }
-

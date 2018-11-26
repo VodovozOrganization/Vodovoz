@@ -6,17 +6,18 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[Appellative (Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы погрузки автомобилей",
 		Nominative = "документ погрузки автомобиля")]
-	public class CarLoadDocument: Document, IValidatableObject
+	[HistoryTrace]
+	public class CarLoadDocument : Document, IValidatableObject
 	{
 		DateTime version;
 		[Display(Name = "Версия")]
@@ -37,29 +38,29 @@ namespace Vodovoz.Domain.Documents
 				}
 			}
 		}
-			
+
 		RouteList routeList;
 
 		public virtual RouteList RouteList {
 			get { return routeList; }
-			set { SetField (ref routeList, value, () => RouteList); }
+			set { SetField(ref routeList, value, () => RouteList); }
 		}
 
 		Warehouse warehouse;
 
 		public virtual Warehouse Warehouse {
 			get { return warehouse; }
-			set { SetField (ref warehouse, value, () => Warehouse); }
+			set { SetField(ref warehouse, value, () => Warehouse); }
 		}
 
 
-		IList<CarLoadDocumentItem> items = new List<CarLoadDocumentItem> ();
+		IList<CarLoadDocumentItem> items = new List<CarLoadDocumentItem>();
 
-		[Display (Name = "Строки")]
+		[Display(Name = "Строки")]
 		public virtual IList<CarLoadDocumentItem> Items {
 			get { return items; }
 			set {
-				SetField (ref items, value, () => Items);
+				SetField(ref items, value, () => Items);
 				observableItems = null;
 			}
 		}
@@ -68,57 +69,54 @@ namespace Vodovoz.Domain.Documents
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<CarLoadDocumentItem> ObservableItems {
 			get {
-				if (observableItems == null)
-					observableItems = new GenericObservableList<CarLoadDocumentItem> (Items);
+				if(observableItems == null)
+					observableItems = new GenericObservableList<CarLoadDocumentItem>(Items);
 				return observableItems;
 			}
 		}
 
 		string comment;
 
-		[Display (Name = "Комментарий")]
+		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get { return comment; }
-			set { SetField (ref comment, value, () => Comment); }
+			set { SetField(ref comment, value, () => Comment); }
 		}
 
-		public virtual string Title { 
-			get { return String.Format ("Талон погрузки №{0} от {1:d}", Id, TimeStamp); }
-		}
+		public virtual string Title => String.Format("Талон погрузки №{0} от {1:d}", Id, TimeStamp);
 
 		#region IValidatableObject implementation
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if (Author == null)
-				yield return new ValidationResult ("Не указан кладовщик.",
-					new[] { this.GetPropertyName (o => o.Author) });
-			if (RouteList == null)
-				yield return new ValidationResult ("Не указан маршрутный лист, по которому осуществляется отгрузка.",
-					new[] { this.GetPropertyName (o => o.RouteList)});
+			if(Author == null)
+				yield return new ValidationResult("Не указан кладовщик.",
+					new[] { this.GetPropertyName(o => o.Author) });
+			if(RouteList == null)
+				yield return new ValidationResult("Не указан маршрутный лист, по которому осуществляется отгрузка.",
+					new[] { this.GetPropertyName(o => o.RouteList) });
 
 			if(Items.All(x => x.Amount == 0))
-				yield return new ValidationResult (String.Format("В документе нет позиций с количеством больше нуля."),
-					new[] { this.GetPropertyName (o => o.Items) });
+				yield return new ValidationResult(String.Format("В документе нет позиций с количеством больше нуля."),
+					new[] { this.GetPropertyName(o => o.Items) });
 
-			foreach(var item in Items)
-			{
+			foreach(var item in Items) {
 				if(item.Amount > item.AmountInStock)
-					yield return new ValidationResult (String.Format("На складе недостаточное количество <{0}>", item.Nomenclature.Name),
-						new[] { this.GetPropertyName (o => o.Items) });
+					yield return new ValidationResult(String.Format("На складе недостаточное количество <{0}>", item.Nomenclature.Name),
+						new[] { this.GetPropertyName(o => o.Items) });
 				if(item.Equipment != null && !(item.Amount == 0 || item.Amount == 1)
 				   && item.Equipment.Nomenclature.IsSerial // I-407
 				  )
-					yield return new ValidationResult (String.Format("Оборудование <{0}> сн: {1} нельзя отгружать в количестве отличном от 0 или 1", item.Nomenclature.Name, item.Equipment.Serial),
-						new[] { this.GetPropertyName (o => o.Items) });
+					yield return new ValidationResult(String.Format("Оборудование <{0}> сн: {1} нельзя отгружать в количестве отличном от 0 или 1", item.Nomenclature.Name, item.Equipment.Serial),
+						new[] { this.GetPropertyName(o => o.Items) });
 				if(item.Amount + item.AmountLoaded > item.AmountInRouteList)
-					yield return new ValidationResult (String.Format("Номенклатура <{0}> отгружается в большем количестве чем указано в маршрутном листе. Отгружается:{1}, По другим документам:{2}, Всего нужно отгрузить:{3}", 
+					yield return new ValidationResult(String.Format("Номенклатура <{0}> отгружается в большем количестве чем указано в маршрутном листе. Отгружается:{1}, По другим документам:{2}, Всего нужно отгрузить:{3}",
 						item.Nomenclature.Name,
 						item.Amount,
 						item.AmountLoaded,
 						item.AmountInRouteList
 					),
-						new[] { this.GetPropertyName (o => o.Items) });
+						new[] { this.GetPropertyName(o => o.Items) });
 			}
 
 		}
@@ -127,25 +125,24 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public virtual void AddItem (CarLoadDocumentItem item)
+		public virtual void AddItem(CarLoadDocumentItem item)
 		{
 			item.Document = this;
-			ObservableItems.Add (item);
+			ObservableItems.Add(item);
 		}
 
 		public virtual void FillFromRouteList(IUnitOfWork uow, bool warehouseOnly)
 		{
 			ObservableItems.Clear();
-			if (RouteList == null || (Warehouse == null && warehouseOnly))
+			if(RouteList == null || (Warehouse == null && warehouseOnly))
 				return;
 
 			var goodsAndEquips = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(uow,
 							RouteList, warehouseOnly ? Warehouse : null);
 			var nomenclatures = uow.GetById<Nomenclature>(goodsAndEquips.Select(x => x.NomenclatureId).ToArray());
 
-			foreach(var inRoute in goodsAndEquips)
-			{
-				ObservableItems.Add(new CarLoadDocumentItem(){
+			foreach(var inRoute in goodsAndEquips) {
+				ObservableItems.Add(new CarLoadDocumentItem() {
 					Document = this,
 					Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
 					AmountInRouteList = inRoute.Amount,
@@ -156,13 +153,12 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void UpdateInRouteListAmount(IUnitOfWork uow)
 		{
-			if (RouteList == null)
+			if(RouteList == null)
 				return;
 			var goodsAndEquips = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(
 				uow, RouteList, null);
-			
-			foreach(var item in Items)
-			{
+
+			foreach(var item in Items) {
 				var aGoods = goodsAndEquips.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
 				if(aGoods != null) {
 					item.AmountInRouteList = aGoods.Amount;
@@ -172,27 +168,25 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void UpdateStockAmount(IUnitOfWork uow)
 		{
-			if (Items.Count == 0 || Warehouse == null)
+			if(Items.Count == 0 || Warehouse == null)
 				return;
 			var nomenclatureIds = Items.Select(x => x.Nomenclature.Id).ToArray();
-			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, 
+			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id,
 				nomenclatureIds, TimeStamp);
 
-			foreach(var item in Items)
-			{
+			foreach(var item in Items) {
 				item.AmountInStock = inStock[item.Nomenclature.Id];
 			}
 		}
 
 		public virtual void UpdateAlreadyLoaded(IUnitOfWork uow)
 		{
-			if (Items.Count == 0 || RouteList == null)
+			if(Items.Count == 0 || RouteList == null)
 				return;
 
 			var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(uow, RouteList, this);
 
-			foreach(var item in Items)
-			{
+			foreach(var item in Items) {
 				Repository.Logistics.RouteListRepository.GoodsLoadedListResult found;
 				found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
 				if(found != null)
@@ -202,31 +196,24 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void UpdateOperations(IUnitOfWork uow)
 		{
-			foreach(var item in Items)
-			{
-				if(item.Amount == 0 && item.MovementOperation != null)
-				{
+			foreach(var item in Items) {
+				if(item.Amount == 0 && item.MovementOperation != null) {
 					uow.Delete(item.MovementOperation);
 					item.MovementOperation = null;
 				}
-				if(item.Amount != 0)
-				{
-					if(item.MovementOperation != null)
-					{
+				if(item.Amount != 0) {
+					if(item.MovementOperation != null) {
 						item.UpdateOperation(Warehouse);
-					}
-					else
-					{
+					} else {
 						item.CreateOperation(Warehouse, TimeStamp);
 					}
 				}
 			}
 		}
-			
+
 		public virtual void ClearItemsFromZero()
 		{
-			foreach(var item in Items.Where(x => x.Amount == 0).ToList())
-			{
+			foreach(var item in Items.Where(x => x.Amount == 0).ToList()) {
 				ObservableItems.Remove(item);
 			}
 		}

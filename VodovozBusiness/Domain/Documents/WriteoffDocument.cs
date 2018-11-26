@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -17,17 +17,18 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "акт списания ТМЦ",
 		Prepositional = "акте списания"
 	)]
-	public class WriteoffDocument: Document, IValidatableObject
+	[HistoryTrace]
+	public class WriteoffDocument : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
-			get { return base.TimeStamp; }
+			get => base.TimeStamp;
 			set {
 				base.TimeStamp = value;
-				foreach (var item in Items) {
-					if (item.WarehouseWriteoffOperation != null && item.WarehouseWriteoffOperation.OperationTime != TimeStamp)
+				foreach(var item in Items) {
+					if(item.WarehouseWriteoffOperation != null && item.WarehouseWriteoffOperation.OperationTime != TimeStamp)
 						item.WarehouseWriteoffOperation.OperationTime = TimeStamp;
-					if (item.CounterpartyWriteoffOperation != null && item.CounterpartyWriteoffOperation.OperationTime != TimeStamp)
-						item.CounterpartyWriteoffOperation.OperationTime = TimeStamp;			
+					if(item.CounterpartyWriteoffOperation != null && item.CounterpartyWriteoffOperation.OperationTime != TimeStamp)
+						item.CounterpartyWriteoffOperation.OperationTime = TimeStamp;
 				}
 			}
 		}
@@ -36,8 +37,8 @@ namespace Vodovoz.Domain.Documents
 
 		[Display (Name = "Комментарий")]
 		public virtual string Comment {
-			get { return comment; }
-			set { SetField (ref comment, value, () => Comment); }
+			get => comment;
+			set => SetField(ref comment, value, () => Comment);
 		}
 
 		Employee responsibleEmployee;
@@ -45,23 +46,23 @@ namespace Vodovoz.Domain.Documents
 		[Required (ErrorMessage = "Должен быть указан ответственнй за списание.")]
 		[Display (Name = "Ответственный")]
 		public virtual Employee ResponsibleEmployee {
-			get { return responsibleEmployee; }
-			set { SetField (ref responsibleEmployee, value, () => ResponsibleEmployee); }
+			get => responsibleEmployee;
+			set => SetField(ref responsibleEmployee, value, () => ResponsibleEmployee);
 		}
 
 		Counterparty client;
 
 		[Display (Name = "Клиент списания")]
 		public virtual Counterparty Client {
-			get { return client; }
+			get => client;
 			set {
 				client = value;
-				if (Client != null)
+				if(Client != null)
 					WriteoffWarehouse = null;
-				if (Client == null || !Client.DeliveryPoints.Contains (DeliveryPoint))
+				if(Client == null || !Client.DeliveryPoints.Contains(DeliveryPoint))
 					DeliveryPoint = null;
-				foreach (var item in Items) {
-					if (item.CounterpartyWriteoffOperation != null && item.CounterpartyWriteoffOperation.WriteoffCounterparty != client)
+				foreach(var item in Items) {
+					if(item.CounterpartyWriteoffOperation != null && item.CounterpartyWriteoffOperation.WriteoffCounterparty != client)
 						item.CounterpartyWriteoffOperation.WriteoffCounterparty = client;
 				}
 			}
@@ -71,11 +72,11 @@ namespace Vodovoz.Domain.Documents
 
 		[Display (Name = "Точка доставки списания")]
 		public virtual DeliveryPoint DeliveryPoint {
-			get { return deliveryPoint; }
-			set { 
-				deliveryPoint = value; 
-				foreach (var item in Items) {
-					if (item.CounterpartyWriteoffOperation != null && item.CounterpartyWriteoffOperation.WriteoffDeliveryPoint != deliveryPoint)
+			get => deliveryPoint;
+			set {
+				deliveryPoint = value;
+				foreach(var item in Items) {
+					if(item.CounterpartyWriteoffOperation != null && item.CounterpartyWriteoffOperation.WriteoffDeliveryPoint != deliveryPoint)
 						item.CounterpartyWriteoffOperation.WriteoffDeliveryPoint = deliveryPoint;
 				}
 			}
@@ -85,14 +86,14 @@ namespace Vodovoz.Domain.Documents
 
 		[Display (Name = "Склад списания")]
 		public virtual Warehouse WriteoffWarehouse {
-			get { return writeoffWarehouse; }
+			get => writeoffWarehouse;
 			set {
 				writeoffWarehouse = value;
-				if (WriteoffWarehouse != null)
+				if(WriteoffWarehouse != null)
 					Client = null;
-				
-				foreach (var item in Items) {
-					if (item.WarehouseWriteoffOperation != null && item.WarehouseWriteoffOperation.WriteoffWarehouse != writeoffWarehouse)
+
+				foreach(var item in Items) {
+					if(item.WarehouseWriteoffOperation != null && item.WarehouseWriteoffOperation.WriteoffWarehouse != writeoffWarehouse)
 						item.WarehouseWriteoffOperation.WriteoffWarehouse = writeoffWarehouse;
 				}
 			}
@@ -102,9 +103,9 @@ namespace Vodovoz.Domain.Documents
 
 		[Display (Name = "Строки")]
 		public virtual IList<WriteoffDocumentItem> Items {
-			get { return items; }
+			get => items;
 			set {
-				SetField (ref items, value, () => Items);
+				SetField(ref items, value, () => Items);
 				observableItems = null;
 			}
 		}
@@ -119,9 +120,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual string Title { 
-			get { return String.Format ("Акт списания №{0} от {1:d}", Id, TimeStamp); }
-		}
+		public virtual string Title => String.Format("Акт списания №{0} от {1:d}", Id, TimeStamp);
 
 		public virtual void AddItem (Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
@@ -161,11 +160,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public WriteoffDocument ()
-		{
-			Comment = String.Empty;
-		}
-
+		public WriteoffDocument() => Comment = String.Empty;
 	}
 
 	public enum WriteoffType

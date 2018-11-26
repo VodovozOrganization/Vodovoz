@@ -5,18 +5,19 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы перемещения ТМЦ",
 		Nominative = "документ перемещения ТМЦ")]
-	public class MovementDocument: Document, IValidatableObject
+	[HistoryTrace]
+	public class MovementDocument : Document, IValidatableObject
 	{
 		MovementDocumentCategory category;
 
@@ -228,9 +229,7 @@ namespace Vodovoz.Domain.Documents
 
 		#region Вычисляемые
 
-		public virtual string Title { 
-			get { return String.Format ("Перемещение ТМЦ №{0} от {1:d}", Id, TimeStamp); }
-		}
+		public virtual string Title => String.Format("Перемещение ТМЦ №{0} от {1:d}", Id, TimeStamp);
 
 		public virtual string TransportationDescription { 
 			get { 

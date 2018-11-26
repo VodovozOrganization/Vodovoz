@@ -6,7 +6,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
@@ -16,6 +16,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "акты передачи склада",
 		Nominative = "акт передачи склада",
 		Prepositional = "акте передачи склада")]
+	[HistoryTrace]
 	public class ShiftChangeWarehouseDocument : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
@@ -63,9 +64,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual string Title {
-			get { return String.Format("Акт передачи склада №{0} от {1:d}", Id, TimeStamp); }
-		}
+		public virtual string Title => String.Format("Акт передачи склада №{0} от {1:d}", Id, TimeStamp);
 
 		#region Функции
 

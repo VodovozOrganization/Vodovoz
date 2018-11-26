@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Cash
@@ -12,6 +12,7 @@ namespace Vodovoz.Domain.Cash
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "авансовые отчеты",
 		Nominative = "авансовый отчет")]
+	[HistoryTrace]
 	public class AdvanceReport : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
@@ -76,10 +77,8 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
-		public virtual string Title { 
-			get { return String.Format ("Авансовый отчет №{0} от {1:d}", Id, Date); }
-		}
-			
+		public virtual string Title => String.Format("Авансовый отчет №{0} от {1:d}", Id, Date);
+
 		#endregion
 
 		public AdvanceReport ()

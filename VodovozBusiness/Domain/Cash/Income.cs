@@ -5,7 +5,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -15,6 +15,7 @@ namespace Vodovoz.Domain.Cash
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "приходные одера",
 		Nominative = "приходный ордер")]
+	[HistoryTrace]
 	public class Income : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
@@ -130,10 +131,8 @@ namespace Vodovoz.Domain.Cash
 
 		#endregion
 
-		public virtual string Title { 
-			get { return String.Format ("Приходный ордер №{0} от {1:d}", Id, Date); }
-		}
-			
+		public virtual string Title => String.Format("Приходный ордер №{0} от {1:d}", Id, Date);
+
 		#region RunTimeOnly
 
 		public virtual List<Expense> AdvanceForClosing { get; protected set;}

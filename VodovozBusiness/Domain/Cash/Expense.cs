@@ -5,7 +5,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -15,6 +15,7 @@ namespace Vodovoz.Domain.Cash
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "расходные одера",
 		Nominative = "расходный ордер")]
+	[HistoryTrace]
 	public class Expense : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
@@ -127,24 +128,11 @@ namespace Vodovoz.Domain.Cash
 
 		#region Вычисляемые
 
-		public virtual string Title { 
-			get { return String.Format ("Расходный ордер №{0} от {1:d}", Id, Date); }
-		}
+		public virtual string Title => String.Format("Расходный ордер №{0} от {1:d}", Id, Date);
 
-		public virtual decimal ClosedMoney{
-			get{
-				if (AdvanceCloseItems == null)
-					return 0;
+		public virtual decimal ClosedMoney => AdvanceCloseItems == null ? 0 : AdvanceCloseItems.Sum(x => x.Money);
 
-				return AdvanceCloseItems.Sum(x => x.Money);
-			}
-		}
-
-		public virtual decimal UnclosedMoney{
-			get{
-				return Money - ClosedMoney;
-			}
-		}
+		public virtual decimal UnclosedMoney => Money - ClosedMoney;
 
 		#endregion
 

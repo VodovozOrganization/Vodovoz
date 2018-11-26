@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -12,6 +12,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки пересортицы",
 		Nominative = "строка пересортицы")]
+	[HistoryTrace]
 	public class RegradingOfGoodsDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -84,14 +85,6 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
-		[Display (Name = "Сумма ущерба")]
-		public virtual decimal SumOfDamage {
-			get { if (Amount == 0)
-				return 0;
-			else
-				return NomenclatureOld.SumOfDamage * Amount; }
-		}
-
 		Fine fine;
 
 		[Display (Name = "Штраф")]
@@ -129,6 +122,9 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#region Не сохраняемые
+
+		[Display(Name = "Сумма ущерба")]
+		public virtual decimal SumOfDamage => Amount == 0 ? 0 : NomenclatureOld.SumOfDamage * Amount;
 
 		decimal amountInStock;
 

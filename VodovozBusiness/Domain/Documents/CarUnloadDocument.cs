@@ -5,7 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -16,7 +16,8 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы разгрузки автомобилей",
 		Nominative = "документ разгрузки автомобиля")]
-	public class CarUnloadDocument:Document,IValidatableObject
+	[HistoryTrace]
+	public class CarUnloadDocument : Document, IValidatableObject
 	{
 		public CarUnloadDocument() { }
 
@@ -76,9 +77,7 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
-		public virtual string Title { 
-			get { return String.Format ("Разгрузка автомобиля №{0} от {1:d}", Id, TimeStamp); }
-		}
+		public virtual string Title => String.Format("Разгрузка автомобиля №{0} от {1:d}", Id, TimeStamp);
 
 		#region IValidatableObject implementation
 

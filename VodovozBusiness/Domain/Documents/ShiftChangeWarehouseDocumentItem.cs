@@ -1,17 +1,15 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSOrmProject;
-using Vodovoz.Domain.Employees;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки акта передачи склада",
 		Nominative = "строка акта передачи склада")]
+	[HistoryTrace]
 	public class ShiftChangeWarehouseDocumentItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -53,31 +51,22 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		[Display(Name = "Сумма ущерба")]
-		public virtual decimal SumOfDamage {
-			get {
-				if(Difference > 0)
-					return 0;
-				else
-					return Nomenclature.SumOfDamage * Math.Abs(Difference);
-			}
-		}
+		public virtual decimal SumOfDamage => Difference > 0 ? 0 : Nomenclature.SumOfDamage * Math.Abs(Difference);
 
 		#region Расчетные
 
 		public virtual string Title {
 			get {
-				return String.Format("[{2}] {0} - {1}",
+				return String.Format(
+					"[{2}] {0} - {1}",
 					Nomenclature.Name,
-									 Nomenclature.Unit.MakeAmountShortStr(AmountInFact),
-					Document.Title);
+					Nomenclature.Unit.MakeAmountShortStr(AmountInFact),
+				    Document.Title
+				);
 			}
 		}
 
-		public virtual decimal Difference {
-			get {
-				return AmountInFact - AmountInDB;
-			}
-		}
+		public virtual decimal Difference => AmountInFact - AmountInDB;
 
 		#endregion
 	}
