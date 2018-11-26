@@ -1039,6 +1039,11 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.ScheduleRestrictedDistrictDlg.cs" />
     <Compile Include="Dialogs\Sale\DeliveryPriceRuleDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.DeliveryPriceRuleDlg.cs" />
+    <Compile Include="ServiceDialogs\ImportPaymentsFromTinkoffDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ImportPaymentsFromTinkoffDlg.cs" />
+    <Compile Include="ServiceDialogs\PaymentsFromTinkoffParser.cs" />
+    <Compile Include="ReportsParameters\Payments\PaymentsFromTinkoffReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromTinkoffReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1220,6 +1225,7 @@
     <Folder Include="Dialogs\OnlineStore\" />
     <Folder Include="DriverTerminal\" />
     <Folder Include="icons\map\points\" />
+    <Folder Include="ReportsParameters\Payments\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1565,6 +1571,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\DefectiveItemsReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Payments\PaymentsFromTinkoffReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

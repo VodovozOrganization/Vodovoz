@@ -21,16 +21,16 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.ReportsParameters;
+using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
-using Vodovoz.Dialogs.Sale;
-using Vodovoz.Domain.Sale;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -1062,6 +1062,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				};
 				return dlg; 
 			}
+		);
+	}
+
+	protected void OnOnLineActionActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromTinkoffReport>(),
+			() => new QSReport.ReportViewDlg(new PaymentsFromTinkoffReport())
 		);
 	}
 }

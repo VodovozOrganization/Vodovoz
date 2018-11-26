@@ -536,6 +536,9 @@
     <Compile Include="Domain\Sale\ScheduleRestrictedDistrictRuleItem.cs" />
     <Compile Include="HibernateMapping\Sale\ScheduleRestrictedDistrictRuleItemMap.cs" />
     <Compile Include="Repositories\Sale\ScheduleRestrictedDistrictRuleRepository.cs" />
+    <Compile Include="Domain\Payments\PaymentFromTinkoff.cs" />
+    <Compile Include="HibernateMapping\Payments\PaymentFromTinkoffMap.cs" />
+    <Compile Include="Repositories\Payments\PaymentsRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -560,6 +563,9 @@
     <Folder Include="Resources\" />
     <Folder Include="Tools\AdditionalAgreements\" />
     <Folder Include="Tools\Orders\" />
+    <Folder Include="Domain\Payments\" />
+    <Folder Include="HibernateMapping\Payments\" />
+    <Folder Include="Repositories\Payments\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

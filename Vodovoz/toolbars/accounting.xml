@@ -6,5 +6,6 @@
 		<toolitem name='ActionRevision' action='ActionRevision'/>
         <toolitem name='ActionExportTo1c' action='ActionExportTo1c'/>
         <toolitem name='ActionExportCounterpartiesTo1c' action='ActionExportCounterpartiesTo1c'/>
+        <toolitem name='ActionImportFromTinkoff' action='ActionImportFromTinkoff'/>
 	</toolbar>
 </ui>

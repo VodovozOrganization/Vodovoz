@@ -28,7 +28,6 @@ namespace Vodovoz.Repositories.Store
 							.SelectGroup(() => movementOperationAlias.Nomenclature.Id)
 							.SelectSum(() => movementOperationAlias.Amount)
 						   ).List<object[]>();
-			//logger.Warn("23456 " + unloadedlist.Count);
 			return unloadedlist.ToDictionary(r => (int)r[0], r => (decimal)r[1]);
 		}
 	}
