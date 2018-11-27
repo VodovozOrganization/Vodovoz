@@ -1,17 +1,18 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа самовывоза",
-		Nominative = "строка документа самовывоза")]	
+		Nominative = "строка документа самовывоза")]
+	[HistoryTrace]
 	public class SelfDeliveryDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -113,8 +114,12 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		#endregion
+
+		#region Функции
+
 		public virtual string Title {
-			get{
+			get {
 				string res = String.Empty;
 				if(WarehouseMovementOperation != null)
 					res = String.Format(
@@ -133,10 +138,6 @@ namespace Vodovoz.Domain.Documents
 				return res;
 			}
 		}
-
-		#endregion
-
-		#region Функции
 
 		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{

@@ -1,17 +1,18 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки инвентаризации",
 		Nominative = "строка инвентаризации")]
+	[HistoryTrace]
 	public class InventoryDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -76,14 +77,6 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
-		[Display (Name = "Сумма ущерба")]
-		public virtual decimal SumOfDamage {
-			get { if (Difference > 0)
-					return 0;
-			else
-				return Nomenclature.SumOfDamage * Math.Abs(Difference); }
-		}
-
 		Fine fine;
 
 		[Display (Name = "Штраф")]
@@ -100,6 +93,9 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#region Расчетные
+
+		[Display(Name = "Сумма ущерба")]
+		public virtual decimal SumOfDamage => Difference <= 0 ? Nomenclature.SumOfDamage * Math.Abs(Difference) : 0;
 
 		public virtual string Title {
 			get{

@@ -2,18 +2,19 @@
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки списания",
 		Nominative = "строка списания")]
+	[HistoryTrace]
 	public class WriteoffDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

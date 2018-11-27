@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
@@ -12,6 +12,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "сырьё",
 		Nominative = "сырьё")]
+	[HistoryTrace]
 	public class IncomingWaterMaterial : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -74,9 +75,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 
-		public virtual string Name {
-			get { return Nomenclature != null ? Nomenclature.Name : ""; }
-		}
+		public virtual string Name => Nomenclature != null ? Nomenclature.Name : "";
 
 		WarehouseMovementOperation consumptionMaterialOperation;
 
@@ -88,7 +87,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual string Title {
 			get {
 				return String.Format("[{2}] {0} - {1}",
-					Nomenclature.Name,
+				                     Nomenclature.Name,
 				                     Nomenclature.Unit.MakeAmountShortStr(Amount),
 									 Document.Title);
 			}

@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Store;
-using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "входящие накладные",
 		Nominative = "входящая накладная")]
-	public class IncomingInvoice: Document, IValidatableObject
+	[HistoryTrace]
+	public class IncomingInvoice : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
@@ -96,9 +97,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual string Title { 
-			get { return String.Format ("Поступление №{0} от {1:d}", Id, TimeStamp); }
-		}
+		public virtual string Title => String.Format("Поступление №{0} от {1:d}", Id, TimeStamp);
 
 		public virtual void AddItem (IncomingInvoiceItem item)
 		{

@@ -6,6 +6,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
@@ -15,7 +16,8 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "отпуски самовывоза",
 		Nominative = "отпуск самовывоза")]
-	public class SelfDeliveryDocument: Document, IValidatableObject
+	[HistoryTrace]
+	public class SelfDeliveryDocument : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
@@ -85,9 +87,7 @@ namespace Vodovoz.Domain.Documents
 
 		#region Не сохраняемые
 
-		public virtual string Title { 
-			get { return String.Format ("Самовывоз №{0} от {1:d}", Id, TimeStamp); }
-		}
+		public virtual string Title => String.Format("Самовывоз №{0} от {1:d}", Id, TimeStamp);
 
 		#endregion
 

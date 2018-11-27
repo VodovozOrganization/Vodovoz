@@ -832,6 +832,13 @@
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <FontWeight >=Iif(
+    {has_comment_for_driver} = true,
+    'Bold',
+    'Normal'
+)
+
+</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -907,7 +914,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox15" >
+                    <Textbox Name="Textbox15">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1128,7 +1135,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox68" >
+                    <Textbox Name="Textbox68">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1578,7 +1585,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
         <CommandText>
 SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
-orders.daily_number_1c, route_list_addresses.need_to_reload AS Reloaded,
+orders.daily_number_1c, orders.has_comment_for_driver, route_list_addresses.need_to_reload AS Reloaded,
 (SELECT SUM(order_items.count * nomenclature.weight) FROM order_items
 LEFT JOIN nomenclature ON nomenclature.id=order_items.nomenclature_id
 WHERE order_items.order_id = orders.id) as weight,
@@ -1749,6 +1756,10 @@ ORDER BY order_in_route;
         <Field Name="daily_number_1c">
           <DataField>daily_number_1c</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="has_comment_for_driver">
+          <DataField>has_comment_for_driver</DataField>
+          <TypeName>System.Boolean</TypeName>
         </Field>
         <Field Name="Reloaded">
           <DataField>Reloaded</DataField>

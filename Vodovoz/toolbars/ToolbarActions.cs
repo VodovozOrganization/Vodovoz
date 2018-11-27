@@ -52,6 +52,7 @@ public partial class MainWindow : Window
 	Action ActionAccountFlow;
 	Action ActionExportTo1c;
 	Action ActionExportCounterpartiesTo1c;
+	Action ActionImportFromTinkoff;
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
 	Action ActionRouteListAddressesTransferring;
@@ -94,6 +95,7 @@ public partial class MainWindow : Window
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с", null, "table");
 		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
+		ActionImportFromTinkoff = new Action("ActionImportFromTinkoff", "Загрузка выписки из ЛК Тинькофф", null, "table");
 		ActionAccountingTable = new Action("ActionAccountingTable", "Операции по счету", null, "table");
 		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
@@ -149,6 +151,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionAccountFlow, null);
 		w1.Add(ActionExportTo1c, null);
 		w1.Add(ActionExportCounterpartiesTo1c, null);
+		w1.Add(ActionImportFromTinkoff, null);
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
 		w1.Add(ActionRouteListAddressesTransferring, null);
@@ -195,6 +198,7 @@ public partial class MainWindow : Window
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
 		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
+		ActionImportFromTinkoff.Activated += ActionImportFromTinkoff_Activated;
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
@@ -362,6 +366,14 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ExportCounterpartiesTo1cDlg>(),
 			() => new ExportCounterpartiesTo1cDlg()
+		);
+	}
+
+	void ActionImportFromTinkoff_Activated(object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<ImportPaymentsFromTinkoffDlg>(),
+			() => new ImportPaymentsFromTinkoffDlg()
 		);
 	}
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Service;
 
@@ -9,7 +9,8 @@ namespace Vodovoz.Domain.Documents
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа разгрузки",
-		Nominative = "строка документа разгрузки")]	
+		Nominative = "строка документа разгрузки")]
+	[HistoryTrace]
 	public class CarUnloadDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

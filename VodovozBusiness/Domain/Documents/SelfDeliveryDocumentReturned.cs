@@ -1,16 +1,17 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа самовывоза",
-		Nominative = "строка документа самовывоза")]	
+		Nominative = "строка документа самовывоза")]
+	[HistoryTrace]
 	public class SelfDeliveryDocumentReturned: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

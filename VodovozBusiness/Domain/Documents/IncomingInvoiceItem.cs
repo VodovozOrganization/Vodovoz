@@ -2,15 +2,16 @@
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
-using QSOrmProject;
-using Vodovoz.Domain.Operations;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки накладной",
 		Nominative = "строка накладной")]
+	[HistoryTrace]
 	public class IncomingInvoiceItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -72,21 +73,13 @@ namespace Vodovoz.Domain.Documents
 			set { SetField(ref vat, value, () => VAT); }
 		}
 
-		public virtual decimal Sum {
-			get { return PrimeCost * Amount; }
-		}
+		public virtual decimal Sum => PrimeCost * Amount;
 
-		public virtual string Name {
-			get { return Nomenclature != null ? Nomenclature.Name : ""; }
-		}
+		public virtual string Name => Nomenclature != null ? Nomenclature.Name : "";
 
-		public virtual string EquipmentString { 
-			get { return Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "-"; } 
-		}
+		public virtual string EquipmentString => Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "-";
 
-		public virtual bool CanEditAmount {
-			get { return Nomenclature != null && !Nomenclature.IsSerial; }
-		}
+		public virtual bool CanEditAmount => Nomenclature != null && !Nomenclature.IsSerial;
 
 		WarehouseMovementOperation incomeGoodsOperation = new WarehouseMovementOperation();
 
@@ -103,8 +96,5 @@ namespace Vodovoz.Domain.Documents
 					Document.Title);
 			}
 		}
-
 	}
-
 }
-

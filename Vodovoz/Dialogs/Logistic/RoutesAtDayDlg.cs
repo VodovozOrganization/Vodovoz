@@ -234,7 +234,8 @@ namespace Vodovoz
 		{
 			if(args.Event.Button == 1) {
 				bool markerIsSelect = false;
-				if(args.Event.State.HasFlag(ModifierType.Mod1Mask)) {
+				//if(args.Event.State.HasFlag(ModifierType.Mod1Mask)) {
+				if(args.Event.State.HasFlag(ModifierType.LockMask)) {
 					foreach(var marker in addressesOverlay.Markers) {
 						if(marker.IsMouseOver) {
 							var markerUnderMouse = selectedMarkers.FirstOrDefault(m => ((Order)m.Tag).Id == ((Order)marker.Tag).Id);

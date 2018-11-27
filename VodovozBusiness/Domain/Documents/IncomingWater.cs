@@ -5,7 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using DataAnnotationsExtensions;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
@@ -15,6 +15,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы производства",
 		Nominative = "документ производства")]
+	[HistoryTrace]
 	public class IncomingWater: Document, IValidatableObject
 	{
 		Nomenclature product;
@@ -77,9 +78,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual string Title { 
-			get { return String.Format ("Документ производства №{0} от {1:d}", Id, TimeStamp); }
-		}
+		public virtual string Title => String.Format("Документ производства №{0} от {1:d}", Id, TimeStamp);
 
 		WarehouseMovementOperation produceOperation = new WarehouseMovementOperation() {
 			OperationTime = DateTime.Now

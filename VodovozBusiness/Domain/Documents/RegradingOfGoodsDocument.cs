@@ -5,7 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
@@ -14,6 +14,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "пересортицы товаров",
 		Nominative = "пересортица товаров")]
+	[HistoryTrace]
 	public class RegradingOfGoodsDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
@@ -51,7 +52,6 @@ namespace Vodovoz.Domain.Documents
 						item.WarehouseWriteOffOperation.WriteoffWarehouse = Warehouse;
 					if (item.WarehouseIncomeOperation != null && item.WarehouseIncomeOperation.IncomingWarehouse != Warehouse)
 						item.WarehouseIncomeOperation.IncomingWarehouse = Warehouse;
-					
 				}
 			}
 		}
@@ -77,11 +77,9 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual string Title { 
-			get { return String.Format ("Пересортица товаров №{0} от {1:d}", Id, TimeStamp); }
-		}
-
 		#region Функции
+
+		public virtual string Title => String.Format("Пересортица товаров №{0} от {1:d}", Id, TimeStamp);
 
 		public virtual void AddItem (RegradingOfGoodsDocumentItem item)
 		{

@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
@@ -15,13 +14,11 @@ namespace Vodovoz.Domain.Documents
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "переносы",
 		Nominative = "перенос")]
-	public class TransferOperationDocument: Document, IValidatableObject, IDomainObject
+	public class TransferOperationDocument : Document, IValidatableObject, IDomainObject
 	{
 		[Display(Name = "Дата")]
 		public override DateTime TimeStamp {
-			get {
-				return base.TimeStamp;
-			}
+			get => base.TimeStamp;
 			set {
 				base.TimeStamp = value;
 
@@ -143,12 +140,12 @@ namespace Vodovoz.Domain.Documents
 		{
 			var messages = new List<string>();
 
-			BottlesMovementOperation outBottles = this.OutBottlesOperation == null ? new BottlesMovementOperation() : this.OutBottlesOperation,
-										incBottles = this.IncBottlesOperation == null ? new BottlesMovementOperation() : this.IncBottlesOperation;
-			DepositOperation outBottlesDeposits = this.OutBottlesDepositOperation == null ? new DepositOperation() : this.OutBottlesDepositOperation,
-								incBottlesDeposits = this.IncBottlesDepositOperation == null ? new DepositOperation() : this.IncBottlesDepositOperation,
-								outEquipmentDeposits = this.OutEquipmentDepositOperation == null ? new DepositOperation() : this.OutEquipmentDepositOperation,
-								incEquipmentDeposits = this.IncEquipmentDepositOperation == null ? new DepositOperation() : this.IncEquipmentDepositOperation;
+			BottlesMovementOperation outBottles = this.OutBottlesOperation ?? new BottlesMovementOperation(),
+										incBottles = this.IncBottlesOperation ?? new BottlesMovementOperation();
+			DepositOperation outBottlesDeposits = this.OutBottlesDepositOperation ?? new DepositOperation(),
+								incBottlesDeposits = this.IncBottlesDepositOperation ?? new DepositOperation(),
+								outEquipmentDeposits = this.OutEquipmentDepositOperation ?? new DepositOperation(),
+								incEquipmentDeposits = this.IncEquipmentDepositOperation ?? new DepositOperation();
 
 			SaveBottlesOperations(UoW, ref outBottles, ref incBottles, bottles);
 			SaveDepositOperations(UoW, ref outBottlesDeposits, ref incBottlesDeposits, bottlesDeposits, DepositType.Bottles);
