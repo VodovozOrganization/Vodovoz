@@ -603,7 +603,9 @@ namespace Vodovoz
 
 		bool AcceptOrder()
 		{
-			ValidateAndFormOrder();
+			if(!ValidateAndFormOrder()) {
+				return false;
+			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
 				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
