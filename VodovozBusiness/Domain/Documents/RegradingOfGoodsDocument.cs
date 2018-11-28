@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "пересортицы товаров",
 		Nominative = "пересортица товаров")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class RegradingOfGoodsDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {

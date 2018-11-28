@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы перемещения ТМЦ",
 		Nominative = "документ перемещения ТМЦ")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class MovementDocument : Document, IValidatableObject
 	{
 		MovementDocumentCategory category;

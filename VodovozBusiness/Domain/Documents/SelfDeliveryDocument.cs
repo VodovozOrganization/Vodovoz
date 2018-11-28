@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "отпуски самовывоза",
 		Nominative = "отпуск самовывоза")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class SelfDeliveryDocument : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {

@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.Cash
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "приходные одера",
 		Nominative = "приходный ордер")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class Income : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства

@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "сырьё",
 		Nominative = "сырьё")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class IncomingWaterMaterial : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

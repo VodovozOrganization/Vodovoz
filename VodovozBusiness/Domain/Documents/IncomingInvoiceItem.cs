@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки накладной",
 		Nominative = "строка накладной")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class IncomingInvoiceItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

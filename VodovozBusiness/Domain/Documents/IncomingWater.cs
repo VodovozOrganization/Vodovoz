@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы производства",
 		Nominative = "документ производства")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class IncomingWater: Document, IValidatableObject
 	{
 		Nomenclature product;

@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки списания",
 		Nominative = "строка списания")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class WriteoffDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
