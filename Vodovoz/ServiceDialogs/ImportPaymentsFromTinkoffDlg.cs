@@ -9,6 +9,7 @@ using Gamma.Utilities;
 using Gtk;
 using NHibernate.Util;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Payments;

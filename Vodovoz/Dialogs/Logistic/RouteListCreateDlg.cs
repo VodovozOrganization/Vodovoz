@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QSProjectsLib;
@@ -15,7 +16,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
-using QS.Dialog.Gtk;
 
 namespace Vodovoz
 {
