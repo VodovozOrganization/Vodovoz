@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -10,9 +11,13 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class FuelDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<FuelDocument>
+	public partial class FuelDocumentDlg : TdiTabBase
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+
+		public IUnitOfWork UoW { get; set; }
+
+		public FuelDocument FuelDocument { get; set; }
 
 		public RouteList RouteListClosing { get; set; }
 
@@ -23,62 +28,55 @@ namespace Vodovoz
 		decimal spentFuel;
 		decimal spentFuelConfirmed;
 
-		public FuelDocumentDlg ()
+		public FuelDocumentDlg (IUnitOfWork uow, RouteList routeListClosing, int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
-			ConfigureDlg ();
-		}
-
-		public FuelDocumentDlg (RouteList routeListClosing, int id)
-		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<FuelDocument> (id);
+			UoW = uow; 
+			FuelDocument = UoW.GetById<FuelDocument>(id);
 			RouteListClosing = routeListClosing;
 			ConfigureDlg ();
 		}
 
-		//public FuelDocumentDlg (FuelDocument sub) : this (sub.Id) {}
-
-		public FuelDocumentDlg(RouteList routeListClosing)
+		public FuelDocumentDlg(IUnitOfWork uow, RouteList routeListClosing)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument> ();
+			UoW = uow;
+			FuelDocument = new FuelDocument();
 
 			RouteListClosing = routeListClosing;
 
-			UoWGeneric.Root.Date 	  = DateTime.Now;
-			UoWGeneric.Root.Car 	  = RouteListClosing.Car;
-			UoWGeneric.Root.Driver 	  = RouteListClosing.Driver;
-			UoWGeneric.Root.Fuel 	  = RouteListClosing.Car.FuelType;
-			UoWGeneric.Root.LiterCost = RouteListClosing.Car.FuelType.Cost;
-			UoWGeneric.Root.RouteList = RouteListClosing;
+			FuelDocument.Date 	  = DateTime.Now;
+			FuelDocument.Car 	  = RouteListClosing.Car;
+			FuelDocument.Driver 	  = RouteListClosing.Driver;
+			FuelDocument.Fuel 	  = RouteListClosing.Car.FuelType;
+			FuelDocument.LiterCost = RouteListClosing.Car.FuelType.Cost;
+			FuelDocument.RouteList = RouteListClosing;
 			ConfigureDlg();
 		}
 
 		private void ConfigureDlg ()
 		{
-			ydatepicker.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
+			ydatepicker.Binding.AddBinding(FuelDocument, e => e.Date, w => w.Date).InitializeFromSource();
 
 			var filterDriver = new EmployeeFilter(UoW);
 			filterDriver.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentrydriver.RepresentationModel = new EmployeesVM(filterDriver);
-			yentrydriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			yentrydriver.Binding.AddBinding(FuelDocument, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			yentryCar.SubjectType = typeof(Car);
-			yentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
+			yentryCar.Binding.AddBinding(FuelDocument, e => e.Car, w => w.Subject).InitializeFromSource();
 
 			yentryfuel.SubjectType = typeof(FuelType);
-			yentryfuel.Binding.AddBinding(Entity, e => e.Fuel, w => w.Subject).InitializeFromSource();
+			yentryfuel.Binding.AddBinding(FuelDocument, e => e.Fuel, w => w.Subject).InitializeFromSource();
 
-			yspinFuelTicketLiters.Binding.AddBinding (Entity, e => e.FuelCoupons, w => w.ValueAsInt).InitializeFromSource ();
+			yspinFuelTicketLiters.Binding.AddBinding (FuelDocument, e => e.FuelCoupons, w => w.ValueAsInt).InitializeFromSource ();
 
-			disablespinMoney.Binding.AddBinding(Entity, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
-			spinFuelPrice.Binding.AddBinding(Entity, e => e.LiterCost, w => w.ValueAsDecimal).InitializeFromSource();
+			disablespinMoney.Binding.AddBinding(FuelDocument, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
+			spinFuelPrice.Binding.AddBinding(FuelDocument, e => e.LiterCost, w => w.ValueAsDecimal).InitializeFromSource();
 
 			UpdateFuelInfo();
 			UpdateResutlInfo();
-			Entity.PropertyChanged += FuelDocument_PropertyChanged;
+			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
 		}
 
 
@@ -98,14 +96,14 @@ namespace Vodovoz
 			if (RouteListClosing.Car.FuelType != null)
 			{
 				var fuelOtlayedOp = RouteListClosing.FuelOutlayedOperation;
-				var entityOp = Entity.Operation;
+				var entityOp = FuelDocument.Operation;
 
 				text.Add(string.Format("Вид топлива: {0}", RouteListClosing.Car.FuelType.Name));
 
 				var exclude = new List<int>();
 				if (entityOp != null && entityOp.Id != 0)
 				{
-					exclude.Add(Entity.Operation.Id);
+					exclude.Add(FuelDocument.Operation.Id);
 				}
 				if (fuelOtlayedOp != null && fuelOtlayedOp.Id != 0)
 				{
@@ -148,7 +146,7 @@ namespace Vodovoz
 
 		private void UpdateResutlInfo () 
 		{
-			decimal litersGived = Entity.Operation?.LitersGived ?? default(decimal);
+			decimal litersGived = FuelDocument.Operation?.LitersGived ?? default(decimal);
 
 			var text = new List<string>();
 
@@ -162,30 +160,31 @@ namespace Vodovoz
 			labelResultInfo.Text = string.Join("\n", text);
 		}
 
-		public override bool Save ()
+		public bool Save ()
 		{
-			Employee cashier = Entity.GetActualCashier(UoW);
+			Employee cashier = FuelDocument.GetActualCashier(UoW);
 			if(cashier == null) return false;
 
-			if(Entity.Author == null) {
-				Entity.Author = cashier;
+			if(FuelDocument.Author == null) {
+				FuelDocument.Author = cashier;
 			}
 
-			Entity.LastEditor = cashier;
+			FuelDocument.LastEditor = cashier;
 
-			Entity.LastEditDate = DateTime.Now;
+			FuelDocument.LastEditDate = DateTime.Now;
 
-			if (Entity.FuelCashExpense != null)
+			if (FuelDocument.FuelCashExpense != null)
 			{
-				Entity.FuelCashExpense.Casher = cashier;
+				FuelDocument.FuelCashExpense.Casher = cashier;
 			}
 
-			var valid = new QSValidator<FuelDocument> (UoWGeneric.Root);
+			var valid = new QSValidator<FuelDocument>(FuelDocument);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
 			logger.Info ("Сохраняем топливный документ...");
-			UoWGeneric.Save();
+			UoW.Save(FuelDocument);
+			RouteListClosing.ObservableFuelDocuments.Add(FuelDocument);
 			return true;
 		}
 
@@ -196,40 +195,40 @@ namespace Vodovoz
 
 		private void OnFuelUpdated()
 		{
-			Employee cashier = Entity.GetActualCashier(UoW);
+			Employee cashier = FuelDocument.GetActualCashier(UoW);
 			if(cashier == null) {
 				MessageDialogWorks.RunErrorDialog(
 					"Ваш пользователь не привязан к действующему сотруднику, Вы не можете выдавать денежные средства, так как некого указывать в качестве кассира.");
 				return;
 			}
 
-			Entity.Fuel.Cost = spinFuelPrice.ValueAsDecimal;
-			Entity.UpdateOperation();
-			Entity.UpdateFuelCashExpense(UoW, cashier);
+			FuelDocument.Fuel.Cost = spinFuelPrice.ValueAsDecimal;
+			FuelDocument.UpdateOperation();
+			FuelDocument.UpdateFuelCashExpense(UoW, cashier);
 			UpdateResutlInfo();
 			UpdateFuelCashExpenseInfo();
 		}
 
 		void FuelDocument_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName == nameof (Entity.FuelCoupons))
+			if (e.PropertyName == nameof (FuelDocument.FuelCoupons))
 				OnFuelUpdated ();
 		}
 
 		private void UpdateFuelCashExpenseInfo()
 		{
 			spinFuelPrice.Sensitive = disablespinMoney.Active;
-			if (Entity.FuelCashExpense == null && !Entity.PayedForFuel.HasValue)
+			if (FuelDocument.FuelCashExpense == null && !FuelDocument.PayedForFuel.HasValue)
 			{
 				buttonOpenExpense.Sensitive = false;
 				labelExpenseInfo.Text = "";
 			}
-			if (Entity.PayedForFuel.HasValue) {
-				if (Entity.FuelCashExpense.Id <= 0) {
+			if (FuelDocument.PayedForFuel.HasValue) {
+				if (FuelDocument.FuelCashExpense.Id <= 0) {
 					buttonOpenExpense.Sensitive = false;
 					labelExpenseInfo.Text = "Расходный ордер будет создан";
 				}
-				if (Entity.FuelCashExpense.Id > 0) {
+				if (FuelDocument.FuelCashExpense.Id > 0) {
 					buttonOpenExpense.Sensitive = true;
 					labelExpenseInfo.Text = "";
 				}
@@ -239,39 +238,50 @@ namespace Vodovoz
 		protected void OnButtonSetRemainClicked (object sender, EventArgs e)
 		{
 			decimal litersBalance = 0;
-			decimal litersGived = Entity.Operation?.LitersGived ?? default(decimal);
+			decimal litersGived = FuelDocument.Operation?.LitersGived ?? default(decimal);
 
 			litersBalance = FuelBalance + litersGived - spentFuel;
 
 			decimal moneyToPay = -litersBalance * spinFuelPrice.ValueAsDecimal;
 
-			if (Entity.PayedForFuel == null && moneyToPay > 0)
-				Entity.PayedForFuel = 0;
+			if (FuelDocument.PayedForFuel == null && moneyToPay > 0)
+				FuelDocument.PayedForFuel = 0;
 			
-			Entity.PayedForFuel += moneyToPay;
+			FuelDocument.PayedForFuel += moneyToPay;
 
-			if (Entity.PayedForFuel <= 0)
-				Entity.PayedForFuel = null;
+			if (FuelDocument.PayedForFuel <= 0)
+				FuelDocument.PayedForFuel = null;
 		}
 
 		protected void OnButtonOpenExpenseClicked (object sender, EventArgs e)
 		{
-			if (Entity.FuelCashExpense?.Id > 0)
-				TabParent.AddSlaveTab(this, new CashExpenseDlg(Entity.FuelCashExpense.Id));
+			if (FuelDocument.FuelCashExpense?.Id > 0)
+				TabParent.AddSlaveTab(this, new CashExpenseDlg(FuelDocument.FuelCashExpense.Id));
 		}
 
 		protected void OnButtonFuelBy20Clicked (object sender, EventArgs e)
 		{
 			var needLiters = FuelOutlayed - FuelBalance;
 
-			Entity.FuelCoupons = (((int)needLiters / 20) * 20);
+			FuelDocument.FuelCoupons = (((int)needLiters / 20) * 20);
 		}
 
 		protected void OnButtonFuelBy10Clicked (object sender, EventArgs e)
 		{
 			var needLiters = FuelOutlayed - FuelBalance;
 
-			Entity.FuelCoupons = (((int)needLiters / 10) * 10);
+			FuelDocument.FuelCoupons = (((int)needLiters / 10) * 10);
+		}
+
+		protected void OnButtonSaveClicked(object sender, EventArgs e)
+		{
+			Save();
+			OnCloseTab(false);
+		}
+
+		protected void OnButtonCancelClicked(object sender, EventArgs e)
+		{
+			OnCloseTab(false);
 		}
 	}
 }

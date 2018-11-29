@@ -1042,17 +1042,8 @@ namespace Vodovoz
 
 		protected void OnButtonAddFuelDocumentClicked(object sender, EventArgs e)
 		{
-			FuelDocumentDlg tab;
-			tab = new FuelDocumentDlg(Entity);
-			tab.EntitySaved += FuelDoc_EntitySaved;
+			var tab = new FuelDocumentDlg(UoW, Entity);
 			TabParent.AddSlaveTab(this, tab);
-		}
-
-		void FuelDoc_EntitySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
-		{
-			Entity.ObservableFuelDocuments.Add(e.Entity as FuelDocument);
-			UoWGeneric.Save();
-			object dsds = Entity;
 		}
 
 		#endregion
