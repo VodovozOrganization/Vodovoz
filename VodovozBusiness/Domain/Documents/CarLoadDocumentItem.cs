@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа погрузки",
 		Nominative = "строка документа погрузки")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class CarLoadDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

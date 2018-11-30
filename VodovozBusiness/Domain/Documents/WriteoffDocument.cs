@@ -17,7 +17,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "акт списания ТМЦ",
 		Prepositional = "акте списания"
 	)]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class WriteoffDocument : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {

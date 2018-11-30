@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "входящие накладные",
 		Nominative = "входящая накладная")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class IncomingInvoice : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {

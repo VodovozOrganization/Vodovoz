@@ -364,7 +364,7 @@ namespace Vodovoz.ViewModel
 			var RouteList = UoW.GetById<RouteList>(routeListIds[0]);
 			MainClass.MainWin.TdiMain.OpenTab(
 					OrmMain.GenerateDialogHashName<RouteList>(routeListIds[0]),
-					() => new FuelDocumentDlg(UoW.GetById<RouteList>(routeListIds[0]))
+					() => new FuelDocumentDlg(RouteList)
 				);
 		}
 	}

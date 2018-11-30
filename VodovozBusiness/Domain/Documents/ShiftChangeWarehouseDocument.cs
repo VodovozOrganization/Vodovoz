@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "акты передачи склада",
 		Nominative = "акт передачи склада",
 		Prepositional = "акте передачи склада")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class ShiftChangeWarehouseDocument : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {

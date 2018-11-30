@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Cash
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "авансовые отчеты",
 		Nominative = "авансовый отчет")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class AdvanceReport : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства

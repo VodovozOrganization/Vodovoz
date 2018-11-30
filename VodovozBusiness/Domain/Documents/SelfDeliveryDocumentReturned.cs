@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа самовывоза",
 		Nominative = "строка документа самовывоза")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class SelfDeliveryDocumentReturned: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

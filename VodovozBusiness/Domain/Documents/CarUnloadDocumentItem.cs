@@ -10,7 +10,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа разгрузки",
 		Nominative = "строка документа разгрузки")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class CarUnloadDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки инвентаризации",
 		Nominative = "строка инвентаризации")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class InventoryDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

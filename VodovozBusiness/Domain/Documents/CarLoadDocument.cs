@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы погрузки автомобилей",
 		Nominative = "документ погрузки автомобиля")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class CarLoadDocument : Document, IValidatableObject
 	{
 		DateTime version;

@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "инвентаризации",
 		Nominative = "инвентаризация",
 		Prepositional = "инвентаризации")]
-	[HistoryTrace]
+	//[HistoryTrace]
 	public class InventoryDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
