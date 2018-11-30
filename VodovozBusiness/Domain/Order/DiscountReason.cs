@@ -4,6 +4,9 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Orders
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "основания скидок",
+		Nominative = "основание скидки")]
 	public class DiscountReason : IDomainObject
 	{
 		public virtual int Id { get; set; }

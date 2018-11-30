@@ -6,7 +6,7 @@ using System.Text;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
-using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
