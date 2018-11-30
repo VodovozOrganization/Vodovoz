@@ -19,7 +19,9 @@ namespace Vodovoz
 
 		public FuelDocument FuelDocument { get; set; }
 
-		public RouteList RouteListClosing { get; set; }
+		RouteList routeList;
+
+		bool autoCommit = false;
 
 		public decimal FuelBalance { get; set; }
 
@@ -28,34 +30,51 @@ namespace Vodovoz
 		decimal spentFuel;
 		decimal spentFuelConfirmed;
 
-		public FuelDocumentDlg (IUnitOfWork uow, RouteList routeListClosing, int id)
-		{
-			this.Build ();
-			UoW = uow; 
-			FuelDocument = UoW.GetById<FuelDocument>(id);
-			RouteListClosing = routeListClosing;
-			ConfigureDlg ();
-		}
-
-		public FuelDocumentDlg(IUnitOfWork uow, RouteList routeListClosing)
+		/// <summary>
+		/// Открывает диалог выдачи топлива, с коммитом изменений в родительском UoW
+		/// </summary>
+		public FuelDocumentDlg(IUnitOfWork uow, RouteList rl)
 		{
 			this.Build ();
 			UoW = uow;
 			FuelDocument = new FuelDocument();
-
-			RouteListClosing = routeListClosing;
+			autoCommit = false;
+			routeList = rl;
 
 			FuelDocument.Date 	  = DateTime.Now;
-			FuelDocument.Car 	  = RouteListClosing.Car;
-			FuelDocument.Driver 	  = RouteListClosing.Driver;
-			FuelDocument.Fuel 	  = RouteListClosing.Car.FuelType;
-			FuelDocument.LiterCost = RouteListClosing.Car.FuelType.Cost;
-			FuelDocument.RouteList = RouteListClosing;
+			FuelDocument.Car 	  = routeList.Car;
+			FuelDocument.Driver 	  = routeList.Driver;
+			FuelDocument.Fuel 	  = routeList.Car.FuelType;
+			FuelDocument.LiterCost = routeList.Car.FuelType.Cost;
+			FuelDocument.RouteList = routeList;
+			ConfigureDlg();
+		}
+
+		/// <summary>
+		/// Открывает диалог выдачи топлива, с автоматическим коммитом всех изменений
+		/// </summary>
+		public FuelDocumentDlg(RouteList rl)
+		{
+			this.Build();
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
+			UoW = uow;
+			FuelDocument = uow.Root;
+			autoCommit = true;
+
+			routeList = UoW.GetById<RouteList>(rl.Id);
+
+			FuelDocument.Date = DateTime.Now;
+			FuelDocument.Car = routeList.Car;
+			FuelDocument.Driver = routeList.Driver;
+			FuelDocument.Fuel = routeList.Car.FuelType;
+			FuelDocument.LiterCost = routeList.Car.FuelType.Cost;
+			FuelDocument.RouteList = routeList;
 			ConfigureDlg();
 		}
 
 		private void ConfigureDlg ()
 		{
+			TabName = "Выдача топлива";
 			ydatepicker.Binding.AddBinding(FuelDocument, e => e.Date, w => w.Date).InitializeFromSource();
 
 			var filterDriver = new EmployeeFilter(UoW);
@@ -82,23 +101,23 @@ namespace Vodovoz
 
 		private void UpdateFuelInfo() {
 			var text = new List<string>();
-			decimal fc = (decimal)RouteListClosing.Car.FuelConsumption;
+			decimal fc = (decimal)routeList.Car.FuelConsumption;
 
-			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, RouteListClosing.Id);
+			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
 			bool hasTrack = track != null && track.Distance.HasValue;
 
 			if(hasTrack)
 				text.Add(string.Format("Расстояние по треку: {0:f1}({1:N1}+{2:N1}) км.", track.TotalDistance, track.Distance ?? 0, track.DistanceToBase ?? 0));
 			
-			if(RouteListClosing.ActualDistance > 0)
-				text.Add(string.Format("Оплачиваемое расстояние {0}", RouteListClosing.ActualDistance));
+			if(routeList.ActualDistance > 0)
+				text.Add(string.Format("Оплачиваемое расстояние {0}", routeList.ActualDistance));
 
-			if (RouteListClosing.Car.FuelType != null)
+			if (routeList.Car.FuelType != null)
 			{
-				var fuelOtlayedOp = RouteListClosing.FuelOutlayedOperation;
+				var fuelOtlayedOp = routeList.FuelOutlayedOperation;
 				var entityOp = FuelDocument.Operation;
 
-				text.Add(string.Format("Вид топлива: {0}", RouteListClosing.Car.FuelType.Name));
+				text.Add(string.Format("Вид топлива: {0}", routeList.Car.FuelType.Name));
 
 				var exclude = new List<int>();
 				if (entityOp != null && entityOp.Id != 0)
@@ -107,35 +126,35 @@ namespace Vodovoz
 				}
 				if (fuelOtlayedOp != null && fuelOtlayedOp.Id != 0)
 				{
-					exclude.Add(RouteListClosing.FuelOutlayedOperation.Id);
+					exclude.Add(routeList.FuelOutlayedOperation.Id);
 				}
 				if (exclude.Count == 0)
 					exclude = null;
 
-				Car car = RouteListClosing.Car;
-				Employee driver = RouteListClosing.Driver;
+				Car car = routeList.Car;
+				Employee driver = routeList.Driver;
 				if (car.IsCompanyHavings)
 					driver = null;
 				else
 					car = null;
 				
 				FuelBalance = Repository.Operations.FuelRepository.GetFuelBalance(
-					UoW, driver, car, RouteListClosing.Car.FuelType, null, exclude?.ToArray());
+					UoW, driver, car, routeList.Car.FuelType, null, exclude?.ToArray());
 
 				text.Add(string.Format("Остаток без документа {0:F2} л.", FuelBalance));
 			} else {
 				text.Add("Не указан вид топлива");
 			}
 
-			spentFuel = FuelOutlayed = fc / 100 * RouteListClosing.ActualDistance;
+			spentFuel = FuelOutlayed = fc / 100 * routeList.ActualDistance;
 
 			text.Add(string.Format("Израсходовано топлива: {0:f2} л. ({1:f2} л/100км)",
 			                       FuelOutlayed, fc));
 
-			if(RouteListClosing.ConfirmedDistance != 0 && RouteListClosing.ConfirmedDistance != RouteListClosing.ActualDistance) {
+			if(routeList.ConfirmedDistance != 0 && routeList.ConfirmedDistance != routeList.ActualDistance) {
 
-				spentFuelConfirmed = (decimal)RouteListClosing.Car.FuelConsumption
-				                                              / 100 * RouteListClosing.ConfirmedDistance;
+				spentFuelConfirmed = (decimal)routeList.Car.FuelConsumption
+				                                              / 100 * routeList.ConfirmedDistance;
 
 				text.Add(string.Format("Топливо подтвержденное логистами: {0:F2} л.", spentFuelConfirmed));
 			}
@@ -150,7 +169,7 @@ namespace Vodovoz
 
 			var text = new List<string>();
 
-			if(RouteListClosing.ConfirmedDistance != 0 && RouteListClosing.ConfirmedDistance != RouteListClosing.ActualDistance) {
+			if(routeList.ConfirmedDistance != 0 && routeList.ConfirmedDistance != routeList.ActualDistance) {
 				spentFuel = spentFuelConfirmed;
 			}
 
@@ -183,8 +202,12 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем топливный документ...");
-			UoW.Save(FuelDocument);
-			RouteListClosing.ObservableFuelDocuments.Add(FuelDocument);
+			routeList.ObservableFuelDocuments.Add(FuelDocument);
+			if(autoCommit) {
+				UoW.Save();
+			} else {
+				UoW.Save(FuelDocument);
+			}
 			return true;
 		}
 
