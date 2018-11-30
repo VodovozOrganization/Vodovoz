@@ -616,7 +616,7 @@ namespace Vodovoz
 				.Future();
 
 			var withoutTime = ordersQuery.Where(x => x.DeliverySchedule == null).ToList();
-			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.СoordinatesExist).ToList();
+			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.CoordinatesExist).ToList();
 			if(withoutTime.Any() || withoutLocation.Any())
 				MessageDialogWorks.RunWarningDialog("Не все заказы были загружены!" +
 				                                    (withoutTime.Any() ? ("\n* У заказов отсутсвует время доставки: " + String.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +

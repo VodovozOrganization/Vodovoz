@@ -15,6 +15,8 @@ using QSOsm.Osrm;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz.Domain.Client
 {
@@ -498,37 +500,32 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		public virtual bool СoordinatesExist{
-			get{
-				return (Latitude != null && Longitude != null);
-			}
-		}
+		public virtual bool CoordinatesExist => Latitude.HasValue && Longitude.HasValue;
 
-		public virtual Point NetTopologyPoint{
-			get{
-				return СoordinatesExist ? new Point((double)Latitude, (double)Longitude) : null;
-			}
-		}
+		public virtual Point NetTopologyPoint => CoordinatesExist ? new Point((double)Latitude, (double)Longitude) : null;
 
-		public virtual PointOnEarth PointOnEarth {
-			get {
-				return new PointOnEarth(Latitude.Value, Longitude.Value);
-			}
-		}
+		public virtual PointOnEarth PointOnEarth => new PointOnEarth(Latitude.Value, Longitude.Value);
 
-		public virtual GMap.NET.PointLatLng GmapPoint {
-			get {
-				return new GMap.NET.PointLatLng((double)Latitude, (double)Longitude);
-			}
-		}
+		public virtual GMap.NET.PointLatLng GmapPoint => new GMap.NET.PointLatLng((double)Latitude, (double)Longitude);
 
-		public virtual long СoordinatesHash{
-			get{
-				return CachedDistance.GetHash(this);
-			}
-		}
+		public virtual long СoordinatesHash => CachedDistance.GetHash(this);
 
 		#endregion
+
+		/// <summary>
+		/// Возврат районов доставки, в которые попадает точка доставки
+		/// </summary>
+		/// <returns>Районы доставки</returns>
+		/// <param name="uow">UnitOfWork</param>
+		public virtual IList<ScheduleRestrictedDistrict> GetDistricts(IUnitOfWork uow)
+		{
+			List<ScheduleRestrictedDistrict> districts = new List<ScheduleRestrictedDistrict>();
+			if(CoordinatesExist)
+				districts = ScheduleRestrictionRepository.AreaWithGeometry(uow)
+				                                         .Where(x => x.DistrictBorder.Contains(NetTopologyPoint))
+				                                         .ToList();
+			return districts;
+		}
 
 		public DeliveryPoint ()
 		{

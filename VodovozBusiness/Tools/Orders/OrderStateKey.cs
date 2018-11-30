@@ -135,7 +135,7 @@ namespace Vodovoz.Tools.Orders
 			var total19LWater = Water19LCount + DisposableWater19LCount;
 			decimal totalNo19LWater = (decimal)DisposableWater6LCount / (decimal)rule.EqualsCount6LFor19L;
 			totalNo19LWater += (decimal)DisposableWater600mlCount / (decimal)rule.EqualsCount600mlFor19L;
-			total19LWater += (int)(totalNo19LWater);
+			total19LWater += (int)totalNo19LWater;
 
 			bool result = total19LWater < rule.Water19LCount;
 

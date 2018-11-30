@@ -19,6 +19,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
@@ -1505,35 +1506,43 @@ namespace Vodovoz.Domain.Orders
 		{
 			int paidDeliveryNomenclatureId = int.Parse(MainSupport.BaseParameters.All["paid_delivery_nomenclature_id"]);
 			OrderItem deliveryPriceItem = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == paidDeliveryNomenclatureId);
-			if(DeliveryPoint.AlwaysFreeDelivery) {
-				if(deliveryPriceItem != null) {
+
+			#region перенести всё это в OrderStateKey
+			bool IsDeliveryForFree = DeliveryPoint.AlwaysFreeDelivery
+												  || IsService
+												  || SelfDelivery
+												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
+												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != paidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any())
+												  ;
+
+			if(IsDeliveryForFree) {
+				if(deliveryPriceItem != null)
 					ObservableOrderItems.Remove(deliveryPriceItem);
-				}
 				return false;
 			}
+			#endregion
 
-			var point = new Point((double)DeliveryPoint.Latitude.Value, (double)DeliveryPoint.Longitude.Value);
-			var districts = ScheduleRestrictionRepository.AreaWithGeometry(UoW).Where(x => x.DistrictBorder.Contains(point));
+			var districts = DeliveryPoint?.GetDistricts(UoW);
 
 			OrderStateKey orderKey = new OrderStateKey(this);
 			var price = districts.Any() ? districts.Max(x => x.GetDeliveryPrice(orderKey)) : 0m;
 
 			if(price != 0) {
 				if(deliveryPriceItem == null) {
-					deliveryPriceItem = new OrderItem();
-					deliveryPriceItem.Nomenclature = UoW.GetById<Nomenclature>(paidDeliveryNomenclatureId);
-					deliveryPriceItem.Order = this;
+					deliveryPriceItem = new OrderItem {
+						Nomenclature = UoW.GetById<Nomenclature>(paidDeliveryNomenclatureId),
+						Order = this
+					};
 					ObservableOrderItems.Add(deliveryPriceItem);
 				}
 				deliveryPriceItem.Price = price;
 				deliveryPriceItem.Count = 1;
 				return true;
-			} else {
-				if(deliveryPriceItem != null) {
-					ObservableOrderItems.Remove(deliveryPriceItem);
-				}
-				return false;
 			}
+
+			if(deliveryPriceItem != null)
+				ObservableOrderItems.Remove(deliveryPriceItem);
+			return false;
 		}
 
 		#region test_methods_for_sidebar

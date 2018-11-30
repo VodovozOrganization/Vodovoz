@@ -1366,7 +1366,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var result = new List<long>();
 			result.Add(CachedDistance.BaseHash);
-			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.СoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
+			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.CoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
 			result.Add(CachedDistance.BaseHash);
 			return result.ToArray();
 		}

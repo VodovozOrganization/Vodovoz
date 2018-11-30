@@ -16,6 +16,7 @@ using NHibernate.Util;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
@@ -48,7 +49,6 @@ using Vodovoz.Repository.Logistics;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.Tools.Orders;
 
 namespace Vodovoz
 {
@@ -105,7 +105,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
 			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать создавать заказы, так как некого указывать в качестве автора документа.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать создавать заказы, так как некого указывать в качестве автора документа.");
 				FailInitialize = true;
 				return;
 			}
@@ -518,12 +518,12 @@ namespace Vodovoz
 				return false;
 
 			if(Entity.OrderStatus == OrderStatus.NewOrder) {
-				if(!MessageDialogWorks.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
+				if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
 					return false;
 			}
 
 			if(OrderItemEquipmentCountHasChanges) {
-				MessageDialogWorks.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
+				MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
 			}
 
 			logger.Info("Сохраняем заказ...");
@@ -531,7 +531,7 @@ namespace Vodovoz
 			if(EmailServiceSetting.CanSendEmail && Entity.NeedSendBill()){
 				var emailAddressForBill = Entity.GetEmailAddressForBill();
 				if(emailAddressForBill == null) {
-					if(!MessageDialogWorks.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
+					if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
 						return false;
 					}
 				}
@@ -632,13 +632,15 @@ namespace Vodovoz
 					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
 				}
 			);
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
+			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
-			}
+
+			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.GetDistricts(UoW).Any())
+				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
+
 			OnFormOrderActions();
 			return true;
 		}
-
 
 		/// <summary>
 		/// Действия обрабатываемые при формировании заказа
@@ -646,9 +648,8 @@ namespace Vodovoz
 		private void OnFormOrderActions()
 		{
 			//проверка и добавление платной доставки в товары
-			if(Entity.CalculateDeliveryPrice()) {
-				MessageDialogWorks.RunInfoDialog("Была изменена стоимость доставки.");
-			}
+			if(Entity.CalculateDeliveryPrice())
+				MessageDialogHelper.RunInfoDialog("Была изменена стоимость доставки.");
 		}
 
 		/// <summary>
@@ -657,12 +658,12 @@ namespace Vodovoz
 		protected void OnButtonCloseOrderClicked(object sender, EventArgs e)
 		{
 			if(Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted) {
-				if(!MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите вернуть заказ в статус \"Принят\"?"))
+				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите вернуть заказ в статус \"Принят\"?"))
 					return;
 
 				Entity.ChangeStatus(OrderStatus.Accepted);
 			} else if(Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"]) {
-				if(!MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?"))
+				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?"))
 					return;
 
 				Entity.UpdateBottlesMovementOperation(UoW);
@@ -691,7 +692,7 @@ namespace Vodovoz
 		public void PrintOrderDocuments()
 		{
 			if(Entity.OrderDocuments.Any()) {
-				if(MessageDialogWorks.RunQuestionDialog("Открыть документы для печати?")) {
+				if(MessageDialogHelper.RunQuestionDialog("Открыть документы для печати?")) {
 					var documentPrinterDlg = new DocumentsPrinterDlg(Entity);
 					TabParent.AddSlaveTab(this, documentPrinterDlg);
 				}
@@ -700,7 +701,7 @@ namespace Vodovoz
 
 		protected void OnBtnRemExistingDocumentClicked(object sender, EventArgs e)
 		{
-			if(!MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите удалить выделенные документы?")) return;
+			if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите удалить выделенные документы?")) return;
 			var documents = treeDocuments.GetSelectedObjects<OrderDocument>();
 			var notDeletedDocs = Entity.RemoveAdditionalDocuments(documents);
 			if(notDeletedDocs != null && notDeletedDocs.Any()) {
@@ -708,7 +709,7 @@ namespace Vodovoz
 				foreach(OrderDocument doc in notDeletedDocs) {
 					strDocuments += String.Format("\n\t{0}", doc.Name);
 				}
-				MessageDialogWorks.RunWarningDialog(String.Format("Документы{0}\nудалены не были, так как относятся к текущему заказу.", strDocuments));
+				MessageDialogHelper.RunWarningDialog(String.Format("Документы{0}\nудалены не были, так как относятся к текущему заказу.", strDocuments));
 			}
 		}
 
@@ -728,7 +729,7 @@ namespace Vodovoz
 		protected void OnButtonAddExistingDocumentClicked(object sender, EventArgs e)
 		{
 			if(Entity.Client == null) {
-				MessageDialogWorks.RunWarningDialog("Для добавления дополнительных документов должен быть выбран клиент.");
+				MessageDialogHelper.RunWarningDialog("Для добавления дополнительных документов должен быть выбран клиент.");
 				return;
 			}
 
@@ -924,7 +925,7 @@ namespace Vodovoz
 		{
 			ITdiTab dlg;
 			string question = "Отсутствует доп. соглашение сервиса с клиентом в текущем договоре. Создать?";
-			if(MessageDialogWorks.RunQuestionDialog(question)) {
+			if(MessageDialogHelper.RunQuestionDialog(question)) {
 				dlg = new RepairAgreementDlg(contract);
 				(dlg as IAgreementSaved).AgreementSaved += (sender, e) =>
 					Entity.CreateOrderAgreementDocument(e.Agreement);
@@ -954,12 +955,12 @@ namespace Vodovoz
 		protected void OnButtonAddMasterClicked(object sender, EventArgs e)
 		{
 			if(Entity.Client == null) {
-				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
 				return;
 			}
 
 			if(Entity.DeliveryDate == null) {
-				MessageDialogWorks.RunErrorDialog("Введите дату доставки");
+				MessageDialogHelper.RunErrorDialog("Введите дату доставки");
 				return;
 			}
 
@@ -979,17 +980,17 @@ namespace Vodovoz
 		protected void OnButtonAddForSaleClicked(object sender, EventArgs e)
 		{
 			if(Entity.Client == null) {
-				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
 				return;
 			}
 
 			if(Entity.DeliveryPoint == null) {
-				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должна быть выбрана точка доставки.");
+				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должна быть выбрана точка доставки.");
 				return;
 			}
 
 			if(Entity.DeliveryDate == null) {
-				MessageDialogWorks.RunWarningDialog("Введите дату доставки");
+				MessageDialogHelper.RunWarningDialog("Введите дату доставки");
 				return;
 			}
 
@@ -1026,13 +1027,13 @@ namespace Vodovoz
 
 			if(Entity.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
 			   && nomenclature.Category == NomenclatureCategory.master) {
-				MessageDialogWorks.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
+				MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
 				return;
 			}
 
 			if(Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
 			   && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
-				MessageDialogWorks.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
+				MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
 				return;
 			}
 
@@ -1099,12 +1100,12 @@ namespace Vodovoz
 			}
 
 			if(Entity.Client == null || Entity.DeliveryPoint == null) {
-				MessageDialogWorks.RunWarningDialog("Для добавления оборудования должна быть выбрана точка доставки.");
+				MessageDialogHelper.RunWarningDialog("Для добавления оборудования должна быть выбрана точка доставки.");
 				return;
 			}
 
 			if(Entity.ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)) {
-				MessageDialogWorks.RunWarningDialog("Нельзя добавлять аренду в сервисный заказ");
+				MessageDialogHelper.RunWarningDialog("Нельзя добавлять аренду в сервисный заказ");
 				return;
 			}
 
@@ -1135,7 +1136,7 @@ namespace Vodovoz
 		protected void OnButtonbuttonAddEquipmentToClientClicked(object sender, EventArgs e)
 		{
 			if(Entity.Client == null) {
-				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
 				return;
 			}
 
@@ -1165,7 +1166,7 @@ namespace Vodovoz
 		protected void OnButtonAddEquipmentFromClientClicked(object sender, EventArgs e)
 		{
 			if(Entity.Client == null) {
-				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
 				return;
 			}
 
@@ -1195,7 +1196,7 @@ namespace Vodovoz
 		public void FillOrderItems(Order order)
 		{
 			if(Entity.OrderStatus != OrderStatus.NewOrder
-			   || Entity.ObservableOrderItems.Any() && !MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите удалить все позиции текущего из заказа и заполнить его позициями из выбранного?")) {
+			   || Entity.ObservableOrderItems.Any() && !MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите удалить все позиции текущего из заказа и заполнить его позициями из выбранного?")) {
 				return;
 			}
 
@@ -1259,7 +1260,7 @@ namespace Vodovoz
 					}
 				);
 
-				if(!MessageDialogWorks.RunQuestionDialog("Заказ будет сохранен после удаления товара, продолжить?")
+				if(!MessageDialogHelper.RunQuestionDialog("Заказ будет сохранен после удаления товара, продолжить?")
 				   || valid.RunDlgIfNotValid((Window)this.Toplevel)) {
 					return;
 				}
@@ -1307,7 +1308,7 @@ namespace Vodovoz
 				}
 				var autoDeletionTypes = new Type[] { typeof(PaidRentEquipment), typeof(FreeRentEquipment), typeof(SalesEquipment) };
 				if(deletionObjects.Any(x => !autoDeletionTypes.Contains(x.Type))) {
-					MessageDialogWorks.RunErrorDialog("Невозможно удалить дополнительное соглашение из-за связанных документов не относящихся к текущему заказу.");
+					MessageDialogHelper.RunErrorDialog("Невозможно удалить дополнительное соглашение из-за связанных документов не относящихся к текущему заказу.");
 					return;
 				}
 			}
@@ -1763,7 +1764,7 @@ namespace Vodovoz
 		protected void OnPickerDeliveryDateDateChangedByUser(object sender, EventArgs e)
 		{
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryDate.Value.Date == DateTime.Today.Date) {
-				MessageDialogWorks.RunWarningDialog("Сегодня? Уверены?");
+				MessageDialogHelper.RunWarningDialog("Сегодня? Уверены?");
 			}
 			CheckSameOrders();
 			Entity.ChangeOrderContract();
@@ -1964,7 +1965,7 @@ namespace Vodovoz
 				//Если пользователь создаст соглашение, то запишется выбранная точка доставки
 				//если не создаст то ничего не произойдет и точка доставки останется прежней
 				CounterpartyContract contract = Entity.Contract ?? CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-				if(MessageDialogWorks.RunQuestionDialog("В заказе добавлена вода, а для данной точки доставки нет дополнительного соглашения о доставке воды, создать?")) {
+				if(MessageDialogHelper.RunQuestionDialog("В заказе добавлена вода, а для данной точки доставки нет дополнительного соглашения о доставке воды, создать?")) {
 					ITdiDialog dlg = new WaterAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate);
 					(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 					TabParent.AddSlaveTab(this, dlg);
@@ -2014,7 +2015,7 @@ namespace Vodovoz
 											address,
 											defaultWater.ShortOrFullName,
 											waterInOrder);
-				return MessageDialogWorks.RunWarningDialog(title, header + text);
+				return MessageDialogHelper.RunWarningDialog(title, header + text);
 			}
 			return true;
 		}
@@ -2370,7 +2371,7 @@ namespace Vodovoz
 
 			var sameOrder = OrderRepository.GetOrderOnDateAndDeliveryPoint(UoW, Entity.DeliveryDate.Value, Entity.DeliveryPoint);
 			if(sameOrder != null && templateOrder == null) {
-				MessageDialogWorks.RunWarningDialog("На выбранную дату и точку доставки уже есть созданный заказ!");
+				MessageDialogHelper.RunWarningDialog("На выбранную дату и точку доставки уже есть созданный заказ!");
 			}
 		}
 
@@ -2414,7 +2415,7 @@ namespace Vodovoz
 			decimal discount = 0;
 			if(Decimal.TryParse(spinDiscount.Text, out discount)) {
 				if(reason == null && discount > 0) {
-					MessageDialogWorks.RunErrorDialog("Необходимо выбрать основание для скидки");
+					MessageDialogHelper.RunErrorDialog("Необходимо выбрать основание для скидки");
 					return;
 				}
 				Entity.SetDiscountUnitsForAll(unit);
@@ -2425,7 +2426,7 @@ namespace Vodovoz
 		private bool HaveEmailForBill()
 		{
 			QSContacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
-			return clientEmail != null || MessageDialogWorks.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?");
+			return clientEmail != null || MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?");
 		}
 
 		private void SendBillByEmail(QSContacts.Email emailAddressForBill)
@@ -2436,12 +2437,12 @@ namespace Vodovoz
 
 			var billDocument = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill) as BillDocument;
 			if(billDocument == null) {
-				MessageDialogWorks.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
+				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
 			}
 			var organization = OrganizationRepository.GetCashlessOrganization(UnitOfWorkFactory.CreateWithoutRoot());
 			if(organization == null) {
-				MessageDialogWorks.RunErrorDialog("Невозможно отправить счет по электронной почте. В параметрах базы не определена организация для безналичного расчета");
+				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. В параметрах базы не определена организация для безналичного расчета");
 				return;
 			}
 			var wasHideSignature = billDocument.HideSignature;
@@ -2481,7 +2482,7 @@ namespace Vodovoz
 			if(!result.Item1) {
 				resultMessage = "Письмо не было отправлено! Причина:\n";
 			}
-			MessageDialogWorks.RunInfoDialog(resultMessage + result.Item2);
+			MessageDialogHelper.RunInfoDialog(resultMessage + result.Item2);
 		}
 
 		void Selection_Changed(object sender, EventArgs e)
