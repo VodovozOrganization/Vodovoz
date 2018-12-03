@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using Gtk;
 using QS.DomainModel.UoW;
 using QSBanks;
-using QSBanks.Repository;
 using QSOrmProject;
 using QSProjectsLib;
 using QS.Tdi;
@@ -13,6 +12,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
+using QSBanks.Repositories;
 
 namespace Vodovoz
 {
@@ -439,7 +439,9 @@ namespace Vodovoz
 						var buow = UnitOfWorkFactory.CreateWithNewRoot<Bank> ();
 						buow.Root.Bik = doc.PayerBik;
 						buow.Root.Name = doc.PayerBank;
-						buow.Root.CorAccount = doc.PayerCorrespondentAccount;
+						var corAcc = new CorAccount { CorAccountNumber = doc.PayerCorrespondentAccount };
+						buow.Root.CorAccounts.Add(corAcc);
+						buow.Root.DefaultCorAccount = corAcc;
 						buow.Save ();
 						documents.SetValue (iter, (int)Columns.PayerBankColorCol, OddRowColor);
 						DeselectSameBanks (doc.PayerBik);
@@ -489,7 +491,9 @@ namespace Vodovoz
 						var buow = UnitOfWorkFactory.CreateWithNewRoot<Bank> ();
 						buow.Root.Bik = doc.RecipientBik;
 						buow.Root.Name = doc.RecipientBank;
-						buow.Root.CorAccount = doc.RecipientCorrespondentAccount;
+						var corAcc = new CorAccount { CorAccountNumber = doc.RecipientCorrespondentAccount };
+						buow.Root.CorAccounts.Add(corAcc);
+						buow.Root.DefaultCorAccount = corAcc;
 						buow.Save ();
 						documents.SetValue (iter, (int)Columns.RecipientBankColorCol, EvenRowColor);
 						DeselectSameBanks (doc.RecipientBik);

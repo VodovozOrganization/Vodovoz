@@ -13,6 +13,7 @@ using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.LoadFrom1c;
+using QSBanks.Repositories;
 
 namespace Vodovoz.ServiceDialogs
 {
@@ -77,7 +78,7 @@ namespace Vodovoz.ServiceDialogs
 		private IList<Bank> Banks {
 			get {
 				if(banks == null) {
-					banks = QSBanks.Repository.BankRepository.ActiveBanks(UoW);
+					banks = BankRepository.ActiveBanks(UoW);
 				}
 				return banks;
 			}

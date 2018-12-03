@@ -990,6 +990,12 @@
         <property name="ShortLabel" translatable="yes">Правила для цен доставки</property>
         <signal name="Activated" handler="OnActionDeliveryPriceRulesActivated" />
       </action>
+      <action id="Action51">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Обновить с сайта Центрального банка</property>
+        <property name="ShortLabel" translatable="yes">Обновить банки с сайта ЦБР</property>
+        <signal name="Activated" handler="OnActionUpdateBanksFromCBRActivated" />
+      </action>
       <action id="OnLineAction">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Оплаты OnLine заказов</property>
@@ -1079,7 +1085,7 @@
                     <node type="Menu" action="ActionBanksMenu">
                       <node type="Menuitem" action="ActionBanksRF" />
                       <node type="Separator" />
-                      <node type="Menuitem" action="ActionUpdateBanks" />
+                      <node type="Menuitem" action="Action51" />
                     </node>
                     <node type="Menu" action="Action13">
                       <node type="Menuitem" action="Action14" />
