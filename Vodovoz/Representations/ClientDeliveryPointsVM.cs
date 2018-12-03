@@ -63,6 +63,7 @@ namespace Vodovoz.ViewModel
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ClientDeliveryPointVMNode>.Create ()
 			.AddColumn ("Название").SetDataProperty (node => node.CompiledAddress)
+			.AddColumn("Номер").AddTextRenderer(x => x.IdString)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
@@ -105,6 +106,10 @@ namespace Vodovoz.ViewModel
 		public bool IsActive { get; set; }
 
 		public string RowColor { get { return IsActive ? "black" : "grey"; } }
+
+		[UseForSearch]
+		[SearchHighlight]
+		public string IdString => Id.ToString();
 	}
 }
 

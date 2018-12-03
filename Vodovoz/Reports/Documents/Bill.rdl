@@ -381,6 +381,7 @@ WHERE
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
+          <FontFamily >Calibri</FontFamily>
         </Style>
         <Source>Embedded</Source>
         <Value>logo</Value>
@@ -398,6 +399,7 @@ WHERE
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
+          <FontFamily >Calibri</FontFamily>
         </Style>
       </Textbox>
       <Textbox Name="Textbox2">
@@ -413,6 +415,7 @@ WHERE
           <BorderWidth />
           <TextAlign>Center</TextAlign>
           <FontSize>8pt</FontSize>
+          <FontFamily >Calibri</FontFamily>
         </Style>
       </Textbox>
       <List Name="List2">
@@ -439,6 +442,11 @@ WHERE
                 <Left>1pt</Left>
                 <Top>1pt</Top>
               </BorderWidth>
+              <FontFamily >Calibri</FontFamily>
+              <PaddingLeft >5pt</PaddingLeft>
+              <PaddingBottom >5pt</PaddingBottom>
+              <PaddingRight >5pt</PaddingRight>
+              <PaddingTop >5pt</PaddingTop>
             </Style>
           </Textbox>
           <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -459,6 +467,8 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <VerticalAlign>Middle</VerticalAlign>
+              <FontFamily >Calibri</FontFamily>
+              <PaddingLeft >5pt</PaddingLeft>
             </Style>
           </Textbox>
           <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -478,6 +488,8 @@ WHERE
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontFamily >Calibri</FontFamily>
+              <PaddingLeft >5pt</PaddingLeft>
             </Style>
           </Textbox>
           <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -497,6 +509,8 @@ WHERE
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontFamily >Calibri</FontFamily>
+              <PaddingLeft >5pt</PaddingLeft>
             </Style>
           </Textbox>
           <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -516,6 +530,8 @@ WHERE
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontFamily >Calibri</FontFamily>
+              <PaddingLeft >5pt</PaddingLeft>
             </Style>
           </Textbox>
           <Textbox Name="Textbox8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -535,6 +551,8 @@ WHERE
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontFamily >Calibri</FontFamily>
+              <PaddingLeft >5pt</PaddingLeft>
             </Style>
           </Textbox>
           <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -554,6 +572,11 @@ WHERE
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontFamily >Calibri</FontFamily>
+              <PaddingLeft >5pt</PaddingLeft>
+              <PaddingRight >5pt</PaddingRight>
+              <PaddingTop >5pt</PaddingTop>
+              <PaddingBottom >5pt</PaddingBottom>
             </Style>
           </Textbox>
           <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -573,6 +596,8 @@ WHERE
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontFamily >Calibri</FontFamily>
+              <PaddingLeft >5pt</PaddingLeft>
             </Style>
           </Textbox>
           <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -593,6 +618,9 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <VerticalAlign>Middle</VerticalAlign>
+              <FontFamily >Calibri</FontFamily>
+              <PaddingLeft >5pt</PaddingLeft>
+              <PaddingBottom >0pt</PaddingBottom>
             </Style>
           </Textbox>
           <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -612,6 +640,8 @@ WHERE
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontFamily >Calibri</FontFamily>
+              <PaddingLeft >5pt</PaddingLeft>
             </Style>
           </Textbox>
           <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -630,7 +660,9 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
-              <VerticalAlign>Bottom</VerticalAlign>
+              <VerticalAlign>Middle</VerticalAlign>
+              <FontFamily >Calibri</FontFamily>
+              <PaddingLeft >5pt</PaddingLeft>
             </Style>
           </Textbox>
           <Textbox Name="Textbox14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -649,7 +681,9 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
-              <VerticalAlign>Bottom</VerticalAlign>
+              <VerticalAlign>Middle</VerticalAlign>
+              <FontFamily >Calibri</FontFamily>
+              <PaddingLeft >5pt</PaddingLeft>
             </Style>
           </Textbox>
         </ReportItems>
@@ -711,6 +745,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -728,6 +764,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -745,6 +783,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -762,6 +802,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -779,6 +821,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -797,6 +841,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -813,6 +859,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -830,6 +878,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -857,6 +907,8 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -873,6 +925,12 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >1pt</PaddingTop>
+                        <PaddingBottom >1pt</PaddingBottom>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -890,6 +948,8 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -907,6 +967,8 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -924,6 +986,9 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <Format>N2</Format>
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -940,6 +1005,9 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <Format>N2</Format>
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -955,6 +1023,9 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <Format>N2</Format>
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -971,6 +1042,9 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <Format>N2</Format>
+                        <FontFamily >Calibri</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -1003,6 +1077,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Bottom</VerticalAlign>
+                        <FontFamily >Calibri</FontFamily>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -1026,6 +1101,7 @@ WHERE
                         <BorderWidth />
                         <VerticalAlign>Bottom</VerticalAlign>
                         <Format>N2</Format>
+                        <FontFamily >Calibri</FontFamily>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -1052,6 +1128,7 @@ WHERE
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
+                        <FontFamily >Calibri</FontFamily>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -1072,6 +1149,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily >Calibri</FontFamily>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -1098,6 +1176,7 @@ WHERE
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Left</TextAlign>
+                        <FontFamily >Calibri</FontFamily>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -1127,6 +1206,7 @@ WHERE
                         </BorderWidth>
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Left</TextAlign>
+                        <FontFamily >Calibri</FontFamily>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -1159,6 +1239,7 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
+              <FontFamily >Calibri</FontFamily>
             </Style>
           </Textbox>
           <Textbox Name="Textbox25">
@@ -1178,6 +1259,7 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
+              <FontFamily >Calibri</FontFamily>
             </Style>
             <CanGrow>false</CanGrow>
           </Textbox>
@@ -1198,6 +1280,7 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
+              <FontFamily >Calibri</FontFamily>
             </Style>
             <CanGrow>true</CanGrow>
           </Textbox>
@@ -1214,6 +1297,7 @@ WHERE
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
               <FontSize>10pt</FontSize>
+              <FontFamily >Calibri</FontFamily>
             </Style>
           </Textbox>
           <Image Name="Image2">
@@ -1225,6 +1309,7 @@ WHERE
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontFamily >Calibri</FontFamily>
             </Style>
             <Source>Embedded</Source>
             <Value>signature</Value>
@@ -1243,6 +1328,7 @@ WHERE
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontFamily >Calibri</FontFamily>
             </Style>
             <Source>Embedded</Source>
             <Value>stamp</Value>
@@ -1261,6 +1347,7 @@ WHERE
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontFamily >Calibri</FontFamily>
             </Style>
             <Source>Embedded</Source>
             <Value>signature</Value>
@@ -1294,6 +1381,7 @@ WHERE
           <Color>Gray</Color>
           <FontWeight>Bold</FontWeight>
           <FontSize>11pt</FontSize>
+          <FontFamily >Calibri</FontFamily>
         </Style>
       </Textbox>
       <Textbox Name="Textbox23">
@@ -1311,6 +1399,7 @@ WHERE
           <FontWeight>Bold</FontWeight>
           <TextAlign>Center</TextAlign>
           <Color>Gray</Color>
+          <FontFamily >Calibri</FontFamily>
         </Style>
       </Textbox>
       <Textbox Name="Textbox28">
@@ -1326,6 +1415,7 @@ WHERE
           <BorderWidth />
           <TextAlign>Center</TextAlign>
           <Color>Gray</Color>
+          <FontFamily >Calibri</FontFamily>
         </Style>
       </Textbox>
       <Textbox Name="Textbox29">
@@ -1343,6 +1433,7 @@ WHERE
           <BorderWidth />
           <TextAlign>Center</TextAlign>
           <Color>Gray</Color>
+          <FontFamily >Calibri</FontFamily>
         </Style>
       </Textbox>
       <Textbox Name="Textbox30">
@@ -1360,6 +1451,7 @@ WHERE
           <BorderWidth />
           <TextAlign>Center</TextAlign>
           <Color>Gray</Color>
+          <FontFamily >Calibri</FontFamily>
         </Style>
       </Textbox>
       <Textbox Name="Textbox31">
@@ -1390,6 +1482,7 @@ WHERE
           <FontSize>12pt</FontSize>
           <TextAlign>Center</TextAlign>
           <PaddingTop>1pt</PaddingTop>
+          <FontFamily >Calibri</FontFamily>
         </Style>
       </Textbox>
       <List Name="List4">
@@ -1407,6 +1500,7 @@ WHERE
             <Top>1.6pt</Top>
             <Style>
               <TextAlign>Right</TextAlign>
+              <FontFamily >Calibri</FontFamily>
             </Style>
           </Textbox>
         </ReportItems>
@@ -1425,6 +1519,7 @@ WHERE
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <FontSize>12pt</FontSize>
+          <FontFamily >Calibri</FontFamily>
         </Style>
       </Textbox>
       <Line Name="Line1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1438,6 +1533,7 @@ WHERE
           <BorderWidth>
             <Default>2pt</Default>
           </BorderWidth>
+          <FontFamily >Calibri</FontFamily>
         </Style>
         <Left>40.7pt</Left>
         <Top>235.5pt</Top>
@@ -1476,6 +1572,7 @@ WHERE
                         <BorderWidth />
                         <TextAlign>General</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily >Calibri</FontFamily>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1494,6 +1591,7 @@ Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Or
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily >Calibri</FontFamily>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1517,6 +1615,7 @@ Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Or
                         <BorderWidth />
                         <TextAlign>General</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily >Calibri</FontFamily>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1554,6 +1653,7 @@ Iif(
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily >Calibri</FontFamily>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>

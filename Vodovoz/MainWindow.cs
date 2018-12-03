@@ -114,7 +114,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				break;
 		}
 
-		BanksUpdater.Update(false);
+		BanksUpdater.CheckBanksUpdate(false);
 	}
 
 	#region IProgressBarDisplayable implementation
@@ -396,9 +396,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionUpdateBanksActivated(object sender, EventArgs e)
+	protected void OnActionUpdateBanksFromCBRActivated(object sender, EventArgs e)
 	{
-		BanksUpdater.Update(true);
+		BanksUpdater.CheckBanksUpdate(true);
 	}
 
 	protected void OnActionWarehousesActivated(object sender, EventArgs e)

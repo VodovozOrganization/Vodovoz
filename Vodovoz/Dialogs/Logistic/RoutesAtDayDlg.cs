@@ -616,7 +616,7 @@ namespace Vodovoz
 				.Future();
 
 			var withoutTime = ordersQuery.Where(x => x.DeliverySchedule == null).ToList();
-			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.СoordinatesExist).ToList();
+			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.CoordinatesExist).ToList();
 			if(withoutTime.Any() || withoutLocation.Any())
 				MessageDialogWorks.RunWarningDialog("Не все заказы были загружены!" +
 				                                    (withoutTime.Any() ? ("\n* У заказов отсутсвует время доставки: " + String.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +
@@ -707,19 +707,23 @@ namespace Vodovoz
 				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
 					PointMarkerShape shape = GetMarkerShape(order.TotalDeliveredBottles);
 
-					PointMarkerType type;
+					PointMarkerType type = PointMarkerType.black;
 					if(route == null) {
 						if((order.DeliverySchedule.To - order.DeliverySchedule.From).TotalHours <= 1)
 							type = PointMarkerType.black_and_red;
 						else {
-							if(order.DeliverySchedule.To.TotalMinutes <= 720)//<= 12:00
-								type = PointMarkerType.red_stripes;
-							else if(order.DeliverySchedule.To.TotalMinutes <= 900)//<=15:00
-								type = PointMarkerType.yellow_stripes;
-							else if(order.DeliverySchedule.To.TotalMinutes <= 1080)//<= 18:00
-								type = PointMarkerType.green_stripes;
-							else
+							double from = order.DeliverySchedule.From.TotalMinutes;
+							double to = order.DeliverySchedule.To.TotalMinutes;
+							if(from >= 1080 && to <= 1439)//>= 18:00, <= 23:59
 								type = PointMarkerType.grey_stripes;
+							else if(from >= 0) {
+								if(to <= 720)//<= 12:00
+									type = PointMarkerType.red_stripes;
+								else if(to <= 900)//<=15:00
+									type = PointMarkerType.yellow_stripes;
+								else if(to <= 1080)//<= 18:00
+									type = PointMarkerType.green_stripes;
+							}
 						}
 					} else
 						type = GetAddressMarker(routesAtDay.IndexOf(route));

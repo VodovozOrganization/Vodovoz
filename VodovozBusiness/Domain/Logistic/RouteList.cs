@@ -9,6 +9,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Report;
 using QSProjectsLib;
+using QSSupportLib;
 using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -780,19 +781,46 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual void CalculateWages()
 		{
-			if(Driver.WageCalcType == WageCalculationType.fixedDay
-				   || Driver.WageCalcType == WageCalculationType.fixedRoute) {
-				FixedDriverWage = Driver.WageCalcRate;
-			}
+			if(Driver.WageCalcType == WageCalculationType.fixedDay || Driver.WageCalcType == WageCalculationType.fixedRoute)
+				FixedDriverWage = GetDriverFixedWage();
 
-			if(Forwarder != null) {
-				if(Forwarder.WageCalcType == WageCalculationType.fixedDay
-				   || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
-					FixedForwarderWage = Forwarder.WageCalcRate;
-				}
-			}
+			if(Forwarder != null && (Forwarder.WageCalcType == WageCalculationType.fixedDay || Forwarder.WageCalcType == WageCalculationType.fixedRoute))
+				FixedForwarderWage = Forwarder.WageCalcRate;
 
 			Addresses.ToList().ForEach(x => x.RecalculateWages());
+		}
+
+		//FIXME
+		/// <summary>
+		/// Костыльный метод для расчёта ЗП водилы фуры при заборе воды с Семиозерья или Вартемяг.
+		/// Удалить после задачи I-1626.
+		/// </summary>
+		/// <returns>The driver fixed wage.</returns>
+		decimal GetDriverFixedWage()
+		{
+			var address = Addresses.FirstOrDefault();
+			if(Driver.DriverOf.HasValue && Driver.DriverOf.Value == CarTypeOfUse.Truck && address != null) {
+				var truckRates = "ставки_водителя_фуры_id=rate=dateStart";
+				if(!MainSupport.BaseParameters.All.ContainsKey(truckRates))
+					throw new InvalidProgramException($"В параметрах базы не определены ставки для водителей фур [{truckRates}]");
+				var rates = MainSupport.BaseParameters.All[truckRates].Trim(';').Split(';');//парсим строку из параметров
+
+				//создаём лист и заполняем его. можно было бы не делать так, если бы не нужна была сортировка по дате
+				List<object[]> ratesList = new List<object[]>();
+				foreach(var r in rates) {
+					var rate = r.Split('=');
+					ratesList.Add(new[] { int.Parse(rate[0]), decimal.Parse(rate[1]), (object)DateTime.Parse(rate[2]) });
+				}
+				var sortedRatesList = ratesList.OrderByDescending<object[], object>(x => x[2]).ToList();
+
+				foreach(var r in sortedRatesList) {
+					if(address.Order.DeliveryPoint.Id == (int)r[0]) {
+						if(ClosingDate.HasValue && ClosingDate.Value >= (DateTime)r[2] || !ClosingDate.HasValue && Date >= (DateTime)r[2])
+							return (decimal)r[1];
+					}
+				}
+			}
+			return Driver.WageCalcRate;
 		}
 
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
@@ -1338,7 +1366,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var result = new List<long>();
 			result.Add(CachedDistance.BaseHash);
-			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.СoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
+			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.CoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
 			result.Add(CachedDistance.BaseHash);
 			return result.ToArray();
 		}

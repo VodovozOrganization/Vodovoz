@@ -30,7 +30,7 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.Organization.DefaultAccount.Number, PatternFieldType.FString);
 			AddField(x => x.Organization.DefaultAccount.InBank.Bik, PatternFieldType.FString);
 			AddField(x => x.Organization.DefaultAccount.InBank.Name, PatternFieldType.FString);
-			AddField(x => x.Organization.DefaultAccount.InBank.CorAccount, PatternFieldType.FString);
+			AddField(x => x.Organization.DefaultAccount.BankCorAccount.CorAccountNumber, PatternFieldType.FString);
 			AddField(x => x.Organization.Leader.FullName, PatternFieldType.FString);
 			AddField(x => x.Organization.Leader.ShortName, PatternFieldType.FString);
 			AddField(x => x.Organization.Buhgalter.FullName, PatternFieldType.FString);

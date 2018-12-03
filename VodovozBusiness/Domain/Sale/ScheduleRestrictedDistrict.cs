@@ -260,6 +260,7 @@ namespace Vodovoz.Domain.Sale
 
 		public virtual decimal GetDeliveryPrice(OrderStateKey orderStateKey)
 		{
+			//будет логичнее, если перенести метод CompareWithDeliveryPriceRule из OrderStateKey в ScheduleRestrictedDistrictRuleItem
 			var ruleItems = ScheduleRestrictedDistrictRuleItems.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule));
 			return ruleItems.Any() ? ruleItems.Max(x => x.DeliveryPrice) : 0m;
 		}
@@ -289,9 +290,6 @@ namespace Vodovoz.Domain.Sale
 
 	public class DistrictWaterPriceStringType : NHibernate.Type.EnumStringType
 	{
-		public DistrictWaterPriceStringType() : base(typeof(DistrictWaterPrice))
-		{
-
-		}
+		public DistrictWaterPriceStringType() : base(typeof(DistrictWaterPrice)) { }
 	}
 }

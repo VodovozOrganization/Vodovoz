@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModel
 			if (Filter.RestrictOnlyNotFoundOsm)
 				pointsQuery.Where(x => x.FoundOnOsm == false);
 			if (Filter.RestrictOnlyWithoutStreet)
-				pointsQuery.Where(p => p.Street == "" || p.Street == null);
+				pointsQuery.Where(p => string.IsNullOrEmpty(p.Street));
 			if(Filter.Client != null)
 				pointsQuery.Where(p => p.Counterparty.Id == Filter.Client.Id);
 
@@ -65,6 +65,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Адрес").SetDataProperty (node => node.CompiledAddress)
 			.AddColumn("Адрес из 1с").AddTextRenderer(x => x.Address1c)
 			.AddColumn("Клиент").AddTextRenderer(x => x.Client)
+			.AddColumn("Номер").AddTextRenderer(x => x.IdString)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
@@ -100,7 +101,6 @@ namespace Vodovoz.ViewModel
 
 	public class DeliveryPointVMNode
 	{
-
 		public int Id { get; set; }
 
 		[UseForSearch]
@@ -124,6 +124,10 @@ namespace Vodovoz.ViewModel
 		public bool FixedInOsm { get; set; }
 
 		public string RowColor { get { return IsActive ? "black" : "grey"; } }
+
+		[UseForSearch]
+		[SearchHighlight]
+		public string IdString => Id.ToString();
 	}
 }
 

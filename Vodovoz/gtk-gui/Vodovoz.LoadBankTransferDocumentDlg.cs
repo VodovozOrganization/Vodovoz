@@ -101,7 +101,6 @@ namespace Vodovoz
 			this.checkButtonAll.CanFocus = true;
 			this.checkButtonAll.Name = "checkButtonAll";
 			this.checkButtonAll.Label = global::Mono.Unix.Catalog.GetString("Отметить все");
-			this.checkButtonAll.Active = true;
 			this.checkButtonAll.DrawIndicator = true;
 			this.checkButtonAll.UseUnderline = true;
 			this.vbox1.Add(this.checkButtonAll);
@@ -169,7 +168,8 @@ namespace Vodovoz
 			w16.Expand = false;
 			w16.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

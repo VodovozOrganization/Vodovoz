@@ -8,6 +8,7 @@ using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSBanks;
+using QSBanks.Repositories;
 using QSBusinessCommon.Domain;
 using QSBusinessCommon.Repository;
 using QSProjectsLib;
@@ -67,7 +68,7 @@ namespace Vodovoz
 			get {
 				if(banks == null)
 				{
-					banks = QSBanks.Repository.BankRepository.ActiveBanks (UoW);
+					banks = BankRepository.ActiveBanks (UoW);
 				}
 				return banks;
 			}

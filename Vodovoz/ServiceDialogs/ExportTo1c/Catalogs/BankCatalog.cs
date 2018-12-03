@@ -55,7 +55,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			properties.Add(
 				new PropertyNode("КоррСчет",
 					Common1cTypes.String,
-					bank.CorAccount
+					bank.DefaultCorAccount.CorAccountNumber
 				)
 			);
 			properties.Add(

@@ -138,7 +138,7 @@ namespace Vodovoz
 			lblCounterparty.LabelProp = Entity.Counterparty.FullName;
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding(Entity,
-				entity => entity.СoordinatesExist
+				entity => entity.CoordinatesExist
 				? String.Format("<span foreground='{1}'>{0}</span>", entity.СoordinatesText,
 					(entity.FoundOnOsm ? "green" : "blue"))
 				: "<span foreground='red'>Не найден на карте.</span>",
@@ -370,7 +370,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			if(!Entity.СoordinatesExist) {
+			if(!Entity.CoordinatesExist) {
 				if(!MessageDialogWorks.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 					return false;
 			}
