@@ -70,20 +70,19 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions["logistican"];
 		ActionStock.Sensitive = CurrentPermissions.Warehouse.Allowed().Any();
 
-		bool hasAccessToSalariesWagesBonuses = QSMain.User.Permissions["access_to_salaries_wages_bonuses"];
-		ActionEmployeesBonuses.Sensitive = hasAccessToSalariesWagesBonuses;
-		ActionEmployeeFines.Sensitive = hasAccessToSalariesWagesBonuses;
-		ActionWagesOperations.Sensitive = hasAccessToSalariesWagesBonuses;
-		ActionForwarderWageReport.Sensitive = hasAccessToSalariesWagesBonuses;
-		ActionEmployeesBonuses.Sensitive = hasAccessToSalariesWagesBonuses;
-		ActionDriverWages.Sensitive = hasAccessToSalariesWagesBonuses;
+		bool hasAccessToSalaries = QSMain.User.Permissions["access_to_salaries"];
+		bool hasAccessToWagesAndBonuses = QSMain.User.Permissions["access_to_fines_bonuses"];
+		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
+		ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses;
+		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
+		ActionDriverWages.Sensitive = hasAccessToSalaries;
+		ActionWagesOperations.Sensitive = hasAccessToSalaries;
+		ActionForwarderWageReport.Sensitive = hasAccessToSalaries;
 
-		#region Accessibility
-		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = QSMain.User.Permissions["access_to_salaries_wages_bonuses"];
+		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = QSMain.User.Permissions["access_to_fines_bonuses"];
 		ActionReports.Sensitive = false;
 		ActionServices.Visible = false;
 		ActionMaintenance.Sensitive = QSMain.User.Permissions["database_maintenance"];
-		#endregion
 
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
