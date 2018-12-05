@@ -1070,7 +1070,6 @@ namespace Vodovoz
 						Entity.CreateOrderAgreementDocument(wsa);
 					}
 					Entity.AddWaterForSale(nomenclature, wsa, count);
-					Entity.RecalcBottlesDeposits(UoWGeneric);
 					break;
 				case NomenclatureCategory.master:
 					contract = null;
@@ -2124,9 +2123,6 @@ namespace Vodovoz
 		void FixPrice(int id)
 		{
 			OrderItem item = Entity.ObservableOrderItems[id];
-			if(item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare) {
-				Entity.RecalcBottlesDeposits(UoWGeneric);
-			}
 			if((item.Nomenclature.Category == NomenclatureCategory.deposit || item.Nomenclature.Category == NomenclatureCategory.rent)
 				 && item.Price != 0)
 				return;
