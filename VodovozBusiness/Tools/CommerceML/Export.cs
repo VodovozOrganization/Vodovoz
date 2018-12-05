@@ -122,6 +122,7 @@ namespace Vodovoz.Tools.CommerceML
 			//Проверяем связь с сервером
 			var baseUrl = MainSupport.BaseParameters.All[OnlineStoreUrlParameterName].TrimEnd('/');
 			var client = new RestClient(baseUrl);
+			client.CookieContainer = new System.Net.CookieContainer();
 			client.Authenticator = new HttpBasicAuthenticator(MainSupport.BaseParameters.All[OnlineStoreLoginParameterName],
 			                                                  MainSupport.BaseParameters.All[OnlineStorePasswordParameterName]);
 			var request = new RestRequest("1c_exchange.php?type=catalog&mode=checkauth", Method.GET);
@@ -219,8 +220,9 @@ namespace Vodovoz.Tools.CommerceML
                 return;
             }
 			logger.Debug(response.ResponseUri?.ToString());
+			logger.Debug("Cookies:{0}", String.Join(";", response.Cookies.Select(x => x.Name + "=" + x.Value)));
             logger.Debug(response.StatusCode.ToString());
-            logger.Debug(response.Content);
+			logger.Debug(response.Content);
 		}
 
 
