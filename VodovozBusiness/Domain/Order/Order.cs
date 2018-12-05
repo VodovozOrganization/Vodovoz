@@ -1305,7 +1305,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual int GetTotalWaterCount()
+		public virtual int GetTotalWater19LCount()
 		{
 			return ObservableOrderItems
 				.Where(x => x.Nomenclature.IsWater19L)
@@ -1489,7 +1489,7 @@ namespace Vodovoz.Domain.Orders
 			} else if(wsa.HasFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == infuentialNomenclature?.Id)) {
 				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == infuentialNomenclature?.Id).Price;
 			} else {
-				price = nomenclature.GetPrice(1);
+				price = nomenclature.GetPrice(GetTotalWater19LCount());
 			}
 
 			ObservableOrderItems.Add(new OrderItem {
@@ -1922,83 +1922,6 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
-
-		public virtual void RecalcBottlesDeposits(IUnitOfWork uow)
-		{
-			/* Отключено в связи с изменением работы возврата залогов
-			var expectedBottleDepositsCount = GetExpectedBottlesDepositsCount();
-			var bottleDeposit = NomenclatureRepository.GetBottleDeposit(uow);
-			if(bottleDeposit == null)
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура залога за бутыли.");
-			var depositPaymentItem = ObservableOrderItems.FirstOrDefault(item => item.Nomenclature.Id == bottleDeposit.Id);
-			var depositRefundItem = ObservableOrderDepositItems.FirstOrDefault(item => item.DepositType == DepositType.Bottles);
-
-			//Надо создать услугу залога
-			if(expectedBottleDepositsCount > 0) {
-				if(depositRefundItem != null) {
-					depositRefundItem.Count = expectedBottleDepositsCount;
-					depositRefundItem.PaymentDirection = PaymentDirection.FromClient;
-				}
-				if(depositPaymentItem != null)
-					depositPaymentItem.Count = expectedBottleDepositsCount;
-				else {*/
-			/* Временно отключил взятие с клиента залогов за бутыли. Удалить если залоги так и не вернутся.
-			 * 					ObservableOrderItems.Add (new OrderItem {
-									Order = this,
-									AdditionalAgreement = null,
-									Count = expectedBottleDepositsCount,
-									Equipment = null,
-									Nomenclature = NomenclatureRepository.GetBottleDeposit (uow),
-									Price = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (expectedBottleDepositsCount)
-								});
-								ObservableOrderDepositItems.Add (new OrderDepositItem {
-									Order = this,
-									Count = expectedBottleDepositsCount,
-									Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (expectedBottleDepositsCount),
-									DepositOperation = null,
-									DepositType = DepositType.Bottles,
-									FreeRentItem = null,
-									PaidRentItem = null,
-									PaymentDirection = PaymentDirection.FromClient
-								}); *//*
-		}
-		return;
-	}
-
-	if(expectedBottleDepositsCount == 0) {
-		if(depositRefundItem != null)
-			ObservableOrderDepositItems.Remove(depositRefundItem);
-		if(depositPaymentItem != null)
-			ObservableOrderItems.Remove(depositPaymentItem);
-		return;
-	}
-	if(expectedBottleDepositsCount < 0) {
-		if(depositPaymentItem != null)
-			ObservableOrderItems.Remove(depositPaymentItem);
-		//Проверяем, сколько надо отдать клиенту залог за бутыли
-		decimal clientDeposit = default(decimal);
-		decimal deposit = bottleDeposit.GetPrice(-expectedBottleDepositsCount);
-		int count = -expectedBottleDepositsCount;
-		if(Client != null)
-			clientDeposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, Client, DepositType.Bottles);
-		if(clientDeposit - deposit * count >= 0)
-			if(depositRefundItem != null) {
-				depositRefundItem.Deposit = deposit;
-				depositRefundItem.Count = count;
-			} else
-				ObservableOrderDepositItems.Add(new OrderDepositItem {
-					Order = this,
-					DepositOperation = null,
-					DepositType = DepositType.Bottles,
-					Deposit = deposit,
-					PaidRentItem = null,
-					FreeRentItem = null,
-					PaymentDirection = PaymentDirection.ToClient,
-					Count = count
-				});
-		return;
-	}*/
-		}
 
 		/// <summary>
 		/// Ожидаемое количество залогов за бутыли
@@ -2861,7 +2784,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			decimal nomenclaturePrice = 0M;
 			if(item.Nomenclature.IsWater19L) {
-				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWaterCount());
+				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWater19LCount());
 			} else {
 				nomenclaturePrice = item.Nomenclature.GetPrice(item.Count);
 			}
