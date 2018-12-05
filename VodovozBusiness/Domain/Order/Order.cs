@@ -1305,7 +1305,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual int GetTotalWaterCount()
+		public virtual int GetTotalWater19LCount()
 		{
 			return ObservableOrderItems
 				.Where(x => x.Nomenclature.IsWater19L)
@@ -1489,7 +1489,7 @@ namespace Vodovoz.Domain.Orders
 			} else if(wsa.HasFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == infuentialNomenclature?.Id)) {
 				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == infuentialNomenclature?.Id).Price;
 			} else {
-				price = nomenclature.GetPrice(1);
+				price = nomenclature.GetPrice(GetTotalWater19LCount());
 			}
 
 			ObservableOrderItems.Add(new OrderItem {
@@ -2861,7 +2861,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			decimal nomenclaturePrice = 0M;
 			if(item.Nomenclature.IsWater19L) {
-				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWaterCount());
+				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWater19LCount());
 			} else {
 				nomenclaturePrice = item.Nomenclature.GetPrice(item.Count);
 			}

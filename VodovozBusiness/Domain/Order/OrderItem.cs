@@ -65,25 +65,11 @@ namespace Vodovoz.Domain.Orders
 			set {
 				//Если цена не отличается от той которая должна быть по прайсам в 
 				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
-				var defaultPrice = GetDefaultPrice();
-				if(defaultPrice.HasValue) {
-					if(value == defaultPrice.Value || value == 0) {
-						IsUserPrice = false;
-					} else {
-						IsUserPrice = true;
-					}
-				}
+				IsUserPrice = !(value == GetPriceByTotalCount() || value == 0);
+
 				if(SetField(ref price, value, () => Price)) {
-					if(AdditionalAgreement != null 
-					   && Nomenclature.Category == NomenclatureCategory.equipment
-					   && AdditionalAgreement.Self.Type == AgreementType.EquipmentSales) {
-						var es = AdditionalAgreement.Self as SalesEquipmentAgreement;
-						if(es != null) {
-							var salesEquipment = es.ObservableSalesEqipments.FirstOrDefault(x => x.Nomenclature.Id == Nomenclature.Id);
-							if(salesEquipment != null) {
-								salesEquipment.Price = value;
-							}
-						}
+					if(AdditionalAgreement != null && AdditionalAgreement.Self is SalesEquipmentAgreement) {
+						(AdditionalAgreement.Self as SalesEquipmentAgreement).UpdatePrice(Nomenclature, value);
 					}
 					RecalculateDiscount();
 					RecalculateNDS();
@@ -443,26 +429,23 @@ namespace Vodovoz.Domain.Orders
 			if(IsUserPrice) {
 				return;
 			}
-			var defaultPrice = GetDefaultPrice();
-			if(defaultPrice.HasValue) {
-				Price = defaultPrice.Value;
-			}
+			Price = GetPriceByTotalCount();
 		}
 
-		private Decimal? GetDefaultPrice()
+		private Decimal GetPriceByTotalCount()
 		{
 			if(Nomenclature == null) {
 				return 0m;
 			}
 			if(Nomenclature.DependsOnNomenclature == null) {
 				if(Nomenclature.IsWater19L) {
-					return Nomenclature.GetPrice(Order.GetTotalWaterCount());
+					return Nomenclature.GetPrice(Order.GetTotalWater19LCount());
 				} else {
 					return Nomenclature.GetPrice(Count);
 				}
 			} else {
 				if(Nomenclature.IsWater19L) {
-					return Nomenclature.DependsOnNomenclature.GetPrice(Order.GetTotalWaterCount());
+					return Nomenclature.DependsOnNomenclature.GetPrice(Order.GetTotalWater19LCount());
 				} else {
 					return Nomenclature.DependsOnNomenclature.GetPrice(Count);
 				}

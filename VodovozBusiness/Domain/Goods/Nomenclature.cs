@@ -587,10 +587,10 @@ namespace Vodovoz.Domain.Goods
 			if(DependsOnNomenclature != null) {
 				price = DependsOnNomenclature.GetPrice(itemsCount);
 			} else {
-				var query = NomenclaturePrice
+				var nomPrice = NomenclaturePrice
 					.OrderByDescending(p => p.MinCount)
 					.FirstOrDefault(p => (p.MinCount <= itemsCount));
-				price = query == null ? 0 : query.Price;
+				price = nomPrice == null ? 0 : nomPrice.Price;
 			}
 			return price;
 		}

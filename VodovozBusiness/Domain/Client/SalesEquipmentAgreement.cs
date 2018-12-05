@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -51,6 +52,15 @@ namespace Vodovoz.Domain.Client
 
 			ObservableSalesEqipments.Add(salesEquipment);
 		}
+
+		public virtual void UpdatePrice(Nomenclature nomenclature, decimal price)
+		{
+			var salesEquipment = ObservableSalesEqipments.FirstOrDefault(x => x.Nomenclature.Id == nomenclature.Id);
+			if(salesEquipment != null) {
+				salesEquipment.Price = price;
+			}
+		}
+
 
 		public static IUnitOfWorkGeneric<SalesEquipmentAgreement> Create(CounterpartyContract contract)
 		{
