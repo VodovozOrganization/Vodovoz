@@ -53,11 +53,11 @@ namespace Vodovoz.Tools.CommerceML
 
 		public string CurrentTaskText { get; set; }
 
-		public string CurrentStepText => $"({CurrentTask} из {TotalTasks})";
+		public string CurrentStepText => $" ({CurrentTask} из {TotalTasks})";
 
-		public int CurrentTask = -1;
+		public int CurrentTask = 0;
 
-		public int TotalTasks = 10;
+		public int TotalTasks = 12;
 
 		public void OnProgressPlusOneTask(string text)
 		{
@@ -85,7 +85,7 @@ namespace Vodovoz.Tools.CommerceML
 		public void RunToDirectory(string dir)
 		{
 			Errors.Clear();
-			TotalTasks = 7;
+			TotalTasks = 8;
 
 			CreateObjects();
 
@@ -116,12 +116,13 @@ namespace Vodovoz.Tools.CommerceML
 		public void RunToSite()
 		{
 			Errors.Clear();
-            TotalTasks = 10;
+            TotalTasks = 12;
 
 			OnProgressPlusOneTask("Соединяемся с сайтом");
 			//Проверяем связь с сервером
 			var baseUrl = MainSupport.BaseParameters.All[OnlineStoreUrlParameterName].TrimEnd('/');
 			var client = new RestClient(baseUrl);
+			client.CookieContainer = new System.Net.CookieContainer();
 			client.Authenticator = new HttpBasicAuthenticator(MainSupport.BaseParameters.All[OnlineStoreLoginParameterName],
 			                                                  MainSupport.BaseParameters.All[OnlineStorePasswordParameterName]);
 			var request = new RestRequest("1c_exchange.php?type=catalog&mode=checkauth", Method.GET);
@@ -160,35 +161,34 @@ namespace Vodovoz.Tools.CommerceML
 				response = client.Execute(request);
 				DebugResponse(response);
 			}
+			Results.Add("Выгружено изображений: " + exportedImages.Count());
 
 			OnProgressPlusOneTask("Выгружаем склад");
             SendFileXMLDoc(client, "offers.xml", rootOffers);
 
             Results.Add("Выгрузка каталога товаров:");
+			OnProgressPlusOneTask("Импорт каталога товаров на сайте.");
 			SendImportCommand(client, "import.xml");
             Results.Add("Выгрузка склада и цен:");
-            SendImportCommand(client, "offers.xml");
-
-            Results.Add("Выгружено изображений: " + exportedImages.Count());
+			OnProgressPlusOneTask("Импорт склада и цен на сайте.");
+			SendImportCommand(client, "offers.xml");
         }
 
 		private void SendImportCommand(RestClient client, string filename)
 		{
-			OnProgressPlusOneTask("Ожидаем обработки данных на сайте");
-
 			var request = new RestRequest("1c_exchange.php?type=catalog&mode=import&filename=" + filename, Method.GET);
-			IRestResponse response;
+			IRestResponse response = null;
 
-			int i = 0;
 			do {
-				i++;
-				CurrentTaskText = $"Ожидаем обработки данных на сайте {i}";
+				if(response != null) {
+					string progress = response.Content.Substring(9);//Здесь обрезаем progress
+					CurrentTaskText = $"Ожидаем обработки данных на сайте [{progress}]";
+				}
 				ProgressUpdated?.Invoke(this, EventArgs.Empty);
-
 				response = client.Execute(request);
 				DebugResponse(response);
-                Results.Add(response.Content);
 			} while(response.Content.StartsWith("progress"));
+			Results.Add(response.Content);
 		}
 
 		private void SendFileXMLDoc(RestClient client, string filename, Root root)
@@ -219,8 +219,9 @@ namespace Vodovoz.Tools.CommerceML
                 return;
             }
 			logger.Debug(response.ResponseUri?.ToString());
+			logger.Debug("Cookies:{0}", String.Join(";", response.Cookies.Select(x => x.Name + "=" + x.Value)));
             logger.Debug(response.StatusCode.ToString());
-            logger.Debug(response.Content);
+			logger.Debug(response.Content);
 		}
 
 
