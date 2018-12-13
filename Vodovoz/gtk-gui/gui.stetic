@@ -5074,6 +5074,7 @@
                 <property name="Label" translatable="yes" />
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
@@ -7100,6 +7101,7 @@
                 <property name="Label" translatable="yes" />
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
@@ -9371,6 +9373,7 @@
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -11253,6 +11256,7 @@
                 <property name="Label" translatable="yes" />
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
@@ -17039,6 +17043,7 @@
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -17219,6 +17224,7 @@
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -19265,6 +19271,7 @@
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
                 <signal name="EnumItemClicked" handler="OnEnumbuttonAddOrderEnumItemClicked" />
               </widget>
               <packing>
@@ -20697,6 +20704,7 @@
                 <property name="Label" translatable="yes">Распечатать</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -20788,6 +20796,7 @@
                 <property name="Label" translatable="yes">Распечатать</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -20806,6 +20815,7 @@
                 <property name="Label" translatable="yes" />
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -23911,6 +23921,7 @@
                 <property name="Label" translatable="yes" />
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
@@ -25297,6 +25308,7 @@
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -30354,6 +30366,7 @@
                                     <property name="Label" translatable="yes">В аренду</property>
                                     <property name="UseUnderline">True</property>
                                     <property name="UseMarkup">False</property>
+                                    <property name="LabelXAlign">0</property>
                                   </widget>
                                   <packing>
                                     <property name="Position">2</property>
@@ -39207,6 +39220,7 @@ not tooltip</property>
                 <property name="Label" translatable="yes">Печать</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
                 <signal name="EnumItemClicked" handler="OnEnumPrintEnumItemClicked" />
               </widget>
               <packing>
@@ -40082,6 +40096,7 @@ not tooltip</property>
                             <property name="Label" translatable="yes">Вписать серийный номер</property>
                             <property name="UseUnderline">True</property>
                             <property name="UseMarkup">False</property>
+                            <property name="LabelXAlign">0</property>
                           </widget>
                           <packing>
                             <property name="Position">1</property>
@@ -42776,6 +42791,7 @@ not tooltip</property>
                         <property name="Label" translatable="yes">В маршрутный лист</property>
                         <property name="UseUnderline">True</property>
                         <property name="UseMarkup">False</property>
+                        <property name="LabelXAlign">0</property>
                       </widget>
                       <packing>
                         <property name="Position">2</property>
@@ -56297,6 +56313,7 @@ not tooltip</property>
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
+                <property name="LabelXAlign">0</property>
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -60890,6 +60907,7 @@ not tooltip</property>
             <property name="Label" translatable="yes">Добавить</property>
             <property name="UseUnderline">True</property>
             <property name="UseMarkup">False</property>
+            <property name="LabelXAlign">0</property>
           </widget>
           <packing>
             <property name="TopAttach">1</property>

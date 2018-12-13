@@ -64,13 +64,13 @@ namespace Vodovoz
 				if (item.OrderItem.Count > item.AmountUnloaded + item.Amount)
 					return "blue";
 			}
-			if(item.Equipment != null)
+			if(item.OrderEquipment != null)
 			{
-				if (1 < item.AmountUnloaded + item.Amount)
+				if (item.OrderEquipment.Count < item.AmountUnloaded + item.Amount)
 					return "orange";
-				if (1 == item.AmountUnloaded + item.Amount)
+				if (item.OrderEquipment.Count == item.AmountUnloaded + item.Amount)
 					return "green";
-				if (1 > item.AmountUnloaded + item.Amount)
+				if (item.OrderEquipment.Count > item.AmountUnloaded + item.Amount)
 					return "blue";
 			}
 			return "black";
