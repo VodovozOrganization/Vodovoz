@@ -93,7 +93,7 @@ namespace Vodovoz
 			yentryDeliveryDaySchedule.Binding.AddBinding(Entity, e => e.DefaultDaySheldule, w => w.Subject).InitializeFromSource();
 
 			var filterDefaultForwarder = new EmployeeFilter(UoW);
-			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
 			yentryDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			yentryDefaultForwarder.Binding.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
 
