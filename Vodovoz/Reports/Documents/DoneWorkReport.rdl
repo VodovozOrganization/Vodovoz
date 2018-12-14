@@ -191,8 +191,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
-        <Left>383.1pt</Left>
-        <Top>527.1pt</Top>
+        <Left>374.6pt</Left>
+        <Top>527.9pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -208,8 +208,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>113.52pt</Width>
         <Value>Подпись клиента</Value>
         <ZIndex>1</ZIndex>
-        <Left>387.9pt</Left>
-        <Top>538.9pt</Top>
+        <Left>379.4pt</Left>
+        <Top>539.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -224,8 +224,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
-        <Left>380.0pt</Left>
-        <Top>559.0pt</Top>
+        <Left>371.5pt</Left>
+        <Top>559.8pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -241,8 +241,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>115.02pt</Width>
         <Value>= Iif(First({is_service}, "Order"), "Подпись исполнителя", "Подпись водителя")</Value>
         <ZIndex>1</ZIndex>
-        <Left>384.8pt</Left>
-        <Top>570.8pt</Top>
+        <Left>376.3pt</Left>
+        <Top>571.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -970,8 +970,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
-        <Left>374.5pt</Left>
-        <Top>659.9pt</Top>
+        <Left>359.2pt</Left>
+        <Top>659.1pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -987,8 +987,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>113.52pt</Width>
         <Value>Подпись клиента</Value>
         <ZIndex>1</ZIndex>
-        <Left>379.3pt</Left>
-        <Top>671.7pt</Top>
+        <Left>364.0pt</Left>
+        <Top>670.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
