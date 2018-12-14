@@ -954,11 +954,11 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>308.67pt</Width>
         <Value>Вышеперечисленные услуги выполнены польностью и в срок.</Value>
         <ZIndex>1</ZIndex>
-        <Left>10.8pt</Left>
-        <Top>556.8pt</Top>
+        <Left>6.8pt</Left>
+        <Top>560.4pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>11pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Agreement2TextBox">
@@ -966,11 +966,11 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>375.64pt</Width>
         <Value>Заказчик претензий по объему, качеству и срокам оказания услуг не имеет.</Value>
         <ZIndex>1</ZIndex>
-        <Left>10.0pt</Left>
-        <Top>573.8pt</Top>
+        <Left>7.6pt</Left>
+        <Top>596.1pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>11pt</FontSize>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox2">
@@ -978,10 +978,10 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>472.74pt</Width>
         <Value>Гарантия на выполнение работы -1 месяц при условии правильной эксплуатации оборудования.</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.5pt</Left>
-        <Top>649.6pt</Top>
+        <Left>0.0pt</Left>
+        <Top>654.3pt</Top>
         <Style>
-          <FontSize>11pt</FontSize>
+          <FontSize>10pt</FontSize>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
@@ -993,10 +993,10 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>472.74pt</Width>
         <Value>Гарантия на запчасть - 1 месяц при условии правильной эксплуатации оборудования.</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>663.9pt</Top>
+        <Left>2.1pt</Left>
+        <Top>692.6pt</Top>
         <Style>
-          <FontSize>11pt</FontSize>
+          <FontSize>10pt</FontSize>
           <FontFamily>Times New Roman</FontFamily>
         </Style>
       </Textbox>
@@ -1005,8 +1005,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>338.05pt</Width>
         <Value>Оцените работу мастера по пятибальной системе</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>683.1pt</Top>
+        <Left>5.4pt</Left>
+        <Top>719.6pt</Top>
         <Style>
           <FontSize>14pt</FontSize>
           <BorderStyle />
@@ -1054,10 +1054,10 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>472.74pt</Width>
         <Value>Вы можете оставить свои отзывы, пожелания, рекомендации в книге отзывов и предложений.</Value>
         <ZIndex>1</ZIndex>
-        <Left>11.7pt</Left>
-        <Top>816.0pt</Top>
+        <Left>6.9pt</Left>
+        <Top>826.2pt</Top>
         <Style>
-          <FontSize>11pt</FontSize>
+          <FontSize>10pt</FontSize>
           <FontFamily>Times New Roman</FontFamily>
         </Style>
       </Textbox>
@@ -1084,7 +1084,7 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
           <BorderWidth />
           <FontFamily>Times New Roman</FontFamily>
           <FontSize>12pt</FontSize>
-          <FontWeight >Bold</FontWeight>
+          <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
       <Textbox Name="Textbox17">
@@ -1121,19 +1121,19 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>61.2pt</Width>
+            <Width>47.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.2pt</Width>
+            <Width>52.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.1pt</Width>
+            <Width>45.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>61.3pt</Width>
+            <Width>45.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>70.0pt</Width>
+            <Width>49.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1261,8 +1261,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <Left>11.1pt</Left>
-        <Top>775.0pt</Top>
+        <Left>10.3pt</Left>
+        <Top>745.6pt</Top>
       </fyi:Grid>
       <Table Name="Table3">
         <DataSetName>MasterOrderItem</DataSetName>
@@ -1420,8 +1420,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
       <Image Name="Image2">
         <Height>60.23pt</Height>
         <Width>59.47pt</Width>
-        <Left>149.3pt</Left>
-        <Top>707.6pt</Top>
+        <Left>260.9pt</Left>
+        <Top>737.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
