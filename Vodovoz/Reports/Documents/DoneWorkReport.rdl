@@ -191,8 +191,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
-        <Left>375.8pt</Left>
-        <Top>589.8pt</Top>
+        <Left>377.5pt</Left>
+        <Top>527.9pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -208,8 +208,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>113.52pt</Width>
         <Value>Подпись клиента</Value>
         <ZIndex>1</ZIndex>
-        <Left>380.6pt</Left>
-        <Top>601.6pt</Top>
+        <Left>382.3pt</Left>
+        <Top>539.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -224,8 +224,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
-        <Left>372.7pt</Left>
-        <Top>621.7pt</Top>
+        <Left>374.4pt</Left>
+        <Top>559.8pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -241,8 +241,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>115.02pt</Width>
         <Value>= Iif(First({is_service}, "Order"), "Подпись исполнителя", "Подпись водителя")</Value>
         <ZIndex>1</ZIndex>
-        <Left>377.5pt</Left>
-        <Top>633.5pt</Top>
+        <Left>379.2pt</Left>
+        <Top>571.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -949,64 +949,13 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Left>13.9pt</Left>
         <Top>179.2pt</Top>
       </Table>
-      <Textbox Name="Agreement1TextBox">
-        <Height>13.48pt</Height>
-        <Width>308.67pt</Width>
-        <Value>Вышеперечисленные услуги выполнены польностью и в срок.</Value>
-        <ZIndex>1</ZIndex>
-        <Left>6.8pt</Left>
-        <Top>560.4pt</Top>
-        <Style>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Agreement2TextBox">
-        <Height>12.78pt</Height>
-        <Width>375.64pt</Width>
-        <Value>Заказчик претензий по объему, качеству и срокам оказания услуг не имеет.</Value>
-        <ZIndex>1</ZIndex>
-        <Left>7.6pt</Left>
-        <Top>596.1pt</Top>
-        <Style>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox2">
-        <Height>12.80pt</Height>
-        <Width>472.74pt</Width>
-        <Value>Гарантия на выполнение работы -1 месяц при условии правильной эксплуатации оборудования.</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>654.3pt</Top>
-        <Style>
-          <FontSize>10pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontFamily>Times New Roman</FontFamily>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox3">
-        <Height>12.80pt</Height>
-        <Width>472.74pt</Width>
-        <Value>Гарантия на запчасть - 1 месяц при условии правильной эксплуатации оборудования.</Value>
-        <ZIndex>1</ZIndex>
-        <Left>2.1pt</Left>
-        <Top>692.6pt</Top>
-        <Style>
-          <FontSize>10pt</FontSize>
-          <FontFamily>Times New Roman</FontFamily>
-        </Style>
-      </Textbox>
       <Textbox Name="Textbox4">
         <Height>22.53pt</Height>
         <Width>338.05pt</Width>
         <Value>Оцените работу мастера по пятибальной системе</Value>
         <ZIndex>1</ZIndex>
-        <Left>5.4pt</Left>
-        <Top>719.6pt</Top>
+        <Left>0.0pt</Left>
+        <Top>630.3pt</Top>
         <Style>
           <FontSize>14pt</FontSize>
           <BorderStyle />
@@ -1021,8 +970,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
-        <Left>381.6pt</Left>
-        <Top>789.0pt</Top>
+        <Left>374.5pt</Left>
+        <Top>659.9pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -1038,8 +987,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>113.52pt</Width>
         <Value>Подпись клиента</Value>
         <ZIndex>1</ZIndex>
-        <Left>386.4pt</Left>
-        <Top>800.8pt</Top>
+        <Left>379.3pt</Left>
+        <Top>671.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1054,8 +1003,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>472.74pt</Width>
         <Value>Вы можете оставить свои отзывы, пожелания, рекомендации в книге отзывов и предложений.</Value>
         <ZIndex>1</ZIndex>
-        <Left>6.9pt</Left>
-        <Top>826.2pt</Top>
+        <Left>0.0pt</Left>
+        <Top>697.1pt</Top>
         <Style>
           <FontSize>10pt</FontSize>
           <FontFamily>Times New Roman</FontFamily>
@@ -1121,6 +1070,9 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         </Style>
         <TableColumns>
           <TableColumn>
+            <Width>40.2pt</Width>
+          </TableColumn>
+          <TableColumn>
             <Width>47.2pt</Width>
           </TableColumn>
           <TableColumn>
@@ -1139,8 +1091,22 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Header>
           <TableRows>
             <TableRow>
-              <Height>30.9pt</Height>
+              <Height>32.0pt</Height>
               <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Image Name="Image3">
+                      <Style>
+                        <BorderStyle />
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Source>Embedded</Source>
+                      <Value>smile</Value>
+                      <Sizing>FitProportional</Sizing>
+                    </Image>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
@@ -1261,8 +1227,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <Left>10.3pt</Left>
-        <Top>745.6pt</Top>
+        <Left>5.6pt</Left>
+        <Top>650.7pt</Top>
       </fyi:Grid>
       <Table Name="Table3">
         <DataSetName>MasterOrderItem</DataSetName>
@@ -1417,19 +1383,140 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Left>0.0pt</Left>
         <Top>252.7pt</Top>
       </Table>
-      <Image Name="Image2">
-        <Height>60.23pt</Height>
-        <Width>59.47pt</Width>
-        <Left>260.9pt</Left>
-        <Top>737.8pt</Top>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid3">
         <Style>
-          <BorderStyle />
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
           <BorderColor />
           <BorderWidth />
         </Style>
-        <Source>Embedded</Source>
-        <Value>smile</Value>
-      </Image>
+        <TableColumns>
+          <TableColumn>
+            <Width>371.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>Вышеперечисленные услуги выполнены польностью и в срок.</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox70">
+                      <Value>Заказчик претензий по объему, качеству и срокам оказания услуг не имеет.</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.8pt</Left>
+        <Top>556.1pt</Top>
+      </fyi:Grid>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid4">
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>486.5pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox82">
+                      <Value>Гарантия на выполнение работы -1 месяц при условии правильной эксплуатации оборудования.</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>Гарантия на запчасть - 1 месяц при условии правильной эксплуатации оборудования.</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>1.8pt</Left>
+        <Top>594.4pt</Top>
+      </fyi:Grid>
     </ReportItems>
   </Body>
   <PageFooter>
