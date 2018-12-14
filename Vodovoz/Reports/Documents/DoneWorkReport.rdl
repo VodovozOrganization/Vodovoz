@@ -191,8 +191,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
-        <Left>377.5pt</Left>
-        <Top>527.9pt</Top>
+        <Left>383.1pt</Left>
+        <Top>527.1pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -208,8 +208,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>113.52pt</Width>
         <Value>Подпись клиента</Value>
         <ZIndex>1</ZIndex>
-        <Left>382.3pt</Left>
-        <Top>539.7pt</Top>
+        <Left>387.9pt</Left>
+        <Top>538.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -224,8 +224,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
-        <Left>374.4pt</Left>
-        <Top>559.8pt</Top>
+        <Left>380.0pt</Left>
+        <Top>559.0pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -241,8 +241,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>115.02pt</Width>
         <Value>= Iif(First({is_service}, "Order"), "Подпись исполнителя", "Подпись водителя")</Value>
         <ZIndex>1</ZIndex>
-        <Left>379.2pt</Left>
-        <Top>571.6pt</Top>
+        <Left>384.8pt</Left>
+        <Top>570.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -950,12 +950,12 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Top>179.2pt</Top>
       </Table>
       <Textbox Name="Textbox4">
-        <Height>22.53pt</Height>
-        <Width>338.05pt</Width>
+        <Height>15.76pt</Height>
+        <Width>504.37pt</Width>
         <Value>Оцените работу мастера по пятибальной системе</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>630.3pt</Top>
+        <Left>0.00pt</Left>
+        <Top>630.30pt</Top>
         <Style>
           <FontSize>14pt</FontSize>
           <BorderStyle />
@@ -1032,7 +1032,7 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
           <BorderColor />
           <BorderWidth />
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>12pt</FontSize>
+          <FontSize>11pt</FontSize>
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
@@ -1091,7 +1091,7 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Header>
           <TableRows>
             <TableRow>
-              <Height>32.0pt</Height>
+              <Height>29.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1228,7 +1228,7 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>5.6pt</Left>
-        <Top>650.7pt</Top>
+        <Top>659.4pt</Top>
       </fyi:Grid>
       <Table Name="Table3">
         <DataSetName>MasterOrderItem</DataSetName>
@@ -1514,8 +1514,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
             </TableRow>
           </TableRows>
         </Details>
-        <Left>1.8pt</Left>
-        <Top>594.4pt</Top>
+        <Left>2.6pt</Left>
+        <Top>598.4pt</Top>
       </fyi:Grid>
     </ReportItems>
   </Body>
