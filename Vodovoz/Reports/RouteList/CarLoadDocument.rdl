@@ -16,24 +16,31 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    nomenclature.name AS nomenclature,
-    nomenclature.category,
-    measurement_units.name AS unit,
-    SUM(order_items.count) AS amount
+	nomenclature.name AS nomenclature,
+	nomenclature.category,
+	measurement_units.name AS unit,
+	nomenclature.tare_volume,
+	CASE nomenclature.tare_volume
+		WHEN 'Vol19L' THEN 0
+		WHEN 'Vol6L' THEN 1
+		WHEN 'Vol600ml' THEN 2
+		ELSE 3
+	END AS clmn_for_sorting,
+	SUM(order_items.count) AS amount
 FROM
-    route_list_addresses
-        LEFT JOIN
-    order_items ON route_list_addresses.order_id = order_items.order_id
-        LEFT JOIN
-    nomenclature ON order_items.nomenclature_id = nomenclature.id
-        LEFT JOIN
-    measurement_units ON measurement_units.id = nomenclature.unit_id
+	route_list_addresses
+		LEFT JOIN
+	order_items ON route_list_addresses.order_id = order_items.order_id
+		LEFT JOIN
+	nomenclature ON order_items.nomenclature_id = nomenclature.id
+		LEFT JOIN
+	measurement_units ON measurement_units.id = nomenclature.unit_id
 WHERE
-    route_list_addresses.route_list_id = @id
-        AND nomenclature.warehouse_id = 1 #Отгрузка только с софийской
-        AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
+	route_list_addresses.route_list_id = @id
+		AND nomenclature.warehouse_id = 1 #Отгрузка только с софийской
+		AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
 GROUP BY nomenclature.id
-ORDER BY category , nomenclature;</CommandText>
+ORDER BY clmn_for_sorting;</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
             <Value>={?route_list_id}</Value>
@@ -51,6 +58,10 @@ ORDER BY category , nomenclature;</CommandText>
         </Field>
         <Field Name="unit">
           <DataField>unit</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="tare_volume">
+          <DataField>tare_volume</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="amount">
@@ -205,19 +216,19 @@ GROUP BY eq.nomenclature_id
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>164.6pt</Width>
+            <Width>141.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>32.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>22.6pt</Width>
+            <Width>28.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>20.1pt</Width>
+            <Width>28.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>21.8pt</Width>
+            <Width>28.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>25.7pt</Width>
@@ -519,7 +530,12 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>=Iif({amount} &gt;=48, "48", "")</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L' AND {amount} &gt;=48, "48",
+    {tare_volume} = 'Vol6L' AND {amount} &gt;=108, "108",
+    {tare_volume} = 'Vol600ml' AND {amount} &gt;=1152, "1152",
+    true, ""
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -537,7 +553,12 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>=Iif({amount} &gt;=96, "48", "")</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L' AND {amount} &gt;=96, "48",
+    {tare_volume} = 'Vol6L' AND {amount} &gt;=216, "108",
+    {tare_volume} = 'Vol600ml' AND {amount} &gt;=2304, "1152",
+    true, ""
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -555,7 +576,12 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>=Iif({amount} &gt;=144, "48", "")</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L' AND {amount} &gt;=144, "48",
+    {tare_volume} = 'Vol6L' AND {amount} &gt;=324, "108",
+    {tare_volume} = 'Vol600ml' AND {amount} &gt;=3456, "1152",
+    true, ""
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -574,7 +600,12 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>={amount} mod 48</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L', {amount} mod 48,
+    {tare_volume} = 'Vol6L', {amount} mod 108,
+    {tare_volume} = 'Vol600ml', {amount} mod 1152,
+    true, {amount}
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -850,7 +881,15 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>= Format(Iif({category} = "water", {amount} mod 48, {amount}), "N0") + " " + {unit}</Value>
+                      <Value>= Format(
+    Switch(
+        {tare_volume} = 'Vol19L', {amount} mod 48,
+        {tare_volume} = 'Vol6L', {amount} mod 108,
+        {tare_volume} = 'Vol600ml', {amount} mod 1152,
+        true, {amount}
+    ),
+    "N0"
+) + " " + {unit}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -951,19 +990,19 @@ GROUP BY eq.nomenclature_id
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>293.3pt</Width>
+            <Width>277.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>31.3pt</Width>
+            <Width>40.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>30.2pt</Width>
+            <Width>39.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>28.8pt</Width>
+            <Width>39.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.0pt</Width>
@@ -1125,7 +1164,12 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>=Iif({amount} &gt;=48, "48", "")</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L' AND {amount} &gt;=48, "48",
+    {tare_volume} = 'Vol6L' AND {amount} &gt;=108, "108",
+    {tare_volume} = 'Vol600ml' AND {amount} &gt;=1152, "1152",
+    true, ""
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1142,7 +1186,12 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>=Iif({amount} &gt;=96, "48", "")</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L' AND {amount} &gt;=96, "48",
+    {tare_volume} = 'Vol6L' AND {amount} &gt;=216, "108",
+    {tare_volume} = 'Vol600ml' AND {amount} &gt;=2304, "1152",
+    true, ""
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1159,7 +1208,12 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>=Iif({amount} &gt;=144, "48", "")</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L' AND {amount} &gt;=144, "48",
+    {tare_volume} = 'Vol6L' AND {amount} &gt;=324, "108",
+    {tare_volume} = 'Vol600ml' AND {amount} &gt;=3456, "1152",
+    true, ""
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1177,7 +1231,12 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value>={amount} mod 48</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L', {amount} mod 48,
+    {tare_volume} = 'Vol6L', {amount} mod 108,
+    {tare_volume} = 'Vol600ml', {amount} mod 1152,
+    true, {amount}
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1349,19 +1408,19 @@ GROUP BY eq.nomenclature_id
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>293.3pt</Width>
+            <Width>277.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>31.3pt</Width>
+            <Width>39.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>30.2pt</Width>
+            <Width>41.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>28.8pt</Width>
+            <Width>37.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.0pt</Width>
@@ -1523,7 +1582,12 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
-                      <Value>=Iif({amount} &gt;=48, "48", "")</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L' AND {amount} &gt;=48, "48",
+    {tare_volume} = 'Vol6L' AND {amount} &gt;=108, "108",
+    {tare_volume} = 'Vol600ml' AND {amount} &gt;=1152, "1152",
+    true, ""
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1540,7 +1604,12 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox69">
-                      <Value>=Iif({amount} &gt;=96, "48", "")</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L' AND {amount} &gt;=96, "48",
+    {tare_volume} = 'Vol6L' AND {amount} &gt;=216, "108",
+    {tare_volume} = 'Vol600ml' AND {amount} &gt;=2304, "1152",
+    true, ""
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1557,7 +1626,12 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox70">
-                      <Value>=Iif({amount} &gt;=144, "48", "")</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L' AND {amount} &gt;=144, "48",
+    {tare_volume} = 'Vol6L' AND {amount} &gt;=324, "108",
+    {tare_volume} = 'Vol600ml' AND {amount} &gt;=3456, "1152",
+    true, ""
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1575,7 +1649,12 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>={amount} mod 48</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L', {amount} mod 48,
+    {tare_volume} = 'Vol6L', {amount} mod 108,
+    {tare_volume} = 'Vol600ml', {amount} mod 1152,
+    true, {amount}
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1625,14 +1704,16 @@ GROUP BY eq.nomenclature_id
                     <Textbox Name="Textbox73">
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Left</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum({amount})</Value>
                     </Textbox>
@@ -2564,7 +2645,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>34304</Value>
+          <Value>31056</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>

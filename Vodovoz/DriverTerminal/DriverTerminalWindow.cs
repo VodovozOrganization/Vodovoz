@@ -2,9 +2,9 @@
 using fyiReporting.RdlGtkViewer;
 using Gtk;
 using NLog;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
-using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
@@ -40,14 +40,14 @@ namespace Vodovoz.DriverTerminal
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				RouteList rl = uow.GetById<RouteList>(rlNumber);
 				if(rl == null) {
-					MessageDialogWorks.RunErrorDialog($"Маршрутный лист с номером {rlNumber} не найден");
+					MessageDialogHelper.RunErrorDialog($"Маршрутный лист с номером {rlNumber} не найден");
 					return;
 				}
 				document = PrintRouteListHelper.GetRDL(rl, docType, uow);
 			}
 
 			if(document == null) {
-				MessageDialogWorks.RunErrorDialog("Не возможно получить печатную форму документа");
+				MessageDialogHelper.RunErrorDialog("Не возможно получить печатную форму документа");
 				return;
 			}
 
@@ -61,7 +61,7 @@ namespace Vodovoz.DriverTerminal
 		{
 			int result = 0;
 			if(!int.TryParse(entryRouteListNumber.Text, out result)) {
-				MessageDialogWorks.RunErrorDialog("Неправильный номер маршрутного листа");
+				MessageDialogHelper.RunErrorDialog("Неправильный номер маршрутного листа");
 			}
 			return result;
 		}
@@ -73,7 +73,7 @@ namespace Vodovoz.DriverTerminal
 
 		protected void OnBtnPrintLoadDocumentClicked(object sender, EventArgs e)
 		{
-			LoadDocument(RouteListPrintableDocuments.LoadSofiyskaya);
+			LoadDocument(RouteListPrintableDocuments.LoadDocument);
 		}
 
 		protected void OnBtnPrintRouteMapClicked(object sender, EventArgs e)
