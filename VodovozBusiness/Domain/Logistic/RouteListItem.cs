@@ -475,11 +475,11 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatus(OrderStatus.DeliveryCanceled);
-					Order.DeliveredTime = null;
+					Order.TimeDelivered = null;
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatus(OrderStatus.Shipped);
-					Order.DeliveredTime = DateTime.Now;
+					Order.TimeDelivered = DateTime.Now;
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatus(OrderStatus.OnTheWay);
