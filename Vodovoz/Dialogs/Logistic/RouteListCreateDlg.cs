@@ -131,6 +131,8 @@ namespace Vodovoz
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadSofiyskaya, false);
+			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
+			enumPrint.SetVisibility(RouteListPrintableDocuments.OrderOfAddresses, false);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
 			CheckCarLoadDocuments();
 		}

@@ -144,7 +144,7 @@ namespace Vodovoz.Representations
 			var query = UoW.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
 						   .Left.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
 						   .Left.JoinAlias(u => u.NewOrder, () => newOrderAlias)
-						   .Left.JoinAlias(u => u.OldOrder.Client, () => counterpartyAlias)
+						   .Left.JoinAlias(() => oldOrderAlias.Client, () => counterpartyAlias)
 						   .Left.JoinAlias(() => newOrderAlias.DeliverySchedule, () => newOrderDeliveryScheduleAlias)
 						   .Left.JoinAlias(() => oldOrderAlias.Author, () => oldOrderAuthorAlias)
 						   .Left.JoinAlias(() => oldOrderAlias.DeliveryPoint, () => undeliveredOrderDeliveryPointAlias)

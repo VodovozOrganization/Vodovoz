@@ -38,8 +38,8 @@ namespace Vodovoz.Reports.Logistic
 				Identifier = "Logistic.DeliveriesLate",
 				Parameters = new Dictionary<string, object>
 				{
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull }
+					{ "start_date", dateperiodpicker.StartDate },
+					{ "end_date", dateperiodpicker.EndDate.AddHours(3) }
 				}
 			};
 		}

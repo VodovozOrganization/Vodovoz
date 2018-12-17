@@ -47,19 +47,19 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>147.4pt</Width>
+            <Width>137.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>281.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>60.0pt</Width>
+            <Width>80.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>168.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>65.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>1in</Width>
@@ -110,7 +110,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>Заказ/ Дата/ Автор</Value>
+                      <Value>Заказ/Дата/ Автор</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -194,6 +194,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <Visibility>
@@ -209,6 +212,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -226,6 +232,10 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingBottom >2pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -240,6 +250,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -253,6 +266,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -266,6 +283,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -374,6 +395,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum(Fields!total_count.Value)</Value>
                     </Textbox>
@@ -389,6 +412,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum(Fields!total_sum.Value)</Value>
                     </Textbox>
@@ -404,6 +429,7 @@
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
+                <GroupExpression>={is_disposable_tare}</GroupExpression>
                 <GroupExpression>=Fields!category.Value</GroupExpression>
               </GroupExpressions>
             </Grouping>
@@ -418,6 +444,7 @@
                         <Textbox Name="Textbox28">
                           <Value>=Switch(
     Fields!category.Value = 'rent', 'Аренда кулеров',
+    Fields!category.Value = 'water' AND Fields!is_disposable_tare.Value = true, 'Вода в одноразовой таре',
     Fields!category.Value = 'water' AND Fields!is_disposable_tare.Value = false, 'Вода в многооборотной таре',
     Fields!category.Value = 'deposit', 'Залог',
     Fields!category.Value = 'spare_parts', 'Запчасти',
@@ -426,7 +453,6 @@
     Fields!category.Value = 'service', 'Услуга',
     Fields!category.Value = 'bottle', 'Тара',
     Fields!category.Value = 'material', 'Сырьё',
-    Fields!category.Value = 'water' AND Fields!is_disposable_tare.Value = true, 'Вода в одноразовой таре',
     Fields!category.Value = 'master', 'Выезд мастера'
 )</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -438,6 +464,8 @@
                             <FontWeight>Bold</FontWeight>
                             <FontSize>11pt</FontSize>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <TextAlign >Left</TextAlign>
+                            <PaddingLeft >10pt</PaddingLeft>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -546,6 +574,8 @@
                             <BorderColor />
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>=Sum(Fields!total_count.Value)</Value>
                         </Textbox>
@@ -561,6 +591,8 @@
                             <BorderColor />
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>=Sum(Fields!total_sum.Value)</Value>
                         </Textbox>
@@ -618,7 +650,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	counterparty.name as counterparty,
@@ -711,7 +743,7 @@ WHERE
 			(IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@orderauthor_exclude) AND 0 IN (@orderauthor_include)))
 			OR (0 IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude))
 		)
-GROUP BY counterparty.id, delivery_points.id, orders.id, orders.author_employee_id</CommandText>
+GROUP BY nomenclature_id, counterparty.id, delivery_points.id, orders.id, orders.author_employee_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -763,7 +795,7 @@ GROUP BY counterparty.id, delivery_points.id, orders.id, orders.author_employee_
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>

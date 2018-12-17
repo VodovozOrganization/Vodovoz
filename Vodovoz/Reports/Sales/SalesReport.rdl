@@ -228,7 +228,8 @@
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression>=Fields!category.Value</GroupExpression>
+                <GroupExpression >={is_disposable_tare}</GroupExpression>
+                <GroupExpression >=Fields!category.Value</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -240,7 +241,18 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox23">
-                          <Value>=Switch(Fields!category.Value = 'rent', 'Аренда кулеров', Fields!category.Value = 'water' AND Fields!is_disposable_tare.Value = false, 'Вода в многооборотной таре', Fields!category.Value = 'deposit', 'Залог',Fields!category.Value = 'spare_parts', 'Запчасти',Fields!category.Value = 'equipment', 'Оборудование', Fields!category.Value = 'additional', 'Товары', Fields!category.Value = 'service', 'Услуга', Fields!category.Value = 'bottle', 'Тара', Fields!category.Value = 'material', 'Сырьё', Fields!category.Value = 'water' AND Fields!is_disposable_tare.Value = true, 'Вода в одноразовой таре')</Value>
+                          <Value>=Switch(
+    Fields!category.Value = 'rent', 'Аренда кулеров',
+    Fields!category.Value = 'water' AND Fields!is_disposable_tare.Value = true, 'Вода в одноразовой таре',
+    Fields!category.Value = 'water' AND Fields!is_disposable_tare.Value = false, 'Вода в многооборотной таре',
+    Fields!category.Value = 'deposit', 'Залог',
+    Fields!category.Value = 'spare_parts', 'Запчасти',
+    Fields!category.Value = 'equipment', 'Оборудование',
+    Fields!category.Value = 'additional', 'Товары',
+    Fields!category.Value = 'service', 'Услуга',
+    Fields!category.Value = 'bottle', 'Тара',
+    Fields!category.Value = 'material', 'Сырьё'
+)</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -366,7 +378,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	counterparty.name as counterparty,
@@ -496,7 +508,7 @@ GROUP BY nomenclature_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>

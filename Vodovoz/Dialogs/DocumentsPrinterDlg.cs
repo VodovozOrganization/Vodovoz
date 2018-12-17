@@ -4,10 +4,10 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSDocTemplates;
-using QSProjectsLib;
 using QSReport;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
@@ -56,7 +56,7 @@ namespace Vodovoz.Dialogs
 							throw new NotImplementedException("Документ не поддерживается");
 					}
 					if(successfulUpdate == false) {
-						MessageDialogWorks.RunWarningDialog(
+						MessageDialogHelper.RunWarningDialog(
 							String.Format("Документ '{0}' в комплект печати добавлен не был, т.к. " +
 										  "для него не установлен шаблон документа и не удалось найти подходящий.", item.Name)
 						);
@@ -81,7 +81,10 @@ namespace Vodovoz.Dialogs
 			currentRouteList = routeList;
 
 			foreach(RouteListPrintableDocuments rlDocType in Enum.GetValues(typeof(RouteListPrintableDocuments))) {
-				if(rlDocType == RouteListPrintableDocuments.All)
+				if(rlDocType == RouteListPrintableDocuments.All
+				   || rlDocType == RouteListPrintableDocuments.LoadSofiyskaya
+				   || rlDocType == RouteListPrintableDocuments.TimeList
+				   || rlDocType == RouteListPrintableDocuments.OrderOfAddresses)
 					continue;
 				var rlDoc = new RouteListPrintableDocs(uow, currentRouteList, rlDocType);
 				bool isSelected = selectedType == RouteListPrintableDocuments.All || selectedType == rlDocType;

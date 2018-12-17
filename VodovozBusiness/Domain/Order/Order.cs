@@ -128,6 +128,15 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		DateTime? timeDelivered;
+
+		[Display(Name = "Время доставки")]
+		public virtual DateTime? TimeDelivered {
+			get { return timeDelivered; }
+			set { SetField(ref timeDelivered, value, () => TimeDelivered); }
+		}
+
+
 		DateTime? deliveryDate;
 
 		[Display(Name = "Дата доставки")]
