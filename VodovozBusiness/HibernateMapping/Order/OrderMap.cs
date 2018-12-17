@@ -48,6 +48,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.BillDate)					.Column("bill_date");
 			Map(x => x.IsReasonTypeChangedByUser)	.Column("is_reason_type_changed_by_user");
 			Map(x => x.HasCommentForDriver)			.Column("has_comment_for_driver");
+			Map(x => x.DeliveredTime)               .Column("delivery_time");
 
 			Map (x => x.OrderStatus)				.Column ("order_status").CustomType<OrderStatusStringType> ();
 			Map (x => x.SignatureType)				.Column ("signature_type").CustomType<OrderSignatureTypeStringType> ();

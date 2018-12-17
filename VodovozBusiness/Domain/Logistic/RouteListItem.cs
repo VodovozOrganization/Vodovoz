@@ -45,7 +45,7 @@ namespace Vodovoz.Domain.Logistic
 			set {
 				SetField(ref routeList, value, () => RouteList);
 			}
-		}
+		} 
 
 		RouteListItemStatus status;
 		[Display(Name = "Статус адреса")]
@@ -475,9 +475,11 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatus(OrderStatus.DeliveryCanceled);
+					Order.DeliveredTime = null;
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatus(OrderStatus.Shipped);
+					Order.DeliveredTime = DateTime.Now;
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatus(OrderStatus.OnTheWay);
