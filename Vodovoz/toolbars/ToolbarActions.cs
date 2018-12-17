@@ -1,12 +1,15 @@
 ﻿using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
+using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using Vodovoz.JournalViewers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
@@ -41,6 +44,7 @@ public partial class MainWindow : Window
 	Action ActionAccountableDebt;
 	Action ActionUnclosedAdvances;
 	Action ActionCashFlow;
+	Action ActionSelfdeliveryOrders;
 	Action ActionFinesJournal;
 	Action ActionPremiumJournal;
 	Action ActionCarProxiesJournal;
@@ -91,6 +95,7 @@ public partial class MainWindow : Window
 		ActionAccountableDebt = new Action("ActionAccountableDebt", "Долги сотрудников", null, "table");
 		ActionUnclosedAdvances = new Action("ActionUnclosedAdvances", "Незакрытые авансы", null, "table");
 		ActionCashFlow = new Action("ActionCashFlow", "Доходы и расходы", null, "table");
+		ActionSelfdeliveryOrders = new Action("ActionSelfdeliveryOrders", "Журнал самовывозов", null, "table");
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с", null, "table");
@@ -140,6 +145,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionAccountableDebt, null);
 		w1.Add(ActionUnclosedAdvances, null);
 		w1.Add(ActionCashFlow, null);
+		w1.Add(ActionSelfdeliveryOrders, null);
 		w1.Add(ActionFinesJournal, null);
 		w1.Add(ActionPremiumJournal, null);
 		w1.Add(ActionCarProxiesJournal, null);
@@ -187,6 +193,7 @@ public partial class MainWindow : Window
 		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
 		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
 		ActionCashFlow.Activated += ActionCashFlow_Activated;
+		ActionSelfdeliveryOrders.Activated += ActionSelfdeliveryOrders_Activated;
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
 		ActionCarProxiesJournal.Activated += ActionCarProxiesJournal_Activated;
@@ -300,6 +307,28 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashFlow>(),
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashFlow())
+		);
+	}
+
+
+	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			"SelfDeliveryJournal",
+			() => {
+				var filterOrders = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
+				filterOrders.SetAndRefilterAtOnce(
+					x => x.AllowStatuses = new OrderStatus[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading },
+					x => x.AllowPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld },
+					x => x.RestrictSelfDelivery = true,
+					x => x.RestrictWithoutSelfDelivery = false,
+					x => x.RestrictHideService = true,
+					x => x.RestrictOnlyService = false
+				);
+				SelfDeliveriesVM vm = new SelfDeliveriesVM(filterOrders);
+				return new ReferenceRepresentation(vm).CustomTabName("Журнал самовывозов")
+													  .Buttons(ReferenceButtonMode.None);
+			}
 		);
 	}
 

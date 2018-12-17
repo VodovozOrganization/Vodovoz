@@ -319,7 +319,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public int CurrentCount{
 			get{
-				if(Order != null && Repository.OrderRepository.GetStatusesForActualCount().Contains(Order.OrderStatus))
+				if(Order != null && Repository.OrderRepository.GetStatusesForActualCount(Order).Contains(Order.OrderStatus))
 					return ActualCount;
 				else
 					return Count;

@@ -63,6 +63,10 @@ namespace Vodovoz.ViewModel
 				query.Where (o => o.OrderStatus == Filter.RestrictStatus);
 			}
 
+			if(Filter.RestrictPaymentType != null) {
+				query.Where(o => o.PaymentType == Filter.RestrictPaymentType);
+			}
+
 			if(Filter.HideStatuses != null) {
 				query.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(Filter.HideStatuses);
 			}

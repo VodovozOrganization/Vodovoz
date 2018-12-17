@@ -105,7 +105,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
 			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
-				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать создавать заказы, так как некого указывать в качестве автора документа.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать заказы, так как некого указывать в качестве автора документа.");
 				FailInitialize = true;
 				return;
 			}
@@ -162,6 +162,7 @@ namespace Vodovoz
 		public void ConfigureDlg()
 		{
 			ConfigureTrees();
+			ConfigureButtonActions();
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 			spinDiscount.Adjustment.Upper = 100;
@@ -217,8 +218,9 @@ namespace Vodovoz
 			textCommentsLogistic.Binding.AddBinding(Entity, s => s.CommentLogist, w => w.Buffer.Text).InitializeFromSource();
 
 			checkSelfDelivery.Binding.AddBinding(Entity, s => s.SelfDelivery, w => w.Active).InitializeFromSource();
+			checkPayAfterLoad.Binding.AddBinding(Entity, s => s.PayAfterLoad, w => w.Active).InitializeFromSource();
 			checkDelivered.Binding.AddBinding(Entity, s => s.Shipped, w => w.Active).InitializeFromSource();
-
+			ylabelloadAllowed.Binding.AddFuncBinding(Entity, s => s.LoadAllowedBy != null ? s.LoadAllowedBy.ShortName : "", w => w.Text).InitializeFromSource();
 			entryBottlesToReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
@@ -307,21 +309,17 @@ namespace Vodovoz
 			enumReasonType.ItemsEnum = typeof(ReasonType);
 			enumReasonType.Binding.AddBinding(Entity, s => s.ReasonType, w => w.SelectedItem).InitializeFromSource();
 
-			UpdateButtonState();
-
 			if(Entity.DeliveryPoint == null && !string.IsNullOrWhiteSpace(Entity.Address1c)) {
 				var deliveryPoint = Counterparty.DeliveryPoints.FirstOrDefault(d => d.Address1c == Entity.Address1c);
 				if(deliveryPoint != null)
 					Entity.DeliveryPoint = deliveryPoint;
 			}
 
-			if(Entity.OrderStatus != OrderStatus.NewOrder)
-				IsUIEditable(CanChange);
-			tableTareControl.Sensitive = !(Entity.OrderStatus == OrderStatus.NewOrder || Entity.OrderStatus == OrderStatus.Accepted);
-
 			OrderItemEquipmentCountHasChanges = false;
 			ShowOrderColumnInDocumentsList();
-			ButtonCloseOrderAccessibilityAndAppearance();
+
+			UpdateUIState();
+
 			SetSensitivityOfPaymentType();
 			depositrefunditemsview.Configure(UoWGeneric, Entity);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
@@ -354,13 +352,13 @@ namespace Vodovoz
 				.AddColumn("Номенклатура")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
-				.AddColumn(!OrderRepository.GetStatusesForActualCount().Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
+				.AddColumn(!OrderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Count)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 					.AddSetter((c, node) => c.Editable = node.CanEditAmount).WidthChars(10)
-				.AddTextRenderer(node => OrderRepository.GetStatusesForActualCount().Contains(Entity.OrderStatus) ? String.Format("[{0}]", node.ActualCount) : "")
+				.AddTextRenderer(node => OrderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? String.Format("[{0}]", node.ActualCount) : "")
 				.AddTextRenderer(node => (node.CanShowReturnedCount) ? String.Format("({0})", node.ReturnedCount) : "")
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Аренда")
@@ -465,6 +463,42 @@ namespace Vodovoz
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
 		}
 
+		MenuItem menuItemCloseOrder = null;
+		MenuItem menuItemSelfDeliveryToLoading = null;
+		MenuItem menuItemSelfDeliveryPaid = null;
+		MenuItem menuItemReturnToAccepted = null;
+
+
+		/// <summary>
+		/// Конфигурирование меню кнопок с дополнительными действиями заказа
+		/// </summary>
+		public void ConfigureButtonActions()
+		{
+			menubuttonActions.MenuAllocation = QSWidgetLib.ButtonMenuAllocation.Top;
+			menubuttonActions.MenuAlignment = QSWidgetLib.ButtonMenuAlignment.Right;
+			Menu menu = new Menu();
+
+			menuItemCloseOrder = new MenuItem("Закрыть без доставки");
+			menuItemCloseOrder.Activated += OnButtonCloseOrderClicked;
+			menu.Add(menuItemCloseOrder);
+
+			menuItemReturnToAccepted = new MenuItem("Вернуть в Принят");
+			menuItemReturnToAccepted.Activated += OnButtonReturnToAcceptedClicked;
+			menu.Add(menuItemReturnToAccepted);
+
+			menuItemSelfDeliveryToLoading = new MenuItem("Самовывоз на погрузку");
+			menuItemSelfDeliveryToLoading.Activated += OnButtonSelfDeliveryToLoadingClicked;
+			menu.Add(menuItemSelfDeliveryToLoading);
+
+			menuItemSelfDeliveryPaid = new MenuItem("Принять оплату самовывоза");
+			menuItemSelfDeliveryPaid.Activated += OnButtonSelfDeliveryAcceptPaidClicked;
+			menu.Add(menuItemSelfDeliveryPaid);
+
+			menubuttonActions.Menu = menu;
+			menubuttonActions.LabelXAlign = 0.5f;
+			menu.ShowAll();
+		}
+
 		/// <summary>
 		/// Старые поля, оставлены для отображения информации в старых заказах. В новых скрыты.
 		/// Не удаляем полностью а только скрываем, чтобы можно было увидеть адрес в старых заказах, загруженных из 1с.
@@ -543,7 +577,7 @@ namespace Vodovoz
 
 			UoW.Session.Refresh(Entity);
 			logger.Info("Ok.");
-			ButtonCloseOrderAccessibilityAndAppearance();
+			UpdateUIState();
 			return true;
 		}
 
@@ -559,52 +593,36 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderStatus == OrderStatus.OnTheWay) {
-				if(buttonAccept.Label == "Редактировать") {
-					IsUIEditable(true);
-					var icon = new Image();
-					icon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu);
-					buttonAccept.Image = icon;
-					buttonAccept.Label = "Подтвердить";
-					buttonSave.Sensitive = false;
-				} else if(buttonAccept.Label == "Подтвердить") {
-					if(AcceptOrder()) {
-						IsUIEditable(false);
-						var icon = new Image();
-						icon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu);
-						buttonAccept.Image = icon;
-						buttonAccept.Label = "Редактировать";
-						buttonSave.Sensitive = true;
-					}
-				}
+			AcceptOrder();
+		}
+
+		protected void OnButtonEditClicked(object sender, EventArgs e)
+		{
+			EditOrder();
+		}
+
+		private void EditOrder()
+		{
+			if(!Entity.CanSetOrderAsEditable) {
+				return;
+			}
+			Entity.EditOrder();
+			UpdateUIState();
+		}
+
+		private void AcceptOrder()
+		{
+			if(!Entity.CanSetOrderAsAccepted) {
 				return;
 			}
 
-			if((Entity.OrderStatus == OrderStatus.NewOrder
-				|| Entity.OrderStatus == OrderStatus.WaitForPayment)
-			   && !DefaultWaterCheck()) {
+			if(!DefaultWaterCheck()) {
 				toggleGoods.Activate();
 				return;
 			}
 
-			if(Entity.OrderStatus == OrderStatus.NewOrder
-			   || Entity.OrderStatus == OrderStatus.WaitForPayment) {
-				AcceptOrder();
-				UpdateButtonState();
-				return;
-			}
-			if(Entity.OrderStatus == OrderStatus.Accepted
-			   || Entity.OrderStatus == OrderStatus.Canceled) {
-				Entity.ChangeStatus(OrderStatus.NewOrder);
-				UpdateButtonState();
-				return;
-			}
-		}
-
-		bool AcceptOrder()
-		{
 			if(!ValidateAndFormOrder()) {
-				return false;
+				return;
 			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
@@ -613,14 +631,12 @@ namespace Vodovoz
 					Entity.CreateDefaultContract();
 			}
 
-			if(Entity.OrderStatus == OrderStatus.NewOrder
-			   || Entity.OrderStatus == OrderStatus.WaitForPayment) {
-				Entity.ChangeStatus(OrderStatus.Accepted);
-			}
+			Entity.AcceptOrder();
+
 			treeItems.Selection.UnselectAll();
-			var successfullySaved = Save();
+			Save();
 			PrintOrderDocuments();
-			return successfullySaved;
+			UpdateUIState();
 		}
 
 		private bool ValidateAndFormOrder()
@@ -657,16 +673,11 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonCloseOrderClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted) {
-				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите вернуть заказ в статус \"Принят\"?"))
+			if(Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"]) {
+				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?")) {
 					return;
-
-				Entity.ChangeStatus(OrderStatus.Accepted);
-			} else if(Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"]) {
-				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?"))
-					return;
-
-				Entity.UpdateBottlesMovementOperation(UoW);
+				}
+				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW);
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatus(OrderStatus.Closed);
@@ -674,15 +685,39 @@ namespace Vodovoz
 					i.ActualCount = i.Count;
 				}
 			}
-			ButtonCloseOrderAccessibilityAndAppearance();
+			UpdateUIState();
+		}
+		/// <summary>
+		/// Возврат в принят из ручного закрытия
+		/// </summary>
+		protected void OnButtonReturnToAcceptedClicked(object sender, EventArgs e)
+		{
+			if(Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted) {
+				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите вернуть заказ в статус \"Принят\"?")) {
+					return;
+				}
+				Entity.ChangeStatus(OrderStatus.Accepted);
+			}
+			UpdateUIState();
 		}
 
-		void ButtonCloseOrderAccessibilityAndAppearance()
-		{
-			buttonCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"]
-				|| Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted;
 
-			buttonCloseOrder.Label = Entity.OrderStatus == OrderStatus.Accepted ? "Закрыть без доставки" : "Вернуть в \"Принят\"";
+		/// <summary>
+		/// Отправка самовывоза на погрузку
+		/// </summary>
+		protected void OnButtonSelfDeliveryToLoadingClicked(object sender, EventArgs e)
+		{
+			Entity.SelfDeliveryToLoading();
+			UpdateUIState();
+		}
+
+		/// <summary>
+		/// Принятие оплаты самовывоза
+		/// </summary>
+		protected void OnButtonSelfDeliveryAcceptPaidClicked(object sender, EventArgs e)
+		{
+			Entity.SelfDeliveryAcceptCashlessPaid();
+			UpdateUIState();
 		}
 
 		#endregion
@@ -1818,8 +1853,8 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (sender, e) => {
-				Entity.SetUndeliveredStatus(/*e.UndeliveredOrder.GuiltySide*/);
-				UpdateButtonState();
+				Entity.SetUndeliveredStatus();
+				UpdateUIState();
 
 				var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(UoW, Entity);
 				if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {
@@ -1855,7 +1890,7 @@ namespace Vodovoz
 				return;
 			
 			Entity.ChangeStatus(OrderStatus.WaitForPayment);
-			UpdateButtonState();
+			UpdateUIState();
 		}
 
 		protected void OnButtonCreateDeliveryPointClicked(object sender, EventArgs e)
@@ -1879,7 +1914,7 @@ namespace Vodovoz
 		void NewDeliveryPointDlg_EntitySaved(object sender, EntitySavedEventArgs e)
 		{
 			Entity.DeliveryPoint = (e.Entity as DeliveryPoint);
-			UpdateButtonState();
+			UpdateUIState();
 		}
 
 		protected void OnEnumDiverCallTypeChanged(object sender, EventArgs e)
@@ -2026,13 +2061,6 @@ namespace Vodovoz
 
 
 		#endregion
-
-		private bool CanChange {
-			get {
-				return Entity.OrderStatus == OrderStatus.NewOrder
-							 || Entity.OrderStatus == OrderStatus.WaitForPayment;
-			}
-		}
 
 		LastChosenAction lastChosenAction = LastChosenAction.None;
 
@@ -2242,12 +2270,13 @@ namespace Vodovoz
 			}
 		}
 
-		private void IsUIEditable(bool val = true)
+		private void UpdateUIState()
 		{
-			enumPaymentType.Sensitive = Entity.Client != null && val;
+			bool val = Entity.CanEditOrder;
+			enumPaymentType.Sensitive = Entity.Client != null && val && !chkContractCloser.Active;
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable =
 				referenceClient.IsEditable = val;
-			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =// enumStatus.Sensitive = 
+			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =
 				enumDocumentType.Sensitive = val;
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive =
 				buttonAddForSale.Sensitive = val;
@@ -2258,8 +2287,9 @@ namespace Vodovoz
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			tblOnRouteEditReason.Sensitive = val;
 			ChangeOrderEditable(val);
-
+			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
 			buttonAddForSale.Sensitive = referenceContract.Sensitive = buttonAddMaster.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
+			UpdateButtonState();
 		}
 
 		void ChangeOrderEditable(bool val)
@@ -2269,6 +2299,7 @@ namespace Vodovoz
 			buttonAddExistingDocument.Sensitive = val;
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
+			tableTareControl.Sensitive = !(Entity.OrderStatus == OrderStatus.NewOrder || Entity.OrderStatus == OrderStatus.Accepted);
 		}
 
 		void SetPadInfoSensitive(bool value)
@@ -2281,9 +2312,7 @@ namespace Vodovoz
 		{
 			if(chkContractCloser.Active) {
 				Entity.PaymentType = PaymentType.cashless;
-				enumPaymentType.Sensitive = false;
-			} else {
-				enumPaymentType.Sensitive = CanChange;
+				UpdateUIState();
 			}
 		}
 
@@ -2294,33 +2323,21 @@ namespace Vodovoz
 
 		void UpdateButtonState()
 		{
-			IsUIEditable(Entity.OrderStatus == OrderStatus.NewOrder);
-			if(Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled || Entity.OrderStatus == OrderStatus.OnTheWay) {
-				var icon = new Image();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu);
-				buttonAccept.Image = icon;
-				buttonAccept.Label = "Редактировать";
-				buttonFormOrder.Sensitive = false;
-			}
-			if(Entity.OrderStatus == OrderStatus.NewOrder) {
-				var icon = new Image();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu);
-				buttonAccept.Image = icon;
-				buttonAccept.Label = "Подтвердить";
-				buttonFormOrder.Sensitive = true;
+			if(Entity.CanSetOrderAsAccepted) {
+				buttonAcceptOrder.Visible = true;
+				buttonEditOrder.Visible = false;
+			} else if(Entity.CanSetOrderAsEditable) {
+				buttonEditOrder.Visible = true;
+				buttonAcceptOrder.Visible = false;
+			} else {
+				buttonAcceptOrder.Visible = false;
+				buttonEditOrder.Visible = false;
 			}
 
 			//если новый заказ и тип платежа бартер или безнал, то вкл кнопку
-			buttonWaitForPayment.Sensitive = (Entity.OrderStatus == OrderStatus.NewOrder && IsPaymentTypeBarterOrCashless());
+			buttonWaitForPayment.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder && IsPaymentTypeBarterOrCashless() && !Entity.SelfDelivery;
 
 			buttonCancelOrder.Sensitive = OrderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus);
-			buttonAccept.Sensitive = new OrderStatus[] {
-				OrderStatus.NewOrder,
-				OrderStatus.WaitForPayment,
-				OrderStatus.Accepted,
-				OrderStatus.Canceled
-			}.Contains(Entity.OrderStatus)
-			 || (Entity.OrderStatus == OrderStatus.OnTheWay && QSMain.User.Permissions["can_edit_on_the_way_order"]);
 
 			if(Counterparty?.DeliveryPoints?.FirstOrDefault(d => d.Address1c == Entity.Address1c) == null
 				&& !string.IsNullOrWhiteSpace(Entity.Address1c)
@@ -2329,7 +2346,16 @@ namespace Vodovoz
 			} else
 				buttonCreateDeliveryPoint.Sensitive = false;
 
-			ButtonCloseOrderAccessibilityAndAppearance();
+			menuItemSelfDeliveryToLoading.Sensitive = Entity.SelfDelivery 
+				&& Entity.OrderStatus == OrderStatus.Accepted 
+				&& QSMain.User.Permissions["allow_load_selfdelivery"];
+			menuItemSelfDeliveryPaid.Sensitive = Entity.SelfDelivery 
+				&& (Entity.PaymentType == PaymentType.cashless || Entity.PaymentType == PaymentType.ByCard) 
+				&& Entity.OrderStatus == OrderStatus.WaitForPayment 
+				&& QSMain.User.Permissions["accept_cashless_paid_selfdelivery"];
+
+			menuItemCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"] && !Entity.SelfDelivery;
+			menuItemReturnToAccepted.Sensitive = Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted;
 		}
 
 		void UpdateProxyInfo()
@@ -2500,6 +2526,15 @@ namespace Vodovoz
 				email = clientEmail.Address;
 			}
 			senddocumentbyemailview1.Update(selectedDoc, email);
+		}
+
+		protected void OnCheckSelfDeliveryToggled(object sender, EventArgs e)
+		{
+			UpdateUIState();
+
+			if(!checkSelfDelivery.Active) {
+				checkPayAfterLoad.Active = false;
+			}
 		}
 	}
 }

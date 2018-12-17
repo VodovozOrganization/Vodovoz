@@ -9,6 +9,18 @@ namespace Vodovoz.Repository.Cash
 	public class CashRepository
 	{
 
+		public static decimal GetIncomePaidSumForOrder(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.QueryOver<Income>().Where(x => x.Order.Id == orderId)
+				.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
+		}
+
+		public static decimal GetExpenseReturnSumForOrder(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.QueryOver<Expense>().Where(x => x.Order.Id == orderId)
+				.Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
+		}
+
 		public static decimal CurrentCash (IUnitOfWork uow)
 		{
 			decimal expense = uow.Session.QueryOver<Expense>()

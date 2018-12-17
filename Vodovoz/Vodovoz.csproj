@@ -1044,6 +1044,15 @@
     <Compile Include="ServiceDialogs\PaymentsFromTinkoffParser.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromTinkoffReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromTinkoffReport.cs" />
+    <Compile Include="Dialogs\Cash\CashIncomeSelfDeliveryDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeSelfDeliveryDlg.cs" />
+    <Compile Include="Dialogs\Cash\CashIncomeCategoryDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeCategoryDlg.cs" />
+    <Compile Include="Representations\SelfDeliveriesVM.cs" />
+    <Compile Include="Dialogs\Cash\CashExpenseSelfDeliveryDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashExpenseSelfDeliveryDlg.cs" />
+    <Compile Include="Dialogs\Cash\SelfDeliveryOrderEditDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.SelfDeliveryOrderEditDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

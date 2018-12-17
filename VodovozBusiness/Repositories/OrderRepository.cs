@@ -12,7 +12,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using FluentNHibernate.Utils;
 
 namespace Vodovoz.Repository
 {
@@ -31,6 +30,13 @@ namespace Vodovoz.Repository
 				store.AppendValues(s);
 			}
 			return store;
+		}
+
+		public static QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
+		{
+			return QueryOver.Of<VodovozOrder>()
+			.Where(x => x.SelfDelivery)
+			.Where(x => x.OrderStatus == OrderStatus.WaitForPayment);
 		}
 
 		public static QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped)
@@ -280,8 +286,33 @@ namespace Vodovoz.Repository
 			};
 		}
 
-		public static OrderStatus[] GetStatusesForActualCount()
+		public static OrderStatus[] GetStatusesForActualCount(Domain.Orders.Order order)
 		{
+			if(order.SelfDelivery) {
+				if(order.PayAfterLoad) {
+					return new OrderStatus[] {
+						OrderStatus.WaitForPayment,
+						OrderStatus.OnLoading,
+						OrderStatus.OnTheWay,
+						OrderStatus.DeliveryCanceled,
+						OrderStatus.Shipped,
+						OrderStatus.UnloadingOnStock,
+						OrderStatus.NotDelivered,
+						OrderStatus.Closed
+					};
+				} else {
+					return new OrderStatus[] {
+						OrderStatus.OnLoading,
+						OrderStatus.OnTheWay,
+						OrderStatus.DeliveryCanceled,
+						OrderStatus.Shipped,
+						OrderStatus.UnloadingOnStock,
+						OrderStatus.NotDelivered,
+						OrderStatus.Closed
+					};
+				}
+			}
+
 			return new OrderStatus[]{
 				OrderStatus.Canceled,
 				OrderStatus.Closed,

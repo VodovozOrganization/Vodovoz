@@ -20,9 +20,25 @@ namespace Vodovoz.Repository.Cash
 			return uow.Session.QueryOver<IncomeCategory> ().OrderBy (ic => ic.Name).Asc ().List ();
 		}
 
+		public static IList<IncomeCategory> SelfDeliveryIncomeCategories(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<IncomeCategory>()
+				.Where(x => x.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery)
+				.OrderBy(ic => ic.Name).Asc()
+				.List();
+		}
+
 		public static IList<ExpenseCategory> ExpenseCategories (IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<ExpenseCategory> ().OrderBy (ec => ec.Name).Asc ().List ();
+		}
+
+		public static IList<ExpenseCategory> ExpenseSelfDeliveryCategories(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<ExpenseCategory>()
+				.Where(x => x.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery)
+				.OrderBy(ec => ec.Name).Asc()
+				.List();
 		}
 
 		public static QueryOver<ExpenseCategory> ExpenseCategoriesQuery ()

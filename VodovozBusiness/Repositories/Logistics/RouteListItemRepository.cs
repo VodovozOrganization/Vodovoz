@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using NHibernate.Criterion;
 using NHibernate.Util;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
+using System.Linq;
+using VodovozOrder =  Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Repository.Logistics
 {
 	public static class RouteListItemRepository
 	{
-		public static RouteListItem GetRouteListItemForOrder(IUnitOfWork uow, Order order)
+		public static RouteListItem GetRouteListItemForOrder(IUnitOfWork uow, VodovozOrder order)
 		{
 			RouteListItem routeListItemAlias = null;
 
@@ -19,7 +21,15 @@ namespace Vodovoz.Repository.Logistics
 				      .SingleOrDefault ();
 		}
 
-		public static bool WasOrderInAnyRouteList(IUnitOfWork uow, Order order)
+		public static bool HasRouteListItemsForOrder(IUnitOfWork uow, VodovozOrder order)
+		{
+			return uow.Session.QueryOver<RouteListItem>()
+					  .Where(x => x.Order.Id == order.Id)
+					  .Select(Projections.Count<RouteListItem>(x => x.Id))
+					  .SingleOrDefault<int>() > 0;
+		}
+
+		public static bool WasOrderInAnyRouteList(IUnitOfWork uow, VodovozOrder order)
 		{
 			return !uow.Session.QueryOver<RouteListItem>()
 				       .Where(i => i.Order == order)

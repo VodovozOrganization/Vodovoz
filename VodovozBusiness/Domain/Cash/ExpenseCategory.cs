@@ -22,6 +22,17 @@ namespace Vodovoz.Domain.Cash
 			set { SetField (ref name, value, () => Name); }
 		}
 
+		ExpenseInvoiceDocumentType expenseDocumentType;
+		/// <summary>
+		/// Тип расходного ордера для которого возможно будет выбрать эту категорию
+		/// </summary>
+		[Required(ErrorMessage = "Должно быть заполнен тип расходного ордера.")]
+		[Display(Name = "Тип расходного ордера")]
+		public virtual ExpenseInvoiceDocumentType ExpenseDocumentType {
+			get { return expenseDocumentType; }
+			set { SetField(ref expenseDocumentType, value, () => ExpenseDocumentType); }
+		}
+
 		#endregion
 
 		public ExpenseCategory ()

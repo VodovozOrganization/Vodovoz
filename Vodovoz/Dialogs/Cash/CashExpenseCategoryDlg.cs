@@ -34,6 +34,9 @@ namespace Vodovoz
 
 			yentryParent.SubjectType = typeof(ExpenseCategory);
 			yentryParent.Binding.AddBinding(Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
+
+			yenumTypeDocument.ItemsEnum = typeof(ExpenseInvoiceDocumentType);
+			yenumTypeDocument.Binding.AddBinding(Entity, e => e.ExpenseDocumentType, w => w.SelectedItem).InitializeFromSource();
 		}
 
 		public override bool Save ()

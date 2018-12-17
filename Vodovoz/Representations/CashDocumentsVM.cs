@@ -78,11 +78,18 @@ namespace Vodovoz.ViewModel
 							, Projections.Property(() => incomeCategoryAlias.Name)
 							, Projections.Property(() => expenseCategoryAlias.Name)
 						)).WithAlias (() => resultAlias.Category)
+						.Select(() => incomeAlias.TypeDocument).WithAlias(() => resultAlias.IncomeDocumentType)
 					)
 					.TransformUsing (Transformers.AliasToBean<CashDocumentsVMNode> ())
 					.List<CashDocumentsVMNode> ();
 				
-				incomeList.ToList ().ForEach (i => i.DocTypeEnum = CashDocumentType.Income);
+				incomeList.ToList ().ForEach (i => {
+					if(i.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery) {
+						i.DocTypeEnum = CashDocumentType.IncomeSelfDelivery;
+					} else {
+						i.DocTypeEnum = CashDocumentType.Income;
+					}
+				});
 				result.AddRange (incomeList);
 			}
 		
@@ -114,11 +121,18 @@ namespace Vodovoz.ViewModel
 						.Select (() => casherAlias.LastName).WithAlias (() => resultAlias.CasherSurname)
 						.Select (() => casherAlias.Patronymic).WithAlias (() => resultAlias.CasherPatronymic)
 						.Select (() => expenseCategoryAlias.Name).WithAlias (() => resultAlias.Category)
+						.Select (() => expenseAlias.TypeDocument).WithAlias(() => resultAlias.ExpenseDocumentType)
 					)
 					.TransformUsing (Transformers.AliasToBean<CashDocumentsVMNode> ())
 					.List<CashDocumentsVMNode> ();
 
-				expenseList.ToList ().ForEach (i => i.DocTypeEnum = CashDocumentType.Expense);
+				expenseList.ToList ().ForEach (i => {
+					if(i.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery) {
+						i.DocTypeEnum = CashDocumentType.ExpenseSelfDelivery;
+					} else {
+						i.DocTypeEnum = CashDocumentType.Expense;
+					}
+				});
 				result.AddRange (expenseList);
 			}
 
@@ -163,13 +177,13 @@ namespace Vodovoz.ViewModel
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<CashDocumentsVMNode>.Create ()
 			//.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString())
-			.AddColumn ("Тип документа").SetDataProperty (node => node.DocTypeString)
-			.AddColumn ("Дата").SetDataProperty (node => node.DateString)
-			.AddColumn ("Сотрудник").SetDataProperty (node => node.EmployeeString)
-			.AddColumn ("Статья").SetDataProperty (node => node.Category)
-			.AddColumn ("Сумма").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Money))
-			.AddColumn ("Кассир").SetDataProperty (node => node.CasherString)
-			.AddColumn ("Основание").SetDataProperty (node => node.Description)
+			.AddColumn("Тип документа").SetDataProperty (node => node.DocTypeString)
+			.AddColumn("Дата").SetDataProperty (node => node.DateString)
+			.AddColumn("Сотрудник").SetDataProperty (node => node.EmployeeString)
+			.AddColumn("Статья").SetDataProperty (node => node.Category)
+			.AddColumn("Сумма").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Money))
+			.AddColumn("Кассир").SetDataProperty (node => node.CasherString)
+			.AddColumn("Основание").SetDataProperty (node => node.Description)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -238,6 +252,9 @@ namespace Vodovoz.ViewModel
 				return StringWorks.PersonNameWithInitials (CasherSurname, CasherName, CasherPatronymic);
 			}
 		}
+
+		public IncomeInvoiceDocumentType IncomeDocumentType { get; set; }
+		public ExpenseInvoiceDocumentType ExpenseDocumentType { get; set; }
 
 		public string Category { get; set; }
 

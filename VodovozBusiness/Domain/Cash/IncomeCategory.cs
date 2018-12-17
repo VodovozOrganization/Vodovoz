@@ -23,6 +23,17 @@ namespace Vodovoz.Domain.Cash
 			set { SetField (ref name, value, () => Name); }
 		}
 
+		IncomeInvoiceDocumentType incomeDocumentType;
+		/// <summary>
+		/// Тип приходного ордера для котором возможно будет выбрать эту категорию
+		/// </summary>
+		[Required(ErrorMessage = "Должно быть заполнен тип приходного ордера.")]
+		[Display(Name = "Тип приходного ордера")]
+		public virtual IncomeInvoiceDocumentType IncomeDocumentType {
+			get { return incomeDocumentType; }
+			set { SetField(ref incomeDocumentType, value, () => IncomeDocumentType); }
+		}
+
 		#endregion
 
 		public IncomeCategory ()

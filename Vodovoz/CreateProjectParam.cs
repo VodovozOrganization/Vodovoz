@@ -17,6 +17,7 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs;
+using Vodovoz.Dialogs.Cash;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;
@@ -83,6 +84,8 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("can_edit_online_store", new UserPermission("can_edit_online_store", "Изменение для онлайн магазина", "Пользователь может изменять группы товаров влияющие на выгрузку в интернет магазин."));
 			QSMain.ProjectPermission.Add("can_edit_delivery_price_rules", new UserPermission("can_edit_delivery_price_rules", "Создание и изменение правил доставки", "Пользователь может создавать и изменять правила доставки.\nДля установки цен доставки отдельных прав не нужно."));
 			QSMain.ProjectPermission.Add("can_set_free_delivery", new UserPermission("can_set_free_delivery", "Отключение для точки доставки платной доставки", "Пользователь может отмечать точки доставки флагом \"Всегда бесплатная доставка\""));
+			QSMain.ProjectPermission.Add("allow_load_selfdelivery", new UserPermission("allow_load_selfdelivery", "Разрешение отгрузки самовывоза", "Пользователь может переводить заказ с самовывозом в статус на погрузку"));
+			QSMain.ProjectPermission.Add("accept_cashless_paid_selfdelivery", new UserPermission("accept_cashless_paid_selfdelivery", "Разрешение отметки оплаты самовывоза", "Пользователь может отмечать заказ с самовывозом по безналу как оплаченный"));
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
@@ -176,8 +179,8 @@ namespace Vodovoz
 				//Сервис
 				OrmObjectMapping<ServiceClaim>.Create().Dialog<ServiceClaimDlg>().DefaultTableView().Column("Номер", x => x.Id.ToString()).Column("Тип", x => x.ServiceClaimType.GetEnumTitle()).Column("Оборудование", x => x.Equipment.Title).Column("Подмена", x => x.ReplacementEquipment != null ? "Да" : "Нет").Column("Точка доставки", x => x.DeliveryPoint.Title).End(),
 				//Касса
-				OrmObjectMapping<IncomeCategory>.Create ().EditPermision ("money_manage_cash").DefaultTableView ().Column("Код", x => x.Id.ToString()).Column ("Название", e => e.Name).End (),
-				OrmObjectMapping<ExpenseCategory>.Create ().Dialog<CashExpenseCategoryDlg>().EditPermision ("money_manage_cash").DefaultTableView ().Column("Код", x => x.Id.ToString()).SearchColumn ("Название", e => e.Name).TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End (),
+				OrmObjectMapping<IncomeCategory>.Create ().Dialog<CashIncomeCategoryDlg>().EditPermision ("money_manage_cash").DefaultTableView ().Column("Код", x => x.Id.ToString()).Column ("Название", e => e.Name).Column ("Тип документа", e => e.IncomeDocumentType.GetEnumTitle()).End (),
+				OrmObjectMapping<ExpenseCategory>.Create ().Dialog<CashExpenseCategoryDlg>().EditPermision ("money_manage_cash").DefaultTableView ().Column("Код", x => x.Id.ToString()).SearchColumn ("Название", e => e.Name).Column ("Тип документа", e => e.ExpenseDocumentType.GetEnumTitle()).TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End (),
 				OrmObjectMapping<Income>.Create ().Dialog<CashIncomeDlg> (),
 				OrmObjectMapping<Expense>.Create ().Dialog<CashExpenseDlg> (),
 				OrmObjectMapping<AdvanceReport>.Create ().Dialog<AdvanceReportDlg> (),

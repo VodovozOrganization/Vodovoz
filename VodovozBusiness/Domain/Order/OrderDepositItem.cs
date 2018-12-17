@@ -7,6 +7,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -120,10 +121,11 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public int CurrentCount {
 			get {
-				if(Repository.OrderRepository.GetStatusesForActualCount().Contains(Order.OrderStatus))
+				if(OrderRepository.GetStatusesForActualCount(Order).Contains(Order.OrderStatus)) {
 					return ActualCount;
-				else
+				} else {
 					return Count;
+				}
 			}
 		}
 
