@@ -173,8 +173,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>507.74pt</Width>
         <Value>Произведенные работы</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.9pt</Left>
-        <Top>402.1pt</Top>
+        <Left>0.0pt</Left>
+        <Top>466.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -191,8 +191,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
-        <Left>374.6pt</Left>
-        <Top>527.9pt</Top>
+        <Left>383.1pt</Left>
+        <Top>593.4pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -208,8 +208,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>113.52pt</Width>
         <Value>Подпись клиента</Value>
         <ZIndex>1</ZIndex>
-        <Left>379.4pt</Left>
-        <Top>539.7pt</Top>
+        <Left>387.9pt</Left>
+        <Top>605.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -224,8 +224,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
-        <Left>371.5pt</Left>
-        <Top>559.8pt</Top>
+        <Left>380.0pt</Left>
+        <Top>625.3pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -241,8 +241,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>115.02pt</Width>
         <Value>= Iif(First({is_service}, "Order"), "Подпись исполнителя", "Подпись водителя")</Value>
         <ZIndex>1</ZIndex>
-        <Left>376.3pt</Left>
-        <Top>571.6pt</Top>
+        <Left>384.8pt</Left>
+        <Top>637.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -257,8 +257,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>40.02pt</Width>
         <Value>Итого:</Value>
         <ZIndex>1</ZIndex>
-        <Left>24.1pt</Left>
-        <Top>531.3pt</Top>
+        <Left>13.0pt</Left>
+        <Top>586.2pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
           <FontSize>12pt</FontSize>
@@ -270,8 +270,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Value>
         </Value>
         <ZIndex>1</ZIndex>
-        <Left>62.9pt</Left>
-        <Top>531.5pt</Top>
+        <Left>52.3pt</Left>
+        <Top>584.9pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -461,8 +461,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.9pt</Left>
-        <Top>423.3pt</Top>
+        <Left>0.0pt</Left>
+        <Top>482.2pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -646,7 +646,6 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
       </fyi:Grid>
       <Table Name="Table1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>equipments</DataSetName>
-        <NoRows>Выезд мастера</NoRows>
         <Style>
           <BorderStyle>
             <Default>None</Default>
@@ -667,60 +666,16 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
             <Width>322.4pt</Width>
           </TableColumn>
         </TableColumns>
-        <Header>
-          <TableRows>
-            <TableRow>
-              <Height>15.2pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value>Модель</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <FontFamily>Times New Roman</FontFamily>
-                        <FontSize>12pt</FontSize>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox12">
-                      <Value>Серийный номер</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <FontFamily>Times New Roman</FontFamily>
-                        <FontSize>12pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-          <RepeatOnNewPage>true</RepeatOnNewPage>
-        </Header>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>28.8pt</Height>
+              <Height>22.0pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox14">
+                    <Textbox Name="Textbox42">
                       <Value>={nomenclature}</Value>
-                      <Style>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -732,10 +687,10 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox15">
+                    <Textbox Name="Textbox43">
                       <Value>
                       </Value>
-                      <Style>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -749,8 +704,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.7pt</Left>
-        <Top>356.9pt</Top>
+        <Left>0.8pt</Left>
+        <Top>437.8pt</Top>
       </Table>
       <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>28.50pt</Height>
@@ -954,8 +909,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>504.37pt</Width>
         <Value>Оцените работу мастера по пятибальной системе</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>630.30pt</Top>
+        <Left>1.6pt</Left>
+        <Top>691.4pt</Top>
         <Style>
           <FontSize>14pt</FontSize>
           <BorderStyle />
@@ -970,8 +925,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
         <ZIndex>1</ZIndex>
-        <Left>359.2pt</Left>
-        <Top>659.1pt</Top>
+        <Left>372.2pt</Left>
+        <Top>719.4pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -987,8 +942,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>113.52pt</Width>
         <Value>Подпись клиента</Value>
         <ZIndex>1</ZIndex>
-        <Left>364.0pt</Left>
-        <Top>670.9pt</Top>
+        <Left>377.0pt</Left>
+        <Top>731.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1003,8 +958,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>472.74pt</Width>
         <Value>Вы можете оставить свои отзывы, пожелания, рекомендации в книге отзывов и предложений.</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>697.1pt</Top>
+        <Left>1.6pt</Left>
+        <Top>758.2pt</Top>
         <Style>
           <FontSize>10pt</FontSize>
           <FontFamily>Times New Roman</FontFamily>
@@ -1015,8 +970,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Width>143.78pt</Width>
         <Value>Результат диагностики</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.8pt</Left>
-        <Top>303.2pt</Top>
+        <Left>0.0pt</Left>
+        <Top>299.2pt</Top>
         <Style>
           <PaddingBottom>5pt</PaddingBottom>
           <PaddingLeft>5pt</PaddingLeft>
@@ -1042,8 +997,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Value>
         </Value>
         <ZIndex>1</ZIndex>
-        <Left>146.2pt</Left>
-        <Top>303.3pt</Top>
+        <Left>148.5pt</Left>
+        <Top>299.3pt</Top>
         <Style>
           <PaddingBottom>10pt</PaddingBottom>
           <PaddingLeft>10pt</PaddingLeft>
@@ -1227,12 +1182,12 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <Left>5.6pt</Left>
-        <Top>659.4pt</Top>
+        <Left>1.6pt</Left>
+        <Top>720.5pt</Top>
       </fyi:Grid>
       <Table Name="Table3">
         <DataSetName>MasterOrderItem</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет данных</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1447,8 +1402,8 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.8pt</Left>
-        <Top>556.1pt</Top>
+        <Left>2.4pt</Left>
+        <Top>603.4pt</Top>
       </fyi:Grid>
       <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid4">
         <Style>
@@ -1514,8 +1469,165 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.6pt</Left>
-        <Top>598.4pt</Top>
+        <Left>1.6pt</Left>
+        <Top>659.5pt</Top>
+      </fyi:Grid>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid5">
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>187.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>322.4pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>22.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Модель</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <PaddingLeft>5pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>Серийный номер</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>22.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox68">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox69">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>22.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>22.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>344.8pt</Top>
       </fyi:Grid>
     </ReportItems>
   </Body>

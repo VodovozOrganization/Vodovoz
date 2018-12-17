@@ -29,9 +29,9 @@
     counterparty.name AS counterparty_name,
     delivery_points.compiled_address_short,
     delivery_schedule.name AS delivery_schedule,
-    IFNULL(orders.delivered_time,
+    IFNULL(orders.time_delivered,
             route_list_addresses.status_last_update) AS delivered_time,
-    TIMEDIFF(TIME(IFNULL(orders.delivered_time,
+    TIMEDIFF(TIME(IFNULL(orders.time_delivered,
                         route_list_addresses.status_last_update)),
             delivery_schedule.to_time) AS delay
 FROM
