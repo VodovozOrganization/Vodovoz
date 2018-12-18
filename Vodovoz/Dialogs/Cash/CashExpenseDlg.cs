@@ -85,6 +85,7 @@ namespace Vodovoz
 
 			logger.Info ("Сохраняем расходный ордер...");
 			UoWGeneric.Save();
+			OrmMain.NotifyObjectUpdated(new object[] { Entity.Order });
 			logger.Info ("Ok");
 			return true;
 
