@@ -483,9 +483,11 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatus(OrderStatus.OnTheWay);
+					Order.TimeDelivered = null;
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatus(OrderStatus.NotDelivered);
+					Order.TimeDelivered = null;
 					break;
 			}
 			uow.Save(Order);

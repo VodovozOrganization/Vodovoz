@@ -236,6 +236,7 @@ namespace Vodovoz
 				notebookMain.CurrentPage = 1;
 		}
 
+# region Driver & forwarder
 		protected void OnButtonAddDistrictClicked(object sender, EventArgs e)
 		{
 			var SelectDistrict = new OrmReference(
@@ -286,6 +287,8 @@ namespace Vodovoz
 				Entity.WageCalcRate = 0;
 			}
 		}
+
 	}
+	#endregion
 }
 

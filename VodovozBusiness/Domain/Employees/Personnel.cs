@@ -52,6 +52,14 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref patronymic, value?.Trim(), () => Patronymic); }
 		}
 
+		DateTime birthdayDate;
+
+		[Display(Name = "Дата рождения")]
+		public virtual DateTime BirthdayDate {
+			get { return birthdayDate; }
+			set { SetField(ref birthdayDate,value,() => birthdayDate); }
+		}
+
 		[Display(Name = "Тип")]
 		public abstract EmployeeType EmployeeType { get; set; }
 
@@ -125,6 +133,14 @@ namespace Vodovoz.Domain.Employees
 		public virtual IList<QSContacts.Phone> Phones {
 			get { return phones; }
 			set { SetField(ref phones, value, () => Phones); }
+		}
+
+		IList<EmployeeDocument> documents = new List<EmployeeDocument>();
+
+		[Display(Name = "Документы")]
+		public virtual IList<EmployeeDocument> Documents {
+			get { return documents; }
+			set { SetField(ref documents, value, () => documents); }
 		}
 
 		Nationality nationality;

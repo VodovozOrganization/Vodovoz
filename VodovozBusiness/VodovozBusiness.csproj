@@ -539,6 +539,8 @@
     <Compile Include="Domain\Payments\PaymentFromTinkoff.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentFromTinkoffMap.cs" />
     <Compile Include="Repositories\Payments\PaymentsRepository.cs" />
+    <Compile Include="Domain\Employees\EmployeeDocument.cs" />
+    <Compile Include="HibernateMapping\Employees\EmployeeDocumentMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
