@@ -124,7 +124,6 @@ namespace Vodovoz
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(7)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -281,10 +280,12 @@ namespace Vodovoz
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label();
+			this.label2.Events = ((global::Gdk.EventMask)(768));
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
 			this.label2.Yalign = 0F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Оперативная сводка:");
+			this.label2.Selectable = true;
 			this.table1.Add(this.label2);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));
 			w17.LeftAttach = ((uint)(4));
@@ -698,6 +699,7 @@ namespace Vodovoz
 			this.buttonWarnings.Hide();
 			this.Hide();
 			this.ydateForRoutes.DateChanged += new global::System.EventHandler(this.OnYdateForRoutesDateChanged);
+			this.label2.WidgetEvent += new global::Gtk.WidgetEventHandler(this.OnLabel2WidgetEvent);
 			this.buttonWarnings.Clicked += new global::System.EventHandler(this.OnButtonWarningsClicked);
 			this.ytimeToDelivery.WidgetEvent += new global::Gtk.WidgetEventHandler(this.OnYtimeToDeliveryWidgetEvent);
 			this.buttonLoad.Clicked += new global::System.EventHandler(this.OnButtonLoadClicked);

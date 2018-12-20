@@ -1044,6 +1044,8 @@
     <Compile Include="ServiceDialogs\PaymentsFromTinkoffParser.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromTinkoffReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromTinkoffReport.cs" />
+    <Compile Include="Dialogs\Logistic\OptimizingParametersDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.OptimizingParametersDlg.cs" />
     <Compile Include="Dialogs\Cash\CashIncomeSelfDeliveryDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeSelfDeliveryDlg.cs" />
     <Compile Include="Dialogs\Cash\CashIncomeCategoryDlg.cs" />
