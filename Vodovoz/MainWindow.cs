@@ -24,6 +24,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.ReportsParameters;
+using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Representations;
@@ -1059,7 +1060,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				var dlg = new OrmReference(typeof(DeliveryPriceRule)) {
 					ButtonMode = right ? ReferenceButtonMode.CanAll : ReferenceButtonMode.None
 				};
-				return dlg; 
+				return dlg;
 			}
 		);
 	}
@@ -1069,6 +1070,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromTinkoffReport>(),
 			() => new QSReport.ReportViewDlg(new PaymentsFromTinkoffReport())
+		);
+	}
+
+	protected void OnActionOrdersByDistrictsAndDeliverySchedulesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<OrdersByDistrictsAndDeliverySchedulesReport>(),
+			() => new QSReport.ReportViewDlg(new OrdersByDistrictsAndDeliverySchedulesReport())
 		);
 	}
 }

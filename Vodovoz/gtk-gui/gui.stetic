@@ -996,6 +996,17 @@
         <property name="ShortLabel" translatable="yes">Оплаты OnLine заказов</property>
         <signal name="Activated" handler="OnOnLineActionActivated" />
       </action>
+      <action id="ActionLogistic">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Логистика</property>
+        <property name="ShortLabel" translatable="yes">Логистика</property>
+      </action>
+      <action id="ActionOrdersByDistrictsAndDeliverySchedules">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Заказы по районам и интервалам доставки</property>
+        <property name="ShortLabel" translatable="yes">Заказы по районам и интервалам</property>
+        <signal name="Activated" handler="OnActionOrdersByDistrictsAndDeliverySchedulesActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -1148,6 +1159,9 @@
                       <node type="Menuitem" action="ActionBottlesMovementRLReport" />
                       <node type="Menuitem" action="ActionShortfallBattles" />
                       <node type="Menuitem" action="ReportKungolovo" />
+                    </node>
+                    <node type="Menu" action="ActionLogistic">
+                      <node type="Menuitem" action="ActionOrdersByDistrictsAndDeliverySchedules" />
                     </node>
                     <node type="Separator" />
                     <node type="Menu" action="ActionReportEmployees">
@@ -1394,6 +1408,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -28702,7 +28717,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -65617,6 +65631,96 @@ not tooltip</property>
           <packing>
             <property name="Position">4</property>
             <property name="AutoSize">True</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Logistic.OrdersByDistrictsAndDeliverySchedulesReport" design-size="157 138">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.Table" id="table1">
+        <property name="MemberName" />
+        <property name="NRows">4</property>
+        <property name="NColumns">2</property>
+        <property name="RowSpacing">6</property>
+        <property name="ColumnSpacing">6</property>
+        <property name="BorderWidth">6</property>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonRun">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Сформировать отчет</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonRunClicked" />
+          </widget>
+          <packing>
+            <property name="TopAttach">3</property>
+            <property name="BottomAttach">4</property>
+            <property name="RightAttach">2</property>
+            <property name="AutoSize">False</property>
+            <property name="XOptions">0</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">False</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gamma.GtkWidgets.yLabel" id="lblDate">
+            <property name="MemberName" />
+            <property name="LabelProp" translatable="yes">Дата:</property>
+          </widget>
+          <packing>
+            <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="QSWidgetLib.DatePicker" id="pkrDate">
+            <property name="MemberName" />
+            <property name="Events">ButtonPressMask</property>
+            <property name="WithTime">False</property>
+            <property name="Date">0</property>
+            <property name="IsEditable">True</property>
+            <property name="AutoSeparation">False</property>
+            <signal name="DateChangedByUser" handler="OnPkrDateDateChangedByUser" />
+          </widget>
+          <packing>
+            <property name="LeftAttach">1</property>
+            <property name="RightAttach">2</property>
+            <property name="AutoSize">False</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">True</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
           </packing>
         </child>
       </widget>
