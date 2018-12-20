@@ -1105,7 +1105,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool NeedSendBill()
 		{
-			if((OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment) && !PayAfterShipment) {
+			if((OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment) 
+				&& PaymentType == PaymentType.cashless
+				&& !EmailRepository.HaveSendedEmail(Id, OrderDocumentType.Bill)) {
 				//Проверка должен ли формироваться счет для текущего заказа
 				return GetRequirementDocTypes().Contains(OrderDocumentType.Bill);
 			}
@@ -2413,6 +2415,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(SelfDelivery) {
 				LoadAllowedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				UpdateDocuments();
 			}
 		}
 
@@ -2429,11 +2432,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		private void OnChangeStatusToWaitingForPayment()
 		{
-			//Создается счет
-			var billDoc = ObservableOrderDocuments.FirstOrDefault(x => x.Order == this && x.Type == OrderDocumentType.Bill) as BillDocument;
-			if(billDoc == null) {
-				ObservableOrderDocuments.Add(CreateDocumentOfOrder(OrderDocumentType.Bill));
-			}
+			UpdateDocuments();
 		}
 
 		/// <summary>
