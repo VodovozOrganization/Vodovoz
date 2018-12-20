@@ -30,6 +30,26 @@ namespace Vodovoz.Repository.Store
 			return result;
 		}
 
+		public static Dictionary<int, decimal> OrderNomenclaturesLoaded(IUnitOfWork UoW, Order order)
+		{
+			SelfDeliveryDocument docAlias = null;
+			SelfDeliveryDocumentItem docItemsAlias = null;
+
+			ItemInStock inLoaded = null;
+			var loadedlist = UoW.Session.QueryOver<SelfDeliveryDocument>(() => docAlias)
+				.Where(d => d.Order.Id == order.Id)
+				.JoinAlias(d => d.Items, () => docItemsAlias)
+				.SelectList(list => list
+				   .SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inLoaded.Id)
+				   .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inLoaded.Added)
+				).TransformUsing(Transformers.PassThrough).List<object[]>();
+			var result = new Dictionary<int, decimal>();
+			foreach(var loadedItem in loadedlist) {
+				result.Add((int)loadedItem[0], (decimal)loadedItem[1]);
+			}
+			return result;
+		}
+
 		/// <summary>
 		/// Выводит список id товара в заказе и количество отгруженное со склада 
 		/// по документам отгрузки, исключая указанный документ открузки
@@ -43,15 +63,19 @@ namespace Vodovoz.Repository.Store
 			SelfDeliveryDocumentItem docItemsAlias = null;
 
 			ItemInStock inUnload = null;
-			var unloadedlist = UoW.Session.QueryOver<SelfDeliveryDocument>(() => docAlias)
-			                      .JoinAlias(d => d.Items, () => docItemsAlias)
-			                      .Where(d => d.Order.Id == order.Id)
-			                      .Where(d => d.Id != excludeDoc.Id)				
-			                      .WhereRestrictionOn(() => docItemsAlias.OrderItem).IsNotNull
-				.SelectList(list => list
+			var unloadedQuery = UoW.Session.QueryOver<SelfDeliveryDocument>(() => docAlias)
+								  .JoinAlias(d => d.Items, () => docItemsAlias)
+								  .Where(d => d.Order.Id == order.Id)
+								  .WhereRestrictionOn(() => docItemsAlias.OrderItem).IsNotNull;
+			if(excludeDoc != null && excludeDoc.Id != 0) {
+				unloadedQuery.Where(d => d.Id != excludeDoc.Id);
+			}
+
+			var unloadedlist = unloadedQuery.SelectList(list => list
 				   .SelectGroup(() => docItemsAlias.OrderItem.Id).WithAlias(() => inUnload.Id)
 				   .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inUnload.Added)
 				).TransformUsing(Transformers.PassThrough).List<object[]>();
+
 			var result = new Dictionary<int, decimal>();
 			foreach(var unloadedItem in unloadedlist) {
 				result.Add((int)unloadedItem[0], (decimal)unloadedItem[1]);
@@ -65,12 +89,14 @@ namespace Vodovoz.Repository.Store
 			SelfDeliveryDocumentItem docItemsAlias = null;
 
 			ItemInStock inUnload = null;
-			var unloadedlist = UoW.Session.QueryOver<SelfDeliveryDocument>(() => docAlias)
+			var unloadedQuery = UoW.Session.QueryOver<SelfDeliveryDocument>(() => docAlias)
 								  .JoinAlias(d => d.Items, () => docItemsAlias)
 								  .Where(d => d.Order.Id == order.Id)
-								  .Where(d => d.Id != excludeDoc.Id)
-			                      .WhereRestrictionOn(() => docItemsAlias.OrderEquipment).IsNotNull
-			                      .SelectList(list => list
+								  .WhereRestrictionOn(() => docItemsAlias.OrderEquipment).IsNotNull;
+			if(excludeDoc != null && excludeDoc.Id != 0) {
+				unloadedQuery.Where(d => d.Id != excludeDoc.Id);
+			}
+			var unloadedlist = unloadedQuery.SelectList(list => list
 			                                  .SelectGroup(() => docItemsAlias.OrderEquipment.Id).WithAlias(() => inUnload.Id)
 			                                  .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inUnload.Added)
 			                                 ).TransformUsing(Transformers.PassThrough).List<object[]>();

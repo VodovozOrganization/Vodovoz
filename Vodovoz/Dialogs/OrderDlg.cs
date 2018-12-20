@@ -218,7 +218,7 @@ namespace Vodovoz
 			textCommentsLogistic.Binding.AddBinding(Entity, s => s.CommentLogist, w => w.Buffer.Text).InitializeFromSource();
 
 			checkSelfDelivery.Binding.AddBinding(Entity, s => s.SelfDelivery, w => w.Active).InitializeFromSource();
-			checkPayAfterLoad.Binding.AddBinding(Entity, s => s.PayAfterLoad, w => w.Active).InitializeFromSource();
+			checkPayAfterLoad.Binding.AddBinding(Entity, s => s.PayAfterShipment, w => w.Active).InitializeFromSource();
 			checkDelivered.Binding.AddBinding(Entity, s => s.Shipped, w => w.Active).InitializeFromSource();
 			ylabelloadAllowed.Binding.AddFuncBinding(Entity, s => s.LoadAllowedBy != null ? s.LoadAllowedBy.ShortName : "", w => w.Text).InitializeFromSource();
 			entryBottlesToReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;

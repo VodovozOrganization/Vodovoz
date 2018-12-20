@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Service;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -162,6 +164,18 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#region Вычисляемые
+
+		/// <summary>
+		/// Свойство возвращает подходяшее значение Count или ActualCount в зависимости от статуса заказа.
+		/// </summary>
+		public virtual int CurrentCount {
+			get {
+				if(Order != null && OrderRepository.GetStatusesForActualCount(Order).Contains(Order.OrderStatus))
+					return ActualCount;
+				else
+					return Count;
+			}
+		}
 
 		public virtual int ReturnedCount => Count - ActualCount;
 		public virtual bool IsFullyDelivered => Count - ActualCount == 0;

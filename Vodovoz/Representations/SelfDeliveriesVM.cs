@@ -8,6 +8,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
@@ -18,6 +19,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repository;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Representations
@@ -54,9 +56,13 @@ namespace Vodovoz.Representations
 			.AddColumn("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
 			.AddColumn("Клиент").SetDataProperty(node => node.Counterparty)
 			.AddColumn("Вариант оплаты").SetDataProperty(node => node.PayOption)
-			.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
-			.AddColumn("Нал факт.").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashPaid))
-			.AddColumn("Нал разн.").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashDiff))
+			.AddColumn("Сумма товаров").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderSum))
+			.AddColumn("Сумма возврат").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderReturnSum))
+			.AddColumn("Сумма итог").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderSumTotal))
+			.AddColumn("Нал приход").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashPaid))
+			.AddColumn("Нал возврат").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashReturn))
+			.AddColumn("Нал итог").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashTotal))
+			.AddColumn("Итого разница").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.TotalDiff))
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 			.Finish();
 
@@ -72,12 +78,16 @@ namespace Vodovoz.Representations
 			VodovozOrder orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			OrderItem orderItemAlias = null;
+			OrderDepositItem orderDepositItemAlias = null;
 			Income incomeAlias = null;
+			Expense expenseAlias = null;
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			Employee authorAlias = null;
 
-			var query = UoW.Session.QueryOver<VodovozOrder>(() => orderAlias);
+			var query = UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
+				.Where(() => orderAlias.SelfDelivery)
+				.Where(() => !orderAlias.IsService);
 
 			if(Filter.RestrictStatus != null) {
 				query.Where(o => o.OrderStatus == Filter.RestrictStatus);
@@ -91,14 +101,6 @@ namespace Vodovoz.Representations
 				query.WhereRestrictionOn(o => o.PaymentType).IsIn(Filter.AllowPaymentTypes);
 			}
 
-			if(Filter.RestrictSelfDelivery != null) {
-				query.Where(o => o.SelfDelivery == Filter.RestrictSelfDelivery);
-			}
-
-			if(Filter.RestrictWithoutSelfDelivery != null) {
-				query.Where(o => o.SelfDelivery != Filter.RestrictWithoutSelfDelivery);
-			}
-
 			if(Filter.RestrictCounterparty != null) {
 				query.Where(o => o.Client == Filter.RestrictCounterparty);
 			}
@@ -107,19 +109,11 @@ namespace Vodovoz.Representations
 				query.Where(o => o.DeliveryPoint == Filter.RestrictDeliveryPoint);
 			}
 
-			if(Filter.RestrictHideService != null) {
-				query.Where(o => o.IsService != Filter.RestrictHideService);
-			}
-
-			if(Filter.RestrictOnlyService != null) {
-				query.Where(o => o.IsService == Filter.RestrictOnlyService);
-			}
-
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.Select(NHibernate.Criterion.Projections.Sum(() => orderItemAlias.Count));
+				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 											.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
@@ -134,9 +128,25 @@ namespace Vodovoz.Representations
 													   )
 												   )
 											   );
+			var orderSumReturnSubquery = QueryOver.Of<OrderDepositItem>(() => orderDepositItemAlias)
+											.Where(() => orderDepositItemAlias.Order.Id == orderAlias.Id)
+											.Select(
+												Projections.Sum(
+													Projections.SqlFunction(
+														new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2"),
+														NHibernateUtil.Decimal,
+														Projections.Property<OrderDepositItem>(x => x.Count),
+														Projections.Property<OrderDepositItem>(x => x.Deposit)
+													   )
+												   )
+											   );
 			var incomeCashSumSubquery = QueryOver.Of<Income>(() => incomeAlias)
 											.Where(() => incomeAlias.Order.Id == orderAlias.Id)
 											.Select(Projections.Sum(Projections.Property<Income>(x => x.Money)));
+
+			var expenseCashSumSubquery = QueryOver.Of<Expense>(() => expenseAlias)
+											.Where(() => expenseAlias.Order.Id == orderAlias.Id)
+											.Select(Projections.Sum(Projections.Property<Expense>(x => x.Money)));
 
 			var result = query
 				.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -150,13 +160,17 @@ namespace Vodovoz.Representations
 				   .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 				   .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
-				   .Select(() => orderAlias.PayAfterLoad).WithAlias(() => resultAlias.PayAfterLoad)
-				   .SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
+				   .Select(() => orderAlias.PayAfterShipment).WithAlias(() => resultAlias.PayAfterLoad)
+				   .SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.OrderSum)
+				   .SelectSubQuery(orderSumReturnSubquery).WithAlias(() => resultAlias.CashReturn)
 				   .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 				   .SelectSubQuery(incomeCashSumSubquery).WithAlias(() => resultAlias.CashPaid)
-				).OrderBy(x => x.DeliveryDate).Desc
+				   .SelectSubQuery(expenseCashSumSubquery).WithAlias(() => resultAlias.CashReturn)
+				).OrderBy(x => x.DeliveryDate).Desc.ThenBy(x => x.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<UnclosedSelfDeliveriesVMNode>())
-				.List<UnclosedSelfDeliveriesVMNode>();
+				.List<UnclosedSelfDeliveriesVMNode>()
+				.Where(x => !(x.StatusEnum == OrderStatus.Closed && !x.HaveDiff))
+				.ToList();
 
 			SetItemsSource(result);
 		}
@@ -193,7 +207,8 @@ namespace Vodovoz.Representations
 					() => new SelfDeliveryOrderEditDlg(selectedNode.Id)
 				);
 			};
-			menuItemEditOrder.Sensitive = isOneSelected && selectedOrder.OrderStatus == OrderStatus.OnLoading; ;
+			//Закрыт до уточнения работы кассы по самовывозу
+			menuItemEditOrder.Sensitive = isOneSelected && false;
 			popupMenu.Add(menuItemEditOrder);
 
 			return popupMenu;
@@ -203,14 +218,19 @@ namespace Vodovoz.Representations
 		{
 			var order = UoW.GetById<VodovozOrder>(orderId);
 
-			if(order.OrderSum > 0) {
+			if(order.SelfDeliveryIsFullyPaid()) {
+				MessageDialogHelper.RunInfoDialog("Заказ уже оплачен полностью");
+				return;
+			}
+
+			if(order.OrderSum > 0 && !order.SelfDeliveryIsFullyIncomePaid()) {
 				MainClass.MainWin.TdiMain.OpenTab(
 					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Income>(orderId),
 					() => new CashIncomeSelfDeliveryDlg(order)
 				);
 			}
 
-			if(order.OrderSumReturn < 0) {
+			if(order.OrderSumReturn < 0 && !order.SelfDeliveryIsFullyExpenseReturned()) {
 				MainClass.MainWin.TdiMain.OpenTab(
 					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Expense>(orderId),
 					() => new CashExpenseSelfDeliveryDlg(order)
@@ -238,9 +258,23 @@ namespace Vodovoz.Representations
 		public bool PayAfterLoad { get; set; }
 		public string PayOption => PayAfterLoad ? "После погрузки" : "До погрузки";
 
-		public decimal Sum { get; set; }
+		//заказ
+		public decimal OrderSum { get; set; }
+		public decimal OrderReturnSum { get; set; }
+		public decimal OrderSumTotal => OrderSum - OrderReturnSum;
+
+		//наличные по кассе
 		public decimal CashPaid { get; set; }
-		public decimal CashDiff => Sum - CashPaid;
+		public decimal CashReturn { get; set; }
+		public decimal CashTotal => CashPaid - CashReturn;
+
+		public decimal TotalDiff => OrderSumTotal - CashTotal;
+
+		public bool HaveDiff {
+			get {
+				return OrderSumTotal != CashTotal;
+			}
+		}
 
 		public string AuthorLastName { get; set; }
 		public string AuthorName { get; set; }
@@ -252,9 +286,13 @@ namespace Vodovoz.Representations
 
 		public string RowColor {
 			get {
-				if(CashPaid > 0 && CashDiff > 0) {
+				if(CashPaid > 0 && HaveDiff) {
 					//light red
 					return "#f97777";
+				}
+				if(StatusEnum == OrderStatus.Closed && HaveDiff) {
+					//red
+					return "#ee0000";
 				}
 				return "black";
 

@@ -313,6 +313,7 @@ namespace Vodovoz
 
 		protected void OnEnumcomboPaymentTypeChanged(object sender, EventArgs e)
 		{
+			OnRefiltered();
 		}
 	}
 }

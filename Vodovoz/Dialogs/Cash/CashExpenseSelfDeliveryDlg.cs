@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
@@ -59,6 +60,7 @@ namespace Vodovoz.Dialogs.Cash
 			var filterOrders = new OrdersFilter(UoW);
 			filterOrders.SetAndRefilterAtOnce(
 				x => x.RestrictStatus = OrderStatus.WaitForPayment,
+				x => x.AllowPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld },
 				x => x.RestrictSelfDelivery = true,
 				x => x.RestrictWithoutSelfDelivery = false,
 				x => x.RestrictHideService = true,

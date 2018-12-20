@@ -4,6 +4,7 @@ using Gdk;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using QSValidation;
@@ -181,8 +182,8 @@ namespace Vodovoz.Dialogs.Cash
 				return false;
 
 			logger.Info("Сохраняем ...");
-
-			UoWGeneric.Save();
+			//Entity. проверить оплату и погрузку();
+			//UoWGeneric.Save();
 			logger.Info("Ok");
 			return true;
 		}

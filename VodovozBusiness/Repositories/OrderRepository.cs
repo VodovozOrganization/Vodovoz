@@ -289,38 +289,17 @@ namespace Vodovoz.Repository
 		public static OrderStatus[] GetStatusesForActualCount(Domain.Orders.Order order)
 		{
 			if(order.SelfDelivery) {
-				if(order.PayAfterLoad) {
-					return new OrderStatus[] {
-						OrderStatus.WaitForPayment,
-						OrderStatus.OnLoading,
-						OrderStatus.OnTheWay,
-						OrderStatus.DeliveryCanceled,
-						OrderStatus.Shipped,
-						OrderStatus.UnloadingOnStock,
-						OrderStatus.NotDelivered,
-						OrderStatus.Closed
-					};
-				} else {
-					return new OrderStatus[] {
-						OrderStatus.OnLoading,
-						OrderStatus.OnTheWay,
-						OrderStatus.DeliveryCanceled,
-						OrderStatus.Shipped,
-						OrderStatus.UnloadingOnStock,
-						OrderStatus.NotDelivered,
-						OrderStatus.Closed
-					};
-				}
+				return new OrderStatus[0];
+			} else {
+				return new OrderStatus[]{
+					OrderStatus.Canceled,
+					OrderStatus.Closed,
+					OrderStatus.DeliveryCanceled,
+					OrderStatus.NotDelivered,
+					OrderStatus.Shipped,
+					OrderStatus.UnloadingOnStock
+				};
 			}
-
-			return new OrderStatus[]{
-				OrderStatus.Canceled,
-				OrderStatus.Closed,
-				OrderStatus.DeliveryCanceled,
-				OrderStatus.NotDelivered,
-				OrderStatus.Shipped,
-				OrderStatus.UnloadingOnStock
-			};
 		}
 
 		public static OrderStatus[] GetGrantedStatusesToCreateSeveralOrders()

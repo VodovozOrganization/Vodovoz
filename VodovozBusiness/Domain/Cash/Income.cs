@@ -244,9 +244,6 @@ namespace Vodovoz.Domain.Cash
 					if(!Order.SelfDelivery) {
 						yield return new ValidationResult("Должен быть выбран заказ с самовывозом");
 					}
-					if(Order.OrderStatus != OrderStatus.WaitForPayment) {
-						yield return new ValidationResult("Заказ должен быть в статусе ожидание оплаты");
-					}
 					if(Order.SumToReceive < Money) {
 						yield return new ValidationResult("Сумма к оплате не может быть больше чем сумма в заказе");
 					}

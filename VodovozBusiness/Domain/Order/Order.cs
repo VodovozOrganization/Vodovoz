@@ -24,6 +24,7 @@ using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Repository.Store;
 using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Domain.Orders
@@ -191,12 +192,12 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref selfDelivery, value, () => SelfDelivery); }
 		}
 
-		bool payAfterLoad;
+		bool payAfterShipment;
 
 		[Display(Name = "Оплата после отгрузки")]
-		public virtual bool PayAfterLoad {
-			get { return payAfterLoad; }
-			set { SetField(ref payAfterLoad, value, () => PayAfterLoad); }
+		public virtual bool PayAfterShipment {
+			get { return payAfterShipment; }
+			set { SetField(ref payAfterShipment, value, () => PayAfterShipment); }
 		}
 
 		Employee loadAllowedBy;
@@ -263,17 +264,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual Decimal ExtraMoney {
 			get { return extraMoney; }
 			set { SetField(ref extraMoney, value, () => ExtraMoney); }
-		}
-
-		[Display(Name = "Наличных к получению")]
-		public virtual Decimal SumToReceive {
-			get {
-				decimal money = TotalSum;
-				if(OrderRepository.GetStatusesForActualCount(this).Contains(OrderStatus))
-					money = ActualTotalSum;
-				return (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) ? money + ExtraMoney : 0;
-			}
-			protected set {; }
 		}
 
 		string sumDifferenceReason;
@@ -953,6 +943,17 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string RowColor { get { return PreviousOrder == null ? "black" : "red"; } }
 
+		[Display(Name = "Наличных к получению")]
+		public virtual Decimal SumToReceive {
+			get {
+				if(PaymentType != PaymentType.cash && PaymentType != PaymentType.BeveragesWorld) {
+					return 0;
+				}
+				return OrderSumTotal - OrderSumReturnTotal;
+			}
+			protected set {; }
+		}
+
 		[PropertyChangedAlso(nameof(SumToReceive))]
 		public virtual decimal TotalSum => OrderSum - OrderSumReturn;
 
@@ -963,6 +964,16 @@ namespace Vodovoz.Domain.Orders
 					sum += item.ActualSum;
 				}
 				return sum;
+			}
+		}
+
+		public virtual decimal OrderSumTotal {
+			get {
+				decimal result = OrderSum;
+				if(ExtraMoney > 0) {
+					result += ExtraMoney;
+				}
+				return result;
 			}
 		}
 
@@ -1094,7 +1105,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool NeedSendBill()
 		{
-			if((OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment) && !PayAfterLoad) {
+			if((OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment) && !PayAfterShipment) {
 				//Проверка должен ли формироваться счет для текущего заказа
 				return GetRequirementDocTypes().Contains(OrderDocumentType.Bill);
 			}
@@ -2460,7 +2471,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if(OrderStatus == OrderStatus.WaitForPayment && QSMain.User.Permissions["accept_cashless_paid_selfdelivery"]) {
-				if(PayAfterLoad) {
+				if(PayAfterShipment) {
 					ChangeStatus(OrderStatus.Closed);
 				} else {
 					ChangeStatus(OrderStatus.Accepted);
@@ -2469,7 +2480,21 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Принятие оплаты самовывоза по наличному расчету
+		/// Принятие оплаты самовывоза по наличному расчету.
+		/// Проверяется соответствие суммы заказа с суммой оплаченной в кассе.
+		/// Если проверка пройдена заказ закрывается или переводится на погрузку.
+		/// </summary>
+		public virtual void SelfDeliveryAcceptCashPaid()
+		{
+			SelfDeliveryAcceptCashPaid(0, 0);
+		}
+
+		/// <summary>
+		/// Принятие оплаты самовывоза по наличному расчету. С указанием дополнительным сумм по приходным и расходным ордерам
+		/// Проверяется соответствие суммы заказа с суммой оплаченной в кассе.
+		/// Если проверка пройдена заказ закрывается или переводится на погрузку.
+		/// <paramref name="expenseCash">Сумма по открытому расходному ордеру, добавляемая к ранее сохранным расходным ордерам</paramref>
+		/// <paramref name="incomeCash">Сумма по открытому приходному ордеру, добавляемая к ранее сохранным приходным ордерам</paramref>
 		/// </summary>
 		public virtual void SelfDeliveryAcceptCashPaid(decimal incomeCash, decimal expenseCash)
 		{
@@ -2480,16 +2505,64 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
+			bool isFullyPaid = GetSelfDeliveryTotalPayedCash(incomeCash, expenseCash) == SumToReceive;
+
+			if(!isFullyPaid) {
+				return;
+			}
+
+			bool isFullyLoad = IsFullyShippedSelfDeliveryOrder(UoW);
+
+			if(OrderStatus == OrderStatus.WaitForPayment) {
+				if(isFullyLoad) {
+					ChangeStatus(OrderStatus.Closed);
+				} else {
+					ChangeStatus(OrderStatus.OnLoading);
+				}
+				return;
+			}
+
+			if(OrderStatus == OrderStatus.OnLoading && isFullyLoad) {
+				ChangeStatus(OrderStatus.Closed);
+			}
+		}
+
+		/// <summary>
+		/// Проверяет полностью ли оплачен самовывоз и возвращены все деньги
+		/// </summary>
+		public virtual bool SelfDeliveryIsFullyPaid()
+		{
+			decimal totalCash = GetSelfDeliveryTotalPayedCash(0, 0);
+
+			return SumToReceive == totalCash;
+		}
+
+		/// <summary>
+		/// Проверяет полностью ли получены деньги по самовывозу
+		/// </summary>
+		public virtual bool SelfDeliveryIsFullyIncomePaid()
+		{
+			decimal totalPaid = CashRepository.GetIncomePaidSumForOrder(UoW, Id);
+
+			return OrderSumTotal == totalPaid;
+		}
+
+		/// <summary>
+		/// Проверяет полностью ли возвращены деньги по самовывозу
+		/// </summary>
+		public virtual bool SelfDeliveryIsFullyExpenseReturned()
+		{
+			decimal totalReturned = CashRepository.GetExpenseReturnSumForOrder(UoW, Id);
+
+			return OrderSumReturnTotal == totalReturned;
+		}
+
+		private decimal GetSelfDeliveryTotalPayedCash(decimal incomeCash, decimal expenseCash)
+		{
 			decimal totalCashPaid = CashRepository.GetIncomePaidSumForOrder(UoW, Id) + incomeCash;
 			decimal totalCashReturn = CashRepository.GetExpenseReturnSumForOrder(UoW, Id) + expenseCash;
 
-			if(OrderStatus == OrderStatus.WaitForPayment && SumToReceive == totalCashPaid - totalCashReturn) {
-				if(PayAfterLoad) {
-					ChangeStatus(OrderStatus.Closed);
-				} else {
-					ChangeStatus(OrderStatus.Accepted);
-				}
-			}
+			return totalCashPaid + totalCashReturn;
 		}
 
 		/// <summary>
@@ -2500,7 +2573,7 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus != OrderStatus.NewOrder) {
 				return;
 			}
-			if(PayAfterLoad) {
+			if(PayAfterShipment) {
 				ChangeStatus(OrderStatus.Accepted);
 			} else {
 				ChangeStatus(OrderStatus.WaitForPayment);
@@ -2553,8 +2626,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanEditOrder {
 			get {
-				return EditableOrderStatuses.Contains(OrderStatus) 
-				|| (OrderStatus == OrderStatus.OnTheWay && QSMain.User.Permissions["can_edit_on_the_way_order"]);
+				return EditableOrderStatuses.Contains(OrderStatus);
 			}
 		}
 
@@ -2600,27 +2672,160 @@ namespace Vodovoz.Domain.Orders
 				} else {
 					return new OrderStatus[] {
 						OrderStatus.Accepted,
-						OrderStatus.Canceled,
-						OrderStatus.OnTheWay
+						OrderStatus.Canceled
 					};
 				}
 			}
 		}
 
-		private void CloseSelfDelivery()
-		{
-			if(!SelfDelivery) {
-				return;
-			}
-			UpdateBottlesMovementOperationWithoutDelivery(UoW);
-			if(PayAfterLoad) {
-				ChangeStatus(OrderStatus.WaitForPayment);
-			} else {
-				ChangeStatus(OrderStatus.Closed);
+		public virtual bool CanSetOrderAsEditable {
+			get {
+				return SetOrderAsEditableStatuses.Contains(OrderStatus);
 			}
 		}
 
-		public virtual bool CanSetOrderAsEditable => SetOrderAsEditableStatuses.Contains(OrderStatus);
+		public virtual bool IsFullyShippedSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument = null)
+		{
+			if(!SelfDelivery) {
+				return false;
+			}
+
+			// Закрывает заказ и создает операцию движения бутылей если все товары в заказе отгружены
+			var unloadedItems = SelfDeliveryRepository.OrderItemUnloaded(uow, this, closingDocument);
+			var unloadedEquipments = SelfDeliveryRepository.OrderEquipmentsUnloaded(uow, this, closingDocument);
+			bool canCloseOrder = true;
+			var shipmentCats = Nomenclature.GetCategoriesForShipment();
+			foreach(var item in OrderItems.Where(x => shipmentCats.Contains(x.Nomenclature.Category))) {
+				decimal totalCount = default(decimal);
+				if(closingDocument != null) {
+					var deliveryItem = closingDocument.Items
+													  .Where(x => x.OrderItem != null)
+													  .FirstOrDefault(x => x.OrderItem.Id == item.Id);
+					if(deliveryItem != null) {
+						totalCount += deliveryItem.Amount;
+					}
+				}
+
+				if(unloadedItems.ContainsKey(item.Id)) {
+					totalCount += unloadedItems[item.Id];
+				}
+				if((int)totalCount != item.Count) {
+					canCloseOrder = false;
+				}
+			}
+
+			foreach(var equipment in orderEquipments.Where(x => shipmentCats.Contains(x.Nomenclature.Category))) {
+				decimal totalCount = default(decimal);
+				if(closingDocument != null) {
+					var deliveryItem = closingDocument.Items
+												  .Where(x => x.OrderEquipment != null)
+												  .FirstOrDefault(x => x.OrderEquipment.Id == equipment.Id);
+					if(deliveryItem != null) {
+						totalCount += deliveryItem.Amount;
+					}
+				}
+				if(unloadedEquipments.ContainsKey(equipment.Id)) {
+					totalCount += unloadedEquipments[equipment.Id];
+				}
+				if((int)totalCount != equipment.Count) {
+					canCloseOrder = false;
+				}
+			}
+
+			return canCloseOrder;
+		}
+
+		private void UpdateSelfDeliveryActualCounts()
+		{
+			var loadedList = SelfDeliveryRepository.OrderNomenclaturesLoaded(UoW, this);
+
+			foreach(var item in OrderItems) {
+				if(loadedList.ContainsKey(item.Nomenclature.Id)) {
+					item.ActualCount = (int)loadedList[item.Nomenclature.Id];
+					loadedList.Remove(item.Nomenclature.Id);
+				}
+			}
+
+			foreach(var item in OrderEquipments) {
+				if(loadedList.ContainsKey(item.Nomenclature.Id)) {
+					item.ActualCount = (int)loadedList[item.Nomenclature.Id];
+					loadedList.Remove(item.Nomenclature.Id);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Закрывает заказ с самовывозом если по всем документам самовывоза со склада все отгружено, и произведена оплата
+		/// </summary>
+		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument)
+		{
+			if(IsFullyShippedSelfDeliveryOrder(uow, closingDocument)) {
+				var isFullyPaid = SelfDeliveryIsFullyPaid();
+				var isCash = PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld;
+
+				UpdateBottlesMovementOperationWithoutDelivery(UoW);
+				if(isFullyPaid || !isCash) {
+					ChangeStatus(OrderStatus.Closed);
+				} else {
+					ChangeStatus(OrderStatus.WaitForPayment);
+				}
+				UpdateSelfDeliveryActualCounts();
+				return true;
+			}
+			return false;
+		}
+
+		public virtual void DeleteBottlesMovementOperation(IUnitOfWork uow)
+		{
+			if(BottlesMovementOperation != null) {
+				uow.Delete(BottlesMovementOperation);
+				BottlesMovementOperation = null;
+			}
+		}
+
+
+		/// <summary>
+		/// Создание операций перемещения бутылей для заказов без доставки
+		/// </summary>
+		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow)
+		{
+			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
+			//не должны создаваться операции перемещения тары
+			if(IsContractCloser)
+				return;
+
+			if(RouteListItemRepository.HasRouteListItemsForOrder(uow, this)) {
+				return;
+			}
+
+			foreach(OrderItem item in OrderItems) {
+				item.ActualCount = item.Count;
+			}
+
+			int amountDelivered = OrderItems
+					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
+					.Sum(item => item.ActualCount);
+
+			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
+				if(BottlesMovementOperation == null) {
+					var bottlesOperation = new BottlesMovementOperation {
+						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+						Order = this,
+						Delivered = amountDelivered,
+						Returned = ReturnedTare.GetValueOrDefault(),
+						Counterparty = Client,
+						DeliveryPoint = DeliveryPoint
+					};
+					uow.Save(bottlesOperation);
+					BottlesMovementOperation = bottlesOperation;
+				} else {
+					BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
+					BottlesMovementOperation.Delivered = amountDelivered;
+					BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
+					uow.Save(BottlesMovementOperation);
+				}
+			}
+		}
 
 		#region Работа с документами
 
@@ -2866,105 +3071,6 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Закрывает заказ с самовывозом если по всем документам самовывоза со склада все отгружено
-		/// </summary>
-		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument)
-		{
-			// Закрывает заказ и создает операцию движения бутылей если все товары в заказе отгружены
-			var unloadedItems = Repository.Store.SelfDeliveryRepository.OrderItemUnloaded(uow, this, closingDocument);
-			var unloadedEquipments = Repository.Store.SelfDeliveryRepository.OrderEquipmentsUnloaded(uow, this, closingDocument);
-			bool canCloseOrder = true;
-			var shipmentCats = Nomenclature.GetCategoriesForShipment();
-			foreach(var item in OrderItems.Where(x => shipmentCats.Contains(x.Nomenclature.Category))) {
-				decimal totalCount = default(decimal);
-				var deliveryItem = closingDocument.Items
-				                                  .Where(x => x.OrderItem != null)
-				                                  .FirstOrDefault(x => x.OrderItem.Id == item.Id);
-				if(deliveryItem != null) {
-					totalCount += deliveryItem.Amount;
-				}
-				if(unloadedItems.ContainsKey(item.Id)) {
-					totalCount += unloadedItems[item.Id];
-				}
-				if((int)totalCount != item.Count) {
-					canCloseOrder = false;
-				}
-			}
-
-			foreach(var equipment in orderEquipments.Where(x => shipmentCats.Contains(x.Nomenclature.Category))) {
-				decimal totalCount = default(decimal);
-				var deliveryItem = closingDocument.Items
-				                                  .Where(x => x.OrderEquipment != null)
-				                                  .FirstOrDefault(x => x.OrderEquipment.Id == equipment.Id);
-				if(deliveryItem != null) {
-					totalCount += deliveryItem.Amount;
-				}
-				if(unloadedEquipments.ContainsKey(equipment.Id)) {
-					totalCount += unloadedEquipments[equipment.Id];
-				}
-				if((int)totalCount != equipment.Count) {
-					canCloseOrder = false;
-				}
-			}
-			if(canCloseOrder) {
-				CloseSelfDelivery();
-			}
-			return canCloseOrder;
-		}
-
-		public virtual void DeleteBottlesMovementOperation(IUnitOfWork uow)
-		{
-			if(BottlesMovementOperation != null) {
-				uow.Delete(BottlesMovementOperation);
-				BottlesMovementOperation = null;
-			}
-		}
-
-
-		/// <summary>
-		/// Создание операций перемещения бутылей для заказов без доставки
-		/// </summary>
-		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow)
-		{
-			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
-			//не должны создаваться операции перемещения тары
-			if(IsContractCloser)
-				return;
-
-			if(RouteListItemRepository.HasRouteListItemsForOrder(uow, this)) {
-				return;
-			}
-
-			foreach(OrderItem item in OrderItems) {
-				item.ActualCount = item.Count;
-			}
-
-			int amountDelivered = OrderItems
-					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
-					.Sum(item => item.ActualCount);
-
-			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
-				if(BottlesMovementOperation == null) {
-					var bottlesOperation = new BottlesMovementOperation {
-						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-						Order = this,
-						Delivered = amountDelivered,
-						Returned = ReturnedTare.GetValueOrDefault(),
-						Counterparty = Client,
-						DeliveryPoint = DeliveryPoint
-					};
-					uow.Save(bottlesOperation);
-					BottlesMovementOperation = bottlesOperation;
-				} else {
-					BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-					BottlesMovementOperation.Delivered = amountDelivered;
-					BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
-					uow.Save(BottlesMovementOperation);
-				}
-			} 
-		}
 
 		public virtual void SaveOrderComment(){
 			if(Id == 0) return;

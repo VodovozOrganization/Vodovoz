@@ -172,6 +172,7 @@ namespace Vodovoz
 
 			logger.Info("Сохраняем документ самовывоза...");
 			UoWGeneric.Save();
+			OrmMain.NotifyObjectUpdated(new object[] { Entity.Order });
 			logger.Info("Ok.");
 			return true;
 		}
