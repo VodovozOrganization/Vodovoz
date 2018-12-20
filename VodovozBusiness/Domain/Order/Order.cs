@@ -2761,13 +2761,30 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(IsFullyShippedSelfDeliveryOrder(uow, closingDocument)) {
 				var isFullyPaid = SelfDeliveryIsFullyPaid();
-				var isCash = PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld;
 
 				UpdateBottlesMovementOperationWithoutDelivery(UoW);
-				if(isFullyPaid || !isCash) {
-					ChangeStatus(OrderStatus.Closed);
-				} else {
-					ChangeStatus(OrderStatus.WaitForPayment);
+
+				switch(PaymentType) {
+					case PaymentType.cash:
+					case PaymentType.BeveragesWorld:
+						if(isFullyPaid) {
+							ChangeStatus(OrderStatus.Closed);
+						} else {
+							ChangeStatus(OrderStatus.WaitForPayment);
+						}
+						break;
+					case PaymentType.cashless:
+					case PaymentType.ByCard:
+						if(PayAfterShipment) {
+							ChangeStatus(OrderStatus.WaitForPayment);
+						} else {
+							ChangeStatus(OrderStatus.Closed);
+						}
+						break;
+					case PaymentType.barter:
+					case PaymentType.ContractDoc:
+						ChangeStatus(OrderStatus.Closed);
+						break;
 				}
 				UpdateSelfDeliveryActualCounts();
 				return true;
