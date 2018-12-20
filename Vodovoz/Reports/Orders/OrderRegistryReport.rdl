@@ -52,7 +52,7 @@
             <Width>102.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>215.4pt</Width>
+            <Width>168.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>55.8pt</Width>
@@ -62,6 +62,9 @@
           </TableColumn>
           <TableColumn>
             <Width>82.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>48.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -154,6 +157,22 @@
                   <ReportItems>
                     <Textbox Name="Textbox18">
                       <Value>Статус</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>кол-во 19л.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -263,12 +282,26 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>={water19_count}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>16.5pt</Top>
+        <Top>13.3pt</Top>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -293,13 +326,14 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	daily_number_1c as daily_number,
-    counterparty.full_name as client,
-    delivery_points.compiled_address as address,
-    orders.id as order_id,
+	daily_number_1c AS daily_number,
+    counterparty.full_name AS client,
+    delivery_points.compiled_address AS address,
+    orders.id AS order_id,
+    SUM(IF( nomenclature.tare_volume='Vol19L', order_items.count, 0)) as water_count,
     case
 		when orders.order_status = 'NewOrder' then 'Новый'
 		when orders.order_status = 'WaitForPayment' then 'Ожидание оплаты'
@@ -316,18 +350,21 @@
 		else ''
 	end as status,
     CONCAT(TIME_FORMAT(delivery_schedule.from_time, "%H:%i"), '-', TIME_FORMAT(delivery_schedule.to_time, "%H:%i")) as delivery_time
-from orders
+FROM orders
+LEFT JOIN order_items on order_items.order_id=orders.id
+LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
 LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
 LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
-WHERE orders.delivery_date = DATE(@date)</CommandText>
+WHERE orders.delivery_date = DATE(@date)
+GROUP BY order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="daily_number">
           <DataField>daily_number</DataField>
           <TypeName>System.Int32</TypeName>
@@ -351,6 +388,9 @@ WHERE orders.delivery_date = DATE(@date)</CommandText>
         <Field Name="delivery_time">
           <DataField>delivery_time</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="water19_count">
+          <DataField>water_count</DataField>
         </Field>
       </Fields>
     </DataSet>
