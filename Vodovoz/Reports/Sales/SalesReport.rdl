@@ -228,8 +228,8 @@
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >={is_disposable_tare}</GroupExpression>
-                <GroupExpression >=Fields!category.Value</GroupExpression>
+                <GroupExpression>={is_disposable_tare}</GroupExpression>
+                <GroupExpression>=Fields!category.Value</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -402,8 +402,8 @@ FROM
 	delivery_points ON orders.delivery_point_id = delivery_points.id
 		LEFT JOIN
 	counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
-        LEFT JOIN
-    employees ON orders.author_employee_id = employees.id
+		LEFT JOIN
+	employees ON orders.author_employee_id = employees.id
 WHERE
 	(order_status = 'Accepted'
 		OR order_status = 'InTravelList'
@@ -414,6 +414,7 @@ WHERE
 		OR order_status = 'Closed')
 		AND (delivery_date &gt;= @start_date
 		AND delivery_date &lt;= @end_date)
+		AND !orders.is_contract_closer
 	AND (
 			((nomenclature.id IN (@nomen_include) AND 0 IN (@nomen_exclude) )
 			OR
@@ -444,7 +445,7 @@ WHERE
 			(order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
 			OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
 		)
-    AND (
+	AND (
 			((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
 			OR
 			(IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) NOT IN (@subdivision_exclude) AND 0 IN (@subdivision_include)))
@@ -456,7 +457,8 @@ WHERE
 			(IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@orderauthor_exclude) AND 0 IN (@orderauthor_include)))
 			OR (0 IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude))
 		)
-GROUP BY nomenclature_id</CommandText>
+GROUP BY nomenclature_id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
