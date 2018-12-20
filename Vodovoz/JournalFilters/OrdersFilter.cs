@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
@@ -13,6 +15,7 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			enumcomboStatus.ItemsEnum = typeof(OrderStatus);
+			enumcomboPaymentType.ItemsEnum = typeof(PaymentType);
 			entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			daysToAft = -CurrentUserSettings.Settings.JournalDaysToAft;
 			daysToFwd = CurrentUserSettings.Settings.JournalDaysToFwd;
@@ -51,6 +54,56 @@ namespace Vodovoz
 			set {
 				enumcomboStatus.AddEnumToHideList(value);
 				hideStatuses = value;
+			}
+		}
+
+		OrderStatus[] allowStatuses;
+		/// <summary>
+		/// Скрыть заказы со статусом из массива
+		/// </summary>
+		/// <value>массив скрываемых статусов</value>
+		public OrderStatus[] AllowStatuses {
+			get => allowStatuses;
+			set {
+				allowStatuses = value;
+				List<Object> hides = new List<object>();
+				foreach(OrderStatus item in Enum.GetValues(typeof(OrderStatus))) {
+					if(!value.Contains(item)) {
+						hides.Add(item);
+					}
+				}
+				enumcomboStatus.ClearEnumHideList();
+				enumcomboStatus.AddEnumToHideList(hides.ToArray());
+			}
+		}
+
+		PaymentType? restrictPaymentType;
+		public PaymentType? RestrictPaymentType {
+			get => restrictPaymentType;
+			set { 
+				restrictPaymentType = value;
+				enumcomboPaymentType.SelectedItem = value;
+				enumcomboPaymentType.Sensitive = false;
+			}
+		}
+
+		PaymentType[] allowPaymentTypes;
+		/// <summary>
+		/// Скрыть заказы со статусом из массива
+		/// </summary>
+		/// <value>массив скрываемых статусов</value>
+		public PaymentType[] AllowPaymentTypes {
+			get => allowPaymentTypes;
+			set {
+				allowPaymentTypes = value;
+				List<Object> hides = new List<object>();
+				foreach(PaymentType item in Enum.GetValues(typeof(PaymentType))) {
+					if(!value.Contains(item)) {
+						hides.Add(item);
+					}
+				}
+				enumcomboPaymentType.ClearEnumHideList();
+				enumcomboPaymentType.AddEnumToHideList(hides.ToArray());
 			}
 		}
 
@@ -256,6 +309,11 @@ namespace Vodovoz
 			if(entryreferenceClient.Subject == null
 			   && dateperiodOrders.EndDate.Date > dateperiodOrders.StartDate.Date.AddMonths(1))
 				dateperiodOrders.EndDateOrNull = dateperiodOrders.StartDate.Date.AddMonths(1);
+		}
+
+		protected void OnEnumcomboPaymentTypeChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
 		}
 	}
 }

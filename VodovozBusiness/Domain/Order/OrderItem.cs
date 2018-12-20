@@ -7,6 +7,7 @@ using QS.HistoryLog;
 using QSSupportLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -319,7 +320,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public int CurrentCount{
 			get{
-				if(Order != null && Repository.OrderRepository.GetStatusesForActualCount().Contains(Order.OrderStatus))
+				if(Order != null && OrderRepository.GetStatusesForActualCount(Order).Contains(Order.OrderStatus))
 					return ActualCount;
 				else
 					return Count;

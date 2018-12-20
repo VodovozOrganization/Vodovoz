@@ -1044,6 +1044,19 @@
     <Compile Include="ServiceDialogs\PaymentsFromTinkoffParser.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromTinkoffReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromTinkoffReport.cs" />
+    <Compile Include="Dialogs\Logistic\OptimizingParametersDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.OptimizingParametersDlg.cs" />
+    <Compile Include="Dialogs\Cash\CashIncomeSelfDeliveryDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeSelfDeliveryDlg.cs" />
+    <Compile Include="Dialogs\Cash\CashIncomeCategoryDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeCategoryDlg.cs" />
+    <Compile Include="Representations\SelfDeliveriesVM.cs" />
+    <Compile Include="Dialogs\Cash\CashExpenseSelfDeliveryDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashExpenseSelfDeliveryDlg.cs" />
+    <Compile Include="Dialogs\Cash\SelfDeliveryOrderEditDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.SelfDeliveryOrderEditDlg.cs" />
+    <Compile Include="ReportsParameters\Logistic\OrdersByDistrictsAndDeliverySchedulesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.OrdersByDistrictsAndDeliverySchedulesReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1577,6 +1590,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="libs\SharpZipLib_0.86.0.518\ICSharpCode.SharpZipLib.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\OrdersByDistrictsAndDeliverySchedules.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

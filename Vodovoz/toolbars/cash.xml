@@ -4,6 +4,7 @@
 		<toolitem name='ActionAccountableDebt' action='ActionAccountableDebt'/>
 		<toolitem name='ActionUnclosedAdvances' action='ActionUnclosedAdvances'/>
 		<toolitem name='ActionCashFlow' action='ActionCashFlow'/>
-		<toolitem name='ActionRouteListClosingTable' action='ActionRouteListClosingTable'/>
+        <toolitem name='ActionRouteListClosingTable' action='ActionRouteListClosingTable'/>
+		<toolitem name='ActionSelfdeliveryOrders' action='ActionSelfdeliveryOrders'/>
 	</toolbar>
 </ui>

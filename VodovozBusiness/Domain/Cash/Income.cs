@@ -9,6 +9,8 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Repository.Cash;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -28,6 +30,14 @@ namespace Vodovoz.Domain.Cash
 		public virtual DateTime Date {
 			get { return date; }
 			set { SetField (ref date, value, () => Date); }
+		}
+
+		private IncomeInvoiceDocumentType typeDocument;
+
+		[Display(Name = "Тип документа")]
+		public virtual IncomeInvoiceDocumentType TypeDocument {
+			get { return typeDocument; }
+			set { SetField(ref typeDocument, value, () => TypeDocument); }
 		}
 
 		private IncomeType typeOperation;
@@ -78,6 +88,14 @@ namespace Vodovoz.Domain.Cash
 		public virtual Counterparty Customer {
 			get { return customer; }
 			set { SetField (ref customer, value, () => Customer); }
+		}
+
+		Order order;
+
+		[Display(Name = "Заказ")]
+		public virtual Order Order {
+			get { return order; }
+			set { SetField(ref order, value, () => Order); }
 		}
 
 		IncomeCategory incomeCategory;
@@ -147,6 +165,11 @@ namespace Vodovoz.Domain.Cash
 
 		#region Функции
 
+		public virtual void AcceptSelfDeliveryPaid()
+		{
+			Order.SelfDeliveryAcceptCashPaid(Money, 0);
+		}
+
 		public virtual void PrepareCloseAdvance(List<Expense> advances)
 		{
 			if (TypeOperation != IncomeType.Return)
@@ -177,69 +200,100 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
+		public virtual void FillFromOrder(IUnitOfWork uow)
+		{
+			if(Id == 0) {
+				var existsIncome = CashRepository.GetIncomePaidSumForOrder(uow, Order.Id);
+				decimal orderCash = 0m;
+				if(Order.PaymentType == PaymentType.cash || Order.PaymentType == PaymentType.BeveragesWorld) {
+					orderCash = Order.OrderSum + (Order.ExtraMoney < 0 ? 0 : Order.ExtraMoney);
+				}
+				var result = orderCash - existsIncome;
+				Money = result < 0 ? 0 : result;
+
+				Description = $"Самовывоз №{Order.Id} от {Order.DeliveryDate}";
+			}
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if(TypeOperation == IncomeType.Return)
-			{
-				if (Employee == null)
-					yield return new ValidationResult ("Подотчетное лицо должно быть указано.",
-						new[] { this.GetPropertyName (o => o.Employee) });
-
-				if (ExpenseCategory == null)
-					yield return new ValidationResult ("Статья по которой брались деньги должна быть указана.",
-						new[] { this.GetPropertyName (o => o.ExpenseCategory) });
-
-				if(Id == 0)
-				{
-					if (AdvanceForClosing == null || AdvanceForClosing.Count == 0)
-					{
-						yield return new ValidationResult("Не указаны авансы которые должны быть закрыты этим возвратом в кассу.",
-							new[] { this.GetPropertyName(o => o.AdvanceForClosing) });
+			if(validationContext.Items.ContainsKey("IsSelfDelivery") && (bool)validationContext.Items["IsSelfDelivery"]) {
+				if(TypeDocument != IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery) {
+					yield return new ValidationResult($"Тип документа должен быть { IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery.GetEnumTitle() }.",
+					new[] { this.GetPropertyName(o => o.TypeDocument) });
+				}
+				if(TypeOperation != IncomeType.Payment) {
+					yield return new ValidationResult($"Тип операции должен быть { IncomeType.Payment.GetEnumTitle() }.",
+					new[] { this.GetPropertyName(o => o.TypeOperation) });
+				}
+				if(IncomeCategory == null || IncomeCategory.IncomeDocumentType != IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery) {
+					yield return new ValidationResult("Должна быть выбрана статья дохода для самовывоза.",
+					new[] { this.GetPropertyName(o => o.IncomeCategory) });
+				}
+				if(Order == null) {
+					yield return new ValidationResult("Должен быть выбран заказ.",
+					new[] { this.GetPropertyName(o => o.Order) });
+				} else {
+					if(Order.PaymentType != PaymentType.cash && Order.PaymentType != PaymentType.BeveragesWorld) {
+						yield return new ValidationResult("Должен быть выбран наличный заказ");
 					}
-					else
-					{
-						if(NoFullCloseMode)
-						{
-							var advance = AdvanceForClosing.First();
-							if(Money > advance.UnclosedMoney)
-								yield return new ValidationResult("Сумма возврата не должна превышать сумму которую брал человек за вычетом уже возвращенных средств.",
-									new[] { this.GetPropertyName(o => o.AdvanceForClosing) });
-						}
-						else
-						{
-							decimal closedSum = AdvanceForClosing.Sum(x => x.UnclosedMoney);
-							if (closedSum != Money)
-								throw new InvalidOperationException("Сумма закрытых авансов должна соответствовать сумме возврата.");
+					if(!Order.SelfDelivery) {
+						yield return new ValidationResult("Должен быть выбран заказ с самовывозом");
+					}
+					if(Order.SumToReceive < Money) {
+						yield return new ValidationResult("Сумма к оплате не может быть больше чем сумма в заказе");
+					}
+				}
+			} else {
+				if(TypeOperation == IncomeType.Return) {
+					if(Employee == null)
+						yield return new ValidationResult("Подотчетное лицо должно быть указано.",
+							new[] { this.GetPropertyName(o => o.Employee) });
+
+					if(ExpenseCategory == null)
+						yield return new ValidationResult("Статья по которой брались деньги должна быть указана.",
+							new[] { this.GetPropertyName(o => o.ExpenseCategory) });
+
+					if(Id == 0) {
+						if(AdvanceForClosing == null || AdvanceForClosing.Count == 0) {
+							yield return new ValidationResult("Не указаны авансы которые должны быть закрыты этим возвратом в кассу.",
+								new[] { this.GetPropertyName(o => o.AdvanceForClosing) });
+						} else {
+							if(NoFullCloseMode) {
+								var advance = AdvanceForClosing.First();
+								if(Money > advance.UnclosedMoney)
+									yield return new ValidationResult("Сумма возврата не должна превышать сумму которую брал человек за вычетом уже возвращенных средств.",
+										new[] { this.GetPropertyName(o => o.AdvanceForClosing) });
+							} else {
+								decimal closedSum = AdvanceForClosing.Sum(x => x.UnclosedMoney);
+								if(closedSum != Money)
+									throw new InvalidOperationException("Сумма закрытых авансов должна соответствовать сумме возврата.");
+							}
 						}
 					}
 				}
-			}
-
-			if(TypeOperation != IncomeType.Return)
-			{
-				if (IncomeCategory == null)
-					yield return new ValidationResult ("Статья дохода должна быть указана.",
-						new[] { this.GetPropertyName (o => o.IncomeCategory) });
-			}
-
-			if(TypeOperation == IncomeType.Payment)
-			{
-				if (Customer == null)
-					yield return new ValidationResult ("Клиент должен быть указан.",
-						new[] { this.GetPropertyName (o => o.Customer) });
+				if(TypeOperation != IncomeType.Return) {
+					if(IncomeCategory == null)
+						yield return new ValidationResult("Статья дохода должна быть указана.",
+							new[] { this.GetPropertyName(o => o.IncomeCategory) });
+				}
+				if(TypeOperation == IncomeType.Payment) {
+					if(Customer == null)
+						yield return new ValidationResult("Клиент должен быть указан.",
+							new[] { this.GetPropertyName(o => o.Customer) });
+				}
 			}
 
 			if(Money <= 0)
-				yield return new ValidationResult ("Сумма должна иметь значение отличное от 0.",
-					new[] { this.GetPropertyName (o => o.Money) });
-
-			if(String.IsNullOrWhiteSpace (Description))
-				yield return new ValidationResult ("Основание должно быть заполнено.",
-					new[] { this.GetPropertyName (o => o.Description) });
+				yield return new ValidationResult("Сумма должна больше нуля",
+					new[] { this.GetPropertyName(o => o.Money) });
+			if(String.IsNullOrWhiteSpace(Description))
+				yield return new ValidationResult("Основание должно быть заполнено.",
+					new[] { this.GetPropertyName(o => o.Description) });
 		}
 
 		#endregion
@@ -260,6 +314,21 @@ namespace Vodovoz.Domain.Cash
 	public class IncomeTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public IncomeTypeStringType () : base (typeof(IncomeType))
+		{
+		}
+	}
+
+	public enum IncomeInvoiceDocumentType
+	{
+		[Display(Name = "Приходный ордер")]
+		IncomeInvoice,
+		[Display(Name = "Приходный ордер для самовывоза")]
+		IncomeInvoiceSelfDelivery,
+	}
+
+	public class IncomeInvoiceDocumentTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public IncomeInvoiceDocumentTypeStringType() : base(typeof(IncomeInvoiceDocumentType))
 		{
 		}
 	}

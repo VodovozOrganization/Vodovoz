@@ -26,7 +26,7 @@ namespace Vodovoz.Tools.Logistic
 
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-		Dictionary<int, int> calculetedRoutes = new Dictionary<int, int>();
+		Dictionary<int, int> calculatedRoutes = new Dictionary<int, int>();
 
 		int totalCached, addedCached, totalErrors;
 
@@ -147,15 +147,15 @@ namespace Vodovoz.Tools.Logistic
 		public int GetRouteDistance(long[] route)
 		{
 			var routeHash = String.Concat(route).GetHashCode();
-			if (calculetedRoutes.ContainsKey(routeHash))
-				return calculetedRoutes[routeHash];
+			if (calculatedRoutes.ContainsKey(routeHash))
+				return calculatedRoutes[routeHash];
 			var ways = GenerateWaysOfRoute(route);
 			LoadDBCacheIfNeed(ways);
 			var distance = ways.Sum(x =>
 			                GetCachedGeometry(x, false)?.DistanceMeters ?? GetSimpleDistance(x)
 			               );
 			if (distance > 0)
-				calculetedRoutes.Add(routeHash, distance);
+				calculatedRoutes.Add(routeHash, distance);
 			return distance;
 		}
 

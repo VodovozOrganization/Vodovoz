@@ -5,12 +5,16 @@ namespace Vodovoz.Domain.Cash
 {
 	public enum CashDocumentType
 	{
-		[Display (Name = "Приходный ордер")]
+		[Display(Name = "Приходный ордер")]
 		Income,
-		[Display (Name = "Расходный ордер")]
+		[Display(Name = "Приходный ордер cамовывоз")]
+		IncomeSelfDelivery,
+		[Display(Name = "Расходный ордер")]
 		Expense,
-		[Display (Name = "Авансовый отчет")]
-		AdvanceReport,
+		[Display(Name = "Расходный ордер cамовывоз")]
+		ExpenseSelfDelivery,
+		[Display(Name = "Авансовый отчет")]
+		AdvanceReport
 	}
 }
 

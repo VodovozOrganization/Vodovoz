@@ -108,14 +108,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(Trip.Car.TypeOfUse != CarTypeOfUse.Largus && addressForLargus)
 				distance += RouteOptimizer.SmallOrderNotLargusPenalty;
 
-			var aria = Nodes[second_index - 1].District;
+			var area = Nodes[second_index - 1].District;
 
 			// Если адрес из уже существующего маршрута, не учитываем приоритеты районов.
 			// Иначе добавляем штрафы за приоритеты по району.
 			if(!fromExistRoute)
 			{
-				if(priorites.ContainsKey(aria))
-					distance += priorites[aria] * RouteOptimizer.DistrictPriorityPenalty;
+				if(priorites.ContainsKey(area))
+					distance += priorites[area] * RouteOptimizer.DistrictPriorityPenalty;
 				else{
 #if DEBUG
 					SUnlikeDistrictPenality[Trip]++;

@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Tools.Logistic;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
@@ -54,7 +55,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// <summary>
 		/// Штраф за неотвезенный заказ. Или максимальное расстояние на которое имеет смысл ехать.
 		/// </summary>
-		public static long MaxDistanceAddressPenalty = 300000;
+		public static long MaxDistanceAddressPenalty = 300000;//15000
 		/// <summary>
 		/// Максимальное количество бутелей в заказе для ларгусов.
 		/// </summary>
@@ -147,7 +148,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			var possibleRoutes = trips.ToArray();
 
-			if(possibleRoutes.Length == 0) {
+			if(!possibleRoutes.Any()) {
 				AddWarning("Для построения маршрутов, нет водителей.");
 				return;
 			}
@@ -165,19 +166,19 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				if(order.DeliveryPoint.Longitude == null || order.DeliveryPoint.Latitude == null)
 					continue;
 				var point = new Point((double)order.DeliveryPoint.Latitude.Value, (double)order.DeliveryPoint.Longitude.Value);
-				var aria = areas.Find(x => x.Geometry.Contains(point));
-				if(aria != null) {
+				var area = areas.Find(x => x.Geometry.Contains(point));
+				if(area != null) {
 					var oldRoute = Routes.FirstOrDefault(r => r.Addresses.Any(a => a.Order.Id == order.Id));
 					if(oldRoute != null)
-						calculatedOrders.Add(new CalculatedOrder(order, aria, false, oldRoute));
-					else if(possibleRoutes.SelectMany(x => x.Districts).Any(x => x.District.Id == aria.Id))
-						calculatedOrders.Add(new CalculatedOrder(order, aria));
-					else if(!unusedDistricts.Contains(aria))
-						unusedDistricts.Add(aria);
+						calculatedOrders.Add(new CalculatedOrder(order, area, false, oldRoute));
+					else if(possibleRoutes.SelectMany(x => x.Districts).Any(x => x.District.Id == area.Id))
+						calculatedOrders.Add(new CalculatedOrder(order, area));
+					else if(!unusedDistricts.Contains(area))
+						unusedDistricts.Add(area);
 				}
 			}
 			Nodes = calculatedOrders.ToArray();
-			if(unusedDistricts.Count > 0) {
+			if(unusedDistricts.Any()) {
 				AddWarning("Районы без водителей: {0}", String.Join(", ", unusedDistricts.Select(x => x.Name)));
 			}
 
@@ -254,7 +255,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					AddWarning("Время разгрузки на {2}, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To, Nodes[ix].Order.DeliveryPoint.ShortAddress);
 					endWindow = startWindow;
 				}
-				time_dimension.CumulVar(ix + 1).SetRange((long)startWindow, (long)endWindow);
+				time_dimension.CumulVar(ix).SetRange((long)startWindow, (long)endWindow);
 				/// Добавляем абсолютно все заказы в дизюкцию. Если бы заказы небыли вдобавлены в отдельные дизьюкции
 				/// то при не возможность доставить хоть один заказ. Все решение бы считаль не верным. Добавление каждого заказа
 				/// в отдельную дизьюкцию, позволяет механизму не вести какой то и заказов, и все таки формировать решение с недовезенными
@@ -276,7 +277,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			/// стратегий в которых маршруты, формируюся скорее по лентами ведущими через все обезжаемые раоны. То есть водители
 			/// чаще имели пересечения маршутов.
 			search_parameters.FirstSolutionStrategy =
-								 FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
+				                 FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
 
 			search_parameters.TimeLimitMs = MaxTimeSeconds * 1000;
 			/// Отключаем внутреннего кеширования расчитанных значений. Опытным путем было проверено, что включение этого значения.
@@ -284,7 +285,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			/// И в принцепе становится целесообразно только на количествах заказов 300-400. При количестве заказов менее 200
 			/// влючение отпечатков значений. Не уменьшало, а увеличивало общее время расчета. А при большом количестве заказов
 			/// время расчета уменьшалось не значительно.
-			search_parameters.FingerprintArcCostEvaluators = false;
+			//search_parameters.FingerprintArcCostEvaluators = false;
+
+			search_parameters.FingerprintArcCostEvaluators = true;
+
 			//search_parameters.OptimizationStep = 100;
 
 			var solver = routing.solver();
@@ -293,8 +297,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Закрываем модель...");
 
-			if(WarningMessages.Count > 0 &&
-				!MessageDialogWorks.RunQuestionDialog("При построении транспортной модели обнаружены следующие проблемы:\n{0}\nПродолжить?",
+			if(WarningMessages.Any() &&
+				!MessageDialogHelper.RunQuestionDialog("При построении транспортной модели обнаружены следующие проблемы:\n{0}\nПродолжить?",
 													 String.Join("\n", WarningMessages.Select(x => "⚠ " + x))))
 				return;
 

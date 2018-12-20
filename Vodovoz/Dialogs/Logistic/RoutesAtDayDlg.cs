@@ -10,10 +10,10 @@ using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using Gtk;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Utilities;
 using QSOrmProject;
-using QSProjectsLib;
 using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
@@ -22,6 +22,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools.Logistic;
 
@@ -311,7 +312,7 @@ namespace Vodovoz
 			bool foundRL = routeLists != null && routeLists.Any();
 
 			if(foundRL) {
-				bool answer = !HasNoChanges && MessageDialogWorks.RunQuestionDialog(
+				bool answer = !HasNoChanges && MessageDialogHelper.RunQuestionDialog(
 						"Сохраненный маршрут открыт на вкладке маршруты за день." +
 						"При продолжении работы в этой вкладке, внесенные внешние изменения могут быть потеряны. " +
 						"При отмене данные в этом диалоге будут перезаписаны." +
@@ -618,7 +619,7 @@ namespace Vodovoz
 			var withoutTime = ordersQuery.Where(x => x.DeliverySchedule == null).ToList();
 			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.CoordinatesExist).ToList();
 			if(withoutTime.Any() || withoutLocation.Any())
-				MessageDialogWorks.RunWarningDialog("Не все заказы были загружены!" +
+				MessageDialogHelper.RunWarningDialog("Не все заказы были загружены!" +
 				                                    (withoutTime.Any() ? ("\n* У заказов отсутсвует время доставки: " + String.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +
 				                                    (withoutLocation.Any() ? ("\n* У заказов отсутствуют координаты: " + String.Join(", ", withoutLocation.Select(x => x.Id.ToString()))) : "")
 												   );
@@ -636,7 +637,7 @@ namespace Vodovoz
 				)
 				.ToList();
 			if(outLogisticAreas.Any())
-				MessageDialogWorks.RunWarningDialog("Обратите внимание, координаты точек доставки для следущих заказов не попадают ни в один логистический район: "
+				MessageDialogHelper.RunWarningDialog("Обратите внимание, координаты точек доставки для следущих заказов не попадают ни в один логистический район: "
 													+ String.Join(", ", outLogisticAreas.Select(x => x.Id.ToString())));
 
 			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
@@ -922,7 +923,7 @@ namespace Vodovoz
 			RoutesWasUpdated();
 
 			if(route.HasOverweight()){
-				MessageDialogWorks.RunWarningDialog(
+				MessageDialogHelper.RunWarningDialog(
 					String.Format("Автомобиль '{0}' в МЛ №{1} перегружен на {2} кг.", route.Car.Title, route.Id, route.Overweight())
 				);
 			}
@@ -1029,7 +1030,7 @@ namespace Vodovoz
 				}
 			}
 			if(warnings.Any())
-				MessageDialogWorks.RunWarningDialog(String.Join("\n", warnings));
+				MessageDialogHelper.RunWarningDialog(String.Join("\n", warnings));
 		}
 
 		protected void OnButtonOpenClicked(object sender, EventArgs e)
@@ -1047,7 +1048,7 @@ namespace Vodovoz
 			if(row is RouteList) {
 				RouteList routeList = row as RouteList;
 				if(!HasNoChanges) {
-					if(MessageDialogWorks.RunQuestionDialog("Сохранить маршрутный лист перед открытием?"))
+					if(MessageDialogHelper.RunQuestionDialog("Сохранить маршрутный лист перед открытием?"))
 						Save();
 					else
 						return;
@@ -1178,7 +1179,7 @@ namespace Vodovoz
 		{
 			var logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(logistican == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				return;
 			}
 
@@ -1294,12 +1295,12 @@ namespace Vodovoz
 				newRoute.UpdateAddressOrderInRealRoute(route);
 				route.RecalculatePlanedDistance(distanceCalculator);
 			} else
-				MessageDialogWorks.RunErrorDialog("Решение не найдено.");
+				MessageDialogHelper.RunErrorDialog("Решение не найдено.");
 		}
 
 		protected void OnButtonWarningsClicked(object sender, EventArgs e)
 		{
-			MessageDialogWorks.RunWarningDialog(
+			MessageDialogHelper.RunWarningDialog(
 				String.Join("\n", optimizer.WarningMessages.Select(x => "⚠ " + x))
 			);
 		}
@@ -1319,11 +1320,21 @@ namespace Vodovoz
 		{
 			if(args.Event.Type == EventType.KeyPress) {
 				EventKey eventKey = args.Args.OfType<EventKey>().FirstOrDefault();
-				if(eventKey != null && eventKey.Key == Gdk.Key.Return){
+				if(eventKey != null && (eventKey.Key == Gdk.Key.Return || eventKey.Key == Gdk.Key.KP_Enter)){
 					FillItems();
 				}
 			}
 		}
+
+		protected void OnLabel2WidgetEvent(object o, WidgetEventArgs args)
+		{
+			if(args.Event.Type == EventType.ButtonPress && (args.Event as EventButton).Button == 1) {
+				var user = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				if(user.User.Id != 94)
+					return;
+
+				TabParent.AddSlaveTab(this, new OptimizingParametersDlg());
+			}
+		}
 	}
 }
-

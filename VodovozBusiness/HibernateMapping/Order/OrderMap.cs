@@ -21,6 +21,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.CommentLogist)				.Column("comment_logist");
 			Map(x => x.DeliveryDate)				.Column("delivery_date");
 			Map(x => x.SelfDelivery)				.Column("self_delivery");
+			Map(x => x.PayAfterShipment)			.Column("pay_after_shipment");
 			Map(x => x.BottlesReturn)				.Column("bottles_return");
 			Map(x => x.ExtraMoney)					.Column("extra_money");
 			Map(x => x.SumToReceive)				.Column("sum_to_receive");
@@ -66,8 +67,9 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.BottlesMovementOperation).Column("bottles_movement_operation_id");
 			References(x => x.MoneyMovementOperation).Column("money_movement_operation_id");
 			References(x => x.LastEditor).Column("editor_employee_id");
+			References(x => x.LoadAllowedBy).Column("load_allowed_employee_id");
 
-			HasMany (x => x.OrderDocuments)		.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("attached_to_order_id");
+			HasMany(x => x.OrderDocuments)		.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("attached_to_order_id");
 			HasMany (x => x.OrderDepositItems)	.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");
 			HasMany (x => x.OrderItems)			.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");
 			HasMany (x => x.OrderEquipments)	.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");

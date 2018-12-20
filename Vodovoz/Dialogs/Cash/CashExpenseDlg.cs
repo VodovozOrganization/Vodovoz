@@ -85,6 +85,7 @@ namespace Vodovoz
 
 			logger.Info ("Сохраняем расходный ордер...");
 			UoWGeneric.Save();
+			OrmMain.NotifyObjectUpdated(new object[] { Entity.Order });
 			logger.Info ("Ok");
 			return true;
 
@@ -97,19 +98,19 @@ namespace Vodovoz
 			switch((ExpenseType)e.SelectedItem)
 			{
 				case ExpenseType.Advance: 
-					labelEmploeey.LabelProp = "Подотчетное лицо:";
+					labelEmployee.LabelProp = "Подотчетное лицо:";
 					ylabelEmployeeWageBalance.Visible = false;
 					break;
-				case ExpenseType.Expense : 
-					labelEmploeey.LabelProp = "Сотрудник:";
+				case ExpenseType.Expense :
+					labelEmployee.LabelProp = "Сотрудник:";
 					ylabelEmployeeWageBalance.Visible = false;
 					break;
 				case ExpenseType.EmployeeAdvance:
-					labelEmploeey.LabelProp = "Сотрудник:";
+					labelEmployee.LabelProp = "Сотрудник:";
 					ylabelEmployeeWageBalance.Visible = true;
 					break;
 				case ExpenseType.Salary:
-					labelEmploeey.LabelProp = "Сотрудник:";
+					labelEmployee.LabelProp = "Сотрудник:";
 					ylabelEmployeeWageBalance.Visible = true;
 					break;
 			}

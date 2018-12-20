@@ -6,9 +6,12 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Repository.Cash;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -28,6 +31,14 @@ namespace Vodovoz.Domain.Cash
 		public virtual DateTime Date {
 			get { return date; }
 			set { SetField (ref date, value, () => Date); }
+		}
+
+		private ExpenseInvoiceDocumentType typeDocument;
+
+		[Display(Name = "Тип документа")]
+		public virtual ExpenseInvoiceDocumentType TypeDocument {
+			get { return typeDocument; }
+			set { SetField(ref typeDocument, value, () => TypeDocument); }
 		}
 
 		private ExpenseType typeOperation;
@@ -60,6 +71,14 @@ namespace Vodovoz.Domain.Cash
 		public virtual Employee Employee {
 			get { return employee; }
 			set { SetField (ref employee, value, () => Employee); }
+		}
+
+		Order order;
+
+		[Display(Name = "Заказ")]
+		public virtual Order Order {
+			get { return order; }
+			set { SetField(ref order, value, () => Order); }
 		}
 
 		ExpenseCategory expenseCategory;
@@ -216,6 +235,26 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
+		public virtual void FillFromOrder(IUnitOfWork uow)
+		{
+			var existsExpense = CashRepository.GetExpenseReturnSumForOrder(uow, Order.Id);
+			if(Id == 0) {
+				decimal orderCash = 0m;
+				if(Order.PaymentType == PaymentType.cash || Order.PaymentType == PaymentType.BeveragesWorld) {
+					orderCash = Math.Abs(Order.OrderSumReturn) + (Order.ExtraMoney < 0 ? Math.Abs(Order.ExtraMoney) : 0);
+				}
+				var result = orderCash - existsExpense;
+				Money = result < 0 ? 0 : result;
+
+				Description = $"Возврат по самовывозу №{Order.Id} от {Order.DeliveryDate}";
+			}
+		}
+
+		public virtual void AcceptSelfDeliveryPaid()
+		{
+			Order.SelfDeliveryAcceptCashPaid(0, Money);
+		}
+
 		#endregion
 
 		public Expense ()
@@ -226,36 +265,61 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if(TypeOperation == ExpenseType.Advance)
-			{
-				if (Employee == null)
-					yield return new ValidationResult ("Подотчетное лицо должно быть указано.",
-						new[] { this.GetPropertyName (o => o.Employee) });
-				if (ExpenseCategory == null)
-					yield return new ValidationResult ("Статья расхода под которую выдаются деньги должна быть заполнена.",
-						new[] { this.GetPropertyName (o => o.ExpenseCategory) });
+			if(validationContext.Items.ContainsKey("IsSelfDelivery") && (bool)validationContext.Items["IsSelfDelivery"]) {
+				if(TypeDocument != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery) {
+					yield return new ValidationResult($"Тип документа должен быть { ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery.GetEnumTitle() }.",
+					new[] { this.GetPropertyName(o => o.TypeDocument) });
+				}
+				if(TypeOperation != ExpenseType.ExpenseSelfDelivery) {
+					yield return new ValidationResult($"Тип операции должен быть { ExpenseType.ExpenseSelfDelivery.GetEnumTitle() }.",
+					new[] { this.GetPropertyName(o => o.TypeOperation) });
+				}
+				if(ExpenseCategory == null || ExpenseCategory.ExpenseDocumentType != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery) {
+					yield return new ValidationResult("Должна быть выбрана статья расхода для самовывоза.",
+					new[] { this.GetPropertyName(o => o.ExpenseCategory) });
+				}
+				if(Order == null) {
+					yield return new ValidationResult("Должен быть выбран заказ.",
+					new[] { this.GetPropertyName(o => o.Order) });
+				} else {
+					if(Order.PaymentType != PaymentType.cash && Order.PaymentType != PaymentType.BeveragesWorld) {
+						yield return new ValidationResult("Должен быть выбран наличный заказ");
+					}
+					if(!Order.SelfDelivery) {
+						yield return new ValidationResult("Должен быть выбран заказ с самовывозом");
+					}
+					if(Math.Abs(Order.OrderSumReturnTotal) < Money) {
+						yield return new ValidationResult("Сумма к возврату не может быть больше чем сумма в заказе");
+					}
+				}
+			} else {
+				if(TypeOperation == ExpenseType.Advance) {
+					if(Employee == null)
+						yield return new ValidationResult("Подотчетное лицо должно быть указано.",
+							new[] { this.GetPropertyName(o => o.Employee) });
+					if(ExpenseCategory == null)
+						yield return new ValidationResult("Статья расхода под которую выдаются деньги должна быть заполнена.",
+							new[] { this.GetPropertyName(o => o.ExpenseCategory) });
 
-				if (!AdvanceClosed.HasValue)
-					yield return new ValidationResult ("Отсутствует иформация поле Закрытия аванса. Поле не может быть null.",
-						new[] { this.GetPropertyName (o => o.AdvanceClosed) });
-				
-			}
-			else
-			{
-				if (AdvanceClosed.HasValue)
-					yield return new ValidationResult (String.Format ("Если это не выдача под аванс {0} должно быть null.", this.GetPropertyName (o => o.AdvanceClosed)),
-						new[] { this.GetPropertyName (o => o.AdvanceClosed) });
-			}
+					if(!AdvanceClosed.HasValue)
+						yield return new ValidationResult("Отсутствует иформация поле Закрытия аванса. Поле не может быть null.",
+							new[] { this.GetPropertyName(o => o.AdvanceClosed) });
 
-			if(TypeOperation == ExpenseType.Expense)
-			{
-				if (ExpenseCategory == null)
-					yield return new ValidationResult ("Статья расхода должна быть указана.",
-						new[] { this.GetPropertyName (o => o.ExpenseCategory) });
+				} else {
+					if(AdvanceClosed.HasValue)
+						yield return new ValidationResult(String.Format("Если это не выдача под аванс {0} должно быть null.", this.GetPropertyName(o => o.AdvanceClosed)),
+							new[] { this.GetPropertyName(o => o.AdvanceClosed) });
+				}
+
+				if(TypeOperation == ExpenseType.Expense) {
+					if(ExpenseCategory == null)
+						yield return new ValidationResult("Статья расхода должна быть указана.",
+							new[] { this.GetPropertyName(o => o.ExpenseCategory) });
+				}
 			}
 
 			if(Money <= 0)
-				yield return new ValidationResult ("Сумма должна иметь значение отличное от 0.",
+				yield return new ValidationResult ("Сумма должна больше нуля",
 					new[] { this.GetPropertyName (o => o.Money) });
 
 			if(String.IsNullOrWhiteSpace (Description))
@@ -271,6 +335,8 @@ namespace Vodovoz.Domain.Cash
 	{
 		[Display (Name = "Прочий расход")]
 		Expense,
+		[Display(Name = "Возврат по самовывозу")]
+		ExpenseSelfDelivery,
 		[Display (Name = "Аванс подотчетному лицу")]
 		Advance,
 		[Display (Name = "Аванс сотруднику")]
@@ -282,6 +348,21 @@ namespace Vodovoz.Domain.Cash
 	public class ExpenseTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public ExpenseTypeStringType () : base (typeof(ExpenseType))
+		{
+		}
+	}
+
+	public enum ExpenseInvoiceDocumentType
+	{
+		[Display(Name = "Расходный ордер")]
+		ExpenseInvoice,
+		[Display(Name = "Расходный ордер для самовывоза")]
+		ExpenseInvoiceSelfDelivery,
+	}
+
+	public class ExpenseInvoiceDocumentTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public ExpenseInvoiceDocumentTypeStringType() : base(typeof(ExpenseInvoiceDocumentType))
 		{
 		}
 	}

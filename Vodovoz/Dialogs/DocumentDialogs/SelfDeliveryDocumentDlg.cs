@@ -71,7 +71,7 @@ namespace Vodovoz
 			var filter = new OrdersFilter(UoW);
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictSelfDelivery = true,
-				x => x.RestrictStatus = OrderStatus.Accepted
+				x => x.RestrictStatus = OrderStatus.OnLoading
 			);
 			yentryrefOrder.RepresentationModel = new ViewModel.OrdersVM(filter);
 			yentryrefOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
@@ -172,6 +172,7 @@ namespace Vodovoz
 
 			logger.Info("Сохраняем документ самовывоза...");
 			UoWGeneric.Save();
+			OrmMain.NotifyObjectUpdated(new object[] { Entity.Order });
 			logger.Info("Ok.");
 			return true;
 		}

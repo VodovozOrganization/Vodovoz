@@ -9,6 +9,8 @@ using QSProjectsLib;
 using QS.Tdi;
 using Vodovoz.Domain.Cash;
 using Vodovoz.ViewModel;
+using QS.Dialog.Gtk;
+using Vodovoz.Dialogs.Cash;
 
 namespace Vodovoz
 {
@@ -71,25 +73,35 @@ namespace Vodovoz
 
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
-			CashDocumentType type = (CashDocumentType)e.ItemEnum;	
-			switch (type) {
+			CashDocumentType type = (CashDocumentType)e.ItemEnum;
+			switch(type) {
 				case CashDocumentType.Income:
-					TabParent.OpenTab(OrmMain.GenerateDialogHashName<Income>(0),
+					TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Income>(0),
 						() => new CashIncomeDlg(), this
 					);
-				break;
-			case CashDocumentType.Expense:
-					TabParent.OpenTab(OrmMain.GenerateDialogHashName<Expense>(0),
+					break;
+				case CashDocumentType.Expense:
+					TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Expense>(0),
 						() => new CashExpenseDlg(), this
 					);
-				break;
-			case CashDocumentType.AdvanceReport:
-					TabParent.OpenTab(OrmMain.GenerateDialogHashName<AdvanceReport>(0),
+					break;
+				case CashDocumentType.AdvanceReport:
+					TabParent.OpenTab(DialogHelper.GenerateDialogHashName<AdvanceReport>(0),
 						() => new AdvanceReportDlg(), this
 					);
-				break;
-			default:
-				throw new NotSupportedException ("Тип документа не поддерживается.");
+					break;
+				case CashDocumentType.IncomeSelfDelivery:
+					TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Income>(0),
+						() => new CashIncomeSelfDeliveryDlg(), this
+					);
+					break;
+				case CashDocumentType.ExpenseSelfDelivery:
+					TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Expense>(0),
+						() => new CashExpenseSelfDeliveryDlg(), this
+					);
+					break;
+				default:
+					throw new NotSupportedException("Тип документа не поддерживается.");
 			}
 		}
 
@@ -105,24 +117,34 @@ namespace Vodovoz
 			
 			int id = tableDocuments.GetSelectedId ();
 			var DocType = (tableDocuments.GetSelectedObject () as ViewModel.CashDocumentsVMNode).DocTypeEnum;
-			switch (DocType) {
-			case CashDocumentType.Income:
-					TabParent.OpenTab(OrmMain.GenerateDialogHashName<Income>(id),
+			switch(DocType) {
+				case CashDocumentType.Income:
+					TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Income>(id),
 						() => new CashIncomeDlg(id), this
 					);
-				break;
-			case CashDocumentType.Expense:
-					TabParent.OpenTab(OrmMain.GenerateDialogHashName<Expense>(id),
+					break;
+				case CashDocumentType.Expense:
+					TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Expense>(id),
 						() => new CashExpenseDlg(id), this
 					);
-				break;
-			case CashDocumentType.AdvanceReport: 
-					TabParent.OpenTab(OrmMain.GenerateDialogHashName<AdvanceReport>(id),
+					break;
+				case CashDocumentType.AdvanceReport:
+					TabParent.OpenTab(DialogHelper.GenerateDialogHashName<AdvanceReport>(id),
 						() => new AdvanceReportDlg(id), this
 					);
-				break;
-			default:
-				throw new NotSupportedException ("Тип документа не поддерживается.");
+					break;
+				case CashDocumentType.IncomeSelfDelivery:
+					TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Income>(id),
+						() => new CashIncomeSelfDeliveryDlg(id), this
+					);
+					break;
+				case CashDocumentType.ExpenseSelfDelivery:
+					TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Expense>(id),
+						() => new CashExpenseSelfDeliveryDlg(id), this
+					);
+					break;
+				default:
+					throw new NotSupportedException("Тип документа не поддерживается.");
 			}
 		}
 
@@ -131,17 +153,18 @@ namespace Vodovoz
 			var node = (ViewModel.CashDocumentsVMNode)tableDocuments.GetSelectedNode ();
 			Type docType = null;
 
-			switch(node.DocTypeEnum)
-			{
-			case CashDocumentType.Income:
-				docType = typeof(Income);
-				break;
-			case CashDocumentType.Expense:
-				docType = typeof(Expense);
-				break;
-			case CashDocumentType.AdvanceReport:
-				docType = typeof(AdvanceReport);
-				break;
+			switch(node.DocTypeEnum) {
+				case CashDocumentType.IncomeSelfDelivery:
+				case CashDocumentType.Income:
+					docType = typeof(Income);
+					break;
+				case CashDocumentType.ExpenseSelfDelivery:
+				case CashDocumentType.Expense:
+					docType = typeof(Expense);
+					break;
+				case CashDocumentType.AdvanceReport:
+					docType = typeof(AdvanceReport);
+					break;
 			}
 
 			if (OrmMain.DeleteObject (docType, tableDocuments.GetSelectedId ()))
