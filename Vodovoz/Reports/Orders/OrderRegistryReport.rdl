@@ -63,7 +63,7 @@
           <TableColumn>
             <Width>82.2pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>48.3pt</Width>
           </TableColumn>
         </TableColumns>
@@ -169,7 +169,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>кол-во 19л.</Value>
@@ -282,7 +282,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
                       <Value>={water19_count}</Value>
@@ -333,32 +333,7 @@
     counterparty.full_name AS client,
     delivery_points.compiled_address AS address,
     orders.id AS order_id,
-    order_items.count,
-     CASE 
-        WHEN orders.self_delivery = 1  THEN CASE
-			WHEN orders.pay_after_load=1 THEN CASE
-				WHEN orders.order_status='Closed' THEN SUM(order_items.actual_count)
-				WHEN orders.order_status='WaitForPayment' THEN SUM(order_items.actual_count)
-				WHEN orders.order_status='OnLoading' THEN SUM(order_items.actual_count)
-				WHEN orders.order_status='OnTheWay' THEN SUM(order_items.actual_count)
-				WHEN orders.order_status='Shipped' THEN SUM(order_items.actual_count)
-				WHEN orders.order_status='UnloadingOnStock' THEN SUM(order_items.actual_count)
-				WHEN orders.order_status='NotDelivered' THEN SUM(order_items.actual_count)
-				WHEN orders.order_status='DeliveryCanceled' THEN SUM(order_items.actual_count)
-				END
-             ELSE CASE
-				WHEN orders.order_status='Closed' THEN SUM(order_items.actual_count)
-				WHEN orders.order_status='OnLoading' THEN SUM(order_items.actual_count)
-                WHEN orders.order_status='OnTheWay' THEN SUM(order_items.actual_count)
-				WHEN orders.order_status='Shipped' THEN SUM(order_items.actual_count)
-				WHEN orders.order_status='UnloadingOnStock' THEN SUM(order_items.actual_count)
-				WHEN orders.order_status='NotDelivered' THEN SUM(order_items.actual_count)
-				WHEN orders.order_status='DeliveryCanceled' THEN SUM(order_items.actual_count)
-				END
-             END
-        ELSE SUM(order_items.count)
-    END AS water_count,
-
+    SUM(IF( nomenclature.tare_volume='Vol19L', order_items.count, 0)) as water_count,
     case
 		when orders.order_status = 'NewOrder' then 'Новый'
 		when orders.order_status = 'WaitForPayment' then 'Ожидание оплаты'
@@ -381,7 +356,7 @@ LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
 LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
 LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
-WHERE nomenclature.tare_volume='Vol19L' AND orders.delivery_date = DATE(@date)
+WHERE orders.delivery_date = DATE(@date)
 GROUP BY order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
