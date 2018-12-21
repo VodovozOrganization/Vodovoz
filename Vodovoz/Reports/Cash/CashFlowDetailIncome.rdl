@@ -39,7 +39,7 @@ FROM
         LEFT JOIN
     employees ON employees.id = cash_income.employee_id
 WHERE
-cash_income.type &lt;&gt; 'Return' AND 
+cash_income.type_operation &lt;&gt; 'Return' AND 
 cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
  AND (@incomeCategory = -1 OR cash_income_category.id = @incomeCategory)
 AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
@@ -105,7 +105,7 @@ FROM
 LEFT JOIN 
 	route_lists ON route_lists.id = route_list_id 
 WHERE
-	cash_income.type &lt;&gt; 'Return'
+	cash_income.type_operation &lt;&gt; 'Return'
         
 AND cash_income.date &gt;= @startDate
         
