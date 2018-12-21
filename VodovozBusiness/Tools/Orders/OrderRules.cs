@@ -140,29 +140,22 @@ namespace Vodovoz.Tools.Orders
 			);
 		}
 
-		static bool GetConditionForInvoice(OrderStateKey key) =>
-		(
-			(
-				(
-					(
-						key.PaymentType == PaymentType.cashless
-						&& key.IsPriceOfAllOrderItemsZero
-					)
-					&&
-					(
-						!key.NeedToRefundDepositToClient
-						|| key.NeedToReturnBottles
-					)
-				)
-				||
-				(
-					key.PaymentType == PaymentType.ByCard
-					&& key.HasOrderItems
-				)
-				|| (key.PaymentType == PaymentType.cash || key.PaymentType == PaymentType.BeveragesWorld)
-			)
-			&& key.OrderStatus >= OrderStatus.Accepted
-		);
+		static bool GetConditionForInvoice(OrderStateKey key)
+		{
+			var accepted = key.OrderStatus >= OrderStatus.Accepted;
+			var waitForPayment = key.OrderStatus >= OrderStatus.WaitForPayment;
+
+			var cashless = (key.PaymentType == PaymentType.cashless && key.IsPriceOfAllOrderItemsZero)
+				&& (!key.NeedToRefundDepositToClient || key.NeedToReturnBottles);
+			var byCard = key.PaymentType == PaymentType.ByCard && key.HasOrderItems;
+			var cash = (key.PaymentType == PaymentType.cash || key.PaymentType == PaymentType.BeveragesWorld);
+
+			if(key.IsSelfDelivery) {
+				return (cashless || byCard || cash) && waitForPayment;
+			} else {
+				return (cashless || byCard || cash) && accepted;
+			}
+		}
 
 		static bool GetConditionForBarterInvoice(OrderStateKey key) =>
 		(

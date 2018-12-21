@@ -169,6 +169,8 @@ namespace Vodovoz.Representations
 				).OrderBy(x => x.DeliveryDate).Desc.ThenBy(x => x.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<UnclosedSelfDeliveriesVMNode>())
 				.List<UnclosedSelfDeliveriesVMNode>()
+				//отображение закрытых заказов с расхождением в оплате
+				//TODO необходимо разделение на расходники старого и нового типа  
 				.Where(x => !(x.StatusEnum == OrderStatus.Closed && !x.HaveDiff))
 				.ToList();
 
@@ -208,7 +210,7 @@ namespace Vodovoz.Representations
 				);
 			};
 			//Закрыт до уточнения работы кассы по самовывозу
-			menuItemEditOrder.Sensitive = isOneSelected && false;
+			menuItemEditOrder.Visible = isOneSelected && false;
 			popupMenu.Add(menuItemEditOrder);
 
 			return popupMenu;

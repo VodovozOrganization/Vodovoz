@@ -2569,13 +2569,17 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		private void AcceptSelfDeliveryOrder()
 		{
-			if(OrderStatus != OrderStatus.NewOrder) {
+			if(!SelfDelivery || OrderStatus != OrderStatus.NewOrder) {
 				return;
 			}
 			if(PayAfterShipment) {
 				ChangeStatus(OrderStatus.Accepted);
 			} else {
-				ChangeStatus(OrderStatus.WaitForPayment);
+				if(OrderItems.Sum(x => x.Sum) + (ExtraMoney > 0 ? ExtraMoney : 0) > 0) {
+					ChangeStatus(OrderStatus.WaitForPayment);
+				} else {
+					ChangeStatus(OrderStatus.OnLoading);
+				}
 			}
 		}
 

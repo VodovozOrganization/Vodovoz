@@ -174,7 +174,8 @@ namespace Vodovoz
 				labelPreviousOrder.Visible = false;
 			hboxStatusButtons.Visible = OrderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
 				|| Entity.OrderStatus == OrderStatus.Canceled
-				|| Entity.OrderStatus == OrderStatus.Closed;
+				|| Entity.OrderStatus == OrderStatus.Closed
+				|| Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading;
 
 			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
@@ -2337,7 +2338,7 @@ namespace Vodovoz
 			//если новый заказ и тип платежа бартер или безнал, то вкл кнопку
 			buttonWaitForPayment.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder && IsPaymentTypeBarterOrCashless() && !Entity.SelfDelivery;
 
-			buttonCancelOrder.Sensitive = OrderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus);
+			buttonCancelOrder.Sensitive = OrderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus) || (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading);
 
 			if(Counterparty?.DeliveryPoints?.FirstOrDefault(d => d.Address1c == Entity.Address1c) == null
 				&& !string.IsNullOrWhiteSpace(Entity.Address1c)
