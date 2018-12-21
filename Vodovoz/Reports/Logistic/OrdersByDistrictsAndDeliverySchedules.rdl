@@ -16,7 +16,7 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	d_name,
+	IFNULL(d_name, '{район не размечен}') AS d_name,
 	GROUP_CONCAT(
 		IF(
 			delivery_schedule = 'before_12',
@@ -163,7 +163,7 @@ FROM(
 	SELECT
 		COUNT(o.id) AS o_cnt,
 		SUM(i.count) AS btls_cnt,
-		distr.district_name AS d_name,
+		distr.name AS d_name,
 		CASE
 			WHEN o.self_delivery THEN 'self_delivery'
 			WHEN HOUR(dsch.from_time) * 60 &gt;= 0 AND HOUR(dsch.to_time) * 60 &lt;= 720 THEN 'before_12'
@@ -182,7 +182,7 @@ FROM(
 	LEFT JOIN
 		nomenclature n ON i.nomenclature_id = n.id
 	LEFT JOIN
-		schedule_restricted_districts distr ON ST_CONTAINS(distr.district_border, POINT(dp.latitude, dp.longitude))
+		logistics_area distr ON ST_CONTAINS(distr.logistics_district, POINT(dp.latitude, dp.longitude))
 	LEFT JOIN
 		delivery_schedule dsch ON o.delivery_schedule_id = dsch.id
 	WHERE
@@ -330,7 +330,7 @@ GROUP BY d_name
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>140.0pt</Width>
+            <Width>170.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>98.0pt</Width>
@@ -348,7 +348,7 @@ GROUP BY d_name
             <Width>98.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>175.0pt</Width>
+            <Width>147.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -463,7 +463,7 @@ GROUP BY d_name
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>Итого по районам</Value>
+                      <Value>Итого по району</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -631,7 +631,7 @@ GROUP BY d_name
             </TableRow>
           </TableRows>
         </Details>
-        <Left>1.6pt</Left>
+        <Left>0.8pt</Left>
         <Top>7.2pt</Top>
         <Footer>
           <TableRows>
