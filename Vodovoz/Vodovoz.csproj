@@ -1055,10 +1055,12 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashExpenseSelfDeliveryDlg.cs" />
     <Compile Include="Dialogs\Cash\SelfDeliveryOrderEditDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.SelfDeliveryOrderEditDlg.cs" />
-    <Compile Include="ViewWidgets\EmployeeDocumentView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.EmployeeDocumentView.cs" />
     <Compile Include="ReportsParameters\Logistic\OrdersByDistrictsAndDeliverySchedulesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.OrdersByDistrictsAndDeliverySchedulesReport.cs" />
+    <Compile Include="Dialogs\Employees\EmployeeDocDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.EmployeeDocDlg.cs" />
+    <Compile Include="Dialogs\Employees\EmployeeContractDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.EmployeeContractDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

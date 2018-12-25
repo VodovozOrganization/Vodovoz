@@ -11,12 +11,26 @@ namespace Vodovoz.Domain.Employees
 	{
 		public virtual int Id { get; set; }
 
-		public DocumentType document;
+		DocumentType document;
+
+		[Display(Name = "Тип документа")]
+		public virtual DocumentType Document {
+			get { return document; }
+			set { SetField(ref document, value, () => Document); }
+		}
+
+		public Employee employee;
+
+		[Display(Name = "Тип документа")]
+		public virtual Employee Employee {
+			get { return employee; }
+			set { SetField(ref employee, value, () => Employee); }
+		}
 
 		public enum DocumentType
 		{
-			[Display(Name = "Паспотр")]
-			passport,
+			[Display(Name = "Паспорт")]
+			Passport,
 			[Display(Name = "Загранпаспорт")]
 			internationalPassport,
 			[Display(Name = "Свидетельство о рождении")]

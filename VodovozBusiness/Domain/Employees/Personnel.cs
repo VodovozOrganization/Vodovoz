@@ -52,12 +52,20 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref patronymic, value?.Trim(), () => Patronymic); }
 		}
 
+		Citizenship citizenship;
+
+		[Display(Name = "Граждансво")]
+		public virtual Citizenship Citizenship {
+			get { return citizenship; }
+			set { SetField(ref citizenship, value, () => Citizenship); }
+		}
+
 		DateTime birthdayDate;
 
 		[Display(Name = "Дата рождения")]
 		public virtual DateTime BirthdayDate {
 			get { return birthdayDate; }
-			set { SetField(ref birthdayDate,value,() => birthdayDate); }
+			set { SetField(ref birthdayDate,value,() => BirthdayDate); }
 		}
 
 		[Display(Name = "Тип")]
@@ -140,7 +148,15 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Документы")]
 		public virtual IList<EmployeeDocument> Documents {
 			get { return documents; }
-			set { SetField(ref documents, value, () => documents); }
+			set { SetField(ref documents, value, () => Documents); }
+		}
+
+		IList<EmployeeContract> contracts = new List<EmployeeContract>();
+
+		[Display(Name = "Документы")]
+		public virtual IList<EmployeeContract> Contracts {
+			get { return contracts; }
+			set { SetField(ref contracts, value, () => Contracts); }
 		}
 
 		Nationality nationality;
@@ -274,6 +290,7 @@ namespace Vodovoz.Domain.Employees
 
 		#endregion
 	}
+
 
 	public interface IPersonnel : IDomainObject, IBusinessObject, IAccountOwner
 	{

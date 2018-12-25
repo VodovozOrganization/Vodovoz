@@ -541,6 +541,10 @@
     <Compile Include="Repositories\Payments\PaymentsRepository.cs" />
     <Compile Include="Domain\Employees\EmployeeDocument.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeDocumentMap.cs" />
+    <Compile Include="Domain\Employees\EmployeeContract.cs" />
+    <Compile Include="Domain\Employees\Citizenship.cs" />
+    <Compile Include="HibernateMapping\Employees\CitizenshipMap.cs" />
+    <Compile Include="HibernateMapping\Employees\EmployeeContractMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

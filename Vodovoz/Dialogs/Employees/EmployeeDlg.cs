@@ -1,18 +1,25 @@
-﻿using System;
+﻿
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using NLog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
+using QS.Tdi;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewWidgets;
+using Gamma.Utilities;
 
 namespace Vodovoz
 {
@@ -57,7 +64,6 @@ namespace Vodovoz
 				hiddenCategory = new EmployeeCategory[] { EmployeeCategory.driver, EmployeeCategory.forwarder };
 			}
 			ConfigureDlg();
-
 		}
 
 		private void ConfigureDlg()
@@ -143,6 +149,12 @@ namespace Vodovoz
 			ytreeviewDistricts.Reorderable = true;
 
 			ytreeviewDistricts.SetItemsSource(Entity.ObservableDistricts);
+
+			string[] values = new string[] { "one", "two", "three" };
+
+			foreach(RegistrationType registration in Enum.GetValues(typeof(RegistrationType)))
+				comboboxentry1.AppendText(registration.GetEnumTitle());
+
 
 			logger.Info("Ok");
 		}
@@ -236,7 +248,45 @@ namespace Vodovoz
 				notebookMain.CurrentPage = 1;
 		}
 
-# region Driver & forwarder
+		#region Document
+		protected void OnRadioTabEmployeeDocumentToggled(object sender, EventArgs e)
+		{
+			if(radioTabEmployeeDocument.Active)
+				notebookMain.CurrentPage = 5;
+		}
+
+		protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
+		{
+			EmployeeDocDlg dlg = new EmployeeDocDlg();
+			TabParent.AddSlaveTab(this,dlg);
+		}
+
+		protected void OnButtonRemoveDocumentClicked(object sender, EventArgs e)
+		{
+
+		}
+
+		protected void OnButtonEditDocumentClicked(object sender, EventArgs e)
+		{
+
+		}
+		#endregion
+
+		#region Contract
+		protected void OnRadioTabContractsToggled(object sender, EventArgs e)
+		{
+			if(radioTabContracts.Active)
+				notebookMain.CurrentPage = 4;
+		}
+
+		protected void OnAddContractButtonCliked(object sender, EventArgs e)
+		{
+			EmployeeContractDlg dlg = new EmployeeContractDlg();
+			TabParent.AddSlaveTab(this, dlg);
+		}
+		#endregion
+
+		#region Driver & forwarder
 		protected void OnButtonAddDistrictClicked(object sender, EventArgs e)
 		{
 			var SelectDistrict = new OrmReference(
@@ -287,6 +337,7 @@ namespace Vodovoz
 				Entity.WageCalcRate = 0;
 			}
 		}
+
 
 	}
 	#endregion

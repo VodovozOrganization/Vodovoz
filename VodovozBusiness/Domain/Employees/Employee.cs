@@ -29,6 +29,14 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref category, value, () => Category); }
 		}
 
+		RegistrationType registration;
+
+		[Display(Name = "Оформление")]
+		public virtual EmployeeCategory Registration {
+			get { return category; }
+			set { SetField(ref category, value, () => Category); }
+		}
+
 		string androidLogin;
 
 		[Display(Name = "Логин для Android приложения")]
@@ -273,6 +281,14 @@ namespace Vodovoz.Domain.Employees
 		forwarder
 	}
 
+	public enum RegistrationType
+	{
+		[Display(Name = "ТК РФ")]
+		LaborCode,
+		[Display(Name = "ГПК")]
+		Сontract,
+	}
+
 	public enum EmployeeType
 	{
 		[Display(Name = "Сотрудник")]
@@ -300,6 +316,13 @@ namespace Vodovoz.Domain.Employees
 	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType
 	{
 		public EmployeeCategoryStringType () : base (typeof(EmployeeCategory))
+		{
+		}
+	}
+
+	public class RegistrationTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public RegistrationTypeStringType() : base(typeof(RegistrationType))
 		{
 		}
 	}
