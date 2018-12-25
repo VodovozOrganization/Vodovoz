@@ -665,8 +665,13 @@ namespace Vodovoz.Domain.Goods
 						String.Format("Код 1с использует префикс автоматического формирования кодов '{0}'. При этом пропускает некоторое количество значений. Используйте в качестве следующего кода {1} или оставьте это поле пустым для автозаполенения.",
 						              PrefixOfCode1c, next),
 						new[] { this.GetPropertyName(o => o.Code1c) });
-
 			}
+
+			if(DateTime.Now >= new DateTime(2019, 01, 01) && VAT == VAT.Vat18)
+				yield return new ValidationResult(
+					"С 01.01.2019 ставка НДС 20%",
+					new[] { this.GetPropertyName(o => o.VAT) }
+				);
 		}
 
 		#endregion
