@@ -13,6 +13,7 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz;
 using Vodovoz.Core;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
@@ -392,8 +393,10 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionLogisticsAreaActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(LogisticsArea));
-		tdiMain.AddTab(refWin);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<LogisticAreasEditDlg>(),
+			() => new LogisticAreasEditDlg()
+		);
 	}
 
 	protected void OnActionUpdateBanksFromCBRActivated(object sender, EventArgs e)

@@ -9,5 +9,6 @@
 		<toolitem name='ActionRouteListMileageCheck' action='ActionRouteListMileageCheck'/>
 		<toolitem name='ActionRouteListAddressesTransferring' action='ActionRouteListAddressesTransferring'/>
 		<toolitem name='ActionScheduleRestrictedDistricts' action='ActionScheduleRestrictedDistricts'/>
+		<toolitem name='ActionLogisticAreas' action='ActionLogisticAreas'/>
 	</toolbar>
 </ui>

@@ -5,15 +5,15 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSBanks;
+using QSBanks.Repositories;
 using QSContacts;
 using QSProjectsLib;
-using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.LoadFrom1c;
-using QSBanks.Repositories;
 
 namespace Vodovoz.ServiceDialogs
 {
@@ -39,7 +39,7 @@ namespace Vodovoz.ServiceDialogs
 		public LoadFrom1cClientsAndDeliveryPoints()
 		{
 			if(!QSMain.User.Permissions["database_maintenance"]) {
-				MessageDialogWorks.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
+				MessageDialogHelper.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
 				FailInitialize = true;
 				return;
 			}
