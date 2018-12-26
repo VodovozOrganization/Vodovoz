@@ -6,7 +6,9 @@ using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using NHibernate.Type;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -109,51 +111,17 @@ namespace Vodovoz.Representations
 				query.Where(o => o.DeliveryPoint == Filter.RestrictDeliveryPoint);
 			}
 
-			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
-				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.Select(Projections.Sum(() => orderItemAlias.Count));
-
-			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
-											.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-											.Select(
-												Projections.Sum(
-													Projections.SqlFunction(
-														new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2 - ?3"),
-														NHibernateUtil.Decimal,
-														Projections.Property<OrderItem>(x => x.Count),
-														Projections.Property<OrderItem>(x => x.Price),
-														Projections.Property<OrderItem>(x => x.DiscountMoney)
-													   )
-												   )
-											   );
-			var orderSumReturnSubquery = QueryOver.Of<OrderDepositItem>(() => orderDepositItemAlias)
-											.Where(() => orderDepositItemAlias.Order.Id == orderAlias.Id)
-											.Select(
-												Projections.Sum(
-													Projections.SqlFunction(
-														new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2"),
-														NHibernateUtil.Decimal,
-														Projections.Property<OrderDepositItem>(x => x.Count),
-														Projections.Property<OrderDepositItem>(x => x.Deposit)
-													   )
-												   )
-											   );
-			var incomeCashSumSubquery = QueryOver.Of<Income>(() => incomeAlias)
-											.Where(() => incomeAlias.Order.Id == orderAlias.Id)
-											.Select(Projections.Sum(Projections.Property<Income>(x => x.Money)));
-
-			var expenseCashSumSubquery = QueryOver.Of<Expense>(() => expenseAlias)
-											.Where(() => expenseAlias.Order.Id == orderAlias.Id)
-											.Select(Projections.Sum(Projections.Property<Expense>(x => x.Money)));
-
 			var result = query
-				.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, JoinType.LeftOuterJoin)
 				.JoinAlias(o => o.Client, () => counterpartyAlias)
-				.JoinAlias(o => o.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(o => o.Author, () => authorAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => orderAlias.OrderDepositItems, () => orderDepositItemAlias, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => incomeAlias, () => orderAlias.Id == incomeAlias.Order.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => expenseAlias, () => orderAlias.Id == expenseAlias.Order.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
-				   .Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
+				   .SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
 				   .Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
 				   .Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
@@ -161,15 +129,35 @@ namespace Vodovoz.Representations
 				   .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 				   .Select(() => orderAlias.PayAfterShipment).WithAlias(() => resultAlias.PayAfterLoad)
-				   .SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.OrderSum)
-				   .SelectSubQuery(orderSumReturnSubquery).WithAlias(() => resultAlias.CashReturn)
-				   .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
-				   .SelectSubQuery(incomeCashSumSubquery).WithAlias(() => resultAlias.CashPaid)
-				   .SelectSubQuery(expenseCashSumSubquery).WithAlias(() => resultAlias.CashReturn)
+				   .Select(Projections.Sum(
+					   	Projections.Conditional(
+					   		Restrictions.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L), 
+						   	Projections.Property(() => orderItemAlias.Count), 
+							Projections.Constant(0, NHibernateUtil.Int32)
+						)
+					)).WithAlias(() => resultAlias.BottleAmount)
+				   .Select(Projections.Sum(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2 - ?3"),
+							NHibernateUtil.Decimal,
+							Projections.Property(() => orderItemAlias.Count),
+							Projections.Property(() => orderItemAlias.Price),
+							Projections.Property(() => orderItemAlias.DiscountMoney)
+						   )
+					)).WithAlias(() => resultAlias.OrderSum)
+				   .Select(Projections.Sum(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2"),
+							NHibernateUtil.Decimal,
+							Projections.Property(() => orderDepositItemAlias.Count),
+							Projections.Property(() => orderDepositItemAlias.Deposit)
+						   )
+					)).WithAlias(() => resultAlias.CashReturn)
+				   .Select(Projections.Property(() => incomeAlias.Money)).WithAlias(() => resultAlias.CashPaid)
+				   .Select(Projections.Property(() => expenseAlias.Money)).WithAlias(() => resultAlias.CashReturn)
 				).OrderBy(x => x.DeliveryDate).Desc.ThenBy(x => x.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<UnclosedSelfDeliveriesVMNode>())
 				.List<UnclosedSelfDeliveriesVMNode>()
-				.Where(x => !(x.StatusEnum == OrderStatus.Closed && !x.HaveDiff))
 				.ToList();
 
 			SetItemsSource(result);
@@ -208,7 +196,7 @@ namespace Vodovoz.Representations
 				);
 			};
 			//Закрыт до уточнения работы кассы по самовывозу
-			menuItemEditOrder.Sensitive = isOneSelected && false;
+			menuItemEditOrder.Visible = isOneSelected && false;
 			popupMenu.Add(menuItemEditOrder);
 
 			return popupMenu;
@@ -236,7 +224,6 @@ namespace Vodovoz.Representations
 					() => new CashExpenseSelfDeliveryDlg(order)
 				);
 			}
-
 		}
 	}
 

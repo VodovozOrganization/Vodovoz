@@ -62,7 +62,7 @@ FROM
         LEFT JOIN
     cash_income ON cash_income.id = cash_advance_closing.income_id
 WHERE
-    cash_expense.type = 'Advance'
+    cash_expense.type_operation = 'Advance'
         AND cash_expense.advance_closed = 0
         AND cash_expense.date &lt; @endDate
         AND IF(@expenseCategoryUsed,

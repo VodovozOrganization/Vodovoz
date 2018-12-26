@@ -54,7 +54,7 @@ FROM
         LEFT JOIN
     employees ON employees.id = cash_income.employee_id
 WHERE
-    cash_income.type = 'Return' AND cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
+    cash_income.type_operation = 'Return' AND cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
 AND IF(@expenseCategoryUsed, cash_income.cash_expense_category_id IN (@expenseCategory), 1)
 AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_income.employee_id = @Employee)

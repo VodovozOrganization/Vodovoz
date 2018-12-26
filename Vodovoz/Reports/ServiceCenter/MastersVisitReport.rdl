@@ -432,8 +432,8 @@ left join
 	employees on employees.id = route_lists.driver_id
 where
 	nomenclature.category = 'master'
-	and (cash_expense.type = 'EmployeeAdvance'
-		or cash_expense.type is null)
+	and (cash_expense.type_operation = 'EmployeeAdvance'
+		or cash_expense.type_operation is null)
 	and route_lists.date &gt;= @start_date
 	and route_lists.date &lt;= @end_date
 	and (@master = -1 or route_lists.driver_id = @master)</CommandText>

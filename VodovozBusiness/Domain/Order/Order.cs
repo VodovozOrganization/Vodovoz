@@ -2413,10 +2413,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		private void OnChangeStatusToOnLoading()
 		{
-			if(SelfDelivery) {
-				LoadAllowedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-				UpdateDocuments();
-			}
+			UpdateDocuments();
 		}
 
 		/// <summary>
@@ -2569,10 +2566,11 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		private void AcceptSelfDeliveryOrder()
 		{
-			if(OrderStatus != OrderStatus.NewOrder) {
+			if(!SelfDelivery || OrderStatus != OrderStatus.NewOrder) {
 				return;
 			}
-			if(PayAfterShipment) {
+			var orderSum = OrderItems.Sum(x => x.Sum) + (ExtraMoney > 0 ? ExtraMoney : 0);
+			if(PayAfterShipment || orderSum == 0) {
 				ChangeStatus(OrderStatus.Accepted);
 			} else {
 				ChangeStatus(OrderStatus.WaitForPayment);
