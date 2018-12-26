@@ -10,9 +10,12 @@ namespace Vodovoz.Domain.Goods
 		[Display (Name = "НДС 10%")]
 		[Value1c("НДС10")]
 		Vat10,
-		[Display (Name = "НДС 18%")]
+		[Display(Name = "НДС 18%")]
 		[Value1c("НДС18")]
-		Vat18
+		Vat18,
+		[Display(Name = "НДС 20%")]
+		[Value1c("НДС20")]
+		Vat20
 	}
 
 	public class VATStringType : NHibernate.Type.EnumStringType

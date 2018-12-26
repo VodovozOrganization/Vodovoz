@@ -47,7 +47,28 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
-			set { SetField(ref nomenclature, value, () => Nomenclature); }
+			set {
+				if(SetField(ref nomenclature, value, () => Nomenclature)) {
+					if(Id == 0)//ставку устанавливаем только для новых строк заказа
+						switch(value.VAT) {
+							case VAT.No:
+								ValueAddedTax = 0m;
+								break;
+							case VAT.Vat10:
+								ValueAddedTax = 0.10m;
+								break;
+							case VAT.Vat18:
+								ValueAddedTax = 0.18m;
+								break;
+							case VAT.Vat20:
+								ValueAddedTax = 0.20m;
+								break;
+							default:
+								ValueAddedTax = 0m;
+								break;
+						}
+				}
+			}
 		}
 
 		Equipment equipment;
@@ -159,6 +180,13 @@ namespace Vodovoz.Domain.Orders
 				if(SetField(ref discountMoney, value, () => DiscountMoney))
 					RecalculateNDS();
 			}
+		}
+
+		decimal? valueAddedTax;
+		[Display(Name = "НДС на момент создания заказа")]
+		public virtual decimal? ValueAddedTax {
+			get { return valueAddedTax; }
+			set { SetField(ref valueAddedTax, value, () => ValueAddedTax); }
 		}
 
 		private DiscountReason discountReason;
@@ -526,22 +554,11 @@ namespace Vodovoz.Domain.Orders
 
 		#region Внутрение
 
-		private void RecalculateNDS()
+		void RecalculateNDS()
 		{
 			decimal s = ActualSum > 0 && ActualSum != Sum ? ActualSum : Sum;
-			if(Nomenclature == null || s < 0)
-				return;
-
-			switch(Nomenclature.VAT) {
-				case VAT.Vat18:
-					IncludeNDS = Math.Round(s - (s / 1.18m), 2);
-					break;
-				case VAT.Vat10:
-					IncludeNDS = Math.Round(s - (s / 1.10m), 2);
-					break;
-				default:
-					break;
-			}
+			if(ValueAddedTax.HasValue && s >= 0)
+				IncludeNDS = Math.Round(s * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
 		}
 
 		#endregion

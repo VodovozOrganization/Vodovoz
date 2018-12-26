@@ -34,7 +34,9 @@
 		WHEN 'No' THEN 1
 		WHEN 'Vat10' THEN 1.1
 		WHEN 'Vat18' THEN 1.18
-	END AS vat
+		WHEN 'Vat20' THEN 1.2
+	END AS vat_old,#удалить, если спустя какое-то время не будет проблем с отображением НДС
+	order_items.value_added_tax + 1 AS vat
 FROM
 	order_items
 LEFT JOIN
@@ -2139,7 +2141,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>=Switch(Fields!vat.Value = 1, 'Без НДС', Fields!vat.Value = 1.1, '10%', Fields!vat.Value = 1.18,'18%')</Value>
+                      <Value>=Switch(Fields!vat.Value = 1, 'Без НДС', Fields!vat.Value = 1.1, '10%', Fields!vat.Value = 1.18,'18%', Fields!vat.Value = 1.2,'20%')</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -3644,7 +3646,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

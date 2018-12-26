@@ -21,6 +21,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.IncludeNDS)			.Column ("include_nds");
 			Map (x => x.Price)				.Column ("price");
 			Map (x => x.IsUserPrice)		.Column ("is_user_price");
+			Map (x => x.ValueAddedTax)		.Column ("value_added_tax");
 
 			References (x => x.AdditionalAgreement)			 .Column ("additional_agreement_id");
 			References (x => x.CounterpartyMovementOperation).Column ("counterparty_movement_operation_id").Cascade.All();
