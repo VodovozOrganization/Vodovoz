@@ -21,7 +21,7 @@ namespace Vodovoz.Domain.Employees
 
 		public Employee employee;
 
-		[Display(Name = "Тип документа")]
+		[Display(Name = "Сотрудник")]
 		public virtual Employee Employee {
 			get { return employee; }
 			set { SetField(ref employee, value, () => Employee); }
@@ -32,29 +32,29 @@ namespace Vodovoz.Domain.Employees
 			[Display(Name = "Паспорт")]
 			Passport,
 			[Display(Name = "Загранпаспорт")]
-			internationalPassport,
+			InternationalPassport,
 			[Display(Name = "Свидетельство о рождении")]
-			birthCertificate,
+			BirthCertificate,
 			[Display(Name = "Удостоверение офицера")]
-			officerCertificate,
+			OfficerCertificate,
 			[Display(Name = "Справка об освобождении из места лишения свободы ")]
-			prisonReleaseCertificate,
+			PrisonReleaseCertificate,
 			[Display(Name = "Паспорт морфлот")]
-			navyPassport,
+			NavyPassport,
 			[Display(Name = "Военный билет")]
-			militaryID,
+			MilitaryID,
 			[Display(Name = "Диппаспорт")]
-			dippasport,
+			Dippasport,
 			[Display(Name = "Инпаспорт")]
-			inPassport,
+			InPassport,
 			[Display(Name = "Свидетельство беженца")]
-			refugeeCertificate,
+			RefugeeCertificate,
 			[Display(Name = "Вид на жительство")]
-			residence,
+			Residence,
 			[Display(Name = "Удостоверение беженца")]
-			refugeeId,
+			RefugeeId,
 			[Display(Name = "Временное удостоверение")]
-			temporaryId
+			TemporaryId
 		}
 
 		string passportSeria;
