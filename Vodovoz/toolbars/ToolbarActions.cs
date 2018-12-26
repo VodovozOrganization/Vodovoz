@@ -319,7 +319,7 @@ public partial class MainWindow : Window
 				var filterOrders = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
 				filterOrders.SetAndRefilterAtOnce(
 					x => x.AllowStatuses = new OrderStatus[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
-					x => x.AllowPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld },
+					x => x.AllowPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld, PaymentType.cashless, PaymentType.ByCard },
 					x => x.RestrictSelfDelivery = true,
 					x => x.RestrictWithoutSelfDelivery = false,
 					x => x.RestrictHideService = true,
