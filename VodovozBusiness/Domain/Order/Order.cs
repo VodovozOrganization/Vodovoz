@@ -2823,22 +2823,19 @@ namespace Vodovoz.Domain.Orders
 
 			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
 				if(BottlesMovementOperation == null) {
-					var bottlesOperation = new BottlesMovementOperation {
-						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+					BottlesMovementOperation = new BottlesMovementOperation {
 						Order = this,
-						Delivered = amountDelivered,
-						Returned = ReturnedTare.GetValueOrDefault(),
 						Counterparty = Client,
 						DeliveryPoint = DeliveryPoint
 					};
-					uow.Save(bottlesOperation);
-					BottlesMovementOperation = bottlesOperation;
-				} else {
-					BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-					BottlesMovementOperation.Delivered = amountDelivered;
-					BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
-					uow.Save(BottlesMovementOperation);
-				}
+				} 
+				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
+				BottlesMovementOperation.Delivered = amountDelivered;
+				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
+				uow.Save(BottlesMovementOperation);
+			} else if(BottlesMovementOperation != null) {
+				uow.Delete(BottlesMovementOperation);
+				BottlesMovementOperation = null;
 			}
 		}
 
