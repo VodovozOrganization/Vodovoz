@@ -62,6 +62,7 @@ public partial class MainWindow : Window
 	Action ActionRouteListAddressesTransferring;
 	Action ActionTransferOperationJournal;
 	Action ActionScheduleRestrictedDistricts;
+	Action ActionLogisticAreas;
 
 	public void BuildToolbarActions()
 	{
@@ -115,6 +116,7 @@ public partial class MainWindow : Window
 		ActionPremiumJournal = new Action("ActionPremiumJournal", "Премии", null, "table");
 		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Журнал доверенностей", null, "table");
 		ActionScheduleRestrictedDistricts = new Action("ActionScheduleRestrictedDistricts", "Районы с графиками доставки", null, "table");
+		ActionLogisticAreas = new Action("ActionLogisticAreas", "Логистические районы", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup("ToolbarActions");
@@ -163,6 +165,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionRouteListAddressesTransferring, null);
 		w1.Add(ActionTransferOperationJournal, null);
 		w1.Add(ActionScheduleRestrictedDistricts, null);
+		w1.Add(ActionLogisticAreas, null);
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
@@ -211,6 +214,7 @@ public partial class MainWindow : Window
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
 		ActionTransferOperationJournal.Activated += ActionTransferOperationJournal_Activated;
 		ActionScheduleRestrictedDistricts.Activated += ActionScheduleRestrictedDistricts_Activated;
+		ActionLogisticAreas.Activated += ActionActionLogisticAreas_Activated;
 		#endregion
 	}
 
@@ -573,6 +577,12 @@ public partial class MainWindow : Window
 	void ActionScheduleRestrictedDistricts_Activated(object sender, System.EventArgs e)
 	{
 		var tab = new ScheduleRestrictedDistrictsDlg();
+		tdiMain.AddTab(tab);
+	}
+
+	void ActionActionLogisticAreas_Activated(object sender, System.EventArgs e)
+	{
+		var tab = new LogisticAreasEditDlg();
 		tdiMain.AddTab(tab);
 	}
 }

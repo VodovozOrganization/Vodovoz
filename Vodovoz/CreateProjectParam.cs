@@ -85,6 +85,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add("can_set_free_delivery", new UserPermission("can_set_free_delivery", "Отключение для точки доставки платной доставки", "Пользователь может отмечать точки доставки флагом \"Всегда бесплатная доставка\""));
 			QSMain.ProjectPermission.Add("allow_load_selfdelivery", new UserPermission("allow_load_selfdelivery", "Разрешение отгрузки самовывоза", "Пользователь может переводить заказ с самовывозом в статус на погрузку"));
 			QSMain.ProjectPermission.Add("accept_cashless_paid_selfdelivery", new UserPermission("accept_cashless_paid_selfdelivery", "Разрешение отметки оплаты самовывоза", "Пользователь может отмечать заказ с самовывозом по безналу как оплаченный"));
+			QSMain.ProjectPermission.Add("can_edit_logistic_areas", new UserPermission("can_edit_logistic_areas", "Доступ к редактированию логистических районов", "Пользователь может редактировать логистические районы"));
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };

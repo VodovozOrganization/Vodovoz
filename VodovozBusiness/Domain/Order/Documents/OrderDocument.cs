@@ -1,13 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using QS.Print;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 using QS.DomainModel.UoW;
+using QS.Print;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	[Appellative (Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы заказа",
 		Nominative = "документ заказа")]
 	public abstract class OrderDocument : PropertyChangedBase, IDomainObject, IPrintableDocument
@@ -20,10 +19,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		/// Заказ для которого создавался документ
 		/// </summary>
 		/// <value>The order.</value>
-		[Display (Name = "Заказ")]
+		[Display(Name = "Заказ")]
 		public virtual Order Order {
 			get { return order; }
-			set { SetField (ref order, value, () => Order); }
+			set { SetField(ref order, value, () => Order); }
 		}
 
 		Order attachedToOrder;
@@ -33,33 +32,25 @@ namespace Vodovoz.Domain.Orders.Documents
 		/// (в котором везется этот документ клиенту, может не совпадать с заказом
 		/// для которого создавался)
 		/// </summary>
-		[Display (Name = "Заказ")]
+		[Display(Name = "Заказ")]
 		public virtual Order AttachedToOrder {
 			get { return attachedToOrder; }
-			set { SetField (ref attachedToOrder, value, () => AttachedToOrder); }
+			set { SetField(ref attachedToOrder, value, () => AttachedToOrder); }
 		}
 
-		public abstract OrderDocumentType Type{ get; }
+		public abstract OrderDocumentType Type { get; }
 
-		public virtual string Name { get { return "Не указан"; } }
+		public virtual string Name => "Не указан";
 
 		public abstract DateTime? DocumentDate { get; }
 
-		public virtual string DocumentDateText { get { return DocumentDate?.ToShortDateString() ?? "не указана"; } }
+		public virtual string DocumentDateText => DocumentDate?.ToShortDateString() ?? "не указана";
 
-		public virtual PrinterType PrintType {
-			get {
-				return PrinterType.None;
-			}
-		}
+		public virtual PrinterType PrintType => PrinterType.None;
 
-		public virtual DocumentOrientation Orientation{
-			get{
-				return DocumentOrientation.Portrait;
-			}
-		}
+		public virtual DocumentOrientation Orientation => DocumentOrientation.Portrait;
 
-		public virtual int CopiesToPrint { get ; set ; }
+		public virtual int CopiesToPrint { get; set; }
 	}
 
 
@@ -131,16 +122,23 @@ namespace Vodovoz.Domain.Orders.Documents
 	}
 
 	[AttributeUsage(AttributeTargets.Field)]
-	public class DocumentOfOrderAttribute : Attribute
-	{
-
-	}
+	public class DocumentOfOrderAttribute : Attribute { }
 
 	/// <summary>
 	/// Интерфейс необходим для документов заказа, напротив которых должен быть крыжик
 	/// "Без рекламы" в разделе "Документы" в диалоге заказа.
 	/// </summary>
-	public interface IAdvertisable{
+	public interface IAdvertisable
+	{
 		bool WithoutAdvertising { get; set; }
+	}
+
+	/// <summary>
+	/// Интерфейс необходим для документов заказа, напротив которых должен быть крыжик
+	/// "Без подписей и печати" в разделе "Документы" в диалоге заказа.
+	/// </summary>
+	public interface ISignableDocument
+	{
+		bool HideSignature { get; set; }
 	}
 }

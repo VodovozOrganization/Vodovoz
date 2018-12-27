@@ -10,14 +10,14 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class BillDocument:OrderDocument, IPrintableRDLDocument
+	public class BillDocument : OrderDocument, IPrintableRDLDocument, ISignableDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.Bill;
 		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
-		public virtual ReportInfo GetReportInfo ()
+		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
 				Title = this.Title,
@@ -35,28 +35,19 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual string Title => String.Format("Счет №{0} от {1:d}", Order.Id, Order.BillDate);
 
-		public override string Name {
-			get { return String.Format ("Счет №{0}", Order.Id); }
-		}			
+		public override string Name => String.Format("Счет №{0}", Order.Id);
 
-		public override DateTime? DocumentDate {
-			get { return Order?.BillDate; }
-		}
-			
-		public override PrinterType PrintType {
-			get {
-				return PrinterType.RDL;
-			}
-		}
+		public override DateTime? DocumentDate => Order?.BillDate;
+
+		public override PrinterType PrintType => PrinterType.RDL;
 
 		#region Свои свойства
 
 		private bool hideSignature = true;
-
 		[Display(Name = "Без подписей и печати")]
 		public virtual bool HideSignature {
-			get { return hideSignature; }
-			set { SetField(ref hideSignature, value, () => HideSignature); }
+			get => hideSignature;
+			set => SetField(ref hideSignature, value, () => HideSignature);
 		}
 
 		#endregion
@@ -113,8 +104,8 @@ namespace Vodovoz.Domain.Orders.Documents
 						"<p>Мы ВКонтакте: <a href=\"https://vk.com/vodovoz_spb\" target=\"_blank\">vk.com/vodovoz_spb</a></p>\n" +
 						"<p>Мы в Instagram: @vodovoz_lifestyle</p>\n" +
 						"<p>Наш официальный сайт: <a href=\"http://www.vodovoz-spb.ru/\" target=\"_blank\">www.vodovoz-spb.ru</a></p>\n" +
-				        string.Format("<img src=\"cid:{0}\">", imageId);
-			
+						string.Format("<img src=\"cid:{0}\">", imageId);
+
 			return template;
 		}
 

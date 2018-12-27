@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
-using QS.Tdi;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ServiceDialogs.Database
@@ -19,7 +20,11 @@ namespace Vodovoz.ServiceDialogs.Database
 		public CalculateDistanceToPointsDlg()
 		{
 			if(!QSMain.User.Permissions["database_maintenance"]) {
-				MessageDialogWorks.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
+				MessageDialogHelper.RunWarningDialog(
+					"Доступ запрещён!",
+					"У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.",
+					Gtk.ButtonsType.Ok
+				);
 				FailInitialize = true;
 				return;
 			}
@@ -38,10 +43,9 @@ namespace Vodovoz.ServiceDialogs.Database
 
 			labelTotal.LabelProp = points.Count.ToString();
 
-			if(points.Count > 0)
-			{
+			if(points.Any())
 				buttonCalculate.Sensitive = true;
-			}
+
 			logger.Info("Ок");
 		}
 

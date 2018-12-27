@@ -34,7 +34,8 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.buttonFindOrders = new global::Gtk.Button();
-			this.buttonFindOrders.TooltipMarkup = "Находит все заказы с самовывозом с водой, где есть документ отгрузки со склада, но по которым не было создано операции передвижения бутылей";
+			this.buttonFindOrders.TooltipMarkup = "Находит все заказы с самовывозом с водой, где есть документ отгрузки со склада, н" +
+				"о по которым не было создано операции передвижения бутылей";
 			this.buttonFindOrders.CanFocus = true;
 			this.buttonFindOrders.Name = "buttonFindOrders";
 			this.buttonFindOrders.UseUnderline = true;
