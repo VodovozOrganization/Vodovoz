@@ -2756,40 +2756,41 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument)
 		{
-			if(IsFullyShippedSelfDeliveryOrder(uow, closingDocument)) {
-				var isFullyPaid = SelfDeliveryIsFullyPaid();
-
-				UpdateBottlesMovementOperationWithoutDelivery(UoW);
-
-				switch(PaymentType) {
-					case PaymentType.cash:
-					case PaymentType.BeveragesWorld:
-						if(isFullyPaid) {
-							ChangeStatus(OrderStatus.Closed);
-						} else {
-							ChangeStatus(OrderStatus.WaitForPayment);
-						}
-						break;
-					case PaymentType.cashless:
-					case PaymentType.ByCard:
-						if(PayAfterShipment) {
-							ChangeStatus(OrderStatus.WaitForPayment);
-						} else {
-							ChangeStatus(OrderStatus.Closed);
-						}
-						break;
-					case PaymentType.barter:
-					case PaymentType.ContractDoc:
-						ChangeStatus(OrderStatus.Closed);
-						break;
-				}
-				UpdateSelfDeliveryActualCounts();
-				return true;
+			if(!IsFullyShippedSelfDeliveryOrder(uow, closingDocument) || OrderStatus != OrderStatus.OnLoading) {
+				return false;
 			}
-			return false;
+
+			var isFullyPaid = SelfDeliveryIsFullyPaid();
+
+			UpdateBottlesMovementOperationWithoutDelivery(UoW);
+
+			switch(PaymentType) {
+				case PaymentType.cash:
+				case PaymentType.BeveragesWorld:
+					if(isFullyPaid) {
+						ChangeStatus(OrderStatus.Closed);
+					} else {
+						ChangeStatus(OrderStatus.WaitForPayment);
+					}
+					break;
+				case PaymentType.cashless:
+				case PaymentType.ByCard:
+					if(PayAfterShipment) {
+						ChangeStatus(OrderStatus.WaitForPayment);
+					} else {
+						ChangeStatus(OrderStatus.Closed);
+					}
+					break;
+				case PaymentType.barter:
+				case PaymentType.ContractDoc:
+					ChangeStatus(OrderStatus.Closed);
+					break;
+			}
+			UpdateSelfDeliveryActualCounts();
+			return true;
 		}
 
-		public virtual void DeleteBottlesMovementOperation(IUnitOfWork uow)
+		private void DeleteBottlesMovementOperation(IUnitOfWork uow)
 		{
 			if(BottlesMovementOperation != null) {
 				uow.Delete(BottlesMovementOperation);
