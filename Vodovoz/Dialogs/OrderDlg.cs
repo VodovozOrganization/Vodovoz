@@ -435,9 +435,9 @@ namespace Vodovoz
 				.AddColumn("Без рекламы").AddToggleRenderer(x => x is IAdvertisable && (x as IAdvertisable).WithoutAdvertising)
 				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<IAdvertisable>(x => x.WithoutAdvertising))
 				.AddSetter((c, n) => c.Visible = n.Type == OrderDocumentType.Invoice || n.Type == OrderDocumentType.InvoiceContractDoc)
-				.AddColumn("Без подписей и печати").AddToggleRenderer(x => x is BillDocument && (x as BillDocument).HideSignature)
-				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<BillDocument>(x => x.HideSignature))
-				.AddSetter((c, n) => c.Visible = n.Type == OrderDocumentType.Bill)
+				.AddColumn("Без подписей и печати").AddToggleRenderer(x => x is ISignableDocument && (x as ISignableDocument).HideSignature)
+				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<ISignableDocument>(x => x.HideSignature))
+				.AddSetter((c, n) => c.Visible = n is ISignableDocument)
 				.AddColumn("")
 				.RowCells().AddSetter<CellRenderer>((c, n) => {
 					c.CellBackgroundGdk = colorWhite;

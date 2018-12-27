@@ -115,6 +115,7 @@ namespace Vodovoz.HibernateMapping
 			DiscriminatorValue("InvoiceContractDoc");
 
 			Map(x => x.WithoutAdvertising).Column("without_advertising");
+			Map(x => x.HideSignature).Column("hide_signature");
 		}
 	}
 
@@ -125,6 +126,7 @@ namespace Vodovoz.HibernateMapping
 			DiscriminatorValue ("Invoice");
 
 			Map(x => x.WithoutAdvertising).Column("without_advertising");
+			Map(x => x.HideSignature).Column("hide_signature");
 		}
 	}
 
