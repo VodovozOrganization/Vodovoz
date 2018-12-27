@@ -29,7 +29,7 @@ namespace Vodovoz.DocTemplates
 			//Расчетный счет
 			AddField(x => x.Organization.DefaultAccount.Number, PatternFieldType.FString);
 			AddField(x => x.Organization.DefaultAccount.InBank.Bik, PatternFieldType.FString);
-			AddField(x => x.Organization.DefaultAccount.BankCorAccount.CorAccountNumber, PatternFieldType.FString);
+			AddField(x => x.Organization.DefaultAccount.InBank.DefaultCorAccount.CorAccountNumber, PatternFieldType.FString);
 			AddField(x => x.Organization.DefaultAccount.InBank.Name, PatternFieldType.FString);
 			//Директор организации
 			AddField(x => x.Organization.Leader.FullName, PatternFieldType.FString);
@@ -44,7 +44,7 @@ namespace Vodovoz.DocTemplates
 			//Расчетный счет
 			AddField(x => x.Counterparty.DefaultAccount.Number, PatternFieldType.FString);
 			AddField(x => x.Counterparty.DefaultAccount.InBank.Bik, PatternFieldType.FString);
-			AddField(x => x.Counterparty.DefaultAccount.BankCorAccount.CorAccountNumber, PatternFieldType.FString);
+			AddField(x => x.Counterparty.DefaultAccount.InBank.DefaultCorAccount.CorAccountNumber, PatternFieldType.FString);
 			AddField(x => x.Counterparty.DefaultAccount.InBank.Name, PatternFieldType.FString);
 			//Директор клиента
 			AddField(x => x.Counterparty.SignatoryFIO, PatternFieldType.FString);
