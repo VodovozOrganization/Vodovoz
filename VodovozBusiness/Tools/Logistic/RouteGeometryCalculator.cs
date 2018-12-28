@@ -4,7 +4,6 @@ using System.Linq;
 using GMap.NET;
 using Polylines;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOsm;
 using QSOsm.Osrm;
 using QSOsm.Spuntik;
@@ -24,7 +23,7 @@ namespace Vodovoz.Tools.Logistic
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
+		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot($"Калькулятор геометрии маршрута");
 
 		Dictionary<int, int> calculatedRoutes = new Dictionary<int, int>();
 

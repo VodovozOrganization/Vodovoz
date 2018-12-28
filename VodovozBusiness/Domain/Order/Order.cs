@@ -757,7 +757,7 @@ namespace Vodovoz.Domain.Orders
 
 					//В случае, если редактируется заказ "В пути", то должен быть оставлен комментарий, поясняющий причину редактирования.
 					//Если заказ "В пути" редактируется больше одного раза, то комментарий должен отличаться от предыдущего.
-					var order = UnitOfWorkFactory.CreateWithoutRoot().GetById<Order>(Id);
+					var order = UnitOfWorkFactory.CreateWithoutRoot($"Валидация заказа").GetById<Order>(Id);
 					if(OrderStatus == OrderStatus.OnTheWay && 
 					   (order == null && OnRouteEditReason == null
 					    || order != null && order.OnRouteEditReason == OnRouteEditReason))
@@ -1178,7 +1178,7 @@ namespace Vodovoz.Domain.Orders
 					&& x.Contract?.Id == Contract?.Id
 				)
 			){
-				using(var uowContract = UnitOfWorkFactory.CreateForRoot<CounterpartyContract>(Contract.Id)){
+				using(var uowContract = UnitOfWorkFactory.CreateForRoot<CounterpartyContract>(Contract.Id, $"Изменение договора в заказе")){
 					uowContract.Root.ContractType = DocTemplateRepository.GetContractTypeForPaymentType(Client.PersonType, PaymentType);
 					uowContract.Root.Organization = OrganizationRepository.GetOrganizationByPaymentType(uowContract, Client.PersonType, PaymentType);
 					uowContract.Save();
@@ -1290,7 +1290,7 @@ namespace Vodovoz.Domain.Orders
 		private void AgreementTransfer<TAgreement>(out IUnitOfWork blankUoW, int agreementId, CounterpartyContract toContract)
 			where TAgreement : AdditionalAgreement, new()
 		{
-			var uow = UnitOfWorkFactory.CreateForRoot<TAgreement>(agreementId);
+			var uow = UnitOfWorkFactory.CreateForRoot<TAgreement>(agreementId, $"Перенос доп. соглашения");
 			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithTypeFromDB<TAgreement>(toContract);
 			uow.Root.Contract = toContract;
 			blankUoW = uow;
