@@ -51,10 +51,11 @@ namespace Vodovoz.DocTemplates
 
 			AddField(x => x.Driver.FullName, PatternFieldType.FString);
 			AddField(x => x.Driver.ShortName, PatternFieldType.FString);
-			AddField(x => x.Driver.PassportSeria, PatternFieldType.FString);
-			AddField(x => x.Driver.PassportNumber, PatternFieldType.FString);
-			AddField(x => x.Driver.PassportIssuedOrg, PatternFieldType.FString);
-			AddField(x => x.Driver.PassportIssuedDate.HasValue ? x.Driver.PassportIssuedDate.Value.ToString("dd.MM.yyyy") : "", "Водитель.ДатаВыдачиПаспорта", PatternFieldType.FString);
+			//TODO: Проверка на наличие паспорта и правильный индекс
+			AddField(x => x.Driver.Documents[0].PassportSeria, PatternFieldType.FString);
+			AddField(x => x.Driver.Documents[0].PassportNumber, PatternFieldType.FString);
+			AddField(x => x.Driver.Documents[0].PassportIssuedOrg, PatternFieldType.FString);
+			AddField(x => x.Driver.Documents[0].PassportIssuedDate.HasValue ? x.Driver.Documents[0].PassportIssuedDate.Value.ToString("dd.MM.yyyy") : "", "Водитель.ДатаВыдачиПаспорта", PatternFieldType.FString);
 			AddField(x => x.Driver.AddressRegistration, PatternFieldType.FString);
 
 			SortFields();

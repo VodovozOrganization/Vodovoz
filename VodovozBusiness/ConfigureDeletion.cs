@@ -227,8 +227,16 @@ namespace Vodovoz
 				.AddClearDependence<Subdivision>(x => x.Chief)
 			    .AddClearDependence<ChatMessage>(x => x.Sender)
 				.AddClearDependence<Employee>(x => x.DefaultForwarder);
-
-
+				
+			DeleteConfig.AddDeleteInfo(new DeleteInfo {
+				ObjectClass = typeof(Citizenship),
+				SqlSelect = "SELECT id, name FROM @tablename ",
+				DisplayString = "{1}",
+				ClearItems = new List<ClearDependenceInfo> {
+					ClearDependenceInfo.Create<Employee> (item => item.Citizenship)
+				}
+			}.FillFromMetaInfo()
+			);
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(Nationality),
 				SqlSelect = "SELECT id, name FROM @tablename ",

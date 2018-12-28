@@ -52,56 +52,51 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref patronymic, value?.Trim(), () => Patronymic); }
 		}
 
+		bool isRussianCitizen=true;
+
+		[Display(Name = "Российское гражданство")]
+		public virtual bool IsRussianCitizen {
+			get { return isRussianCitizen; }
+			set { SetField(ref isRussianCitizen, value, () => IsRussianCitizen); }
+		}
+
 		Citizenship citizenship;
 
-		[Display(Name = "Граждансво")]
+		[Display(Name = "Иностранное граждансво")]
 		public virtual Citizenship Citizenship {
 			get { return citizenship; }
 			set { SetField(ref citizenship, value, () => Citizenship); }
 		}
 
-		DateTime birthdayDate;
+		IList<EmployeeDocument> documents = new List<EmployeeDocument>();
+
+		[Display(Name = "Документы")]
+		public virtual IList<EmployeeDocument> Documents {
+			get { return documents; }
+			set { SetField(ref documents, value, () => Documents); }
+		}
+
+		GenericObservableList<EmployeeDocument> observableDocuments;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<EmployeeDocument> ObservableDocuments {
+			get {
+				if(observableDocuments == null) {
+					observableDocuments = new GenericObservableList<EmployeeDocument>(Documents);
+				}
+				return observableDocuments;
+			}
+		}
+
+		DateTime? birthdayDate;
 
 		[Display(Name = "Дата рождения")]
-		public virtual DateTime BirthdayDate {
+		public virtual DateTime? BirthdayDate {
 			get { return birthdayDate; }
 			set { SetField(ref birthdayDate,value,() => BirthdayDate); }
 		}
 
 		[Display(Name = "Тип")]
 		public abstract EmployeeType EmployeeType { get; set; }
-
-		string passportSeria;
-
-		[Display(Name = "Серия паспорта")]
-		public virtual string PassportSeria {
-			get { return passportSeria; }
-			set { SetField(ref passportSeria, value, () => PassportSeria); }
-		}
-
-		string passportNumber;
-
-		[Display(Name = "Номер паспорта")]
-		public virtual string PassportNumber {
-			get { return passportNumber; }
-			set { SetField(ref passportNumber, value, () => PassportNumber); }
-		}
-
-		string passportIssuedOrg;
-
-		[Display(Name = "Кем выдан паспорт")]
-		public virtual string PassportIssuedOrg {
-			get { return passportIssuedOrg; }
-			set { SetField(ref passportIssuedOrg, value, () => PassportIssuedOrg); }
-		}
-
-		private DateTime? passportIssuedDate;
-
-		[Display(Name = "Дата выдачи паспорта")]
-		public virtual DateTime? PassportIssuedDate {
-			get { return passportIssuedDate; }
-			set { SetField(ref passportIssuedDate, value, () => PassportIssuedDate); }
-		}
 
 		string drivingNumber;
 
@@ -143,13 +138,7 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref phones, value, () => Phones); }
 		}
 
-		IList<EmployeeDocument> documents = new List<EmployeeDocument>();
 
-		[Display(Name = "Документы")]
-		public virtual IList<EmployeeDocument> Documents {
-			get { return documents; }
-			set { SetField(ref documents, value, () => Documents); }
-		}
 
 		IList<EmployeeContract> contracts = new List<EmployeeContract>();
 
@@ -298,10 +287,6 @@ namespace Vodovoz.Domain.Employees
 		string Name { get; set; }
 		string LastName { get; set; }
 		string Patronymic { get; set; }
-		string PassportSeria { get; set; }
-		string PassportNumber { get; set; }
-		string PassportIssuedOrg { get; set; }
-		DateTime? PassportIssuedDate { get; set; }
 		string DrivingNumber { get; set; }
 		string AddressRegistration { get; set; }
 		string AddressCurrent { get; set; }

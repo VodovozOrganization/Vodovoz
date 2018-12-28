@@ -18,10 +18,6 @@ namespace Vodovoz.HibernateMapping.Employees
 			Map(x => x.Name).Column("name");
 			Map(x => x.LastName).Column("last_name");
 			Map(x => x.Patronymic).Column("patronymic");
-			Map(x => x.PassportSeria).Column("passport_seria");
-			Map(x => x.PassportNumber).Column("passport_number");
-			Map(x => x.PassportIssuedOrg).Column("passport_issued_org");
-			Map(x => x.PassportIssuedDate).Column("passport_issued_date");
 			Map(x => x.DrivingNumber).Column("driving_number");
 			Map(x => x.Photo).Column("photo").CustomSqlType("BinaryBlob").LazyLoad();
 			Map(x => x.AddressRegistration).Column("address_registration");
@@ -31,11 +27,9 @@ namespace Vodovoz.HibernateMapping.Employees
 
 			References(x => x.Nationality).Column("nationality_id");
 			References(x => x.Citizenship).Column("citizenship_id");
-			HasMany(x => x.Documents).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
-			HasMany(x=>x.Documents).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
-
+			HasMany(x => x.Documents).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 		}
 
 		public class EmployeeMap : SubclassMap<Employee>
@@ -57,7 +51,7 @@ namespace Vodovoz.HibernateMapping.Employees
 				Map(x => x.WageCalcRate).Column("wage_calc_rate");
 				Map(x => x.VisitingMaster).Column("visiting_master");
 				Map(x => x.DriverOf).Column("driver_of").CustomType<CarTypeOfUseStringType>();
-				Map(x => x.Registration).Column("registration").CustomType<RegistrationType>();
+				Map(x => x.Registration).Column("registration_type").CustomType<RegistrationTypeStringType>();
 
 				References(x => x.Subdivision).Column("subdivision_id");
 				References(x => x.User).Column("user_id");

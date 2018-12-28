@@ -29,7 +29,6 @@ namespace Vodovoz.Domain.Employees
 			set {SetField(ref firstDay, value, () => FirstDay);}
 		}
 
-
 		DateTime? lastDay;
 		[Display(Name = "Дата окончания договора")]
 		public virtual DateTime? LastDay {

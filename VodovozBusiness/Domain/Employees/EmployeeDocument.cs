@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref document, value, () => Document); }
 		}
 
-		public Employee employee;
+		Employee employee;
 
 		[Display(Name = "Сотрудник")]
 		public virtual Employee Employee {
@@ -45,8 +45,6 @@ namespace Vodovoz.Domain.Employees
 			MilitaryID,
 			[Display(Name = "Диппаспорт")]
 			Dippasport,
-			[Display(Name = "Инпаспорт")]
-			InPassport,
 			[Display(Name = "Свидетельство беженца")]
 			RefugeeCertificate,
 			[Display(Name = "Вид на жительство")]

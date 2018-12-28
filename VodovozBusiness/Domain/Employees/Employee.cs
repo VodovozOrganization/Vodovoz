@@ -29,12 +29,12 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref category, value, () => Category); }
 		}
 
-		RegistrationType registration;
+		RegistrationType? registration;
 
 		[Display(Name = "Оформление")]
-		public virtual EmployeeCategory Registration {
-			get { return category; }
-			set { SetField(ref category, value, () => Category); }
+		public virtual RegistrationType? Registration {
+			get { return registration; }
+			set { SetField(ref registration, value, () => Registration); }
 		}
 
 		string androidLogin;
@@ -99,6 +99,27 @@ namespace Vodovoz.Domain.Employees
 		public virtual DateTime? FirstWorkDay {
 			get { return firstWorkDay; }
 			set { SetField(ref firstWorkDay, value, () => FirstWorkDay); }
+		}
+
+	
+
+		IList<EmployeeContract> contracts = new List<EmployeeContract>();
+
+		[Display(Name = "Договора")]
+		public virtual IList<EmployeeContract> Contracts {
+			get { return contracts; }
+			set { SetField(ref contracts, value, () => Contracts); }
+		}
+
+		GenericObservableList<EmployeeContract> observableContracts;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<EmployeeContract> ObservableContracts {
+			get {
+				if(observableContracts == null) {
+					observableContracts = new GenericObservableList<EmployeeContract>(Contracts);
+				}
+				return observableContracts;
+			}
 		}
 
 		private DeliveryDaySchedule defaultDaySheldule;
@@ -204,8 +225,6 @@ namespace Vodovoz.Domain.Employees
 			Name = String.Empty;
 			LastName = String.Empty;
 			Patronymic = String.Empty;
-			PassportSeria = String.Empty;
-			PassportNumber = String.Empty;
 			DrivingNumber = String.Empty;
 			Category = EmployeeCategory.office;
 			AddressRegistration = String.Empty;
@@ -286,7 +305,7 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "ТК РФ")]
 		LaborCode,
 		[Display(Name = "ГПК")]
-		Сontract,
+		Contract,
 	}
 
 	public enum EmployeeType

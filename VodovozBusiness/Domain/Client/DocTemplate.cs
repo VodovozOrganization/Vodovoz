@@ -145,6 +145,8 @@ namespace Vodovoz.Domain.Client
 					return new CarProxyDocumentParser();
 				case TemplateType.M2Proxy:
 					return new M2ProxyDocumentParser();
+				case TemplateType.EmployeeContract:
+					return new EmployeeContractParser();
 				default:
 					throw new NotImplementedException(String.Format("Тип шаблона {0}, не реализован.", type));
 			}
@@ -172,7 +174,9 @@ namespace Vodovoz.Domain.Client
 		[Display (Name = "Доверенность на ТС")]
 		CarProxy,
 		[Display(Name = "Доверенность М-2")]
-		M2Proxy
+		M2Proxy,
+		[Display(Name = "ГПК")]
+		EmployeeContract
 	}
 
 	public class TemplateTypeStringType : NHibernate.Type.EnumStringType

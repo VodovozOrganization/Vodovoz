@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping.Employees
 	{
 		public EmployeeDocumentMap()
 		{
-			Table("passports");
+			Table("employee_documents");
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 
@@ -18,9 +18,8 @@ namespace Vodovoz.HibernateMapping.Employees
 			Map(x => x.PassportNumber).Column("passport_number");
 			Map(x => x.PassportIssuedOrg).Column("passport_issued_org");
 			Map(x => x.PassportIssuedDate).Column("passport_issued_date");
-			References(x => x.employee).Column("employee_id");
+			Map(x => x.Document).Column("document_type");
+			References(x => x.Employee).Column("employee_id");
 		}
 	}
-
-
 }

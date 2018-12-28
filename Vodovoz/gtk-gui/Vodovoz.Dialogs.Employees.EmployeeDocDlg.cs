@@ -8,9 +8,9 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonCancel;
-
 		private global::Gtk.Button buttonSave;
+
+		private global::Gtk.Button buttonCancel;
 
 		private global::Gtk.HBox hbox2;
 
@@ -22,17 +22,17 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::Gtk.Label label1;
 
-		private global::Gamma.GtkWidgets.yEntry yentry3;
+		private global::Gamma.GtkWidgets.yEntry yentryPasSeria;
 
 		private global::Gtk.Label label2;
 
-		private global::Gamma.GtkWidgets.yEntry yentry4;
+		private global::Gamma.GtkWidgets.yEntry yentryPassportNumber;
 
 		private global::Gtk.HBox hbox4;
 
 		private global::Gtk.Label label3;
 
-		private global::Gamma.Widgets.yDatePicker ydatepicker2;
+		private global::Gamma.Widgets.yDatePicker ydatePassportIssuedDate;
 
 		private global::Gtk.HBox hbox6;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.GtkWidgets.yTextView ytextview2;
+		private global::Gamma.GtkWidgets.yTextView ytextviewIssueOrg;
 
 		protected virtual void Build()
 		{
@@ -57,30 +57,30 @@ namespace Vodovoz.Dialogs.Employees
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
-			this.buttonCancel.CanFocus = true;
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.UseUnderline = true;
-			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
-			global::Gtk.Image w1 = new global::Gtk.Image();
-			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w1;
-			this.hbox1.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonCancel]));
-			w2.Position = 0;
-			w2.Expand = false;
-			w2.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
 			this.buttonSave = new global::Gtk.Button();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
 			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			global::Gtk.Image w3 = new global::Gtk.Image();
-			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
-			this.buttonSave.Image = w3;
+			global::Gtk.Image w1 = new global::Gtk.Image();
+			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
+			this.buttonSave.Image = w1;
 			this.hbox1.Add(this.buttonSave);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonSave]));
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonSave]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel.CanFocus = true;
+			this.buttonCancel.Name = "buttonCancel";
+			this.buttonCancel.UseUnderline = true;
+			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
+			global::Gtk.Image w3 = new global::Gtk.Image();
+			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.buttonCancel.Image = w3;
+			this.hbox1.Add(this.buttonCancel);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonCancel]));
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
@@ -136,13 +136,13 @@ namespace Vodovoz.Dialogs.Employees
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yentry3 = new global::Gamma.GtkWidgets.yEntry();
-			this.yentry3.CanFocus = true;
-			this.yentry3.Name = "yentry3";
-			this.yentry3.IsEditable = true;
-			this.yentry3.InvisibleChar = '•';
-			this.hbox3.Add(this.yentry3);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentry3]));
+			this.yentryPasSeria = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryPasSeria.CanFocus = true;
+			this.yentryPasSeria.Name = "yentryPasSeria";
+			this.yentryPasSeria.IsEditable = true;
+			this.yentryPasSeria.InvisibleChar = '•';
+			this.hbox3.Add(this.yentryPasSeria);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryPasSeria]));
 			w10.Position = 1;
 			w10.Expand = false;
 			w10.Fill = false;
@@ -156,13 +156,13 @@ namespace Vodovoz.Dialogs.Employees
 			w11.Expand = false;
 			w11.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yentry4 = new global::Gamma.GtkWidgets.yEntry();
-			this.yentry4.CanFocus = true;
-			this.yentry4.Name = "yentry4";
-			this.yentry4.IsEditable = true;
-			this.yentry4.InvisibleChar = '•';
-			this.hbox3.Add(this.yentry4);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentry4]));
+			this.yentryPassportNumber = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryPassportNumber.CanFocus = true;
+			this.yentryPassportNumber.Name = "yentryPassportNumber";
+			this.yentryPassportNumber.IsEditable = true;
+			this.yentryPassportNumber.InvisibleChar = '•';
+			this.hbox3.Add(this.yentryPassportNumber);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryPassportNumber]));
 			w12.Position = 3;
 			w12.Expand = false;
 			w12.Fill = false;
@@ -186,15 +186,15 @@ namespace Vodovoz.Dialogs.Employees
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.ydatepicker2 = new global::Gamma.Widgets.yDatePicker();
-			this.ydatepicker2.Events = ((global::Gdk.EventMask)(256));
-			this.ydatepicker2.Name = "ydatepicker2";
-			this.ydatepicker2.WithTime = false;
-			this.ydatepicker2.Date = new global::System.DateTime(0);
-			this.ydatepicker2.IsEditable = false;
-			this.ydatepicker2.AutoSeparation = false;
-			this.hbox4.Add(this.ydatepicker2);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ydatepicker2]));
+			this.ydatePassportIssuedDate = new global::Gamma.Widgets.yDatePicker();
+			this.ydatePassportIssuedDate.Events = ((global::Gdk.EventMask)(256));
+			this.ydatePassportIssuedDate.Name = "ydatePassportIssuedDate";
+			this.ydatePassportIssuedDate.WithTime = false;
+			this.ydatePassportIssuedDate.Date = new global::System.DateTime(0);
+			this.ydatePassportIssuedDate.IsEditable = false;
+			this.ydatePassportIssuedDate.AutoSeparation = false;
+			this.hbox4.Add(this.ydatePassportIssuedDate);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ydatePassportIssuedDate]));
 			w15.Position = 1;
 			this.vbox2.Add(this.hbox4);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox4]));
@@ -220,11 +220,11 @@ namespace Vodovoz.Dialogs.Employees
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytextview2 = new global::Gamma.GtkWidgets.yTextView();
-			this.ytextview2.HeightRequest = 80;
-			this.ytextview2.CanFocus = true;
-			this.ytextview2.Name = "ytextview2";
-			this.GtkScrolledWindow.Add(this.ytextview2);
+			this.ytextviewIssueOrg = new global::Gamma.GtkWidgets.yTextView();
+			this.ytextviewIssueOrg.HeightRequest = 80;
+			this.ytextviewIssueOrg.CanFocus = true;
+			this.ytextviewIssueOrg.Name = "ytextviewIssueOrg";
+			this.GtkScrolledWindow.Add(this.ytextviewIssueOrg);
 			this.hbox6.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.GtkScrolledWindow]));
 			w19.Position = 1;

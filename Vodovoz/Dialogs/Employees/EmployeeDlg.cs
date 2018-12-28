@@ -1,14 +1,11 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using NLog;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
-using QS.Tdi;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
@@ -18,8 +15,7 @@ using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
-using Vodovoz.ViewWidgets;
-using Gamma.Utilities;
+using static Vodovoz.Domain.Employees.EmployeeDocument;
 
 namespace Vodovoz
 {
@@ -35,6 +31,8 @@ namespace Vodovoz
 		}
 
 		private EmployeeCategory[] hiddenCategory;
+		private readonly DocumentType[] hiddenForRussianDocument = { DocumentType.RefugeeId, DocumentType.RefugeeCertificate, DocumentType.Residence };
+		private readonly DocumentType[] hiddenForForeignCitizen = { DocumentType.MilitaryID, DocumentType.NavyPassport, DocumentType.OfficerCertificate };
 
 		public EmployeeDlg()
 		{
@@ -68,10 +66,9 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			dataentryPassportSeria.MaxLength = 30;
-			dataentryPassportSeria.Binding.AddBinding(Entity, e => e.PassportSeria, w => w.Text).InitializeFromSource();
-			dataentryPassportNumber.MaxLength = 30;
-			dataentryPassportNumber.Binding.AddBinding(Entity, e => e.PassportNumber, w => w.Text).InitializeFromSource();
+			labelCitizenship.Visible = false;
+			referenceCitizenship.Visible = false;
+
 			dataentryDrivingNumber.MaxLength = 20;
 			dataentryDrivingNumber.Binding.AddBinding(Entity, e => e.DrivingNumber, w => w.Text).InitializeFromSource();
 			UoWGeneric.Root.PropertyChanged += OnPropertyChanged;
@@ -87,8 +84,6 @@ namespace Vodovoz
 			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			dataentryPatronymic.Binding.AddBinding(Entity, e => e.Patronymic, w => w.Text).InitializeFromSource();
 
-			ytextviewPassportIssuedOrg.Binding.AddBinding(Entity, e => e.PassportIssuedOrg, w => w.Buffer.Text).InitializeFromSource();
-			ydatePassportIssuedDate.Binding.AddBinding(Entity, e => e.PassportIssuedDate, w => w.DateOrNull).InitializeFromSource();
 			entryAddressCurrent.Binding.AddBinding(Entity, e => e.AddressCurrent, w => w.Text).InitializeFromSource();
 			entryAddressRegistration.Binding.AddBinding(Entity, e => e.AddressRegistration, w => w.Text).InitializeFromSource();
 			entryInn.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
@@ -105,6 +100,8 @@ namespace Vodovoz
 
 			referenceNationality.SubjectType = typeof(Nationality);
 			referenceNationality.Binding.AddBinding(Entity, e => e.Nationality, w => w.Subject).InitializeFromSource();
+			referenceCitizenship.SubjectType = typeof(Citizenship);
+			referenceCitizenship.Binding.AddBinding(Entity, e => e.Citizenship, w => w.Subject).InitializeFromSource();
 			yentrySubdivision.SubjectType = typeof(Subdivision);
 			yentrySubdivision.Binding.AddBinding(Entity, e => e.Subdivision, w => w.Subject).InitializeFromSource();
 			referenceUser.SubjectType = typeof(User);
@@ -122,6 +119,11 @@ namespace Vodovoz
 			};
 			comboWageCalcType.ItemsEnum = typeof(WageCalculationType);
 			comboWageCalcType.Binding.AddBinding(Entity, e => e.WageCalcType, w => w.SelectedItem).InitializeFromSource();
+
+			yenumcombobox13.ItemsEnum = typeof(RegistrationType);
+			yenumcombobox13.Binding.AddBinding(Entity, e => e.Registration, w => w.SelectedItemOrNull).InitializeFromSource();
+
+			ydatepicker1.Binding.AddBinding(Entity, e => e.BirthdayDate, w => w.DateOrNull).InitializeFromSource();
 
 			photoviewEmployee.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewEmployee.GetSaveFileName = () => Entity.FullName;
@@ -141,6 +143,7 @@ namespace Vodovoz
 			yspinTripsPriority.Binding.AddBinding(Entity, e => e.TripPriority, w => w.ValueAsShort).InitializeFromSource();
 			yspinDriverSpeed.Binding.AddBinding(Entity, e => e.DriverSpeed, w => w.Value, new MultiplierToPercentConverter()).InitializeFromSource();
 			yspinWageCalcRate.Binding.AddBinding(Entity, e => e.WageCalcRate, w => w.ValueAsDecimal).InitializeFromSource();
+			checkbuttonRussianCitizen.Binding.AddBinding(Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
 
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
 				.AddColumn("Район").AddTextRenderer(x => x.District.Name)
@@ -148,12 +151,13 @@ namespace Vodovoz
 				.Finish();
 			ytreeviewDistricts.Reorderable = true;
 
-			ytreeviewDistricts.SetItemsSource(Entity.ObservableDistricts);
-
 			string[] values = new string[] { "one", "two", "three" };
 
-			foreach(RegistrationType registration in Enum.GetValues(typeof(RegistrationType)))
-				comboboxentry1.AppendText(registration.GetEnumTitle());
+			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
+				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
+				.Finish();
+			ytreeviewEmployeeDocument.SetItemsSource(Entity.ObservableDocuments);
+
 
 
 			logger.Info("Ok");
@@ -209,6 +213,7 @@ namespace Vodovoz
 
 		}
 
+		#region RadioTabToggled
 		protected void OnRadioTabInfoToggled(object sender, EventArgs e)
 		{
 			if(radioTabInfo.Active)
@@ -227,10 +232,29 @@ namespace Vodovoz
 				notebookMain.CurrentPage = 2;
 		}
 
+		protected void OnRadioTabLogisticToggled(object sender, EventArgs e)
+		{
+			if(radioTabLogistic.Active)
+				notebookMain.CurrentPage = 1;
+		}
+
+		protected void OnRadioTabEmployeeDocumentToggled(object sender, EventArgs e)
+		{
+			if(radioTabEmployeeDocument.Active)
+				notebookMain.CurrentPage = 5;
+		}
+
+		protected void OnRadioTabContractsToggled(object sender, EventArgs e)
+		{
+			if(radioTabContracts.Active)
+				notebookMain.CurrentPage = 4;
+		}
+		#endregion
+
 		protected void OnComboCategoryEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			radioTabLogistic.Visible 
-			    = lblDriverOf.Visible
+			radioTabLogistic.Visible
+				= lblDriverOf.Visible
 				= hboxDriversParameters.Visible
 				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
 
@@ -238,46 +262,50 @@ namespace Vodovoz
 				= hboxCustomWageCalc.Visible
 				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver
 				   || (EmployeeCategory)e.SelectedItem == EmployeeCategory.forwarder);
-			
+
 			hboxCustomWageCalc.Sensitive = QSMain.User.Permissions["can_edit_wage"];
 		}
 
-		protected void OnRadioTabLogisticToggled(object sender, EventArgs e)
+		protected void OnRussianCitizenToggled(object sender, EventArgs e)
 		{
-			if(radioTabLogistic.Active)
-				notebookMain.CurrentPage = 1;
+			if(checkbuttonRussianCitizen.Active == false) {
+				labelCitizenship.Visible = true;
+				referenceCitizenship.Visible = true;
+			} else {
+				labelCitizenship.Visible = false;
+				referenceCitizenship.Visible = false;
+				Entity.Citizenship = null;
+			}
 		}
 
 		#region Document
-		protected void OnRadioTabEmployeeDocumentToggled(object sender, EventArgs e)
-		{
-			if(radioTabEmployeeDocument.Active)
-				notebookMain.CurrentPage = 5;
-		}
 
 		protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
 		{
-			EmployeeDocDlg dlg = new EmployeeDocDlg();
+			EmployeeDocDlg dlg = new EmployeeDocDlg(Entity,Entity.IsRussianCitizen ? hiddenForRussianDocument : hiddenForForeignCitizen);
 			TabParent.AddSlaveTab(this,dlg);
 		}
 
 		protected void OnButtonRemoveDocumentClicked(object sender, EventArgs e)
 		{
-
+			var toRemoveDistricts = ytreeviewEmployeeDocument.GetSelectedObjects<EmployeeDocument>().ToList();
+			toRemoveDistricts.ForEach(x => Entity.ObservableDocuments.Remove(x));
 		}
 
 		protected void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
+			EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id);
+			TabParent.AddSlaveTab(this,dlg);
+		}
 
+		protected void OnEmployeeDocumentRowActivated(object o, Gtk.RowActivatedArgs args)
+		{
+			buttonDocumentEdit.Click();
 		}
 		#endregion
 
 		#region Contract
-		protected void OnRadioTabContractsToggled(object sender, EventArgs e)
-		{
-			if(radioTabContracts.Active)
-				notebookMain.CurrentPage = 4;
-		}
+
 
 		protected void OnAddContractButtonCliked(object sender, EventArgs e)
 		{
@@ -337,8 +365,6 @@ namespace Vodovoz
 				Entity.WageCalcRate = 0;
 			}
 		}
-
-
 	}
 	#endregion
 }

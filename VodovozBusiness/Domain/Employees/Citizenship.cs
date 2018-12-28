@@ -5,8 +5,8 @@ using System.ComponentModel.DataAnnotations;
 namespace Vodovoz.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "Граждаства",
-		Nominative = "Граждаство")]
+		NominativePlural = "Иностранные гражданства",
+		Nominative = "Иностранное гражданство")]
 	public class Citizenship: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
