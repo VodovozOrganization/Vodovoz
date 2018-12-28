@@ -128,12 +128,6 @@
     <Reference Include="Remotion.Linq.EagerFetching">
       <HintPath>..\packages\Remotion.Linq.EagerFetching.2.2.0\lib\net45\Remotion.Linq.EagerFetching.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate.Spatial">
-      <HintPath>..\packages\NHibernate.Spatial.MySQL.5.1.0-pre001\lib\net461\NHibernate.Spatial.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.Spatial.MySQL">
-      <HintPath>..\packages\NHibernate.Spatial.MySQL.5.1.0-pre001\lib\net461\NHibernate.Spatial.MySQL.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="DataAnnotationsExtensions">
       <HintPath>..\packages\DataAnnotationsExtensions.5.0.1.27\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
@@ -145,11 +139,17 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate">
-      <HintPath>..\packages\NHibernate.5.2.0\lib\net461\NHibernate.dll</HintPath>
-    </Reference>
     <Reference Include="RestSharp">
       <HintPath>..\packages\RestSharp.106.5.4\lib\net452\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\packages\NHibernate.5.2.1\lib\net461\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.Spatial">
+      <HintPath>..\packages\NHibernate.Spatial.5.1.0\lib\netstandard2.0\NHibernate.Spatial.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.Spatial.MySQL">
+      <HintPath>..\packages\NHibernate.Spatial.MySQL.5.1.0\lib\netstandard2.0\NHibernate.Spatial.MySQL.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
