@@ -2,10 +2,11 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
+using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using QS.HistoryLog.Domain;
 using QS.HistoryLog.Repositories;
-using QS.Dialog;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.DocTemplates;
@@ -96,8 +97,8 @@ namespace Vodovoz
 			ytreeviewFixedPricesChanges.ColumnsConfig = ColumnsConfigFactory.Create<FieldChange>()
 				.AddColumn("Время изменения").AddTextRenderer(x => x.Entity.ChangeTimeText)
 				.AddColumn("Пользователь").AddTextRenderer(x => x.Entity.ChangeSet.UserName)
-				.AddColumn("Старое значение").AddTextRenderer(x => x.OldPangoText, useMarkup: true)
-				.AddColumn("Новое значение").AddTextRenderer(x => x.NewPangoText, useMarkup: true)
+				.AddColumn("Старое значение").AddTextRenderer(x => x.OldFormatedDiffText, useMarkup: true)
+				.AddColumn("Новое значение").AddTextRenderer(x => x.NewFormatedDiffText, useMarkup: true)
 				.Finish();
 
 			ytreeviewFixedPrices.Selection.Changed += (sender, e) => {
@@ -111,6 +112,8 @@ namespace Vodovoz
 					.GetFieldChanges<WaterSalesAgreementFixedPrice>(UoW, new[]{fixedPrice.Id}, x => x.Price)
 					.OrderBy(x => x.Entity.ChangeTime).ToList();
 
+				var formatter = new PangoDiffFormater();
+				fixedPricesChanges.ForEach(x => x.DiffFormatter = formatter);
 				ytreeviewFixedPricesChanges.ItemsDataSource = fixedPricesChanges;
 			};
 

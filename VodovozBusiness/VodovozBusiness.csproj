@@ -616,10 +616,6 @@
       <Project>{D0C39D9D-BED0-418B-9A5E-713176CAF40C}</Project>
       <Name>GMap.NET.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QS.HistoryLog.Gtk\QS.HistoryLog.Gtk.csproj">
-      <Project>{1C3B49FC-372C-46F7-995F-EEB44474E2DE}</Project>
-      <Name>QS.HistoryLog.Gtk</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
       <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
       <Name>GammaBinding</Name>
@@ -631,6 +627,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.Report\QS.Report.csproj">
       <Project>{D30A23BF-C5DC-4A1B-95FC-9C2038D46E8E}</Project>
       <Name>QS.Report</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
+      <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
+      <Name>QS.HistoryLog</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

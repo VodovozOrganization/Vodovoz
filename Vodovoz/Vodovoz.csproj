@@ -1186,6 +1186,10 @@
       <Project>{3C0F3944-CBD5-4BD6-83D4-CF33AD6FC68C}</Project>
       <Name>QS.Project.Gtk</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
+      <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
+      <Name>QS.HistoryLog</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />
