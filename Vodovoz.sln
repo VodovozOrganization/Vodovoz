@@ -59,7 +59,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSValidation", "..\QSProjec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSWidgetLib", "..\QSProjects\QSWidgetLib\QSWidgetLib.csproj", "{5A2BB01E-E124-432E-8099-D1343D3897B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSHistoryLog", "..\QSProjects\QSHistoryLog\QSHistoryLog.csproj", "{1C3B49FC-372C-46F7-995F-EEB44474E2DE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.HistoryLog.Gtk", "..\QSProjects\QS.HistoryLog.Gtk\QS.HistoryLog.Gtk.csproj", "{1C3B49FC-372C-46F7-995F-EEB44474E2DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSReport", "..\QSProjects\QSReport\QSReport.csproj", "{9C0363D4-EE69-45B8-BA45-BDA24CE35A06}"
 EndProject
