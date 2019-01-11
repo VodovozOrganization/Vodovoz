@@ -145,9 +145,9 @@
       <Project>{BA8E8ACF-ECB0-4617-9E09-D1BE93992D0E}</Project>
       <Name>QS.Testing</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QS.HistoryLog.Gtk\QS.HistoryLog.Gtk.csproj">
-      <Project>{1C3B49FC-372C-46F7-995F-EEB44474E2DE}</Project>
-      <Name>QS.HistoryLog.Gtk</Name>
+    <ProjectReference Include="..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
+      <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
+      <Name>QS.HistoryLog</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
