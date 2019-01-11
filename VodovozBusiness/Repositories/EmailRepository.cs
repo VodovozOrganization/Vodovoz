@@ -47,6 +47,7 @@ namespace Vodovoz.Repositories
 				var lastSendTime = uow.Session.QueryOver<StoredEmail>()
 									  .Where(x => x.RecipientAddress == address)
 									  .Where(x => x.Order.Id == orderId)
+									  .Where(x => x.State != StoredEmailStates.SendingError)
 									  .Select(Projections.Max<StoredEmail>(y => y.SendDate))
 									  .SingleOrDefault<DateTime>();
 				if(lastSendTime != default(DateTime)) {
