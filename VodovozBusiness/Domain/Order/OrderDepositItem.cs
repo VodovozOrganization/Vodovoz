@@ -43,14 +43,6 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref actualCount, value, () => ActualCount); }
 		}
 
-		PaymentDirection paymentDirection;
-
-		[Display(Name = "Кто платит")]
-		public virtual PaymentDirection PaymentDirection {
-			get { return paymentDirection; }
-			set { SetField (ref paymentDirection, value, () => PaymentDirection); }
-		}
-
 		DepositOperation depositOperation;
 
 		[Display(Name = "Операция залога")]
@@ -94,16 +86,12 @@ namespace Vodovoz.Domain.Orders
 		public virtual string DepositTypeString {
 			get { 
 				switch (DepositType) {
-				case DepositType.Bottles:
-					if (PaymentDirection == PaymentDirection.FromClient)
-						return "Залог за бутыли";
-					return "Возврат залога за бутыли";
-				case DepositType.Equipment:
-					if (PaymentDirection == PaymentDirection.FromClient)
-						return "Залог за оборудование";
-					return "Возврат залога за оборудования";
-				default:
-					return "Не определено";
+					case DepositType.Bottles:
+						return "Возврат залога за бутыли";
+					case DepositType.Equipment:
+						return "Возврат залога за оборудования";
+					default:
+						return "Не определено";
 				}
 			} 
 		}
@@ -135,19 +123,6 @@ namespace Vodovoz.Domain.Orders
 			get{
 				return String.Format("{0} на сумму {1}", DepositTypeString, CurrencyWorks.GetShortCurrencyString(Total));
 			}
-		}
-	}
-
-	public enum PaymentDirection
-	{
-		[Display (Name = "Клиенту")]ToClient,
-		[Display (Name = "От клиента")]FromClient
-	}
-
-	public class PaymentDirectionStringType : NHibernate.Type.EnumStringType
-	{
-		public PaymentDirectionStringType () : base (typeof(PaymentDirection))
-		{
 		}
 	}
 }

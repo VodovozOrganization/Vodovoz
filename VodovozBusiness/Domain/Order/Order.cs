@@ -981,9 +981,7 @@ namespace Vodovoz.Domain.Orders
 			get {
 				Decimal sum = 0;
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
-					if(dep.PaymentDirection == PaymentDirection.ToClient) {
-						sum -= dep.Total;
-					}
+					sum += dep.Total;
 				}
 				return sum;
 			}
@@ -1006,8 +1004,7 @@ namespace Vodovoz.Domain.Orders
 					sum += item.Price * item.ActualCount - item.DiscountMoney;
 				}
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
-					if(dep.PaymentDirection == PaymentDirection.ToClient)
-						sum -= dep.Deposit * dep.Count;
+					sum -= dep.Deposit * dep.Count;
 				}
 				return sum;
 			}
@@ -1730,7 +1727,6 @@ namespace Vodovoz.Domain.Orders
 						Count = oDepositItem.Count,
 						ActualCount = oDepositItem.ActualCount,
 						Deposit = oDepositItem.Deposit,
-						PaymentDirection = oDepositItem.PaymentDirection,
 						DepositType = oDepositItem.DepositType,
 						EquipmentNomenclature = oDepositItem.EquipmentNomenclature
 					}
@@ -2861,13 +2857,11 @@ namespace Vodovoz.Domain.Orders
 		[Obsolete("Метод устарел после внедрения функционала в рамках задачи I-1173", true)]
 		private void AddDepositDocuments(List<OrderDocumentType> list)
 		{
-			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles
-															&& x.PaymentDirection == PaymentDirection.ToClient)) {
+			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles)) {
 				list.Add(OrderDocumentType.RefundBottleDeposit);
 			}
 
-			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Equipment
-													&& x.PaymentDirection == PaymentDirection.ToClient)) {
+			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Equipment)) {
 				list.Add(OrderDocumentType.RefundEquipmentDeposit);
 			}
 		}

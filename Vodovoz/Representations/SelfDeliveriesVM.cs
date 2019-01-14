@@ -218,7 +218,7 @@ namespace Vodovoz.Representations
 				);
 			}
 
-			if(order.OrderSumReturn < 0 && !order.SelfDeliveryIsFullyExpenseReturned()) {
+			if(order.OrderSumReturn > 0 && !order.SelfDeliveryIsFullyExpenseReturned()) {
 				MainClass.MainWin.TdiMain.OpenTab(
 					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Expense>(orderId),
 					() => new CashExpenseSelfDeliveryDlg(order)

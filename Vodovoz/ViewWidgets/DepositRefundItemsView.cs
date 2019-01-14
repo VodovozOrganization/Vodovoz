@@ -45,7 +45,6 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Факт. кол-во").AddNumericRenderer(node => node.ActualCount).Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1)).Editing(true)
 				.AddColumn("Цена").AddNumericRenderer(node => node.Deposit).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
 				.AddColumn("Сумма").AddNumericRenderer(node => node.Total)
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Visible = n.PaymentDirection == PaymentDirection.ToClient)
 				.Finish();
 			}else {
 				treeDepositRefundItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderDepositItem>()
@@ -54,7 +53,6 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Кол-во").AddNumericRenderer(node => node.Count).Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1)).Editing(true)
 				.AddColumn("Цена").AddNumericRenderer(node => node.Deposit).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
 				.AddColumn("Сумма").AddNumericRenderer(node => node.Total)
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Visible = n.PaymentDirection == PaymentDirection.ToClient)
 				.Finish();
 			}
 			
@@ -74,7 +72,6 @@ namespace Vodovoz.ViewWidgets
 				Count = MyTab is OrderReturnsView ? 0 : 1,
 				ActualCount = 0,
 				Order = Order,
-				PaymentDirection = PaymentDirection.ToClient,
 				DepositType = DepositType.Bottles
 			};
 			Order.ObservableOrderDepositItems.Add(newDepositItem);
@@ -121,7 +118,6 @@ namespace Vodovoz.ViewWidgets
 				ActualCount = 0,
 				Order = Order,
 				EquipmentNomenclature = selectedNode,
-				PaymentDirection = PaymentDirection.ToClient,
 				DepositType = DepositType.Equipment
 			};
 			Order.ObservableOrderDepositItems.Add(newDepositItem);

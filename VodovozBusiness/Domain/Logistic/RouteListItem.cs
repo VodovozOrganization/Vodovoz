@@ -670,9 +670,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 			PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
 			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
-			TotalCash = IsDelivered() &&
-				Order.PaymentType == Client.PaymentType.cash || Order.PaymentType == Client.PaymentType.BeveragesWorld
-				? Order.SumToReceive : 0;
+			TotalCash = IsDelivered() ? Order.SumToReceive : 0;
 			var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(uow).GetPrice(Order.BottlesReturn);
 			PerformanceHelper.AddTimePoint("Получили прайс");
 			RecalculateWages();
