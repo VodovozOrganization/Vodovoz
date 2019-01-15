@@ -48,7 +48,7 @@
           <BorderWidth />
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>28.1pt</Width>
           </TableColumn>
           <TableColumn>
@@ -63,7 +63,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
                       <Value>№</Value>
@@ -121,7 +121,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
                       <Value>=RowNumber()</Value>
@@ -132,7 +132,7 @@
                         <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -149,7 +149,7 @@
                         <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingLeft >10pt</PaddingLeft>
+                        <PaddingLeft>10pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -182,7 +182,7 @@
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
                       <Value>
@@ -245,7 +245,7 @@
           <BorderWidth />
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>27.1pt</Width>
           </TableColumn>
           <TableColumn>
@@ -260,7 +260,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
                       <Value>№</Value>
@@ -318,7 +318,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
                       <Value>=RowNumber()</Value>
@@ -326,9 +326,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -342,9 +342,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <PaddingLeft >10pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>10pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -373,7 +373,7 @@
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
                       <Value>
@@ -434,7 +434,7 @@
           <BorderWidth />
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>26.6pt</Width>
           </TableColumn>
           <TableColumn>
@@ -449,7 +449,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
                       <Value>№</Value>
@@ -507,7 +507,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
                       <Value>=RowNumber()</Value>
@@ -517,7 +517,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -533,7 +533,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingLeft >10pt</PaddingLeft>
+                        <PaddingLeft>10pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -562,7 +562,7 @@
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
                       <Value>
@@ -708,7 +708,7 @@
           <BorderWidth />
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>27.1pt</Width>
           </TableColumn>
           <TableColumn>
@@ -723,7 +723,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
                       <Value>№</Value>
@@ -781,7 +781,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
                       <Value>=RowNumber()</Value>
@@ -791,7 +791,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -807,7 +807,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingLeft >10pt</PaddingLeft>
+                        <PaddingLeft>10pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -836,7 +836,7 @@
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
                       <Value>
@@ -910,7 +910,7 @@
           <BorderWidth />
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>26.3pt</Width>
           </TableColumn>
           <TableColumn>
@@ -925,7 +925,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox43">
                       <Value>Водители ГАЗелей:</Value>
@@ -951,7 +951,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
                       <Value>№</Value>
@@ -1009,7 +1009,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox45">
                       <Value>=RowNumber()</Value>
@@ -1017,9 +1017,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1033,9 +1033,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <PaddingLeft >10pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>10pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1064,7 +1064,7 @@
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value>
@@ -1137,7 +1137,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
@@ -1169,7 +1169,7 @@ ORDER BY driver</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1185,7 +1185,7 @@ ORDER BY driver</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="ForwarderBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
@@ -1198,7 +1198,7 @@ LEFT JOIN
 WHERE
 	wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
-	AND employees.wage_calc_type != 'withoutPayment'
+	AND (employees.wage_calc_type IS NULL OR employees.wage_calc_type != 'withoutPayment')
 	AND employees.category = 'forwarder'
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
@@ -1212,7 +1212,7 @@ ORDER BY driver</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1428,7 +1428,7 @@ ORDER BY driver</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

@@ -2752,40 +2752,41 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument)
 		{
-			if(IsFullyShippedSelfDeliveryOrder(uow, closingDocument)) {
-				var isFullyPaid = SelfDeliveryIsFullyPaid();
-
-				UpdateBottlesMovementOperationWithoutDelivery(UoW);
-
-				switch(PaymentType) {
-					case PaymentType.cash:
-					case PaymentType.BeveragesWorld:
-						if(isFullyPaid) {
-							ChangeStatus(OrderStatus.Closed);
-						} else {
-							ChangeStatus(OrderStatus.WaitForPayment);
-						}
-						break;
-					case PaymentType.cashless:
-					case PaymentType.ByCard:
-						if(PayAfterShipment) {
-							ChangeStatus(OrderStatus.WaitForPayment);
-						} else {
-							ChangeStatus(OrderStatus.Closed);
-						}
-						break;
-					case PaymentType.barter:
-					case PaymentType.ContractDoc:
-						ChangeStatus(OrderStatus.Closed);
-						break;
-				}
-				UpdateSelfDeliveryActualCounts();
-				return true;
+			if(!IsFullyShippedSelfDeliveryOrder(uow, closingDocument) || OrderStatus != OrderStatus.OnLoading) {
+				return false;
 			}
-			return false;
+
+			var isFullyPaid = SelfDeliveryIsFullyPaid();
+
+			UpdateBottlesMovementOperationWithoutDelivery(UoW);
+
+			switch(PaymentType) {
+				case PaymentType.cash:
+				case PaymentType.BeveragesWorld:
+					if(isFullyPaid) {
+						ChangeStatus(OrderStatus.Closed);
+					} else {
+						ChangeStatus(OrderStatus.WaitForPayment);
+					}
+					break;
+				case PaymentType.cashless:
+				case PaymentType.ByCard:
+					if(PayAfterShipment) {
+						ChangeStatus(OrderStatus.WaitForPayment);
+					} else {
+						ChangeStatus(OrderStatus.Closed);
+					}
+					break;
+				case PaymentType.barter:
+				case PaymentType.ContractDoc:
+					ChangeStatus(OrderStatus.Closed);
+					break;
+			}
+			UpdateSelfDeliveryActualCounts();
+			return true;
 		}
 
-		public virtual void DeleteBottlesMovementOperation(IUnitOfWork uow)
+		private void DeleteBottlesMovementOperation(IUnitOfWork uow)
 		{
 			if(BottlesMovementOperation != null) {
 				uow.Delete(BottlesMovementOperation);
@@ -2818,22 +2819,19 @@ namespace Vodovoz.Domain.Orders
 
 			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
 				if(BottlesMovementOperation == null) {
-					var bottlesOperation = new BottlesMovementOperation {
-						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+					BottlesMovementOperation = new BottlesMovementOperation {
 						Order = this,
-						Delivered = amountDelivered,
-						Returned = ReturnedTare.GetValueOrDefault(),
 						Counterparty = Client,
 						DeliveryPoint = DeliveryPoint
 					};
-					uow.Save(bottlesOperation);
-					BottlesMovementOperation = bottlesOperation;
-				} else {
-					BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-					BottlesMovementOperation.Delivered = amountDelivered;
-					BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
-					uow.Save(BottlesMovementOperation);
-				}
+				} 
+				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
+				BottlesMovementOperation.Delivered = amountDelivered;
+				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
+				uow.Save(BottlesMovementOperation);
+			} else if(BottlesMovementOperation != null) {
+				uow.Delete(BottlesMovementOperation);
+				BottlesMovementOperation = null;
 			}
 		}
 

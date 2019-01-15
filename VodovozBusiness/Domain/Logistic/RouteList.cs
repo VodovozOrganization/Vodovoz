@@ -852,24 +852,24 @@ namespace Vodovoz.Domain.Logistic
 				int amountDelivered = address.Order.OrderItems
 					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 					.Sum(item => item.ActualCount);
-				if(address.Order.BottlesMovementOperation == null) {
-					if(amountDelivered != 0 || address.BottlesReturned != 0) {
-						var bottlesMovementOperation = new BottlesMovementOperation {
-							OperationTime = address.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+				var bottlesMovementOperation = address.Order.BottlesMovementOperation;
+				if(amountDelivered != 0 || address.BottlesReturned != 0) {
+					if(bottlesMovementOperation == null) {
+						bottlesMovementOperation = new BottlesMovementOperation {
 							Order = address.Order,
-							Delivered = amountDelivered,
-							Returned = address.BottlesReturned,
 							Counterparty = address.Order.Client,
 							DeliveryPoint = address.Order.DeliveryPoint
 						};
-						address.Order.BottlesMovementOperation = bottlesMovementOperation;
-						result.Add(bottlesMovementOperation);
 					}
-				} else {
-					var bottlesMovementOperation = address.Order.BottlesMovementOperation;
+					bottlesMovementOperation.OperationTime = address.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 					bottlesMovementOperation.Delivered = amountDelivered;
 					bottlesMovementOperation.Returned = address.BottlesReturned;
+					address.Order.BottlesMovementOperation = bottlesMovementOperation;
 					result.Add(bottlesMovementOperation);
+
+				} else if(bottlesMovementOperation != null) {
+					UoW.Delete(bottlesMovementOperation);
+					address.Order.BottlesMovementOperation = null;
 				}
 			}
 			return result;
