@@ -3,16 +3,20 @@ using System.Linq;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
-using QS.Tdi;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModel;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Store;
+using Vodovoz.Repositories.Store;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz
 {
@@ -65,7 +69,7 @@ namespace Vodovoz
 		{
 			DocumentType type = (DocumentType)e.ItemEnum;
 			TabParent.OpenTab(
-				OrmMain.GenerateDialogHashName(Document.GetDocClass(type), 0),
+				DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
 				() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)),
 				this);
 		}
@@ -84,61 +88,61 @@ namespace Vodovoz
 				switch (DocType) {
 					case DocumentType.IncomingInvoice:
 						TabParent.OpenTab(
-							OrmMain.GenerateDialogHashName<IncomingInvoice>(id),
+							DialogHelper.GenerateDialogHashName<IncomingInvoice>(id),
 							() => new IncomingInvoiceDlg (id),
 							this);
 						break;
 					case DocumentType.IncomingWater:
 						TabParent.OpenTab(
-							OrmMain.GenerateDialogHashName<IncomingWater>(id),
+							DialogHelper.GenerateDialogHashName<IncomingWater>(id),
 							() => new IncomingWaterDlg (id),
 							this);
 						break;
 					case DocumentType.MovementDocument: 
 						TabParent.OpenTab(
-							OrmMain.GenerateDialogHashName<MovementDocument>(id),
+							DialogHelper.GenerateDialogHashName<MovementDocument>(id),
 							() => new MovementDocumentDlg (id),
 							this);
 						break;
 					case DocumentType.WriteoffDocument:
 						TabParent.OpenTab(
-							OrmMain.GenerateDialogHashName<WriteoffDocument>(id),
+							DialogHelper.GenerateDialogHashName<WriteoffDocument>(id),
 							() => new WriteoffDocumentDlg (id),
 							this);
 						break;
 					case DocumentType.InventoryDocument:
 						TabParent.OpenTab(
-							OrmMain.GenerateDialogHashName<InventoryDocument>(id),
+							DialogHelper.GenerateDialogHashName<InventoryDocument>(id),
 							() => new InventoryDocumentDlg (id),
 							this);
 						break;
 					case DocumentType.ShiftChangeDocument:
 						TabParent.OpenTab(
-							OrmMain.GenerateDialogHashName<ShiftChangeWarehouseDocument>(id),
+							DialogHelper.GenerateDialogHashName<ShiftChangeWarehouseDocument>(id),
 							() => new ShiftChangeWarehouseDocumentDlg(id),
 							this);
 						break;
 					case DocumentType.RegradingOfGoodsDocument:
 						TabParent.OpenTab(
-							OrmMain.GenerateDialogHashName<RegradingOfGoodsDocument>(id),
+							DialogHelper.GenerateDialogHashName<RegradingOfGoodsDocument>(id),
 							() => new RegradingOfGoodsDocumentDlg (id),
 							this);
 						break;
 					case DocumentType.SelfDeliveryDocument:
 						TabParent.OpenTab(
-							OrmMain.GenerateDialogHashName<SelfDeliveryDocument>(id),
+							DialogHelper.GenerateDialogHashName<SelfDeliveryDocument>(id),
 							() => new SelfDeliveryDocumentDlg (id),
 							this);
 						break;
 					case DocumentType.CarLoadDocument:
 						TabParent.OpenTab(
-							OrmMain.GenerateDialogHashName<CarLoadDocument>(id),
+							DialogHelper.GenerateDialogHashName<CarLoadDocument>(id),
 							() => new CarLoadDocumentDlg (id),
 							this);
 						break;
 					case DocumentType.CarUnloadDocument:
 						TabParent.OpenTab(
-							OrmMain.GenerateDialogHashName<CarUnloadDocument>(id),
+							DialogHelper.GenerateDialogHashName<CarUnloadDocument>(id),
 							() => new CarUnloadDocumentDlg (id),
 							this);
 						break;
@@ -150,9 +154,38 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
+			bool needCommit = false;
 			var item = tableDocuments.GetSelectedObject<ViewModel.DocumentVMNode>();
-			if(OrmMain.DeleteObject (Document.GetDocClass(item.DocTypeEnum), item.Id))
-				tableDocuments.RepresentationModel.UpdateNodes ();
+
+			switch(item.DocTypeEnum) {
+				case DocumentType.CarLoadDocument:
+					var doc = uow.GetById<CarLoadDocument>(item.Id);
+					Warehouse warehouse = doc.Warehouse;
+					RouteList routeList = doc.RouteList;
+					LoadingUnloadingOperation operation = routeList.WarehouseOperations?.FirstOrDefault(o => o.Warehouse == warehouse);
+					var goodsInRL = RouteListRepository.GetGoodsAndEquipsInRL(uow, routeList, warehouse);
+					var goodsInLoadDocumentEx = CarLoadRepository.NomenclaturesLoadedOnWarehouse(uow, routeList, warehouse, item.Id);
+
+					foreach(var good in goodsInRL) {
+						if(!goodsInLoadDocumentEx.ContainsKey(good.NomenclatureId) || goodsInLoadDocumentEx[good.NomenclatureId] < good.Amount) {
+							operation.IsComplete = false;
+							uow.Save(operation);
+							needCommit = true;
+							break;
+						}
+					}
+					break;
+				case DocumentType.CarUnloadDocument:
+					break;
+				default:
+					break;
+			}
+
+			if(OrmMain.DeleteObject(Document.GetDocClass(item.DocTypeEnum), item.Id)) {
+				tableDocuments.RepresentationModel.UpdateNodes();
+				if(needCommit)
+					uow.Commit();
+			}
 		}
 
 		protected void OnButtonFilterToggled (object sender, EventArgs e)

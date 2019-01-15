@@ -28,7 +28,7 @@ namespace Vodovoz.Repository.Store
 
 			var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem>()
 				.Where(r => r.RouteList.Id == routeListId)
-			    .Where(x => x.WasTransfered == false || (x.WasTransfered && x.NeedToReload))
+				.Where(x => !x.WasTransfered || x.NeedToReload)
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -30,11 +30,8 @@ namespace Vodovoz
 			this.Build();
 			ConfigureNewDoc();
 
-			if (warehouseId.HasValue)
-			{
+			if(warehouseId.HasValue)
 				Entity.Warehouse = UoW.GetById<Warehouse>(warehouseId.Value);
-
-			}
 			Entity.RouteList = UoW.GetById<RouteList>(routeListId);
 			ConfigureDlg();
 		}
@@ -55,7 +52,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarLoadDocument>();
 			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
@@ -106,13 +103,13 @@ namespace Vodovoz
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null)
 			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
 			if(Entity.Items.Any(x => x.Amount == 0))
 			{
-				if (MessageDialogWorks.RunQuestionDialog("В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?"))
+				if (MessageDialogHelper.RunQuestionDialog("В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?"))
 					Entity.ClearItemsFromZero();
 			}
 
@@ -121,9 +118,18 @@ namespace Vodovoz
 			logger.Info ("Сохраняем погрузочный талон...");
 			UoWGeneric.Save ();
 
+			logger.Info("Проверяем на полную отгрузку со склада...");
+			if(Entity.RouteList.CheckIfIsFullyLoadedOnTheWarehouse(UoW, Entity.Warehouse)) {
+				var nextWarehouse = Entity.RouteList.MoveToNextWarehouse(Entity.Warehouse);
+				if(nextWarehouse != null)
+					MessageDialogHelper.RunInfoDialog(
+						string.Format("Маршрутный лист с этого склада отгружен полностью.\nСледующая отгрузка с \"{0}\"", nextWarehouse.Name)
+					);
+			}
+
 			logger.Info ("Меняем статус маршрутного листа...");
 			if (Entity.RouteList.ShipIfCan(UoW))
-				MessageDialogWorks.RunInfoDialog("Маршрутный лист отгружен полностью.");
+				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			UoW.Save(Entity.RouteList);
 			UoW.Commit();
 

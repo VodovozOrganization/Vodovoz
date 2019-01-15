@@ -55,6 +55,7 @@ namespace Vodovoz
 			this.enumbuttonAddOrder.Name = "enumbuttonAddOrder";
 			this.enumbuttonAddOrder.UseUnderline = true;
 			this.enumbuttonAddOrder.UseMarkup = false;
+			this.enumbuttonAddOrder.LabelXAlign = 0F;
 			this.enumbuttonAddOrder.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			global::Gtk.Image w3 = new global::Gtk.Image();
 			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);

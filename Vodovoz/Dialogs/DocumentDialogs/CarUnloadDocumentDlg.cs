@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -50,8 +51,8 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public CarUnloadDocumentDlg(CarUnloadDocument sub) : this(sub.Id)
-		{}
+		public CarUnloadDocumentDlg(CarUnloadDocument sub) : this(sub.Id) { }
+
 		#endregion
 
 		#region Методы
@@ -61,7 +62,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarUnloadDocument>();
 			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
@@ -77,13 +78,13 @@ namespace Vodovoz
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarUnloadEdit, Entity.Warehouse);
 			yentryrefRouteList.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
-			returnsreceptionview1.Sensitive = 
-				bottlereceptionview1.Sensitive = 
-					nonserialequipmentreceptionview1.Sensitive = 
+			returnsreceptionview1.Sensitive =
+				bottlereceptionview1.Sensitive =
+					nonserialequipmentreceptionview1.Sensitive =
 						defectiveitemsreceptionview1.Sensitive = editing;
-			
-			bottlereceptionview1.UoW = 
-				defectiveitemsreceptionview1.UoW = 
+
+			bottlereceptionview1.UoW =
+				defectiveitemsreceptionview1.UoW =
 					returnsreceptionview1.UoW = UoW;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
@@ -115,12 +116,22 @@ namespace Vodovoz
 			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
 			logger.Info("Сохраняем разгрузочный талон...");
 			UoWGeneric.Save();
+
+			logger.Info("Выбираем следующий склад разгрузки...");
+			var nextWarehouse = Entity.RouteList.MoveToNextWarehouse(Entity.Warehouse);
+			if(nextWarehouse != null)
+				MessageDialogHelper.RunInfoDialog(
+					string.Format("Маршрутный лист на этом складе разгружен.\nСледующая разгрузка в \"{0}\"", nextWarehouse.Name)
+				);
+			UoW.Save(Entity.RouteList);
+			UoW.Commit();
+
 			logger.Info("Ok.");
 			return true;
 		}
@@ -149,7 +160,7 @@ namespace Vodovoz
 			returnsreceptionview1.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
 		}
 
-		void fillOtherReturnsTable()
+		void FillOtherReturnsTable()
 		{
 			if(Entity.RouteList == null || Entity.Warehouse == null)
 				return;
@@ -176,7 +187,7 @@ namespace Vodovoz
 			if(Entity.RouteList != null) {
 				UpdateAlreadyUnloaded();
 			}
-			nonserialequipmentreceptionview1.RouteList = 
+			nonserialequipmentreceptionview1.RouteList =
 				defectiveitemsreceptionview1.RouteList =
 					returnsreceptionview1.RouteList = Entity.RouteList;
 		}
@@ -301,7 +312,7 @@ namespace Vodovoz
 			foreach(var tempItem in defectiveItemsList) {
 				//валидация брака
 				if(tempItem.TypeOfDefect == null) {
-					MessageDialogWorks.RunWarningDialog("Для брака необходимо указать его вид");
+					MessageDialogHelper.RunWarningDialog("Для брака необходимо указать его вид");
 					return false;
 				}
 
@@ -355,12 +366,9 @@ namespace Vodovoz
 			}
 
 			foreach(var item in Entity.Items.ToList()) {
-				bool exist = true;
-				if(item.ReciveType != ReciveTypes.Defective)
-					exist = tempItemList.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature?.Id);
-				else
-					exist = defectiveItemsList.Any(x => x.MovementOperationId == item.MovementOperation.Id && x.Amount > 0);
-
+				bool exist = item.ReciveType != ReciveTypes.Defective
+					? tempItemList.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature?.Id)
+					: defectiveItemsList.Any(x => x.MovementOperationId == item.MovementOperation.Id && x.Amount > 0);
 				if(!exist) {
 					UoW.Delete(item.MovementOperation);
 					Entity.ObservableItems.Remove(item);
@@ -396,13 +404,13 @@ namespace Vodovoz
 		{
 			UpdateWidgetsVisible();
 			returnsreceptionview1.Warehouse = Entity.Warehouse;
-			fillOtherReturnsTable();
+			FillOtherReturnsTable();
 		}
 
 		protected void OnYentryrefRouteListChanged(object sender, EventArgs e)
 		{
 			SetupForNewRouteList();
-			fillOtherReturnsTable();
+			FillOtherReturnsTable();
 		}
 		#endregion
 
@@ -419,7 +427,8 @@ namespace Vodovoz
 
 			public int MovementOperationId;
 
-			public bool EqualsToAnotherInternalItem(InternalItem item){
+			public bool EqualsToAnotherInternalItem(InternalItem item)
+			{
 				if(item.TypeOfDefect == null || TypeOfDefect == null)
 					return false;
 				bool eq = item.ReciveType == ReciveType;

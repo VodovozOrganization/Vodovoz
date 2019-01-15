@@ -348,7 +348,7 @@ public partial class MainWindow
 		this.ActionServices.ShortLabel = global::Mono.Unix.Catalog.GetString("Сервис");
 		w1.Add(this.ActionServices, null);
 		this.ActionLogistics = new global::Gtk.RadioAction("ActionLogistics", global::Mono.Unix.Catalog.GetString("Логистика"), null, "logistic", 0);
-		this.ActionLogistics.Group = this.ActionOrders.Group;
+		this.ActionLogistics.Group = this.ActionServices.Group;
 		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString("Логистика");
 		w1.Add(this.ActionLogistics, null);
 		this.ActionStock = new global::Gtk.RadioAction("ActionStock", global::Mono.Unix.Catalog.GetString("Склад"), null, "stock", 0);
@@ -588,7 +588,7 @@ public partial class MainWindow
 		this.ActionForwarderWageReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Зарплаты экспедиторов");
 		w1.Add(this.ActionForwarderWageReport, null);
 		this.ActionStaff = new global::Gtk.RadioAction("ActionStaff", global::Mono.Unix.Catalog.GetString("Кадры"), null, "employees", 0);
-		this.ActionStaff.Group = this.ActionArchive.Group;
+		this.ActionStaff.Group = this.ActionLogistics.Group;
 		this.ActionStaff.ShortLabel = global::Mono.Unix.Catalog.GetString("Кадры");
 		w1.Add(this.ActionStaff, null);
 		this.ActionDriversWageBalance = new global::Gtk.Action("ActionDriversWageBalance", global::Mono.Unix.Catalog.GetString("Баланс водителей"), null, null);

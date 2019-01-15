@@ -17,6 +17,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
 using Vodovoz.Tools.Logistic;
 
@@ -403,6 +404,29 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref closedBy, value, () => ClosedBy); }
 		}
 
+		Warehouse currentWarehouse;
+		[Display(Name = "Склад погрузки/разгрузки")]
+		public virtual Warehouse CurrentWarehouse {
+			get => currentWarehouse;
+			set => SetField(ref currentWarehouse, value, () => CurrentWarehouse);
+		}
+
+		IList<LoadingUnloadingOperation> warehouseOperations = new List<LoadingUnloadingOperation>();
+		[Display(Name = "Погрузка//разгрузка на складе")]
+		public virtual IList<LoadingUnloadingOperation> WarehouseOperations {
+			get => warehouseOperations;
+			set => SetField(ref warehouseOperations, value, () => WarehouseOperations);
+		}
+
+		GenericObservableList<LoadingUnloadingOperation> observableWarehouseOperations;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<LoadingUnloadingOperation> ObservableWarehouseOperations {
+			get {
+				if(observableWarehouseOperations == null || observableWarehouseOperations?.Count() != warehouseOperations?.Count())
+					observableWarehouseOperations = new GenericObservableList<LoadingUnloadingOperation>(warehouseOperations);
+				return observableWarehouseOperations;
+			}
+		}
 		#endregion
 
 		#region readonly Свойства
@@ -439,6 +463,19 @@ namespace Vodovoz.Domain.Logistic
 				decimal AllPayedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue).Select(x => x.PayedForFuel.Value).Sum();
 
 				return Total - AllPayedForFuel;
+			}
+		}
+
+		public virtual OperationType? WarehouseOperationType {
+			get {
+				switch(Status) {
+					case RouteListStatus.InLoading:
+						return OperationType.Loading;
+					case RouteListStatus.OnClosing:
+						return OperationType.Unloading;
+					default:
+						return null;
+				}
 			}
 		}
 
@@ -613,40 +650,96 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(newStatus == Status)
 				return;
+			switch(newStatus) {
+				case RouteListStatus.EnRoute:
+					if(Status == RouteListStatus.InLoading) {
+						Status = RouteListStatus.EnRoute;
+						foreach(var item in Addresses)
+							item.Order.OrderStatus = OrderStatus.OnTheWay;
 
-			if(newStatus == RouteListStatus.EnRoute) {
-				if(Status == RouteListStatus.InLoading) {
-					Status = RouteListStatus.EnRoute;
-					foreach(var item in Addresses) {
-						item.Order.OrderStatus = OrderStatus.OnTheWay;
-					}
-				} else
-					throw new NotImplementedException();
-			} else if(newStatus == RouteListStatus.InLoading) {
-				if(Status == RouteListStatus.EnRoute) {
-					Status = RouteListStatus.InLoading;
-					foreach(var item in Addresses) {
-						item.Order.ChangeStatus(OrderStatus.OnLoading);
-					}
-				} else if(Status == RouteListStatus.New)
-					Status = RouteListStatus.InLoading;
-				else
-					throw new NotImplementedException();
-			} else if(newStatus == RouteListStatus.New) {
-				if(Status == RouteListStatus.InLoading)
-					Status = RouteListStatus.New;
-				else
-					throw new NotImplementedException();
-			} else if(newStatus == RouteListStatus.OnClosing) {
-				if(Status == RouteListStatus.Closed) {
-					Status = newStatus;
-				}
+						CurrentWarehouse = null;
+						foreach(var oper in WarehouseOperations) {
+							oper.IsComplete = true;
+							oper.IsActive = false;
+						}
+					} else
+						throw new NotImplementedException();
+					break;
+				case RouteListStatus.InLoading:
+					if(Status == RouteListStatus.EnRoute) {
+						Status = RouteListStatus.InLoading;
+						foreach(var item in Addresses)
+							item.Order.ChangeStatus(OrderStatus.OnLoading);
+					} else if(Status == RouteListStatus.New)
+						Status = RouteListStatus.InLoading;
+					else
+						throw new NotImplementedException();
+					break;
+				case RouteListStatus.New:
+					if(Status == RouteListStatus.InLoading) {
+						Status = RouteListStatus.New;
+						CurrentWarehouse = null;
+						foreach(var oper in WarehouseOperations) {
+							oper.IsComplete = false;
+							oper.IsActive = false;
+						}
+					} else
+						throw new NotImplementedException();
+					break;
+				case RouteListStatus.OnClosing:
+					if(Status == RouteListStatus.Closed) 
+						Status = newStatus;
+					break;
 			}
 		}
 
 		public virtual void RecalculateAllWages()
 		{
 			Addresses.ToList().ForEach(x => x.RecalculateWages());
+		}
+
+		/// <summary>
+		/// Проверка на полную погрузку МЛ на складе
+		/// </summary>
+		/// <returns><c>true</c>, если погружен полностью, <c>false</c> если не погружен или погружен не полностью.</returns>
+		/// <param name="uow">Unit Of Work</param>
+		/// <param name="warehouse">Проверяемый склад.</param>
+		public virtual bool CheckIfIsFullyLoadedOnTheWarehouse(IUnitOfWork uow, Warehouse warehouse)
+		{
+			var alreadyLoadedGoods = Repository.Logistics.RouteListRepository.AllGoodsLoaded(uow, this);
+			var goodsInRL = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(uow, this, warehouse);
+			bool fullyLoaded = true;
+			foreach(var good in goodsInRL) {
+				var loadedNomenclature = alreadyLoadedGoods.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);
+				if(loadedNomenclature == null || loadedNomenclature.Amount < good.Amount) {
+					fullyLoaded = false;
+					break;
+				}
+			}
+
+			return fullyLoaded;
+		}
+
+		/// <summary>
+		/// Направляем МЛ на следующий склад погрузки, если таковой ещё имеется.
+		/// </summary>
+		/// <returns>Следующий склад отгрузки.</returns>
+		/// <param name="currentWarehouse">Склад, с которого отправляем на погрузку</param>
+		public virtual Warehouse MoveToNextWarehouse(Warehouse currentWarehouse)
+		{
+			if(WarehouseOperationType.HasValue) {
+				var currentWHOperation = ObservableWarehouseOperations.FirstOrDefault(o => o.Warehouse == currentWarehouse && o.OperType == WarehouseOperationType.Value);
+				if(currentWHOperation != null) {
+					currentWHOperation.IsActive = false;
+					currentWHOperation.IsComplete = true;
+				}
+				var nextOperation = ObservableWarehouseOperations.FirstOrDefault(o => o.OperType == WarehouseOperationType.Value && !o.IsComplete && !o.IsActive);
+				if(nextOperation != null)
+					nextOperation.IsActive = true;
+				CurrentWarehouse = nextOperation?.Warehouse;
+				return CurrentWarehouse;
+			}
+			return null;
 		}
 
 		#endregion
@@ -657,30 +750,41 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
-				if(newStatus == RouteListStatus.InLoading) {
-				}
-				if(newStatus == RouteListStatus.Closed) {
-					if(ConfirmedDistance <= 0)
-						yield return new ValidationResult("Подтвержденное расстояние не может быть меньше 0",
-							new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.ConfirmedDistance) });
-				}
-				if(newStatus == RouteListStatus.MileageCheck) {
-					foreach(var address in Addresses) {
-						var valid = new QSValidator<Order>(address.Order,
-							new Dictionary<object, object> {
-							{ "NewStatus", OrderStatus.Closed }
-						});
+				switch(newStatus) {
+					case RouteListStatus.New: break;
+					case RouteListStatus.InLoading: break;
+					case RouteListStatus.EnRoute: break;
+					case RouteListStatus.OnClosing: break;
+					case RouteListStatus.MileageCheck:
+						foreach(var address in Addresses) {
+							var valid = new QSValidator<Order>(
+									address.Order,
+									new Dictionary<object, object> {
+										{
+											"NewStatus",
+											OrderStatus.Closed
+										}
+									}
+								);
 
-						foreach(var result in valid.Results) {
-							yield return result;
+							foreach(var result in valid.Results) {
+								yield return result;
+							}
 						}
-					}
+						break;
+					case RouteListStatus.Closed:
+						if(ConfirmedDistance <= 0)
+							yield return new ValidationResult("Подтвержденное расстояние не может быть меньше 0",
+								new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.ConfirmedDistance) });
+						break;
+					default: break;
 				}
 			}
 
 			if(Driver == null)
 				yield return new ValidationResult("Не заполнен водитель.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Driver) });
+
 			if(Car == null)
 				yield return new ValidationResult("На заполнен автомобиль.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car) });
@@ -711,9 +815,9 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual decimal GetRecalculatedDriverWage()
 		{
-			if(Driver.WageCalcType == WageCalculationType.fixedDay || Driver.WageCalcType == WageCalculationType.fixedRoute) {
+			if(Driver.WageCalcType == WageCalculationType.fixedDay || Driver.WageCalcType == WageCalculationType.fixedRoute)
 				return FixedDriverWage;
-			}
+
 			decimal result = 0m;
 			foreach(var address in Addresses) {
 				result += address.CalculateDriverWage() + address.DriverWageSurcharge;
@@ -726,12 +830,12 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual decimal GetRecalculatedForwarderWage()
 		{
-			if(Forwarder == null) {
+			if(Forwarder == null)
 				return 0;
-			}
-			if(Forwarder.WageCalcType == WageCalculationType.fixedDay || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+
+			if(Forwarder.WageCalcType == WageCalculationType.fixedDay || Forwarder.WageCalcType == WageCalculationType.fixedRoute)
 				return FixedForwarderWage;
-			}
+			
 			decimal result = 0m;
 			foreach(var address in Addresses) {
 				result += address.CalculateForwarderWage() + address.ForwarderWageSurcharge;
@@ -747,11 +851,10 @@ namespace Vodovoz.Domain.Logistic
 			if(Driver.WageCalcType == WageCalculationType.fixedDay 
 			  || Driver.WageCalcType == WageCalculationType.fixedRoute) {
 				//Если все заказы не выполнены, то нет зарплаты
-				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed)) {
+				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed))
 					return FixedDriverWage;
-				}else {
+				else
 					return 0m;
-				}
 			}
 			return Addresses.Sum(item => item.DriverWage) + Addresses.Sum(item => item.DriverWageSurcharge);
 		}
@@ -761,17 +864,15 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual decimal GetForwardersTotalWage()
 		{
-			if(Forwarder == null) {
+			if(Forwarder == null)
 				return 0;
-			}
 			if(Forwarder.WageCalcType == WageCalculationType.fixedDay
 			  || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
 				//Если все заказы не выполнены, то нет зарплаты
-				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed)) {
+				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed))
 					return FixedForwarderWage;
-				} else {
+				else
 					return 0m;
-				}
 			}
 			return Addresses.Sum(item => item.ForwarderWage);
 		}
@@ -1081,13 +1182,8 @@ namespace Vodovoz.Domain.Logistic
 			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6)) {
 				return;
 			}
-			decimal distance = 0m;
+			decimal distance = Status == RouteListStatus.Closed && MileageCheck ? ConfirmedDistance : ActualDistance;
 			//Необходимо для того, чтобы расход топлива не пересчитывался после подтверждения логистами
-			if(Status == RouteListStatus.Closed && MileageCheck){
-				distance = ConfirmedDistance;
-			}else {
-				distance = ActualDistance;
-			}
 
 			foreach(var item in FuelDocuments) {
 				item.UpdateDocument(UoW);
@@ -1138,17 +1234,9 @@ namespace Vodovoz.Domain.Logistic
 			FuelOutlayedOperation.LitersOutlayed = GetLitersOutlayed();
 		}
 
-		public virtual decimal GetLitersOutlayed()
-		{
-			return (decimal)Car.FuelConsumption
-				/ 100 * this.ConfirmedDistance;
-		}
+		public virtual decimal GetLitersOutlayed() => (decimal)Car.FuelConsumption / 100 * this.ConfirmedDistance;
 
-		public virtual decimal GetLitersOutlayed(decimal km)
-		{
-			return (decimal)Car.FuelConsumption
-				/ 100 * km;
-		}
+		public virtual decimal GetLitersOutlayed(decimal km) => (decimal)Car.FuelConsumption / 100 * km;
 
 		public virtual void UpdateWageOperation()
 		{
@@ -1242,15 +1330,11 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Для логистических расчетов
 
-		public virtual TimeSpan? FirstAddressTime {
-			get {
-				return Addresses.FirstOrDefault()?.Order.DeliverySchedule.From;
-			}
-		}
+		public virtual TimeSpan? FirstAddressTime => Addresses.FirstOrDefault()?.Order.DeliverySchedule.From;
 
 		public virtual void RecalculatePlanTime(RouteGeometryCalculator sputnikCache)
 		{
-			TimeSpan minTime = new TimeSpan();;
+			TimeSpan minTime = new TimeSpan();
 			//Расчет минимального времени к которому нужно\можно подъехать.
 			for(int ix = 0; ix < Addresses.Count; ix++) {
 
@@ -1303,10 +1387,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RecalculatePlanedDistance(RouteGeometryCalculator distanceCalculator)
 		{
-			if(Addresses.Count == 0)
-				PlanedDistance = 0;
-			else
-				PlanedDistance = distanceCalculator.GetRouteDistance(GenerateHashPiontsOfRoute()) / 1000m;
+			PlanedDistance = !Addresses.Any() ? 0 : distanceCalculator.GetRouteDistance(GenerateHashPiontsOfRoute()) / 1000m;
 		}
 
 		public static void RecalculateOnLoadTime(IList<RouteList> routelists, RouteGeometryCalculator sputnikCache)
@@ -1356,11 +1437,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual long TimeOnLoadMinuts {
-			get {
-				return Car.TypeOfUse == CarTypeOfUse.Largus ? 15 : 30;
-			}
-		}
+		public virtual long TimeOnLoadMinuts => Car.TypeOfUse == CarTypeOfUse.Largus ? 15 : 30;
 
 		public virtual long[] GenerateHashPiontsOfRoute()
 		{

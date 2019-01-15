@@ -7,6 +7,7 @@ using System.ServiceModel;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Tdi;
@@ -257,7 +258,7 @@ namespace Vodovoz
 			if(emptyDP.Count > 0){
 				string message = string.Join(Environment.NewLine, emptyDP);
 				message += Environment.NewLine + "Необходимо добавить точки доставки или сохранить вышеуказанные заказы снова.";
-				MessageDialogWorks.RunErrorDialog(message);
+				MessageDialogHelper.RunErrorDialog(message);
 				FailInitialize = true;
 				return;
 			}
@@ -302,41 +303,38 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			
-			if (Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute))
-			{
-				if(MessageDialogWorks.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?"))
-				{
-					Entity.CompleteRoute();
-				}
-			}
+			bool canCompleteRoute = Entity.Status == RouteListStatus.EnRoute
+									&& items.All(x => x.Status != RouteListItemStatus.EnRoute)
+									&& MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?");
+
+			if(canCompleteRoute)
+				Entity.CompleteRoute();
 
 			UoWGeneric.Save();
 
 			var changedList = items.Where(item => item.ChangedDeliverySchedule || item.HasChanged).ToList();
-			if (changedList.Count == 0)
+			if(!changedList.Any())
 				return true;
 
 			var currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
-			if (currentEmployee == null)
-			{
-				MessageDialogWorks.RunInfoDialog("Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
+			if(currentEmployee == null) {
+				MessageDialogHelper.RunInfoDialog("Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
 				return true;
 			}
-				
-			foreach (var item in changedList)
-			{
+
+			foreach(var item in changedList) {
 				if(item.HasChanged)
 					getChatService()
 						.SendOrderStatusNotificationToDriver(
 							currentEmployee.Id,
 							item.RouteListItem.Id
 						);
-				if (item.ChangedDeliverySchedule)
-					getChatService().SendDeliveryScheduleNotificationToDriver(
-						currentEmployee.Id,
-					item.RouteListItem.Id
-					);
+				if(item.ChangedDeliverySchedule)
+					getChatService()
+						.SendDeliveryScheduleNotificationToDriver(
+							currentEmployee.Id,
+							item.RouteListItem.Id
+						);
 			}
 			return true;
 		}
@@ -364,7 +362,7 @@ namespace Vodovoz
 		protected void OnButtonRefreshClicked (object sender, EventArgs e)
 		{
 			bool hasChanges = items.Count(item => item.HasChanged) > 0;
-			if (!hasChanges || MessageDialogWorks.RunQuestionDialog("Вы действительно хотите обновить список заказов? Внесенные изменения будут утрачены."))
+			if (!hasChanges || MessageDialogHelper.RunQuestionDialog("Вы действительно хотите обновить список заказов? Внесенные изменения будут утрачены."))
 			{
 				UoWGeneric.Session.Refresh(Entity);
 				UpdateNodes();
