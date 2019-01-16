@@ -940,6 +940,7 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\ShiftChangeWarehouseDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentItemsView.cs" />
+    <Compile Include="Dialogs\Store\CarUnloadRepository.cs" />
     <Compile Include="Representations\EmployeesVM.cs" />
     <Compile Include="ReportsParameters\NotDeliveredOrdersReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NotDeliveredOrdersReport.cs" />
@@ -1058,8 +1059,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.OrdersByDistrictsAndDeliverySchedulesReport.cs" />
     <Compile Include="Dialogs\Logistic\LogisticAreasEditDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.LogisticAreasEditDlg.cs" />
-    <Compile Include="ViewWidgets\Logistics\RouteListWarehousesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.RouteListWarehousesView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

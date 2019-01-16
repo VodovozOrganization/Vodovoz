@@ -44,8 +44,6 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReferenceVM referenceLogistican;
 
-		private global::Vodovoz.ViewWidgets.Logistics.RouteListWarehousesView rlwhView;
-
 		private global::Gamma.Widgets.ySpecComboBox speccomboShift;
 
 		private global::Vodovoz.RouteListCreateItemsView createroutelistitemsview1;
@@ -68,7 +66,7 @@ namespace Vodovoz
 			this.vbox1.Spacing = 6;
 			this.vbox1.BorderWidth = ((uint)(6));
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.dataRouteList = new global::Gtk.Table(((uint)(6)), ((uint)(5)), false);
+			this.dataRouteList = new global::Gtk.Table(((uint)(6)), ((uint)(4)), false);
 			this.dataRouteList.Name = "dataRouteList";
 			this.dataRouteList.RowSpacing = ((uint)(6));
 			this.dataRouteList.ColumnSpacing = ((uint)(6));
@@ -86,7 +84,6 @@ namespace Vodovoz
 			w1.BottomAttach = ((uint)(4));
 			w1.LeftAttach = ((uint)(1));
 			w1.RightAttach = ((uint)(2));
-			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
 			this.hbox7 = new global::Gtk.HBox();
@@ -123,7 +120,6 @@ namespace Vodovoz
 			this.dataRouteList.Add(this.hbox7);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.dataRouteList[this.hbox7]));
 			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
 			this.hseparator2 = new global::Gtk.HSeparator();
@@ -287,15 +283,6 @@ namespace Vodovoz
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.rlwhView = new global::Vodovoz.ViewWidgets.Logistics.RouteListWarehousesView();
-			this.rlwhView.Events = ((global::Gdk.EventMask)(256));
-			this.rlwhView.Name = "rlwhView";
-			this.dataRouteList.Add(this.rlwhView);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.dataRouteList[this.rlwhView]));
-			w21.BottomAttach = ((uint)(6));
-			w21.LeftAttach = ((uint)(4));
-			w21.RightAttach = ((uint)(5));
-			// Container child dataRouteList.Gtk.Table+TableChild
 			this.speccomboShift = new global::Gamma.Widgets.ySpecComboBox();
 			this.speccomboShift.Name = "speccomboShift";
 			this.speccomboShift.AddIfNotExist = false;
@@ -303,18 +290,17 @@ namespace Vodovoz
 			this.speccomboShift.ShowSpecialStateAll = false;
 			this.speccomboShift.ShowSpecialStateNot = true;
 			this.dataRouteList.Add(this.speccomboShift);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.dataRouteList[this.speccomboShift]));
-			w22.TopAttach = ((uint)(4));
-			w22.BottomAttach = ((uint)(5));
-			w22.LeftAttach = ((uint)(1));
-			w22.RightAttach = ((uint)(2));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.dataRouteList[this.speccomboShift]));
+			w21.TopAttach = ((uint)(4));
+			w21.BottomAttach = ((uint)(5));
+			w21.LeftAttach = ((uint)(1));
+			w21.RightAttach = ((uint)(2));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.dataRouteList);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.dataRouteList]));
-			w23.Position = 0;
-			w23.Expand = false;
-			w23.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.dataRouteList]));
+			w22.Position = 0;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.createroutelistitemsview1 = new global::Vodovoz.RouteListCreateItemsView();
 			this.createroutelistitemsview1.HeightRequest = 150;
@@ -322,8 +308,8 @@ namespace Vodovoz
 			this.createroutelistitemsview1.Name = "createroutelistitemsview1";
 			this.createroutelistitemsview1.DisableColumnsUpdate = false;
 			this.vbox1.Add(this.createroutelistitemsview1);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.createroutelistitemsview1]));
-			w24.Position = 1;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.createroutelistitemsview1]));
+			w23.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox8 = new global::Gtk.HBox();
 			this.hbox8.Name = "hbox8";
@@ -334,37 +320,36 @@ namespace Vodovoz
 			this.enumPrint.Name = "enumPrint";
 			this.enumPrint.UseUnderline = true;
 			this.enumPrint.UseMarkup = false;
-			this.enumPrint.LabelXAlign = 0F;
 			this.enumPrint.Label = global::Mono.Unix.Catalog.GetString("Распечатать");
-			global::Gtk.Image w25 = new global::Gtk.Image();
-			w25.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-print", global::Gtk.IconSize.Menu);
-			this.enumPrint.Image = w25;
+			global::Gtk.Image w24 = new global::Gtk.Image();
+			w24.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-print", global::Gtk.IconSize.Menu);
+			this.enumPrint.Image = w24;
 			this.hbox8.Add(this.enumPrint);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.enumPrint]));
-			w26.PackType = ((global::Gtk.PackType)(1));
-			w26.Position = 1;
-			w26.Expand = false;
-			w26.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.enumPrint]));
+			w25.PackType = ((global::Gtk.PackType)(1));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.buttonAccept = new global::Gtk.Button();
 			this.buttonAccept.CanFocus = true;
 			this.buttonAccept.Name = "buttonAccept";
 			this.buttonAccept.UseUnderline = true;
 			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString("Подтвердить");
-			global::Gtk.Image w27 = new global::Gtk.Image();
-			w27.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
-			this.buttonAccept.Image = w27;
+			global::Gtk.Image w26 = new global::Gtk.Image();
+			w26.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonAccept.Image = w26;
 			this.hbox8.Add(this.buttonAccept);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonAccept]));
-			w28.PackType = ((global::Gtk.PackType)(1));
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonAccept]));
+			w27.PackType = ((global::Gtk.PackType)(1));
+			w27.Position = 2;
+			w27.Expand = false;
+			w27.Fill = false;
+			this.vbox1.Add(this.hbox8);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox8]));
 			w28.Position = 2;
 			w28.Expand = false;
 			w28.Fill = false;
-			this.vbox1.Add(this.hbox8);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox8]));
-			w29.Position = 2;
-			w29.Expand = false;
-			w29.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
