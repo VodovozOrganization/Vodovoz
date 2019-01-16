@@ -501,7 +501,7 @@ public partial class MainWindow : Window
 	void ActionAddOrder_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			DialogHelper.GenerateDialogHashName<Vodovoz.Domain.Orders.Order>(0),
+			OrmMain.GenerateDialogHashName<Vodovoz.Domain.Orders.Order>(0),
 			() => new OrderDlg()
 		);
 	}

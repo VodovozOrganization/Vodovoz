@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using Gtk;
-using NHibernate;
-using NHibernate.Util;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -27,13 +25,13 @@ namespace Vodovoz
 
 		bool isEditable;
 
-		protected bool IsEditable {
-			get => isEditable;
-			set {
+		protected bool IsEditable{
+			get { return isEditable;}
+			set{
 				isEditable = value;
 				speccomboShift.Sensitive = isEditable;
 				datepickerDate.Sensitive = referenceCar.Sensitive = referenceForwarder.Sensitive = isEditable;
-				createroutelistitemsview1.IsEditable(isEditable);
+				createroutelistitemsview1.IsEditable (isEditable);
 			}
 		}
 
@@ -109,12 +107,12 @@ namespace Vodovoz
 				//Нужно только для быстрой загрузки данных диалога. Проверено на МЛ из 200 заказов. Разница в скорости в несколько раз.
 				var orders = UoW.Session.QueryOver<RouteListItem>()
 								.Where(x => x.RouteList == Entity)
-								.Fetch(SelectMode.Fetch, x => x.Order)
-								.Fetch(SelectMode.Fetch, x => x.Order.OrderItems)
-								.List();
+								.Fetch(x => x.Order).Eager
+				                .Fetch(x => x.Order.OrderItems).Eager
+				                .List();
 			}
 
-			rlwhView.RouteListUoW = createroutelistitemsview1.RouteListUoW = UoWGeneric;
+			createroutelistitemsview1.RouteListUoW = UoWGeneric;
 
 			buttonAccept.Visible = (UoWGeneric.Root.Status == RouteListStatus.New || UoWGeneric.Root.Status == RouteListStatus.InLoading);
 			if (UoWGeneric.Root.Status == RouteListStatus.InLoading) {
@@ -235,13 +233,11 @@ namespace Vodovoz
 				}
 			}
 
-			if(UoWGeneric.Root.Status == RouteListStatus.New) {
-				var valid = new QSValidator<RouteList>(
-					UoWGeneric.Root,
-					new Dictionary<object, object> {
+			if (UoWGeneric.Root.Status == RouteListStatus.New) {
+				var valid = new QSValidator<RouteList>(UoWGeneric.Root,
+								new Dictionary<object, object> {
 						{ "NewStatus", RouteListStatus.InLoading }
-					}
-				);
+					});
 				if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 					return;
 
@@ -287,7 +283,7 @@ namespace Vodovoz
 				{
 					//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
 					var forShipment = Repository.Store.WarehouseRepository.WarehouseForShipment(UoW, Entity.Id);
-					if(!forShipment.Any()) {
+					if(forShipment.Count == 0) {
 						if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
 							valid = new QSValidator<RouteList>(
 								UoWGeneric.Root,
@@ -306,11 +302,12 @@ namespace Vodovoz
 				UpdateButtonStatus();
 				return;
 			}
-			if(UoWGeneric.Root.Status == RouteListStatus.InLoading) {
-				if(RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any())
+			if (UoWGeneric.Root.Status == RouteListStatus.InLoading) {
+				if(RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any()) {
 					MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
-				else
+				}else {
 					UoWGeneric.Root.ChangeStatus(RouteListStatus.New);
+				}
 				UpdateButtonStatus();
 				return;
 			}
