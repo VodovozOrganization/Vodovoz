@@ -1,7 +1,5 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QS.Tdi;
 
 namespace Vodovoz
 {

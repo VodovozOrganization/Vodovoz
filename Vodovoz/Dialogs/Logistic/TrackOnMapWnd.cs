@@ -6,12 +6,11 @@ using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using Polylines;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOsm;
 using QSOsm.Osrm;
 using QSOsm.Spuntik;
-using QSProjectsLib;
 using Vodovoz;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
@@ -72,7 +71,7 @@ namespace Dialogs.Logistic
 			track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
 			if(track == null){
 				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = buttonCutTrack.Sensitive = buttonLastAddress.Sensitive = false;
-				MessageDialogWorks.RunInfoDialog($"Маршрутный лист №{routeList.Id}\nТрек не обнаружен");
+				MessageDialogHelper.RunInfoDialog($"Маршрутный лист №{routeList.Id}\nТрек не обнаружен");
 			}else if(routeList.Status < RouteListStatus.OnClosing)
 				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = buttonCutTrack.Sensitive = buttonLastAddress.Sensitive = false;
 
@@ -296,7 +295,7 @@ namespace Dialogs.Logistic
 
 			buttonRecalculateToBase.Sensitive = false;
 
-			MessageDialogWorks.RunInfoDialog(String.Format("Расстояние от {0} до склада {1} км. Время в пути {2}.",
+			MessageDialogHelper.RunInfoDialog(String.Format("Расстояние от {0} до склада {1} км. Время в пути {2}.",
 				response.RouteSummary.StartPoint,
 				response.RouteSummary.TotalDistanceKm,
 				response.RouteSummary.TotalTime
@@ -361,12 +360,12 @@ namespace Dialogs.Logistic
 					var missedTrack = SputnikMain.GetRoute (routePoints, false, true);
 					if (missedTrack == null)
 					{
-						MessageDialogWorks.RunErrorDialog ("Не удалось получить ответ от сервиса \"Спутник\"");
+						MessageDialogHelper.RunErrorDialog ("Не удалось получить ответ от сервиса \"Спутник\"");
 						return;
 					}
 					if(missedTrack.Status != 0)
 					{
-						MessageDialogWorks.RunErrorDialog ("Cервис \"Спутник\" сообщил об ошибке {0}: {1}", missedTrack.Status, missedTrack.StatusMessageRus);
+						MessageDialogHelper.RunErrorDialog ("Cервис \"Спутник\" сообщил об ошибке {0}: {1}", missedTrack.Status, missedTrack.StatusMessageRus);
 						return;
 					}
 
@@ -398,7 +397,7 @@ namespace Dialogs.Logistic
 					$"\n Новая длинна трека: {newDistance:N1} км.(+{diffDistance:N1})" +
 					"\n Сохранить изменения длинны трека?";
 
-				if(MessageDialogWorks.RunQuestionDialog(message))
+				if(MessageDialogHelper.RunQuestionDialog(message))
 				{
 					track.Distance = newDistance;
 					track.DistanceEdited = true;
@@ -409,7 +408,7 @@ namespace Dialogs.Logistic
 			}
 			else
 			{
-				MessageDialogWorks.RunInfoDialog ("Разрывов в треке не найдено.");
+				MessageDialogHelper.RunInfoDialog ("Разрывов в треке не найдено.");
 			}
 		}
 

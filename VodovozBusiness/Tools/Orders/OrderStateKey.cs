@@ -100,7 +100,7 @@ namespace Vodovoz.Tools.Orders
 			this.HasOrderItems = Order.ObservableOrderItems.Any();
 			this.IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.Sum) <= 0m;
 			this.NeedToReturnBottles = Order.BottlesReturn > 0;
-			this.NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any(x => x.PaymentDirection == PaymentDirection.ToClient);
+			this.NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any();
 			this.PaymentType = Order.PaymentType;
 			this.HaveSpecialFields = Order.Client.UseSpecialDocFields;
 			this.NeedMaster = Order.OrderItems.Any(i => i.Nomenclature.Category == Domain.Goods.NomenclatureCategory.master);

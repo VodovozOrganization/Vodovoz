@@ -50,26 +50,27 @@ namespace Vodovoz.Repository.Logistics
 			GoodsInRouteListResult resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
-			Nomenclature OrderItemNomenclatureAlias = null;
+			Nomenclature orderItemNomenclatureAlias = null;
 
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias);
 
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem> ()
 				.Where (r => r.RouteList.Id == routeList.Id)
-				.Where (r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
+				.Where (r => !r.WasTransfered || r.NeedToReload)
 				.Select (r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select (o => o.Id);
 
-			var orderitemsQuery = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
+			var orderItemsQuery = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
-				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
-				.Where(() => OrderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
+				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
+				.Where(() => orderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
 			if (warehouse != null)
-				orderitemsQuery.Where (() => OrderItemNomenclatureAlias.Warehouse == warehouse);
+				orderItemsQuery.Where (() => orderItemNomenclatureAlias.Warehouse == warehouse);
 
-			return orderitemsQuery.SelectList (list => list
-				.SelectGroup (() => OrderItemNomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
-				.SelectSum (() => orderItemsAlias.Count).WithAlias (() => resultAlias.Amount)
+			return orderItemsQuery.SelectList (
+				list => list
+					.SelectGroup (() => orderItemNomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
+					.SelectSum (() => orderItemsAlias.Count).WithAlias (() => resultAlias.Amount)
 				)
 				.TransformUsing (Transformers.AliasToBean<GoodsInRouteListResult> ())
 				.List<GoodsInRouteListResult> ();
@@ -80,7 +81,7 @@ namespace Vodovoz.Repository.Logistics
 			GoodsInRouteListResult resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
-			Nomenclature OrderEquipmentNomenclatureAlias = null;
+			Nomenclature orderEquipmentNomenclatureAlias = null;
 
 			//Выбирается список Id заказов находящихся в МЛ
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias);
@@ -89,17 +90,17 @@ namespace Vodovoz.Repository.Logistics
 				.Select (r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select (o => o.Id);
 
-			var orderEquipmentsQuery = uow.Session.QueryOver<OrderEquipment> (() => orderEquipmentAlias)
+			var orderEquipmentQuery = uow.Session.QueryOver<OrderEquipment> (() => orderEquipmentAlias)
 				.WithSubquery.WhereProperty (i => i.Order.Id).In (ordersQuery)
 			    .Where (() => orderEquipmentAlias.Direction == Direction.Deliver)
-			    .JoinAlias (() => orderEquipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias);
+			    .JoinAlias (() => orderEquipmentAlias.Nomenclature, () => orderEquipmentNomenclatureAlias);
 			if (warehouse != null)
-				orderEquipmentsQuery.Where (() => OrderEquipmentNomenclatureAlias.Warehouse == warehouse);
+				orderEquipmentQuery.Where (() => orderEquipmentNomenclatureAlias.Warehouse == warehouse);
 
-			return orderEquipmentsQuery
-				.SelectList (list => list
-					.SelectGroup (() => OrderEquipmentNomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
-				             .SelectSum (() => orderEquipmentAlias.Count).WithAlias (() => resultAlias.Amount)
+			return orderEquipmentQuery.SelectList (
+				list => list
+					.SelectGroup (() => orderEquipmentNomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
+				    .SelectSum (() => orderEquipmentAlias.Count).WithAlias (() => resultAlias.Amount)
 				)
 				.TransformUsing (Transformers.AliasToBean<GoodsInRouteListResult> ())
 				.List<GoodsInRouteListResult> ();

@@ -1,10 +1,9 @@
-﻿﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOsm;
 using QSOsm.Osrm;
 using QSOsm.Spuntik;
@@ -39,7 +38,7 @@ namespace Vodovoz.Tools.Logistic
 
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
+		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
 
 		Gtk.TextBuffer statisticBuffer;
 		int ProposeNeedCached = 0;

@@ -1,6 +1,5 @@
 ﻿using System;
 using Gtk;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
