@@ -561,6 +561,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref hasCommentForDriver, value, () => HasCommentForDriver); }
 		}
 
+		private OrderSource orderSource = OrderSource.VodovozApp;
+
+		[Display(Name = "Источник заказа")]
+		public virtual OrderSource OrderSource {
+			get { return orderSource; }
+			set { SetField(ref orderSource, value); }
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()

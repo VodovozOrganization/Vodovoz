@@ -105,4 +105,21 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "%")]
 		percent
 	}
+
+	public enum OrderSource
+	{
+		[Display(Name = "Диспетчер")]
+		VodovozApp,
+		[Display(Name = "Интернет магазин")]
+		OnlineStore,
+		[Display(Name = "Мобильное приложение")]
+		MobileApp
+	}
+
+	public class OrderSourceStringType : NHibernate.Type.EnumStringType
+	{
+		public OrderSourceStringType() : base(typeof(OrderSource))
+		{
+		}
+	}
 }
