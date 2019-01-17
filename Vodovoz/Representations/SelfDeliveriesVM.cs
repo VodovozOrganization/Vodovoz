@@ -162,7 +162,7 @@ namespace Vodovoz.Representations
 							Projections.Property(() => orderDepositItemAlias.Count),
 							Projections.Property(() => orderDepositItemAlias.Deposit)
 						   )
-					)).WithAlias(() => resultAlias.CashReturn)
+					)).WithAlias(() => resultAlias.OrderReturnSum)
 				   .Select(Projections.Property(() => incomeAlias.Money)).WithAlias(() => resultAlias.CashPaid)
 				   .Select(Projections.Property(() => expenseAlias.Money)).WithAlias(() => resultAlias.CashReturn)
 				).OrderBy(x => x.DeliveryDate).Desc.ThenBy(x => x.Id).Desc
