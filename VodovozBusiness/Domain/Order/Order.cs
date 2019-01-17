@@ -963,6 +963,9 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[PropertyChangedAlso(nameof(SumToReceive))]
+		public virtual decimal OrderTotalSum => OrderSumTotal - OrderSumReturnTotal;
+
+		[PropertyChangedAlso(nameof(SumToReceive))]
 		public virtual decimal TotalSum => OrderSum - OrderSumReturn;
 
 		public virtual decimal OrderSum {
@@ -2573,8 +2576,8 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery || OrderStatus != OrderStatus.NewOrder) {
 				return;
 			}
-			var orderSum = OrderItems.Sum(x => x.Sum) + (ExtraMoney > 0 ? ExtraMoney : 0);
-			if(PayAfterShipment || orderSum == 0) {
+
+			if(PayAfterShipment || OrderTotalSum == 0) {
 				ChangeStatus(OrderStatus.Accepted);
 			} else {
 				ChangeStatus(OrderStatus.WaitForPayment);

@@ -77,11 +77,9 @@ namespace Vodovoz
 			}
 		}
 
-		PaymentType? restrictPaymentType;
 		public PaymentType? RestrictPaymentType {
-			get => restrictPaymentType;
+			get => enumcomboPaymentType.SelectedItem as PaymentType?;
 			set { 
-				restrictPaymentType = value;
 				enumcomboPaymentType.SelectedItem = value;
 				enumcomboPaymentType.Sensitive = false;
 			}
