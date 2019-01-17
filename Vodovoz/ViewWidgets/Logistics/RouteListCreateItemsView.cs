@@ -263,7 +263,7 @@ namespace Vodovoz
 			var selected = ytreeviewItems.GetSelectedObject<RouteListItem>();
 			if(selected != null) {
 				MyTab.TabParent.OpenTab(
-					DialogHelper.GenerateDialogHashName<Order>(selected.Order.Id),
+					OrmMain.GenerateDialogHashName<Order>(selected.Order.Id),
 					() => new OrderDlg(selected.Order)
 				);
 			}
@@ -280,4 +280,6 @@ namespace Vodovoz
 		[Display(Name = "Выбрать заказы...")] AddOrders,
 		[Display(Name = "Все заказы для логистического района")] AddAllForRegion
 	}
+
 }
+

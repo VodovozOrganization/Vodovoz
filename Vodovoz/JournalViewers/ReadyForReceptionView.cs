@@ -1,5 +1,7 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using QSOrmProject;
+using QS.Tdi;
 
 namespace Vodovoz
 {
@@ -11,16 +13,18 @@ namespace Vodovoz
 		ViewModel.ReadyForReceptionVM viewModel;
 
 		public IUnitOfWork UoW {
-			get => uow;
+			get {
+				return uow;
+			}
 			set {
-				if(uow == value)
+				if (uow == value)
 					return;
 				uow = value;
-				viewModel = new ViewModel.ReadyForReceptionVM(value);
+				viewModel = new ViewModel.ReadyForReceptionVM (value);
 				readyforreceptionfilter1.UoW = value;
 				viewModel.Filter = readyforreceptionfilter1;
 				tableReadyForReception.RepresentationModel = viewModel;
-				tableReadyForReception.RepresentationModel.UpdateNodes();
+				tableReadyForReception.RepresentationModel.UpdateNodes ();
 			}
 		}
 

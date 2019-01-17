@@ -7,23 +7,25 @@ using Gamma.Utilities;
 using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QS.Utilities.Text;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using QSProjectsLib;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModel
 {
 	public class RouteListsVM : RepresentationModelEntityBase<RouteList, RouteListsVMNode>
 	{
 		public RouteListsFilter Filter {
-			get => RepresentationFilter as RouteListsFilter;
-			set => RepresentationFilter = value as IRepresentationFilter;
+			get {
+				return RepresentationFilter as RouteListsFilter;
+			}
+			set {
+				RepresentationFilter = value as IRepresentationFilter;
+			}
 		}
 
 		#region IRepresentationModel implementation
@@ -36,24 +38,28 @@ namespace Vodovoz.ViewModel
 
 			Car carAlias = null;
 			Employee driverAlias = null;
-			Warehouse warehouseAlias = null;
 
 			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
 
-			if(Filter.RestrictStatus != null)
+			if(Filter.RestrictStatus != null) {
 				query.Where(o => o.Status == Filter.RestrictStatus);
+			}
 
-			if(Filter.OnlyStatuses != null)
+			if(Filter.OnlyStatuses != null) {
 				query.WhereRestrictionOn(o => o.Status).IsIn(Filter.OnlyStatuses);
+			}
 
-			if(Filter.RestrictShift != null)
+			if(Filter.RestrictShift != null) {
 				query.Where(o => o.Shift == Filter.RestrictShift);
+			}
 
-			if(Filter.RestrictStartDate != null)
+			if(Filter.RestrictStartDate != null) {
 				query.Where(o => o.Date >= Filter.RestrictStartDate);
+			}
 
-			if(Filter.RestrictEndDate != null)
+			if(Filter.RestrictEndDate != null) {
 				query.Where(o => o.Date <= Filter.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+			}
 
 			//логика фильтра ТС
 			switch(Filter.RestrictTransport) {
@@ -72,11 +78,11 @@ namespace Vodovoz.ViewModel
 				default: break;
 			}
 
+			#region для ускорения редактора
 			var result = query
 				.JoinAlias(o => o.Shift, () => shiftAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(o => o.Car, () => carAlias)
 				.JoinAlias(o => o.Driver, () => driverAlias)
-				.Left.JoinAlias(o => o.CurrentWarehouse, () => warehouseAlias)
 				.SelectList(list => list
 				   .Select(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
@@ -88,30 +94,37 @@ namespace Vodovoz.ViewModel
 				   .Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 				   .Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
 				   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
-				   .Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.WarehouseName)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListsVMNode>())
 				.List<RouteListsVMNode>();
+			#endregion
 
 			SetItemsSource(result);
 		}
 
+		#region для ускорения работы редактора
 		IColumnsConfig columnsConfig = FluentColumnsConfig<RouteListsVMNode>.Create()
 			.AddColumn("Номер").SetDataProperty(node => node.Id.ToString())
 			.AddColumn("Дата").SetDataProperty(node => node.Date.ToString("d"))
 			.AddColumn("Смена").SetDataProperty(node => node.ShiftName)
-			.AddColumn("Статус").SetDataProperty(node => node.Status)
+			.AddColumn("Статус").SetDataProperty(node => node.StatusEnum.GetEnumTitle())
 			.AddColumn("Водитель и машина").SetDataProperty(node => node.DriverAndCar)
 			.AddColumn("Комментарий по закрытию").SetDataProperty(node => node.ClosinComments)
 			.Finish();
 
-		public override IColumnsConfig ColumnsConfig => columnsConfig;
+		#endregion
+		public override IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
+		}
 
 		#endregion
 
 		#region implemented abstract members of RepresentationModelBase
 
-		protected override bool NeedUpdateFunc(RouteList updatedSubject) => true;
+		protected override bool NeedUpdateFunc(RouteList updatedSubject)
+		{
+			return true;
+		}
 
 		#endregion
 
@@ -256,7 +269,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var rl in routeLists.Where(x => MileageCheckDlgStatuses.Contains(x.Status))) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
+					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
 					() => new RouteListMileageCheckDlg(rl.Id)
 				);
 			}
@@ -272,7 +285,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var rl in routeLists.Where(x => ClosingDlgStatuses.Contains(x.Status))) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
+					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
 					() => new RouteListClosingDlg(rl.Id)
 				);
 			}
@@ -288,7 +301,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var rl in routeLists.Where(x => ControlDlgStatuses.Contains(x.Status))) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
+					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
 					() => new RouteListControlDlg(rl.Id)
 				);
 			}
@@ -305,7 +318,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var rl in routeLists.Where(x => KeepingDlgStatuses.Contains(x.Status))) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
+					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
 					() => new RouteListKeepingDlg(rl.Id)
 				);
 			}
@@ -317,7 +330,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var routeId in routeListIds) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(routeId),
+					OrmMain.GenerateDialogHashName<RouteList>(routeId),
 					() => new RouteListCreateDlg(routeId)
 				);
 			}
@@ -329,7 +342,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var routeId in routeListIds) {
 				//MainClass.MainWin.TdiMain.OpenTab(
-				//	DialogHelper.GenerateDialogHashName<RouteList>(routeId)// ,
+				//	OrmMain.GenerateDialogHashName<RouteList>(routeId)// ,
 				//	() => new OrderOrderOfAddressesRep (
 				//);
 
@@ -350,7 +363,7 @@ namespace Vodovoz.ViewModel
 			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
 			var RouteList = UoW.GetById<RouteList>(routeListIds[0]);
 			MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(routeListIds[0]),
+					OrmMain.GenerateDialogHashName<RouteList>(routeListIds[0]),
 					() => new FuelDocumentDlg(RouteList)
 				);
 		}
@@ -362,18 +375,6 @@ namespace Vodovoz.ViewModel
 		public int Id { get; set; }
 
 		public RouteListStatus StatusEnum { get; set; }
-		public string Status {
-			get {
-				if(!String.IsNullOrEmpty(WarehouseName) && new[] { RouteListStatus.InLoading, RouteListStatus.OnClosing }.Contains(StatusEnum))
-					return String.Format(
-						"{0} в \"{1}\"",
-						StatusEnum.GetEnumTitle(),
-						WarehouseName
-					);
-				return StatusEnum.GetEnumTitle();
-			}
-		}
-
 
 		public string ShiftName { get; set; }
 
@@ -383,15 +384,22 @@ namespace Vodovoz.ViewModel
 		public string DriverName { get; set; }
 		public string DriverPatronymic { get; set; }
 
-		public string Driver => PersonHelper.PersonFullName(DriverSurname, DriverName, DriverPatronymic);
+		public string Driver {
+			get {
+				return StringWorks.PersonFullName(DriverSurname, DriverName, DriverPatronymic);
+			}
+		}
 
 		public string CarModel { get; set; }
 
 		public string CarNumber { get; set; }
 
 		[UseForSearch]
-		public string DriverAndCar => String.Format("{0} - {1} ({2})", Driver, CarModel, CarNumber);
+		public string DriverAndCar {
+			get {
+				return String.Format("{0} - {1} ({2})", Driver, CarModel, CarNumber);
+			}
+		}
 		public string ClosinComments { get; set; }
-		public string WarehouseName { get; set; }
 	}
 }

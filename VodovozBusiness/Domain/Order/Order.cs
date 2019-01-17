@@ -561,6 +561,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref hasCommentForDriver, value, () => HasCommentForDriver); }
 		}
 
+		private OrderSource orderSource = OrderSource.VodovozApp;
+
+		[Display(Name = "Источник заказа")]
+		public virtual OrderSource OrderSource {
+			get { return orderSource; }
+			set { SetField(ref orderSource, value); }
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()
@@ -755,16 +763,14 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 
-					//FIXME Удалить, т.к. функционал редактирования заказа в статусе "В пути" упразднён.
-					/*//В случае, если редактируется заказ "В пути", то должен быть оставлен комментарий, поясняющий причину редактирования.
+					//В случае, если редактируется заказ "В пути", то должен быть оставлен комментарий, поясняющий причину редактирования.
 					//Если заказ "В пути" редактируется больше одного раза, то комментарий должен отличаться от предыдущего.
 					var order = UnitOfWorkFactory.CreateWithoutRoot($"Валидация заказа").GetById<Order>(Id);
 					if(OrderStatus == OrderStatus.OnTheWay && 
 					   (order == null && OnRouteEditReason == null
 					    || order != null && order.OnRouteEditReason == OnRouteEditReason))
 						yield return new ValidationResult("При изменении заказа в статусе 'В пути' необходимо указывать причину редактирования",
-														  new[] { this.GetPropertyName(o => o.OnRouteEditReason) });*/
-
+														  new[] { this.GetPropertyName(o => o.OnRouteEditReason) });
 					// Проверка соответствия цен в заказе ценам в номенклатуре
 					string priceResult = "В заказе неверно указаны цены на следующие товары:\n";
 					List<string> incorrectPriceItems = new List<string>();

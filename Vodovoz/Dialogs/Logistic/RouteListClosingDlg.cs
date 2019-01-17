@@ -446,7 +446,7 @@ namespace Vodovoz
 
 		void UpdateButtonState()
 		{
-			buttonAccept.Sensitive = Entity.Status == RouteListStatus.OnClosing && IsConsistentWithUnloadDocument();
+			buttonAccept.Sensitive = Entity.Status == RouteListStatus.OnClosing && isConsistentWithUnloadDocument();
 		}
 
 		private bool buttonFineEditState;
@@ -559,7 +559,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected bool IsConsistentWithUnloadDocument()
+		protected bool isConsistentWithUnloadDocument()
 		{
 			var hasItemsDiscrepancies = routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0);
 			bool hasFine = Entity.BottleFine != null;
@@ -637,7 +637,7 @@ namespace Vodovoz
 				return;
 			}
 
-			if(!IsConsistentWithUnloadDocument())
+			if(!isConsistentWithUnloadDocument())
 				return;
 
 			if(!checkSendToMileageCheck.Active) {
