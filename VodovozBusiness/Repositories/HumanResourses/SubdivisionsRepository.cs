@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QSSupportLib;
+using System.Linq;
 
-namespace Vodovoz.Repositories
+namespace Vodovoz.Repositories.HumanResources
 {
 	public static class SubdivisionsRepository
 	{
@@ -20,13 +21,25 @@ namespace Vodovoz.Repositories
 		/// Возврат отсортированного списка подразделений компании
 		/// </summary>
 		/// <returns>Список подразделений</returns>
-		/// <param name="UoW">UoW</param>
+		/// <param name="uow">UoW</param>
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
-		public static IList<Subdivision> GetAllDepartments(IUnitOfWork UoW, bool orderByDescending = false)
+		public static IList<Subdivision> GetAllDepartments(IUnitOfWork uow, bool orderByDescending = false)
 		{
-			var query = UoW.Session.QueryOver<Subdivision>()
+			var query = uow.Session.QueryOver<Subdivision>()
 			   .OrderBy(i => i.Name);
 			return orderByDescending ? query.Desc().List() : query.Asc().List();
+		}
+
+		/// <summary>
+		/// Список дочерних подразделений
+		/// </summary>
+		/// <returns>Список дочерних подразделений</returns>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="parentSubdivision">Подразделение, список дочерних подразделений которого требуется вернуть</param>
+		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
+		public static IList<Subdivision> GetChildDepartments(IUnitOfWork uow, Subdivision parentSubdivision, bool orderByDescending = false)
+		{
+			return GetAllDepartments(uow, orderByDescending).Where(s => s.ParentSubdivision == parentSubdivision).ToList();
 		}
 	}
 }

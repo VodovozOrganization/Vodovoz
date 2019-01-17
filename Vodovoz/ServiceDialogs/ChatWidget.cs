@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.ServiceModel;
 using Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QSProjectsLib;
 using QS.Tdi;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Chats;
 using VodovozService.Chats;
 
@@ -56,7 +55,7 @@ namespace Vodovoz
 
 			if (currentEmployee == null)
 			{
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к сотруднику. Невозможно открыть чат.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к сотруднику. Невозможно открыть чат.");
 				this.Destroy();
 				return;
 			}

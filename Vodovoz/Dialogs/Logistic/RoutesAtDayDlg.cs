@@ -22,7 +22,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools.Logistic;
 
@@ -1102,7 +1102,7 @@ namespace Vodovoz
 		{
 			var SelectDrivers = new OrmReference(
 				UoW,
-				Repository.EmployeeRepository.ActiveDriversOrderedQuery()
+				EmployeeRepository.ActiveDriversOrderedQuery()
 			);
 			SelectDrivers.Mode = OrmReferenceMode.MultiSelect;
 			SelectDrivers.ObjectSelected += SelectDrivers_ObjectSelected;
@@ -1133,7 +1133,7 @@ namespace Vodovoz
 		{
 			var SelectForwarder = new OrmReference(
 				UoW,
-				Repository.EmployeeRepository.ActiveForwarderOrderedQuery()
+				EmployeeRepository.ActiveForwarderOrderedQuery()
 			);
 			SelectForwarder.Mode = OrmReferenceMode.MultiSelect;
 			SelectForwarder.ObjectSelected += SelectForwarder_ObjectSelected;
@@ -1177,7 +1177,7 @@ namespace Vodovoz
 
 		protected void OnButtonAutoCreateClicked(object sender, EventArgs e)
 		{
-			var logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			var logistican = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(logistican == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				return;

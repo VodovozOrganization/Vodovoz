@@ -1,72 +1,72 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 
 namespace Vodovoz.Domain.Store
 {
-	[Appellative (Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "склады",
 		Nominative = "склад")]
 	public class Warehouse : PropertyChangedBase, IDomainObject
 	{
+		public Warehouse() { }
+		string name;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
-		string name;
-
-		[Required (ErrorMessage = "Название склада должно быть заполнено.")]
-		[Display (Name = "Название")]
+		[Required(ErrorMessage = "Название склада должно быть заполнено.")]
+		[Display(Name = "Название")]
 		public virtual string Name {
-			get { return name; }
-			set { SetField (ref name, value, () => Name); }
+			get => name;
+			set => SetField(ref name, value, () => Name);
 		}
 
 		bool canReceiveBottles;
-		public virtual bool CanReceiveBottles{
-			get{ return canReceiveBottles; }
-			set{ SetField (ref canReceiveBottles, value, () => CanReceiveBottles); }
+		public virtual bool CanReceiveBottles {
+			get => canReceiveBottles;
+			set => SetField(ref canReceiveBottles, value, () => CanReceiveBottles);
 		}
 
 		bool canReceiveEquipment;
-		public virtual bool CanReceiveEquipment{
-			get{ return canReceiveEquipment; }
-			set{ SetField (ref canReceiveEquipment, value, () => CanReceiveEquipment); }
+		public virtual bool CanReceiveEquipment {
+			get => canReceiveEquipment;
+			set => SetField(ref canReceiveEquipment, value, () => CanReceiveEquipment);
 		}
 
 		private bool publishOnlineStore;
-
 		[Display(Name = "Публиковать в интернет магазине")]
 		public virtual bool PublishOnlineStore {
-			get { return publishOnlineStore; }
-			set { SetField(ref publishOnlineStore, value, () => PublishOnlineStore); }
+			get => publishOnlineStore;
+			set => SetField(ref publishOnlineStore, value, () => PublishOnlineStore);
 		}
 
 		private WarehouseUsing typeOfUse;
-
 		[Display(Name = "Тип использования")]
 		public virtual WarehouseUsing TypeOfUse {
-			get { return typeOfUse; }
-			set { SetField(ref typeOfUse, value, () => TypeOfUse); }
+			get => typeOfUse;
+			set => SetField(ref typeOfUse, value, () => TypeOfUse);
 		}
 
 		private bool isArchive;
-
 		[Display(Name = "Архивный")]
 		public virtual bool IsArchive {
-			get { return isArchive; }
-			set { SetField(ref isArchive, value, () => IsArchive); }
+			get => isArchive;
+			set => SetField(ref isArchive, value, () => IsArchive);
+		}
+
+		Subdivision owningSubdivision;
+		[Display(Name = "Подразделение-владелец")]
+		public virtual Subdivision OwningSubdivision {
+			get => owningSubdivision;
+			set => SetField(ref owningSubdivision, value, () => OwningSubdivision);
 		}
 
 		#endregion
-
-		public Warehouse ()
-		{
-		}
 	}
 
-	public enum WarehouseUsing{
+	public enum WarehouseUsing
+	{
 		[Display(Name = "Отгрузка")]
 		Shipment,
 		[Display(Name = "Производство")]
@@ -75,8 +75,6 @@ namespace Vodovoz.Domain.Store
 
 	public class WarehouseUsingStringType : NHibernate.Type.EnumStringType
 	{
-		public WarehouseUsingStringType() : base(typeof(WarehouseUsing))
-		{
-		}
+		public WarehouseUsingStringType() : base(typeof(WarehouseUsing)) { }
 	}
 }

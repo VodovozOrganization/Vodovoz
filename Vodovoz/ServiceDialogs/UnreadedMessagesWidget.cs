@@ -8,7 +8,7 @@ using QS.Tdi.Gtk;
 using QSProjectsLib;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Chats;
 using VodovozService.Chats;
 

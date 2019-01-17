@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -11,6 +12,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewWidgets.Store;
 
 namespace Vodovoz
@@ -59,9 +61,9 @@ namespace Vodovoz
 		void ConfigureNewDoc()
 		{
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarUnloadDocument>();
-			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
@@ -112,10 +114,10 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
@@ -301,7 +303,7 @@ namespace Vodovoz
 			foreach(var tempItem in defectiveItemsList) {
 				//валидация брака
 				if(tempItem.TypeOfDefect == null) {
-					MessageDialogWorks.RunWarningDialog("Для брака необходимо указать его вид");
+					MessageDialogHelper.RunWarningDialog("Для брака необходимо указать его вид");
 					return false;
 				}
 

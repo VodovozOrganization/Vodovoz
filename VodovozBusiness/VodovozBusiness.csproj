@@ -343,7 +343,6 @@
     <Compile Include="Repositories\Cash\CategoryRepository.cs" />
     <Compile Include="Repositories\CounterpartyContractRepository.cs" />
     <Compile Include="Repositories\CounterpartyRepository.cs" />
-    <Compile Include="Repositories\EmployeeRepository.cs" />
     <Compile Include="Repositories\EquipmentRepository.cs" />
     <Compile Include="Repositories\EquipmentTypeRepository.cs" />
     <Compile Include="Repositories\Logistics\DeliveryShiftRepository.cs" />
@@ -361,7 +360,6 @@
     <Compile Include="Repositories\Store\SelfDeliveryRepository.cs" />
     <Compile Include="Repositories\Store\WagonRepository.cs" />
     <Compile Include="Repositories\Store\WarehouseRepository.cs" />
-    <Compile Include="Repositories\UserRepository.cs" />
     <Compile Include="DocTemplates\ContractParser.cs" />
     <Compile Include="Attributes\Code1c.cs" />
     <Compile Include="Attributes\Value1c.cs" />
@@ -513,7 +511,6 @@
     <Compile Include="HibernateMapping\Goods\NomenclatureImageMap.cs" />
     <Compile Include="Tools\CommerceML\Nodes\PropertyOfGoods.cs" />
     <Compile Include="Domain\Goods\MobileCatalog.cs" />
-    <Compile Include="Repositories\SubdivisionsRepository.cs" />
     <Compile Include="HibernateMapping\Order\GuiltyInUndeliveryMap.cs" />
     <Compile Include="Domain\Order\GuiltyInUndelivery.cs" />
     <Compile Include="Domain\StoredEmails\EmailTemplate.cs" />
@@ -539,6 +536,9 @@
     <Compile Include="Domain\Payments\PaymentFromTinkoff.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentFromTinkoffMap.cs" />
     <Compile Include="Repositories\Payments\PaymentsRepository.cs" />
+    <Compile Include="Repositories\HumanResourses\EmployeeRepository.cs" />
+    <Compile Include="Repositories\HumanResourses\SubdivisionsRepository.cs" />
+    <Compile Include="Repositories\HumanResourses\UserRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -566,6 +566,7 @@
     <Folder Include="Domain\Payments\" />
     <Folder Include="HibernateMapping\Payments\" />
     <Folder Include="Repositories\Payments\" />
+    <Folder Include="Repositories\HumanResourses\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

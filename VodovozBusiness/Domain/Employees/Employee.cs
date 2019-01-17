@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -211,7 +212,7 @@ namespace Vodovoz.Domain.Employees
 			base.Validate(validationContext);
 
 			if(!String.IsNullOrEmpty(AndroidLogin)) {
-				Employee exist = Repository.EmployeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
+				Employee exist = EmployeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
 				if(exist != null && exist.Id != Id)
 					yield return new ValidationResult(String.Format("Другой водитель с логином {0} для Android уже есть в БД.", AndroidLogin),
 						new[] { this.GetPropertyName(x => x.AndroidLogin) });

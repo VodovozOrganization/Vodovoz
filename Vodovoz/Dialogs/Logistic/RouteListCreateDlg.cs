@@ -14,6 +14,7 @@ using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 
@@ -39,7 +40,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList> ();
-			UoWGeneric.Root.Logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			UoWGeneric.Root.Logistican = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if (Entity.Logistican == null) {
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				FailInitialize = true;

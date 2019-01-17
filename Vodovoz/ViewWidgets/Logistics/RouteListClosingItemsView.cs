@@ -12,7 +12,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz
 {

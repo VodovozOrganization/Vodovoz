@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
 using Gamma.GtkWidgets;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.Employees
@@ -83,7 +84,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(cashier == null) {
-				MessageDialogWorks.RunErrorDialog(
+				MessageDialogHelper.RunErrorDialog(
 					"Ваш пользователь не привязан к действующему сотруднику.");
 				return false;
 			}
@@ -126,7 +127,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			var employee = UoW.GetById<Employee>(e.ObjectId);
 			if(Entity.Items.Any(x => x.Employee.Id == employee.Id)) {
-				MessageDialogWorks.RunErrorDialog("Сотрудник {0} уже присутствует в списке.", employee.ShortName);
+				MessageDialogHelper.RunErrorDialog("Сотрудник {0} уже присутствует в списке.", employee.ShortName);
 				return;
 			}
 			Entity.AddItem(employee);

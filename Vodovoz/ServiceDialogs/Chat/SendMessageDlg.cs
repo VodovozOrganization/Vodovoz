@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Chats;
 using VodovozService.Chats;
 

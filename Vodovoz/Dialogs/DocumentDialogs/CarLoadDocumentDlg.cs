@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -10,6 +10,7 @@ using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz
 {
@@ -53,9 +54,9 @@ namespace Vodovoz
 		void ConfigureNewDoc()
 		{
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarLoadDocument>();
-			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
@@ -102,17 +103,17 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null)
 			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
 			if(Entity.Items.Any(x => x.Amount == 0))
 			{
-				if (MessageDialogWorks.RunQuestionDialog("В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?"))
+				if (MessageDialogHelper.RunQuestionDialog("В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?"))
 					Entity.ClearItemsFromZero();
 			}
 
@@ -123,7 +124,7 @@ namespace Vodovoz
 
 			logger.Info ("Меняем статус маршрутного листа...");
 			if (Entity.RouteList.ShipIfCan(UoW))
-				MessageDialogWorks.RunInfoDialog("Маршрутный лист отгружен полностью.");
+				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			UoW.Save(Entity.RouteList);
 			UoW.Commit();
 
