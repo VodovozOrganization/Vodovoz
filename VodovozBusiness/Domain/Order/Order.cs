@@ -2489,7 +2489,23 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual void SelfDeliveryAcceptCashPaid()
 		{
-			SelfDeliveryAcceptCashPaid(0, 0);
+			decimal totalCashPaid = CashRepository.GetIncomePaidSumForOrder(UoW, Id);
+			decimal totalCashReturn = CashRepository.GetExpenseReturnSumForOrder(UoW, Id);
+			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn);
+		}
+
+		public virtual void AcceptSelfDeliveryIncomeCash(decimal incomeCash, int? incomeExcludedDoc = null)
+		{
+			decimal totalCashPaid = CashRepository.GetIncomePaidSumForOrder(UoW, Id, incomeExcludedDoc) + incomeCash;
+			decimal totalCashReturn = CashRepository.GetExpenseReturnSumForOrder(UoW, Id);
+			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn);
+		}
+
+		public virtual void AcceptSelfDeliveryExpenseCash(decimal expenseCash, int? expenseExcludedDoc = null)
+		{
+			decimal totalCashPaid = CashRepository.GetIncomePaidSumForOrder(UoW, Id);
+			decimal totalCashReturn = CashRepository.GetExpenseReturnSumForOrder(UoW, Id, expenseExcludedDoc) + expenseCash;
+			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn);
 		}
 
 		/// <summary>
@@ -2499,7 +2515,7 @@ namespace Vodovoz.Domain.Orders
 		/// <paramref name="expenseCash">Сумма по открытому расходному ордеру, добавляемая к ранее сохранным расходным ордерам</paramref>
 		/// <paramref name="incomeCash">Сумма по открытому приходному ордеру, добавляемая к ранее сохранным приходным ордерам</paramref>
 		/// </summary>
-		public virtual void SelfDeliveryAcceptCashPaid(decimal incomeCash, decimal expenseCash)
+		private void SelfDeliveryAcceptCashPaid(decimal incomeCash, decimal expenseCash)
 		{
 			if(!SelfDelivery) {
 				return;
@@ -2508,7 +2524,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			bool isFullyPaid = GetSelfDeliveryTotalPayedCash(incomeCash, expenseCash) == SumToReceive;
+			bool isFullyPaid = (incomeCash - expenseCash) == SumToReceive;
 
 			if(!isFullyPaid) {
 				return;
@@ -2535,7 +2551,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool SelfDeliveryIsFullyPaid()
 		{
-			decimal totalCash = GetSelfDeliveryTotalPayedCash(0, 0);
+			decimal totalCash = GetSelfDeliveryTotalPayedCash();
 
 			return SumToReceive == totalCash;
 		}
@@ -2560,12 +2576,12 @@ namespace Vodovoz.Domain.Orders
 			return OrderSumReturnTotal == totalReturned;
 		}
 
-		private decimal GetSelfDeliveryTotalPayedCash(decimal incomeCash, decimal expenseCash)
+		private decimal GetSelfDeliveryTotalPayedCash()
 		{
-			decimal totalCashPaid = CashRepository.GetIncomePaidSumForOrder(UoW, Id) + incomeCash;
-			decimal totalCashReturn = CashRepository.GetExpenseReturnSumForOrder(UoW, Id) + expenseCash;
+			decimal totalCashPaid = CashRepository.GetIncomePaidSumForOrder(UoW, Id);
+			decimal totalCashReturn = CashRepository.GetExpenseReturnSumForOrder(UoW, Id);
 
-			return totalCashPaid + totalCashReturn;
+			return totalCashPaid - totalCashReturn;
 		}
 
 		/// <summary>
