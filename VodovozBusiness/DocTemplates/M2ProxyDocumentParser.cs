@@ -45,11 +45,10 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.Supplier.Name, PatternFieldType.FString);
 			AddField(x => x.Employee.FullName, PatternFieldType.FString);
 			AddField(x => x.Employee.ShortName, PatternFieldType.FString);
-			//TODO: Проверка на наличие паспорта и правильный индекс
-			AddField(x => x.Employee.Documents[0].PassportSeria, PatternFieldType.FString);
-			AddField(x => x.Employee.Documents[0].PassportNumber, PatternFieldType.FString);
-			AddField(x => x.Employee.Documents[0].PassportIssuedOrg, PatternFieldType.FString);
-			AddField(x => x.Employee.Documents[0].PassportIssuedDate.HasValue ? x.Employee.Documents[0].PassportIssuedDate.Value.ToString("dd.MM.yyyy") : "", "Водитель.ДатаВыдачиПаспорта", PatternFieldType.FString);
+			AddField(x => x.EmployeeDocument.PassportSeria, PatternFieldType.FString);
+			AddField(x => x.EmployeeDocument.PassportNumber, PatternFieldType.FString);
+			AddField(x => x.EmployeeDocument.PassportIssuedOrg, PatternFieldType.FString);
+			AddField(x => x.EmployeeDocument.PassportIssuedDate.HasValue ? x.EmployeeDocument.PassportIssuedDate.Value.ToString("dd.MM.yyyy") : "", "Водитель.ДатаВыдачиПаспорта", PatternFieldType.FString);
 			AddField(x => x.Employee.AddressRegistration, PatternFieldType.FString);
 
 			SortFields();

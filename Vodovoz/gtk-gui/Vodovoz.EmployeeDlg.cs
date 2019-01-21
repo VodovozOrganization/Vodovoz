@@ -196,15 +196,15 @@ namespace Vodovoz
 
 		private global::Gtk.Button button53;
 
-		private global::Gtk.Button button54;
+		private global::Gtk.Button buttonContractEdit;
 
 		private global::Gtk.Button button55;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow5;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeview1;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewEmployeeContract;
 
-		private global::Gtk.Label label29;
+		private global::Gtk.Label lable66;
 
 		private global::Gtk.VBox vbox6;
 
@@ -343,7 +343,7 @@ namespace Vodovoz
 			this.notebookMain = new global::Gtk.Notebook();
 			this.notebookMain.CanFocus = true;
 			this.notebookMain.Name = "notebookMain";
-			this.notebookMain.CurrentPage = 0;
+			this.notebookMain.CurrentPage = 4;
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -1244,6 +1244,7 @@ namespace Vodovoz
 			this.hbox11.Spacing = 6;
 			// Container child hbox11.Gtk.Box+BoxChild
 			this.button53 = new global::Gtk.Button();
+			this.button53.Sensitive = false;
 			this.button53.CanFocus = true;
 			this.button53.Name = "button53";
 			this.button53.UseUnderline = true;
@@ -1257,16 +1258,16 @@ namespace Vodovoz
 			w95.Expand = false;
 			w95.Fill = false;
 			// Container child hbox11.Gtk.Box+BoxChild
-			this.button54 = new global::Gtk.Button();
-			this.button54.CanFocus = true;
-			this.button54.Name = "button54";
-			this.button54.UseUnderline = true;
-			this.button54.Label = global::Mono.Unix.Catalog.GetString("Изменить");
+			this.buttonContractEdit = new global::Gtk.Button();
+			this.buttonContractEdit.CanFocus = true;
+			this.buttonContractEdit.Name = "buttonContractEdit";
+			this.buttonContractEdit.UseUnderline = true;
+			this.buttonContractEdit.Label = global::Mono.Unix.Catalog.GetString("Изменить");
 			global::Gtk.Image w96 = new global::Gtk.Image();
 			w96.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
-			this.button54.Image = w96;
-			this.hbox11.Add(this.button54);
-			global::Gtk.Box.BoxChild w97 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.button54]));
+			this.buttonContractEdit.Image = w96;
+			this.hbox11.Add(this.buttonContractEdit);
+			global::Gtk.Box.BoxChild w97 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.buttonContractEdit]));
 			w97.Position = 1;
 			w97.Expand = false;
 			w97.Fill = false;
@@ -1294,10 +1295,10 @@ namespace Vodovoz
 			this.GtkScrolledWindow5.Name = "GtkScrolledWindow5";
 			this.GtkScrolledWindow5.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow5.Gtk.Container+ContainerChild
-			this.ytreeview1 = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeview1.CanFocus = true;
-			this.ytreeview1.Name = "ytreeview1";
-			this.GtkScrolledWindow5.Add(this.ytreeview1);
+			this.ytreeviewEmployeeContract = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewEmployeeContract.CanFocus = true;
+			this.ytreeviewEmployeeContract.Name = "ytreeviewEmployeeContract";
+			this.GtkScrolledWindow5.Add(this.ytreeviewEmployeeContract);
 			this.vbox7.Add(this.GtkScrolledWindow5);
 			global::Gtk.Box.BoxChild w102 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.GtkScrolledWindow5]));
 			w102.Position = 1;
@@ -1305,11 +1306,11 @@ namespace Vodovoz
 			global::Gtk.Notebook.NotebookChild w103 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.vbox7]));
 			w103.Position = 4;
 			// Notebook tab
-			this.label29 = new global::Gtk.Label();
-			this.label29.Name = "label29";
-			this.label29.LabelProp = global::Mono.Unix.Catalog.GetString("Договора");
-			this.notebookMain.SetTabLabel(this.vbox7, this.label29);
-			this.label29.ShowAll();
+			this.lable66 = new global::Gtk.Label();
+			this.lable66.Name = "lable66";
+			this.lable66.LabelProp = global::Mono.Unix.Catalog.GetString("Договора");
+			this.notebookMain.SetTabLabel(this.vbox7, this.lable66);
+			this.lable66.ShowAll();
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
 			this.vbox6 = new global::Gtk.VBox();
 			this.vbox6.Name = "vbox6";
@@ -1401,12 +1402,16 @@ namespace Vodovoz
 			this.radioTabFiles.Toggled += new global::System.EventHandler(this.OnRadioTabFilesToggled);
 			this.radioTabContracts.Clicked += new global::System.EventHandler(this.OnRadioTabContractsToggled);
 			this.radioTabEmployeeDocument.Clicked += new global::System.EventHandler(this.OnRadioTabEmployeeDocumentToggled);
+			this.yenumcombobox13.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEmployeeRegistrationItemSelected);
 			this.comboWageCalcType.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnComboWageCalcTypeEnumItemSelected);
 			this.comboCategory.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnComboCategoryEnumItemSelected);
 			this.checkbuttonRussianCitizen.Toggled += new global::System.EventHandler(this.OnRussianCitizenToggled);
 			this.buttonAddDistrict.Clicked += new global::System.EventHandler(this.OnButtonAddDistrictClicked);
 			this.buttonRemoveDistrict.Clicked += new global::System.EventHandler(this.OnButtonRemoveDistrictClicked);
 			this.button53.Clicked += new global::System.EventHandler(this.OnAddContractButtonCliked);
+			this.buttonContractEdit.Clicked += new global::System.EventHandler(this.OnButtonEditContractClicked);
+			this.button55.Clicked += new global::System.EventHandler(this.OnButtonRemoveContractClicked);
+			this.ytreeviewEmployeeContract.RowActivated += new global::Gtk.RowActivatedHandler(this.OnEmployeeContractRowActivated);
 			this.button1.Clicked += new global::System.EventHandler(this.OnButtonAddDocumentClicked);
 			this.buttonDocumentEdit.Clicked += new global::System.EventHandler(this.OnButtonEditDocumentClicked);
 			this.button3.Clicked += new global::System.EventHandler(this.OnButtonRemoveDocumentClicked);

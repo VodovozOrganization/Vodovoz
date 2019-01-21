@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Bindings;
+using System.Linq;
+using Gamma.ColumnConfig;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -66,6 +69,11 @@ namespace Vodovoz.Dialogs.Employees
 			}
 			phonesView.Phones = Entity.Phones;
 
+			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
+				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
+				.Finish();
+			ytreeviewEmployeeDocument.SetItemsSource(Entity.ObservableDocuments);
+
 			//Реквизиты
 			accountsView.ParentReference = new ParentReferenceGeneric<Trainee, Account>(UoWGeneric, o => o.Accounts);
 			accountsView.SetTitle("Банковские счета стажера");
@@ -124,6 +132,12 @@ namespace Vodovoz.Dialogs.Employees
 				notebookMain.CurrentPage = 2;
 		}
 
+		protected void OnRadioTabDocumentsToggled(object sender, EventArgs e)
+		{
+			if(radioTabDocuments.Active)
+				notebookMain.CurrentPage = 3;
+		}
+
 		protected void OnButtonChangeToEmployeeClicked(object sender, EventArgs e)
 		{
 			if(UoW.HasChanges || Entity.Id == 0) {
@@ -142,5 +156,32 @@ namespace Vodovoz.Dialogs.Employees
 							  () => new EmployeeDlg(employeeUow));
 			this.OnCloseTab(false);
 		}
+
+		#region Document
+
+		protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
+		{
+			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW,null);
+			dlg.Save += (object sender1, EventArgs e1) => Entity.ObservableDocuments.Add(dlg.Entity);
+			TabParent.AddSlaveTab(this, dlg);
+		}
+
+		protected void OnButtonRemoveDocumentClicked(object sender, EventArgs e)
+		{
+			var toRemoveDistricts = ytreeviewEmployeeDocument.GetSelectedObjects<EmployeeDocument>().ToList();
+			toRemoveDistricts.ForEach(x => Entity.ObservableDocuments.Remove(x));
+		}
+
+		protected void OnButtonEditDocumentClicked(object sender, EventArgs e)
+		{
+			EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id,UoW);
+			TabParent.AddSlaveTab(this, dlg);
+		}
+
+		protected void OnEmployeeDocumentRowActivated(object o, Gtk.RowActivatedArgs args)
+		{
+			buttonDocumentEdit.Click();
+		}
+		#endregion
 	}
 }

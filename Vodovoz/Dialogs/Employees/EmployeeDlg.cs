@@ -15,7 +15,6 @@ using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
-using static Vodovoz.Domain.Employees.EmployeeDocument;
 
 namespace Vodovoz
 {
@@ -31,8 +30,8 @@ namespace Vodovoz
 		}
 
 		private EmployeeCategory[] hiddenCategory;
-		private readonly DocumentType[] hiddenForRussianDocument = { DocumentType.RefugeeId, DocumentType.RefugeeCertificate, DocumentType.Residence };
-		private readonly DocumentType[] hiddenForForeignCitizen = { DocumentType.MilitaryID, DocumentType.NavyPassport, DocumentType.OfficerCertificate };
+		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence };
+		private readonly EmployeeDocumentType[] hiddenForForeignCitizen = { EmployeeDocumentType.MilitaryID, EmployeeDocumentType.NavyPassport, EmployeeDocumentType.OfficerCertificate };
 
 		public EmployeeDlg()
 		{
@@ -155,10 +154,18 @@ namespace Vodovoz
 
 			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
+				.AddColumn("Название").AddTextRenderer(x=>x.Name)
 				.Finish();
 			ytreeviewEmployeeDocument.SetItemsSource(Entity.ObservableDocuments);
 
+			ytreeviewEmployeeContract.ColumnsConfig = FluentColumnsConfig<EmployeeContract>.Create()
+				.AddColumn("Договор").AddTextRenderer(x => x.EmployeeContractTemplate.TemplateType.GetEnumTitle())
+				.AddColumn("Дата начала").AddTextRenderer(x => x.FirstDay.ToString("dd/MM/yyyy"))
+				.AddColumn("Дата конца").AddTextRenderer(x => x.LastDay.ToString("dd/MM/yyyy"))
+				.Finish();
+			ytreeviewEmployeeContract.SetItemsSource(Entity.ObservableContracts);
 
+			OnEmployeeRegistrationItemSelected(null, null);
 
 			logger.Info("Ok");
 		}
@@ -205,12 +212,24 @@ namespace Vodovoz
 				attachmentFiles.SaveChanges();
 			} catch(Exception ex) {
 				logger.Error(ex, "Не удалось записать сотрудника.");
-				QSProjectsLib.QSMain.ErrorMessage((Gtk.Window)this.Toplevel, ex);
+				QSMain.ErrorMessage((Gtk.Window)this.Toplevel, ex);
 				return false;
 			}
 			logger.Info("Ok");
 			return true;
 
+		}
+
+		protected void OnRussianCitizenToggled(object sender, EventArgs e)
+		{
+			if(checkbuttonRussianCitizen.Active == false) {
+				labelCitizenship.Visible = true;
+				referenceCitizenship.Visible = true;
+			} else {
+				labelCitizenship.Visible = false;
+				referenceCitizenship.Visible = false;
+				Entity.Citizenship = null;
+			}
 		}
 
 		#region RadioTabToggled
@@ -251,50 +270,23 @@ namespace Vodovoz
 		}
 		#endregion
 
-		protected void OnComboCategoryEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
-		{
-			radioTabLogistic.Visible
-				= lblDriverOf.Visible
-				= hboxDriversParameters.Visible
-				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
-
-			labelWageCalcType.Visible
-				= hboxCustomWageCalc.Visible
-				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver
-				   || (EmployeeCategory)e.SelectedItem == EmployeeCategory.forwarder);
-
-			hboxCustomWageCalc.Sensitive = QSMain.User.Permissions["can_edit_wage"];
-		}
-
-		protected void OnRussianCitizenToggled(object sender, EventArgs e)
-		{
-			if(checkbuttonRussianCitizen.Active == false) {
-				labelCitizenship.Visible = true;
-				referenceCitizenship.Visible = true;
-			} else {
-				labelCitizenship.Visible = false;
-				referenceCitizenship.Visible = false;
-				Entity.Citizenship = null;
-			}
-		}
-
 		#region Document
-
 		protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
 		{
-			EmployeeDocDlg dlg = new EmployeeDocDlg(Entity,Entity.IsRussianCitizen ? hiddenForRussianDocument : hiddenForForeignCitizen);
-			TabParent.AddSlaveTab(this,dlg);
+			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW,Entity.IsRussianCitizen ? hiddenForRussianDocument : hiddenForForeignCitizen);
+			dlg.Save += (object sender1, EventArgs e1) => Entity.ObservableDocuments.Add(dlg.Entity);
+			TabParent.AddSlaveTab(this, dlg);
 		}
 
 		protected void OnButtonRemoveDocumentClicked(object sender, EventArgs e)
 		{
-			var toRemoveDistricts = ytreeviewEmployeeDocument.GetSelectedObjects<EmployeeDocument>().ToList();
-			toRemoveDistricts.ForEach(x => Entity.ObservableDocuments.Remove(x));
+			var toRemoveDocument = ytreeviewEmployeeDocument.GetSelectedObjects<EmployeeDocument>().ToList();
+			toRemoveDocument.ForEach(x => Entity.ObservableDocuments.Remove(x));
 		}
 
 		protected void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
-			EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id);
+			EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW);
 			TabParent.AddSlaveTab(this,dlg);
 		}
 
@@ -305,13 +297,43 @@ namespace Vodovoz
 		#endregion
 
 		#region Contract
-
-
 		protected void OnAddContractButtonCliked(object sender, EventArgs e)
 		{
-			EmployeeContractDlg dlg = new EmployeeContractDlg();
+			List<EmployeeDocument> doc = Entity.GetMainDocuments();
+			if(doc.Count < 1)
+				return;
+			EmployeeContractDlg dlg = new EmployeeContractDlg(doc[0],Entity,UoW);
+			dlg.Save += (object sender1, EventArgs e1) => Entity.ObservableContracts.Add(dlg.Entity);
 			TabParent.AddSlaveTab(this, dlg);
 		}
+
+		protected void OnButtonRemoveContractClicked(object sender, EventArgs e)
+		{
+			var toRemoveContract = ytreeviewEmployeeContract.GetSelectedObjects<EmployeeContract>().ToList();
+			toRemoveContract.ForEach(x => Entity.ObservableContracts.Remove(x));
+		}
+
+		protected void OnButtonEditContractClicked(object sender, EventArgs e)
+		{
+			EmployeeContractDlg dlg = new EmployeeContractDlg(((EmployeeContract)ytreeviewEmployeeContract.GetSelectedObjects()[0]).Id, UoW);
+			TabParent.AddSlaveTab(this, dlg);
+		}
+
+		protected void OnEmployeeContractRowActivated(object o, Gtk.RowActivatedArgs args)
+		{
+			buttonContractEdit.Click();
+		}
+
+
+		//FIXME: Временно до задачи I-1556
+		protected void OnEmployeeRegistrationItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			if(Entity.Registration == RegistrationType.Contract)
+				button53.Sensitive = true;
+			else
+				button53.Sensitive = false;
+		}
+
 		#endregion
 
 		#region Driver & forwarder
@@ -365,7 +387,25 @@ namespace Vodovoz
 				Entity.WageCalcRate = 0;
 			}
 		}
+
+		protected void OnComboCategoryEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			radioTabLogistic.Visible
+				= lblDriverOf.Visible
+				= hboxDriversParameters.Visible
+				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
+
+			labelWageCalcType.Visible
+				= hboxCustomWageCalc.Visible
+				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver
+				   || (EmployeeCategory)e.SelectedItem == EmployeeCategory.forwarder);
+
+			hboxCustomWageCalc.Sensitive = QSMain.User.Permissions["can_edit_wage"];
+		}
+
+
+		#endregion
 	}
-	#endregion
+
 }
 

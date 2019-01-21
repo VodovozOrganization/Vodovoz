@@ -231,6 +231,7 @@ namespace Vodovoz.Domain.Employees
 			AddressCurrent = String.Empty;
 		}
 
+
 		#region IValidatableObject implementation
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -246,7 +247,7 @@ namespace Vodovoz.Domain.Employees
 
 			if(Category == EmployeeCategory.driver && !WageCalcType.HasValue) 
 				yield return new ValidationResult("Для водителя необходимо указать тип расчёта заработной платы.", new[] { this.GetPropertyName(x => x.WageCalcType) });
-
+				
 		}
 
 		#endregion

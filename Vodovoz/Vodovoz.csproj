@@ -1061,6 +1061,8 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.EmployeeDocDlg.cs" />
     <Compile Include="Dialogs\Employees\EmployeeContractDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.EmployeeContractDlg.cs" />
+    <Compile Include="ViewWidgets\SaveTemplateWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SaveTemplateWidget.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

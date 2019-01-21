@@ -34,10 +34,6 @@ namespace VodovozBusinessTests.Employees
 			traineeMock.Name.Returns("TestName");
 			traineeMock.LastName.Returns("TestLastName");
 			traineeMock.Patronymic.Returns("TestPatronymic");
-			traineeMock.PassportSeria.Returns("TestPassportSeria");
-			traineeMock.PassportNumber.Returns("TestPassportSeria");
-			traineeMock.PassportIssuedOrg.Returns("TestPassportSeria");
-			traineeMock.PassportIssuedDate.Returns(DateTime.Now);
 			traineeMock.DrivingNumber.Returns("TestPassportSeria");
 			traineeMock.AddressRegistration.Returns("TestPassportSeria");
 			traineeMock.AddressCurrent.Returns("TestPassportSeria");
@@ -97,22 +93,6 @@ namespace VodovozBusinessTests.Employees
 			if(traineeMock.Patronymic != employeeMock.Patronymic) {
 				result = false;
 				output += nameof(traineeMock.Patronymic) + ", ";
-			}
-			if(traineeMock.PassportSeria != employeeMock.PassportSeria) {
-				result = false;
-				output += nameof(traineeMock.PassportSeria) + ", ";
-			}
-			if(traineeMock.PassportNumber != employeeMock.PassportNumber) {
-				result = false;
-				output += nameof(traineeMock.PassportNumber) + ", ";
-			}
-			if(traineeMock.PassportIssuedOrg != employeeMock.PassportIssuedOrg) {
-				result = false;
-				output += nameof(traineeMock.PassportIssuedOrg) + ", ";
-			}
-			if(traineeMock.PassportIssuedDate != employeeMock.PassportIssuedDate) {
-				result = false;
-				output += nameof(traineeMock.PassportIssuedDate) + ", ";
 			}
 			if(traineeMock.DrivingNumber != employeeMock.DrivingNumber) {
 				result = false;

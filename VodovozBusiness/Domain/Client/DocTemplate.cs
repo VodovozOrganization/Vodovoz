@@ -14,7 +14,6 @@ namespace Vodovoz.Domain.Client
 	public class DocTemplate : PropertyChangedBase, IDomainObject, IDocTemplate
 	{
 		#region Свойства
-
 		public virtual int Id { get; set; }
 
 		string name;

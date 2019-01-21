@@ -61,6 +61,8 @@ namespace Vodovoz.HibernateMapping.Employees
 				HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse()
 										 .KeyColumn("driver_id")
 										 .AsList(x => x.Column("priority"));
+
+				HasMany(x => x.Contracts).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 			}
 		}
 

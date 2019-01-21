@@ -20,19 +20,37 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::Gamma.GtkWidgets.yEntry yentry1;
 
-		private global::Gtk.HBox hbox7;
-
-		private global::Gtk.Label label5;
-
-		private global::Gamma.GtkWidgets.yEntry yentry2;
-
 		private global::Gtk.HBox hbox5;
 
 		private global::Gtk.Label label4;
 
 		private global::Gamma.Widgets.yDatePeriodPicker ydateperiodpicker1;
 
-		private global::QSDocTemplates.TemplateWidget templatewidget1;
+		private global::Gtk.HBox hbox7;
+
+		private global::Gtk.Label label43;
+
+		private global::Gamma.Widgets.yDatePicker yContractDatepicker;
+
+		private global::Gtk.HBox hbox9;
+
+		private global::Gtk.Label label6;
+
+		private global::Gamma.Widgets.yEntryReference yentryOrganization;
+
+		private global::Gtk.HBox hbox11;
+
+		private global::Gtk.HBox hbox12;
+
+		private global::Gtk.Label label9;
+
+		private global::Gtk.Label labelTem;
+
+		private global::Gtk.Button button15;
+
+		private global::Gtk.VSeparator vseparator1;
+
+		private global::Vodovoz.ViewWidgets.SaveTemplateWidget savetemplatewidget1;
 
 		protected virtual void Build()
 		{
@@ -116,36 +134,6 @@ namespace Vodovoz.Dialogs.Employees
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox7 = new global::Gtk.HBox();
-			this.hbox7.Name = "hbox7";
-			this.hbox7.Spacing = 6;
-			// Container child hbox7.Gtk.Box+BoxChild
-			this.label5 = new global::Gtk.Label();
-			this.label5.WidthRequest = 100;
-			this.label5.Name = "label5";
-			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Документ:");
-			this.hbox7.Add(this.label5);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.label5]));
-			w9.Position = 0;
-			w9.Expand = false;
-			w9.Fill = false;
-			// Container child hbox7.Gtk.Box+BoxChild
-			this.yentry2 = new global::Gamma.GtkWidgets.yEntry();
-			this.yentry2.CanFocus = true;
-			this.yentry2.Name = "yentry2";
-			this.yentry2.IsEditable = false;
-			this.yentry2.InvisibleChar = '•';
-			this.hbox7.Add(this.yentry2);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.yentry2]));
-			w10.Position = 1;
-			w10.Expand = false;
-			w10.Fill = false;
-			this.vbox2.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
-			w11.Position = 2;
-			w11.Expand = false;
-			w11.Fill = false;
-			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox5 = new global::Gtk.HBox();
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
@@ -155,10 +143,10 @@ namespace Vodovoz.Dialogs.Employees
 			this.label4.Name = "label4";
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Срок договора:");
 			this.hbox5.Add(this.label4);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.label4]));
-			w12.Position = 0;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.label4]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
 			this.ydateperiodpicker1 = new global::Gamma.Widgets.yDatePeriodPicker();
 			this.ydateperiodpicker1.Events = ((global::Gdk.EventMask)(256));
@@ -166,34 +154,153 @@ namespace Vodovoz.Dialogs.Employees
 			this.ydateperiodpicker1.StartDate = new global::System.DateTime(0);
 			this.ydateperiodpicker1.EndDate = new global::System.DateTime(0);
 			this.hbox5.Add(this.ydateperiodpicker1);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ydateperiodpicker1]));
-			w13.Position = 1;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ydateperiodpicker1]));
+			w10.Position = 1;
 			this.vbox2.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox5]));
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox5]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbox7 = new global::Gtk.HBox();
+			this.hbox7.Name = "hbox7";
+			this.hbox7.Spacing = 6;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.label43 = new global::Gtk.Label();
+			this.label43.WidthRequest = 100;
+			this.label43.Name = "label43";
+			this.label43.LabelProp = global::Mono.Unix.Catalog.GetString("Дата договора:");
+			this.hbox7.Add(this.label43);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.label43]));
+			w12.Position = 0;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.yContractDatepicker = new global::Gamma.Widgets.yDatePicker();
+			this.yContractDatepicker.Events = ((global::Gdk.EventMask)(256));
+			this.yContractDatepicker.Name = "yContractDatepicker";
+			this.yContractDatepicker.WithTime = false;
+			this.yContractDatepicker.Date = new global::System.DateTime(0);
+			this.yContractDatepicker.IsEditable = true;
+			this.yContractDatepicker.AutoSeparation = false;
+			this.hbox7.Add(this.yContractDatepicker);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.yContractDatepicker]));
+			w13.Position = 1;
+			this.vbox2.Add(this.hbox7);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
 			w14.Position = 3;
 			w14.Expand = false;
 			w14.Fill = false;
-			this.hbox1.Add(this.vbox2);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox2]));
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbox9 = new global::Gtk.HBox();
+			this.hbox9.Name = "hbox9";
+			this.hbox9.Spacing = 6;
+			// Container child hbox9.Gtk.Box+BoxChild
+			this.label6 = new global::Gtk.Label();
+			this.label6.WidthRequest = 100;
+			this.label6.Name = "label6";
+			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("Организация:");
+			this.hbox9.Add(this.label6);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.label6]));
 			w15.Position = 0;
 			w15.Expand = false;
 			w15.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.templatewidget1 = new global::QSDocTemplates.TemplateWidget();
-			this.templatewidget1.Events = ((global::Gdk.EventMask)(256));
-			this.templatewidget1.Name = "templatewidget1";
-			this.templatewidget1.CanRevertCommon = false;
-			this.hbox1.Add(this.templatewidget1);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.templatewidget1]));
+			// Container child hbox9.Gtk.Box+BoxChild
+			this.yentryOrganization = new global::Gamma.Widgets.yEntryReference();
+			this.yentryOrganization.WidthRequest = 165;
+			this.yentryOrganization.Events = ((global::Gdk.EventMask)(256));
+			this.yentryOrganization.Name = "yentryOrganization";
+			this.hbox9.Add(this.yentryOrganization);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.yentryOrganization]));
 			w16.Position = 1;
 			w16.Expand = false;
 			w16.Fill = false;
+			this.vbox2.Add(this.hbox9);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox9]));
+			w17.Position = 4;
+			w17.Expand = false;
+			w17.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbox11 = new global::Gtk.HBox();
+			this.hbox11.Name = "hbox11";
+			this.hbox11.Spacing = 6;
+			// Container child hbox11.Gtk.Box+BoxChild
+			this.hbox12 = new global::Gtk.HBox();
+			this.hbox12.Name = "hbox12";
+			this.hbox12.Spacing = 6;
+			// Container child hbox12.Gtk.Box+BoxChild
+			this.label9 = new global::Gtk.Label();
+			this.label9.WidthRequest = 100;
+			this.label9.Name = "label9";
+			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString("Шаблон:");
+			this.hbox12.Add(this.label9);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.label9]));
+			w18.Position = 0;
+			w18.Expand = false;
+			w18.Fill = false;
+			// Container child hbox12.Gtk.Box+BoxChild
+			this.labelTem = new global::Gtk.Label();
+			this.labelTem.Name = "labelTem";
+			this.labelTem.LabelProp = global::Mono.Unix.Catalog.GetString("label4");
+			this.hbox12.Add(this.labelTem);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.labelTem]));
+			w19.Position = 1;
+			w19.Expand = false;
+			w19.Fill = false;
+			this.hbox11.Add(this.hbox12);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.hbox12]));
+			w20.Position = 0;
+			w20.Expand = false;
+			w20.Fill = false;
+			this.vbox2.Add(this.hbox11);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox11]));
+			w21.Position = 5;
+			w21.Expand = false;
+			w21.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.button15 = new global::Gtk.Button();
+			this.button15.CanFocus = true;
+			this.button15.Name = "button15";
+			this.button15.UseUnderline = true;
+			this.button15.Label = global::Mono.Unix.Catalog.GetString("Сформировать документ");
+			this.vbox2.Add(this.button15);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.button15]));
+			w22.Position = 6;
+			w22.Expand = false;
+			w22.Fill = false;
+			this.hbox1.Add(this.vbox2);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox2]));
+			w23.Position = 0;
+			w23.Expand = false;
+			w23.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.hbox1.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vseparator1]));
+			w24.Position = 1;
+			w24.Expand = false;
+			w24.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.savetemplatewidget1 = new global::Vodovoz.ViewWidgets.SaveTemplateWidget();
+			this.savetemplatewidget1.Events = ((global::Gdk.EventMask)(256));
+			this.savetemplatewidget1.Name = "savetemplatewidget1";
+			this.hbox1.Add(this.savetemplatewidget1);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.savetemplatewidget1]));
+			w25.Position = 2;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
+			this.savetemplatewidget1.Hide();
 			this.Hide();
+			this.buttonSave.Clicked += new global::System.EventHandler(this.OnSaveButtonClicked);
+			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
+			this.button15.Clicked += new global::System.EventHandler(this.OnButtonCreateClicked);
+			this.savetemplatewidget1.BeforeOpen += new global::System.EventHandler(this.Templatewidget_BeforeOpen);
 		}
 	}
 }
