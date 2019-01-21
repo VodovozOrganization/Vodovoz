@@ -1415,6 +1415,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2149,6 +2150,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2253,7 +2255,7 @@
           <widget class="Gtk.Notebook" id="notebookMain">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">4</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />
@@ -3156,7 +3158,6 @@
                             <property name="ShowSpecialStateNot">False</property>
                             <property name="UseShortTitle">False</property>
                             <property name="DefaultFirst">False</property>
-                            <signal name="EnumItemSelected" handler="OnEmployeeRegistrationItemSelected" />
                           </widget>
                           <packing>
                             <property name="TopAttach">11</property>
@@ -3733,7 +3734,6 @@
                     <child>
                       <widget class="Gtk.Button" id="button53">
                         <property name="MemberName" />
-                        <property name="Sensitive">False</property>
                         <property name="CanFocus">True</property>
                         <property name="Type">TextAndIcon</property>
                         <property name="Icon">stock:gtk-add Menu</property>
@@ -52482,7 +52482,6 @@ not tooltip</property>
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="Label" translatable="yes">ПН</property>
-                                <property name="Active">True</property>
                                 <property name="DrawIndicator">False</property>
                                 <property name="HasLabel">True</property>
                                 <property name="Group">group1</property>
@@ -65864,7 +65863,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-    <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.LogisticAreasEditDlg" design-size="915 434">
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.LogisticAreasEditDlg" design-size="915 434">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>

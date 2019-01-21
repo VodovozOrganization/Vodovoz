@@ -343,7 +343,7 @@ namespace Vodovoz
 			this.notebookMain = new global::Gtk.Notebook();
 			this.notebookMain.CanFocus = true;
 			this.notebookMain.Name = "notebookMain";
-			this.notebookMain.CurrentPage = 4;
+			this.notebookMain.CurrentPage = 0;
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -1244,7 +1244,6 @@ namespace Vodovoz
 			this.hbox11.Spacing = 6;
 			// Container child hbox11.Gtk.Box+BoxChild
 			this.button53 = new global::Gtk.Button();
-			this.button53.Sensitive = false;
 			this.button53.CanFocus = true;
 			this.button53.Name = "button53";
 			this.button53.UseUnderline = true;
@@ -1402,7 +1401,6 @@ namespace Vodovoz
 			this.radioTabFiles.Toggled += new global::System.EventHandler(this.OnRadioTabFilesToggled);
 			this.radioTabContracts.Clicked += new global::System.EventHandler(this.OnRadioTabContractsToggled);
 			this.radioTabEmployeeDocument.Clicked += new global::System.EventHandler(this.OnRadioTabEmployeeDocumentToggled);
-			this.yenumcombobox13.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEmployeeRegistrationItemSelected);
 			this.comboWageCalcType.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnComboWageCalcTypeEnumItemSelected);
 			this.comboCategory.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnComboCategoryEnumItemSelected);
 			this.checkbuttonRussianCitizen.Toggled += new global::System.EventHandler(this.OnRussianCitizenToggled);

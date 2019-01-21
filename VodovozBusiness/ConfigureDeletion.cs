@@ -168,6 +168,8 @@ namespace Vodovoz
 
 			#region Сотрудники
 
+			DeleteConfig.AddHibernateDeleteInfo<Trainee>();
+
 			DeleteConfig.AddHibernateDeleteInfo<Employee>()
 				.AddDeleteDependenceFromCollection (item => item.Phones)
 				.AddDeleteDependenceFromCollection(item => item.Accounts)

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings;
 using System.Linq;
 using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -53,7 +53,6 @@ namespace Vodovoz.Dialogs.Employees
 			dataentryLastName.Binding.AddBinding(Entity, e => e.LastName, w => w.Text).InitializeFromSource();
 			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			dataentryPatronymic.Binding.AddBinding(Entity, e => e.Patronymic, w => w.Text).InitializeFromSource();
-			//TODO:Добавить вкладку "Документы"
 			entryAddressCurrent.Binding.AddBinding(Entity, e => e.AddressCurrent, w => w.Text).InitializeFromSource();
 			entryAddressRegistration.Binding.AddBinding(Entity, e => e.AddressRegistration, w => w.Text).InitializeFromSource();
 			entryInn.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
@@ -71,6 +70,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
+				.AddColumn("Название").AddTextRenderer(x => x.Name)
 				.Finish();
 			ytreeviewEmployeeDocument.SetItemsSource(Entity.ObservableDocuments);
 
@@ -162,7 +162,7 @@ namespace Vodovoz.Dialogs.Employees
 		protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
 		{
 			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW,null);
-			dlg.Save += (object sender1, EventArgs e1) => Entity.ObservableDocuments.Add(dlg.Entity);
+			dlg.Save += (object sender1, EventArgs e1)=>Entity.ObservableDocuments.Add(dlg.Entity);
 			TabParent.AddSlaveTab(this, dlg);
 		}
 

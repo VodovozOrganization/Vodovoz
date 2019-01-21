@@ -4,6 +4,8 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NLog;
+using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSBanks;
@@ -65,9 +67,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			labelCitizenship.Visible = false;
-			referenceCitizenship.Visible = false;
-
+			OnRussianCitizenToggled(null, EventArgs.Empty);
 			dataentryDrivingNumber.MaxLength = 20;
 			dataentryDrivingNumber.Binding.AddBinding(Entity, e => e.DrivingNumber, w => w.Text).InitializeFromSource();
 			UoWGeneric.Root.PropertyChanged += OnPropertyChanged;
@@ -160,12 +160,11 @@ namespace Vodovoz
 
 			ytreeviewEmployeeContract.ColumnsConfig = FluentColumnsConfig<EmployeeContract>.Create()
 				.AddColumn("Договор").AddTextRenderer(x => x.EmployeeContractTemplate.TemplateType.GetEnumTitle())
+				.AddColumn("Название").AddTextRenderer(x => x.Name)
 				.AddColumn("Дата начала").AddTextRenderer(x => x.FirstDay.ToString("dd/MM/yyyy"))
 				.AddColumn("Дата конца").AddTextRenderer(x => x.LastDay.ToString("dd/MM/yyyy"))
 				.Finish();
 			ytreeviewEmployeeContract.SetItemsSource(Entity.ObservableContracts);
-
-			OnEmployeeRegistrationItemSelected(null, null);
 
 			logger.Info("Ok");
 		}
@@ -222,7 +221,7 @@ namespace Vodovoz
 
 		protected void OnRussianCitizenToggled(object sender, EventArgs e)
 		{
-			if(checkbuttonRussianCitizen.Active == false) {
+			if(Entity.IsRussianCitizen == false) {
 				labelCitizenship.Visible = true;
 				referenceCitizenship.Visible = true;
 			} else {
@@ -300,8 +299,14 @@ namespace Vodovoz
 		protected void OnAddContractButtonCliked(object sender, EventArgs e)
 		{
 			List<EmployeeDocument> doc = Entity.GetMainDocuments();
-			if(doc.Count < 1)
+			if(doc.Count < 1) {
+				MessageDialogHelper.RunInfoDialog("Отсутствует главный документ");
 				return;
+			}
+			else if(Entity.Registration!=RegistrationType.Contract) {
+				MessageDialogHelper.RunInfoDialog("Должен быть указан тип регистрации: 'ГПК' ");//FIXME: Временно до задачи I-1556
+				return;   
+			}
 			EmployeeContractDlg dlg = new EmployeeContractDlg(doc[0],Entity,UoW);
 			dlg.Save += (object sender1, EventArgs e1) => Entity.ObservableContracts.Add(dlg.Entity);
 			TabParent.AddSlaveTab(this, dlg);
@@ -322,16 +327,6 @@ namespace Vodovoz
 		protected void OnEmployeeContractRowActivated(object o, Gtk.RowActivatedArgs args)
 		{
 			buttonContractEdit.Click();
-		}
-
-
-		//FIXME: Временно до задачи I-1556
-		protected void OnEmployeeRegistrationItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
-		{
-			if(Entity.Registration == RegistrationType.Contract)
-				button53.Sensitive = true;
-			else
-				button53.Sensitive = false;
 		}
 
 		#endregion

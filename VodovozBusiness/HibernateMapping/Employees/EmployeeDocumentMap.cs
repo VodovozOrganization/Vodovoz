@@ -19,6 +19,7 @@ namespace Vodovoz.HibernateMapping.Employees
 			Map(x => x.PassportIssuedDate).Column("passport_issued_date");
 			Map(x => x.Document).Column("document_type");
 			Map(x => x.MainDocument).Column("main_document");
+			Map(x => x.Name).Column("name");
 		}
 	}
 }

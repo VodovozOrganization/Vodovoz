@@ -41,7 +41,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		}
 
-		private void SaveDoc()
+		private bool SaveDoc()
 		{
 			var valid = new QSValidator<EmployeeDocument>(Entity);
 			valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel);
@@ -50,6 +50,7 @@ namespace Vodovoz.Dialogs.Employees
 				unitOfWork.Save(Entity);
 				OnCloseTab(false);
 			}
+			return valid.IsValid;
 		}
 
 		private void ConfigureDlg()
@@ -61,6 +62,7 @@ namespace Vodovoz.Dialogs.Employees
 			yentryPasSeria.Binding.AddBinding(Entity, e => e.PassportSeria, w => w.Text).InitializeFromSource();
 			yentryPassportNumber.MaxLength = 30;
 			yentryPassportNumber.Binding.AddBinding(Entity, e => e.PassportNumber, w => w.Text).InitializeFromSource();
+			yentryDocName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
 			ytextviewIssueOrg.Binding.AddBinding(Entity, e => e.PassportIssuedOrg, w => w.Buffer.Text).InitializeFromSource();
 			ydatePassportIssuedDate.Binding.AddBinding(Entity, e => e.PassportIssuedDate, w => w.DateOrNull).InitializeFromSource();
@@ -94,8 +96,9 @@ namespace Vodovoz.Dialogs.Employees
 
 		protected void OnSaveButtonClicked(object sender, EventArgs e)
 		{
-			SaveDoc();
-			Save?.Invoke(sender, e);
+			bool isValid=SaveDoc();
+			if(isValid)
+				Save?.Invoke(sender, e);
 		}
 
 		protected void OnButtonCancelClicked(object sender, EventArgs e)

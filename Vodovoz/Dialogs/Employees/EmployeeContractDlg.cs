@@ -54,6 +54,7 @@ namespace Vodovoz.Dialogs.Employees
 			yentryOrganization.Changed += (sender, e) => {
 				UpdateStates();
 			};
+			yentry1.Binding.AddBinding(Entity,e=>e.Name,w=>w.Text).InitializeFromSource();
 			yContractDatepicker.Binding.AddBinding(Entity,e=>e.ContractDate,w=>w.DateOrNull).InitializeFromSource();
 			ydateperiodpicker1.Binding.AddBinding(Entity, e => e.FirstDay, w => w.StartDateOrNull).InitializeFromSource();
 			ydateperiodpicker1.Binding.AddBinding(Entity, e => e.LastDay, w => w.EndDateOrNull).InitializeFromSource();
