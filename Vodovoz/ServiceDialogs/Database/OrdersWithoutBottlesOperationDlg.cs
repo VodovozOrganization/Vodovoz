@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
-using QS.Tdi;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
@@ -16,14 +15,13 @@ namespace Vodovoz.ServiceDialogs.Database
 	public partial class OrdersWithoutBottlesOperationDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
-		GenericObservableList<Order> observableOrders;
 
 		List<Order> orders;
 
 		public OrdersWithoutBottlesOperationDlg()
 		{
 			if(!QSMain.User.Permissions["database_maintenance"]) {
-				MessageDialogWorks.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
+				MessageDialogHelper.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
 				FailInitialize = true;
 				return;
 			}
@@ -63,7 +61,7 @@ namespace Vodovoz.ServiceDialogs.Database
 		protected void OnButtonCreateBottleOperationsClicked(object sender, EventArgs e)
 		{
 			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow));
-			if(uow.HasChanges && MessageDialogWorks.RunQuestionDialog("Создано \"{0}\" недостающих операций передвижения бутылей, сохранить изменения?", 
+			if(uow.HasChanges && MessageDialogHelper.RunQuestionDialog("Создано \"{0}\" недостающих операций передвижения бутылей, сохранить изменения?", 
 		                                        orders.Where(x => x.BottlesMovementOperation != null).Count())){
 				uow.Commit();
 			}

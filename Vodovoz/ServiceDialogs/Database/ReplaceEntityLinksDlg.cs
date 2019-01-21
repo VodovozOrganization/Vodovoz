@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using QS.Deletion;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Goods;
@@ -33,7 +34,7 @@ namespace Vodovoz.ServiceDialogs.Database
 		private void ConfigureDlg()
 		{
 			if(!QSMain.User.Permissions["database_maintenance"]) {
-				MessageDialogWorks.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
+				MessageDialogHelper.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
 				FailInitialize = true;
 				return;
 			}

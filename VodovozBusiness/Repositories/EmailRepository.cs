@@ -27,7 +27,7 @@ namespace Vodovoz.Repositories
 		public static bool HaveSendedEmail(int orderId, OrderDocumentType type)
 		{
 			IList<StoredEmail> result;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()){
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем")){
 
 				result = uow.Session.QueryOver<StoredEmail>()
 				            .Where(x => x.Order.Id == orderId)
@@ -43,10 +43,11 @@ namespace Vodovoz.Repositories
 		{
 			// Время в минутах, по истечению которых будет возможна повторная отправка
 			double timeLimit = 10;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение возможна ли повторная отправка")) {
 				var lastSendTime = uow.Session.QueryOver<StoredEmail>()
 									  .Where(x => x.RecipientAddress == address)
 									  .Where(x => x.Order.Id == orderId)
+									  .Where(x => x.State != StoredEmailStates.SendingError)
 									  .Select(Projections.Max<StoredEmail>(y => y.SendDate))
 									  .SingleOrDefault<DateTime>();
 				if(lastSendTime != default(DateTime)) {

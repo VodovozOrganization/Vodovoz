@@ -174,7 +174,8 @@ namespace Vodovoz
 				labelPreviousOrder.Visible = false;
 			hboxStatusButtons.Visible = OrderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
 				|| Entity.OrderStatus == OrderStatus.Canceled
-				|| Entity.OrderStatus == OrderStatus.Closed;
+				|| Entity.OrderStatus == OrderStatus.Closed
+				|| Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading;
 
 			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
@@ -434,9 +435,9 @@ namespace Vodovoz
 				.AddColumn("Без рекламы").AddToggleRenderer(x => x is IAdvertisable && (x as IAdvertisable).WithoutAdvertising)
 				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<IAdvertisable>(x => x.WithoutAdvertising))
 				.AddSetter((c, n) => c.Visible = n.Type == OrderDocumentType.Invoice || n.Type == OrderDocumentType.InvoiceContractDoc)
-				.AddColumn("Без подписей и печати").AddToggleRenderer(x => x is BillDocument && (x as BillDocument).HideSignature)
-				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<BillDocument>(x => x.HideSignature))
-				.AddSetter((c, n) => c.Visible = n.Type == OrderDocumentType.Bill)
+				.AddColumn("Без подписей и печати").AddToggleRenderer(x => x is ISignableDocument && (x as ISignableDocument).HideSignature)
+				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<ISignableDocument>(x => x.HideSignature))
+				.AddSetter((c, n) => c.Visible = n is ISignableDocument)
 				.AddColumn("")
 				.RowCells().AddSetter<CellRenderer>((c, n) => {
 					c.CellBackgroundGdk = colorWhite;
@@ -2337,7 +2338,7 @@ namespace Vodovoz
 			//если новый заказ и тип платежа бартер или безнал, то вкл кнопку
 			buttonWaitForPayment.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder && IsPaymentTypeBarterOrCashless() && !Entity.SelfDelivery;
 
-			buttonCancelOrder.Sensitive = OrderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus);
+			buttonCancelOrder.Sensitive = OrderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus) || (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading);
 
 			if(Counterparty?.DeliveryPoints?.FirstOrDefault(d => d.Address1c == Entity.Address1c) == null
 				&& !string.IsNullOrWhiteSpace(Entity.Address1c)

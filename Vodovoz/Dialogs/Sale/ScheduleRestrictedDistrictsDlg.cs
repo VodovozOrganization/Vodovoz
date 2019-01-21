@@ -10,9 +10,9 @@ using GMap.NET.GtkSharp.Markers;
 using Gtk;
 using NetTopologySuite.Geometries;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSProjectsLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Logistic;
@@ -133,7 +133,7 @@ namespace Vodovoz.Dialogs.Logistic
 		protected void OnBtnEditDistrictClicked(object sender, EventArgs e)
 		{
 			if(currentDistrict.Id == 0
-			&& MessageDialogWorks.RunQuestionDialog("Для продолжения необходимо сохранить район, сохранить и продолжить?")) {
+			&& MessageDialogHelper.RunQuestionDialog("Для продолжения необходимо сохранить район, сохранить и продолжить?")) {
 				uow.Save(currentDistrict);
 				uow.Commit();
 			}
@@ -246,9 +246,9 @@ namespace Vodovoz.Dialogs.Logistic
 				newBorderVertice = new List<PointLatLng>();
 			} else
 			{
-				if(MessageDialogWorks.RunQuestionDialog("Завершить задание границ района?"))
+				if(MessageDialogHelper.RunQuestionDialog("Завершить задание границ района?"))
 				{
-					if(MessageDialogWorks.RunQuestionDialog("Сохранить новые границы района?"))
+					if(MessageDialogHelper.RunQuestionDialog("Сохранить новые границы района?"))
 					{
 						var closingPoint = newBorderVertice[0];
 						newBorderVertice.Add(closingPoint);
@@ -272,17 +272,11 @@ namespace Vodovoz.Dialogs.Logistic
 			ControlsAccessibility();
 		}
 
-		protected void OnButtonAddVertexClicked(object sender, EventArgs e)
-		{
-		}
+		protected void OnButtonAddVertexClicked(object sender, EventArgs e) { }
 
-		protected void OnButtonMoveVertexClicked(object sender, EventArgs e)
-		{
-		}
+		protected void OnButtonMoveVertexClicked(object sender, EventArgs e) { }
 
-		protected void OnButtonRemoveVertexClicked(object sender, EventArgs e)
-		{
-		}
+		protected void OnButtonRemoveVertexClicked(object sender, EventArgs e) { }
 
 		IList<PointLatLng> GetCurrentBorderVertice()
 		{

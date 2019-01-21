@@ -41,7 +41,7 @@ namespace Vodovoz.Tools.Logistic
 			DeliveryPriceNode result = new DeliveryPriceNode();
 
             //Топливо
-            using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+            using (var uow = UnitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки"))
             {
                 var fuel = FuelTypeRepository.GetDefaultFuel(uow);
                 if (fuel == null)

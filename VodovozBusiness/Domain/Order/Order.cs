@@ -561,6 +561,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref hasCommentForDriver, value, () => HasCommentForDriver); }
 		}
 
+		private OrderSource orderSource = OrderSource.VodovozApp;
+
+		[Display(Name = "Источник заказа")]
+		public virtual OrderSource OrderSource {
+			get { return orderSource; }
+			set { SetField(ref orderSource, value); }
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()
@@ -757,7 +765,7 @@ namespace Vodovoz.Domain.Orders
 
 					//В случае, если редактируется заказ "В пути", то должен быть оставлен комментарий, поясняющий причину редактирования.
 					//Если заказ "В пути" редактируется больше одного раза, то комментарий должен отличаться от предыдущего.
-					var order = UnitOfWorkFactory.CreateWithoutRoot().GetById<Order>(Id);
+					var order = UnitOfWorkFactory.CreateWithoutRoot($"Валидация заказа").GetById<Order>(Id);
 					if(OrderStatus == OrderStatus.OnTheWay && 
 					   (order == null && OnRouteEditReason == null
 					    || order != null && order.OnRouteEditReason == OnRouteEditReason))
@@ -981,9 +989,7 @@ namespace Vodovoz.Domain.Orders
 			get {
 				Decimal sum = 0;
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
-					if(dep.PaymentDirection == PaymentDirection.ToClient) {
-						sum -= dep.Total;
-					}
+					sum += dep.Total;
 				}
 				return sum;
 			}
@@ -1006,8 +1012,7 @@ namespace Vodovoz.Domain.Orders
 					sum += item.Price * item.ActualCount - item.DiscountMoney;
 				}
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
-					if(dep.PaymentDirection == PaymentDirection.ToClient)
-						sum -= dep.Deposit * dep.Count;
+					sum -= dep.Deposit * dep.Count;
 				}
 				return sum;
 			}
@@ -1178,7 +1183,7 @@ namespace Vodovoz.Domain.Orders
 					&& x.Contract?.Id == Contract?.Id
 				)
 			){
-				using(var uowContract = UnitOfWorkFactory.CreateForRoot<CounterpartyContract>(Contract.Id)){
+				using(var uowContract = UnitOfWorkFactory.CreateForRoot<CounterpartyContract>(Contract.Id, $"Изменение договора в заказе")){
 					uowContract.Root.ContractType = DocTemplateRepository.GetContractTypeForPaymentType(Client.PersonType, PaymentType);
 					uowContract.Root.Organization = OrganizationRepository.GetOrganizationByPaymentType(uowContract, Client.PersonType, PaymentType);
 					uowContract.Save();
@@ -1290,7 +1295,7 @@ namespace Vodovoz.Domain.Orders
 		private void AgreementTransfer<TAgreement>(out IUnitOfWork blankUoW, int agreementId, CounterpartyContract toContract)
 			where TAgreement : AdditionalAgreement, new()
 		{
-			var uow = UnitOfWorkFactory.CreateForRoot<TAgreement>(agreementId);
+			var uow = UnitOfWorkFactory.CreateForRoot<TAgreement>(agreementId, $"Перенос доп. соглашения");
 			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithTypeFromDB<TAgreement>(toContract);
 			uow.Root.Contract = toContract;
 			blankUoW = uow;
@@ -1730,7 +1735,6 @@ namespace Vodovoz.Domain.Orders
 						Count = oDepositItem.Count,
 						ActualCount = oDepositItem.ActualCount,
 						Deposit = oDepositItem.Deposit,
-						PaymentDirection = oDepositItem.PaymentDirection,
 						DepositType = oDepositItem.DepositType,
 						EquipmentNomenclature = oDepositItem.EquipmentNomenclature
 					}
@@ -2413,10 +2417,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		private void OnChangeStatusToOnLoading()
 		{
-			if(SelfDelivery) {
-				LoadAllowedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-				UpdateDocuments();
-			}
+			UpdateDocuments();
 		}
 
 		/// <summary>
@@ -2569,10 +2570,11 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		private void AcceptSelfDeliveryOrder()
 		{
-			if(OrderStatus != OrderStatus.NewOrder) {
+			if(!SelfDelivery || OrderStatus != OrderStatus.NewOrder) {
 				return;
 			}
-			if(PayAfterShipment) {
+			var orderSum = OrderItems.Sum(x => x.Sum) + (ExtraMoney > 0 ? ExtraMoney : 0);
+			if(PayAfterShipment || orderSum == 0) {
 				ChangeStatus(OrderStatus.Accepted);
 			} else {
 				ChangeStatus(OrderStatus.WaitForPayment);
@@ -2758,40 +2760,41 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument)
 		{
-			if(IsFullyShippedSelfDeliveryOrder(uow, closingDocument)) {
-				var isFullyPaid = SelfDeliveryIsFullyPaid();
-
-				UpdateBottlesMovementOperationWithoutDelivery(UoW);
-
-				switch(PaymentType) {
-					case PaymentType.cash:
-					case PaymentType.BeveragesWorld:
-						if(isFullyPaid) {
-							ChangeStatus(OrderStatus.Closed);
-						} else {
-							ChangeStatus(OrderStatus.WaitForPayment);
-						}
-						break;
-					case PaymentType.cashless:
-					case PaymentType.ByCard:
-						if(PayAfterShipment) {
-							ChangeStatus(OrderStatus.WaitForPayment);
-						} else {
-							ChangeStatus(OrderStatus.Closed);
-						}
-						break;
-					case PaymentType.barter:
-					case PaymentType.ContractDoc:
-						ChangeStatus(OrderStatus.Closed);
-						break;
-				}
-				UpdateSelfDeliveryActualCounts();
-				return true;
+			if(!IsFullyShippedSelfDeliveryOrder(uow, closingDocument) || OrderStatus != OrderStatus.OnLoading) {
+				return false;
 			}
-			return false;
+
+			var isFullyPaid = SelfDeliveryIsFullyPaid();
+
+			UpdateBottlesMovementOperationWithoutDelivery(UoW);
+
+			switch(PaymentType) {
+				case PaymentType.cash:
+				case PaymentType.BeveragesWorld:
+					if(isFullyPaid) {
+						ChangeStatus(OrderStatus.Closed);
+					} else {
+						ChangeStatus(OrderStatus.WaitForPayment);
+					}
+					break;
+				case PaymentType.cashless:
+				case PaymentType.ByCard:
+					if(PayAfterShipment) {
+						ChangeStatus(OrderStatus.WaitForPayment);
+					} else {
+						ChangeStatus(OrderStatus.Closed);
+					}
+					break;
+				case PaymentType.barter:
+				case PaymentType.ContractDoc:
+					ChangeStatus(OrderStatus.Closed);
+					break;
+			}
+			UpdateSelfDeliveryActualCounts();
+			return true;
 		}
 
-		public virtual void DeleteBottlesMovementOperation(IUnitOfWork uow)
+		private void DeleteBottlesMovementOperation(IUnitOfWork uow)
 		{
 			if(BottlesMovementOperation != null) {
 				uow.Delete(BottlesMovementOperation);
@@ -2824,22 +2827,19 @@ namespace Vodovoz.Domain.Orders
 
 			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
 				if(BottlesMovementOperation == null) {
-					var bottlesOperation = new BottlesMovementOperation {
-						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+					BottlesMovementOperation = new BottlesMovementOperation {
 						Order = this,
-						Delivered = amountDelivered,
-						Returned = ReturnedTare.GetValueOrDefault(),
 						Counterparty = Client,
 						DeliveryPoint = DeliveryPoint
 					};
-					uow.Save(bottlesOperation);
-					BottlesMovementOperation = bottlesOperation;
-				} else {
-					BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-					BottlesMovementOperation.Delivered = amountDelivered;
-					BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
-					uow.Save(BottlesMovementOperation);
-				}
+				} 
+				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
+				BottlesMovementOperation.Delivered = amountDelivered;
+				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
+				uow.Save(BottlesMovementOperation);
+			} else if(BottlesMovementOperation != null) {
+				uow.Delete(BottlesMovementOperation);
+				BottlesMovementOperation = null;
 			}
 		}
 
@@ -2863,13 +2863,11 @@ namespace Vodovoz.Domain.Orders
 		[Obsolete("Метод устарел после внедрения функционала в рамках задачи I-1173", true)]
 		private void AddDepositDocuments(List<OrderDocumentType> list)
 		{
-			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles
-															&& x.PaymentDirection == PaymentDirection.ToClient)) {
+			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles)) {
 				list.Add(OrderDocumentType.RefundBottleDeposit);
 			}
 
-			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Equipment
-													&& x.PaymentDirection == PaymentDirection.ToClient)) {
+			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Equipment)) {
 				list.Add(OrderDocumentType.RefundEquipmentDeposit);
 			}
 		}

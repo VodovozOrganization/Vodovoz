@@ -7,6 +7,7 @@ using DiffPlex.DiffBuilder;
 using Gamma.ColumnConfig;
 using NHibernate.Criterion;
 using QS.Deletion;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -25,7 +26,7 @@ namespace Vodovoz.ServiceDialogs.Database
 		public MergeAddressesDlg()
 		{
 			if(!QSMain.User.Permissions["database_maintenance"]) {
-				MessageDialogWorks.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
+				MessageDialogHelper.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
 				FailInitialize = true;
 				return;
 			}

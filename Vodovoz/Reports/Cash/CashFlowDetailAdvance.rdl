@@ -54,7 +54,7 @@ FROM
 	cash_expense_category AS cat1 ON cat1.id = cash_expense.cash_expense_category_id
 		LEFT JOIN
 	employees ON employees.id = cash_expense.employee_id
-WHERE cash_expense.type = 'Advance' AND
+WHERE cash_expense.type_operation = 'Advance' AND
 	cash_expense.date &gt;= @startDate AND cash_expense.date &lt; @endDate
 AND IF(@expenseCategoryUsed, cash_expense.cash_expense_category_id IN (@expenseCategory), 1)
 AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)

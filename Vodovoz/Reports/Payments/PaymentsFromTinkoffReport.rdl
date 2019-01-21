@@ -1053,7 +1053,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	o.delivery_date AS order_date,
@@ -1151,7 +1151,7 @@ LEFT JOIN
 			i.order_id
 	) o_sum ON o_sum.id = o.id
 WHERE
-	online_order IS NOT NULL
+	payment_type = 'ByCard' AND	online_order IS NOT NULL
 	AND o.delivery_date &gt;= @date
 ORDER BY 
 	/*underpayment ASC, */order_satus_numbered DESC
@@ -1162,7 +1162,7 @@ ORDER BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1297,7 +1297,7 @@ ORDER BY date_and_time DESC
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

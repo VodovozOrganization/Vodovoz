@@ -162,12 +162,6 @@
     <Reference Include="DiffPlex">
       <HintPath>..\packages\DiffPlex.1.4.2\lib\net40\DiffPlex.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate.Spatial">
-      <HintPath>..\packages\NHibernate.Spatial.MySQL.5.1.0-pre001\lib\net461\NHibernate.Spatial.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.Spatial.MySQL">
-      <HintPath>..\packages\NHibernate.Spatial.MySQL.5.1.0-pre001\lib\net461\NHibernate.Spatial.MySQL.dll</HintPath>
-    </Reference>
     <Reference Include="FluentNHibernate">
       <HintPath>..\packages\FluentNHibernate.2.1.2\lib\net461\FluentNHibernate.dll</HintPath>
     </Reference>
@@ -177,8 +171,14 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="NHibernate.Spatial">
+      <HintPath>..\packages\NHibernate.Spatial.5.1.0\lib\netstandard2.0\NHibernate.Spatial.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.Spatial.MySQL">
+      <HintPath>..\packages\NHibernate.Spatial.MySQL.5.1.0\lib\netstandard2.0\NHibernate.Spatial.MySQL.dll</HintPath>
+    </Reference>
     <Reference Include="NHibernate">
-      <HintPath>..\packages\NHibernate.5.2.0\lib\net461\NHibernate.dll</HintPath>
+      <HintPath>..\packages\NHibernate.5.2.2\lib\net461\NHibernate.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -1063,6 +1063,8 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.EmployeeContractDlg.cs" />
     <Compile Include="ViewWidgets\SaveTemplateWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SaveTemplateWidget.cs" />
+    <Compile Include="Dialogs\Logistic\LogisticAreasEditDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.LogisticAreasEditDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1154,9 +1156,9 @@
       <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
       <Name>QSOrmProject</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSHistoryLog\QSHistoryLog.csproj">
+    <ProjectReference Include="..\..\QSProjects\QS.HistoryLog.Gtk\QS.HistoryLog.Gtk.csproj">
       <Project>{1C3B49FC-372C-46F7-995F-EEB44474E2DE}</Project>
-      <Name>QSHistoryLog</Name>
+      <Name>QS.HistoryLog.Gtk</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSExtraGammaWidgets\QSExtraGammaWidgets.csproj">
       <Project>{3DCDD84A-20D0-4939-BE25-58B19F3961F2}</Project>
@@ -1189,6 +1191,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.Project.Gtk\QS.Project.Gtk.csproj">
       <Project>{3C0F3944-CBD5-4BD6-83D4-CF33AD6FC68C}</Project>
       <Name>QS.Project.Gtk</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
+      <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
+      <Name>QS.HistoryLog</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

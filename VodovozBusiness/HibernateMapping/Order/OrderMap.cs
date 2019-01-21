@@ -57,6 +57,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.DocumentType)				.Column ("document_type").CustomType<DefaultDocumentTypeStringType> ();
 			Map (x => x.ReasonType)					.Column ("reason_type").CustomType<ReasonTypeStringType> (); 
 			Map (x => x.DriverCallType)				.Column ("driver_call_type").CustomType<DriverCallTypeStringType>();
+			Map(x => x.OrderSource)					.Column("order_source").CustomType<OrderSourceStringType>();
 
 			References(x => x.Client).Column("client_id");
 			References(x => x.Contract).Column("counterparty_contract_id");
