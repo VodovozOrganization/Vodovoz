@@ -12,7 +12,7 @@ namespace Vodovoz
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.GtkWidgets.yTreeView yTVChildSubdivisions;
+		private global::QSOrmProject.RepresentationTreeView repTreeChildSubdivisions;
 
 		private global::Gtk.Label lblChildSubdivision;
 
@@ -58,10 +58,10 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.yTVChildSubdivisions = new global::Gamma.GtkWidgets.yTreeView();
-			this.yTVChildSubdivisions.CanFocus = true;
-			this.yTVChildSubdivisions.Name = "yTVChildSubdivisions";
-			this.GtkScrolledWindow.Add(this.yTVChildSubdivisions);
+			this.repTreeChildSubdivisions = new global::QSOrmProject.RepresentationTreeView();
+			this.repTreeChildSubdivisions.CanFocus = true;
+			this.repTreeChildSubdivisions.Name = "repTreeChildSubdivisions";
+			this.GtkScrolledWindow.Add(this.repTreeChildSubdivisions);
 			this.GtkAlignment2.Add(this.GtkScrolledWindow);
 			this.frame1.Add(this.GtkAlignment2);
 			this.lblChildSubdivision = new global::Gtk.Label();

@@ -36,7 +36,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
-		private global::Gamma.Widgets.yListComboBox yLstCmbOwner;
+		private global::Gamma.Widgets.ySpecComboBox ySpecCmbOwner;
 
 		protected virtual void Build()
 		{
@@ -230,17 +230,18 @@ namespace Vodovoz
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yLstCmbOwner = new global::Gamma.Widgets.yListComboBox();
-			this.yLstCmbOwner.Name = "yLstCmbOwner";
-			this.yLstCmbOwner.AddIfNotExist = false;
-			this.yLstCmbOwner.DefaultFirst = false;
-			this.table1.Add(this.yLstCmbOwner);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.yLstCmbOwner]));
+			this.ySpecCmbOwner = new global::Gamma.Widgets.ySpecComboBox();
+			this.ySpecCmbOwner.Name = "ySpecCmbOwner";
+			this.ySpecCmbOwner.AddIfNotExist = false;
+			this.ySpecCmbOwner.DefaultFirst = false;
+			this.ySpecCmbOwner.ShowSpecialStateAll = false;
+			this.ySpecCmbOwner.ShowSpecialStateNot = true;
+			this.table1.Add(this.ySpecCmbOwner);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.ySpecCmbOwner]));
 			w17.TopAttach = ((uint)(2));
 			w17.BottomAttach = ((uint)(3));
 			w17.LeftAttach = ((uint)(1));
 			w17.RightAttach = ((uint)(2));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox2.Add(this.table1);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table1]));

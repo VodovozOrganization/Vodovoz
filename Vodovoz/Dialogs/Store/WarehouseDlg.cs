@@ -46,9 +46,9 @@ namespace Vodovoz
 			comboTypeOfUse.ItemsEnum = typeof(WarehouseUsing);
 			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItem).InitializeFromSource();
 
-			yLstCmbOwner.SetRenderTextFunc<Subdivision>(s => s.Name);
-			yLstCmbOwner.ItemsList = SubdivisionsRepository.GetAllDepartments(UoW);
-			yLstCmbOwner.Binding.AddBinding(Entity, s => s.OwningSubdivision, w => w.SelectedItem).InitializeFromSource();
+			ySpecCmbOwner.SetRenderTextFunc<Subdivision>(s => s.Name);
+			ySpecCmbOwner.ItemsList = SubdivisionsRepository.GetAllDepartments(UoW);
+			ySpecCmbOwner.Binding.AddBinding(Entity, s => s.OwningSubdivision, w => w.SelectedItem).InitializeFromSource();
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase

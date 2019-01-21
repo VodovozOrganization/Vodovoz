@@ -4,6 +4,7 @@ using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
@@ -59,7 +60,9 @@ namespace Vodovoz
 			}
 		}
 
-		#region Свойства
+		#endregion
+
+		#region Геттеры и методы
 
 		/// <summary>
 		/// Уровень в иерархии
@@ -83,7 +86,6 @@ namespace Vodovoz
 			}
 			return false;
 		}
-		#endregion
 
 		#endregion
 
@@ -97,7 +99,7 @@ namespace Vodovoz
 				yield return new ValidationResult("Название подразделения должно быть заполнено.",
 					new[] { this.GetPropertyName(o => o.Name) });
 
-			if(ParentSubdivision.IsChildOf(this))
+			if(ParentSubdivision != null && ParentSubdivision.IsChildOf(this))
 				yield return new ValidationResult(
 						"Нельзя указывать 'Дочернее подразделение' в качестве родительского.",
 						new[] { this.GetPropertyName(o => o.ParentSubdivision) }

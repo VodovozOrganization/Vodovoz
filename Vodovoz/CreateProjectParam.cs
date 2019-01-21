@@ -216,7 +216,7 @@ namespace Vodovoz
 			OrmMain.AddObjectDescription<DiscountReason>().DefaultTableView().SearchColumn("Название", x => x.Name).End();
 
 			# region Простые справочники
-			OrmMain.AddObjectDescription<Subdivision>().Dialog<SubdivisionDlg>().DefaultTableView().Column("Номер", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End();
+			OrmMain.AddObjectDescription<Subdivision>().Dialog<SubdivisionDlg>().DefaultTableView().SearchColumn("Номер", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).TreeConfig(new RecursiveTreeConfig<Subdivision>(x => x.ParentSubdivision, x => x.ChildSubdivisions)).End();
 			OrmMain.AddObjectDescription<Employee>().Dialog<EmployeeDlg>().DefaultTableView()
 			       .Column("Код", x => x.Id.ToString())
 			       .SearchColumn("Ф.И.О.", x => x.FullName)
