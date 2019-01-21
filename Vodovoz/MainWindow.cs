@@ -289,6 +289,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.AddTab(refWin);
 	}
 
+	protected void OnActionCitizenshipActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(Citizenship));
+		tdiMain.AddTab(refWin);
+	}
+
 	protected void OnActionEmploeyActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(

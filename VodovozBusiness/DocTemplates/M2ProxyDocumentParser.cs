@@ -43,13 +43,12 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.Organization.Buhgalter.ShortName, PatternFieldType.FString);
 
 			AddField(x => x.Supplier.Name, PatternFieldType.FString);
-
 			AddField(x => x.Employee.FullName, PatternFieldType.FString);
 			AddField(x => x.Employee.ShortName, PatternFieldType.FString);
-			AddField(x => x.Employee.PassportSeria, PatternFieldType.FString);
-			AddField(x => x.Employee.PassportNumber, PatternFieldType.FString);
-			AddField(x => x.Employee.PassportIssuedOrg, PatternFieldType.FString);
-			AddField(x => x.Employee.PassportIssuedDate.HasValue ? x.Employee.PassportIssuedDate.Value.ToString("dd.MM.yyyy") : "", "Водитель.ДатаВыдачиПаспорта", PatternFieldType.FString);
+			AddField(x => x.EmployeeDocument.PassportSeria, PatternFieldType.FString);
+			AddField(x => x.EmployeeDocument.PassportNumber, PatternFieldType.FString);
+			AddField(x => x.EmployeeDocument.PassportIssuedOrg, PatternFieldType.FString);
+			AddField(x => x.EmployeeDocument.PassportIssuedDate.HasValue ? x.EmployeeDocument.PassportIssuedDate.Value.ToString("dd.MM.yyyy") : "", "Водитель.ДатаВыдачиПаспорта", PatternFieldType.FString);
 			AddField(x => x.Employee.AddressRegistration, PatternFieldType.FString);
 
 			SortFields();

@@ -271,6 +271,7 @@ namespace Vodovoz
 			this.menuActions.Name = "menuActions";
 			this.menuActions.UseUnderline = true;
 			this.menuActions.UseMarkup = false;
+			this.menuActions.LabelXAlign = 0F;
 			global::Gtk.Image w5 = new global::Gtk.Image();
 			w5.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.menu.png");
 			this.menuActions.Image = w5;
@@ -1198,6 +1199,7 @@ namespace Vodovoz
 			this.label1.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.table1 = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild

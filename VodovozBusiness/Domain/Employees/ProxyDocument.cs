@@ -39,6 +39,13 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref organization, value, () => Organization); }
 		}
 
+		EmployeeDocument employeeDocument;
+		[Display(Name = "Документ сотрудника")]
+		public virtual EmployeeDocument EmployeeDocument {
+			get { return employeeDocument; }
+			set { SetField(ref employeeDocument, value, () => EmployeeDocument); }
+		}
+
 		DocTemplate proxyDocumentTemplate;
 		[Display(Name = "Шаблон доверенности")]
 		public virtual DocTemplate DocumentTemplate {

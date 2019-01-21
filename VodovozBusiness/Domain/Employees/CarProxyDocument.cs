@@ -57,6 +57,7 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref car, value, () => Car); }
 		}
 
+
 		DateTime expirationDate;
 		public override DateTime ExpirationDate {
 			get => expirationDate;
