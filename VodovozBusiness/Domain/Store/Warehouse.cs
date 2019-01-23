@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Utilities;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Store
@@ -7,7 +8,7 @@ namespace Vodovoz.Domain.Store
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "склады",
 		Nominative = "склад")]
-	public class Warehouse : PropertyChangedBase, IDomainObject
+	public class Warehouse : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public Warehouse() { }
 		string name;
@@ -63,6 +64,17 @@ namespace Vodovoz.Domain.Store
 			set => SetField(ref owningSubdivision, value, () => OwningSubdivision);
 		}
 
+		#endregion
+
+		#region IValidatableObject implementation
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(OwningSubdivision == null)
+				yield return new ValidationResult(
+					"К складу должно быть привязано \"Подразделение-владелец\"",
+					new[] { this.GetPropertyName(o => o.OwningSubdivision) }
+				);
+		}
 		#endregion
 	}
 
