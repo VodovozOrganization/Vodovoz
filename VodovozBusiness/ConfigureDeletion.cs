@@ -636,6 +636,9 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<RegradingOfGoodsDocument>()
 				.AddDeleteDependence<RegradingOfGoodsDocumentItem>(x => x.Document);
 
+			DeleteConfig.AddHibernateDeleteInfo<ShiftChangeWarehouseDocument>()
+				.AddDeleteDependence<ShiftChangeWarehouseDocumentItem>(x => x.Document);
+
 			DeleteConfig.AddHibernateDeleteInfo<RegradingOfGoodsDocumentItem>()
 				.AddDeleteCascadeDependence(x => x.WarehouseIncomeOperation)
 				.AddDeleteCascadeDependence(x => x.WarehouseWriteOffOperation);
