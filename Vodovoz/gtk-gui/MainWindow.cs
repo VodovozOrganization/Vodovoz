@@ -189,7 +189,7 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionCompanyTrucks;
 
-	private global::Gtk.Action Action30;
+	private global::Gtk.Action Action53;
 
 	private global::Gtk.Action ActionMaintenance;
 
@@ -350,27 +350,27 @@ public partial class MainWindow
 		this.ActionServices.ShortLabel = global::Mono.Unix.Catalog.GetString("Сервис");
 		w1.Add(this.ActionServices, null);
 		this.ActionLogistics = new global::Gtk.RadioAction("ActionLogistics", global::Mono.Unix.Catalog.GetString("Логистика"), null, "logistic", 0);
-		this.ActionLogistics.Group = this.ActionOrders.Group;
+		this.ActionLogistics.Group = this.ActionServices.Group;
 		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString("Логистика");
 		w1.Add(this.ActionLogistics, null);
 		this.ActionStock = new global::Gtk.RadioAction("ActionStock", global::Mono.Unix.Catalog.GetString("Склад"), null, "stock", 0);
-		this.ActionStock.Group = this.ActionLogistics.Group;
+		this.ActionStock.Group = this.ActionServices.Group;
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString("Склад");
 		w1.Add(this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction("ActionCash", global::Mono.Unix.Catalog.GetString("Касса"), null, "cash", 0);
-		this.ActionCash.Group = this.ActionLogistics.Group;
+		this.ActionCash.Group = this.ActionServices.Group;
 		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString("Касса");
 		w1.Add(this.ActionCash, null);
 		this.ActionAccounting = new global::Gtk.RadioAction("ActionAccounting", global::Mono.Unix.Catalog.GetString("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionLogistics.Group;
+		this.ActionAccounting.Group = this.ActionCash.Group;
 		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString("Бухгалтерия");
 		w1.Add(this.ActionAccounting, null);
 		this.ActionReports = new global::Gtk.RadioAction("ActionReports", global::Mono.Unix.Catalog.GetString("Отчеты"), null, "report", 0);
-		this.ActionReports.Group = this.ActionLogistics.Group;
+		this.ActionReports.Group = this.ActionCash.Group;
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчеты");
 		w1.Add(this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction("ActionArchive", global::Mono.Unix.Catalog.GetString("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionLogistics.Group;
+		this.ActionArchive.Group = this.ActionCash.Group;
 		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString("Архив");
 		w1.Add(this.ActionArchive, null);
 		this.ActionOrg = new global::Gtk.Action("ActionOrg", global::Mono.Unix.Catalog.GetString("Организации"), null, null);
@@ -522,11 +522,11 @@ public partial class MainWindow
 		this.ActionIconsSmall.ShortLabel = global::Mono.Unix.Catalog.GetString("Маленькие иконки");
 		w1.Add(this.ActionIconsSmall, null);
 		this.ActionIconsMiddle = new global::Gtk.RadioAction("ActionIconsMiddle", global::Mono.Unix.Catalog.GetString("Средние иконки"), null, null, 0);
-		this.ActionIconsMiddle.Group = this.ActionIconsSmall.Group;
+		this.ActionIconsMiddle.Group = this.ActionIconsExtraSmall.Group;
 		this.ActionIconsMiddle.ShortLabel = global::Mono.Unix.Catalog.GetString("Средние иконки");
 		w1.Add(this.ActionIconsMiddle, null);
 		this.ActionIconsLarge = new global::Gtk.RadioAction("ActionIconsLarge", global::Mono.Unix.Catalog.GetString("Большие иконки"), null, null, 0);
-		this.ActionIconsLarge.Group = this.ActionIconsMiddle.Group;
+		this.ActionIconsLarge.Group = this.ActionIconsExtraSmall.Group;
 		this.ActionIconsLarge.ShortLabel = global::Mono.Unix.Catalog.GetString("Большие иконки");
 		w1.Add(this.ActionIconsLarge, null);
 		this.ActionDeliveryPoints = new global::Gtk.Action("ActionDeliveryPoints", global::Mono.Unix.Catalog.GetString("Точки доставки"), null, null);
@@ -590,7 +590,7 @@ public partial class MainWindow
 		this.ActionForwarderWageReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Зарплаты экспедиторов");
 		w1.Add(this.ActionForwarderWageReport, null);
 		this.ActionStaff = new global::Gtk.RadioAction("ActionStaff", global::Mono.Unix.Catalog.GetString("Кадры"), null, "employees", 0);
-		this.ActionStaff.Group = this.ActionArchive.Group;
+		this.ActionStaff.Group = this.ActionCash.Group;
 		this.ActionStaff.ShortLabel = global::Mono.Unix.Catalog.GetString("Кадры");
 		w1.Add(this.ActionStaff, null);
 		this.ActionDriversWageBalance = new global::Gtk.Action("ActionDriversWageBalance", global::Mono.Unix.Catalog.GetString("Баланс водителей"), null, null);
@@ -617,9 +617,9 @@ public partial class MainWindow
 		this.ActionCompanyTrucks = new global::Gtk.Action("ActionCompanyTrucks", global::Mono.Unix.Catalog.GetString("Загрузка наших автомобилей"), null, null);
 		this.ActionCompanyTrucks.ShortLabel = global::Mono.Unix.Catalog.GetString("Загрузка наших автомобилей");
 		w1.Add(this.ActionCompanyTrucks, null);
-		this.Action30 = new global::Gtk.Action("Action30", global::Mono.Unix.Catalog.GetString("Отчет по последнему заказу"), null, null);
-		this.Action30.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по последнему заказу");
-		w1.Add(this.Action30, null);
+		this.Action53 = new global::Gtk.Action("Action53", global::Mono.Unix.Catalog.GetString("Отчет по последнему заказу"), null, null);
+		this.Action53.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по последнему заказу");
+		w1.Add(this.Action53, null);
 		this.ActionMaintenance = new global::Gtk.Action("ActionMaintenance", global::Mono.Unix.Catalog.GetString("Обслуживание"), null, null);
 		this.ActionMaintenance.ShortLabel = global::Mono.Unix.Catalog.GetString("Обслуживание");
 		w1.Add(this.ActionMaintenance, null);
@@ -850,7 +850,7 @@ public partial class MainWindow
 				"nu name=\'ActionReportOrders\' action=\'ActionReportOrders\'><menuitem name=\'ActionC" +
 				"ashierComments\' action=\'ActionCashierComments\'/><menuitem name=\'ActionCommentsFo" +
 				"rLogists\' action=\'ActionCommentsForLogists\'/><menuitem name=\'ActionOrdersByDistr" +
-				"ict\' action=\'ActionOrdersByDistrict\'/><menuitem name=\'Action30\' action=\'Action30" +
+				"ict\' action=\'ActionOrdersByDistrict\'/><menuitem name=\'Action53\' action=\'Action53" +
 				"\'/><menuitem name=\'Action38\' action=\'Action38\'/><menuitem name=\'ActionOrdersWith" +
 				"MinPriceLessThan\' action=\'ActionOrdersWithMinPriceLessThan\'/><menuitem name=\'act" +
 				"ionSelfDeliveryReport\' action=\'actionSelfDeliveryReport\'/><menuitem name=\'Action" +
@@ -1077,7 +1077,7 @@ public partial class MainWindow
 		this.ActionCommentsForLogists.Activated += new global::System.EventHandler(this.OnActionCommentsForLogistsActivated);
 		this.ActionOrdersByDistrict.Activated += new global::System.EventHandler(this.OnActionOrdersByDistrict);
 		this.ActionCompanyTrucks.Activated += new global::System.EventHandler(this.OnActionCompanyTrucksActivated);
-		this.Action30.Activated += new global::System.EventHandler(this.OnActionLastOrderReportActivated);
+		this.Action53.Activated += new global::System.EventHandler(this.OnActionLastOrderReportActivated);
 		this.ActionAddressDuplicetes.Activated += new global::System.EventHandler(this.OnActionAddressDuplicetesActivated);
 		this.ActionOrdersWithMinPriceLessThan.Activated += new global::System.EventHandler(this.OnActionOrdersWithMinPriceLessThanActivated);
 		this.ActionRouteListsOnClosing.Activated += new global::System.EventHandler(this.OnActionRouteListsOnClosingActivated);
