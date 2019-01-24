@@ -174,8 +174,12 @@ namespace Vodovoz.Dialogs.Employees
 
 		protected void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
-			EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id,UoW);
-			TabParent.AddSlaveTab(this, dlg);
+			if(ytreeviewEmployeeDocument.GetSelectedObject<EmployeeDocument>() != null) 
+			{
+				EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW);
+				TabParent.AddSlaveTab(this, dlg);
+			}
+
 		}
 
 		protected void OnEmployeeDocumentRowActivated(object o, Gtk.RowActivatedArgs args)

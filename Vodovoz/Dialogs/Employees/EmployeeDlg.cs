@@ -285,14 +285,19 @@ namespace Vodovoz
 
 		protected void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
-			EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW);
-			TabParent.AddSlaveTab(this,dlg);
+			if(ytreeviewEmployeeDocument.GetSelectedObject<EmployeeDocument>() != null) 
+			{
+				EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW);
+				TabParent.AddSlaveTab(this, dlg);
+			}
 		}
 
 		protected void OnEmployeeDocumentRowActivated(object o, Gtk.RowActivatedArgs args)
 		{
 			buttonDocumentEdit.Click();
 		}
+
+
 		#endregion
 
 		#region Contract
@@ -320,14 +325,20 @@ namespace Vodovoz
 
 		protected void OnButtonEditContractClicked(object sender, EventArgs e)
 		{
-			EmployeeContractDlg dlg = new EmployeeContractDlg(((EmployeeContract)ytreeviewEmployeeContract.GetSelectedObjects()[0]).Id, UoW);
-			TabParent.AddSlaveTab(this, dlg);
+			if(ytreeviewEmployeeContract.GetSelectedObject<EmployeeContract>() != null) 
+			{
+				EmployeeContractDlg dlg = new EmployeeContractDlg(((EmployeeContract)ytreeviewEmployeeContract.GetSelectedObjects()[0]).Id, UoW);
+				TabParent.AddSlaveTab(this, dlg);
+			}
+
 		}
 
 		protected void OnEmployeeContractRowActivated(object o, Gtk.RowActivatedArgs args)
 		{
 			buttonContractEdit.Click();
 		}
+
+
 
 		#endregion
 

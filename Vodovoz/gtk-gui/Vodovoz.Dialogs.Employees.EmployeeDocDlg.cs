@@ -265,7 +265,7 @@ namespace Vodovoz.Dialogs.Employees
 			this.ydatePassportIssuedDate.Name = "ydatePassportIssuedDate";
 			this.ydatePassportIssuedDate.WithTime = false;
 			this.ydatePassportIssuedDate.Date = new global::System.DateTime(0);
-			this.ydatePassportIssuedDate.IsEditable = false;
+			this.ydatePassportIssuedDate.IsEditable = true;
 			this.ydatePassportIssuedDate.AutoSeparation = false;
 			this.hbox4.Add(this.ydatePassportIssuedDate);
 			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ydatePassportIssuedDate]));
