@@ -4,7 +4,6 @@ using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
@@ -101,9 +100,9 @@ namespace Vodovoz
 
 			if(ParentSubdivision != null && ParentSubdivision.IsChildOf(this))
 				yield return new ValidationResult(
-						"Нельзя указывать 'Дочернее подразделение' в качестве родительского.",
-						new[] { this.GetPropertyName(o => o.ParentSubdivision) }
-					);
+					"Нельзя указывать 'Дочернее подразделение' в качестве родительского.",
+					new[] { this.GetPropertyName(o => o.ParentSubdivision) }
+				);
 		}
 
 		#endregion
