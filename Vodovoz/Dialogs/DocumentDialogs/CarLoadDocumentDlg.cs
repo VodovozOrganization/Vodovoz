@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.Dialog.GtkUI;
+using NHibernate.Criterion;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -97,8 +100,20 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			var valid = new QSValidation.QSValidator<CarLoadDocument>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			CarLoadDocument carLoadDocument = null;
+			var getSimilarCarUnloadDoc = QueryOver.Of<CarLoadDocument>(() => carLoadDocument)
+									.Where(() => carLoadDocument.RouteList.Id == Entity.RouteList.Id)
+									.Where(() => carLoadDocument.Warehouse.Id == Entity.Warehouse.Id);
+			IList<CarLoadDocument> documents = getSimilarCarUnloadDoc.GetExecutableQueryOver(UoW.Session)
+				.List();
+
+			if(documents.Count > 0) {
+				MessageDialogWorks.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
+				return false;
+			}
+
+			var valid = new QSValidation.QSValidator<CarLoadDocument> (UoWGeneric.Root);
+			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
 			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);

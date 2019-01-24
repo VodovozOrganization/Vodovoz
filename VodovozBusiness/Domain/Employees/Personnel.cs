@@ -139,16 +139,6 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref phones, value, () => Phones); }
 		}
 
-
-
-		IList<EmployeeContract> contracts = new List<EmployeeContract>();
-
-		[Display(Name = "Документы")]
-		public virtual IList<EmployeeContract> Contracts {
-			get { return contracts; }
-			set { SetField(ref contracts, value, () => Contracts); }
-		}
-
 		Nationality nationality;
 
 		[Display(Name = "Национальность")]
