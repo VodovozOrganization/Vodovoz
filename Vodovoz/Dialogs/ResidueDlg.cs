@@ -1,11 +1,13 @@
 ﻿using System;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
+using QS.Utilities;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz
 {
@@ -15,10 +17,10 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Residue> ();
-			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Author == null)
 			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
@@ -57,11 +59,11 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			Entity.LastEditAuthor = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditAuthor = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			Entity.LastEditTime = DateTime.Now;
 			if(Entity.LastEditAuthor == null)
 			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
@@ -83,7 +85,7 @@ namespace Vodovoz
 				bottleDebt = Repository.Operations.BottlesRepository.GetBottlesAtCounterparty(UoW, Entity.Customer, Entity.Date);
 			else
 				bottleDebt = Repository.Operations.BottlesRepository.GetBottlesAtDeliveryPoint(UoW, Entity.DeliveryPoint, Entity.Date);
-			labelCurrentBootle.LabelProp = RusNumber.FormatCase(bottleDebt, "{0} бутыль", "{0} бутыли", "{0} бутылей");
+			labelCurrentBootle.LabelProp = NumberToTextRus.FormatCase(bottleDebt, "{0} бутыль", "{0} бутыли", "{0} бутылей");
 
 			decimal bottleDeposit;
 			if(Entity.DeliveryPoint == null)

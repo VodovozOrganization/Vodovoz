@@ -32,7 +32,7 @@ namespace Vodovoz.ViewWidgets
 			}
 		}
 
-		public IList<IDocTemplate> AvailableTemplates {	get;set;}
+		public IList<IDocTemplate> AvailableTemplates { get; set; }
 
 		IDocTemplate template;
 		public IDocTemplate Template {
@@ -112,10 +112,10 @@ namespace Vodovoz.ViewWidgets
 		#endregion
 
 		#region ButtonEventHandler
-		protected void OpenFile(object sender, EventArgs e, bool readOnly, bool print=false)
+		protected void OpenFile(object sender, EventArgs e, bool readOnly, bool print = false)
 		{
 			BeforeOpen?.Invoke(this, EventArgs.Empty);
-			worker.OpenInOffice(Template, readOnly, FileEditMode.Document,IsSavedFile:true);
+			worker.OpenInOffice(Template, readOnly, FileEditMode.Document, IsSavedFile: true);
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e) => OpenFile(sender, e, false, true);

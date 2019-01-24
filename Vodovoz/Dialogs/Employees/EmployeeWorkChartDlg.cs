@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using Vodovoz;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 
 namespace Dialogs.Employees

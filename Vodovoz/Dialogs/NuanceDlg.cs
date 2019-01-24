@@ -1,12 +1,12 @@
 ﻿using System;
 using Gtk;
+using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Representations;
 
 namespace Vodovoz.Dialogs
@@ -89,7 +89,7 @@ namespace Vodovoz.Dialogs
 
 			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать , так как некого указывать в качестве автора документа.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать , так как некого указывать в качестве автора документа.");
 				FailInitialize = true;
 			}
 
@@ -100,7 +100,7 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonCreateTemplateClicked(object sender, EventArgs e)
 		{
-			TabParent.OpenTab(OrmMain.GenerateDialogHashName<CommentsTemplates>(0),
+			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<CommentsTemplates>(0),
 						   () => new CommentDlg(), this
 					   );
 		}

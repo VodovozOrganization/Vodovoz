@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.Repository
+namespace Vodovoz.Repositories.HumanResources
 {
 	public static class UserRepository
 	{

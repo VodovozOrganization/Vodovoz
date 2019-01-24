@@ -6,15 +6,14 @@ using EmailService;
 using fyiReporting.RDL;
 using fyiReporting.RdlGtkViewer;
 using Gamma.GtkWidgets;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
-using QSOrmProject;
-using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Repositories;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -83,12 +82,12 @@ namespace Vodovoz.ViewWidgets
 			var rdlDoc = (document as IPrintableRDLDocument);
 
 			if(rdlDoc == null) {
-				MessageDialogWorks.RunErrorDialog("Невозможно распечатать данный тип документа");
+				MessageDialogHelper.RunErrorDialog("Невозможно распечатать данный тип документа");
 				return;
 			}
 
 			if(document.Order.Id == 0){
-				if(!MessageDialogWorks.RunQuestionDialog("Для отправки необходимо сохранить заказ, сохранить сейчас?")) {
+				if(!MessageDialogHelper.RunQuestionDialog("Для отправки необходимо сохранить заказ, сохранить сейчас?")) {
 					return;
 				}
 				if(!(MyOrmDialog as OrderDlg).Save()) {
@@ -97,23 +96,23 @@ namespace Vodovoz.ViewWidgets
 			}
 
 			if(client == null) {
-				MessageDialogWorks.RunErrorDialog("Должен быть выбран клиент в заказе");
+				MessageDialogHelper.RunErrorDialog("Должен быть выбран клиент в заказе");
 				return;
 			}
 
 			if(!MainSupport.BaseParameters.All.ContainsKey("email_for_email_delivery")) {
-				MessageDialogWorks.RunErrorDialog("В параметрах базы не определена почта для рассылки");
+				MessageDialogHelper.RunErrorDialog("В параметрах базы не определена почта для рассылки");
 				return;
 			}
 
 			if(string.IsNullOrWhiteSpace(yvalidatedentryEmail.Text)) {
-				MessageDialogWorks.RunErrorDialog("Необходимо ввести адрес электронной почты");
+				MessageDialogHelper.RunErrorDialog("Необходимо ввести адрес электронной почты");
 				return;
 			}
 
 			Email email = CreateDocumentEmail("", "vodovoz-spb.ru", document);
 			if(email == null) {
-				MessageDialogWorks.RunErrorDialog("Для данного типа документа не реализовано формирование письма");
+				MessageDialogHelper.RunErrorDialog("Для данного типа документа не реализовано формирование письма");
 				return;
 			}
 
@@ -134,7 +133,7 @@ namespace Vodovoz.ViewWidgets
 			if(!result.Item1) {
 				resultMessage = "Письмо не было отправлено! Причина:\n";
 			}
-			MessageDialogWorks.RunInfoDialog(resultMessage + result.Item2);
+			MessageDialogHelper.RunInfoDialog(resultMessage + result.Item2);
 
 			UpdateEmails();
 		}

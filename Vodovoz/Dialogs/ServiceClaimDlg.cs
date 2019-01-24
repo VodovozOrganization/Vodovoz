@@ -4,20 +4,21 @@ using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Tdi;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
-using QS.Project.Dialogs;
 
 namespace Vodovoz
 {
@@ -95,7 +96,7 @@ namespace Vodovoz
 
 		void CreateOrder()
 		{
-			var employee = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
 			var order = Order.CreateFromServiceClaim(Entity, employee);
 			UoWGeneric.Save(order);
 			UoWGeneric.Commit();

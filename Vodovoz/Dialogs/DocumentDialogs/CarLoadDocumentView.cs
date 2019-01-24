@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QSProjectsLib;
 using Vodovoz.Domain.Documents;
 
 namespace Vodovoz
@@ -114,7 +113,7 @@ namespace Vodovoz
 		{
 			if(DocumentUoW.Root.Items.Count > 0)
 			{
-				if (!MessageDialogWorks.RunQuestionDialog("Список будет очищен. Продолжить?"))
+				if (!MessageDialogHelper.RunQuestionDialog("Список будет очищен. Продолжить?"))
 					return;
 			}
 
@@ -123,7 +122,7 @@ namespace Vodovoz
 				string str = "";
 				foreach(var nomenclarure in DocumentUoW.Root.Items.Where(i => i.Nomenclature.Warehouse == null))
 					str = string.Join("\n", nomenclarure.Nomenclature.Name);
-				MessageDialogWorks.RunErrorWithSecondaryTextDialog("В МЛ есть номенклатура не привязанная к складу.", str);
+				MessageDialogHelper.RunErrorWithSecondaryTextDialog("В МЛ есть номенклатура не привязанная к складу.", str);
 			}
 
 			DocumentUoW.Root.FillFromRouteList(DocumentUoW, true);
@@ -139,7 +138,7 @@ namespace Vodovoz
 		{
 			if(DocumentUoW.Root.Items.Count > 0)
 			{
-				if (!MessageDialogWorks.RunQuestionDialog("Список будет очищен. Продолжить?"))
+				if (!MessageDialogHelper.RunQuestionDialog("Список будет очищен. Продолжить?"))
 					return;
 			}
 			DocumentUoW.Root.FillFromRouteList(DocumentUoW, false);
@@ -156,7 +155,7 @@ namespace Vodovoz
 			{
 				errorNomenclatures = "Не указаны единицы измерения для следующих номенклатур:"
 					+ Environment.NewLine + errorNomenclatures;
-				MessageDialogWorks.RunErrorDialog(errorNomenclatures);
+				MessageDialogHelper.RunErrorDialog(errorNomenclatures);
 				DocumentUoW.Root.Items.Clear();
 				return;
 			}	

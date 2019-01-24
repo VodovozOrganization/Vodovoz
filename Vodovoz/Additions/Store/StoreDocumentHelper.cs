@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSProjectsLib;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Store;
@@ -39,7 +40,7 @@ namespace Vodovoz.Additions.Store
 			if(warehouses.Any(x => CurrentPermissions.Warehouse[WarehousePermissions.WarehouseView, x] || CurrentPermissions.Warehouse[edit, x]))
 				return false;
 
-			MessageDialogWorks.RunErrorDialog("У вас нет прав на просмотр документов склада '{0}'.", String.Join(";", warehouses.Distinct().Select(x => x.Name)));
+			MessageDialogHelper.RunErrorDialog("У вас нет прав на просмотр документов склада '{0}'.", String.Join(";", warehouses.Distinct().Select(x => x.Name)));
 			return true;
 		}
 
@@ -54,15 +55,15 @@ namespace Vodovoz.Additions.Store
 			{
 				if(warehouses.Any(x => CurrentPermissions.Warehouse[edit, x])) 
 					return false;
-				
-				MessageDialogWorks.RunErrorDialog("У вас нет прав на создание этого документа для склада '{0}'.", String.Join(";", warehouses.Distinct().Select(x => x.Name)));
+
+				MessageDialogHelper.RunErrorDialog("У вас нет прав на создание этого документа для склада '{0}'.", String.Join(";", warehouses.Distinct().Select(x => x.Name)));
 			}
 			else
 			{
 				if(CurrentPermissions.Warehouse.Allowed(edit).Any())
 					return false;
-				
-				MessageDialogWorks.RunErrorDialog("У вас нет прав на создание этого документа.");
+
+				MessageDialogHelper.RunErrorDialog("У вас нет прав на создание этого документа.");
 			}
 			return true;
 		}
@@ -111,6 +112,17 @@ namespace Vodovoz.Additions.Store
 			}
 
 			return query.Where(disjunction);
+		}
+
+		public static IList<Warehouse> GetRestrictedWarehousesList(IUnitOfWork uow, params WarehousePermissions[] permissions)
+		{
+			var result = GetRestrictedWarehouseQuery(permissions)
+				.DetachedCriteria
+				.GetExecutableCriteria(uow.Session)
+				.List<Warehouse>()
+				.Where(w => w.OwningSubdivision != null)
+				.ToList();
+			return result;
 		}
 
 		/// <summary>

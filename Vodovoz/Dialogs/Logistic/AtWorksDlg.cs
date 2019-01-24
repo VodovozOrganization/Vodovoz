@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
-using QS.DomainModel.UoW;
 using QS.Dialog;
-using QSOrmProject;
-using QSProjectsLib;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Tdi;
+using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Dialogs.Logistic
@@ -177,7 +178,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var SelectDrivers = new OrmReference(
 				uow,
-				Repository.EmployeeRepository.ActiveDriversOrderedQuery()
+				EmployeeRepository.ActiveDriversOrderedQuery()
 			);
 			SelectDrivers.Mode = OrmReferenceMode.MultiSelect;
 			SelectDrivers.ObjectSelected += SelectDrivers_ObjectSelected;
@@ -207,7 +208,7 @@ namespace Vodovoz.Dialogs.Logistic
 				{
 					var forwarder = ForwardersAtDay.FirstOrDefault(x => x.Employee.Id == driver.DefaultForwarder.Id);
 					if(forwarder == null) {
-						if(MessageDialogWorks.RunQuestionDialog($"Водитель {driver.ShortName} обычно ездить с экспедитором {driver.DefaultForwarder.ShortName}. Он отсутствует в списке экспедиторов. Добавить его в список?")) {
+						if(MessageDialogHelper.RunQuestionDialog($"Водитель {driver.ShortName} обычно ездить с экспедитором {driver.DefaultForwarder.ShortName}. Он отсутствует в списке экспедиторов. Добавить его в список?")) {
 							forwarder = new AtWorkForwarder(driver.DefaultForwarder, DialogAtDate);
 							observableForwardersAtDay.Add(forwarder);
 						}
@@ -306,7 +307,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var SelectForwarder = new OrmReference(
 				uow,
-				Repository.EmployeeRepository.ActiveForwarderOrderedQuery()
+				EmployeeRepository.ActiveForwarderOrderedQuery()
 			);
 			SelectForwarder.Mode = OrmReferenceMode.MultiSelect;
 			SelectForwarder.ObjectSelected += SelectForwarder_ObjectSelected; ;
@@ -382,7 +383,7 @@ namespace Vodovoz.Dialogs.Logistic
 				driver.WithForwarder = forwarder;
 			}
 
-			MessageDialogWorks.RunInfoDialog("Готово.");
+			MessageDialogHelper.RunInfoDialog("Готово.");
 		}
 
 		protected void OnButtonOpenCarClicked(object sender, EventArgs e)

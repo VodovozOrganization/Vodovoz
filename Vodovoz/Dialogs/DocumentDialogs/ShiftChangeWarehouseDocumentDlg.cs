@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -19,9 +20,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ShiftChangeWarehouseDocument>();
-			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
@@ -56,7 +57,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			}
 
 			if(!editing && !UoW.IsNew)
-				MessageDialogWorks.RunWarningDialog("У вас нет прав на изменение этого документа.");
+				MessageDialogHelper.RunWarningDialog("У вас нет прав на изменение этого документа.");
 
 			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing || canCreate;
 			shiftchangewarehousedocumentitemsview1.Sensitive = editing || canCreate;
@@ -79,7 +80,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				}
 			}
 			if(wrongNomenclatures > 0) {
-				MessageDialogWorks.RunErrorDialog(errorMessage);
+				MessageDialogHelper.RunErrorDialog(errorMessage);
 				FailInitialize = true;
 				return;
 			}
@@ -93,10 +94,10 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
@@ -128,7 +129,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		protected void OnYentryrefWarehouseBeforeChangeByUser(object sender, EntryReferenceBeforeChangeEventArgs e)
 		{
 			if(Entity.Warehouse != null && Entity.Items.Count > 0) {
-				if(MessageDialogWorks.RunQuestionDialog("При изменении склада табличная часть документа будет очищена. Продолжить?"))
+				if(MessageDialogHelper.RunQuestionDialog("При изменении склада табличная часть документа будет очищена. Продолжить?"))
 					Entity.ObservableItems.Clear();
 				else
 					e.CanChange = false;

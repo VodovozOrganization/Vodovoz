@@ -16,6 +16,7 @@ using QSValidation;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -185,7 +186,7 @@ namespace Vodovoz
 				return false;
 
 			if(Entity.User != null) {
-				var associatedEmployees = Repository.EmployeeRepository.GetEmployeesForUser(UoW, Entity.User.Id);
+				var associatedEmployees = EmployeeRepository.GetEmployeesForUser(UoW, Entity.User.Id);
 				if(associatedEmployees.Any(e => e.Id != Entity.Id)) {
 					string mes = String.Format("Пользователь {0} уже связан с сотрудником {1}, при привязке этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",
 									 Entity.User.Name,

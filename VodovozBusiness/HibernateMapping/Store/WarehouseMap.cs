@@ -16,6 +16,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.PublishOnlineStore).Column("publish_online_store");
 			Map (x => x.IsArchive).Column("is_archive");
 			Map(x => x.TypeOfUse).Column("type_of_use").CustomType<WarehouseUsingStringType>();
+			References(x => x.OwningSubdivision).Column("owning_subdivision");
 		}
 	}
 }

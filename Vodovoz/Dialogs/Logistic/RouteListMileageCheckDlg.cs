@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using Dialogs.Logistic;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
@@ -119,7 +121,7 @@ namespace Vodovoz
 		{
 			if(Entity.Status > RouteListStatus.OnClosing) {
 				if(Entity.FuelOperationHaveDiscrepancy()) {
-					if(!MessageDialogWorks.RunQuestionDialog("Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений. Продолжить сохранение?")) {
+					if(!MessageDialogHelper.RunQuestionDialog("Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений. Продолжить сохранение?")) {
 						return false;
 					}
 				}

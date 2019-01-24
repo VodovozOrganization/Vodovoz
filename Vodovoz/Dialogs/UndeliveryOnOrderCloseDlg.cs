@@ -5,7 +5,7 @@ using QS.DomainModel.UoW;
 using QSValidation;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Dialogs
 {

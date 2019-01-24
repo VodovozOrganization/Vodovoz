@@ -1,12 +1,11 @@
 ﻿using System;
 using Gamma.GtkWidgets;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSProjectsLib;
-using QS.Tdi;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Dialogs
 {
@@ -33,7 +32,7 @@ namespace Vodovoz.Dialogs
 			UndeliveredOrder = uow.GetById<UndeliveredOrder>(id);
 			Employee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
 			if(Employee == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику и вы не можете комментировать недовозы, так как некого указывать в качестве автора.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику и вы не можете комментировать недовозы, так как некого указывать в качестве автора.");
 				FailInitialize = true;
 				return;
 			}

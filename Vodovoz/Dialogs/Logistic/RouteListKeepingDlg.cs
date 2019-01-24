@@ -7,6 +7,7 @@ using System.ServiceModel;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Tdi;
@@ -16,7 +17,7 @@ using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using VodovozService.Chats;
@@ -257,7 +258,7 @@ namespace Vodovoz
 			if(emptyDP.Count > 0){
 				string message = string.Join(Environment.NewLine, emptyDP);
 				message += Environment.NewLine + "Необходимо добавить точки доставки или сохранить вышеуказанные заказы снова.";
-				MessageDialogWorks.RunErrorDialog(message);
+				MessageDialogHelper.RunErrorDialog(message);
 				FailInitialize = true;
 				return;
 			}
@@ -305,7 +306,7 @@ namespace Vodovoz
 			
 			if (Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute))
 			{
-				if(MessageDialogWorks.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?"))
+				if(MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?"))
 				{
 					Entity.CompleteRoute();
 				}
@@ -320,7 +321,7 @@ namespace Vodovoz
 			var currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
 			if (currentEmployee == null)
 			{
-				MessageDialogWorks.RunInfoDialog("Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
+				MessageDialogHelper.RunInfoDialog("Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
 				return true;
 			}
 				
@@ -364,7 +365,7 @@ namespace Vodovoz
 		protected void OnButtonRefreshClicked (object sender, EventArgs e)
 		{
 			bool hasChanges = items.Count(item => item.HasChanged) > 0;
-			if (!hasChanges || MessageDialogWorks.RunQuestionDialog("Вы действительно хотите обновить список заказов? Внесенные изменения будут утрачены."))
+			if (!hasChanges || MessageDialogHelper.RunQuestionDialog("Вы действительно хотите обновить список заказов? Внесенные изменения будут утрачены."))
 			{
 				UoWGeneric.Session.Refresh(Entity);
 				UpdateNodes();

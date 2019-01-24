@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
 using Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Tdi;
-using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Dialogs
 {
@@ -25,7 +25,7 @@ namespace Vodovoz.Dialogs
 			UndeliveredOrder.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			UndeliveredOrder.EmployeeRegistrator = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(UndeliveredOrder.Author == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать недовозы, так как некого указывать в качестве автора документа.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать недовозы, так как некого указывать в качестве автора документа.");
 				FailInitialize = true;
 				return;
 			}

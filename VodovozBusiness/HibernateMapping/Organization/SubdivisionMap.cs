@@ -1,5 +1,4 @@
-﻿using System;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 
 namespace Vodovoz.HibernateMapping
 {
@@ -12,6 +11,8 @@ namespace Vodovoz.HibernateMapping
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Name).Column("name");
 			References(x => x.Chief).Column("chief_id");
+			References(x => x.ParentSubdivision).Column("parent_subdivision_id");
+			HasMany(x => x.ChildSubdivisions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("parent_subdivision_id");
 		}
 	}
 }

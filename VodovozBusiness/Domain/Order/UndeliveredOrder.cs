@@ -9,12 +9,12 @@ using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QSOrmProject;
+using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
-using QSProjectsLib;
 
 namespace Vodovoz.Domain.Orders
 {

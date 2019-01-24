@@ -21,14 +21,14 @@ namespace Vodovoz.Repository.Store
 			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature OrderItemNomenclatureAlias = null,
-				OrderEquipmentNomenclatureAlias = null, 
+				OrderEquipmentNomenclatureAlias = null,
 				resultNomenclatureAlias = null;
 
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
 
 			var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem>()
 				.Where(r => r.RouteList.Id == routeListId)
-			    .Where(x => x.WasTransfered == false || (x.WasTransfered && x.NeedToReload))
+				.Where(x => x.WasTransfered == false || (x.WasTransfered && x.NeedToReload))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -36,7 +36,7 @@ namespace Vodovoz.Repository.Store
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
 				.Select(n => n.Nomenclature.Id)
-			    .Where(() => OrderItemNomenclatureAlias.NoDelivey == false);
+				.Where(() => OrderItemNomenclatureAlias.NoDelivey == false);
 			var orderEquipmentSubquery = QueryOver.Of<OrderEquipment>(() => orderEquipmentAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)
@@ -96,9 +96,9 @@ namespace Vodovoz.Repository.Store
 		public static IList<Warehouse> WarehousesForPublishOnlineStore(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<Warehouse>()
-				      .WhereNot(x => x.IsArchive)
-				      .Where(x => x.PublishOnlineStore)
-				      .List<Warehouse>();
+					  .WhereNot(x => x.IsArchive)
+					  .Where(x => x.PublishOnlineStore)
+					  .List<Warehouse>();
 		}
 	}
 }
