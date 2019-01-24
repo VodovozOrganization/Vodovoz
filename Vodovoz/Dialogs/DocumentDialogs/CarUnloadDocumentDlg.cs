@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -105,9 +106,22 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			CarUnloadDocument carUnloadDocument = null;
+			var getSimilarCarUnloadDoc = QueryOver.Of<CarUnloadDocument>(() => carUnloadDocument)
+									.Where(() => carUnloadDocument.RouteList.Id == Entity.RouteList.Id)
+									.Where(() => carUnloadDocument.Warehouse.Id == Entity.Warehouse.Id);
+			IList<CarUnloadDocument> documents = getSimilarCarUnloadDoc.GetExecutableQueryOver(UoW.Session)
+				.List();
+
+			if(documents.Count>0) 
+			{
+				MessageDialogWorks.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
+				return false;
+			}
+
 			if(!UpdateReceivedItemsOnEntity())
 				return false;
-
+				
 			var valid = new QSValidation.QSValidator<CarUnloadDocument>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
