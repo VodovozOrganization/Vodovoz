@@ -168,6 +168,8 @@ namespace Vodovoz
 
 			#region Сотрудники
 
+			DeleteConfig.AddHibernateDeleteInfo<Trainee>();
+
 			DeleteConfig.AddHibernateDeleteInfo<Employee>()
 				.AddDeleteDependenceFromCollection (item => item.Phones)
 				.AddDeleteDependenceFromCollection(item => item.Accounts)
@@ -227,8 +229,16 @@ namespace Vodovoz
 				.AddClearDependence<Subdivision>(x => x.Chief)
 			    .AddClearDependence<ChatMessage>(x => x.Sender)
 				.AddClearDependence<Employee>(x => x.DefaultForwarder);
-
-
+				
+			DeleteConfig.AddDeleteInfo(new DeleteInfo {
+				ObjectClass = typeof(Citizenship),
+				SqlSelect = "SELECT id, name FROM @tablename ",
+				DisplayString = "{1}",
+				ClearItems = new List<ClearDependenceInfo> {
+					ClearDependenceInfo.Create<Employee> (item => item.Citizenship)
+				}
+			}.FillFromMetaInfo()
+			);
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(Nationality),
 				SqlSelect = "SELECT id, name FROM @tablename ",
@@ -300,7 +310,8 @@ namespace Vodovoz
 				.AddDeleteDependence<MoneyMovementOperation> (item => item.Counterparty)
 				.AddDeleteDependence<MovementDocument> (item => item.FromClient)
 				.AddDeleteDependence<MovementDocument> (item => item.ToClient)
-				.AddDeleteDependence<Order> (item => item.Client)
+				//после ввода новой системы прав раскомментировать
+				//.AddDeleteDependence<Order> (item => item.Client)
 				.AddDeleteDependence<ServiceClaim>(x => x.Counterparty)
 				.AddDeleteDependence<WriteoffDocument> (item => item.Client)
 				.AddDeleteDependence<AccountIncome> (item => item.Counterparty)
@@ -366,7 +377,8 @@ namespace Vodovoz
 				.AddDeleteDependence<DepositOperation> (item => item.DeliveryPoint)
 				.AddDeleteDependence<CounterpartyMovementOperation> (item => item.WriteoffDeliveryPoint)
 				.AddDeleteDependence<CounterpartyMovementOperation> (item => item.IncomingDeliveryPoint)
-				.AddDeleteDependence<Order>(x => x.DeliveryPoint)
+				//после ввода новой системы прав раскомментировать
+				//.AddDeleteDependence<Order>(x => x.DeliveryPoint)
 				.AddDeleteDependence<MovementDocument>(x => x.FromDeliveryPoint)
 				.AddDeleteDependence<MovementDocument>(x => x.ToDeliveryPoint)
 				.AddDeleteDependence<WriteoffDocument>(x => x.DeliveryPoint)
@@ -635,6 +647,10 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<RegradingOfGoodsDocument>()
 				.AddDeleteDependence<RegradingOfGoodsDocumentItem>(x => x.Document);
+
+			//после ввода новой системы прав раскомментировать
+			/*DeleteConfig.AddHibernateDeleteInfo<ShiftChangeWarehouseDocument>()
+				.AddDeleteDependence<ShiftChangeWarehouseDocumentItem>(x => x.Document);*/
 
 			DeleteConfig.AddHibernateDeleteInfo<RegradingOfGoodsDocumentItem>()
 				.AddDeleteCascadeDependence(x => x.WarehouseIncomeOperation)

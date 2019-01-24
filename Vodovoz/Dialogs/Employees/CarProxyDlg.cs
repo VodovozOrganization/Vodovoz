@@ -40,6 +40,9 @@ namespace Vodovoz.Dialogs.Employees
 
 		void ConfigureDlg()
 		{
+			if(Entity.EmployeeDocument == null && Entity.Driver != null)
+				GetDocument();
+
 			ylabelNumber.Binding.AddBinding(Entity, x => x.Title, x => x.LabelProp).InitializeFromSource();
 
 			yentryOrganization.SubjectType = typeof(Organization);
@@ -61,10 +64,16 @@ namespace Vodovoz.Dialogs.Employees
 			templatewidget.CanRevertCommon = QSMain.User.Permissions["can_set_common_additionalagreement"];
 			templatewidget.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
-
 			templatewidget.BeforeOpen += Templatewidget_BeforeOpen;
 
 			UpdateStates();
+		}
+
+		void GetDocument()
+		{
+			var doc = Entity.Driver.GetMainDocuments();
+			if(doc.Count>0)
+				Entity.EmployeeDocument = doc[0];
 		}
 
 		void Templatewidget_BeforeOpen(object sender, EventArgs e)

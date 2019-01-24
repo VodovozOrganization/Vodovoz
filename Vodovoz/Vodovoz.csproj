@@ -1057,6 +1057,12 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.SelfDeliveryOrderEditDlg.cs" />
     <Compile Include="ReportsParameters\Logistic\OrdersByDistrictsAndDeliverySchedulesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.OrdersByDistrictsAndDeliverySchedulesReport.cs" />
+    <Compile Include="Dialogs\Employees\EmployeeDocDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.EmployeeDocDlg.cs" />
+    <Compile Include="Dialogs\Employees\EmployeeContractDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.EmployeeContractDlg.cs" />
+    <Compile Include="ViewWidgets\SaveTemplateWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SaveTemplateWidget.cs" />
     <Compile Include="Dialogs\Logistic\LogisticAreasEditDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.LogisticAreasEditDlg.cs" />
     <Compile Include="Representations\SubdivisionsVM.cs" />

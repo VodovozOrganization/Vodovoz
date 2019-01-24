@@ -27,6 +27,7 @@ namespace Vodovoz.HibernateMapping.Employees
 			DiscriminatorValue("CarProxy");
 
 			References(x => x.Driver).Column("employee_id");
+			References(x => x.EmployeeDocument).Column("document_id");
 			References(x => x.Car).Column("car_id");
 		}
 	}

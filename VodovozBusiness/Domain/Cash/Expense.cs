@@ -252,7 +252,11 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual void AcceptSelfDeliveryPaid()
 		{
-			Order.SelfDeliveryAcceptCashPaid(0, Money);
+			if(Id == 0) {
+				Order.AcceptSelfDeliveryExpenseCash(Money);
+			} else {
+				Order.AcceptSelfDeliveryExpenseCash(Money, Id);
+			}
 		}
 
 		#endregion

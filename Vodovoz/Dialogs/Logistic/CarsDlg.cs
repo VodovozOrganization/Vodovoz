@@ -138,9 +138,14 @@ namespace Vodovoz
 
 		protected void OnDataentryreferenceDriverChanged (object sender, EventArgs e)
 		{
-			if (UoWGeneric.Root.Driver != null)
-				textDriverInfo.Text = "\tПаспорт: " + UoWGeneric.Root.Driver.PassportSeria + " № " + UoWGeneric.Root.Driver.PassportNumber +
-					"\n\tАдрес регистрации: " + UoWGeneric.Root.Driver.AddressRegistration;
+			if (UoWGeneric.Root.Driver != null) {
+				var docs = Entity.Driver.GetMainDocuments();
+				if(docs.Count > 0)
+					textDriverInfo.Text = "\tПаспорт: " + UoWGeneric.Root.Driver.Documents[0].PassportSeria + " № " + UoWGeneric.Root.Driver.Documents[0].PassportNumber +
+		"\n\tАдрес регистрации: " + UoWGeneric.Root.Driver.AddressRegistration;
+				else
+					textDriverInfo.Text = "Главный документ отсутствует";
+			}
 		}
 
 		protected void OnCheckIsCompanyHavingsToggled (object sender, EventArgs e)

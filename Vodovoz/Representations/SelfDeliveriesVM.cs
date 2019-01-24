@@ -55,16 +55,17 @@ namespace Vodovoz.Representations
 			.AddColumn("Дата").SetDataProperty(node => node.Date.ToString("d"))
 			.AddColumn("Автор").SetDataProperty(node => node.Author)
 			.AddColumn("Статус").SetDataProperty(node => node.StatusEnum.GetEnumTitle())
+			.AddColumn("Тип оплаты").SetDataProperty(node => node.PaymentTypeEnum.GetEnumTitle())
 			.AddColumn("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
 			.AddColumn("Клиент").SetDataProperty(node => node.Counterparty)
 			.AddColumn("Вариант оплаты").SetDataProperty(node => node.PayOption)
-			.AddColumn("Сумма товаров").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderSum))
-			.AddColumn("Сумма возврат").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderReturnSum))
-			.AddColumn("Сумма итог").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderSumTotal))
-			.AddColumn("Нал приход").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashPaid))
-			.AddColumn("Нал возврат").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashReturn))
-			.AddColumn("Нал итог").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashTotal))
-			.AddColumn("Итого разница").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.TotalDiff))
+			.AddColumn("Сумма безнал").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderCashlessSumTotal))
+			.AddColumn("Сумма нал").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderCashSumTotal))
+			.AddColumn("Из них возврат").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderReturnSum))
+			.AddColumn("Касса приход").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashPaid))
+			.AddColumn("Касса возврат").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashReturn))
+			.AddColumn("Касса итог").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashTotal))
+			.AddColumn("Расхождение по нал.").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.TotalCashDiff))
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 			.Finish();
 
@@ -111,6 +112,14 @@ namespace Vodovoz.Representations
 				query.Where(o => o.DeliveryPoint == Filter.RestrictDeliveryPoint);
 			}
 
+			if(Filter.RestrictStartDate != null) {
+				query.Where(o => o.DeliveryDate >= Filter.RestrictStartDate);
+			}
+
+			if(Filter.RestrictEndDate != null) {
+				query.Where(o => o.DeliveryDate <= Filter.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+			}
+
 			var result = query
 				.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, JoinType.LeftOuterJoin)
 				.JoinAlias(o => o.Client, () => counterpartyAlias)
@@ -129,6 +138,7 @@ namespace Vodovoz.Representations
 				   .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 				   .Select(() => orderAlias.PayAfterShipment).WithAlias(() => resultAlias.PayAfterLoad)
+				   .Select(() => orderAlias.PaymentType).WithAlias(() => resultAlias.PaymentTypeEnum)
 				   .Select(Projections.Sum(
 					   	Projections.Conditional(
 					   		Restrictions.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L), 
@@ -152,7 +162,7 @@ namespace Vodovoz.Representations
 							Projections.Property(() => orderDepositItemAlias.Count),
 							Projections.Property(() => orderDepositItemAlias.Deposit)
 						   )
-					)).WithAlias(() => resultAlias.CashReturn)
+					)).WithAlias(() => resultAlias.OrderReturnSum)
 				   .Select(Projections.Property(() => incomeAlias.Money)).WithAlias(() => resultAlias.CashPaid)
 				   .Select(Projections.Property(() => expenseAlias.Money)).WithAlias(() => resultAlias.CashReturn)
 				).OrderBy(x => x.DeliveryDate).Desc.ThenBy(x => x.Id).Desc
@@ -242,24 +252,28 @@ namespace Vodovoz.Representations
 		[SearchHighlight]
 		public string Counterparty { get; set; }
 
+		public PaymentType PaymentTypeEnum { get; set; }
 		public bool PayAfterLoad { get; set; }
 		public string PayOption => PayAfterLoad ? "После погрузки" : "До погрузки";
 
 		//заказ
 		public decimal OrderSum { get; set; }
+		public decimal OrderCashSum => PaymentTypeEnum == PaymentType.cash || PaymentTypeEnum == PaymentType.BeveragesWorld ? OrderSum : 0;
+		public decimal OrderCashlessSum => PaymentTypeEnum == PaymentType.cashless || PaymentTypeEnum == PaymentType.ByCard ? OrderSum : 0;
 		public decimal OrderReturnSum { get; set; }
-		public decimal OrderSumTotal => OrderSum - OrderReturnSum;
+		public decimal OrderCashSumTotal => OrderCashSum - OrderReturnSum;
+		public decimal OrderCashlessSumTotal => OrderCashlessSum - OrderReturnSum;
 
 		//наличные по кассе
 		public decimal CashPaid { get; set; }
 		public decimal CashReturn { get; set; }
 		public decimal CashTotal => CashPaid - CashReturn;
 
-		public decimal TotalDiff => OrderSumTotal - CashTotal;
+		public decimal TotalCashDiff => OrderCashSumTotal - CashTotal;
 
-		public bool HaveDiff {
+		public bool HaveCashDiff {
 			get {
-				return OrderSumTotal != CashTotal;
+				return OrderCashSumTotal != CashTotal;
 			}
 		}
 
@@ -273,11 +287,11 @@ namespace Vodovoz.Representations
 
 		public string RowColor {
 			get {
-				if(CashPaid > 0 && HaveDiff) {
+				if(CashPaid > 0 && HaveCashDiff) {
 					//light red
 					return "#f97777";
 				}
-				if(StatusEnum == OrderStatus.Closed && HaveDiff) {
+				if(StatusEnum == OrderStatus.Closed && HaveCashDiff) {
 					//red
 					return "#ee0000";
 				}

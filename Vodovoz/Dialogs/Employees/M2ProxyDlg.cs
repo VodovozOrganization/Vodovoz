@@ -64,8 +64,10 @@ namespace Vodovoz.Dialogs.Employees
 
 		void ConfigureDlg()
 		{
-			ylabelNumber.Binding.AddBinding(Entity, x => x.Title, x => x.LabelProp).InitializeFromSource();
+			if(Entity.EmployeeDocument == null && Entity.Employee!=null)
+				GetDocument();
 
+			ylabelNumber.Binding.AddBinding(Entity, x => x.Title, x => x.LabelProp).InitializeFromSource();
 			var filterOrders = new OrdersFilter(UoW);
 			yEForOrder.RepresentationModel = new OrdersVM(filterOrders);
 			yEForOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
@@ -116,6 +118,13 @@ namespace Vodovoz.Dialogs.Employees
 			UpdateStates();
 		}
 
+		void GetDocument()
+		{
+			var doc = Entity.Employee.GetMainDocuments();
+			if(doc.Count > 0)
+				Entity.EmployeeDocument = doc[0];
+		}
+
 		void FillForOrder()
 		{
 			Order order = Entity.Order;
@@ -129,7 +138,7 @@ namespace Vodovoz.Dialogs.Employees
 			} else {
 				yDPDatesRange.StartDateOrNull = DateTime.Today;
 				yDPDatesRange.EndDateOrNull = DateTime.Today.AddDays(10);
-			}
+				}
 		}
 
 		void Templatewidget_BeforeOpen(object sender, EventArgs e)

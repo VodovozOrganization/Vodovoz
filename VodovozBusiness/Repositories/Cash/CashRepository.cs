@@ -9,16 +9,22 @@ namespace Vodovoz.Repository.Cash
 	public class CashRepository
 	{
 
-		public static decimal GetIncomePaidSumForOrder(IUnitOfWork uow, int orderId)
+		public static decimal GetIncomePaidSumForOrder(IUnitOfWork uow, int orderId, int? excludedIncomeDoc = null)
 		{
-			return uow.Session.QueryOver<Income>().Where(x => x.Order.Id == orderId)
-				.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
+			var query = uow.Session.QueryOver<Income>().Where(x => x.Order.Id == orderId);
+			if(excludedIncomeDoc != null) {
+				query.Where(x => x.Id != excludedIncomeDoc);
+			}
+			return query.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
 		}
 
-		public static decimal GetExpenseReturnSumForOrder(IUnitOfWork uow, int orderId)
+		public static decimal GetExpenseReturnSumForOrder(IUnitOfWork uow, int orderId, int? excludedExpenseDoc = null)
 		{
-			return uow.Session.QueryOver<Expense>().Where(x => x.Order.Id == orderId)
-				.Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
+			var query = uow.Session.QueryOver<Expense>().Where(x => x.Order.Id == orderId);
+			if(excludedExpenseDoc != null) {
+				query.Where(x => x.Id != excludedExpenseDoc);
+			}
+			return query.Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
 		}
 
 		public static decimal CurrentCash (IUnitOfWork uow)

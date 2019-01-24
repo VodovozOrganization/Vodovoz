@@ -831,6 +831,9 @@ namespace Vodovoz
 
 			if(Entity.ConfirmedDistance != 0 && Entity.ConfirmedDistance != Entity.ActualDistance) {
 
+				text.Add(string.Format("Расстояние подтвержденное логистами: {0:F1} км.",
+			 		Entity.ConfirmedDistance));
+
 				decimal spentFuelConfirmed = (decimal)Entity.Car.FuelConsumption
 										/ 100 * Entity.ConfirmedDistance;
 

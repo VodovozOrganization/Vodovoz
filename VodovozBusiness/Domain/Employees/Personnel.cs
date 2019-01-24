@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Data.Bindings.Utilities;
 using System.Linq;
 using System.Reflection;
 using NLog;
@@ -52,40 +53,51 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref patronymic, value?.Trim(), () => Patronymic); }
 		}
 
+		bool isRussianCitizen=true;
+
+		[Display(Name = "Российское гражданство")]
+		public virtual bool IsRussianCitizen {
+			get { return isRussianCitizen; }
+			set { SetField(ref isRussianCitizen, value, () => IsRussianCitizen); }
+		}
+
+		Citizenship citizenship;
+
+		[Display(Name = "Иностранное граждансво")]
+		public virtual Citizenship Citizenship {
+			get { return citizenship; }
+			set { SetField(ref citizenship, value, () => Citizenship); }
+		}
+
+		IList<EmployeeDocument> documents = new List<EmployeeDocument>();
+
+		[Display(Name = "Документы")]
+		public virtual IList<EmployeeDocument> Documents {
+			get { return documents; }
+			set { SetField(ref documents, value, () => Documents); }
+		}
+
+		GenericObservableList<EmployeeDocument> observableDocuments;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<EmployeeDocument> ObservableDocuments {
+			get {
+				if(observableDocuments == null) {
+					observableDocuments = new GenericObservableList<EmployeeDocument>(Documents);
+				}
+				return observableDocuments;
+			}
+		}
+
+		DateTime? birthdayDate;
+
+		[Display(Name = "Дата рождения")]
+		public virtual DateTime? BirthdayDate {
+			get { return birthdayDate; }
+			set { SetField(ref birthdayDate,value,() => BirthdayDate); }
+		}
+
 		[Display(Name = "Тип")]
 		public abstract EmployeeType EmployeeType { get; set; }
-
-		string passportSeria;
-
-		[Display(Name = "Серия паспорта")]
-		public virtual string PassportSeria {
-			get { return passportSeria; }
-			set { SetField(ref passportSeria, value, () => PassportSeria); }
-		}
-
-		string passportNumber;
-
-		[Display(Name = "Номер паспорта")]
-		public virtual string PassportNumber {
-			get { return passportNumber; }
-			set { SetField(ref passportNumber, value, () => PassportNumber); }
-		}
-
-		string passportIssuedOrg;
-
-		[Display(Name = "Кем выдан паспорт")]
-		public virtual string PassportIssuedOrg {
-			get { return passportIssuedOrg; }
-			set { SetField(ref passportIssuedOrg, value, () => PassportIssuedOrg); }
-		}
-
-		private DateTime? passportIssuedDate;
-
-		[Display(Name = "Дата выдачи паспорта")]
-		public virtual DateTime? PassportIssuedDate {
-			get { return passportIssuedDate; }
-			set { SetField(ref passportIssuedDate, value, () => PassportIssuedDate); }
-		}
 
 		string drivingNumber;
 
@@ -125,6 +137,16 @@ namespace Vodovoz.Domain.Employees
 		public virtual IList<QSContacts.Phone> Phones {
 			get { return phones; }
 			set { SetField(ref phones, value, () => Phones); }
+		}
+
+
+
+		IList<EmployeeContract> contracts = new List<EmployeeContract>();
+
+		[Display(Name = "Документы")]
+		public virtual IList<EmployeeContract> Contracts {
+			get { return contracts; }
+			set { SetField(ref contracts, value, () => Contracts); }
 		}
 
 		Nationality nationality;
@@ -181,6 +203,16 @@ namespace Vodovoz.Domain.Employees
 
 		#endregion
 
+		public virtual List<EmployeeDocument> GetMainDocuments()
+		{
+			List<EmployeeDocument> mainDocuments = new List<EmployeeDocument>(); 
+			foreach(var doc in Documents) {
+				if(doc.MainDocument == true)
+					mainDocuments.Add(doc);
+			}
+			return mainDocuments;
+		}
+
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -195,6 +227,14 @@ namespace Vodovoz.Domain.Employees
 
 			if(employees.Count > 0)
 				yield return new ValidationResult("Сотрудник уже существует", new[] { "Duplication" });
+
+			List<EmployeeDocument> mainDocuments = GetMainDocuments();
+			if(mainDocuments.Count <= 0)
+				yield return new ValidationResult(String.Format("У сотрудника должен присутствовать главный документ"),
+							new[] { this.GetPropertyName(x => x.Documents) });
+			if(mainDocuments.Count > 1)
+				yield return new ValidationResult(String.Format("Сотрудник может иметь только один главный документ"),
+							new[] { this.GetPropertyName(x => x.Documents) });
 		}
 
 		#endregion
@@ -259,16 +299,13 @@ namespace Vodovoz.Domain.Employees
 		#endregion
 	}
 
+
 	public interface IPersonnel : IDomainObject, IBusinessObject, IAccountOwner
 	{
 		DateTime CreationDate { get; set; }
 		string Name { get; set; }
 		string LastName { get; set; }
 		string Patronymic { get; set; }
-		string PassportSeria { get; set; }
-		string PassportNumber { get; set; }
-		string PassportIssuedOrg { get; set; }
-		DateTime? PassportIssuedDate { get; set; }
 		string DrivingNumber { get; set; }
 		string AddressRegistration { get; set; }
 		string AddressCurrent { get; set; }

@@ -30,6 +30,14 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref category, value, () => Category); }
 		}
 
+		RegistrationType? registration;
+
+		[Display(Name = "Оформление")]
+		public virtual RegistrationType? Registration {
+			get { return registration; }
+			set { SetField(ref registration, value, () => Registration); }
+		}
+
 		string androidLogin;
 
 		[Display(Name = "Логин для Android приложения")]
@@ -92,6 +100,27 @@ namespace Vodovoz.Domain.Employees
 		public virtual DateTime? FirstWorkDay {
 			get { return firstWorkDay; }
 			set { SetField(ref firstWorkDay, value, () => FirstWorkDay); }
+		}
+
+	
+
+		IList<EmployeeContract> contracts = new List<EmployeeContract>();
+
+		[Display(Name = "Договора")]
+		public virtual IList<EmployeeContract> Contracts {
+			get { return contracts; }
+			set { SetField(ref contracts, value, () => Contracts); }
+		}
+
+		GenericObservableList<EmployeeContract> observableContracts;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<EmployeeContract> ObservableContracts {
+			get {
+				if(observableContracts == null) {
+					observableContracts = new GenericObservableList<EmployeeContract>(Contracts);
+				}
+				return observableContracts;
+			}
 		}
 
 		private DeliveryDaySchedule defaultDaySheldule;
@@ -197,19 +226,20 @@ namespace Vodovoz.Domain.Employees
 			Name = String.Empty;
 			LastName = String.Empty;
 			Patronymic = String.Empty;
-			PassportSeria = String.Empty;
-			PassportNumber = String.Empty;
 			DrivingNumber = String.Empty;
 			Category = EmployeeCategory.office;
 			AddressRegistration = String.Empty;
 			AddressCurrent = String.Empty;
 		}
 
+
 		#region IValidatableObject implementation
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			base.Validate(validationContext);
+			foreach(var item in base.Validate(validationContext)) {
+				yield return item;
+			}
 
 			if(!String.IsNullOrEmpty(AndroidLogin)) {
 				Employee exist = EmployeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
@@ -220,7 +250,7 @@ namespace Vodovoz.Domain.Employees
 
 			if(Category == EmployeeCategory.driver && !WageCalcType.HasValue) 
 				yield return new ValidationResult("Для водителя необходимо указать тип расчёта заработной платы.", new[] { this.GetPropertyName(x => x.WageCalcType) });
-
+				
 		}
 
 		#endregion
@@ -274,6 +304,14 @@ namespace Vodovoz.Domain.Employees
 		forwarder
 	}
 
+	public enum RegistrationType
+	{
+		[Display(Name = "ТК РФ")]
+		LaborCode,
+		[Display(Name = "ГПК")]
+		Contract,
+	}
+
 	public enum EmployeeType
 	{
 		[Display(Name = "Сотрудник")]
@@ -301,6 +339,13 @@ namespace Vodovoz.Domain.Employees
 	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType
 	{
 		public EmployeeCategoryStringType () : base (typeof(EmployeeCategory))
+		{
+		}
+	}
+
+	public class RegistrationTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public RegistrationTypeStringType() : base(typeof(RegistrationType))
 		{
 		}
 	}
