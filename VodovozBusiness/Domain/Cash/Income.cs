@@ -167,7 +167,11 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual void AcceptSelfDeliveryPaid()
 		{
-			Order.SelfDeliveryAcceptCashPaid(Money, 0);
+			if(Id == 0) {
+				Order.AcceptSelfDeliveryIncomeCash(Money);
+			} else {
+				Order.AcceptSelfDeliveryIncomeCash(Money, Id);
+			}
 		}
 
 		public virtual void PrepareCloseAdvance(List<Expense> advances)

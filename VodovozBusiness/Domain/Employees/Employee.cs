@@ -236,7 +236,9 @@ namespace Vodovoz.Domain.Employees
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			base.Validate(validationContext);
+			foreach(var item in base.Validate(validationContext)) {
+				yield return item;
+			}
 
 			if(!String.IsNullOrEmpty(AndroidLogin)) {
 				Employee exist = Repository.EmployeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
