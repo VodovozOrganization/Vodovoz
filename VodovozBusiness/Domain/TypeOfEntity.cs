@@ -3,14 +3,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Utilities;
 using QS.DomainModel.Entity;
 
-namespace Vodovoz.Domain
+namespace Vodovoz
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 	NominativePlural = "типы документов",
 	Nominative = "тип документа")]
-	public class EntityType : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class TypeOfEntity : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		public EntityType() { }
+		public TypeOfEntity() { }
 
 		#region Свойства
 
@@ -30,7 +30,9 @@ namespace Vodovoz.Domain
 			set => SetField(ref type, value, () => Type);
 		}
 
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		#endregion
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(CustomName))
 				yield return new ValidationResult(
@@ -44,7 +46,5 @@ namespace Vodovoz.Domain
 					new[] { this.GetPropertyName(o => o.Type) }
 				);
 		}
-
-		#endregion
 	}
 }

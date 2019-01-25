@@ -1092,4 +1092,13 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new OrdersByDistrictsAndDeliverySchedulesReport())
 		);
 	}
+
+	protected void OnActionTypesOfEntitiesActivated(object sender, EventArgs e)
+	{
+		if(QSMain.User.Admin)
+			tdiMain.OpenTab(
+				OrmReference.GenerateHashName<TypeOfEntity>(),
+				() => new OrmReference(typeof(TypeOfEntity))
+			);
+	}
 }

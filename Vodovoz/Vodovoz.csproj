@@ -1069,6 +1069,8 @@
     <Compile Include="Representations\WarehousesVM.cs" />
     <Compile Include="JournalViewers\WarehousesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.WarehousesView.cs" />
+    <Compile Include="Dialogs\TypeOfEntityDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.TypeOfEntityDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

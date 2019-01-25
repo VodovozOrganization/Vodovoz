@@ -218,6 +218,14 @@ namespace Vodovoz
 
 			#region Простые справочники
 			OrmMain.AddObjectDescription<Subdivision>().Dialog<SubdivisionDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Руководитель", x => x.Chief.ShortName).SearchColumn("Номер", x => x.Id.ToString()).TreeConfig(new RecursiveTreeConfig<Subdivision>(x => x.ParentSubdivision, x => x.ChildSubdivisions)).End();
+			OrmMain.AddObjectDescription<TypeOfEntity>()
+				   .Dialog<TypeOfEntityDlg>()
+				   .DefaultTableView()
+				   .SearchColumn("Тип документа", x => x.Type)
+				   .SearchColumn("Название документа", x => x.CustomName)
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .OrderAsc(x => x.CustomName)
+				   .End();
 			OrmMain.AddObjectDescription<Employee>().Dialog<EmployeeDlg>().DefaultTableView()
 			       .Column("Код", x => x.Id.ToString())
 			       .SearchColumn("Ф.И.О.", x => x.FullName)
