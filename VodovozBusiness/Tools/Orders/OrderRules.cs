@@ -204,7 +204,7 @@ namespace Vodovoz.Tools.Orders
 		static bool GetConditionForUPD(OrderStateKey key) =>
 		(
 			GetConditionForBill(key)
-			&& key.OrderStatus >= OrderStatus.Accepted
+			&& (key.OrderStatus >= OrderStatus.Accepted || (key.OrderStatus == OrderStatus.WaitForPayment && key.IsSelfDelivery && key.PayAfterShipment))
 		);
 
 		static bool GetConditionForSpecialUPD(OrderStateKey key) =>
