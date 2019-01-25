@@ -12,7 +12,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repositories.Store;
 using Vodovoz.ViewWidgets.Store;
 
 namespace Vodovoz
@@ -107,7 +106,14 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			if(!CarUnloadRepository.IsUniqDocument(UoW,Entity.RouteList,Entity.Warehouse,Entity.Id)) 
+			CarUnloadDocument carUnloadDocument = null;
+			var getSimilarCarUnloadDoc = QueryOver.Of<CarUnloadDocument>(() => carUnloadDocument)
+									.Where(() => carUnloadDocument.RouteList.Id == Entity.RouteList.Id)
+									.Where(() => carUnloadDocument.Warehouse.Id == Entity.Warehouse.Id);
+			IList<CarUnloadDocument> documents = getSimilarCarUnloadDoc.GetExecutableQueryOver(UoW.Session)
+				.List();
+
+			if(documents.Count>0) 
 			{
 				MessageDialogWorks.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
 				return false;
