@@ -6,15 +6,14 @@ using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using Pango;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSProjectsLib;
-using QS.Tdi;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Chats;
 using Vodovoz.ServiceDialogs.Chat;
 using Vodovoz.ViewModel;
@@ -48,7 +47,7 @@ namespace Vodovoz
 			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
 			if (currentEmployee == null)
 			{
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к сотруднику. Чат не будет работать.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к сотруднику. Чат не будет работать.");
 			}
 			else
 			{

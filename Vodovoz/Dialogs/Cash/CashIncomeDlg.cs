@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz
 {
@@ -21,10 +23,10 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
-			Entity.Casher = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Casher = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Casher == null)
 			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
+				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
 				FailInitialize = true;
 				return;
 			}

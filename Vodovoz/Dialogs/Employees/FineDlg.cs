@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gamma.Utilities;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QSOrmProject;
@@ -10,7 +11,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalViewers;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 
@@ -246,7 +247,7 @@ namespace Vodovoz
             cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
             if (cashier == null)
             {
-                MessageDialogWorks.RunErrorDialog(
+                MessageDialogHelper.RunErrorDialog(
                     "Ваш пользователь не привязан к действующему сотруднику.");
                 return false;
             }

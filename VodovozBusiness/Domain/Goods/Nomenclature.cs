@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
-using QSBusinessCommon.Domain;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.DomainModel.UoW;
+using QSBusinessCommon.Domain;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
-using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Goods
 {

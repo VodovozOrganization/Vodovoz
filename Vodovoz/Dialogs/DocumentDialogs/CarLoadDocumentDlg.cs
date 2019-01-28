@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using QS.Dialog.GtkUI;
 using NHibernate.Criterion;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -14,12 +15,13 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repositories.Store;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz
 {
 	public partial class CarLoadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarLoadDocument>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		bool editing = false;
 		public CarLoadDocumentDlg()
 		{
@@ -29,13 +31,12 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public CarLoadDocumentDlg (int routeListId, int? warehouseId)
+		public CarLoadDocumentDlg(int routeListId, int? warehouseId)
 		{
 			this.Build();
 			ConfigureNewDoc();
 
-			if (warehouseId.HasValue)
-			{
+			if(warehouseId.HasValue) {
 				Entity.Warehouse = UoW.GetById<Warehouse>(warehouseId.Value);
 
 			}
@@ -43,23 +44,21 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public CarLoadDocumentDlg (int id)
+		public CarLoadDocumentDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarLoadDocument> (id);
-			ConfigureDlg ();
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarLoadDocument>(id);
+			ConfigureDlg();
 		}
 
-		public CarLoadDocumentDlg (CarLoadDocument sub) : this (sub.Id)
-		{
-		}
+		public CarLoadDocumentDlg(CarLoadDocument sub) : this(sub.Id) { }
 
 		void ConfigureNewDoc()
 		{
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarLoadDocument>();
-			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
@@ -67,7 +66,7 @@ namespace Vodovoz
 			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.CarLoadEdit);
 		}
 
-		void ConfigureDlg ()
+		void ConfigureDlg()
 		{
 			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.CarLoadEdit, Entity.Warehouse)) {
 				FailInitialize = true;
@@ -75,12 +74,12 @@ namespace Vodovoz
 			}
 
 			editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarLoadEdit, Entity.Warehouse);
-			yentryrefRouteList.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
+			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			carloaddocumentview1.Sensitive = editing;
-			
+
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.CarLoadEdit);
-			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
+			ySpecCmbWarehouses.ItemsList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.CarLoadEdit);
+			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new RouteListsFilter(UoW);
 			filter.SetAndRefilterAtOnce(x => x.RestrictStatus = RouteListStatus.InLoading);
@@ -98,9 +97,10 @@ namespace Vodovoz
 			carloaddocumentview1.SetButtonEditing(editing);
 			if(UoW.IsNew && Entity.Warehouse != null)
 				carloaddocumentview1.FillItemsByWarehouse();
+			ySpecCmbWarehouses.ItemSelected += OnYSpecCmbWarehousesItemSelected;
 		}
 
-		public override bool Save ()
+		public override bool Save()
 		{
 			if(!CarLoadRepository.IsUniqDocument(UoW, Entity.RouteList, Entity.Warehouse,Entity.Id)) 
 			{
@@ -112,62 +112,59 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditor == null)
-			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+			if(Entity.LastEditor == null) {
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
-			if(Entity.Items.Any(x => x.Amount == 0))
-			{
-				if (MessageDialogWorks.RunQuestionDialog("В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?"))
+			if(Entity.Items.Any(x => x.Amount == 0)) {
+				if(MessageDialogHelper.RunQuestionDialog("В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?"))
 					Entity.ClearItemsFromZero();
 			}
 
 			Entity.UpdateOperations(UoW);
 
-			logger.Info ("Сохраняем погрузочный талон...");
-			UoWGeneric.Save ();
+			logger.Info("Сохраняем погрузочный талон...");
+			UoWGeneric.Save();
 
-			logger.Info ("Меняем статус маршрутного листа...");
-			if (Entity.RouteList.ShipIfCan(UoW))
-				MessageDialogWorks.RunInfoDialog("Маршрутный лист отгружен полностью.");
+			logger.Info("Меняем статус маршрутного листа...");
+			if(Entity.RouteList.ShipIfCan(UoW))
+				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			UoW.Save(Entity.RouteList);
 			UoW.Commit();
 
-			logger.Info ("Ok.");
+			logger.Info("Ok.");
 			return true;
 		}
 
 		void UpdateRouteListInfo()
 		{
-			if(Entity.RouteList == null)
-			{
+			if(Entity.RouteList == null) {
 				ytextviewRouteListInfo.Buffer.Text = String.Empty;
 				return;
 			}
 
 			ytextviewRouteListInfo.Buffer.Text =
-				String.Format ("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
+				String.Format("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
 					Entity.RouteList.Id,
 					Entity.RouteList.Date,
 					Entity.RouteList.Driver.FullName,
 					Entity.RouteList.Car.Model,
 					Entity.RouteList.Car.RegistrationNumber,
-					Entity.RouteList.Forwarder != null ? Entity.RouteList.Forwarder.FullName : "(Отсутствует)" 
+					Entity.RouteList.Forwarder != null ? Entity.RouteList.Forwarder.FullName : "(Отсутствует)"
 				);
 		}
 
 		protected void OnYentryrefRouteListChangedByUser(object sender, EventArgs e)
 		{
 			UpdateRouteListInfo();
-			if (Entity.Warehouse != null && Entity.RouteList != null)
+			if(Entity.Warehouse != null && Entity.RouteList != null)
 				carloaddocumentview1.FillItemsByWarehouse();
 		}
 
-		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
+		protected void OnYSpecCmbWarehousesItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			Entity.UpdateStockAmount(UoW);
 			carloaddocumentview1.UpdateAmounts();

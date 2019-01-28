@@ -276,13 +276,15 @@
         <CommandText>SELECT 
     delivery_date, 
     counterparty.name AS counterparty,
-    address_1c, 
+    delivery_points.compiled_address as address_1c,
     phone_from_1c,
     (debts.bottle_debt - IFNULL(forfeits.forfeitCount,0)) as bottle_debt
 FROM
     orders
         LEFT JOIN
     counterparty ON orders.client_id = counterparty.id
+		LEFT JOIN 
+	delivery_points ON orders.delivery_point_id=delivery_points.id
         LEFT JOIN
     (SELECT delivery_point_id, (SUM(delivered) - SUM(returned)) as bottle_debt 
 			FROM bottles_movement_operations GROUP BY delivery_point_id) as debts ON debts.delivery_point_id = orders.delivery_point_id
@@ -303,22 +305,27 @@ FROM
 				base_parameters.name = 'forfeit_nomenclature_id'
 				OR  base_parameters.name = 'forfeit1с_nomenclature_id')
 	GROUP BY orders.delivery_point_id
-    ) as forfeits ON forfeits.delivery_point = orders.delivery_point_id 	
+    ) as forfeits ON forfeits.delivery_point = orders.delivery_point_id
 WHERE
-    delivery_date = DATE(@date)
-        AND NOT order_status IN ('Canceled', 'DeliveryCanceled')
-        AND NOT EXISTS( SELECT 
-            *
-        FROM
-            orders AS t2
-        WHERE
-            t2.delivery_point_id = orders.delivery_point_id
-                AND t2.delivery_date &gt; DATE(@date)
+		delivery_date = DATE(@date)
+        AND ((@is_sort_bottles = true AND debts.bottle_debt &gt;= @bottles_count) OR (@is_sort_bottles = false)) 
+        AND order_status IN ('Canceled', 'DeliveryCanceled')
+        AND NOT EXISTS( SELECT * FROM orders AS t2
+				WHERE
+				t2.delivery_point_id = orders.delivery_point_id
+				AND t2.delivery_date = DATE(@date)
                 AND NOT t2.order_status IN ('Canceled', 'DeliveryCanceled'))
-GROUP BY orders.delivery_point_id</CommandText>
+GROUP BY orders.delivery_point_id
+ORDER BY debts.bottle_debt DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
+          </QueryParameter>
+          <QueryParameter Name="bottles_count">
+            <Value>=Parameters!bottles_count</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_sort_bottles">
+            <Value>=Parameters!is_sort_bottles</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -348,16 +355,6 @@ GROUP BY orders.delivery_point_id</CommandText>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
-    <ReportParameter Name="date">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
-    </ReportParameter>
-  </ReportParameters>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -367,4 +364,28 @@ GROUP BY orders.delivery_point_id</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="bottles_count">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="is_sort_bottles">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+  </ReportParameters>
 </Report>

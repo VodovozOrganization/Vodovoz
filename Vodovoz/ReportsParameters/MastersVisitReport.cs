@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
 using QS.Dialog;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
-using QSOrmProject;
-using QSProjectsLib;
 using QSReport;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -65,7 +64,7 @@ namespace Vodovoz.ReportsParameters
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
 			if(dateperiodpicker.StartDateOrNull == null) {
-				MessageDialogWorks.RunErrorDialog("Необходимо выбрать дату");
+				MessageDialogHelper.RunErrorDialog("Необходимо выбрать дату");
 				return;
 			}
 			OnUpdate(true);

@@ -2,17 +2,17 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSBanks;
-using QSOrmProject;
+using QSBanks.Repositories;
 using QSProjectsLib;
-using QS.Tdi;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
-using QSBanks.Repositories;
 
 namespace Vodovoz
 {
@@ -400,7 +400,7 @@ namespace Vodovoz
 		protected void OnButtonUploadClicked (object sender, EventArgs e)
 		{
 			if (!CheckAllCategoriesSelected ()) {
-				MessageDialogWorks.RunErrorDialog ("Не у всех отмеченных документов выбраны категории дохода/расхода.");
+				MessageDialogHelper.RunErrorDialog ("Не у всех отмеченных документов выбраны категории дохода/расхода.");
 				return;
 			}
 			FillCounterparties ();
@@ -459,7 +459,7 @@ namespace Vodovoz
 						if (cuow.Root.TypeOfOwnership != null)
 							cuow.Root.PersonType = PersonType.legal;
 						else {
-							if (MessageDialogWorks.RunQuestionDialog (
+							if (MessageDialogHelper.RunQuestionDialog (
 								    String.Format ("Не удалось определить тип контрагента. Контрагент \"{0}\" является юридическим лицом?", doc.PayerName)))
 								cuow.Root.PersonType = PersonType.legal;
 							else
@@ -511,7 +511,7 @@ namespace Vodovoz
 						if (cuow.Root.TypeOfOwnership != null)
 							cuow.Root.PersonType = PersonType.legal;
 						else {
-							if (MessageDialogWorks.RunQuestionDialog (
+							if (MessageDialogHelper.RunQuestionDialog (
 								    String.Format ("Не удалось определить тип контрагента. Контрагент \"{0}\" является юридическим лицом?", doc.RecipientName)))
 								cuow.Root.PersonType = PersonType.legal;
 							else

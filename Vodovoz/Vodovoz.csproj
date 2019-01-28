@@ -1057,9 +1057,19 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.SelfDeliveryOrderEditDlg.cs" />
     <Compile Include="ReportsParameters\Logistic\OrdersByDistrictsAndDeliverySchedulesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.OrdersByDistrictsAndDeliverySchedulesReport.cs" />
+    <Compile Include="Dialogs\Employees\EmployeeDocDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.EmployeeDocDlg.cs" />
+    <Compile Include="Dialogs\Employees\EmployeeContractDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.EmployeeContractDlg.cs" />
+    <Compile Include="ViewWidgets\SaveTemplateWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SaveTemplateWidget.cs" />
     <Compile Include="Dialogs\Logistic\LogisticAreasEditDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.LogisticAreasEditDlg.cs" />
     <Compile Include="Dialogs\Store\CarLoadRepository.cs" />
+    <Compile Include="Representations\SubdivisionsVM.cs" />
+    <Compile Include="Representations\WarehousesVM.cs" />
+    <Compile Include="JournalViewers\WarehousesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.WarehousesView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

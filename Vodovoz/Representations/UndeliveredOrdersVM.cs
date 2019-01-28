@@ -10,9 +10,8 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSOrmProject;
+using QS.Utilities.Text;
 using QSOrmProject.RepresentationModel;
-using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -20,7 +19,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repositories;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Representations
 {
@@ -510,7 +509,7 @@ namespace Vodovoz.Representations
 		[UseForSearch]
 		[SearchHighlight]
 		public virtual string Reason { get; set; }
-		public virtual string OldOrderAuthor { get => StringWorks.PersonNameWithInitials(OldOrderAuthorLastName, OldOrderAuthorFirstName, OldOrderAuthorMidleName); set {; } }
+		public virtual string OldOrderAuthor { get => PersonHelper.PersonNameWithInitials(OldOrderAuthorLastName, OldOrderAuthorFirstName, OldOrderAuthorMidleName); set {; } }
 		[UseForSearch]
 		[SearchHighlight]
 		public virtual string Guilty { get; set; }
@@ -552,8 +551,8 @@ namespace Vodovoz.Representations
 			set {; } 
 		}
 		public virtual string ActionWithInvoice { get => NewOrderId > 0 ? NewOrderId.ToString() : "Новый заказ\nне создан"; set {; } }
-		public virtual string Registrator { get => StringWorks.PersonNameWithInitials(RegistratorLastName, RegistratorFirstName, RegistratorMidleName); set {; } }
-		public virtual string UndeliveryAuthor { get => StringWorks.PersonNameWithInitials(AuthorLastName, AuthorFirstName, AuthorMidleName); set {; } }
+		public virtual string Registrator { get => PersonHelper.PersonNameWithInitials(RegistratorLastName, RegistratorFirstName, RegistratorMidleName); set {; } }
+		public virtual string UndeliveryAuthor { get => PersonHelper.PersonNameWithInitials(AuthorLastName, AuthorFirstName, AuthorMidleName); set {; } }
 		public virtual string Status { get => UndeliveryStatus.GetEnumTitle(); set {; } }
 		public virtual string FinedPeople { get => Fined ?? "Не выставлено"; set {; } }
 		public virtual string OldOrderStatus { get => String.Format("{0}\n\t↓\n{1}", StatusOnOldOrderCancel.GetEnumTitle(), OldOrderCurStatus.GetEnumTitle()); set {; } }

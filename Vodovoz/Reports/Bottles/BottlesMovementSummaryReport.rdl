@@ -289,7 +289,7 @@ FROM
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>44.2pt</Width>
+            <Width>30.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>77.7pt</Width>
@@ -307,22 +307,22 @@ FROM
             <Width>48.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>59.8pt</Width>
+            <Width>55.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.8pt</Width>
+            <Width>44.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.8pt</Width>
+            <Width>30.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>28.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.9pt</Width>
+            <Width>43.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.4pt</Width>
+            <Width>40.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>

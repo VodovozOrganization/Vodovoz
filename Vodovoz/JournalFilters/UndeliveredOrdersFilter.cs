@@ -8,6 +8,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.JournalFilters
@@ -22,7 +23,7 @@ namespace Vodovoz.JournalFilters
 			enumCMBUndeliveryStatus.ItemsEnum = typeof(UndeliveryStatus);
 			enumCMBUndeliveryStatus.SelectedItem = UndeliveryStatus.InProcess;
 			yEnumCMBActionWithInvoice.ItemsEnum = typeof(ActionsWithInvoice);
-			ySpecCMBinProcessAt.ItemsList = ySpecCMBGuiltyDep.ItemsList = Repository.EmployeeRepository.Subdivisions(UoW);
+			ySpecCMBinProcessAt.ItemsList = ySpecCMBGuiltyDep.ItemsList = EmployeeRepository.Subdivisions(UoW);
 
 			refOldOrder.RepresentationModel = new OrdersVM(new OrdersFilter(UoW));
 			refOldOrder.CanEditReference = QSMain.User.Permissions["can_delete"];

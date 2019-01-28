@@ -1,10 +1,10 @@
 ﻿using System;
 using Gamma.Binding;
 using Gtk;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Tdi.Gtk;
-using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
@@ -60,7 +60,7 @@ namespace Vodovoz.JournalViewers
 			this.TabName = "Журнал недовозов";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			undeliveredOrdersFilter.Visible = checkShowFilter.Active;
-			yTreeViewUndeliveries.Selection.Changed += OnYTreeViewUndeliveriesSelectionChanged; ;
+			yTreeViewUndeliveries.Selection.Changed += OnYTreeViewUndeliveriesSelectionChanged;
 		}
 
 		public virtual void HideFilterAndControls(){
@@ -129,7 +129,7 @@ namespace Vodovoz.JournalViewers
 			dlg.EntitySaved += (s,ea) => Refresh();
 			var tdiMain = MainClass.MainWin.TdiMain;
 			tdiMain.OpenTab(
-				OrmMain.GenerateDialogHashName<Domain.Orders.Order>(oldOrdersId),
+				DialogHelper.GenerateDialogHashName<Domain.Orders.Order>(oldOrdersId),
 				() => dlg
 			);
 		}
@@ -141,7 +141,7 @@ namespace Vodovoz.JournalViewers
 			dlg.EntitySaved += (s, ea) => Refresh();
 			var tdiMain = MainClass.MainWin.TdiMain;
 			tdiMain.OpenTab(
-				OrmMain.GenerateDialogHashName<Domain.Orders.Order>(newOrdersId),
+				DialogHelper.GenerateDialogHashName<Domain.Orders.Order>(newOrdersId),
 				() => dlg
 			);
 		}
@@ -151,7 +151,7 @@ namespace Vodovoz.JournalViewers
 			var tdiMain = MainClass.MainWin.TdiMain;
 			FineDlg fineDlg = new FineDlg(UoW.GetById<UndeliveredOrder>(menusSelected.Id));
 			tdiMain.OpenTab(
-				OrmMain.GenerateDialogHashName<Fine>(menusSelected.Id),
+				DialogHelper.GenerateDialogHashName<Fine>(menusSelected.Id),
 				() => fineDlg
 			);
 			fineDlg.EntitySaved += (sndr, eArgs) => Refresh();
@@ -239,7 +239,7 @@ namespace Vodovoz.JournalViewers
 				selectedId = yTreeViewUndeliveries.GetSelectedObject<UndeliveredOrdersVMNode>().Id;
 			var dlg = new UndeliveredOrderDlg(selectedId);
 			TabParent.OpenTab(
-				OrmMain.GenerateDialogHashName<UndeliveredOrder>(selectedId),
+				DialogHelper.GenerateDialogHashName<UndeliveredOrder>(selectedId),
 				() => dlg
 			);
 			dlg.CommentAdded += (s, ea) => Refresh();
@@ -286,7 +286,7 @@ namespace Vodovoz.JournalViewers
 			dlg.CommentAdded += (sender, e) => Refresh();
 			dlg.DlgSaved += dlg_DlgSaved;
 			TabParent.OpenTab(
-				OrmMain.GenerateDialogHashName<UndeliveredOrder>(selectedObj.Id),
+				DialogHelper.GenerateDialogHashName<UndeliveredOrder>(selectedObj.Id),
 				() => dlg,
 				this
 			);

@@ -24,6 +24,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
+using Vodovoz.JournalViewers;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Payments;
@@ -289,6 +290,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.AddTab(refWin);
 	}
 
+	protected void OnActionCitizenshipActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(Citizenship));
+		tdiMain.AddTab(refWin);
+	}
+
 	protected void OnActionEmploeyActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -406,8 +413,10 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionWarehousesActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(Warehouse));
-		tdiMain.AddTab(refWin);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<WarehousesView>(),
+			() => new WarehousesView()
+		);
 	}
 
 	protected void OnActionProductSpecificationActivated(object sender, EventArgs e)

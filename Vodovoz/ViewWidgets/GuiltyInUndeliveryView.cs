@@ -1,9 +1,8 @@
 ﻿using System;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.ViewWidgets
 {

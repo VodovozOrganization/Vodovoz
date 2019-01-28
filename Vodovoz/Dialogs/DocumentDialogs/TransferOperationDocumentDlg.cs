@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using NLog;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Operations;
 using Vodovoz.ViewModel;
 
@@ -25,9 +25,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<TransferOperationDocument>();
 			TabName = "Новый перенос между точками доставки";
 			ConfigureDlg();
-			Entity.Author = Entity.ResponsiblePerson = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = Entity.ResponsiblePerson = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
@@ -79,11 +79,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return false;
 			
 
-			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.TimeStamp = datepickerDate.Date;
 		//	Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 

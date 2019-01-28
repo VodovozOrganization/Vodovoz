@@ -2,7 +2,6 @@
 using System.Linq;
 using Gtk;
 using NLog;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Helpers;
 using QSBusinessCommon.Domain;
@@ -14,6 +13,7 @@ using Vodovoz.Additions.Store;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModel;

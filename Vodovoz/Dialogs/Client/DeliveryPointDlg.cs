@@ -9,7 +9,10 @@ using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using NHibernate.Criterion;
 using NLog;
+using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Repositories;
 using QS.Tdi.Gtk;
 using QSOrmProject;
 using QSOsm.DTO;
@@ -19,7 +22,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.JournalFilters;
-using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
@@ -230,7 +232,7 @@ namespace Vodovoz
 				addressMoving = false;
 				var newPoint = MapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
 				if(!Entity.ManualCoordinates && Entity.FoundOnOsm) {
-					if(!MessageDialogWorks.RunQuestionDialog("Координаты точки установлены по адресу. Вы уверены что хотите установить новые координаты?")) {
+					if(!MessageDialogHelper.RunQuestionDialog("Координаты точки установлены по адресу. Вы уверены что хотите установить новые координаты?")) {
 						UpdateAddressOnMap();
 						return;
 					}
@@ -296,7 +298,7 @@ namespace Vodovoz
 		void OpenCounterparty(object sender, EventArgs e)
 		{
 			TabParent.OpenTab(
-				OrmMain.GenerateDialogHashName<Counterparty>(Entity.Counterparty.Id),
+				DialogHelper.GenerateDialogHashName<Counterparty>(Entity.Counterparty.Id),
 				() => new CounterpartyDlg(Entity.Counterparty.Id)
 			);
 		}
@@ -325,7 +327,7 @@ namespace Vodovoz
 				streetBeforeChange = entryStreet.Street;
 				buildingBeforeChange = entryBuilding.House;
 
-				if(!Entity.ManualCoordinates || (Entity.ManualCoordinates && MessageDialogWorks.RunQuestionDialog("Координаты были установлены вручную, заменить их на коордитаты адреса?"))) {
+				if(!Entity.ManualCoordinates || (Entity.ManualCoordinates && MessageDialogHelper.RunQuestionDialog("Координаты были установлены вручную, заменить их на коордитаты адреса?"))) {
 					WriteCoordinates(latitude, longitude);
 					Entity.ManualCoordinates = false;
 				}
@@ -371,7 +373,7 @@ namespace Vodovoz
 		public override bool Save()
 		{
 			if(!Entity.CoordinatesExist) {
-				if(!MessageDialogWorks.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
+				if(!MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 					return false;
 			}
 
@@ -463,7 +465,7 @@ namespace Vodovoz
 				}
 			}
 			if(error)
-				MessageDialogWorks.RunErrorDialog(
+				MessageDialogHelper.RunErrorDialog(
 					"Буфер обмена не содержит координат или содержит неправильные координаты");
 		}
 
@@ -475,7 +477,7 @@ namespace Vodovoz
 			}
 
 			Entity.SetСoordinates(latitude, longitude);
-			Entity.СoordsLastChangeUser = UserRepository.GetCurrentUser(UnitOfWorkFactory.CreateWithoutRoot());
+			Entity.СoordsLastChangeUser = Repositories.HumanResources.UserRepository.GetCurrentUser(UnitOfWorkFactory.CreateWithoutRoot());
 		}
 
 		/// <summary>
