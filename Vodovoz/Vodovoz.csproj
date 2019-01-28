@@ -1065,6 +1065,7 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SaveTemplateWidget.cs" />
     <Compile Include="Dialogs\Logistic\LogisticAreasEditDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.LogisticAreasEditDlg.cs" />
+    <Compile Include="Dialogs\Store\CarLoadRepository.cs" />
     <Compile Include="Representations\SubdivisionsVM.cs" />
     <Compile Include="Representations\WarehousesVM.cs" />
     <Compile Include="JournalViewers\WarehousesView.cs" />

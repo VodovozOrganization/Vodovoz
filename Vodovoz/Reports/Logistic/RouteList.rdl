@@ -65,7 +65,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>247.2pt</Height>
+    <Height>262.9pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox3">
@@ -832,7 +832,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
-                        <FontWeight >=Iif(
+                        <FontWeight>=Iif(
     {has_comment_for_driver} = true,
     'Bold',
     'Normal'
@@ -1205,7 +1205,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value><!--table_cell_total_without_stock--></Value>
+                      <Value>
+                        <!--table_cell_total_without_stock-->
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1258,7 +1260,7 @@
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>38.4pt</Top>
+        <Top>59.7pt</Top>
       </Table>
       <Textbox Name="Textbox5">
         <Height>24.02pt</Height>
@@ -1279,8 +1281,8 @@
         <Width>166.38pt</Width>
         <Value>="ПРИНЯТО НА СКЛАДЕ"</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>157.00pt</Top>
+        <Left>0.0pt</Left>
+        <Top>178.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1298,7 +1300,7 @@
         <Value>="ПУСТЫХ:"</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>170.4pt</Top>
+        <Top>191.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1316,7 +1318,7 @@
         <Value>="БРАК: "</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>183.9pt</Top>
+        <Top>205.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1334,7 +1336,7 @@
         <Value>="ПОЛНЫХ:"</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>199.2pt</Top>
+        <Top>220.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1351,8 +1353,8 @@
         <Width>166.38pt</Width>
         <Value>="Нач. склада ____________"</Value>
         <ZIndex>1</ZIndex>
-        <Left>456.0pt</Left>
-        <Top>164.3pt</Top>
+        <Left>442.7pt</Left>
+        <Top>185.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1369,8 +1371,8 @@
         <Width>166.38pt</Width>
         <Value>="Водитель ______________"</Value>
         <ZIndex>1</ZIndex>
-        <Left>455.8pt</Left>
-        <Top>188.4pt</Top>
+        <Left>442.5pt</Left>
+        <Top>209.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1400,8 +1402,8 @@
         <Width>628.68pt</Width>
         <Value>В случае возникновения проблем с мобильным приложением ОБЯЗАТЕЛЬНО звонить в IT-отдел по тел.: +7-953-165-93-98</Value>
         <ZIndex>1</ZIndex>
-        <Left>4.40pt</Left>
-        <Top>137.91pt</Top>
+        <Left>0.0pt</Left>
+        <Top>159.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1415,7 +1417,7 @@
         <Value>ПОДПИСЬ КЛАДОВЩИКА __________     ПОДПИСЬ ВОДИТЕЛЯ _________</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>214.1pt</Top>
+        <Top>235.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1446,8 +1448,8 @@
         <Width>183.64pt</Width>
         <Value>="Грузоподъёмность: " +First({max_weight} , "RouteList") + " кг."</Value>
         <ZIndex>1</ZIndex>
-        <Left>204.40pt</Left>
-        <Top>157.80pt</Top>
+        <Left>191.1pt</Left>
+        <Top>179.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1459,8 +1461,21 @@
         <Width>191.13pt</Width>
         <Value>="Тонаж МЛ: " + Sum({Weight}, "Orders") + " кг."</Value>
         <ZIndex>1</ZIndex>
-        <Left>204.60pt</Left>
-        <Top>175.60pt</Top>
+        <Left>191.3pt</Left>
+        <Top>196.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox76" >
+        <Height>16.49pt</Height>
+        <Width>545.78pt</Width>
+        <Value>По вопросам тары звонить в офис по тел. 8-981-876-89-52</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>38.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />

@@ -10,9 +10,11 @@ using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
+using Vodovoz.Dialogs.Store;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repositories.Store;
 using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz
@@ -100,14 +102,8 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			CarLoadDocument carLoadDocument = null;
-			var getSimilarCarUnloadDoc = QueryOver.Of<CarLoadDocument>(() => carLoadDocument)
-									.Where(() => carLoadDocument.RouteList.Id == Entity.RouteList.Id)
-									.Where(() => carLoadDocument.Warehouse.Id == Entity.Warehouse.Id);
-			IList<CarLoadDocument> documents = getSimilarCarUnloadDoc.GetExecutableQueryOver(UoW.Session)
-				.List();
-
-			if(documents.Count > 0) {
+			if(!CarLoadRepository.IsUniqDocument(UoW, Entity.RouteList, Entity.Warehouse,Entity.Id)) 
+			{
 				MessageDialogWorks.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
 				return false;
 			}
