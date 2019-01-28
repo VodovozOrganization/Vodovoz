@@ -39,7 +39,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repositories;
 
 namespace Vodovoz
 {
@@ -222,15 +221,16 @@ namespace Vodovoz
 
 			#region Простые справочники
 			OrmMain.AddObjectDescription<Subdivision>().Dialog<SubdivisionDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Руководитель", x => x.Chief.ShortName).SearchColumn("Номер", x => x.Id.ToString()).TreeConfig(new RecursiveTreeConfig<Subdivision>(x => x.ParentSubdivision, x => x.ChildSubdivisions)).End();
-			/*OrmMain.AddObjectDescription<TypeOfEntity>()
+			OrmMain.AddObjectDescription<TypeOfEntity>()
 				   .Dialog<TypeOfEntityDlg>()
 				   .DefaultTableView()
 				   .SearchColumn("Тип документа", x => TypeOfEntityRepository.GetEntityNameByString(x.Type))
 				   .SearchColumn("Название документа", x => x.CustomName)
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .Column("Активно", x => !x.IsActive ? "нет" : String.Empty)
+				   .SearchColumn("Имя класса", x => x.Type)
 				   .OrderAsc(x => x.CustomName)
-				   .End();*/
+				   .End();
 			OrmMain.AddObjectDescription<Employee>().Dialog<EmployeeDlg>().DefaultTableView()
 			       .Column("Код", x => x.Id.ToString())
 			       .SearchColumn("Ф.И.О.", x => x.FullName)
