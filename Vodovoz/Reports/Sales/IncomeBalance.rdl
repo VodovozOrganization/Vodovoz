@@ -549,7 +549,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
-                      <Value>={FactIncome} - {PlanedIncome} - {NedovozSum} - {TransferedSum}</Value>
+                      <Value>={FactIncome} - {PlanedIncome} - {NedovozSum} - {TransferedSum} - {PhoneSum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
