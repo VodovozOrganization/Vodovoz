@@ -19,7 +19,7 @@
       <Textbox Name="Textbox2">
         <Height>23.82pt</Height>
         <Width>815.99pt</Width>
-        <Value>="Отчет по прибыли с " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " по " +  Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
+        <Value>="Отчет по кассе с " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " по " +  Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.80pt</Left>
         <Top>2.30pt</Top>
@@ -55,25 +55,25 @@
             <Width>41.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.9pt</Width>
+            <Width>43.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>84.4pt</Width>
+            <Width>85.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>70.9pt</Width>
+            <Width>67.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>78.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.0pt</Width>
+            <Width>64.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>60.8pt</Width>
+            <Width>52.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65.0pt</Width>
+            <Width>61.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>61.1pt</Width>
@@ -82,10 +82,10 @@
             <Width>56.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.9pt</Width>
+            <Width>58.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.9pt</Width>
+            <Width>101.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -148,7 +148,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>Водитель</Value>
+                      <Value>ФИО Водителя</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -165,7 +165,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>Приходники</Value>
+                      <Value>ПКО</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -175,6 +175,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Color>Black</Color>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -182,7 +183,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>Факт. приход</Value>
+                      <Value>План. приход</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -198,8 +199,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox18">
-                      <Value>План. приход</Value>
+                    <Textbox Name="Textbox77">
+                      <Value>Отклонение Факт-План</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -233,7 +234,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
-                      <Value>Недовозы</Value>
+                      <Value>в т.ч. недовозы</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -250,7 +251,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>Переносы</Value>
+                      <Value>в т.ч. переносы</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -284,7 +285,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>Неоп. остаток</Value>
+                      <Value>в т.ч. доп нал</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -301,7 +302,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>Фактический приход денег</Value>
+                      <Value>Неопределенный остаток</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -403,24 +404,6 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>={IncMinusExp}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox16">
                       <Value>={FactIncome}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -438,8 +421,26 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox19">
-                      <Value>=Fields!PlanedIncome.Value</Value>
+                    <Textbox Name="Textbox16">
+                      <Value>={PlanedIncome}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BackgroundColor>
+                        </BackgroundColor>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox78">
+                      <Value>={FactIncome} - {PlanedIncome}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -548,7 +549,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
-                      <Value>=Fields!CashIncomeDates.Value</Value>
+                      <Value>={FactIncome} - {PlanedIncome} - {NedovozSum} - {TransferedSum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -661,7 +662,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>=sum({FactIncome})</Value>
+                      <Value>=sum({PlanedIncome} )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -676,8 +677,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox20">
-                      <Value>=sum({PlanedIncome})</Value>
+                    <Textbox Name="Textbox79">
+                      <Value> =sum({PlanedIncome}  - {FactIncome})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -834,7 +835,7 @@
             <Width>92.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>119.2pt</Width>
+            <Width>99.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1491,7 +1492,14 @@ FROM
 	(SELECT	
 		route_lists.id as number,
 		route_lists.date as date,
-		employees.last_name as driver,
+		    CONCAT_WS('',
+			CONCAT(employees.last_name, ' '),
+			IF(employees.name = '',
+				'',
+				CONCAT(LEFT(employees.name, 1), '.')),
+			IF(employees.patronymic = '',
+				'',
+				CONCAT(LEFT(employees.patronymic, 1), '.'))) as driver,
 		#Фактический приход
 			(
 				SUM(
@@ -1536,10 +1544,14 @@ FROM
 		LEFT JOIN
 			(
 				SELECT 
-					orders.id as order_id,
-					IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))),2),0) as TotalOrdersSum
+					orders.id  as order_id,
+					IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))),2),0)+IFNULL(deposit_operations.received_deposit, 0) as TotalOrdersSum
+                    
 				FROM orders
 					LEFT JOIN order_items ON order_items.order_id = orders.id AND orders.payment_type = 'cash'
+                    LEFT JOIN deposit_operations ON deposit_operations.order_id=order_items.order_id
+                    LEFT JOIN route_list_addresses ON route_list_addresses.order_id=order_items.order_id
+                    WHERE route_list_addresses.transfered_to_id IS NULL AND route_list_addresses.was_transfered=0
 				GROUP BY orders.id
 			) as Orders ON Orders.order_id = route_list_addresses.order_id
 	#Недовозы
@@ -1629,7 +1641,7 @@ FROM
 			) AS CE ON CE.route_list_id = route_lists.id
 	WHERE
 		route_lists.status IN ('Closed', 'MileageCheck')
-		AND route_lists.date &gt;= @StartDate AND route_lists.date &lt;= @EndDate
+		AND route_lists.date &gt;= @StartDate  AND route_lists.date &lt;= @EndDate
 	GROUP BY route_lists.id
 	) as t
 ;</CommandText>
@@ -1694,7 +1706,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="IncomeAllStatus">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT	
 	route_lists.id as number,
@@ -1828,7 +1840,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.Int32</TypeName>

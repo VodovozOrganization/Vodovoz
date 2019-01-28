@@ -233,7 +233,7 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionDiscountReasons;
 
-	private global::Gtk.Action Action43;
+	private global::Gtk.Action Action54;
 
 	private global::Gtk.Action Action45;
 
@@ -510,7 +510,7 @@ public partial class MainWindow
 		this.ActionToolBarIcon.ShortLabel = global::Mono.Unix.Catalog.GetString("Только иконки");
 		w1.Add(this.ActionToolBarIcon, null);
 		this.ActionToolBarBoth = new global::Gtk.RadioAction("ActionToolBarBoth", global::Mono.Unix.Catalog.GetString("Иконки и Текст"), null, null, 0);
-		this.ActionToolBarBoth.Group = this.ActionToolBarText.Group;
+		this.ActionToolBarBoth.Group = this.ActionToolBarIcon.Group;
 		this.ActionToolBarBoth.ShortLabel = global::Mono.Unix.Catalog.GetString("Иконки и Текст");
 		w1.Add(this.ActionToolBarBoth, null);
 		this.ActionIconsExtraSmall = new global::Gtk.RadioAction("ActionIconsExtraSmall", global::Mono.Unix.Catalog.GetString("Очень маленькие иконки"), null, null, 0);
@@ -522,11 +522,11 @@ public partial class MainWindow
 		this.ActionIconsSmall.ShortLabel = global::Mono.Unix.Catalog.GetString("Маленькие иконки");
 		w1.Add(this.ActionIconsSmall, null);
 		this.ActionIconsMiddle = new global::Gtk.RadioAction("ActionIconsMiddle", global::Mono.Unix.Catalog.GetString("Средние иконки"), null, null, 0);
-		this.ActionIconsMiddle.Group = this.ActionIconsExtraSmall.Group;
+		this.ActionIconsMiddle.Group = this.ActionIconsSmall.Group;
 		this.ActionIconsMiddle.ShortLabel = global::Mono.Unix.Catalog.GetString("Средние иконки");
 		w1.Add(this.ActionIconsMiddle, null);
 		this.ActionIconsLarge = new global::Gtk.RadioAction("ActionIconsLarge", global::Mono.Unix.Catalog.GetString("Большие иконки"), null, null, 0);
-		this.ActionIconsLarge.Group = this.ActionIconsExtraSmall.Group;
+		this.ActionIconsLarge.Group = this.ActionIconsMiddle.Group;
 		this.ActionIconsLarge.ShortLabel = global::Mono.Unix.Catalog.GetString("Большие иконки");
 		w1.Add(this.ActionIconsLarge, null);
 		this.ActionDeliveryPoints = new global::Gtk.Action("ActionDeliveryPoints", global::Mono.Unix.Catalog.GetString("Точки доставки"), null, null);
@@ -683,9 +683,9 @@ public partial class MainWindow
 		this.ActionDiscountReasons = new global::Gtk.Action("ActionDiscountReasons", global::Mono.Unix.Catalog.GetString("Основания для скидок"), null, null);
 		this.ActionDiscountReasons.ShortLabel = global::Mono.Unix.Catalog.GetString("Основания для скидок");
 		w1.Add(this.ActionDiscountReasons, null);
-		this.Action43 = new global::Gtk.Action("Action43", global::Mono.Unix.Catalog.GetString("Отчет по прибыли"), null, null);
-		this.Action43.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по прибыли");
-		w1.Add(this.Action43, null);
+		this.Action54 = new global::Gtk.Action("Action54", global::Mono.Unix.Catalog.GetString("Отчет по кассе"), null, null);
+		this.Action54.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по прибыли");
+		w1.Add(this.Action54, null);
 		this.Action45 = new global::Gtk.Action("Action45", global::Mono.Unix.Catalog.GetString("Замена ссылок"), null, null);
 		this.Action45.ShortLabel = global::Mono.Unix.Catalog.GetString("Замена ссылок");
 		w1.Add(this.Action45, null);
@@ -862,7 +862,7 @@ public partial class MainWindow
 				"ndedBills\' action=\'ActionSendedBills\'/><menuitem name=\'OnLineAction\' action=\'OnL" +
 				"ineAction\'/></menu><menu name=\'ActionReportsSales\' action=\'ActionReportsSales\'><" +
 				"menuitem name=\'ActionSalesReport\' action=\'ActionSalesReport\'/><menuitem name=\'Ac" +
-				"tion43\' action=\'Action43\'/></menu><separator/><menu name=\'ActionReportsStock\' ac" +
+				"tion54\' action=\'Action54\'/></menu><separator/><menu name=\'ActionReportsStock\' ac" +
 				"tion=\'ActionReportsStock\'><menuitem name=\'ActionStockMovements\' action=\'ActionSt" +
 				"ockMovements\'/><menuitem name=\'Action50\' action=\'Action50\'/><menuitem name=\'Acti" +
 				"onDefectiveItemsReport\' action=\'ActionDefectiveItemsReport\'/></menu><menu name=\'" +
@@ -1096,7 +1096,7 @@ public partial class MainWindow
 		this.Action41.Activated += new global::System.EventHandler(this.OnActionEquipmentReportActivated);
 		this.ActionHistoryLog.Activated += new global::System.EventHandler(this.OnActionHistoryLogActivated);
 		this.ActionDiscountReasons.Activated += new global::System.EventHandler(this.OnActionDiscountReasonsActivated);
-		this.Action43.Activated += new global::System.EventHandler(this.OnAction43Activated);
+		this.Action54.Activated += new global::System.EventHandler(this.OnAction43Activated);
 		this.Action45.Activated += new global::System.EventHandler(this.OnAction45Activated);
 		this.ActionBottlesMovementSummaryReport.Activated += new global::System.EventHandler(this.OnActionBottlesMovementSummaryReportActivated);
 		this.ActionDriveingCalls.Activated += new global::System.EventHandler(this.OnActionDriveingCallsActivated);
