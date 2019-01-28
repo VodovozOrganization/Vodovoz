@@ -12,20 +12,17 @@ namespace Vodovoz.Dialogs.Store
 	{
 		public static bool IsUniqDocument(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse,int id)
 		{
+			if(id != 0)
+				return true;
+
 			CarLoadDocument carLoadDocument = null;
 			var getSimilarCarUnloadDoc = QueryOver.Of<CarLoadDocument>(() => carLoadDocument)
 									.Where(() => carLoadDocument.RouteList.Id == routeList.Id)
 									.Where(() => carLoadDocument.Warehouse.Id == warehouse.Id);
 			IList<CarLoadDocument> documents = getSimilarCarUnloadDoc.GetExecutableQueryOver(UoW.Session)
 				.List();
-
-			int documentCount;
-			if(id == 0)
-				documentCount = 0;
-			else
-				documentCount = 1;
 				
-			if(documents.Count > documentCount)
+			if(documents.Count > 0)
 				return false;
 			else
 				return true;
