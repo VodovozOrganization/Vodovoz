@@ -81,8 +81,6 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult("Серия должна быть заполнена", new[] { "PassportSeria" });
 			if(String.IsNullOrEmpty(PassportNumber))
 				yield return new ValidationResult("Номер должен быть заполнен", new[] { "PassportNumber" });
-			//if((MainDocument==true) && (employee.GetMaindocument()!=null))
-				//yield return new ValidationResult("Главные документ уже существует", new[] { "MainDocument" });
 		}
 
 	}

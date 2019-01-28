@@ -59,6 +59,9 @@ namespace Vodovoz.Tools.Orders
 		[Display(Name = "Самовывоз?")]
 		public bool IsSelfDelivery { get; set; } = false;
 
+		[Display(Name = "Оплата после отгрузки")]
+		public bool PayAfterShipment { get; internal set; }
+
 		[Display(Name = "Статус заказа")]
 		public OrderStatus OrderStatus { get; set; }
 
@@ -105,6 +108,7 @@ namespace Vodovoz.Tools.Orders
 			this.HaveSpecialFields = Order.Client.UseSpecialDocFields;
 			this.NeedMaster = Order.OrderItems.Any(i => i.Nomenclature.Category == Domain.Goods.NomenclatureCategory.master);
 			this.IsSelfDelivery = Order.SelfDelivery;
+			this.PayAfterShipment = Order.PayAfterShipment;
 
 			//для проверки цены доставки
 			this.Water19LCount = Order.OrderItems

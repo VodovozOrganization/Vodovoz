@@ -58,7 +58,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		QSMain.StatusBarLabel = labelStatus;
 		this.Title = MainSupport.GetTitle();
 		QSMain.MakeNewStatusTargetForNlog();
-		Gamma.Widgets.ySpecComboBox
 		//Настраиваем модули
 		MainClass.SetupAppFromBase();
 		UsersAction.Sensitive = QSMain.User.Admin;
@@ -1091,16 +1090,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionTypesOfEntitiesActivated(object sender, EventArgs e)
 	{
-		if(QSMain.User.Admin)
+		throw new NotImplementedException();
+		/*if(QSMain.User.Admin)
 			tdiMain.OpenTab(
 				OrmReference.GenerateHashName<TypeOfEntity>(),
 				() => new OrmReference(typeof(TypeOfEntity))
-			);
-	}
-
-	protected void OnAction54Activated(object sender, EventArgs e)
-	{
-
+			);*/
 	}
 
 	protected void OnActionUsersActivated(object sender, EventArgs e)
