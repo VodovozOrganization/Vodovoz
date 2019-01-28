@@ -4,6 +4,7 @@ using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.Project.Dialogs;
+using QS.Project.Domain;
 using QS.Tdi.Gtk;
 using QSBanks;
 using QSBusinessCommon.Domain;
@@ -213,11 +214,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnDialogAuthenticationActionActivated(object sender, EventArgs e)
 	{
 		QSMain.User.ChangeUserPassword(this);
-	}
-
-	protected void OnAction3Activated(object sender, EventArgs e)
-	{
-
 	}
 
 	protected void OnAboutActionActivated(object sender, EventArgs e)
@@ -1090,12 +1086,11 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionTypesOfEntitiesActivated(object sender, EventArgs e)
 	{
-		throw new NotImplementedException();
-		/*if(QSMain.User.Admin)
+		if(QSMain.User.Admin)
 			tdiMain.OpenTab(
 				OrmReference.GenerateHashName<TypeOfEntity>(),
 				() => new OrmReference(typeof(TypeOfEntity))
-			);*/
+			);
 	}
 
 	protected void OnActionUsersActivated(object sender, EventArgs e)

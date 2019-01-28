@@ -55,7 +55,8 @@ namespace Vodovoz
 			CreateBaseConfig ();
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 
-			PermissionsMain.EntityPermissionValidator = new Vodovoz.Domain.Permissions.EntityPermissionValidator();
+			PermissionsSettings.ConfigureEntityPermissionFinder(new Vodovoz.Domain.Permissions.EntitiesWithPermissionFinder());
+			//PermissionsSettings.EntityPermissionValidator = new Vodovoz.Domain.Permissions.EntityPermissionValidator();
 
 			MainSupport.LoadBaseParameters();
 
