@@ -15,7 +15,7 @@ namespace Vodovoz
 			filter.ShowFired = false;
 			yentryAccountable.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
-			yAdvancePeriod.StartDateOrNull = new DateTime(DateTime.Today.Year, 1, 1);
+			yAdvancePeriod.StartDateOrNull = new DateTime(DateTime.Today.Year-1, 1, 1);
 			yAdvancePeriod.EndDateOrNull = DateTime.Today;
 		}
 
