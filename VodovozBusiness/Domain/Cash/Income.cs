@@ -4,8 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -14,6 +14,7 @@ using Vodovoz.Repository.Cash;
 
 namespace Vodovoz.Domain.Cash
 {
+	[EntityPermission]
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "приходные одера",
 		Nominative = "приходный ордер")]
@@ -159,9 +160,7 @@ namespace Vodovoz.Domain.Cash
 
 		#endregion
 
-		public Income ()
-		{
-		}
+		public Income() { }
 
 		#region Функции
 

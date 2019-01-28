@@ -67296,14 +67296,14 @@ not tooltip</property>
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
-      <widget class="Gtk.Table" id="table1">
+      <widget class="Gtk.Table" id="tblMain">
         <property name="MemberName" />
         <property name="NRows">3</property>
         <property name="NColumns">2</property>
         <property name="RowSpacing">6</property>
         <property name="ColumnSpacing">6</property>
         <child>
-          <widget class="Gtk.HBox" id="hbox2">
+          <widget class="Gtk.HBox" id="hbxControls">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>

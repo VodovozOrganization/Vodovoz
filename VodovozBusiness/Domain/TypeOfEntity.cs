@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Utilities;
+using System.Linq;
 using QS.DomainModel.Entity;
+using Vodovoz.Repositories;
 
 namespace Vodovoz
 {
@@ -29,6 +31,8 @@ namespace Vodovoz
 			get => type;
 			set => SetField(ref type, value, () => Type);
 		}
+
+		public virtual bool IsActive => Id == 0 || TypeOfEntityRepository.GetEntityTypesMarkedByEntityPermissionAttribute().Select(t => t.Name).Any(n => n == Type);
 
 		#endregion
 

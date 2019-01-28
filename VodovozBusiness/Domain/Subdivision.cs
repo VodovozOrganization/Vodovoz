@@ -3,10 +3,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
+	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "подразделения",
 		Nominative = "подразделение")]

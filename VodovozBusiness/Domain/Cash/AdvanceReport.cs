@@ -4,11 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QS.HistoryLog;
+using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Cash
 {
+	[EntityPermission]
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "авансовые отчеты",
 		Nominative = "авансовый отчет")]
@@ -81,9 +82,7 @@ namespace Vodovoz.Domain.Cash
 
 		#endregion
 
-		public AdvanceReport ()
-		{
-		}
+		public AdvanceReport() { }
 
 		public virtual List<AdvanceClosing> CloseAdvances(out Expense surcharge, out Income returnChange, List<Expense> advances )
 		{

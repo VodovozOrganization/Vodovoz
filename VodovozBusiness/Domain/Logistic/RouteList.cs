@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Report;
@@ -22,6 +23,7 @@ using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
 {
+	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Журнал МЛ",
 		Nominative = "маршрутный лист")]

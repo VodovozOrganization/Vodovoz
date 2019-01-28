@@ -1,11 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {
+	[EntityPermission]
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "автомобили",
 		Nominative = "автомобиль")]

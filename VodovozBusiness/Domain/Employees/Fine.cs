@@ -5,8 +5,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -15,6 +15,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Employees
 {
+	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "штрафы сотрудникам",
 		Nominative = "штраф сотрудникам")]

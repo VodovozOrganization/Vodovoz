@@ -4,12 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QSOrmProject;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Domain.Employees
 {
+	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "сотрудники",
 		Nominative = "сотрудник")]

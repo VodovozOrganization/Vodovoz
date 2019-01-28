@@ -5,13 +5,14 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Employees
 {
+	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "премии сотрудникам",
 		Nominative = "премия сотрудникам")]

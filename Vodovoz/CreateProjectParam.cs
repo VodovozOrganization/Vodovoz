@@ -36,6 +36,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repositories;
 
 namespace Vodovoz
 {
@@ -221,9 +222,10 @@ namespace Vodovoz
 			OrmMain.AddObjectDescription<TypeOfEntity>()
 				   .Dialog<TypeOfEntityDlg>()
 				   .DefaultTableView()
-				   .SearchColumn("Тип документа", x => x.Type)
+				   .SearchColumn("Тип документа", x => TypeOfEntityRepository.GetEntityNameByString(x.Type))
 				   .SearchColumn("Название документа", x => x.CustomName)
 				   .SearchColumn("Код", x => x.Id.ToString())
+				   .Column("Активно", x => !x.IsActive ? "нет" : String.Empty)
 				   .OrderAsc(x => x.CustomName)
 				   .End();
 			OrmMain.AddObjectDescription<Employee>().Dialog<EmployeeDlg>().DefaultTableView()

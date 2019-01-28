@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
-using QSBanks;
 using QS.DomainModel.Entity;
-using QSOrmProject;
+using QS.DomainModel.Entity.EntityPermissions;
+using QSBanks;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain
 {
+	[EntityPermission]
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "организации",
 		Nominative = "организация")]

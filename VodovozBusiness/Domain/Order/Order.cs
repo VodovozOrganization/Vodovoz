@@ -6,6 +6,7 @@ using System.Linq;
 using Gamma.Utilities;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QSProjectsLib;
@@ -31,6 +32,7 @@ using Vodovoz.Tools.Orders;
 namespace Vodovoz.Domain.Orders
 {
 
+	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "заказы",
 		Nominative = "заказ",
