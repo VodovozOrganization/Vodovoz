@@ -6,7 +6,6 @@ using System.Linq;
 using Gamma.Utilities;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QSProjectsLib;
@@ -28,11 +27,11 @@ using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Repository.Store;
 using Vodovoz.Tools.Orders;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Orders
 {
 
-	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "заказы",
 		Nominative = "заказ",
@@ -40,6 +39,7 @@ namespace Vodovoz.Domain.Orders
 		PrepositionalPlural = "заказах"
 	)]
 	[HistoryTrace]
+	[EntityPermission]
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

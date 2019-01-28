@@ -11,12 +11,14 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Goods
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "номенклатуры",
 		Nominative = "номенклатура")]
+	[EntityPermission]
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
 	{
 		#region Свойства

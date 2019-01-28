@@ -58,12 +58,11 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		QSMain.StatusBarLabel = labelStatus;
 		this.Title = MainSupport.GetTitle();
 		QSMain.MakeNewStatusTargetForNlog();
-
+		Gamma.Widgets.ySpecComboBox
 		//Настраиваем модули
 		MainClass.SetupAppFromBase();
-
 		UsersAction.Sensitive = QSMain.User.Admin;
-		ActionParameters.Sensitive = QSMain.User.Admin;
+		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
 		ActionCash.Sensitive = QSMain.User.Permissions["money_manage_cash"];
 		ActionAccounting.Sensitive = QSMain.User.Permissions["money_manage_bookkeeping"];
@@ -85,7 +84,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = QSMain.User.Permissions["access_to_fines_bonuses"];
 		ActionReports.Sensitive = false;
 		ActionServices.Visible = false;
-		ActionMaintenance.Sensitive = QSMain.User.Permissions["database_maintenance"];
+		ActionService.Sensitive = QSMain.User.Permissions["database_maintenance"];
 
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
@@ -219,10 +218,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnAction3Activated(object sender, EventArgs e)
 	{
-		Users winUsers = new Users();
-		winUsers.Show();
-		winUsers.Run();
-		winUsers.Destroy();
+
 	}
 
 	protected void OnAboutActionActivated(object sender, EventArgs e)
@@ -1100,5 +1096,18 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				OrmReference.GenerateHashName<TypeOfEntity>(),
 				() => new OrmReference(typeof(TypeOfEntity))
 			);
+	}
+
+	protected void OnAction54Activated(object sender, EventArgs e)
+	{
+
+	}
+
+	protected void OnActionUsersActivated(object sender, EventArgs e)
+	{
+		Users winUsers = new Users();
+		winUsers.Show();
+		winUsers.Run();
+		winUsers.Destroy();
 	}
 }

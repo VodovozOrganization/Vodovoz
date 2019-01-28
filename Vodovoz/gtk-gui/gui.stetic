@@ -427,13 +427,6 @@
         <property name="ShortLabel" translatable="yes">Смена доставки</property>
         <signal name="Activated" handler="OnActionDeliveryShiftActivated" />
       </action>
-      <action id="ActionParameters">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Параметры приложения</property>
-        <property name="ShortLabel" translatable="yes">Параметры приложения</property>
-        <property name="StockId">gtk-preferences</property>
-        <signal name="Activated" handler="OnActionParametersActivated" />
-      </action>
       <action id="Action13">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Касса</property>
@@ -717,7 +710,7 @@
         <property name="ShortLabel" translatable="yes">Отчет по последнему заказу</property>
         <signal name="Activated" handler="OnActionLastOrderReportActivated" />
       </action>
-      <action id="ActionMaintenance">
+      <action id="Action55">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Обслуживание</property>
         <property name="ShortLabel" translatable="yes">Обслуживание</property>
@@ -1013,16 +1006,33 @@
         <property name="ShortLabel" translatable="yes">Гражданство</property>
         <signal name="Activated" handler="OnActionCitizenshipActivated" />
       </action>
-      <action id="ActionAccessPermissions">
+      <action id="ActionAdministration">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Права доступа</property>
-        <property name="ShortLabel" translatable="yes">Права доступа</property>
+        <property name="Label" translatable="yes">Администрирование</property>
+        <property name="ShortLabel" translatable="yes">Администрирование</property>
       </action>
       <action id="ActionTypesOfEntities">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Типы документов</property>
         <property name="ShortLabel" translatable="yes">Типы документов</property>
         <signal name="Activated" handler="OnActionTypesOfEntitiesActivated" />
+      </action>
+      <action id="ActionUsers">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Пользователи</property>
+        <property name="ShortLabel" translatable="yes">Пользователи</property>
+        <signal name="Activated" handler="OnActionUsersActivated" />
+      </action>
+      <action id="ActionParameters">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Параметры</property>
+        <property name="ShortLabel" translatable="yes">Параметры</property>
+        <signal name="Activated" handler="OnActionParametersActivated" />
+      </action>
+      <action id="ActionService">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Обслуживание</property>
+        <property name="ShortLabel" translatable="yes">Обслуживание</property>
       </action>
     </action-group>
     <property name="MemberName" />
@@ -1043,19 +1053,9 @@
                 <node name="menubarMain" type="Menubar">
                   <node type="Menu" action="ActionBaseMenu">
                     <node type="Menuitem" action="dialogAuthenticationAction" />
-                    <node type="Menuitem" action="UsersAction" />
                     <node type="Separator" />
-                    <node type="Menuitem" action="ActionParameters" />
                     <node type="Menuitem" action="propertiesAction" />
                     <node type="Menuitem" action="ActionHistoryLog" />
-                    <node type="Menu" action="ActionMaintenance">
-                      <node type="Menuitem" action="Action45" />
-                      <node type="Menuitem" action="ActionAddressDuplicetes" />
-                      <node type="Menuitem" action="ActionDistanceFromCenter" />
-                      <node type="Menuitem" action="ActionOrdersWithoutBottlesOperation" />
-                      <node type="Menuitem" action="ActionLoad1cCounterpartyAndDeliveryPoints" />
-                      <node type="Menuitem" action="ActionToOnlineStore" />
-                    </node>
                     <node type="Separator" />
                     <node type="Menuitem" action="quitAction" />
                   </node>
@@ -1210,8 +1210,18 @@
                       <node type="Menuitem" action="ActionMastersVisitReport" />
                     </node>
                   </node>
-                  <node type="Menu" action="ActionAccessPermissions">
+                  <node type="Menu" action="ActionAdministration">
                     <node type="Menuitem" action="ActionTypesOfEntities" />
+                    <node type="Menuitem" action="ActionUsers" />
+                    <node type="Menuitem" action="ActionParameters" />
+                    <node type="Menu" action="ActionService">
+                      <node type="Menuitem" action="Action45" />
+                      <node type="Menuitem" action="ActionAddressDuplicetes" />
+                      <node type="Menuitem" action="ActionDistanceFromCenter" />
+                      <node type="Menuitem" action="ActionOrdersWithoutBottlesOperation" />
+                      <node type="Menuitem" action="ActionLoad1cCounterpartyAndDeliveryPoints" />
+                      <node type="Menuitem" action="ActionToOnlineStore" />
+                    </node>
                   </node>
                   <node type="Menu" action="ActionAbout">
                     <node type="Menuitem" action="aboutAction" />
@@ -67287,157 +67297,6 @@ not tooltip</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
-          </packing>
-        </child>
-      </widget>
-    </child>
-  </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.TypeOfEntityDlg" design-size="331 103">
-    <property name="MemberName" />
-    <property name="Visible">False</property>
-    <child>
-      <widget class="Gtk.Table" id="tblMain">
-        <property name="MemberName" />
-        <property name="NRows">3</property>
-        <property name="NColumns">2</property>
-        <property name="RowSpacing">6</property>
-        <property name="ColumnSpacing">6</property>
-        <child>
-          <widget class="Gtk.HBox" id="hbxControls">
-            <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <child>
-              <widget class="Gtk.Button" id="buttonSave">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Type">TextAndIcon</property>
-                <property name="Icon">stock:gtk-save Menu</property>
-                <property name="Label" translatable="yes">Сохранить</property>
-                <property name="UseUnderline">True</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.Button" id="buttonCancel">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Type">TextAndIcon</property>
-                <property name="Icon">stock:gtk-revert-to-saved Menu</property>
-                <property name="Label" translatable="yes">Отменить</property>
-                <property name="UseUnderline">True</property>
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="RightAttach">2</property>
-            <property name="AutoSize">False</property>
-            <property name="YOptions">Fill</property>
-            <property name="XExpand">True</property>
-            <property name="XFill">True</property>
-            <property name="XShrink">False</property>
-            <property name="YExpand">False</property>
-            <property name="YFill">True</property>
-            <property name="YShrink">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gtk.Label" id="lblName">
-            <property name="MemberName" />
-            <property name="Xalign">1</property>
-            <property name="LabelProp" translatable="yes">Название типа документа:</property>
-          </widget>
-          <packing>
-            <property name="TopAttach">2</property>
-            <property name="BottomAttach">3</property>
-            <property name="AutoSize">True</property>
-            <property name="XOptions">Fill</property>
-            <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
-            <property name="XFill">True</property>
-            <property name="XShrink">False</property>
-            <property name="YExpand">False</property>
-            <property name="YFill">True</property>
-            <property name="YShrink">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gtk.Label" id="lblType">
-            <property name="MemberName" />
-            <property name="Xalign">1</property>
-            <property name="LabelProp" translatable="yes">Тип документа:</property>
-          </widget>
-          <packing>
-            <property name="TopAttach">1</property>
-            <property name="BottomAttach">2</property>
-            <property name="AutoSize">False</property>
-            <property name="XOptions">Fill</property>
-            <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
-            <property name="XFill">True</property>
-            <property name="XShrink">False</property>
-            <property name="YExpand">False</property>
-            <property name="YFill">True</property>
-            <property name="YShrink">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gamma.GtkWidgets.yEntry" id="yentryName">
-            <property name="MemberName" />
-            <property name="CanFocus">True</property>
-            <property name="IsEditable">True</property>
-            <property name="InvisibleChar">●</property>
-          </widget>
-          <packing>
-            <property name="TopAttach">2</property>
-            <property name="BottomAttach">3</property>
-            <property name="LeftAttach">1</property>
-            <property name="RightAttach">2</property>
-            <property name="AutoSize">False</property>
-            <property name="XOptions">Fill</property>
-            <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
-            <property name="XFill">True</property>
-            <property name="XShrink">False</property>
-            <property name="YExpand">False</property>
-            <property name="YFill">True</property>
-            <property name="YShrink">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gamma.Widgets.ySpecComboBox" id="ySpecCmbEntityType">
-            <property name="MemberName" />
-            <property name="IsTextCombo">False</property>
-            <property name="Items" translatable="yes" />
-            <property name="AddIfNotExist">False</property>
-            <property name="DefaultFirst">False</property>
-            <property name="ShowSpecialStateAll">False</property>
-            <property name="ShowSpecialStateNot">False</property>
-          </widget>
-          <packing>
-            <property name="TopAttach">1</property>
-            <property name="BottomAttach">2</property>
-            <property name="LeftAttach">1</property>
-            <property name="RightAttach">2</property>
-            <property name="AutoSize">False</property>
-            <property name="XOptions">Fill</property>
-            <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
-            <property name="XFill">True</property>
-            <property name="XShrink">False</property>
-            <property name="YExpand">False</property>
-            <property name="YFill">True</property>
-            <property name="YShrink">False</property>
           </packing>
         </child>
       </widget>
