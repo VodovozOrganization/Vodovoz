@@ -6,7 +6,7 @@ namespace Vodovoz
 	{
 		private global::Gtk.Table table1;
 
-		private global::Gtk.Frame frame3;
+		private global::Gtk.Frame frmWarehoses;
 
 		private global::Gtk.Alignment GtkAlignment4;
 
@@ -74,10 +74,10 @@ namespace Vodovoz
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.frame3 = new global::Gtk.Frame();
-			this.frame3.Name = "frame3";
-			this.frame3.ShadowType = ((global::Gtk.ShadowType)(0));
-			// Container child frame3.Gtk.Container+ContainerChild
+			this.frmWarehoses = new global::Gtk.Frame();
+			this.frmWarehoses.Name = "frmWarehoses";
+			this.frmWarehoses.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child frmWarehoses.Gtk.Container+ContainerChild
 			this.GtkAlignment4 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment4.Name = "GtkAlignment4";
 			this.GtkAlignment4.LeftPadding = ((uint)(12));
@@ -89,14 +89,14 @@ namespace Vodovoz
 			this.lblWarehouses.UseMarkup = true;
 			this.lblWarehouses.Selectable = true;
 			this.GtkAlignment4.Add(this.lblWarehouses);
-			this.frame3.Add(this.GtkAlignment4);
+			this.frmWarehoses.Add(this.GtkAlignment4);
 			this.GtkLabel4 = new global::Gtk.Label();
 			this.GtkLabel4.Name = "GtkLabel4";
 			this.GtkLabel4.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Склады отдела:</b>");
 			this.GtkLabel4.UseMarkup = true;
-			this.frame3.LabelWidget = this.GtkLabel4;
-			this.table1.Add(this.frame3);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.frame3]));
+			this.frmWarehoses.LabelWidget = this.GtkLabel4;
+			this.table1.Add(this.frmWarehoses);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.frmWarehoses]));
 			w3.TopAttach = ((uint)(1));
 			w3.BottomAttach = ((uint)(4));
 			w3.LeftAttach = ((uint)(2));

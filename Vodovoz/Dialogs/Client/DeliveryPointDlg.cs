@@ -12,7 +12,6 @@ using NLog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Repositories;
 using QS.Tdi.Gtk;
 using QSOrmProject;
 using QSOsm.DTO;
