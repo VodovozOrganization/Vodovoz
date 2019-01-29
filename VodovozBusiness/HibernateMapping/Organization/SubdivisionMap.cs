@@ -13,6 +13,10 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.Chief).Column("chief_id");
 			References(x => x.ParentSubdivision).Column("parent_subdivision_id");
 			HasMany(x => x.ChildSubdivisions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("parent_subdivision_id");
+			HasManyToMany(x => x.ServicingDistricts).Table("disticts_to_subdivisions")
+									  .ParentKeyColumn("subdivision_id")
+									  .ChildKeyColumn("district_id")
+									  .LazyLoad();
 		}
 	}
 }
