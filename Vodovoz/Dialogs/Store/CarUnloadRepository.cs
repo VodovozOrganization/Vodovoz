@@ -35,6 +35,9 @@ namespace Vodovoz.Repositories.Store
 
 		public static bool IsUniqDocument(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse,int id)
 		{
+			if(id != 0)
+				return true;
+
 			CarUnloadDocument carUnloadDocument = null;
 			var getSimilarCarUnloadDoc = QueryOver.Of<CarUnloadDocument>(() => carUnloadDocument)
 									.Where(() => carUnloadDocument.RouteList.Id == routeList.Id)
@@ -42,13 +45,7 @@ namespace Vodovoz.Repositories.Store
 			IList<CarUnloadDocument> documents = getSimilarCarUnloadDoc.GetExecutableQueryOver(UoW.Session)
 				.List();
 
-			int documentCount;
-			if(id == 0)
-				documentCount = 0;
-			else
-				documentCount = 1;
-
-			if(documents.Count > documentCount)
+			if(documents.Count > 0)
 				return false;
 			else
 				return true;
