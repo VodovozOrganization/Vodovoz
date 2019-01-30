@@ -82,13 +82,10 @@
             <Width>61.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.6pt</Width>
+            <Width>65.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>58.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>71.8pt</Width>
+            <Width>108.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -272,23 +269,6 @@
                   <ReportItems>
                     <Textbox Name="Textbox18">
                       <Value>№МЛ переноса </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox31">
-                      <Value>Залоги</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -544,25 +524,7 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox32">
-                      <Value>=Fields!DepositsSum.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -787,22 +749,6 @@ Iif( Fields!PhoneSum.IsMissing, 0,  {PhoneSum}) </Value>
                     <Textbox Name="Textbox20">
                       <Value>
                       </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox33">
-                      <Value>=sum({DepositsSum})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1543,7 +1489,7 @@ Iif( Fields!PhoneSum.IsMissing, 0,  {PhoneSum}) </Value>
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     t.*,
@@ -1680,7 +1626,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.UInt32</TypeName>
