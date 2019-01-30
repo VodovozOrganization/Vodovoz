@@ -35,7 +35,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>152.0pt</Height>
+    <Height>226.6pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Income</DataSetName>
@@ -58,13 +58,13 @@
             <Width>43.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>85.8pt</Width>
+            <Width>75.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>67.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>78.3pt</Width>
+            <Width>72.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>64.6pt</Width>
@@ -79,19 +79,19 @@
             <Width>61.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>56.7pt</Width>
+            <Width>61.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>58.3pt</Width>
+            <Width>65.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>101.7pt</Width>
+            <Width>108.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>25.1pt</Height>
+              <Height>57.5pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -267,8 +267,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox31">
-                      <Value>Залоги</Value>
+                    <Textbox Name="Textbox18">
+                      <Value>№МЛ переноса </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -325,7 +325,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12.8pt</Height>
+              <Height>39.0pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -422,7 +422,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>={PlanedIncome}</Value>
+                      <Value>= {PlanedIncome}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -440,7 +440,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox78">
-                      <Value>={FactIncome} - {PlanedIncome}</Value>
+                      <Value>=Iif( Fields!FactIncome.IsMissing, 0, {FactIncome}) - Iif( Fields!PlanedIncome.IsMissing, 0,  {PlanedIncome})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -511,8 +511,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox32">
-                      <Value>=Fields!DepositsSum.Value</Value>
+                    <Textbox Name="Textbox19">
+                      <Value>={TransferedML}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -524,6 +524,7 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -549,7 +550,11 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
-                      <Value>={FactIncome} - {PlanedIncome} - {NedovozSum} - {TransferedSum} - {PhoneSum}</Value>
+                      <Value>=Iif( Fields!FactIncome.IsMissing, 0, {FactIncome}) - 
+Iif( Fields!PlanedIncome.IsMissing, 0,  {PlanedIncome}) - 
+Iif( Fields!NedovozSum.IsMissing, 0,  {NedovozSum}) - 
+Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum}) - 
+Iif( Fields!PhoneSum.IsMissing, 0,  {PhoneSum}) </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -574,7 +579,7 @@
         <Footer>
           <TableRows>
             <TableRow>
-              <Height>.2in</Height>
+              <Height>27.0pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -678,7 +683,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox79">
-                      <Value> =sum({PlanedIncome}  - {FactIncome})</Value>
+                      <Value>=sum(Iif(Fields!PlanedIncome.IsMissing, 0 ,{PlanedIncome})  - Iif(Fields!FactIncome.IsMissing, 0 ,{FactIncome}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -741,8 +746,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox33">
-                      <Value>=sum({DepositsSum})</Value>
+                    <Textbox Name="Textbox20">
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1245,8 +1251,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.8pt</Left>
-        <Top>99.1pt</Top>
+        <Left>0.0pt</Left>
+        <Top>166.8pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1443,8 +1449,8 @@
         <Width>91.80pt</Width>
         <Value>Прочие статусы</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.8pt</Left>
-        <Top>84.1pt</Top>
+        <Left>3.2pt</Left>
+        <Top>147.9pt</Top>
         <Style>
           <FontWeight>Bold</FontWeight>
         </Style>
@@ -1483,167 +1489,133 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-	t.*,
-	(t.FactIncome - t.PlanedIncome - t.PhoneSum - t.NedovozSum - IF(t.TransferedSum &lt; 0, t.TransferedSum, 0) - t.DepositsSum) as balance
+        <CommandText>SELECT 
+    t.*,
+    (t.FactIncome - t.PlanedIncome - t.PhoneSum - t.NedovozSum - IF(t.TransferedSum &lt; 0,
+        t.TransferedSum,
+        0) - t.DepositsSum) AS balance
 FROM
-	(SELECT	
-		route_lists.id as number,
-		route_lists.date as date,
-		    CONCAT_WS('',
-			CONCAT(employees.last_name, ' '),
-			IF(employees.name = '',
-				'',
-				CONCAT(LEFT(employees.name, 1), '.')),
-			IF(employees.patronymic = '',
-				'',
-				CONCAT(LEFT(employees.patronymic, 1), '.'))) as driver,
-		#Фактический приход
-			(
-				SUM(
-					CAST(IFNULL(money_movement_operations.money, 0) as DECIMAL(10,2)) * IF(route_list_addresses.status='Completed',1,0)
-					+ CAST((IFNULL(deposit_operations.received_deposit, 0)-IFNULL(deposit_operations.refund_deposit, 0)) as DECIMAL(10,2))
-								)				
-				+ CAST(IFNULL(PhoneSums.Sum, 0) as DECIMAL(10,2))
-			) as FactIncome,
-		SUM(Orders.TotalOrdersSum) as PlanedIncome,
-		CAST(IFNULL(PhoneSums.Sum, 0) as DECIMAL(10,2)) as PhoneSum,
-		IFNULL(nedovoz.nedovoz_sum, 0) as NedovozSum,
-		IFNULL(Transfered.TotalOrdersSum, 0) as TransferedSum,
-		SUM(IFNULL(deposit_operations.received_deposit, 0)-IFNULL(deposit_operations.refund_deposit, 0)) as DepositsSum,
-		CI.CashIncomeDates,
-		CAST((IFNULL(CI.MoneyIncome,0)-IFNULL(CE.MoneyExpence,0)) as DECIMAL(10,2)) as IncMinusExp
-	FROM
-		route_lists
-		LEFT JOIN employees ON route_lists.driver_id = employees.id
-		LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id   
-		LEFT JOIN orders ON route_list_addresses.order_id = orders.id
-		LEFT JOIN money_movement_operations ON money_movement_operations.order_id=orders.id
-		LEFT JOIN deposit_operations ON deposit_operations.order_id=orders.id
-	#Мобильная связь
-		LEFT JOIN
-			(
-			SELECT 
-				T.route_list_id,
-			0 - COUNT(T.qty_addr)  * 2 as Sum # 2 рубля за каждый доставленный адрес 
-					FROM(
-				SELECT
-					route_list_addresses.route_list_id,
-					Count(route_list_addresses.id) as qty_addr
-				FROM	route_list_addresses
-				LEFT JOIN	route_lists ON route_list_addresses.route_list_id = route_lists.id
-			   				LEFT JOIN	orders ON route_list_addresses.order_id = orders.id
-				WHERE 		route_list_addresses.status = 'Completed'
-							GROUP BY	route_list_addresses.route_list_id, orders.delivery_point_id
-			   			) as T
-			GROUP BY T.route_list_id
-		) as PhoneSums ON PhoneSums.route_list_id = route_lists.id
-	#Плановый приход
-		LEFT JOIN
-			(
-				SELECT 
-					orders.id  as order_id,
-					IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))),2),0)+IFNULL(deposit_operations.received_deposit, 0) as TotalOrdersSum
-                    
-				FROM orders
-					LEFT JOIN order_items ON order_items.order_id = orders.id AND orders.payment_type = 'cash'
-                    LEFT JOIN deposit_operations ON deposit_operations.order_id=order_items.order_id
-                    LEFT JOIN route_list_addresses ON route_list_addresses.order_id=order_items.order_id
-                    WHERE route_list_addresses.transfered_to_id IS NULL AND route_list_addresses.was_transfered=0
-				GROUP BY orders.id
-			) as Orders ON Orders.order_id = route_list_addresses.order_id
-	#Недовозы
-		LEFT JOIN
-			(
-				SELECT
-					route_list_addresses.route_list_id,
-					0 - SUM(order_items.price * (order_items.count - order_items.actual_count)) as nedovoz_sum
-				FROM
-					route_list_addresses
-					LEFT JOIN orders ON orders.id = route_list_addresses.order_id
-					LEFT JOIN order_items ON order_items.order_id = orders.id
-					LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-					LEFT JOIN order_equipment ON order_equipment.order_id = orders.id
-				WHERE
-					orders.payment_type = 'cash'
-					AND order_items.price &gt; 0
-					AND(
-						(
-							#Полностью недовезенные заказы без перенесенных адресов (чтобы не засчиталось дважды)
-							orders.order_status in ('Canceled', 'NotDelivered', 'DeliveryCanceled') 
-							AND route_list_addresses.status != 'transfered'
-						)
-						OR (
-							# Частичные недовозы
-							route_list_addresses.status = 'Completed' 
-							AND(					
-								(
-									nomenclature.category in ('water', 'equipment', 'additional', 'bottle')
-									AND nomenclature.serial = false					
-									AND order_items.count != order_items.actual_count
-								)
-								OR order_equipment.confirmed = false
-							)
-						)
-					)
-				GROUP BY route_list_addresses.route_list_id
-			) as nedovoz ON nedovoz.route_list_id = route_lists.id
-	#Переносы
-		LEFT JOIN
-			(
-				SELECT
-					internal_trans.route_list_id,
-					SUM(internal_trans.TotalOrdersSum) as TotalOrdersSum
-				FROM
-					(SELECT
-						route_list_addresses.id,
-						route_list_addresses.route_list_id,
-						route_list_addresses.status,
-						ROUND(
-							IFNULL(
-								IF(status = 'transfered',
-								0 - order_items.price * order_items.count * (1 - (order_items.discount / 100)),
-								order_items.price * order_items.count * (1 - (order_items.discount / 100))
-								)
-							, 0)
-						,2) as TotalOrdersSum
-					FROM 
-						route_list_addresses 
-						LEFT JOIN orders On orders.id = route_list_addresses.order_id
-						LEFT JOIN order_items ON order_items.order_id = orders.id AND orders.payment_type = 'cash'
-					WHERE
-						(status = 'transfered' 
-						OR was_transfered = true)
-					) as internal_trans
-				GROUP BY internal_trans.route_list_id HAVING TotalOrdersSum != 0
-			) as Transfered ON Transfered.route_list_id = route_lists.id
-	#Приходные ордера
-		LEFT JOIN (
-				SELECT 
-					route_list_id,
-								SUM(IFNULL(cash_income.money, 0)) as MoneyIncome,
-					GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y' ) SEPARATOR ', ') as CashIncomeDates
-				FROM cash_income
-				GROUP BY
-					route_list_id
-			) AS CI ON CI.route_list_id = route_lists.id
-	#Расходные ордера
-		LEFT JOIN (
-				SELECT 
-					route_list_id,
-					SUM(IFNULL(cash_expense.money, 0)) as MoneyExpence
-				FROM cash_expense
-                WHERE type_operation NOT IN('EmployeeAdvance', 'Advance')
-				GROUP BY
-					route_list_id
-			) AS CE ON CE.route_list_id = route_lists.id
-	WHERE
-		route_lists.status IN ('Closed', 'MileageCheck')
-		AND route_lists.date &gt;= @StartDate  AND route_lists.date &lt;= @EndDate
-	GROUP BY route_lists.id
-	) as t
+    (SELECT 
+        route_lists.id AS number,
+            GROUP_CONCAT(CONCAT('-', transferML.transfered_to_id)
+                SEPARATOR ' ') AS TransferedToML,
+            route_lists.date AS date,
+            CONCAT_WS('', CONCAT(employees.last_name, ' '), IF(employees.name = '', '', CONCAT(LEFT(employees.name, 1), '.')), IF(employees.patronymic = '', '', CONCAT(LEFT(employees.patronymic, 1), '.'))) AS driver,
+            (SUM(CAST(IFNULL(money_movement_operations.money, 0)
+                AS DECIMAL (10 , 2 )) * IF(route_list_addresses.status = 'Completed', 1, 0) + CAST((IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0))
+                AS DECIMAL (10 , 2 ))) + CAST(IFNULL(PhoneSums.Sum, 0) AS DECIMAL (10 , 2 ))) AS FactIncome,
+            SUM(Orders.TotalOrdersSum) AS PlanedIncome,
+            CAST(IFNULL(PhoneSums.Sum, 0) AS DECIMAL (10 , 2 )) AS PhoneSum,
+            IFNULL(nedovoz.nedovoz_sum, 0) AS NedovozSum,
+            IFNULL(Transfered.TotalOrdersSum, 0) AS TransferedSum,
+            SUM(IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0)) AS DepositsSum,
+            CI.CashIncomeDates,
+            CAST((IFNULL(CI.MoneyIncome, 0) - IFNULL(CE.MoneyExpence, 0))
+                AS DECIMAL (10 , 2 )) AS IncMinusExp
+    FROM
+        route_lists
+    LEFT JOIN employees ON route_lists.driver_id = employees.id
+    LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+    LEFT JOIN orders ON route_list_addresses.order_id = orders.id
+    LEFT JOIN money_movement_operations ON money_movement_operations.order_id = orders.id
+    LEFT JOIN deposit_operations ON deposit_operations.order_id = orders.id
+    LEFT JOIN (SELECT 
+        T.route_list_id, 0 - COUNT(T.qty_addr) * 2 AS Sum
+    FROM
+        (SELECT 
+        route_list_addresses.route_list_id,
+            COUNT(route_list_addresses.id) AS qty_addr
+    FROM
+        route_list_addresses
+    LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
+    LEFT JOIN orders ON route_list_addresses.order_id = orders.id
+    WHERE
+        route_list_addresses.status = 'Completed'
+    GROUP BY route_list_addresses.route_list_id , orders.delivery_point_id) AS T
+    GROUP BY T.route_list_id) AS PhoneSums ON PhoneSums.route_list_id = route_lists.id
+    LEFT JOIN (SELECT 
+        orders.id AS order_id,
+            IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) + IFNULL(deposit_operations.received_deposit, 0) AS TotalOrdersSum
+    FROM
+        orders
+    LEFT JOIN order_items ON order_items.order_id = orders.id
+        AND orders.payment_type = 'cash'
+    LEFT JOIN deposit_operations ON deposit_operations.order_id = order_items.order_id
+    LEFT JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
+    WHERE
+        route_list_addresses.transfered_to_id IS NULL
+            AND route_list_addresses.was_transfered = 0
+    GROUP BY orders.id) AS Orders ON Orders.order_id = route_list_addresses.order_id
+    LEFT JOIN (SELECT 
+        route_list_addresses.route_list_id,
+            0 - SUM(order_items.price * (order_items.count - order_items.actual_count)) AS nedovoz_sum
+    FROM
+        route_list_addresses
+    LEFT JOIN orders ON orders.id = route_list_addresses.order_id
+    LEFT JOIN order_items ON order_items.order_id = orders.id
+    LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
+    LEFT JOIN order_equipment ON order_equipment.order_id = orders.id
+    WHERE
+        orders.payment_type = 'cash'
+            AND order_items.price &gt; 0
+            AND ((orders.order_status IN ('Canceled' , 'NotDelivered', 'DeliveryCanceled')
+            AND route_list_addresses.status != 'transfered')
+            OR (route_list_addresses.status = 'Completed'
+            AND ((nomenclature.category IN ('water' , 'equipment', 'additional', 'bottle')
+            AND nomenclature.serial = FALSE
+            AND order_items.count != order_items.actual_count)
+            OR order_equipment.confirmed = FALSE)))
+    GROUP BY route_list_addresses.route_list_id) AS nedovoz ON nedovoz.route_list_id = route_lists.id
+    LEFT JOIN (SELECT 
+        internal_trans.route_list_id,
+            SUM(internal_trans.TotalOrdersSum) AS TotalOrdersSum
+    FROM
+        (SELECT 
+        route_list_addresses.id,
+            route_list_addresses.route_list_id,
+            route_list_addresses.status,
+            ROUND(IFNULL(IF(status = 'transfered', 0 - order_items.price * order_items.count * (1 - (order_items.discount / 100)), order_items.price * order_items.count * (1 - (order_items.discount / 100))), 0), 2) AS TotalOrdersSum
+    FROM
+        route_list_addresses
+    LEFT JOIN orders ON orders.id = route_list_addresses.order_id
+    LEFT JOIN order_items ON order_items.order_id = orders.id
+        AND orders.payment_type = 'cash'
+    WHERE
+        (status = 'transfered'
+            OR was_transfered = TRUE)) AS internal_trans
+    GROUP BY internal_trans.route_list_id
+    HAVING TotalOrdersSum != 0) AS Transfered ON Transfered.route_list_id = route_lists.id
+    LEFT JOIN (SELECT 
+        route_list_addresses.transfered_to_id
+    FROM
+        route_list_addresses
+    LEFT JOIN orders ON route_list_addresses.order_id = orders.id
+    WHERE
+        route_list_addresses.transfered_to_id IS NOT NULL
+            AND orders.payment_type = 'cash') AS transferML ON transferML.transfered_to_id = route_list_addresses.transfered_to_id
+    LEFT JOIN (SELECT 
+        route_list_id,
+            SUM(IFNULL(cash_income.money, 0)) AS MoneyIncome,
+            GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y')
+                SEPARATOR ', ') AS CashIncomeDates
+    FROM
+        cash_income
+    GROUP BY route_list_id) AS CI ON CI.route_list_id = route_lists.id
+    LEFT JOIN (SELECT 
+        route_list_id,
+            SUM(IFNULL(cash_expense.money, 0)) AS MoneyExpence
+    FROM
+        cash_expense
+    WHERE
+        type_operation NOT IN ('EmployeeAdvance' , 'Advance')
+    GROUP BY route_list_id) AS CE ON CE.route_list_id = route_lists.id
+    WHERE
+        route_lists.status IN ('Closed' , 'MileageCheck')
+            AND route_lists.date &gt;= @StartDate
+            AND route_lists.date &lt;= @EndDate
+    GROUP BY route_lists.id) AS t
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
@@ -1654,7 +1626,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1702,6 +1674,10 @@ FROM
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="TransferedML">
+          <DataField>TransferedToML</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
