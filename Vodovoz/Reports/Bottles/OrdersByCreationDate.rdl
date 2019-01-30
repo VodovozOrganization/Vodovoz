@@ -16,35 +16,51 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	orders.id,
-    DATE_FORMAT(orders.create_date, '%r') AS CreationDate,
-    orders.bottles_return AS TareReturn,
-    CONCAT_WS('',
-            CONCAT(employees.last_name, ' '),
-            IF(employees.name = '',
-                '',
-                CONCAT(LEFT(employees.name, 1), '.')),
-            IF(employees.patronymic = '',
-                '',
-                CONCAT(LEFT(employees.patronymic, 1), '.'))) AS Employee,
-    delivery_points.compiled_address  as Address,
-    COUNT(order_items.id) AS BottleCount,
-    counterparty.name AS ClientName
+    orders.id AS OrderId,
+	CASE
+		WHEN orders.order_status = 'NewOrder' THEN 'Новый'
+		WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
+		WHEN orders.order_status = 'Accepted' THEN 'Принят'
+		WHEN orders.order_status = 'InTravelList' THEN 'В маршрутном листе'
+		WHEN orders.order_status = 'OnLoading' THEN 'На погрузке'
+		WHEN orders.order_status = 'OnTheWay' THEN 'В пути'
+		WHEN orders.order_status = 'Shipped' THEN 'Доставлен'
+		WHEN orders.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
+		WHEN orders.order_status = 'Closed' THEN 'Закрыт'
+		WHEN orders.order_status = 'Canceled' THEN 'Отменён'
+		WHEN orders.order_status = 'NotDelivered' THEN 'Недовоз'
+		WHEN orders.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'
+		ELSE ''
+	END AS Status,
+	DATE_FORMAT(orders.create_date, '%r') AS CreationDate,
+	orders.bottles_return AS TareReturn,
+	CONCAT_WS('',
+			CONCAT(employees.last_name, ' '),
+			IF(employees.name = '',
+				'',
+				CONCAT(LEFT(employees.name, 1), '.')),
+			IF(employees.patronymic = '',
+				'',
+				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS Employee,
+	delivery_points.compiled_address AS Address,
+	SUM(order_items.count) AS BottleCount,
+	counterparty.name AS ClientName
 FROM
-    orders
-        LEFT JOIN
-    employees ON employees.id = orders.author_employee_id
-        LEFT JOIN
-    delivery_points ON delivery_points.id = orders.delivery_point_id
-        LEFT JOIN
-    counterparty ON counterparty.id = orders.client_id
-        LEFT JOIN
-    order_items ON order_items.order_id = orders.id
-        LEFT JOIN
-    nomenclature ON nomenclature.id = order_items.nomenclature_id
+	orders
+		LEFT JOIN
+	employees ON employees.id = orders.author_employee_id
+		LEFT JOIN
+	delivery_points ON delivery_points.id = orders.delivery_point_id
+		LEFT JOIN
+	counterparty ON counterparty.id = orders.client_id
+		LEFT JOIN
+	order_items ON order_items.order_id = orders.id
+		LEFT JOIN
+	nomenclature ON nomenclature.id = order_items.nomenclature_id
 WHERE
-    nomenclature.tare_volume = 'Vol19L'
-    AND DATE(orders.create_date) = DATE(@date)
+	nomenclature.category = 'water'
+		AND nomenclature.tare_volume = 'Vol19L'
+		AND DATE(orders.create_date) = DATE(@date)
 GROUP BY orders.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
@@ -77,6 +93,14 @@ GROUP BY orders.id</CommandText>
           <DataField>BottleCount</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="OrderId">
+          <DataField>OrderId</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="Status">
+          <DataField>Status</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -84,7 +108,7 @@ GROUP BY orders.id</CommandText>
     <Height>32.2pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
-    <ReportItems >
+    <ReportItems>
       <Textbox Name="Textbox1">
         <Height>23.31pt</Height>
         <Width>499.12pt</Width>
@@ -118,26 +142,32 @@ GROUP BY orders.id</CommandText>
           <TableColumn>
             <Width>61.4pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>57.4pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>1in</Width>
           </TableColumn>
           <TableColumn>
-            <Width>136.2pt</Width>
+            <Width>98.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>165.9pt</Width>
+            <Width>122.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.5pt</Width>
+            <Width>49.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.2pt</Width>
+            <Width>50.5pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>64.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>36.9pt</Height>
+              <Height>50.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -149,8 +179,24 @@ GROUP BY orders.id</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>Номер заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -165,8 +211,8 @@ GROUP BY orders.id</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -181,8 +227,8 @@ GROUP BY orders.id</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -197,8 +243,8 @@ GROUP BY orders.id</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -213,8 +259,8 @@ GROUP BY orders.id</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -229,8 +275,24 @@ GROUP BY orders.id</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>Статус заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -258,6 +320,20 @@ GROUP BY orders.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>={OrderId}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
@@ -280,6 +356,8 @@ GROUP BY orders.id</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -319,6 +397,20 @@ GROUP BY orders.id</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>={Status}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
