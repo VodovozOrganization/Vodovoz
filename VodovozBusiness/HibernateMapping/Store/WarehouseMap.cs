@@ -17,6 +17,10 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.IsArchive).Column("is_archive");
 			Map(x => x.TypeOfUse).Column("type_of_use").CustomType<WarehouseUsingStringType>();
 			References(x => x.OwningSubdivision).Column("owning_subdivision");
+			HasManyToMany(x => x.Nomenclatures).Table("nomenclatures_to_warehouses")
+								.ParentKeyColumn("warehouse_id")
+								.ChildKeyColumn("nomenclature_id")
+								.LazyLoad();
 		}
 	}
 }

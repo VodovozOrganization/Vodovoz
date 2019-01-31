@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Data.Bindings.Utilities;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Store
 {
@@ -62,6 +64,24 @@ namespace Vodovoz.Domain.Store
 		public virtual Subdivision OwningSubdivision {
 			get => owningSubdivision;
 			set => SetField(ref owningSubdivision, value, () => OwningSubdivision);
+		}
+
+		IList<Nomenclature> nomenclatures = new List<Nomenclature>();
+
+		[Display(Name = "Отгружаемые номенклатуры")]
+		public virtual IList<Nomenclature> Nomenclatures {
+			get => nomenclatures;
+			set => SetField(ref nomenclatures, value, () => Nomenclatures);
+		}
+
+		GenericObservableList<Nomenclature> observableNomenclatures;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Nomenclature> ObservableNomenclatures {
+			get {
+				if(observableNomenclatures == null)
+					observableNomenclatures = new GenericObservableList<Nomenclature>(Nomenclatures);
+				return observableNomenclatures;
+			}
 		}
 
 		#endregion

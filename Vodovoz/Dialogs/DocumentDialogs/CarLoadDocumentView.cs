@@ -111,16 +111,13 @@ namespace Vodovoz
 
 		protected void OnButtonFillWarehouseItemsClicked(object sender, EventArgs e)
 		{
-			if(DocumentUoW.Root.Items.Count > 0)
-			{
-				if (!MessageDialogHelper.RunQuestionDialog("Список будет очищен. Продолжить?"))
-					return;
-			}
+			if(DocumentUoW.Root.Items.Any() && !MessageDialogHelper.RunQuestionDialog("Список будет очищен. Продолжить?"))
+				return;
 
 			DocumentUoW.Root.FillFromRouteList(DocumentUoW, false);
-			if(DocumentUoW.Root.Items.Any(i => i.Nomenclature.Warehouse == null)) {
+			if(DocumentUoW.Root.Items.Any(i => !i.Nomenclature.Warehouses.Any())) {
 				string str = "";
-				foreach(var nomenclarure in DocumentUoW.Root.Items.Where(i => i.Nomenclature.Warehouse == null))
+				foreach(var nomenclarure in DocumentUoW.Root.Items.Where(i => !i.Nomenclature.Warehouses.Any()))
 					str = string.Join("\n", nomenclarure.Nomenclature.Name);
 				MessageDialogHelper.RunErrorWithSecondaryTextDialog("В МЛ есть номенклатура не привязанная к складу.", str);
 			}
@@ -136,11 +133,8 @@ namespace Vodovoz
 
 		protected void OnButtonFillAllItemsClicked(object sender, EventArgs e)
 		{
-			if(DocumentUoW.Root.Items.Count > 0)
-			{
-				if (!MessageDialogHelper.RunQuestionDialog("Список будет очищен. Продолжить?"))
-					return;
-			}
+			if(DocumentUoW.Root.Items.Any() && !MessageDialogHelper.RunQuestionDialog("Список будет очищен. Продолжить?"))
+				return;
 			DocumentUoW.Root.FillFromRouteList(DocumentUoW, false);
 
 			var items = DocumentUoW.Root.Items;

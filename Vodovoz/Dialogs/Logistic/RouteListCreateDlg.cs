@@ -284,7 +284,7 @@ namespace Vodovoz
 				{
 					//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
 					var forShipment = Repository.Store.WarehouseRepository.WarehouseForShipment(UoW, Entity.Id);
-					if(forShipment.Count == 0) {
+					if(!forShipment.Any()) {
 						if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
 							valid = new QSValidator<RouteList>(
 								UoWGeneric.Root,

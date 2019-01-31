@@ -21,11 +21,11 @@ namespace Vodovoz.Repositories.Sale
 		}
 
 		/// <summary>
-		/// Список складов, которые обслужива
+		/// Список складов, которые обслуживают район
 		/// </summary>
-		/// <returns>The shipping warehouse for district.</returns>
+		/// <returns>Список складо</returns>
 		/// <param name="uow">Uow.</param>
-		/// <param name="district">District.</param>
+		/// <param name="district">Район</param>
 		public static IList<Warehouse> GetShippingWarehouseForDistrict(IUnitOfWork uow, ScheduleRestrictedDistrict district)
 		{
 			if(district == null)

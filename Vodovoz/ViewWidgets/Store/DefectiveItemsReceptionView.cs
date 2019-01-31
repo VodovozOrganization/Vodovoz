@@ -26,10 +26,7 @@ namespace Vodovoz.ViewWidgets.Store
 
 		public IList<DefectiveItemNode> Items => defectiveList;
 
-		public void AddItem(DefectiveItemNode item)
-		{
-			defectiveList.Add(item);
-		}
+		public void AddItem(DefectiveItemNode item) => defectiveList.Add(item);
 
 		public DefectiveItemsReceptionView()
 		{
@@ -131,19 +128,20 @@ namespace Vodovoz.ViewWidgets.Store
 			CarUnloadDocument carUnloadDocumentAlias = null;
 			CarUnloadDocumentItem carUnloadDocumentItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			Warehouse warehouseAlias = null;
 
 			var defectiveItems = UoW.Session.QueryOver<CarUnloadDocumentItem>(() => carUnloadDocumentItemAlias)
 									.Left.JoinAlias(() => carUnloadDocumentItemAlias.Document, () => carUnloadDocumentAlias)
 									.Where(() => carUnloadDocumentAlias.RouteList.Id == RouteList.Id)
 									.Left.JoinAlias(() => carUnloadDocumentItemAlias.MovementOperation, () => warehouseMovementOperationAlias)
 									.Left.JoinAlias(() => warehouseMovementOperationAlias.Nomenclature, () => nomenclatureAlias)
+									.JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
 									.Where(() => nomenclatureAlias.IsDefectiveBottle)
 									.Where(
 										Restrictions.Or(
-											Restrictions.On(() => nomenclatureAlias.Warehouse).IsNull,
-											Restrictions.Eq(Projections.Property(() => nomenclatureAlias.Warehouse), Warehouse)
-										   )
-									   )
+											Restrictions.On(() => warehouseAlias.Id).IsNull, Restrictions.Eq(Projections.Property(() => warehouseAlias.Id), Warehouse.Id)
+										)
+									)
 									.SelectList(
 										list => list
 										.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)

@@ -65,9 +65,10 @@ namespace Vodovoz
 
 		protected void OnBtnAddDistrictClicked(object sender, System.EventArgs e)
 		{
-			var refWin = new ReferenceRepresentation(new ScheduleRestrictedDistrictVM(UoW));
-			refWin.Mode = OrmReferenceMode.MultiSelect;
-			refWin.ButtonMode = ReferenceButtonMode.None;
+			var refWin = new ReferenceRepresentation(new ScheduleRestrictedDistrictVM(UoW)) {
+				Mode = OrmReferenceMode.MultiSelect,
+				ButtonMode = ReferenceButtonMode.None
+			};
 			refWin.ObjectSelected += RefWin_ObjectSelected;
 			TabParent.AddSlaveTab(this, refWin);
 		}

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
@@ -20,7 +21,7 @@ namespace Vodovoz.Dialogs.Logistic
 		public GenericObservableList<RouteListControlNotLoadedNode> ObservableNotLoadedList { get; set; }
 			= new GenericObservableList<RouteListControlNotLoadedNode>();
 
-		public GenericObservableList<Nomenclature> ObservableNotAttachedList { get; set; } 
+		public GenericObservableList<Nomenclature> ObservableNotAttachedList { get; set; }
 			= new GenericObservableList<Nomenclature>();
 
 		public RouteListControlDlg(RouteList sub) : this(sub.Id) { }
@@ -48,7 +49,9 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			ytreeviewNotLoaded.ColumnsConfig = ColumnsConfigFactory.Create<RouteListControlNotLoadedNode>()
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.OfficialName)
-				.AddColumn("Склад").AddTextRenderer(x => x.Nomenclature.Warehouse == null ? "Не привязан к складу" : x.Nomenclature.Warehouse.Name)
+				.AddColumn("Склад")
+					//.AddTextRenderer(x => x.Nomenclature.Warehouse == null ? "Не привязан к складу" : x.Nomenclature.Warehouse.Name)
+					.AddTextRenderer(x => "Теперь много складов. Чинить потом.")
 				.AddColumn("Количество").AddNumericRenderer(x => x.Count)
 				.RowCells()
 				.Finish();
@@ -57,8 +60,8 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.OfficialName)
 				.RowCells()
 				.Finish();
-			
-			ytreeviewNotLoaded.RowActivated += YtreeviewNotLoaded_RowActivated;;
+
+			ytreeviewNotLoaded.RowActivated += YtreeviewNotLoaded_RowActivated; ;
 			ytreeviewNotAttached.RowActivated += YtreeviewNotAttached_RowActivated;
 
 			UpdateLists();
@@ -91,9 +94,10 @@ namespace Vodovoz.Dialogs.Logistic
 
 
 			var notAttachedNomenclatures = UoW.Session.QueryOver<Nomenclature>()
-			   .WhereRestrictionOn(x => x.Warehouse).IsNull
 			   .WhereRestrictionOn(x => x.Id).IsIn(goods.Select(x => x.NomenclatureId).ToList())
-			   .List();
+			   .List()
+			   .Where(n => !n.Warehouses.Any())
+			   .ToList();
 			ObservableNotAttachedList = new GenericObservableList<Nomenclature>(notAttachedNomenclatures);
 			ytreeviewNotLoaded.ItemsDataSource = ObservableNotLoadedList;
 			ytreeviewNotAttached.ItemsDataSource = ObservableNotAttachedList;
@@ -101,13 +105,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 		void YtreeviewNotLoaded_RowActivated(object o, Gtk.RowActivatedArgs args)
 		{
-			var notLoadedNomenclature = ytreeviewNotLoaded.GetSelectedObject() as RouteListControlNotLoadedNode;
-			if(notLoadedNomenclature == null) {
-				return;
+			if(ytreeviewNotLoaded.GetSelectedObject() is RouteListControlNotLoadedNode notLoadedNomenclature) {
+				throw new NotImplementedException("\n\nПоломали, т.к. складов в номенклатуре теперь несколько!\n");
+				/*var dlg = new CarLoadDocumentDlg(Entity.Id, notLoadedNomenclature.Nomenclature.Warehouse?.Id);
+				TabParent.AddTab(dlg, this);*/
 			}
-
-			var dlg = new CarLoadDocumentDlg(Entity.Id, notLoadedNomenclature.Nomenclature.Warehouse?.Id);
-			TabParent.AddTab(dlg, this);
 		}
 
 		void YtreeviewNotAttached_RowActivated(object o, Gtk.RowActivatedArgs args)
