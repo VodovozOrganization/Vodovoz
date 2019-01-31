@@ -96,7 +96,7 @@
       </source>
     </icon-set>
   </icon-factory>
-  <widget class="Gtk.Window" id="MainWindow" design-size="1005 530">
+  <widget class="Gtk.Window" id="MainWindow" design-size="1007 530">
     <action-group name="Default">
       <action id="ActionBaseMenu">
         <property name="Type">Action</property>
@@ -732,7 +732,7 @@
         <property name="ShortLabel" translatable="yes">Отчёт по заказам меньше 100 р.</property>
         <signal name="Activated" handler="OnActionOrdersWithMinPriceLessThanActivated" />
       </action>
-      <action id="ActionRouteListsOnClosing">
+      <action id="Action551">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчет по незакрытым МЛ</property>
         <property name="ShortLabel" translatable="yes">Отчет по незакрытым МЛ</property>
@@ -893,7 +893,7 @@
         <property name="ShortLabel" translatable="yes">Статистика по дням недели</property>
         <signal name="Activated" handler="OnAction49Activated" />
       </action>
-      <action id="ReportKungolovo">
+      <action id="Action57">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчёт "Куньголово"</property>
         <property name="ShortLabel" translatable="yes">Отчёт "Куньголово"</property>
@@ -1005,6 +1005,12 @@
         <property name="Label" translatable="yes">Иностранное гражданство</property>
         <property name="ShortLabel" translatable="yes">Гражданство</property>
         <signal name="Activated" handler="OnActionCitizenshipActivated" />
+      </action>
+      <action id="Action58">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчет по дате создания заказа</property>
+        <property name="ShortLabel" translatable="yes">Отчет по дате создания заказа</property>
+        <signal name="Activated" handler="OnActionOrdersByCreationDate" />
       </action>
       <action id="ActionAdministration">
         <property name="Type">Action</property>
@@ -1174,7 +1180,8 @@
                       <node type="Menuitem" action="ActionBottlesMovementSummaryReport" />
                       <node type="Menuitem" action="ActionBottlesMovementRLReport" />
                       <node type="Menuitem" action="ActionShortfallBattles" />
-                      <node type="Menuitem" action="ReportKungolovo" />
+                      <node type="Menuitem" action="Action57" />
+                      <node type="Menuitem" action="Action58" />
                     </node>
                     <node type="Menu" action="ActionLogistic">
                       <node type="Menuitem" action="ActionOrdersByDistrictsAndDeliverySchedules" />
@@ -1191,7 +1198,7 @@
                       <node type="Menuitem" action="ActionFuelReport" />
                       <node type="Menuitem" action="ActionDriversWageBalance" />
                       <node type="Menuitem" action="ActionDeliveriesLate" />
-                      <node type="Menuitem" action="ActionRouteListsOnClosing" />
+                      <node type="Menuitem" action="Action55" />
                       <node type="Separator" />
                       <node type="Menuitem" action="ActionRoutesListRegister" />
                       <node type="Menuitem" action="ActionOnLoadTime" />
@@ -1439,7 +1446,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -29185,7 +29191,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">6</property>
+            <property name="CurrentPage">3</property>
             <child>
               <widget class="Gtk.VBox" id="vboxInfo">
                 <property name="MemberName" />
@@ -45392,7 +45398,6 @@ not tooltip</property>
                     <property name="Sensitive">False</property>
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">новый адрес</property>
-                    <property name="Active">True</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -65097,7 +65102,6 @@ not tooltip</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Начиная с даты</property>
-            <property name="Active">True</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -67669,6 +67673,73 @@ not tooltip</property>
           </widget>
           <packing>
             <property name="Position">3</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Bottles.OrdersByCreationDateReport" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hbox1">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="label1">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Дата:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="QSWidgetLib.DatePicker" id="pkrDate">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
+                <property name="Date">0</property>
+                <property name="IsEditable">True</property>
+                <property name="AutoSeparation">False</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonCreateReport">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Сформировать отчет</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonRunClicked" />
+          </widget>
+          <packing>
+            <property name="Position">2</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
