@@ -4,9 +4,9 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
-  <Width>7.5in</Width>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
+  <Width>297mm</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
   <RightMargin>.25in</RightMargin>
@@ -17,6 +17,7 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS OrderId,
+	orders.comment as Comment,
 	CASE
 		WHEN orders.order_status = 'NewOrder' THEN 'Новый'
 		WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
@@ -101,6 +102,10 @@ GROUP BY orders.id</CommandText>
           <DataField>Status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="Comment">
+          <DataField>Comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -142,17 +147,17 @@ GROUP BY orders.id</CommandText>
           <TableColumn>
             <Width>61.4pt</Width>
           </TableColumn>
-          <TableColumn >
-            <Width>57.4pt</Width>
+          <TableColumn>
+            <Width>55.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>1in</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.2pt</Width>
+            <Width>117.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>122.2pt</Width>
+            <Width>137.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>49.4pt</Width>
@@ -160,8 +165,11 @@ GROUP BY orders.id</CommandText>
           <TableColumn>
             <Width>50.5pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>64.0pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>193.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -185,7 +193,7 @@ GROUP BY orders.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
                       <Value>Номер заказа</Value>
@@ -281,10 +289,26 @@ GROUP BY orders.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
                       <Value>Статус заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Комментарий</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -305,7 +329,7 @@ GROUP BY orders.id</CommandText>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>55.3pt</Height>
+              <Height>60.1pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -320,7 +344,7 @@ GROUP BY orders.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
                       <Value>={OrderId}</Value>
@@ -328,8 +352,8 @@ GROUP BY orders.id</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -356,8 +380,8 @@ GROUP BY orders.id</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -401,7 +425,7 @@ GROUP BY orders.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
                       <Value>={Status}</Value>
@@ -409,8 +433,22 @@ GROUP BY orders.id</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>={Comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -425,7 +463,7 @@ GROUP BY orders.id</CommandText>
     </ReportItems>
   </Body>
   <PageFooter>
-    <Height>14pt</Height>
+    <Height>14.8pt</Height>
     <ReportItems>
       <Textbox Name="Textbox18">
         <Top>1pt</Top>
@@ -456,7 +494,7 @@ GROUP BY orders.id</CommandText>
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <DefaultValue>

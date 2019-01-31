@@ -58,13 +58,13 @@
             <Width>43.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>75.8pt</Width>
+            <Width>70.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>67.8pt</Width>
+            <Width>58.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>72.8pt</Width>
+            <Width>62.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>64.6pt</Width>
@@ -79,7 +79,7 @@
             <Width>61.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>61.1pt</Width>
+            <Width>100.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65.3pt</Width>
@@ -268,7 +268,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value>№МЛ переноса </Value>
+                      <Value>№ Взаимосвязанного МЛ </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -512,7 +512,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
-                      <Value>={TransferedML}</Value>
+                      <Value>={TransferedFromML} + " "  + {TransferedToML}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1489,7 +1489,7 @@ Iif( Fields!PhoneSum.IsMissing, 0,  {PhoneSum}) </Value>
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     t.*,
@@ -1499,7 +1499,9 @@ Iif( Fields!PhoneSum.IsMissing, 0,  {PhoneSum}) </Value>
 FROM
     (SELECT 
         route_lists.id AS number,
-            GROUP_CONCAT(CONCAT('-', transferML.transfered_to_id)
+            GROUP_CONCAT(CONCAT('+', transferML.transferFromML)
+                SEPARATOR ' ') AS TransferedFromML,
+            GROUP_CONCAT(CONCAT('-', transferML.transferToML)
                 SEPARATOR ' ') AS TransferedToML,
             route_lists.date AS date,
             CONCAT_WS('', CONCAT(employees.last_name, ' '), IF(employees.name = '', '', CONCAT(LEFT(employees.name, 1), '.')), IF(employees.patronymic = '', '', CONCAT(LEFT(employees.patronymic, 1), '.'))) AS driver,
@@ -1588,13 +1590,19 @@ FROM
     GROUP BY internal_trans.route_list_id
     HAVING TotalOrdersSum != 0) AS Transfered ON Transfered.route_list_id = route_lists.id
     LEFT JOIN (SELECT 
-        route_list_addresses.transfered_to_id
+        route_list_addresses.id,
+            route_list_addresses.transfered_to_id,
+            route_list_addresses.route_list_id,
+            tranfer_to_route_list.route_list_id AS transferToML,
+            tranfer_from_route_list.route_list_id AS transferFromMl
     FROM
         route_list_addresses
     LEFT JOIN orders ON route_list_addresses.order_id = orders.id
+    LEFT JOIN route_list_addresses AS tranfer_to_route_list ON tranfer_to_route_list.id = route_list_addresses.transfered_to_id
+    LEFT JOIN route_list_addresses AS tranfer_from_route_list ON tranfer_from_route_list.transfered_to_id = route_list_addresses.id
     WHERE
-        route_list_addresses.transfered_to_id IS NOT NULL
-            AND orders.payment_type = 'cash') AS transferML ON transferML.transfered_to_id = route_list_addresses.transfered_to_id
+        orders.payment_type = 'cash'
+    GROUP BY tranfer_to_route_list.route_list_id , tranfer_from_route_list.route_list_id) AS transferML ON transferML.id = route_list_addresses.id
     LEFT JOIN (SELECT 
         route_list_id,
             SUM(IFNULL(cash_income.money, 0)) AS MoneyIncome,
@@ -1615,8 +1623,7 @@ FROM
         route_lists.status IN ('Closed' , 'MileageCheck')
             AND route_lists.date &gt;= @StartDate
             AND route_lists.date &lt;= @EndDate
-    GROUP BY route_lists.id) AS t
-;</CommandText>
+    GROUP BY route_lists.id) AS t</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -1626,7 +1633,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1675,7 +1682,11 @@ FROM
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="TransferedML">
+        <Field Name="TransferedFromML">
+          <DataField>TransferedFromML</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="TransferedToML">
           <DataField>TransferedToML</DataField>
           <TypeName>System.String</TypeName>
         </Field>
