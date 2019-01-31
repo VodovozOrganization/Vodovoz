@@ -150,8 +150,7 @@ namespace Vodovoz
 				.AddColumn("Приоритет").AddNumericRenderer(x => x.Priority + 1)
 				.Finish();
 			ytreeviewDistricts.Reorderable = true;
-
-			string[] values = new string[] { "one", "two", "three" };
+			ytreeviewDistricts.SetItemsSource(Entity.ObservableDistricts);
 
 			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
