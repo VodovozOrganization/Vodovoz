@@ -62,7 +62,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		QSMain.MakeNewStatusTargetForNlog();
 		//Настраиваем модули
 		MainClass.SetupAppFromBase();
-		UsersAction.Sensitive = QSMain.User.Admin;
+		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
 		ActionCash.Sensitive = QSMain.User.Permissions["money_manage_cash"];
