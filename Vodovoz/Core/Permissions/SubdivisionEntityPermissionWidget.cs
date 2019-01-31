@@ -7,7 +7,9 @@ using Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Repositories;
+using QS.Widgets.Gtk;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 
 namespace Vodovoz.Core.Permissions
