@@ -87,7 +87,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ActionReports.Sensitive = false;
 		ActionServices.Visible = false;
 		ActionMaintenance.Sensitive = QSMain.User.Permissions["database_maintenance"];
-
+		ActionDocTemplates.Visible = QSMain.User.Admin;
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle) {
