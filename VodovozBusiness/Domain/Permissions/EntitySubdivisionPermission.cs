@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.Project.Domain;
 
 namespace Vodovoz.Domain.Permissions
 {
@@ -15,11 +16,11 @@ namespace Vodovoz.Domain.Permissions
 			set => SetField(ref subdivision, value, () => Subdivision);
 		}
 
-		private string entityName;
-		[Display(Name = "Имя сущности")]
-		public virtual string EntityName {
-			get => entityName;
-			set => SetField(ref entityName, value, () => EntityName);
+		private TypeOfEntity typeOfEntity;
+		[Display(Name = "Тип сущности")]
+		public virtual TypeOfEntity TypeOfEntity {
+			get => typeOfEntity;
+			set => SetField(ref typeOfEntity, value, () => TypeOfEntity);
 		}
 
 		private bool canCreate;

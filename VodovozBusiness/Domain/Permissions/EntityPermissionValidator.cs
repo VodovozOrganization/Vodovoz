@@ -3,6 +3,10 @@ using System.Reflection;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Project.Repositories;
+using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Domain.Employees;
+using System.Linq;
+using Vodovoz.Repositories.Permissions;
 
 namespace Vodovoz.Domain.Permissions
 {
@@ -20,8 +24,32 @@ namespace Vodovoz.Domain.Permissions
 				return permission;
 			}
 
-			//TODO проверка прав по подразделениям
-			return permission;
+			var deniedPermission = new EntityPermission(false, false, false, false);
+			var permissionAttr = entityType.GetCustomAttribute<EntityPermissionAttribute>();
+			if(permissionAttr == null) {
+				return deniedPermission;
+			}
+
+			Employee employee;
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				employee = EmployeeRepository.GetEmployeesForUser(uow, userId).FirstOrDefault();
+
+				if(employee == null || employee.Subdivision == null) {
+					return deniedPermission;
+				}
+
+				EntitySubdivisionPermission subdivisionPermission = PermissionRepository.GetSubdivisionEntityPermission(uow, entityType.Name, employee.Subdivision.Id);
+				if(subdivisionPermission == null) {
+					return deniedPermission;
+				} else {
+					return new EntityPermission(
+						subdivisionPermission.CanCreate,
+						subdivisionPermission.CanRead,
+						subdivisionPermission.CanUpdate,
+						subdivisionPermission.CanDelete
+					);
+				}
+			}
 		}
 	}
 }

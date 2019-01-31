@@ -550,6 +550,8 @@
     <Compile Include="HibernateMapping\Permissions\EntitySubdivisionPermissionMap.cs" />
     <Compile Include="Domain\Permissions\EntityPermissionValidator.cs" />
     <Compile Include="Domain\Permissions\EntitiesWithPermissionFinder.cs" />
+    <Compile Include="Domain\Permissions\PermissionHelper.cs" />
+    <Compile Include="Repositories\Permissions\PermissionRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -580,6 +582,7 @@
     <Folder Include="Repositories\HumanResourses\" />
     <Folder Include="Domain\Permissions\" />
     <Folder Include="HibernateMapping\Permissions\" />
+    <Folder Include="Repositories\Permissions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

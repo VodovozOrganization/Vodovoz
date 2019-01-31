@@ -59,7 +59,7 @@ namespace Vodovoz
 			QSMain.User.LoadUserPermissions();
 
 			PermissionsSettings.ConfigureEntityPermissionFinder(new Vodovoz.Domain.Permissions.EntitiesWithPermissionFinder());
-			//PermissionsSettings.EntityPermissionValidator = new Vodovoz.Domain.Permissions.EntityPermissionValidator();
+			PermissionsSettings.EntityPermissionValidator = new Vodovoz.Domain.Permissions.EntityPermissionValidator();
 
 			MainSupport.LoadBaseParameters();
 
