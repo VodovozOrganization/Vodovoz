@@ -13,7 +13,7 @@ namespace Vodovoz.Dialogs.Client
 		public TagDlg()
 		{
 			this.Build();
-			UoWGeneric = Tag.Create();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Tag>();
 			ConfigureDlg();
 		}
 
