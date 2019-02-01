@@ -233,7 +233,7 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionDiscountReasons;
 
-	private global::Gtk.Action Action54;
+	private global::Gtk.Action Action59;
 
 	private global::Gtk.Action Action45;
 
@@ -356,23 +356,23 @@ public partial class MainWindow
 		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString("Логистика");
 		w1.Add(this.ActionLogistics, null);
 		this.ActionStock = new global::Gtk.RadioAction("ActionStock", global::Mono.Unix.Catalog.GetString("Склад"), null, "stock", 0);
-		this.ActionStock.Group = this.ActionOrders.Group;
+		this.ActionStock.Group = this.ActionLogistics.Group;
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString("Склад");
 		w1.Add(this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction("ActionCash", global::Mono.Unix.Catalog.GetString("Касса"), null, "cash", 0);
-		this.ActionCash.Group = this.ActionOrders.Group;
+		this.ActionCash.Group = this.ActionStock.Group;
 		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString("Касса");
 		w1.Add(this.ActionCash, null);
 		this.ActionAccounting = new global::Gtk.RadioAction("ActionAccounting", global::Mono.Unix.Catalog.GetString("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionOrders.Group;
+		this.ActionAccounting.Group = this.ActionStock.Group;
 		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString("Бухгалтерия");
 		w1.Add(this.ActionAccounting, null);
 		this.ActionReports = new global::Gtk.RadioAction("ActionReports", global::Mono.Unix.Catalog.GetString("Отчеты"), null, "report", 0);
-		this.ActionReports.Group = this.ActionOrders.Group;
+		this.ActionReports.Group = this.ActionStock.Group;
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчеты");
 		w1.Add(this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction("ActionArchive", global::Mono.Unix.Catalog.GetString("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionOrders.Group;
+		this.ActionArchive.Group = this.ActionStock.Group;
 		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString("Архив");
 		w1.Add(this.ActionArchive, null);
 		this.ActionOrg = new global::Gtk.Action("ActionOrg", global::Mono.Unix.Catalog.GetString("Организации"), null, null);
@@ -592,7 +592,7 @@ public partial class MainWindow
 		this.ActionForwarderWageReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Зарплаты экспедиторов");
 		w1.Add(this.ActionForwarderWageReport, null);
 		this.ActionStaff = new global::Gtk.RadioAction("ActionStaff", global::Mono.Unix.Catalog.GetString("Кадры"), null, "employees", 0);
-		this.ActionStaff.Group = this.ActionOrders.Group;
+		this.ActionStaff.Group = this.ActionStock.Group;
 		this.ActionStaff.ShortLabel = global::Mono.Unix.Catalog.GetString("Кадры");
 		w1.Add(this.ActionStaff, null);
 		this.ActionDriversWageBalance = new global::Gtk.Action("ActionDriversWageBalance", global::Mono.Unix.Catalog.GetString("Баланс водителей"), null, null);
@@ -685,9 +685,9 @@ public partial class MainWindow
 		this.ActionDiscountReasons = new global::Gtk.Action("ActionDiscountReasons", global::Mono.Unix.Catalog.GetString("Основания для скидок"), null, null);
 		this.ActionDiscountReasons.ShortLabel = global::Mono.Unix.Catalog.GetString("Основания для скидок");
 		w1.Add(this.ActionDiscountReasons, null);
-		this.Action54 = new global::Gtk.Action("Action54", global::Mono.Unix.Catalog.GetString("Отчет по кассе"), null, null);
-		this.Action54.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по прибыли");
-		w1.Add(this.Action54, null);
+		this.Action59 = new global::Gtk.Action("Action59", global::Mono.Unix.Catalog.GetString("Отчет по приходу по кассе"), null, null);
+		this.Action59.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по прибыли");
+		w1.Add(this.Action59, null);
 		this.Action45 = new global::Gtk.Action("Action45", global::Mono.Unix.Catalog.GetString("Замена ссылок"), null, null);
 		this.Action45.ShortLabel = global::Mono.Unix.Catalog.GetString("Замена ссылок");
 		w1.Add(this.Action45, null);
@@ -867,7 +867,7 @@ public partial class MainWindow
 				"ndedBills\' action=\'ActionSendedBills\'/><menuitem name=\'OnLineAction\' action=\'OnL" +
 				"ineAction\'/></menu><menu name=\'ActionReportsSales\' action=\'ActionReportsSales\'><" +
 				"menuitem name=\'ActionSalesReport\' action=\'ActionSalesReport\'/><menuitem name=\'Ac" +
-				"tion54\' action=\'Action54\'/></menu><separator/><menu name=\'ActionReportsStock\' ac" +
+				"tion59\' action=\'Action59\'/></menu><separator/><menu name=\'ActionReportsStock\' ac" +
 				"tion=\'ActionReportsStock\'><menuitem name=\'ActionStockMovements\' action=\'ActionSt" +
 				"ockMovements\'/><menuitem name=\'Action50\' action=\'Action50\'/><menuitem name=\'Acti" +
 				"onDefectiveItemsReport\' action=\'ActionDefectiveItemsReport\'/></menu><menu name=\'" +
@@ -1101,7 +1101,7 @@ public partial class MainWindow
 		this.Action41.Activated += new global::System.EventHandler(this.OnActionEquipmentReportActivated);
 		this.ActionHistoryLog.Activated += new global::System.EventHandler(this.OnActionHistoryLogActivated);
 		this.ActionDiscountReasons.Activated += new global::System.EventHandler(this.OnActionDiscountReasonsActivated);
-		this.Action54.Activated += new global::System.EventHandler(this.OnAction43Activated);
+		this.Action59.Activated += new global::System.EventHandler(this.OnIncomeBalanceReportActivated);
 		this.Action45.Activated += new global::System.EventHandler(this.OnAction45Activated);
 		this.ActionBottlesMovementSummaryReport.Activated += new global::System.EventHandler(this.OnActionBottlesMovementSummaryReportActivated);
 		this.ActionDriveingCalls.Activated += new global::System.EventHandler(this.OnActionDriveingCallsActivated);
