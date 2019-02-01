@@ -53220,6 +53220,7 @@ not tooltip</property>
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
                                     <property name="Label" translatable="yes">ПН</property>
+                                    <property name="Active">True</property>
                                     <property name="DrawIndicator">False</property>
                                     <property name="HasLabel">True</property>
                                     <property name="Group">group1</property>
@@ -53451,7 +53452,6 @@ not tooltip</property>
                                 <property name="Type">TextOnly</property>
                                 <property name="Label" translatable="yes">Добавить</property>
                                 <property name="UseUnderline">True</property>
-                                <signal name="Clicked" handler="OnBtnAddGeographicGroupClicked" />
                               </widget>
                               <packing>
                                 <property name="Expand">False</property>
@@ -53465,7 +53465,6 @@ not tooltip</property>
                                 <property name="Type">TextOnly</property>
                                 <property name="Label" translatable="yes">Удалить</property>
                                 <property name="UseUnderline">True</property>
-                                <signal name="Clicked" handler="OnBtnRemoveGeographicGroupClicked" />
                               </widget>
                               <packing>
                                 <property name="Position">1</property>
@@ -53484,7 +53483,7 @@ not tooltip</property>
                       </widget>
                       <packing>
                         <property name="Position">1</property>
-                        <property name="AutoSize">False</property>
+                        <property name="AutoSize">True</property>
                       </packing>
                     </child>
                   </widget>
