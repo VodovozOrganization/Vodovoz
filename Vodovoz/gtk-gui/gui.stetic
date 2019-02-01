@@ -122,13 +122,6 @@
         <property name="StockId">gtk-about</property>
         <signal name="Activated" handler="OnAboutActionActivated" />
       </action>
-      <action id="UsersAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Пользователи</property>
-        <property name="ShortLabel" translatable="yes">Пользователи</property>
-        <property name="StockId">users</property>
-        <signal name="Activated" handler="OnActionDocTemplatesActivated" />
-      </action>
       <action id="quitAction">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">В_ыход</property>
@@ -732,7 +725,7 @@
         <property name="ShortLabel" translatable="yes">Отчёт по заказам меньше 100 р.</property>
         <signal name="Activated" handler="OnActionOrdersWithMinPriceLessThanActivated" />
       </action>
-      <action id="Action55">
+      <action id="Action551">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчет по незакрытым МЛ</property>
         <property name="ShortLabel" translatable="yes">Отчет по незакрытым МЛ</property>
@@ -1446,6 +1439,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -29062,7 +29056,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -44518,7 +44511,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.SubdivisionDlg" design-size="741 431">
+  <widget class="Gtk.Bin" id="Vodovoz.SubdivisionDlg" design-size="723 431">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>

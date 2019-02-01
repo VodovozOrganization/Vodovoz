@@ -12,7 +12,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label lblWarehouses;
 
-		private global::Gtk.Label GtkLabel4;
+		private global::Gtk.Label GtkLabel5;
 
 		private global::Gtk.HBox hbox1;
 
@@ -37,6 +37,8 @@ namespace Vodovoz
 		private global::QSOrmProject.RepresentationTreeView repTreeChildSubdivisions;
 
 		private global::Gtk.Label labelChildSubdivizions;
+
+		private global::Vodovoz.Core.Permissions.SubdivisionEntityPermissionWidget subdivisionentitypermissionwidget;
 
 		private global::Gtk.Label labelPermissions;
 
@@ -86,11 +88,11 @@ namespace Vodovoz
 			this.lblWarehouses.Selectable = true;
 			this.GtkAlignment4.Add(this.lblWarehouses);
 			this.frmWarehoses.Add(this.GtkAlignment4);
-			this.GtkLabel4 = new global::Gtk.Label();
-			this.GtkLabel4.Name = "GtkLabel4";
-			this.GtkLabel4.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Склады отдела:</b>");
-			this.GtkLabel4.UseMarkup = true;
-			this.frmWarehoses.LabelWidget = this.GtkLabel4;
+			this.GtkLabel5 = new global::Gtk.Label();
+			this.GtkLabel5.Name = "GtkLabel5";
+			this.GtkLabel5.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Склады отдела:</b>");
+			this.GtkLabel5.UseMarkup = true;
+			this.frmWarehoses.LabelWidget = this.GtkLabel5;
 			this.table1.Add(this.frmWarehoses);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.frmWarehoses]));
 			w3.TopAttach = ((uint)(1));
@@ -177,14 +179,18 @@ namespace Vodovoz
 			this.labelChildSubdivizions.LabelProp = global::Mono.Unix.Catalog.GetString("Дочерние подразделения");
 			this.notebook1.SetTabLabel(this.GtkScrolledWindow, this.labelChildSubdivizions);
 			this.labelChildSubdivizions.ShowAll();
+			// Container child notebook1.Gtk.Notebook+NotebookChild
+			this.subdivisionentitypermissionwidget = new global::Vodovoz.Core.Permissions.SubdivisionEntityPermissionWidget();
+			this.subdivisionentitypermissionwidget.Events = ((global::Gdk.EventMask)(256));
+			this.subdivisionentitypermissionwidget.Name = "subdivisionentitypermissionwidget";
+			this.notebook1.Add(this.subdivisionentitypermissionwidget);
+			global::Gtk.Notebook.NotebookChild w12 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.subdivisionentitypermissionwidget]));
+			w12.Position = 2;
 			// Notebook tab
-			global::Gtk.Label w12 = new global::Gtk.Label();
-			w12.Visible = true;
-			this.notebook1.Add(w12);
 			this.labelPermissions = new global::Gtk.Label();
 			this.labelPermissions.Name = "labelPermissions";
 			this.labelPermissions.LabelProp = global::Mono.Unix.Catalog.GetString("Права доступа");
-			this.notebook1.SetTabLabel(w12, this.labelPermissions);
+			this.notebook1.SetTabLabel(this.subdivisionentitypermissionwidget, this.labelPermissions);
 			this.labelPermissions.ShowAll();
 			this.hbox1.Add(this.notebook1);
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.notebook1]));
