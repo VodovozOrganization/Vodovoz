@@ -1109,4 +1109,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		winUsers.Run();
 		winUsers.Destroy();
 	}
+
+	protected void OnActionGeographicGroupsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<GeographicGroup>(),
+			() => new OrmReference(typeof(GeographicGroup))
+		);
+	}
 }

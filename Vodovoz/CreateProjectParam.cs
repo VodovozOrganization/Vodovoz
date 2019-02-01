@@ -158,7 +158,7 @@ namespace Vodovoz
 				OrmObjectMapping<DeliveryPoint>.Create().Dialog<DeliveryPointDlg>().DefaultTableView().SearchColumn("ID", x => x.Id.ToString()).Column("Адрес", x => x.Title).End(),
 				OrmObjectMapping<PaidRentPackage>.Create().Dialog<PaidRentPackageDlg>()
 					.DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип оборудования", x => x.EquipmentType.Name).SearchColumn("Цена в сутки", x => CurrencyWorks.GetShortCurrencyString (x.PriceDaily)).SearchColumn("Цена в месяц", x => CurrencyWorks.GetShortCurrencyString (x.PriceMonthly)).End(),
-					OrmObjectMapping<FreeRentPackage>.Create().Dialog<FreeRentPackageDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип оборудования", x => x.EquipmentType.Name).OrderAsc(x => x.Name).End(),
+				OrmObjectMapping<FreeRentPackage>.Create().Dialog<FreeRentPackageDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип оборудования", x => x.EquipmentType.Name).OrderAsc(x => x.Name).End(),
 				OrmObjectMapping<FreeRentAgreement>.Create().Dialog<FreeRentAgreementDlg>(),
 				OrmObjectMapping<DailyRentAgreement>.Create().Dialog<DailyRentAgreementDlg>(),
 				OrmObjectMapping<NonfreeRentAgreement>.Create().Dialog<NonFreeRentAgreementDlg>(),
@@ -219,9 +219,16 @@ namespace Vodovoz
 			OrmMain.AddObjectDescription<ProductGroup>().Dialog<ProductGroupDlg>().EditPermision("can_edit_online_store").DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).TreeConfig(new RecursiveTreeConfig<ProductGroup>(x => x.Parent, x => x.Childs)).End();
 			#endregion
 
-			OrmMain.AddObjectDescription<DiscountReason>().DefaultTableView().SearchColumn("Название", x => x.Name).End();
-
 			#region Простые справочники
+			OrmMain.AddObjectDescription<DiscountReason>().DefaultTableView().SearchColumn("Название", x => x.Name).End();
+			OrmMain.AddObjectDescription<GeographicGroup>()
+				   .DefaultTableView()
+				   .SearchColumn("Название", x => x.Name)
+				   .Column("Код", x => x.Id.ToString())
+				   .End();
+			#endregion
+
+			#region неПростые справочники
 			OrmMain.AddObjectDescription<Subdivision>().Dialog<SubdivisionDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Руководитель", x => x.Chief == null ? "" : x.Chief.ShortName).SearchColumn("Номер", x => x.Id.ToString()).TreeConfig(new RecursiveTreeConfig<Subdivision>(x => x.ParentSubdivision, x => x.ChildSubdivisions)).End();
 			OrmMain.AddObjectDescription<TypeOfEntity>()
 				   .Dialog<TypeOfEntityDlg>()

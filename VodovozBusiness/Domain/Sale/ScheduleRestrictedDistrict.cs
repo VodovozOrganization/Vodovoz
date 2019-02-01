@@ -136,6 +136,22 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
+		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
+		[Display(Name = "Группа района")]
+		public virtual IList<GeographicGroup> GeographicGroups {
+			get { return geographicGroups; }
+			set { SetField(ref geographicGroups, value, () => GeographicGroups); }
+		}
+
+		GenericObservableList<GeographicGroup> observableGeographicGroups;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<GeographicGroup> ObservableGeographicGroups {
+			get {
+				if(observableGeographicGroups == null)
+					observableGeographicGroups = new GenericObservableList<GeographicGroup>(GeographicGroups);
+				return observableGeographicGroups;
+			}
+		}
 		#endregion
 
 		#region Функции

@@ -63,12 +63,18 @@ namespace Vodovoz.Dialogs.Logistic
 				.Finish();
 			ytreeSchedules.Selection.Changed += OnYTreeSchedules_SelectionChanged;
 
+			yTreeGeographicGroups.Selection.Mode = Gtk.SelectionMode.Single;
+			yTreeGeographicGroups.ColumnsConfig = FluentColumnsConfig<GeographicGroup>.Create()
+				.AddColumn("Название").AddTextRenderer(x => x.Name)
+				.Finish();
+			yTreeGeographicGroups.Selection.Changed += (sender, e) => ControlsAccessibility();
+
 			ControlsAccessibility();
 
 			// Пока кнопочки всё равно не работают.
-			buttonAddVertex.Sensitive = buttonAddVertex.Visible 
-				= buttonMoveVertex.Sensitive = buttonMoveVertex.Visible 
-				= buttonRemoveVertex.Sensitive = buttonRemoveVertex.Visible 
+			buttonAddVertex.Sensitive = buttonAddVertex.Visible
+				= buttonMoveVertex.Sensitive = buttonMoveVertex.Visible
+				= buttonRemoveVertex.Sensitive = buttonRemoveVertex.Visible
 				= false;
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
@@ -89,7 +95,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			ytreeSchedules.QueueDraw();
 		}
-		
+
 		void YenumcomboMapType_ChangedByUser(object sender, EventArgs e)
 		{
 			gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)yenumcomboMapType.SelectedItem);
@@ -163,37 +169,30 @@ namespace Vodovoz.Dialogs.Logistic
 
 		void SelectSchedules_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			var scheduleList = (ytreeSchedules.ItemsDataSource as GenericObservableList<DeliverySchedule>);
-			if(scheduleList == null) {
-				return;
-			}
-			foreach(var item in e.Subjects) {
-				var schedule = (item as DeliverySchedule);
-				if(schedule != null && !scheduleList.Any(x => x.Id == schedule.Id)) {
-					scheduleList.Add(schedule);
+			if(ytreeSchedules.ItemsDataSource is GenericObservableList<DeliverySchedule> scheduleList)
+				foreach(var item in e.Subjects) {
+					if(item is DeliverySchedule schedule && !scheduleList.Any(x => x.Id == schedule.Id))
+						scheduleList.Add(schedule);
 				}
-			}
 		}
 
 		protected void OnButtonDeleteScheduleClicked(object sender, EventArgs e)
 		{
-			var selectedObj = ytreeSchedules.GetSelectedObject() as DeliverySchedule;
-			var scheduleList = (ytreeSchedules.ItemsDataSource as GenericObservableList<DeliverySchedule>);
-			if(selectedObj != null && scheduleList != null) {
+			var scheduleList = ytreeSchedules.ItemsDataSource as GenericObservableList<DeliverySchedule>;
+			if(ytreeSchedules.GetSelectedObject() is DeliverySchedule selectedObj && scheduleList != null)
 				scheduleList.Remove(selectedObj);
-			}
 		}
 
 		public virtual GenericObservableList<ScheduleRestrictedDistrict> ObservableRestrictedDistricts {
 			get {
 				if(observableRestrictedDistricts == null) {
-					observableRestrictedDistricts = new GenericObservableList<ScheduleRestrictedDistrict>(GetAllDistricts());				
+					observableRestrictedDistricts = new GenericObservableList<ScheduleRestrictedDistrict>(GetAllDistricts());
 				}
 				return observableRestrictedDistricts;
 			}
 		}
 
-		void OnObservableRestrictedDistricts_ElementAdded(object sender,  int[] aIdx)
+		void OnObservableRestrictedDistricts_ElementAdded(object sender, int[] aIdx)
 		{
 			ytreeDistricts.SetItemsSource(ObservableRestrictedDistricts);
 		}
@@ -216,23 +215,22 @@ namespace Vodovoz.Dialogs.Logistic
 		void ControlsAccessibility()
 		{
 			buttonDeleteDistrict.Sensitive = buttonCreateBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1;
-			buttonRemoveBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1 &&  currentDistrict != null && currentDistrict.DistrictBorder != null;
+			buttonRemoveBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1 && currentDistrict != null && currentDistrict.DistrictBorder != null;
 			btnEditDistrict.Sensitive = buttonAddSchedule.Sensitive = currentDistrict != null;
-			vboxSchedules.Visible = currentDistrict != null;
+			vboxGeographicGroups.Visible = vboxSchedules.Visible = currentDistrict != null;
 		}
 
 		IList<ScheduleRestrictedDistrict> GetAllDistricts()
 		{
 			var srdQuery = uow.Session.QueryOver<ScheduleRestrictedDistrict>()
-			                  .List<ScheduleRestrictedDistrict>();
-			
+							  .List<ScheduleRestrictedDistrict>();
+
 			return srdQuery;
 		}
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			foreach(ScheduleRestrictedDistrict district in observableRestrictedDistricts)
-			{
+			foreach(ScheduleRestrictedDistrict district in observableRestrictedDistricts) {
 				district.Save(uow);
 			}
 			uow.Commit();
@@ -240,16 +238,12 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnButtonCreateBorderClicked(object sender, EventArgs e)
 		{
-			if(!creatingNewBorder)
-			{
+			if(!creatingNewBorder) {
 				creatingNewBorder = true;
 				newBorderVertice = new List<PointLatLng>();
-			} else
-			{
-				if(MessageDialogHelper.RunQuestionDialog("Завершить задание границ района?"))
-				{
-					if(MessageDialogHelper.RunQuestionDialog("Сохранить новые границы района?"))
-					{
+			} else {
+				if(MessageDialogHelper.RunQuestionDialog("Завершить задание границ района?")) {
+					if(MessageDialogHelper.RunQuestionDialog("Сохранить новые границы района?")) {
 						var closingPoint = newBorderVertice[0];
 						newBorderVertice.Add(closingPoint);
 						currentBorderVertice = newBorderVertice;
@@ -280,16 +274,15 @@ namespace Vodovoz.Dialogs.Logistic
 
 		IList<PointLatLng> GetCurrentBorderVertice()
 		{
-			if(currentDistrict.DistrictBorder == null){
+			if(currentDistrict.DistrictBorder == null) {
 				return null;
 			}
 
 			var coords = currentDistrict.DistrictBorder.Coordinates;
 			var vertice = new List<PointLatLng>();
 
-			foreach(Coordinate coord in coords)
-			{
-				vertice.Add(new PointLatLng(){
+			foreach(Coordinate coord in coords) {
+				vertice.Add(new PointLatLng() {
 					Lat = coord.X,
 					Lng = coord.Y
 				});
@@ -302,10 +295,8 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			bordersOverlay.Clear();
 
-			foreach(ScheduleRestrictedDistrict district in observableRestrictedDistricts)
-			{
-				if(district.DistrictBorder != null)
-				{
+			foreach(ScheduleRestrictedDistrict district in observableRestrictedDistricts) {
+				if(district.DistrictBorder != null) {
 					var border = new GMapPolygon(district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(), district.DistrictName);
 					border.Tag = district;
 					bordersOverlay.Polygons.Add(border);
@@ -317,13 +308,11 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			verticeOverlay.Clear();
 
-			if(vertice == null)
-			{
+			if(vertice == null) {
 				return;
 			}
 
-			foreach(PointLatLng vertex in vertice)
-			{
+			foreach(PointLatLng vertex in vertice) {
 				GMapMarker point = new GMarkerGoogle(vertex, newBorder ? GMarkerGoogleType.red : GMarkerGoogleType.blue);
 
 				verticeOverlay.Markers.Add(point);
@@ -332,10 +321,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnGmapWidgetButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
 		{
-			if(args.Event.Button == 1)
-			{
-				if(creatingNewBorder)
-				{
+			if(args.Event.Button == 1) {
+				if(creatingNewBorder) {
 					var point = gmapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
 					newBorderVertice.Add(point);
 					ShowBorderVertice(newBorderVertice, true);
@@ -347,11 +334,10 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			IList<Coordinate> coords = new List<Coordinate>();
 
-			foreach(PointLatLng point in currentBorderVertice)
-			{
-				coords.Add(new Coordinate(){
+			foreach(PointLatLng point in currentBorderVertice) {
+				coords.Add(new Coordinate() {
 					X = point.Lat,
-					Y = point.Lng						
+					Y = point.Lng
 				});
 			}
 
