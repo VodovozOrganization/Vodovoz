@@ -999,12 +999,6 @@
         <property name="ShortLabel" translatable="yes">Гражданство</property>
         <signal name="Activated" handler="OnActionCitizenshipActivated" />
       </action>
-      <action id="Action58">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Отчет по дате создания заказа</property>
-        <property name="ShortLabel" translatable="yes">Отчет по дате создания заказа</property>
-        <signal name="Activated" handler="OnActionOrdersByCreationDate" />
-      </action>
       <action id="ActionAdministration">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Администрирование</property>
@@ -1032,6 +1026,18 @@
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Обслуживание</property>
         <property name="ShortLabel" translatable="yes">Обслуживание</property>
+      </action>
+      <action id="Action58">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчет по дате создания заказа</property>
+        <property name="ShortLabel" translatable="yes">Отчет по дате создания заказа</property>
+        <signal name="Activated" handler="OnActionOrdersByCreationDate" />
+      </action>
+      <action id="ActionGeographicGroups">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Географические группы</property>
+        <property name="ShortLabel" translatable="yes">Географические группы</property>
+        <signal name="Activated" handler="OnActionGeographicGroupsActivated" />
       </action>
     </action-group>
     <property name="MemberName" />
@@ -1222,6 +1228,7 @@
                     </node>
                     <node type="Separator" />
                     <node type="Menuitem" action="ActionDocTemplates" />
+                    <node type="Menuitem" action="ActionGeographicGroups" />
                   </node>
                   <node type="Menu" action="ActionAbout">
                     <node type="Menuitem" action="aboutAction" />
@@ -52878,7 +52885,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.ScheduleRestrictedDistrictsDlg" design-size="918 604">
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.ScheduleRestrictedDistrictsDlg" design-size="1007 604">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -53017,149 +53024,235 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.VBox" id="vboxSchedules">
+                  <widget class="Gtk.HBox" id="hbox1">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
-                      <widget class="Gtk.HBox" id="hbox1">
+                      <widget class="Gtk.VBox" id="vboxSchedules">
                         <property name="MemberName" />
                         <property name="Spacing">6</property>
                         <child>
-                          <widget class="Gtk.VBox" id="vboxButtons">
+                          <widget class="Gtk.HBox" id="hbox3">
                             <property name="MemberName" />
                             <property name="Spacing">6</property>
                             <child>
-                              <widget class="Gtk.RadioButton" id="btnMonday">
+                              <widget class="Gtk.VBox" id="vboxButtons">
                                 <property name="MemberName" />
-                                <property name="CanFocus">True</property>
-                                <property name="Label" translatable="yes">ПН</property>
-                                <property name="DrawIndicator">False</property>
-                                <property name="HasLabel">True</property>
-                                <property name="Group">group1</property>
-                                <signal name="Clicked" handler="OnBtnMondayClicked" />
+                                <property name="Spacing">6</property>
+                                <child>
+                                  <widget class="Gtk.RadioButton" id="btnMonday">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Label" translatable="yes">ПН</property>
+                                    <property name="Active">True</property>
+                                    <property name="DrawIndicator">False</property>
+                                    <property name="HasLabel">True</property>
+                                    <property name="Group">group1</property>
+                                    <signal name="Clicked" handler="OnBtnMondayClicked" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">0</property>
+                                    <property name="AutoSize">False</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gtk.RadioButton" id="btnTuesday">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Label" translatable="yes">ВТ</property>
+                                    <property name="DrawIndicator">False</property>
+                                    <property name="HasLabel">True</property>
+                                    <property name="Group">group1</property>
+                                    <signal name="Clicked" handler="OnBtnTuesdayClicked" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">1</property>
+                                    <property name="AutoSize">False</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gtk.RadioButton" id="btnWednesday">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Label" translatable="yes">СР</property>
+                                    <property name="DrawIndicator">False</property>
+                                    <property name="HasLabel">True</property>
+                                    <property name="Group">group1</property>
+                                    <signal name="Clicked" handler="OnBtnWednesdayClicked" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">2</property>
+                                    <property name="AutoSize">False</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gtk.RadioButton" id="btnThursday">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Label" translatable="yes">ЧТ</property>
+                                    <property name="DrawIndicator">False</property>
+                                    <property name="HasLabel">True</property>
+                                    <property name="Group">group1</property>
+                                    <signal name="Clicked" handler="OnBtnThursdayClicked" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">3</property>
+                                    <property name="AutoSize">False</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gtk.RadioButton" id="btnFriday">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Label" translatable="yes">ПТ</property>
+                                    <property name="DrawIndicator">False</property>
+                                    <property name="HasLabel">True</property>
+                                    <property name="Group">group1</property>
+                                    <signal name="Clicked" handler="OnBtnFridayClicked" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">4</property>
+                                    <property name="AutoSize">False</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gtk.RadioButton" id="btnSaturday">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Label" translatable="yes">СБ</property>
+                                    <property name="DrawIndicator">False</property>
+                                    <property name="HasLabel">True</property>
+                                    <property name="Group">group1</property>
+                                    <signal name="Clicked" handler="OnBtnSaturdayClicked" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">5</property>
+                                    <property name="AutoSize">False</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gtk.RadioButton" id="btnSunday">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Label" translatable="yes">ВС</property>
+                                    <property name="DrawIndicator">False</property>
+                                    <property name="HasLabel">True</property>
+                                    <property name="Group">group1</property>
+                                    <signal name="Clicked" handler="OnBtnSundayClicked" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">6</property>
+                                    <property name="AutoSize">False</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
                               </widget>
                               <packing>
                                 <property name="Position">0</property>
                                 <property name="AutoSize">False</property>
                                 <property name="Expand">False</property>
-                                <property name="Fill">False</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gtk.RadioButton" id="btnTuesday">
+                              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                                 <property name="MemberName" />
-                                <property name="CanFocus">True</property>
-                                <property name="Label" translatable="yes">ВТ</property>
-                                <property name="DrawIndicator">False</property>
-                                <property name="HasLabel">True</property>
-                                <property name="Group">group1</property>
-                                <signal name="Clicked" handler="OnBtnTuesdayClicked" />
+                                <property name="ShadowType">In</property>
+                                <child>
+                                  <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeSchedules">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="ShowScrollbars">True</property>
+                                    <property name="EnableSearch">False</property>
+                                  </widget>
+                                </child>
                               </widget>
                               <packing>
                                 <property name="Position">1</property>
-                                <property name="AutoSize">False</property>
+                                <property name="AutoSize">True</property>
+                              </packing>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="Position">0</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gtk.HBox" id="hbox7">
+                            <property name="MemberName" />
+                            <property name="Spacing">6</property>
+                            <child>
+                              <widget class="Gtk.Button" id="buttonAddSchedule">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextOnly</property>
+                                <property name="Label" translatable="yes">Добавить</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonAddScheduleClicked" />
+                              </widget>
+                              <packing>
+                                <property name="Position">0</property>
+                                <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gtk.RadioButton" id="btnWednesday">
+                              <widget class="Gtk.Button" id="buttonDeleteSchedule">
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
-                                <property name="Label" translatable="yes">СР</property>
-                                <property name="DrawIndicator">False</property>
-                                <property name="HasLabel">True</property>
-                                <property name="Group">group1</property>
-                                <signal name="Clicked" handler="OnBtnWednesdayClicked" />
+                                <property name="Type">TextOnly</property>
+                                <property name="Label" translatable="yes">Удалить</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonDeleteScheduleClicked" />
                               </widget>
                               <packing>
-                                <property name="Position">2</property>
-                                <property name="AutoSize">False</property>
-                                <property name="Expand">False</property>
-                                <property name="Fill">False</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="Gtk.RadioButton" id="btnThursday">
-                                <property name="MemberName" />
-                                <property name="CanFocus">True</property>
-                                <property name="Label" translatable="yes">ЧТ</property>
-                                <property name="DrawIndicator">False</property>
-                                <property name="HasLabel">True</property>
-                                <property name="Group">group1</property>
-                                <signal name="Clicked" handler="OnBtnThursdayClicked" />
-                              </widget>
-                              <packing>
-                                <property name="Position">3</property>
-                                <property name="AutoSize">False</property>
-                                <property name="Expand">False</property>
-                                <property name="Fill">False</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="Gtk.RadioButton" id="btnFriday">
-                                <property name="MemberName" />
-                                <property name="CanFocus">True</property>
-                                <property name="Label" translatable="yes">ПТ</property>
-                                <property name="DrawIndicator">False</property>
-                                <property name="HasLabel">True</property>
-                                <property name="Group">group1</property>
-                                <signal name="Clicked" handler="OnBtnFridayClicked" />
-                              </widget>
-                              <packing>
-                                <property name="Position">4</property>
-                                <property name="AutoSize">False</property>
-                                <property name="Expand">False</property>
-                                <property name="Fill">False</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="Gtk.RadioButton" id="btnSaturday">
-                                <property name="MemberName" />
-                                <property name="CanFocus">True</property>
-                                <property name="Label" translatable="yes">СБ</property>
-                                <property name="DrawIndicator">False</property>
-                                <property name="HasLabel">True</property>
-                                <property name="Group">group1</property>
-                                <signal name="Clicked" handler="OnBtnSaturdayClicked" />
-                              </widget>
-                              <packing>
-                                <property name="Position">5</property>
-                                <property name="AutoSize">False</property>
-                                <property name="Expand">False</property>
-                                <property name="Fill">False</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="Gtk.RadioButton" id="btnSunday">
-                                <property name="MemberName" />
-                                <property name="CanFocus">True</property>
-                                <property name="Label" translatable="yes">ВС</property>
-                                <property name="DrawIndicator">False</property>
-                                <property name="HasLabel">True</property>
-                                <property name="Group">group1</property>
-                                <signal name="Clicked" handler="OnBtnSundayClicked" />
-                              </widget>
-                              <packing>
-                                <property name="Position">6</property>
-                                <property name="AutoSize">False</property>
+                                <property name="Position">1</property>
+                                <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
                               </packing>
                             </child>
                           </widget>
                           <packing>
-                            <property name="Position">0</property>
-                            <property name="AutoSize">False</property>
+                            <property name="PackType">End</property>
+                            <property name="Position">1</property>
+                            <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
+                            <property name="Fill">False</property>
                           </packing>
                         </child>
+                      </widget>
+                      <packing>
+                        <property name="Position">0</property>
+                        <property name="AutoSize">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.VBox" id="vboxGeographicGroups">
+                        <property name="MemberName" />
+                        <property name="Spacing">6</property>
                         <child>
-                          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+                          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
                             <property name="MemberName" />
                             <property name="ShadowType">In</property>
                             <child>
-                              <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeSchedules">
+                              <widget class="Gamma.GtkWidgets.yTreeView" id="yTreeGeographicGroups">
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="ShowScrollbars">True</property>
@@ -53168,46 +53261,41 @@ not tooltip</property>
                             </child>
                           </widget>
                           <packing>
-                            <property name="Position">1</property>
-                            <property name="AutoSize">True</property>
-                          </packing>
-                        </child>
-                      </widget>
-                      <packing>
-                        <property name="Position">0</property>
-                        <property name="AutoSize">True</property>
-                        <property name="Expand">False</property>
-                        <property name="Fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="Gtk.HBox" id="hbox3">
-                        <property name="MemberName" />
-                        <property name="Spacing">6</property>
-                        <child>
-                          <widget class="Gtk.Button" id="buttonAddSchedule">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="Type">TextOnly</property>
-                            <property name="Label" translatable="yes">Добавить</property>
-                            <property name="UseUnderline">True</property>
-                            <signal name="Clicked" handler="OnButtonAddScheduleClicked" />
-                          </widget>
-                          <packing>
                             <property name="Position">0</property>
                             <property name="AutoSize">True</property>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.Button" id="buttonDeleteSchedule">
+                          <widget class="Gtk.HButtonBox" id="hbuttonbox2">
                             <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="Type">TextOnly</property>
-                            <property name="Label" translatable="yes">Удалить</property>
-                            <property name="UseUnderline">True</property>
-                            <signal name="Clicked" handler="OnButtonDeleteScheduleClicked" />
+                            <property name="Size">2</property>
+                            <child>
+                              <widget class="Gtk.Button" id="btnAddGeographicGroup">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextOnly</property>
+                                <property name="Label" translatable="yes">Добавить</property>
+                                <property name="UseUnderline">True</property>
+                              </widget>
+                              <packing>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gtk.Button" id="btnRemoveGeographicGroup">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextOnly</property>
+                                <property name="Label" translatable="yes">Удалить</property>
+                                <property name="UseUnderline">True</property>
+                              </widget>
+                              <packing>
+                                <property name="Position">1</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
                           </widget>
                           <packing>
                             <property name="Position">1</property>
@@ -53218,11 +53306,8 @@ not tooltip</property>
                         </child>
                       </widget>
                       <packing>
-                        <property name="PackType">End</property>
                         <property name="Position">1</property>
                         <property name="AutoSize">True</property>
-                        <property name="Expand">False</property>
-                        <property name="Fill">False</property>
                       </packing>
                     </child>
                   </widget>

@@ -552,6 +552,8 @@
     <Compile Include="Domain\Permissions\EntitiesWithPermissionFinder.cs" />
     <Compile Include="Domain\Permissions\PermissionHelper.cs" />
     <Compile Include="Repositories\Permissions\PermissionRepository.cs" />
+    <Compile Include="Domain\Sale\GeographicGroup.cs" />
+    <Compile Include="HibernateMapping\Sale\GeographicGroupMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
