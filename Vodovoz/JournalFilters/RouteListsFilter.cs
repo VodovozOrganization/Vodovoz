@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz
 {
@@ -19,7 +20,8 @@ namespace Vodovoz
 			SetAndRefilterAtOnce(
 				x => x.enumcomboStatus.ItemsEnum = typeof(RouteListStatus),
 				x => x.yentryreferenceShift.SubjectType = typeof(DeliveryShift),
-				x => x.yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport)
+				x => x.yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport),
+				x => x.ySpecCmbGeographicGroup.ItemsList = UoW.Session.QueryOver<GeographicGroup>().List()
 			);
 		}
 
@@ -62,6 +64,14 @@ namespace Vodovoz
 			set {
 				dateperiodOrders.EndDateOrNull = value;
 				dateperiodOrders.Sensitive = false;
+			}
+		}
+
+		public GeographicGroup RestrictGeographicGroup {
+			get => ySpecCmbGeographicGroup.SelectedItem as GeographicGroup;
+			set {
+				ySpecCmbGeographicGroup.SelectedItem = value;
+				ySpecCmbGeographicGroup.Sensitive = false;
 			}
 		}
 
@@ -121,6 +131,11 @@ namespace Vodovoz
 		}
 
 		protected void OnYEnumCmbTransportChangedByUser(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnYSpecCmbGeographicGroupChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
 		}
