@@ -14,18 +14,15 @@ using QSProjectsLib;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ViewModel
 {
 	public class RouteListsVM : RepresentationModelEntityBase<RouteList, RouteListsVMNode>
 	{
 		public RouteListsFilter Filter {
-			get {
-				return RepresentationFilter as RouteListsFilter;
-			}
-			set {
-				RepresentationFilter = value as IRepresentationFilter;
-			}
+			get => RepresentationFilter as RouteListsFilter;
+			set => RepresentationFilter = value as IRepresentationFilter;
 		}
 
 		#region IRepresentationModel implementation
@@ -38,6 +35,7 @@ namespace Vodovoz.ViewModel
 
 			Car carAlias = null;
 			Employee driverAlias = null;
+			GeographicGroup geographicGroupsAlias = null;
 
 			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
 
@@ -59,6 +57,11 @@ namespace Vodovoz.ViewModel
 
 			if(Filter.RestrictEndDate != null) {
 				query.Where(o => o.Date <= Filter.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+			}
+
+			if(Filter.RestrictGeographicGroup != null) {
+				query.Left.JoinAlias(o => o.GeographicGroups, () => geographicGroupsAlias)
+				     .Where(() => geographicGroupsAlias.Id == Filter.RestrictGeographicGroup.Id);
 			}
 
 			//логика фильтра ТС
@@ -84,7 +87,7 @@ namespace Vodovoz.ViewModel
 				.JoinAlias(o => o.Car, () => carAlias)
 				.JoinAlias(o => o.Driver, () => driverAlias)
 				.SelectList(list => list
-				   .Select(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
+				   .SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
 				   .Select(() => routeListAlias.Status).WithAlias(() => resultAlias.StatusEnum)
 				   .Select(() => shiftAlias.Name).WithAlias(() => resultAlias.ShiftName)

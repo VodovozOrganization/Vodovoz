@@ -52,7 +52,13 @@ namespace Vodovoz.ViewWidgets
 
 		void UpdateText()
 		{
-			lblElements.LabelProp = Items != null && Items.Any() ? string.Join(", ", Items.Select(g => g.Name)) : "Нет";
+			string text = string.Format(
+				"<b>{0}</b>",
+				Items != null && Items.Any()
+					? string.Join(", ", Items.Select(g => g.Name))
+					: "Нет"
+			);
+			lblElements.Markup = text;
 		}
 
 		protected void OnBtnChangeListClicked(object sender, EventArgs e)
