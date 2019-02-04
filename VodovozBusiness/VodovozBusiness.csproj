@@ -552,6 +552,8 @@
     <Compile Include="Domain\Permissions\EntitiesWithPermissionFinder.cs" />
     <Compile Include="Domain\Permissions\PermissionHelper.cs" />
     <Compile Include="Repositories\Permissions\PermissionRepository.cs" />
+    <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermission.cs" />
+    <Compile Include="Domain\Permissions\EntitySubdivisionOnlyPermission.cs" />
     <Compile Include="Domain\Sale\GeographicGroup.cs" />
     <Compile Include="HibernateMapping\Sale\GeographicGroupMap.cs" />
   </ItemGroup>

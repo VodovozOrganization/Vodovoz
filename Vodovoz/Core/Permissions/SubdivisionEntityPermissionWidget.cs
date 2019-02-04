@@ -7,9 +7,7 @@ using Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Repositories;
-using QS.Widgets.Gtk;
 using Vodovoz.Domain.Permissions;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 
 namespace Vodovoz.Core.Permissions
@@ -35,7 +33,7 @@ namespace Vodovoz.Core.Permissions
 			this.subdivision = subdivision;
 			model = new EntitySubdivisionPermissionModel(UoW, subdivision);
 
-			ytreeviewPermissions.ColumnsConfig = ColumnsConfigFactory.Create<EntitySubdivisionPermission>()
+			ytreeviewPermissions.ColumnsConfig = ColumnsConfigFactory.Create<EntitySubdivisionOnlyPermission>()
 				.AddColumn("Документ").AddTextRenderer(x => x.TypeOfEntity.CustomName)
 				.AddColumn("Просмотр").AddToggleRenderer(x => x.CanRead).Editing()
 				.AddColumn("Создание").AddToggleRenderer(x => x.CanCreate).Editing()
@@ -72,7 +70,7 @@ namespace Vodovoz.Core.Permissions
 
 		private void DeletePermission()
 		{
-			var selected = ytreeviewPermissions.GetSelectedObject() as EntitySubdivisionPermission;
+			var selected = ytreeviewPermissions.GetSelectedObject() as EntitySubdivisionOnlyPermission;
 			model.DeletePermission(selected);
 		}
 
@@ -91,10 +89,10 @@ namespace Vodovoz.Core.Permissions
 	{
 		private IUnitOfWork uow;
 		private Subdivision subdivision;
-		private IList<EntitySubdivisionPermission> originalPermissionList;
+		private IList<EntitySubdivisionOnlyPermission> originalPermissionList;
 		private IList<TypeOfEntity> originalTypeOfEntityList;
 
-		public GenericObservableList<EntitySubdivisionPermission> ObservablePermissionsList { get; private set; }
+		public GenericObservableList<EntitySubdivisionOnlyPermission> ObservablePermissionsList { get; private set; }
 		public GenericObservableList<TypeOfEntity> ObservableTypeOfEntitiesList { get; private set; }
 
 		public EntitySubdivisionPermissionModel(IUnitOfWork uow, Subdivision subdivision)
@@ -103,7 +101,7 @@ namespace Vodovoz.Core.Permissions
 			this.uow = uow;
 
 			originalPermissionList = PermissionRepository.GetAllSubdivisionEntityPermissions(uow, subdivision.Id);
-			ObservablePermissionsList = new GenericObservableList<EntitySubdivisionPermission>(originalPermissionList.ToList());
+			ObservablePermissionsList = new GenericObservableList<EntitySubdivisionOnlyPermission>(originalPermissionList.ToList());
 
 			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
 			//убираем типы уже загруженные в права
@@ -122,10 +120,10 @@ namespace Vodovoz.Core.Permissions
 			}
 
 			ObservableTypeOfEntitiesList.Remove(entityNode);
-			EntitySubdivisionPermission savedPermission;
+			EntitySubdivisionOnlyPermission savedPermission;
 			var foundOriginalPermission = originalPermissionList.FirstOrDefault(x => x.TypeOfEntity == entityNode);
 			if(foundOriginalPermission == null) {
-				savedPermission = new EntitySubdivisionPermission() {
+				savedPermission = new EntitySubdivisionOnlyPermission() {
 					Subdivision = subdivision,
 					TypeOfEntity = entityNode
 				};
@@ -137,7 +135,7 @@ namespace Vodovoz.Core.Permissions
 			uow.Save(savedPermission);
 		}
 
-		public void DeletePermission(EntitySubdivisionPermission deletedPermission)
+		public void DeletePermission(EntitySubdivisionOnlyPermission deletedPermission)
 		{
 			if(deletedPermission == null) {
 				return;

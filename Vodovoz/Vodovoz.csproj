@@ -1075,6 +1075,8 @@
     <Compile Include="gtk-gui\Vodovoz.Core.Permissions.SubdivisionEntityPermissionWidget.cs" />
     <Compile Include="ReportsParameters\Bottles\OrdersByCreationDateReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.OrdersByCreationDateReport.cs" />
+    <Compile Include="Core\Permissions\SubdivisionForUserEntityPermissionWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Core.Permissions.SubdivisionForUserEntityPermissionWidget.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

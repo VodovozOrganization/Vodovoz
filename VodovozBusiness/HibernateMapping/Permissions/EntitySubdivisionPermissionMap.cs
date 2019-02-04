@@ -12,6 +12,8 @@ namespace Vodovoz.HibernateMapping.Permissions
 			Table("permission_entity_subdivision");
 			Not.LazyLoad();
 
+			DiscriminateSubClassesOnColumn("type");
+
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.CanCreate).Column("can_create");
@@ -21,6 +23,24 @@ namespace Vodovoz.HibernateMapping.Permissions
 
 			References(x => x.Subdivision).Column("subdivision_id");
 			References(x => x.TypeOfEntity).Column("type_of_entity_id");
+		}
+	}
+
+	public class EntitySubdivisionOnlyPermissionMap : SubclassMap<EntitySubdivisionOnlyPermission>
+	{
+		public EntitySubdivisionOnlyPermissionMap()
+		{
+			DiscriminatorValue("SubdivisionOnly");
+		}
+	}
+
+	public class EntitySubdivisionForUserPermissionMap : SubclassMap<EntitySubdivisionForUserPermission>
+	{
+		public EntitySubdivisionForUserPermissionMap()
+		{
+			DiscriminatorValue("SubdivisionForUser");
+
+			References(x => x.User).Column("user_id");
 		}
 	}
 }

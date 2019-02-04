@@ -38,6 +38,16 @@ namespace Vodovoz.Domain.Permissions
 					return deniedPermission;
 				}
 
+				EntitySubdivisionForUserPermission subdivisionForUserPermission = PermissionRepository.GetSubdivisionForUserEntityPermission(uow, userId,  entityType.Name, employee.Subdivision.Id);
+				if(subdivisionForUserPermission != null) {
+					return new EntityPermission(
+						subdivisionForUserPermission.CanCreate,
+						subdivisionForUserPermission.CanRead,
+						subdivisionForUserPermission.CanUpdate,
+						subdivisionForUserPermission.CanDelete
+					);
+				}
+
 				EntitySubdivisionPermission subdivisionPermission = PermissionRepository.GetSubdivisionEntityPermission(uow, entityType.Name, employee.Subdivision.Id);
 				if(subdivisionPermission == null) {
 					return deniedPermission;

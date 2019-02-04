@@ -8,12 +8,12 @@ namespace Vodovoz.Repositories.Permissions
 {
 	public static class PermissionRepository
 	{
-		public static EntitySubdivisionPermission GetSubdivisionEntityPermission(IUnitOfWork uow, string entityName, int subdisionId)
+		public static EntitySubdivisionOnlyPermission GetSubdivisionEntityPermission(IUnitOfWork uow, string entityName, int subdisionId)
 		{
-			TypeOfEntity typeOfEntityAlias = null;
-			EntitySubdivisionPermission entitySubdivisionPermissionAlias = null;
+			EntitySubdivisionOnlyPermission entitySubdivisionPermissionAlias = null;
 			Subdivision subdivisionAlias = null;
-			return uow.Session.QueryOver<EntitySubdivisionPermission>(() => entitySubdivisionPermissionAlias)
+			TypeOfEntity typeOfEntityAlias = null;
+			return uow.Session.QueryOver<EntitySubdivisionOnlyPermission>(() => entitySubdivisionPermissionAlias)
 				.Left.JoinAlias(() => entitySubdivisionPermissionAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => entitySubdivisionPermissionAlias.TypeOfEntity, () => typeOfEntityAlias)
 				.Where(() => subdivisionAlias.Id == subdisionId)
@@ -21,14 +21,31 @@ namespace Vodovoz.Repositories.Permissions
 				.SingleOrDefault();
 		}
 
-		public static IList<EntitySubdivisionPermission> GetAllSubdivisionEntityPermissions(IUnitOfWork uow, int subdisionId)
+		public static EntitySubdivisionForUserPermission GetSubdivisionForUserEntityPermission(IUnitOfWork uow, int userId, string entityName, int subdisionId)
 		{
-			TypeOfEntity typeOfEntityAlias = null;
-			EntitySubdivisionPermission entitySubdivisionPermissionAlias = null;
+			EntitySubdivisionForUserPermission entitySubdivisionPermissionAlias = null;
 			Subdivision subdivisionAlias = null;
-			return uow.Session.QueryOver<EntitySubdivisionPermission>(() => entitySubdivisionPermissionAlias)
+			TypeOfEntity typeOfEntityAlias = null;
+			return uow.Session.QueryOver<EntitySubdivisionForUserPermission>(() => entitySubdivisionPermissionAlias)
 				.Left.JoinAlias(() => entitySubdivisionPermissionAlias.Subdivision, () => subdivisionAlias)
-				.Where(() => subdivisionAlias.Id == subdisionId)
+				.Left.JoinAlias(() => entitySubdivisionPermissionAlias.TypeOfEntity, () => typeOfEntityAlias)
+				.Where(() => entitySubdivisionPermissionAlias.Subdivision.Id == subdisionId)
+				.Where(() => entitySubdivisionPermissionAlias.User.Id == userId)
+				.Where(() => typeOfEntityAlias.Type == entityName)
+				.SingleOrDefault();
+		}
+
+		public static IList<EntitySubdivisionOnlyPermission> GetAllSubdivisionEntityPermissions(IUnitOfWork uow, int subdivisionId)
+		{
+			return uow.Session.QueryOver<EntitySubdivisionOnlyPermission>()
+				.Where(x => x.Subdivision.Id == subdivisionId)
+				.List();
+		}
+
+		public static IList<EntitySubdivisionForUserPermission> GetAllSubdivisionForUserEntityPermissions(IUnitOfWork uow, int userId)
+		{
+			return uow.Session.QueryOver<EntitySubdivisionForUserPermission>()
+				.Where(x => x.User.Id == userId)
 				.List();
 		}
 	}
