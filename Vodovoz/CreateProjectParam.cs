@@ -41,6 +41,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repositories;
 using QS.Permissions;
+using QS.Widgets.Gtk;
 
 namespace Vodovoz
 {
@@ -48,6 +49,9 @@ namespace Vodovoz
 	{
 		static void CreateProjectParam()
 		{
+			UserProperty.RequestWidth = 900;
+			UserProperty.RequestHeight = 700;
+
 			PermissionsSettings.PresetPermissions.Add("driver_terminal", new PresetUserPermissionSource("driver_terminal", "ВНИМАНИЕ! Аккаунт будет использоватся только для печати документов МЛ", "Для использования отдельного окна для печати документов МЛ без доступа к остальным частям системы."));
 			PermissionsSettings.PresetPermissions.Add("max_loan_amount", new PresetUserPermissionSource("max_loan_amount", "Установка максимального кредита", "Пользователь имеет права для установки максимальной суммы кредита."));
 			PermissionsSettings.PresetPermissions.Add("logistican", new PresetUserPermissionSource("logistican", "Логист", "Пользователь является логистом."));
@@ -90,6 +94,12 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("allow_load_selfdelivery", new PresetUserPermissionSource("allow_load_selfdelivery", "Разрешение отгрузки самовывоза", "Пользователь может переводить заказ с самовывозом в статус на погрузку"));
 			PermissionsSettings.PresetPermissions.Add("accept_cashless_paid_selfdelivery", new PresetUserPermissionSource("accept_cashless_paid_selfdelivery", "Разрешение отметки оплаты самовывоза", "Пользователь может отмечать заказ с самовывозом по безналу как оплаченный"));
 			PermissionsSettings.PresetPermissions.Add("can_edit_logistic_areas", new PresetUserPermissionSource("can_edit_logistic_areas", "Доступ к редактированию логистических районов", "Пользователь может редактировать логистические районы"));
+
+			UserProperty.UserPermissionViewsCreator = delegate {
+				return new List<IUserPermissionTab>() {
+					new SubdivisionForUserEntityPermissionWidget()
+				};
+			};
 
 			UserProperty.PermissionViewsCreator = delegate {
 				return new List<QSProjectsLib.Permissions.IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };

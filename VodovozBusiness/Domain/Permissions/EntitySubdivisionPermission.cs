@@ -5,7 +5,7 @@ using QS.Project.Domain;
 
 namespace Vodovoz.Domain.Permissions
 {
-	public class EntitySubdivisionPermission : PropertyChangedBase, IDomainObject
+	public abstract class EntitySubdivisionPermission : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
