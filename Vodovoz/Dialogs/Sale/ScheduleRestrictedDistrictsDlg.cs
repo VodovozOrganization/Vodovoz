@@ -112,6 +112,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 			if(currentDistrict != null) {
 				btnMonday.Click();
+				yTreeGeographicGroups.ItemsDataSource = currentDistrict.ObservableGeographicGroups;
 			}
 
 			if(currentDistrict != null && currentDistrict.DistrictBorder != null)
@@ -391,6 +392,30 @@ namespace Vodovoz.Dialogs.Logistic
 			currentDistrict.CreateScheduleRestriction(WeekDayName.sunday);
 			ytreeSchedules.ItemsDataSource = currentDistrict.ScheduleRestrictionSunday.ObservableSchedules;
 			ytreeSchedules.QueueDraw();
+		}
+
+		protected void OnBtnAddGeographicGroupClicked(object sender, EventArgs e)
+		{
+			var selectGeographicGroups = new OrmReference(typeof(GeographicGroup), uow);
+			selectGeographicGroups.Mode = OrmReferenceMode.MultiSelect;
+			selectGeographicGroups.ObjectSelected += SelectGeographicGroups_ObjectSelected;
+			TabParent.AddSlaveTab(this, selectGeographicGroups);
+		}
+
+		void SelectGeographicGroups_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			if(yTreeGeographicGroups.ItemsDataSource is GenericObservableList<GeographicGroup> ggList)
+				foreach(var item in e.Subjects) {
+					if(item is GeographicGroup group && !ggList.Any(x => x.Id == group.Id))
+						ggList.Add(group);
+				}
+		}
+
+		protected void OnBtnRemoveGeographicGroupClicked(object sender, EventArgs e)
+		{
+			var ggList = yTreeGeographicGroups.ItemsDataSource as GenericObservableList<GeographicGroup>;
+			if(yTreeGeographicGroups.GetSelectedObject() is GeographicGroup selectedObj && ggList != null)
+				ggList.Remove(selectedObj);
 		}
 	}
 }

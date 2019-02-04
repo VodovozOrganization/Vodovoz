@@ -523,6 +523,8 @@ namespace Vodovoz.Dialogs.Logistic
 			this.btnSunday.Clicked += new global::System.EventHandler(this.OnBtnSundayClicked);
 			this.buttonAddSchedule.Clicked += new global::System.EventHandler(this.OnButtonAddScheduleClicked);
 			this.buttonDeleteSchedule.Clicked += new global::System.EventHandler(this.OnButtonDeleteScheduleClicked);
+			this.btnAddGeographicGroup.Clicked += new global::System.EventHandler(this.OnBtnAddGeographicGroupClicked);
+			this.btnRemoveGeographicGroup.Clicked += new global::System.EventHandler(this.OnBtnRemoveGeographicGroupClicked);
 			this.gmapWidget.ButtonReleaseEvent += new global::Gtk.ButtonReleaseEventHandler(this.OnGmapWidgetButtonReleaseEvent);
 			this.buttonCreateBorder.Clicked += new global::System.EventHandler(this.OnButtonCreateBorderClicked);
 			this.buttonRemoveBorder.Clicked += new global::System.EventHandler(this.OnButtonRemoveBorderClicked);

@@ -139,8 +139,8 @@ namespace Vodovoz.Domain.Sale
 		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
 		[Display(Name = "Группа района")]
 		public virtual IList<GeographicGroup> GeographicGroups {
-			get { return geographicGroups; }
-			set { SetField(ref geographicGroups, value, () => GeographicGroups); }
+			get => geographicGroups;
+			set => SetField(ref geographicGroups, value, () => GeographicGroups);
 		}
 
 		GenericObservableList<GeographicGroup> observableGeographicGroups;
