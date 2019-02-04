@@ -55,6 +55,10 @@ namespace Vodovoz.HibernateMapping
 				.KeyColumn ("route_list_id")
 				.AsList (x => x.Column ("order_in_route"));
 			HasMany(x => x.FuelDocuments).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
+			HasManyToMany(x => x.GeographicGroups).Table("geographic_groups_to_route_lists")
+			                                      .ParentKeyColumn("route_list_id")
+												  .ChildKeyColumn("geographic_group_id")
+												  .LazyLoad();
 		}
 	}
 }

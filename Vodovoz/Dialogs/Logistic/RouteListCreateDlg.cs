@@ -31,7 +31,7 @@ namespace Vodovoz
 			set{
 				isEditable = value;
 				speccomboShift.Sensitive = isEditable;
-				datepickerDate.Sensitive = referenceCar.Sensitive = referenceForwarder.Sensitive = isEditable;
+				ggToStringWidget.Sensitive = datepickerDate.Sensitive = referenceCar.Sensitive = referenceForwarder.Sensitive = isEditable;
 				createroutelistitemsview1.IsEditable (isEditable);
 			}
 		}
@@ -125,6 +125,10 @@ namespace Vodovoz
 			}
 
 			IsEditable = UoWGeneric.Root.Status == RouteListStatus.New && QSMain.User.Permissions ["logistican"];
+
+			ggToStringWidget.UoW = UoW;
+			ggToStringWidget.Label = "Район города:";
+			ggToStringWidget.Binding.AddBinding(Entity, x => x.ObservableGeographicGroups, x => x.Items).InitializeFromSource();
 
 			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
 			HasChanges = true;
@@ -317,6 +321,14 @@ namespace Vodovoz
 		protected void OnReferenceCarChanged(object sender, EventArgs e)
 		{
 			createroutelistitemsview1.UpdateWeightInfo();
+		}
+
+		protected void OnReferenceCarChangedByUser(object sender, EventArgs e)
+		{
+			while(Entity.ObservableGeographicGroups.Any())
+				Entity.ObservableGeographicGroups.Remove(Entity.ObservableGeographicGroups.FirstOrDefault());
+			foreach(var group in Entity.Car.GeographicGroups)
+				Entity.ObservableGeographicGroups.Add(group);
 		}
 	}
 }
