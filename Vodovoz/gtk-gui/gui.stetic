@@ -1446,7 +1446,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3963,7 +3962,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="815 548">
+  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="776 548">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -4010,6 +4009,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -4019,6 +4019,23 @@
               <packing>
                 <property name="PackType">End</property>
                 <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.RadioButton" id="radioBtnGeographicGroups">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Обслуживаемая часть города</property>
+                <property name="DrawIndicator">False</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+                <property name="Group">group1</property>
+                <signal name="Toggled" handler="OnRadioBtnGeographicGroupsToggled" />
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">3</property>
                 <property name="AutoSize">True</property>
               </packing>
             </child>
@@ -4035,7 +4052,7 @@
               </widget>
               <packing>
                 <property name="PackType">End</property>
-                <property name="Position">3</property>
+                <property name="Position">4</property>
                 <property name="AutoSize">True</property>
               </packing>
             </child>
@@ -4045,7 +4062,7 @@
               </widget>
               <packing>
                 <property name="PackType">End</property>
-                <property name="Position">4</property>
+                <property name="Position">5</property>
                 <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -4191,10 +4208,9 @@
                     <property name="BottomAttach">8</property>
                     <property name="LeftAttach">3</property>
                     <property name="RightAttach">4</property>
-                    <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
+                    <property name="AutoSize">False</property>
                     <property name="YOptions">Fill</property>
-                    <property name="XExpand">False</property>
+                    <property name="XExpand">True</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
                     <property name="YExpand">False</property>
@@ -5262,12 +5278,89 @@
               </packing>
             </child>
             <child>
+              <widget class="Gtk.VBox" id="vboxGeographicGroups">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
+                    <property name="MemberName" />
+                    <property name="ShadowType">In</property>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.yTreeView" id="yTreeGeographicGroups">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="ShowScrollbars">True</property>
+                        <property name="EnableSearch">False</property>
+                      </widget>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.HButtonBox" id="hbuttonbox2">
+                    <property name="MemberName" />
+                    <property name="Size">2</property>
+                    <child>
+                      <widget class="Gtk.Button" id="btnAddGeographicGroup">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextOnly</property>
+                        <property name="Label" translatable="yes">Добавить</property>
+                        <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnBtnAddGeographicGroupClicked" />
+                      </widget>
+                      <packing>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Button" id="btnRemoveGeographicGroup">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextOnly</property>
+                        <property name="Label" translatable="yes">Удалить</property>
+                        <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnBtnRemoveGeographicGroupClicked" />
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label23">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Обслуживаемая часть города</property>
+              </widget>
+              <packing>
+                <property name="type">tab</property>
+              </packing>
+            </child>
+            <child>
               <widget class="QSAttachment.Attachment" id="attachmentFiles">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
               <packing>
-                <property name="Position">1</property>
+                <property name="Position">2</property>
               </packing>
             </child>
             <child>
@@ -52885,7 +52978,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.ScheduleRestrictedDistrictsDlg" design-size="1007 604">
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.ScheduleRestrictedDistrictsDlg" design-size="1010 604">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -53044,7 +53137,6 @@ not tooltip</property>
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
                                     <property name="Label" translatable="yes">ПН</property>
-                                    <property name="Active">True</property>
                                     <property name="DrawIndicator">False</property>
                                     <property name="HasLabel">True</property>
                                     <property name="Group">group1</property>
@@ -53276,6 +53368,7 @@ not tooltip</property>
                                 <property name="Type">TextOnly</property>
                                 <property name="Label" translatable="yes">Добавить</property>
                                 <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnBtnAddGeographicGroupClicked" />
                               </widget>
                               <packing>
                                 <property name="Expand">False</property>
@@ -53289,6 +53382,7 @@ not tooltip</property>
                                 <property name="Type">TextOnly</property>
                                 <property name="Label" translatable="yes">Удалить</property>
                                 <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnBtnRemoveGeographicGroupClicked" />
                               </widget>
                               <packing>
                                 <property name="Position">1</property>
@@ -53307,7 +53401,7 @@ not tooltip</property>
                       </widget>
                       <packing>
                         <property name="Position">1</property>
-                        <property name="AutoSize">True</property>
+                        <property name="AutoSize">False</property>
                       </packing>
                     </child>
                   </widget>
