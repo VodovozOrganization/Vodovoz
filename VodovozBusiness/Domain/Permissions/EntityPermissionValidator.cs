@@ -25,10 +25,6 @@ namespace Vodovoz.Domain.Permissions
 			}
 
 			var deniedPermission = new EntityPermission(false, false, false, false);
-			var permissionAttr = entityType.GetCustomAttribute<EntityPermissionAttribute>();
-			if(permissionAttr == null) {
-				return deniedPermission;
-			}
 
 			Employee employee;
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {

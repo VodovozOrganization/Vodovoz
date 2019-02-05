@@ -11,10 +11,10 @@ using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Domain.Employees
 {
-	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "сотрудники",
 		Nominative = "сотрудник")]
+	[EntityPermission]
 	public class Employee : Personnel, ISpecialRowsRender, IEmployee
 	{
 		#region Свойства

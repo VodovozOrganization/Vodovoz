@@ -24,11 +24,11 @@ using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Журнал МЛ",
 		Nominative = "маршрутный лист")]
 	[HistoryTrace]
+	[EntityPermission]
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

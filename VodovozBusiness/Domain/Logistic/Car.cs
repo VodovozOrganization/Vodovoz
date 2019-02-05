@@ -10,10 +10,10 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "автомобили",
 		Nominative = "автомобиль")]
+	[EntityPermission]
 	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
 	{
 		#region Свойства`
