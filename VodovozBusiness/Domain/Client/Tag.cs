@@ -55,5 +55,11 @@ namespace Vodovoz.Domain.Client
 				ColorText =  String.Format("#{0:x4}{1:x4}{2:x4}", value.Red, value.Green, value.Blue);
 			}
 		}
+
+		public static IUnitOfWorkGeneric<Tag> Create()
+		{
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<Tag>();
+			return uow;
+		}
 	}
 }
