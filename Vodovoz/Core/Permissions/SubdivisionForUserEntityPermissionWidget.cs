@@ -140,12 +140,6 @@ namespace Vodovoz.Core.Permissions
 			ObservablePermissionsList = new GenericObservableList<EntitySubdivisionForUserPermission>(originalPermissionList.ToList());
 
 			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
-			//убираем типы уже загруженные в права
-			foreach(var item in originalPermissionList) {
-				if(originalTypeOfEntityList.Contains(item.TypeOfEntity)) {
-					originalTypeOfEntityList.Remove(item.TypeOfEntity);
-				}
-			}
 			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(originalTypeOfEntityList);
 		}
 
