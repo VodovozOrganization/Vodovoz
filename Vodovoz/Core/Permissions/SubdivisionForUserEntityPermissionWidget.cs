@@ -113,6 +113,9 @@ namespace Vodovoz.Core.Permissions
 
 		public void Save()
 		{
+			if(model == null) {
+				return;
+			}
 			model.Save();
 		}
 	}
