@@ -12,6 +12,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Gamma.Widgets.yTimeEntry ytimeDelivery;
 
+		private global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget geograficGroup;
+
 		private global::Gtk.Button buttonCreateReport;
 
 		protected virtual void Build()
@@ -56,6 +58,16 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.geograficGroup = new global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget();
+			this.geograficGroup.Events = ((global::Gdk.EventMask)(256));
+			this.geograficGroup.Name = "geograficGroup";
+			this.geograficGroup.Label = "";
+			this.vbox1.Add(this.geograficGroup);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.geograficGroup]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.Sensitive = false;
 			this.buttonCreateReport.CanFocus = true;
@@ -63,12 +75,13 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w4.Position = 2;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w5.Position = 3;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

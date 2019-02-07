@@ -38,7 +38,7 @@ namespace Vodovoz.HibernateMapping
 
 			References(x => x.Driver)		.Column ("driver_id");
 			References(x => x.FuelType)		.Column ("fuel_type_id");
-			HasManyToMany(x => x.GeographicGroups).Table("geographic_groups_to_cars")
+			HasManyToMany(x => x.GeographicGroups).Table("geographic_groups_to_entities")
 			                                      .ParentKeyColumn("car_id")
 			                                      .ChildKeyColumn("geographic_group_id")
 			                                      .LazyLoad();

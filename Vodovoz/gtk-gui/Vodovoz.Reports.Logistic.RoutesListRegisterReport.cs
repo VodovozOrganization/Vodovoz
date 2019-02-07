@@ -12,6 +12,8 @@ namespace Vodovoz.Reports.Logistic
 
 		private global::QSWidgetLib.DatePeriodPicker dateperiodpicker;
 
+		private global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget geograficGroup;
+
 		private global::Gtk.CheckButton chkMasters;
 
 		private global::Gtk.Button buttonCreateReport;
@@ -54,6 +56,16 @@ namespace Vodovoz.Reports.Logistic
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.geograficGroup = new global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget();
+			this.geograficGroup.Events = ((global::Gdk.EventMask)(256));
+			this.geograficGroup.Name = "geograficGroup";
+			this.geograficGroup.Label = "";
+			this.vbox1.Add(this.geograficGroup);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.geograficGroup]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.chkMasters = new global::Gtk.CheckButton();
 			this.chkMasters.CanFocus = true;
 			this.chkMasters.Name = "chkMasters";
@@ -61,10 +73,10 @@ namespace Vodovoz.Reports.Logistic
 			this.chkMasters.DrawIndicator = true;
 			this.chkMasters.UseUnderline = true;
 			this.vbox1.Add(this.chkMasters);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.chkMasters]));
-			w4.Position = 1;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.chkMasters]));
+			w5.Position = 2;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -72,10 +84,10 @@ namespace Vodovoz.Reports.Logistic
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w5.Position = 3;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w6.Position = 4;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

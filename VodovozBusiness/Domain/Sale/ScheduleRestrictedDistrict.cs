@@ -291,9 +291,15 @@ namespace Vodovoz.Domain.Sale
 					"Для всех правил доставки должны быть указаны цены",
 					new[] { this.GetPropertyName(o => o.ScheduleRestrictedDistrictRuleItems) }
 				);
+
+			if(!GeographicGroups.Any())
+				yield return new ValidationResult(
+					string.Format("Для района \"{0}\" необходимо указать часть города, содержащую этот район доставки", DistrictName),
+					new[] { this.GetPropertyName(o => o.GeographicGroups) }
+				);
 		}
 		#endregion
-	}	
+	}
 	public enum DistrictWaterPrice
 	{
 		[Display(Name = "По прайсу")]

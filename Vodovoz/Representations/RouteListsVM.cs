@@ -7,10 +7,11 @@ using Gamma.Utilities;
 using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Utilities.Text;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using QSProjectsLib;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -272,7 +273,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var rl in routeLists.Where(x => MileageCheckDlgStatuses.Contains(x.Status))) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
+					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
 					() => new RouteListMileageCheckDlg(rl.Id)
 				);
 			}
@@ -288,7 +289,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var rl in routeLists.Where(x => ClosingDlgStatuses.Contains(x.Status))) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
+					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
 					() => new RouteListClosingDlg(rl.Id)
 				);
 			}
@@ -304,7 +305,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var rl in routeLists.Where(x => ControlDlgStatuses.Contains(x.Status))) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
+					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
 					() => new RouteListControlDlg(rl.Id)
 				);
 			}
@@ -321,7 +322,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var rl in routeLists.Where(x => KeepingDlgStatuses.Contains(x.Status))) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
+					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
 					() => new RouteListKeepingDlg(rl.Id)
 				);
 			}
@@ -333,7 +334,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var routeId in routeListIds) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(routeId),
+					DialogHelper.GenerateDialogHashName<RouteList>(routeId),
 					() => new RouteListCreateDlg(routeId)
 				);
 			}
@@ -366,7 +367,7 @@ namespace Vodovoz.ViewModel
 			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
 			var RouteList = UoW.GetById<RouteList>(routeListIds[0]);
 			MainClass.MainWin.TdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(routeListIds[0]),
+					DialogHelper.GenerateDialogHashName<RouteList>(routeListIds[0]),
 					() => new FuelDocumentDlg(RouteList)
 				);
 		}
@@ -387,11 +388,7 @@ namespace Vodovoz.ViewModel
 		public string DriverName { get; set; }
 		public string DriverPatronymic { get; set; }
 
-		public string Driver {
-			get {
-				return StringWorks.PersonFullName(DriverSurname, DriverName, DriverPatronymic);
-			}
-		}
+		public string Driver => PersonHelper.PersonFullName(DriverSurname, DriverName, DriverPatronymic);
 
 		public string CarModel { get; set; }
 

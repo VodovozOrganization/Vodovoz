@@ -823,6 +823,12 @@ namespace Vodovoz.Domain.Orders
 								new[] { this.GetPropertyName(o => o.OrderEquipments) });
 						}
 					}
+
+					if(!DeliveryPoint.FindAndAssociateDistrict(UoW))
+						yield return new ValidationResult(
+							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
+							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
+					);
 				}
 
 				if(newStatus == OrderStatus.Closed) {
@@ -1439,7 +1445,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		void AddEquipmentForSale(AdditionalAgreement agreement, Nomenclature nomenclature, IUnitOfWork UoW)
+		void AddEquipmentForSale(AdditionalAgreement agreement, Nomenclature nomenclature, IUnitOfWork uow)
 		{
 			if(nomenclature.Category != NomenclatureCategory.equipment)
 				return;
@@ -1453,7 +1459,7 @@ namespace Vodovoz.Domain.Orders
 					Price = nomenclature.GetPrice(1)
 				});
 			} else {
-				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, nomenclature);
+				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature(uow, nomenclature);
 				ObservableOrderItems.AddWithReturn(new OrderItem {
 					Order = this,
 					AdditionalAgreement = agreement,
@@ -1596,7 +1602,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			#endregion
 
-			var districts = DeliveryPoint?.GetDistricts(UoW);
+			var districts = DeliveryPoint?.CalculateDistricts(UoW);
 
 			OrderStateKey orderKey = new OrderStateKey(this);
 			var price = districts.Any() ? districts.Max(x => x.GetDeliveryPrice(orderKey)) : 0m;

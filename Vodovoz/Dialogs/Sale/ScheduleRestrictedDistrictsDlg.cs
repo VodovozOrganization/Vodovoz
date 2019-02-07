@@ -13,6 +13,7 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
+using QSValidation;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Logistic;
@@ -59,13 +60,13 @@ namespace Vodovoz.Dialogs.Logistic
 
 			ytreeSchedules.Selection.Mode = Gtk.SelectionMode.Single;
 			ytreeSchedules.ColumnsConfig = FluentColumnsConfig<DeliverySchedule>.Create()
-				.AddColumn("График").AddTextRenderer(x => x.Name)
+				.AddColumn("График").HeaderAlignment(0.5f).AddTextRenderer(x => x.Name)
 				.Finish();
 			ytreeSchedules.Selection.Changed += OnYTreeSchedules_SelectionChanged;
 
 			yTreeGeographicGroups.Selection.Mode = Gtk.SelectionMode.Single;
 			yTreeGeographicGroups.ColumnsConfig = FluentColumnsConfig<GeographicGroup>.Create()
-				.AddColumn("Название").AddTextRenderer(x => x.Name)
+				.AddColumn("Часть города").HeaderAlignment(0.5f).AddTextRenderer(x => x.Name)
 				.Finish();
 			yTreeGeographicGroups.Selection.Changed += (sender, e) => ControlsAccessibility();
 
@@ -232,8 +233,14 @@ namespace Vodovoz.Dialogs.Logistic
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
 			foreach(ScheduleRestrictedDistrict district in observableRestrictedDistricts) {
-				district.Save(uow);
+				var valid = new QSValidator<ScheduleRestrictedDistrict>(district);
+				if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+					return;
 			}
+
+			foreach(ScheduleRestrictedDistrict district in observableRestrictedDistricts)
+				district.Save(uow);
+
 			uow.Commit();
 		}
 
