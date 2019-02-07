@@ -27,7 +27,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class DeliveryPointDlg : EntityDialogBase<DeliveryPoint>, IDeliveryPointInfoProvider
+	public partial class DeliveryPointDlg : QS.Dialog.Gtk.EntityDialogBase<DeliveryPoint>, IDeliveryPointInfoProvider
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
@@ -76,7 +76,9 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public DeliveryPointDlg(DeliveryPoint sub) : this(sub.Id) { }
+		public DeliveryPointDlg(DeliveryPoint sub) : this(sub.Id)
+		{
+		}
 
 		private void ConfigureDlg()
 		{
@@ -192,15 +194,14 @@ namespace Vodovoz
 			menu.ShowAll();
 
 			//Configure map
-			MapWidget = new GMapControl {
-				MapProvider = GMapProviders.GoogleMap,
-				Position = new PointLatLng(59.93900, 30.31646),
-				MinZoom = 0,
-				MaxZoom = 24,
-				Zoom = 9,
-				WidthRequest = 450,
-				HasFrame = true
-			};
+			MapWidget = new GMap.NET.GtkSharp.GMapControl();
+			MapWidget.MapProvider = GMapProviders.GoogleMap;
+			MapWidget.Position = new PointLatLng(59.93900, 30.31646);
+			MapWidget.MinZoom = 0;
+			MapWidget.MaxZoom = 24;
+			MapWidget.Zoom = 9;
+			MapWidget.WidthRequest = 450;
+			MapWidget.HasFrame = true;
 			MapWidget.Overlays.Add(addressOverlay);
 			MapWidget.ButtonPressEvent += MapWidget_ButtonPressEvent;
 			MapWidget.ButtonReleaseEvent += MapWidget_ButtonReleaseEvent;
@@ -219,8 +220,9 @@ namespace Vodovoz
 
 		void MapWidget_MotionNotifyEvent(object o, Gtk.MotionNotifyEventArgs args)
 		{
-			if(addressMoving)
+			if(addressMoving) {
 				addressMarker.Position = MapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
+			}
 		}
 
 		void MapWidget_ButtonReleaseEvent(object o, Gtk.ButtonReleaseEventArgs args)
@@ -247,9 +249,8 @@ namespace Vodovoz
 			if(args.Event.Button == 1) {
 				var newPoint = MapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
 				if(addressMarker == null) {
-					addressMarker = new GMarkerGoogle(newPoint, GMarkerGoogleType.arrow) {
-						ToolTipText = Entity.ShortAddress
-					};
+					addressMarker = new GMarkerGoogle(newPoint, GMarkerGoogleType.arrow);
+					addressMarker.ToolTipText = Entity.ShortAddress;
 					addressOverlay.Markers.Add(addressMarker);
 				} else
 					addressMarker.Position = newPoint;
@@ -266,26 +267,31 @@ namespace Vodovoz
 			}
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 
-			if(e.PropertyName == Entity.GetPropertyName(x => x.HaveResidue))
+			if(e.PropertyName == Entity.GetPropertyName(x => x.HaveResidue)) {
 				ShowResidue();
+			}
 		}
 
 		void ShowResidue()
 		{
 			ycheckHaveResidue.Visible = Entity.HaveResidue.HasValue;
-			ycheckHaveResidue.Active = Entity.HaveResidue.HasValue && Entity.HaveResidue.Value;
+			ycheckHaveResidue.Active = Entity.HaveResidue.HasValue ? Entity.HaveResidue.Value : false;
 		}
 
 		void Rightsidepanel1_PanelHided(object sender, EventArgs e)
 		{
-			if(TabParent is TdiSliderTab slider)
+			var slider = TabParent as TdiSliderTab;
+			if(slider != null) {
 				slider.IsHideJournal = false;
+			}
 		}
 
 		void Rightsidepanel1_PanelOpened(object sender, EventArgs e)
 		{
-			if(TabParent is TdiSliderTab slider)
+			var slider = TabParent as TdiSliderTab;
+			if(slider != null) {
 				slider.IsHideJournal = true;
+			}
 		}
 
 		void OpenCounterparty(object sender, EventArgs e)
@@ -308,8 +314,8 @@ namespace Vodovoz
 							   || entryBuilding.House != buildingBeforeChange;
 			if(entryBuilding.OsmCompletion.HasValue) {
 				Entity.FoundOnOsm = entryBuilding.OsmCompletion.Value;
-
-				entryBuilding.GetCoordinates(out decimal? longitude, out decimal? latitude);
+				decimal? latitude, longitude;
+				entryBuilding.GetCoordinates(out longitude, out latitude);
 
 				if(longitude == null || latitude == null)
 					return;
@@ -356,32 +362,22 @@ namespace Vodovoz
 			}
 
 			if(Entity.Latitude.HasValue && Entity.Longitude.HasValue) {
-				addressMarker = new GMarkerGoogle(
-									new PointLatLng(
-										(double)Entity.Latitude.Value,
-										(double)Entity.Longitude.Value
-									),
-									GMarkerGoogleType.arrow
-								) {
-					ToolTipText = Entity.ShortAddress
-				};
+				addressMarker = new GMarkerGoogle(new PointLatLng((double)Entity.Latitude.Value, (double)Entity.Longitude.Value),
+					GMarkerGoogleType.arrow);
+				addressMarker.ToolTipText = Entity.ShortAddress;
 				addressOverlay.Markers.Add(addressMarker);
 			}
 		}
 
 		public override bool Save()
 		{
-			if(!Entity.CoordinatesExist && !MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
-				return false;
+			if(!Entity.CoordinatesExist) {
+				if(!MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
+					return false;
+			}
 
 			var valid = new QSValidator<DeliveryPoint>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
-				return false;
-			if(!Entity.FindAndAssociateDistrict(UoW) && !MessageDialogHelper.RunWarningDialog(
-								"Проверьте координаты!",
-								"Район доставки не найден. Это приведёт к невозможности отображения заказа на эту точку доставки у логистов при составлении маршрутного листа. Укажите правильные координаты.\nПродолжить сохранение точки доставки?",
-								Gtk.ButtonsType.YesNo
-							))
 				return false;
 
 			phonesview1.RemoveEmpty();
@@ -398,33 +394,36 @@ namespace Vodovoz
 				.Add(Restrictions.IsNotNull("LogisticsArea"))
 				.Add(Restrictions.Not(Restrictions.Eq("Id", UoWGeneric.Root.Id)))
 				.List<DeliveryPoint>();
-			if(sameAddress.Any())
+			if(sameAddress.Count > 0) {
 				UoWGeneric.Root.LogisticsArea = sameAddress[0].LogisticsArea;
+			}
 		}
 
 		protected void OnRadoiInformationToggled(object sender, EventArgs e)
 		{
-			if(radioInformation.Active)
+			if(radioInformation.Active) {
 				notebook1.CurrentPage = 0;
+			}
 		}
 
 		protected void OnRadioCommentsToggled(object sender, EventArgs e)
 		{
-			if(radioComments.Active)
+			if(radioComments.Active) {
 				notebook1.CurrentPage = 1;
+			}
 		}
 
 		protected void OnRadioContactsToggled(object sender, EventArgs e)
 		{
-			if(radioContacts.Active)
+			if(radioContacts.Active) {
 				notebook1.CurrentPage = 2;
+			}
 		}
 
 		protected void OnButtonAddResponsiblePersonClicked(object sender, EventArgs e)
 		{
-			var dlg = new ReferenceRepresentation(new ContactsVM(UoW, Entity.Counterparty)) {
-				Mode = OrmReferenceMode.MultiSelect
-			};
+			var dlg = new ReferenceRepresentation(new ViewModel.ContactsVM(UoW, Entity.Counterparty));
+			dlg.Mode = OrmReferenceMode.MultiSelect;
 			dlg.ObjectSelected += Dlg_ObjectSelected;
 			TabParent.AddSlaveTab(this, dlg);
 		}
@@ -438,8 +437,9 @@ namespace Vodovoz
 		protected void OnButtonDeleteResponsiblePersonClicked(object sender, EventArgs e)
 		{
 			var selected = ytreeviewResponsiblePersons.GetSelectedObjects<Contact>();
-			foreach(var toDelete in selected)
+			foreach(var toDelete in selected) {
 				Entity.ObservableContacts.Remove(toDelete);
+			}
 		}
 
 		protected void OnButtonInsertFromBufferClicked(object sender, EventArgs e)
@@ -453,8 +453,9 @@ namespace Vodovoz
 				coordinates[0] = coordinates[0].Replace('.', ',');
 				coordinates[1] = coordinates[1].Replace('.', ',');
 
-				bool goodLat = decimal.TryParse(coordinates[0].Trim(), out decimal latitude);
-				bool goodLon = decimal.TryParse(coordinates[1].Trim(), out decimal longitude);
+				decimal latitude, longitude;
+				bool goodLat = decimal.TryParse(coordinates[0].Trim(), out latitude);
+				bool goodLon = decimal.TryParse(coordinates[1].Trim(), out longitude);
 
 				if(goodLat && goodLon) {
 					WriteCoordinates(latitude, longitude);
@@ -464,8 +465,7 @@ namespace Vodovoz
 			}
 			if(error)
 				MessageDialogHelper.RunErrorDialog(
-					"Буфер обмена не содержит координат или содержит неправильные координаты"
-				);
+					"Буфер обмена не содержит координат или содержит неправильные координаты");
 		}
 
 		private void WriteCoordinates(decimal? latitude, decimal? longitude)

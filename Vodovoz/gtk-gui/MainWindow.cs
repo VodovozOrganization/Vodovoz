@@ -301,8 +301,6 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionGeographicGroups;
 
-	private global::Gtk.Action ActionSetDistrictsToDeliveryPoints;
-
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -797,9 +795,6 @@ public partial class MainWindow
 		this.ActionGeographicGroups = new global::Gtk.Action("ActionGeographicGroups", global::Mono.Unix.Catalog.GetString("Географические группы"), null, null);
 		this.ActionGeographicGroups.ShortLabel = global::Mono.Unix.Catalog.GetString("Географические группы");
 		w1.Add(this.ActionGeographicGroups, null);
-		this.ActionSetDistrictsToDeliveryPoints = new global::Gtk.Action("ActionSetDistrictsToDeliveryPoints", global::Mono.Unix.Catalog.GetString("Присвоение точкам доставки районов доставки"), null, null);
-		this.ActionSetDistrictsToDeliveryPoints.ShortLabel = global::Mono.Unix.Catalog.GetString("Присвоение точкам доставки районов доставки");
-		w1.Add(this.ActionSetDistrictsToDeliveryPoints, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -922,12 +917,11 @@ public partial class MainWindow
 				"stanceFromCenter\'/><menuitem name=\'ActionOrdersWithoutBottlesOperation\' action=\'" +
 				"ActionOrdersWithoutBottlesOperation\'/><menuitem name=\'ActionLoad1cCounterpartyAn" +
 				"dDeliveryPoints\' action=\'ActionLoad1cCounterpartyAndDeliveryPoints\'/><menuitem n" +
-				"ame=\'ActionToOnlineStore\' action=\'ActionToOnlineStore\'/><menuitem name=\'ActionSe" +
-				"tDistrictsToDeliveryPoints\' action=\'ActionSetDistrictsToDeliveryPoints\'/></menu>" +
-				"<separator/><menuitem name=\'ActionDocTemplates\' action=\'ActionDocTemplates\'/><me" +
-				"nuitem name=\'ActionGeographicGroups\' action=\'ActionGeographicGroups\'/></menu><me" +
-				"nu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem name=\'aboutAction\' action=\'" +
-				"aboutAction\'/></menu></menubar></ui>");
+				"ame=\'ActionToOnlineStore\' action=\'ActionToOnlineStore\'/></menu><separator/><menu" +
+				"item name=\'ActionDocTemplates\' action=\'ActionDocTemplates\'/><menuitem name=\'Acti" +
+				"onGeographicGroups\' action=\'ActionGeographicGroups\'/></menu><menu name=\'ActionAb" +
+				"out\' action=\'ActionAbout\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></m" +
+				"enu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1160,7 +1154,6 @@ public partial class MainWindow
 		this.ActionParameters.Activated += new global::System.EventHandler(this.OnActionParametersActivated);
 		this.Action58.Activated += new global::System.EventHandler(this.OnActionOrdersByCreationDate);
 		this.ActionGeographicGroups.Activated += new global::System.EventHandler(this.OnActionGeographicGroupsActivated);
-		this.ActionSetDistrictsToDeliveryPoints.Activated += new global::System.EventHandler(this.OnActionSetDistrictsToDeliveryPointsActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);

@@ -1079,8 +1079,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GeographicGroupsToStringWidget.cs" />
     <Compile Include="Core\Permissions\SubdivisionForUserEntityPermissionWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.Core.Permissions.SubdivisionForUserEntityPermissionWidget.cs" />
-    <Compile Include="ServiceDialogs\DistrictFinderForDeliveryPointsDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.DistrictFinderForDeliveryPointsDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

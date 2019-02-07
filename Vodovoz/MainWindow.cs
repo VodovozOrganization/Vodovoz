@@ -1091,7 +1091,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrdersByCreationDateReport>(),
 			() => new QSReport.ReportViewDlg(new OrdersByCreationDateReport())
-		);
+			);
 	}
 
 	protected void OnActionTypesOfEntitiesActivated(object sender, EventArgs e)
@@ -1117,10 +1117,5 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			OrmReference.GenerateHashName<GeographicGroup>(),
 			() => new OrmReference(typeof(GeographicGroup))
 		);
-	}
-
-	protected void OnActionSetDistrictsToDeliveryPointsActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab<DistrictFinderForDeliveryPointsDlg>();
 	}
 }

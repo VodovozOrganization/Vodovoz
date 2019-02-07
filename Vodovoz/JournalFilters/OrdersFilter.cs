@@ -23,15 +23,21 @@ namespace Vodovoz
 			dateperiodOrders.EndDateOrNull = DateTime.Today.AddDays(daysToFwd);
 		}
 
-		public OrdersFilter(IUnitOfWork uow) : this() => UoW = uow;
+		public OrdersFilter(IUnitOfWork uow) : this()
+		{
+			UoW = uow;
+		}
 
-		public OrdersFilter() => this.Build();
+		public OrdersFilter()
+		{
+			this.Build();
+		}
 
 		int daysToAft = 0;
 		int daysToFwd = 0;
 
 		public OrderStatus? RestrictStatus {
-			get => enumcomboStatus.SelectedItem as OrderStatus?;
+			get { return enumcomboStatus.SelectedItem as OrderStatus?; }
 			set {
 				enumcomboStatus.SelectedItem = value;
 				enumcomboStatus.Sensitive = false;
@@ -73,7 +79,7 @@ namespace Vodovoz
 
 		public PaymentType? RestrictPaymentType {
 			get => enumcomboPaymentType.SelectedItem as PaymentType?;
-			set {
+			set { 
 				enumcomboPaymentType.SelectedItem = value;
 				enumcomboPaymentType.Sensitive = false;
 			}
@@ -100,7 +106,7 @@ namespace Vodovoz
 		}
 
 		public Counterparty RestrictCounterparty {
-			get => entryreferenceClient.Subject as Counterparty;
+			get { return entryreferenceClient.Subject as Counterparty; }
 			set {
 				entryreferenceClient.Subject = value;
 				entryreferenceClient.Sensitive = false;
@@ -108,7 +114,7 @@ namespace Vodovoz
 		}
 
 		public DeliveryPoint RestrictDeliveryPoint {
-			get => entryreferencePoint.Subject as DeliveryPoint;
+			get { return entryreferencePoint.Subject as DeliveryPoint; }
 			set {
 				entryreferencePoint.Subject = value;
 				entryreferencePoint.Sensitive = false;
@@ -116,7 +122,7 @@ namespace Vodovoz
 		}
 
 		public DateTime? RestrictStartDate {
-			get => dateperiodOrders.StartDateOrNull;
+			get { return dateperiodOrders.StartDateOrNull; }
 			set {
 				dateperiodOrders.StartDateOrNull = value;
 				dateperiodOrders.Sensitive = false;
@@ -124,7 +130,7 @@ namespace Vodovoz
 		}
 
 		public DateTime? RestrictEndDate {
-			get => dateperiodOrders.EndDateOrNull;
+			get { return dateperiodOrders.EndDateOrNull; }
 			set {
 				dateperiodOrders.EndDateOrNull = value;
 				dateperiodOrders.Sensitive = false;
@@ -132,7 +138,7 @@ namespace Vodovoz
 		}
 
 		public bool RestrictOnlyWithoutCoodinates {
-			get => checkWithoutCoordinates.Active;
+			get { return checkWithoutCoordinates.Active; }
 			set {
 				checkWithoutCoordinates.Active = value;
 				checkWithoutCoordinates.Sensitive = false;
@@ -142,7 +148,9 @@ namespace Vodovoz
 		bool? restrictSelfDelivery;
 
 		public bool? RestrictSelfDelivery {
-			get => checkOnlySelfDelivery.Active ? true : restrictSelfDelivery;
+			get {
+				return checkOnlySelfDelivery.Active ? true : restrictSelfDelivery;
+			}
 			set {
 				restrictSelfDelivery = value;
 				checkOnlySelfDelivery.Active = value == true;
@@ -153,7 +161,9 @@ namespace Vodovoz
 		bool? restrictWithoutSelfDelivery;
 
 		public bool? RestrictWithoutSelfDelivery {
-			get => checkWithoutSelfDelivery.Active ? true : restrictWithoutSelfDelivery;
+			get {
+				return checkWithoutSelfDelivery.Active ? true : restrictWithoutSelfDelivery;
+			}
 			set {
 				restrictWithoutSelfDelivery = value;
 				checkWithoutSelfDelivery.Active = value == true;
@@ -164,7 +174,9 @@ namespace Vodovoz
 		bool? restrictLessThreeHours;
 
 		public bool? RestrictLessThreeHours {
-			get => checkLessThreeHours.Active ? true : restrictLessThreeHours;
+			get {
+				return checkLessThreeHours.Active ? true : restrictLessThreeHours;
+			}
 			set {
 				restrictLessThreeHours = value;
 				checkLessThreeHours.Active = value == true;
@@ -175,7 +187,9 @@ namespace Vodovoz
 		bool? restrictHideService;
 
 		public bool? RestrictHideService {
-			get => checkHideService.Active ? true : restrictHideService;
+			get {
+				return checkHideService.Active ? true : restrictHideService;
+			}
 			set {
 				restrictHideService = value;
 				checkHideService.Active = value == true;
@@ -186,7 +200,9 @@ namespace Vodovoz
 		bool? restrictOnlyService;
 
 		public bool? RestrictOnlyService {
-			get => checkOnlyService.Active ? true : restrictOnlyService;
+			get {
+				return checkOnlyService.Active ? true : restrictOnlyService;
+			}
 			set {
 				restrictOnlyService = value;
 				checkOnlyService.Active = value == true;
@@ -195,8 +211,6 @@ namespace Vodovoz
 		}
 
 		public int[] ExceptIds { get; set; }
-
-		public int[] IncludeDistrictsIds { get; set; }
 
 		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
 		{
@@ -240,13 +254,13 @@ namespace Vodovoz
 
 		protected void OnCheckOnlySelfDeliveryToggled(object sender, EventArgs e)
 		{
-			checkWithoutSelfDelivery.Active = !checkOnlySelfDelivery.Active && checkWithoutSelfDelivery.Active;
+			checkWithoutSelfDelivery.Active = checkOnlySelfDelivery.Active ? false : checkWithoutSelfDelivery.Active;
 			OnRefiltered();
 		}
 
 		protected void OnCheckWithoutSelfDeliveryToggled(object sender, EventArgs e)
 		{
-			checkOnlySelfDelivery.Active = !checkWithoutSelfDelivery.Active && checkOnlySelfDelivery.Active;
+			checkOnlySelfDelivery.Active = checkWithoutSelfDelivery.Active ? false : checkOnlySelfDelivery.Active;
 			OnRefiltered();
 		}
 
@@ -257,13 +271,13 @@ namespace Vodovoz
 
 		protected void OnCheckServiceToggled(object sender, EventArgs e)
 		{
-			checkOnlyService.Active = !checkHideService.Active && checkOnlyService.Active;
+			checkOnlyService.Active = checkHideService.Active ? false : checkOnlyService.Active;
 			OnRefiltered();
 		}
 
 		protected void OnCheckOnlyServiceToggled(object sender, EventArgs e)
 		{
-			checkHideService.Active = !checkOnlyService.Active && checkHideService.Active;
+			checkHideService.Active = checkOnlyService.Active ? false : checkHideService.Active;
 			OnRefiltered();
 		}
 
@@ -296,11 +310,6 @@ namespace Vodovoz
 		}
 
 		protected void OnEnumcomboPaymentTypeChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnYSpecCmbGeographicGroupChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
 		}
