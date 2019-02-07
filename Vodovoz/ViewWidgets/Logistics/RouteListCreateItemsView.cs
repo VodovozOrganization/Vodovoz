@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using NHibernate.Criterion;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -14,7 +15,9 @@ using QSProjectsLib;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Repository;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
 {
@@ -28,19 +31,12 @@ namespace Vodovoz
 
 		private IList<RouteColumn> _columnsInfo;
 
-		private IList<RouteColumn> columnsInfo {
-			get {
-				if(_columnsInfo == null)
-					_columnsInfo = Repository.Logistics.RouteColumnRepository.ActiveColumns(RouteListUoW);
-				return _columnsInfo;
-			}
-		}
-
+		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? Repository.Logistics.RouteColumnRepository.ActiveColumns(RouteListUoW);
 
 		private IUnitOfWorkGeneric<RouteList> routeListUoW;
 
 		public IUnitOfWorkGeneric<RouteList> RouteListUoW {
-			get { return routeListUoW; }
+			get => routeListUoW;
 			set {
 				if(routeListUoW == value)
 					return;
@@ -60,21 +56,18 @@ namespace Vodovoz
 			}
 		}
 
-		private bool CanEditRows {
-			get {
-				return QSMain.User.Permissions["logistican"]
-							 && RouteListUoW.Root.Status != RouteListStatus.Closed
-							 && RouteListUoW.Root.Status != RouteListStatus.MileageCheck;
-			}
-		}
+		private bool CanEditRows => QSMain.User.Permissions["logistican"]
+										&& RouteListUoW.Root.Status != RouteListStatus.Closed
+										&& RouteListUoW.Root.Status != RouteListStatus.MileageCheck;
 
 		private bool disableColumnsUpdate;
 
-		public bool DisableColumnsUpdate { get => disableColumnsUpdate; 
+		public bool DisableColumnsUpdate {
+			get => disableColumnsUpdate;
 			set {
 				if(disableColumnsUpdate == value)
 					return;
-				
+
 				disableColumnsUpdate = value;
 				if(!disableColumnsUpdate)
 					UpdateColumns();
@@ -101,7 +94,7 @@ namespace Vodovoz
 		{
 			if(disableColumnsUpdate)
 				return;
-			
+
 			var goodsColumns = items.SelectMany(i => i.GoodsByRouteColumns.Keys).Distinct().ToArray();
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
@@ -111,7 +104,7 @@ namespace Vodovoz
 			if(goodsColumnsCount != goodsColumns.Length) {
 				goodsColumnsCount = goodsColumns.Length;
 
-				foreach(var column in columnsInfo) {
+				foreach(var column in ColumnsInfo) {
 					if(!goodsColumns.Contains(column.Id))
 						continue;
 					int id = column.Id;
@@ -200,8 +193,28 @@ namespace Vodovoz
 
 		protected void AddOrders()
 		{
-			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
-			filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
+
+			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot()) {
+				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
+			};
+
+			var geoGrpIds = RouteListUoW.Root.GeographicGroups.Select(x => x.Id).ToArray();
+			if(geoGrpIds.Any()) {
+				GeographicGroup geographicGroupAlias = null;
+				var districtIds = RouteListUoW.Session.QueryOver<ScheduleRestrictedDistrict>()
+													  .Left.JoinAlias(d => d.GeographicGroups, () => geographicGroupAlias)
+													  .Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
+													  .Select(
+															  Projections.Distinct(
+															  Projections.Property<ScheduleRestrictedDistrict>(x => x.Id)
+														  )
+													  )
+													  .List<int>()
+													  .ToArray();
+
+				filter.IncludeDistrictsIds = districtIds;
+			}
+
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictStartDate = RouteListUoW.Root.Date.Date,
 				x => x.RestrictEndDate = RouteListUoW.Root.Date.Date,
@@ -209,10 +222,13 @@ namespace Vodovoz
 				x => x.RestrictSelfDelivery = false
 			);
 
-			ViewModel.OrdersVM vm = new ViewModel.OrdersVM(filter);
-			vm.CanToggleVisibilityOfColumns = true;
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(vm);
-			SelectDialog.Mode = OrmReferenceMode.MultiSelect;
+			ViewModel.OrdersVM vm = new ViewModel.OrdersVM(filter) {
+				CanToggleVisibilityOfColumns = true
+			};
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(vm) {
+				Mode = OrmReferenceMode.MultiSelect,
+				ButtonMode = ReferenceButtonMode.None
+			};
 			SelectDialog.ObjectSelected += (s, ea) => {
 				foreach(var selected in ea.Selected) {
 					var order = RouteListUoW.GetById<Order>(selected.EntityId);
@@ -224,9 +240,10 @@ namespace Vodovoz
 
 		protected void AddOrdersFromRegion()
 		{
-			OrmReference SelectDialog = new OrmReference(typeof(LogisticsArea), RouteListUoW);
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
+			OrmReference SelectDialog = new OrmReference(typeof(LogisticsArea), RouteListUoW) {
+				Mode = OrmReferenceMode.Select,
+				ButtonMode = ReferenceButtonMode.CanEdit
+			};
 			SelectDialog.ObjectSelected += (s, ea) => {
 				if(ea.Subject != null) {
 					foreach(var order in OrderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, ea.Subject as LogisticsArea))
@@ -246,7 +263,8 @@ namespace Vodovoz
 			UpdateWeightInfo();
 		}
 
-		public virtual void UpdateWeightInfo(){
+		public virtual void UpdateWeightInfo()
+		{
 			if(RouteListUoW != null && RouteListUoW.Root.Car != null) {
 				string maxWeight = RouteListUoW.Root.Car.MaxWeight > 0
 								   ? RouteListUoW.Root.Car.MaxWeight.ToString()
@@ -263,7 +281,7 @@ namespace Vodovoz
 			var selected = ytreeviewItems.GetSelectedObject<RouteListItem>();
 			if(selected != null) {
 				MyTab.TabParent.OpenTab(
-					OrmMain.GenerateDialogHashName<Order>(selected.Order.Id),
+					DialogHelper.GenerateDialogHashName<Order>(selected.Order.Id),
 					() => new OrderDlg(selected.Order)
 				);
 			}
@@ -280,6 +298,4 @@ namespace Vodovoz
 		[Display(Name = "Выбрать заказы...")] AddOrders,
 		[Display(Name = "Все заказы для логистического района")] AddAllForRegion
 	}
-
 }
-

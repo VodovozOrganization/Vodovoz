@@ -44,7 +44,7 @@ namespace Vodovoz.ViewWidgets
 			Binding = new BindingControler<GeographicGroupsToStringWidget>(
 				this,
 				new Expression<Func<GeographicGroupsToStringWidget, object>>[] {
-					(w => w.Items)
+					w => w.Items
 				}
 			);
 			UpdateText();

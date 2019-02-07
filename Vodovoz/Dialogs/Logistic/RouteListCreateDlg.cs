@@ -26,13 +26,13 @@ namespace Vodovoz
 
 		bool isEditable;
 
-		protected bool IsEditable{
-			get { return isEditable;}
-			set{
+		protected bool IsEditable {
+			get => isEditable;
+			set {
 				isEditable = value;
 				speccomboShift.Sensitive = isEditable;
 				ggToStringWidget.Sensitive = datepickerDate.Sensitive = referenceCar.Sensitive = referenceForwarder.Sensitive = isEditable;
-				createroutelistitemsview1.IsEditable (isEditable);
+				createroutelistitemsview1.IsEditable(isEditable);
 			}
 		}
 

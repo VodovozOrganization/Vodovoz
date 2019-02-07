@@ -1596,7 +1596,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			#endregion
 
-			var districts = DeliveryPoint?.GetDistricts(UoW);
+			var districts = DeliveryPoint?.CalculateDistricts(UoW);
 
 			OrderStateKey orderKey = new OrderStateKey(this);
 			var price = districts.Any() ? districts.Max(x => x.GetDeliveryPrice(orderKey)) : 0m;
