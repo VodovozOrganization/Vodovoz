@@ -9,12 +9,14 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Service
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "заявки на обслуживание",
 		Nominative = "заявка на обслуживание")]
+	[EntityPermission]
 	public class ServiceClaim: BusinessObjectBase<ServiceClaim>, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }

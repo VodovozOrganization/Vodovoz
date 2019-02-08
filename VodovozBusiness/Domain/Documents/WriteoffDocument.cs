@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -17,7 +18,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "акт списания ТМЦ",
 		Prepositional = "акте списания"
 	)]
-	//[HistoryTrace]
+	[EntityPermission]
 	public class WriteoffDocument : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {

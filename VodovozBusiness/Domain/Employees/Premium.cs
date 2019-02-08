@@ -12,10 +12,10 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Employees
 {
-	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "премии сотрудникам",
 		Nominative = "премия сотрудникам")]
+	[EntityPermission]
 	public class Premium: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства

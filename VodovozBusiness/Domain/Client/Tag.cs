@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 
@@ -9,6 +10,7 @@ namespace Vodovoz.Domain.Client
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "теги",
 		Nominative = "тег")]
+	[EntityPermission]
 	public class Tag : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

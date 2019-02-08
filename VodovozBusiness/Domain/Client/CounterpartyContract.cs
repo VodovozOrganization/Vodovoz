@@ -8,6 +8,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Client
 {
@@ -18,6 +19,7 @@ namespace Vodovoz.Domain.Client
 		Genitive = " договора",
 		Accusative = "договор"
 	)]
+	[EntityPermission]
 	public class CounterpartyContract : BusinessObjectBase<CounterpartyContract>, IDomainObject, IValidatableObject
 	{
 		#region Сохраняемые поля

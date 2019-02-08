@@ -9,11 +9,10 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Cash
 {
-	[EntityPermission]
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "авансовые отчеты",
 		Nominative = "авансовый отчет")]
-	//[HistoryTrace]
+	[EntityPermission]
 	public class AdvanceReport : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства

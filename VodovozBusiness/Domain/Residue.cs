@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
@@ -12,6 +13,7 @@ namespace Vodovoz.Domain
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "остатки",
 		Nominative = "остаток")]
+	[EntityPermission]
 	public class Residue : PropertyChangedBase, IDomainObject//, IValidatableObject
 	{
 		#region Свойства

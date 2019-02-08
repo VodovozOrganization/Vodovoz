@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QSOrmProject;
@@ -14,6 +15,7 @@ namespace Vodovoz.Domain.Client
 		NominativePlural = "доп. соглашения продажи оборудования",
 		Nominative = "доп. соглашение продажи оборудования")]
 	[HistoryTrace]
+	[EntityPermission]
 	public class SalesEquipmentAgreement : AdditionalAgreement
 	{
 		IList<SalesEquipment> salesEqipments = new List<SalesEquipment>();

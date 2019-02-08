@@ -15,11 +15,10 @@ using Vodovoz.Repository.Cash;
 
 namespace Vodovoz.Domain.Cash
 {
-	[EntityPermission]
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "расходные одера",
 		Nominative = "расходный ордер")]
-	//[HistoryTrace]
+	[EntityPermission]
 	public class Expense : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства

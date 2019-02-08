@@ -5,12 +5,14 @@ using QSDocTemplates;
 using QS.DomainModel.Entity;
 using QSOrmProject;
 using Vodovoz.DocTemplates;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Client
 {
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "шаблоны документов",
 		Nominative = "шаблон документа")]
+	[EntityPermission]
 	public class DocTemplate : PropertyChangedBase, IDomainObject, IDocTemplate
 	{
 		#region Свойства

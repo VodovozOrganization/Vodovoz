@@ -14,10 +14,10 @@ using System.Text;
 
 namespace Vodovoz
 {
-	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "подразделения",
 		Nominative = "подразделение")]
+	[EntityPermission]
 	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства

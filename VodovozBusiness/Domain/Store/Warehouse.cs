@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Data.Bindings.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Store
@@ -10,6 +11,7 @@ namespace Vodovoz.Domain.Store
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "склады",
 		Nominative = "склад")]
+	[EntityPermission]
 	public class Warehouse : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public Warehouse() { }

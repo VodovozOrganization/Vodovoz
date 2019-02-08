@@ -3,12 +3,14 @@ using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain
 {
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "типы оборудования",
 		Nominative = "тип оборудования")]
+	[EntityPermission]
 	public class EquipmentType : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

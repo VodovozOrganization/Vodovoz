@@ -6,11 +6,16 @@ using System.Linq;
 using Gamma.Utilities;
 using GeoAPI.Geometries;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Domain.Sale
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "правила районов доставок",
+		Nominative = "правила района доставки")]
+	[EntityPermission]
 	public class ScheduleRestrictedDistrict : BusinessObjectBase<ScheduleRestrictedDistrict>, IDomainObject, IValidatableObject
 	{
 		#region Свойства

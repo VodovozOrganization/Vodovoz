@@ -15,10 +15,10 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Employees
 {
-	[EntityPermission]
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "штрафы сотрудникам",
 		Nominative = "штраф сотрудникам")]
+	[EntityPermission]
 	public class Fine : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
