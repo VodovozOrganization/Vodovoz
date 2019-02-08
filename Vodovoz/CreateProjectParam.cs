@@ -143,7 +143,6 @@ namespace Vodovoz
 				OrmObjectMapping<UserSettings>.Create().Dialog<UserSettingsDlg>(),
 				OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Стоимость", x => x.Cost.ToString()).End(),
 				OrmObjectMapping<MovementWagon>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
-				OrmObjectMapping<TypeOfEntity>.Create().Dialog<TypeOfEntityDlg>().DefaultTableView().SearchColumn("Название", x => x.CustomName).End(),
 				//Остальные справочники
 				//OrmObjectMapping<CarProxyDocument>.Create().Dialog<ProxyDocumentDlg>().DefaultTableView().SearchColumn("Водитель", x => x.Driver != null ? x.Driver.Title : "").End(),
 				OrmObjectMapping<CarProxyDocument>.Create().Dialog<CarProxyDlg>(),

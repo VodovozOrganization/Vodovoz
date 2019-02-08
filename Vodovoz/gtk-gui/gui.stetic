@@ -96,7 +96,7 @@
       </source>
     </icon-set>
   </icon-factory>
-  <widget class="Gtk.Window" id="MainWindow" design-size="1005 530">
+  <widget class="Gtk.Window" id="MainWindow" design-size="1007 530">
     <action-group name="Default">
       <action id="ActionBaseMenu">
         <property name="Type">Action</property>
