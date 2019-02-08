@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -10,26 +11,31 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Reports.Logistic
 {
-	public partial class RoutesListRegisterReport : Gtk.Bin, IParametersWidget
+	public partial class RoutesListRegisterReport : Gtk.Bin, IParametersWidget, ISingleUoWDialog
 	{
 		GenericObservableList<GeographicGroup> geographicGroups;
-		IUnitOfWork uow;
+
+		#region IOrmDialog implementation
+
+		public IUnitOfWork UoW { get; private set; }
+
+		#endregion
 
 		public RoutesListRegisterReport()
 		{
 			this.Build();
 			ConfigureDlg();
-			Destroyed += (sender, e) => uow.Dispose();
+			Destroyed += (sender, e) => UoW.Dispose();
 		}
 
 		void ConfigureDlg()
 		{
-			uow = UnitOfWorkFactory.CreateWithoutRoot();
-			geograficGroup.UoW = uow;
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			geograficGroup.UoW = UoW;
 			geograficGroup.Label = "Часть города:";
 			geographicGroups = new GenericObservableList<GeographicGroup>();
 			geograficGroup.Items = geographicGroups;
-			foreach(var gg in uow.Session.QueryOver<GeographicGroup>().List())
+			foreach(var gg in UoW.Session.QueryOver<GeographicGroup>().List())
 				geographicGroups.Add(gg);
 		}
 
@@ -48,8 +54,7 @@ namespace Vodovoz.Reports.Logistic
 
 		void OnUpdate(bool hide = false)
 		{
-			if(LoadReport != null)
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
 		private ReportInfo GetReportInfo()
