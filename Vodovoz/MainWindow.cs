@@ -886,7 +886,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
-	protected void OnAction43Activated(object sender, EventArgs e)
+	protected void OnIncomeBalanceReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
