@@ -1073,10 +1073,9 @@
     <Compile Include="ReportsParameters\Bottles\OrdersByCreationDateReport.cs" />
     <Compile Include="Dialogs\Client\BottledDebtorDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.BottledDebtorDlg.cs" />
-    <Compile Include="JournalViewers\DebtorsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.DebtorsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.BottleDebtorsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.OrdersByCreationDateReport.cs" />
+    <Compile Include="Dialogs\Client\CRMTasksDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.CRMTasksDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

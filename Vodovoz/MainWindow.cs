@@ -1107,7 +1107,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		tdiMain.OpenTab(
 			"CRM",
-			() => new BottledDebtorDlg(1), null
+			() => new CRMTasksDlg(), null
 		);
 	}
 

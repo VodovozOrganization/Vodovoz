@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Client
 {
-	public class BottleDebtor : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class BottleDebtor : PropertyChangedBase, IDomainObject, IValidatableObject , IBusinessObject
 	{
 		public virtual int Id { get; set; }
 
@@ -49,7 +51,12 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Статус")]
 		public virtual DebtorStatus TaskState {
 			get { return taskState; }
-			set { SetField(ref taskState, value, () => TaskState); }
+			set 
+			{
+				if(IsTaskComplete)
+					return;
+				SetField(ref taskState, value, () => TaskState); 
+			}
 		}
 
 		DateTime dateOfTaskCreation;
@@ -59,18 +66,26 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref dateOfTaskCreation, value, () => DateOfTaskCreation); }
 		}
 
-		DateTime? nextCallDate;
+		DateTime nextCallDate;
 		[Display(Name = "Дата создания задачи")]
-		public virtual DateTime? NextCallDate {
+		public virtual DateTime NextCallDate {
 			get { return nextCallDate; }
-			set { SetField(ref nextCallDate, value, () => NextCallDate); }
+			set {
+				//if(IsTaskComplete)
+					//return;
+				SetField(ref nextCallDate, value, () => NextCallDate);
+			}
 		}
 
 		Employee assignedEmployee;
 		[Display(Name = "Закреплено за")]
 		public virtual Employee AssignedEmployee {
 			get { return assignedEmployee; }
-			set { SetField(ref assignedEmployee, value, () => AssignedEmployee); }
+			set {
+				//if(IsTaskComplete)
+					//return;
+				SetField(ref assignedEmployee, value, () => AssignedEmployee);
+			}
 		}
 
 		bool isTaskComplete;
@@ -80,6 +95,7 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref isTaskComplete, value, () => IsTaskComplete); }
 		}
 
+		public virtual IUnitOfWork UoW { set; get; }
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
