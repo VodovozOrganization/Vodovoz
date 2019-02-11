@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using Gtk;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
