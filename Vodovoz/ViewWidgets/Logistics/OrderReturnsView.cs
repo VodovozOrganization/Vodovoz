@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
-using QS.Dialog.Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Tdi;
@@ -17,7 +16,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz
 {

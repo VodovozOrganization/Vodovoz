@@ -14,6 +14,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 
 namespace Vodovoz

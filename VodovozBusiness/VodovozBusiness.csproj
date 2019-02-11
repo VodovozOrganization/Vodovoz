@@ -352,7 +352,6 @@
     <Compile Include="Repositories\Operations\BottlesRepository.cs" />
     <Compile Include="Repositories\Operations\DepositRepository.cs" />
     <Compile Include="Repositories\Operations\MoneyRepository.cs" />
-    <Compile Include="Repositories\OrderRepository.cs" />
     <Compile Include="Repositories\OrganizationRepository.cs" />
     <Compile Include="Repositories\RentPackageRepository.cs" />
     <Compile Include="Repositories\ServiceClaimRepository.cs" />
@@ -548,6 +547,8 @@
     <Compile Include="DocTemplates\EmployeeContractParser.cs" />
     <Compile Include="Domain\Client\BottleDebtor.cs" />
     <Compile Include="HibernateMapping\Counterparty\BottleDebtorMap.cs" />
+    <Compile Include="Repositories\Orders\Export1cMode.cs" />
+    <Compile Include="Repositories\Orders\OrderRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -576,6 +577,7 @@
     <Folder Include="HibernateMapping\Payments\" />
     <Folder Include="Repositories\Payments\" />
     <Folder Include="Repositories\HumanResourses\" />
+    <Folder Include="Repositories\Orders\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

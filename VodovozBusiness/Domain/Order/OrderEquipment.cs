@@ -3,10 +3,9 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
-using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Service;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
