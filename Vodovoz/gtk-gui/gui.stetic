@@ -841,11 +841,11 @@
         <property name="ShortLabel" translatable="yes">Основания для скидок</property>
         <signal name="Activated" handler="OnActionDiscountReasonsActivated" />
       </action>
-      <action id="Action54">
+      <action id="Action591">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Отчет по кассе</property>
+        <property name="Label" translatable="yes">Отчет по приходу по кассе</property>
         <property name="ShortLabel" translatable="yes">Отчет по прибыли</property>
-        <signal name="Activated" handler="OnAction43Activated" />
+        <signal name="Activated" handler="OnIncomeBalanceReportActivated" />
       </action>
       <action id="Action45">
         <property name="Type">Action</property>
@@ -1038,6 +1038,12 @@
         <property name="Group">ToolBarIcons</property>
         <signal name="Toggled" handler="OnCRMButtonToggled" />
       </action>
+      <action id="Action592">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчет по приходу по кассе</property>
+        <property name="ShortLabel" translatable="yes">Отчет по приходу по кассе</property>
+        <signal name="Activated" handler="OnIncomeBalanceReportActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -1178,7 +1184,7 @@
                     </node>
                     <node type="Menu" action="ActionReportsSales">
                       <node type="Menuitem" action="ActionSalesReport" />
-                      <node type="Menuitem" action="Action54" />
+                      <node type="Menuitem" action="Action592" />
                     </node>
                     <node type="Separator" />
                     <node type="Menu" action="ActionReportsStock">

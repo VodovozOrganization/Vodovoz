@@ -19,7 +19,7 @@
       <Textbox Name="Textbox2">
         <Height>23.82pt</Height>
         <Width>815.99pt</Width>
-        <Value>="Отчет по кассе с " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " по " +  Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
+        <Value>="Отчет по приходу по кассе  с " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " по " +  Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.80pt</Left>
         <Top>2.30pt</Top>
@@ -51,29 +51,29 @@
           <TableColumn>
             <Width>20.4pt</Width>
           </TableColumn>
-          <TableColumn>
-            <Width>41.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>43.5pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>70.2pt</Width>
+          <TableColumn >
+            <Width>51.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.5pt</Width>
           </TableColumn>
-          <TableColumn>
+          <TableColumn >
             <Width>62.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.6pt</Width>
+            <Width>62.6pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>63.0pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>48.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.9pt</Width>
+            <Width>59.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>61.8pt</Width>
+            <Width>51.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>61.1pt</Width>
@@ -82,10 +82,10 @@
             <Width>100.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65.3pt</Width>
+            <Width>47.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>108.8pt</Width>
+            <Width>122.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -110,45 +110,10 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox3">
-                      <Value>№ МЛ</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Value>Дата МЛ</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox12">
-                      <Value>ФИО Водителя</Value>
+                    <Textbox Name="Textbox31">
+                      <Value>Дата ПКО</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -165,7 +130,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>ПКО</Value>
+                      <Value>Сумма ПКО</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -176,6 +141,23 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Color>Black</Color>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox83">
+                      <Value>ФИО Водителя</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -197,10 +179,27 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox77">
-                      <Value>Отклонение Факт-План</Value>
+                    <Textbox Name="Textbox80">
+                      <Value>№ МЛ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>Дата МЛ</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -216,8 +215,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox21">
-                      <Value>Моб. связь</Value>
+                    <Textbox Name="Textbox77">
+                      <Value>ПКО-План</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -345,29 +344,10 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value>=Fields!number.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox9">
-                      <Value>=(Format(Fields!date.Value,"dd.MM"))</Value>
+                    <Textbox Name="Textbox32">
+                      <Value>={CashIncomeDates}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -379,25 +359,6 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox13">
-                      <Value>=Fields!driver.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -405,6 +366,24 @@
                   <ReportItems>
                     <Textbox Name="Textbox61">
                       <Value>={FactIncome}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BackgroundColor>
+                        </BackgroundColor>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox84">
+                      <Value>=Fields!driver.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -437,10 +416,28 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox78">
-                      <Value>=Iif( Fields!FactIncome.IsMissing, 0, {FactIncome}) - Iif( Fields!PlanedIncome.IsMissing, 0,  {PlanedIncome})</Value>
+                    <Textbox Name="Textbox81">
+                      <Value>=Fields!number.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BackgroundColor>
+                        </BackgroundColor>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>=(Format(Fields!date.Value,"dd.MM"))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -457,8 +454,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox22">
-                      <Value>=Fields!PhoneSum.Value</Value>
+                    <Textbox Name="Textbox78">
+                      <Value>=Iif( Fields!FactIncome.IsMissing, 0, {FactIncome}) - Iif( Fields!PlanedIncome.IsMissing, 0,  {PlanedIncome})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -574,8 +571,8 @@ Iif( Fields!PhoneSum.IsMissing, 0,  {PhoneSum}) </Value>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.8pt</Left>
-        <Top>20.5pt</Top>
+        <Left>0.0pt</Left>
+        <Top>21.3pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -598,42 +595,9 @@ Iif( Fields!PhoneSum.IsMissing, 0,  {PhoneSum}) </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox8">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                      <Value>Итого:</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox14">
+                    <Textbox Name="Textbox33">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -664,6 +628,23 @@ Iif( Fields!PhoneSum.IsMissing, 0,  {PhoneSum}) </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox85">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
@@ -680,10 +661,28 @@ Iif( Fields!PhoneSum.IsMissing, 0,  {PhoneSum}) </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox79">
-                      <Value>=sum(Iif(Fields!PlanedIncome.IsMissing, 0 ,{PlanedIncome})  - Iif(Fields!FactIncome.IsMissing, 0 ,{FactIncome}))</Value>
+                    <Textbox Name="Textbox82">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -698,8 +697,8 @@ Iif( Fields!PhoneSum.IsMissing, 0,  {PhoneSum}) </Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox23">
-                      <Value>=sum({PhoneSum})</Value>
+                    <Textbox Name="Textbox79">
+                      <Value>=sum(Iif(Fields!PlanedIncome.IsMissing, 0 ,{PlanedIncome})  - Iif(Fields!FactIncome.IsMissing, 0 ,{FactIncome}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1491,7 +1490,7 @@ Iif( Fields!PhoneSum.IsMissing, 0,  {PhoneSum}) </Value>
     <DataSet Name="Income">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
     t.*,
     (t.FactIncome - t.PlanedIncome - t.PhoneSum - t.NedovozSum - IF(t.TransferedSum &lt; 0,
         t.TransferedSum,

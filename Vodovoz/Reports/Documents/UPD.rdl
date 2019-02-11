@@ -2104,7 +2104,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>=Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds}*(1 - {item_discount} / 100),0) - Fields!item_discount_money.Value</Value>
+                      <Value>=Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds},0) - Fields!item_discount_money.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2296,7 +2296,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>=Sum(Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds}*(1 - {item_discount} / 100),0) - Fields!item_discount_money.Value)</Value>
+                      <Value>=Sum(Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds},0) - Fields!item_discount_money.Value)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>

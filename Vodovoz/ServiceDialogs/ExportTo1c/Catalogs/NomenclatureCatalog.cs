@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ExportTo1c.Catalogs

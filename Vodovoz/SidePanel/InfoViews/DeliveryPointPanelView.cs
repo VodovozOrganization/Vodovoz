@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using Gtk;
 using NHibernate.Util;
 using QS.Dialog.Gtk;

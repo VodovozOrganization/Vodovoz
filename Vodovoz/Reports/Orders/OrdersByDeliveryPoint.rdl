@@ -308,12 +308,12 @@ FROM
     ) as forfeits ON forfeits.delivery_point = orders.delivery_point_id
 WHERE
 		delivery_date = DATE(@date)
-        AND ((@is_sort_bottles = true AND debts.bottle_debt &gt;= @bottles_count) OR (@is_sort_bottles = false)) 
-        AND order_status IN ('Canceled', 'DeliveryCanceled')
+		AND ((@is_sort_bottles = true AND debts.bottle_debt &gt;= @bottles_count) OR (@is_sort_bottles = false)) 
+        AND order_status NOT IN ('Canceled', 'DeliveryCanceled')
         AND NOT EXISTS( SELECT * FROM orders AS t2
 				WHERE
 				t2.delivery_point_id = orders.delivery_point_id
-				AND t2.delivery_date = DATE(@date)
+				AND t2.delivery_date &gt; DATE(@date)
                 AND NOT t2.order_status IN ('Canceled', 'DeliveryCanceled'))
 GROUP BY orders.delivery_point_id
 ORDER BY debts.bottle_debt DESC;</CommandText>
