@@ -610,13 +610,13 @@ GROUP BY nomenclature_id
 		'')),
 		(IF(excluded_org!=0,
 		CONCAT('Искл.орг: ',excluded_org,'\n'),
-		'')),        
-        (IF(included_subdivision!=0,
+		'')),
+		(IF(included_subdivision!=0,
 		CONCAT('Вкл.отделов: ',included_subdivision,'\n'),
 		'')),
 		(IF(excluded_subdivision!=0,
 		CONCAT('Искл.отделов: ',excluded_subdivision,'\n'),
-		'')),        
+		'')),
 		(IF(included_orderauthor!=0,
 		CONCAT('Вкл.авторов заказов: ',included_orderauthor,'\n'),
 		'')),
@@ -628,6 +628,12 @@ GROUP BY nomenclature_id
 		'')),
 		(IF(excluded_discountreason!=0,
 		CONCAT('Искл.причин скидок: ',excluded_discountreason,'\n'),
+		'')),
+		(IF(included_geographic_groups!=0,
+		CONCAT('Вкл.частей города: ',included_geographic_groups,'\n'),
+		'')),
+		(IF(excluded_geographic_groups!=0,
+		CONCAT('Искл.частей города: ',excluded_geographic_groups,'\n'),
 		''))
 	) AS criterions
 FROM
@@ -642,7 +648,7 @@ FROM
 			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@nomen_exclude)),
 			0
 		) AS excluded_noms,
-		
+
 		IF(
 			'0' NOT IN (@nomtype_include),
 			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomtype_include) GROUP BY nomenclature.category) AS q),
@@ -653,7 +659,7 @@ FROM
 			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomtype_exclude) GROUP BY nomenclature.category) AS q),
 			0
 		) AS excluded_nomtypes,
-		
+
 		IF(
 			0 NOT IN (@client_include),
 			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@client_include)),
@@ -664,7 +670,7 @@ FROM
 			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@client_exclude)),
 			0
 		) AS excluded_client,
-		
+
 		IF(
 			0 NOT IN (@org_include),
 			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@org_include)),
@@ -675,8 +681,8 @@ FROM
 			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@org_exclude)),
 			0
 		) AS excluded_org,
-		
-        IF(
+
+		IF(
 			0 NOT IN (@subdivision_include),
 			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@subdivision_include)),
 			0
@@ -686,7 +692,7 @@ FROM
 			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@subdivision_exclude)),
 			0
 		) AS excluded_subdivision,
-        
+
 		IF(
 			0 NOT IN (@orderauthor_include),
 			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@orderauthor_include)),
@@ -697,7 +703,7 @@ FROM
 			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@orderauthor_exclude)),
 			0
 		) AS excluded_orderauthor,
-		
+
 		IF(
 			0 NOT IN (@discountreason_include),
 			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@discountreason_include)),
@@ -707,8 +713,20 @@ FROM
 			0 NOT IN (@discountreason_exclude),
 			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@discountreason_exclude)),
 			0
-		) AS excluded_discountreason
-	) AS tbl;</CommandText>
+		) AS excluded_discountreason,
+
+		IF(
+			0 NOT IN (@geographic_groups_include),
+			(SELECT COUNT(id) FROM geographic_groups WHERE geographic_groups.id IN(@geographic_groups_include)),
+			0
+		) AS included_geographic_groups,
+		IF(
+			0 NOT IN (@geographic_groups_exclude),
+			(SELECT COUNT(id) FROM geographic_groups WHERE geographic_groups.id IN(@geographic_groups_exclude)),
+			0
+		) AS excluded_geographic_groups
+	) AS tbl
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -757,6 +775,12 @@ FROM
           </QueryParameter>
           <QueryParameter Name="subdivision_exclude">
             <Value>=Parameters!subdivision_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_groups_exclude">
+            <Value>=Parameters!geographic_groups_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_groups_include">
+            <Value>=Parameters!geographic_groups_include</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
