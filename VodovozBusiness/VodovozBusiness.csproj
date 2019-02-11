@@ -546,6 +546,8 @@
     <Compile Include="HibernateMapping\Employees\CitizenshipMap.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeContractMap.cs" />
     <Compile Include="DocTemplates\EmployeeContractParser.cs" />
+    <Compile Include="Domain\Client\BottleDebtor.cs" />
+    <Compile Include="HibernateMapping\Counterparty\BottleDebtorMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

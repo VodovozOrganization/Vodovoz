@@ -1070,7 +1070,11 @@
     <Compile Include="JournalViewers\WarehousesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.WarehousesView.cs" />
     <Compile Include="ReportsParameters\Bottles\OrdersByCreationDateReport.cs" />
+    <Compile Include="Dialogs\Client\BottledDebtorDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.BottledDebtorDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.OrdersByCreationDateReport.cs" />
+    <Compile Include="Dialogs\Client\CRMTasksDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.CRMTasksDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
