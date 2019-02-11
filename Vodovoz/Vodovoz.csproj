@@ -1079,8 +1079,17 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GeographicGroupsToStringWidget.cs" />
     <Compile Include="Core\Permissions\SubdivisionForUserEntityPermissionWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.Core.Permissions.SubdivisionForUserEntityPermissionWidget.cs" />
+    <Compile Include="Core\Journal\MultipleEntityJournal.cs" />
+    <Compile Include="Core\Journal\MultipleEntityVMNodeBase.cs" />
+    <Compile Include="Core\Journal\MultipleEntityModelBase.cs" />
+    <Compile Include="Representations\CashMultipleDocumentVM.cs" />
     <Compile Include="ServiceDialogs\DistrictFinderForDeliveryPointsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.DistrictFinderForDeliveryPointsDlg.cs" />
+    <Compile Include="Core\Journal\IMultipleEntityRepresentationModel.cs" />
+    <Compile Include="Core\Journal\ActionForCreateEntityConfig.cs" />
+    <Compile Include="Core\Journal\MultipleEntityModelDocumentConfig.cs" />
+    <Compile Include="Core\Journal\MultipleEntityModelConfiguration.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Core.Journal.MultipleEntityJournal.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1267,6 +1276,7 @@
     <Folder Include="DriverTerminal\" />
     <Folder Include="icons\map\points\" />
     <Folder Include="ReportsParameters\Payments\" />
+    <Folder Include="Core\Journal\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
