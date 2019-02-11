@@ -107,12 +107,18 @@ namespace Vodovoz.Repositories.Orders
 										  ))
 									   ;
 
-			return UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
+			var query = UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
 					  .Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
-					  .Where(o => o.PaymentType == PaymentType.cashless)
 					  .Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
-					  .Where(Subqueries.Le(0.01, export1cSubquerySum.DetachedCriteria))
-					  .List();
+					  .Where(Subqueries.Le(0.01, export1cSubquerySum.DetachedCriteria));
+			if(mode == Export1cMode.IPForTinkoff) {
+				query.Where(o => o.PaymentType == PaymentType.ByCard)
+					.Where(o => o.OnlineOrder != null);
+			} else {
+				query.Where(o => o.PaymentType == PaymentType.cashless);
+			}
+
+			return query.List();
 		}
 
 		public static IList<VodovozOrder> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)

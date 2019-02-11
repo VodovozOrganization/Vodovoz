@@ -33,7 +33,7 @@ namespace Vodovoz.ExportTo1c
 			this.orders = OrderRepository.GetOrdersToExport1c8(uow, mode, start, end);
 			worker.OperationName = "Выгрузка реализаций и счетов-фактур";
 			worker.StepsCount = this.orders.Count;
-			Result = new ExportData(uow, start, end);
+			Result = new ExportData(uow, mode, start, end);
 			int i = 0;
 			while (!worker.IsCancelled && i < orders.Count)
 			{

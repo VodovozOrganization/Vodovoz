@@ -9,6 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ExportTo1c.Catalogs;
+using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 
 namespace Vodovoz.ExportTo1c
@@ -47,11 +48,15 @@ namespace Vodovoz.ExportTo1c
 		public WarehouseCatalog WarehouseCatalog { get; private set;}
 
 		public Organization CashlessOrganization { get; private set;}
+		public Organization TinkoffOrganization { get; private set; }
 
-		public ExportData(IUnitOfWork uow, DateTime dateStart, DateTime dateEnd)
+		public Export1cMode ExportMode { get; private set; }
+
+		public ExportData(IUnitOfWork uow, Export1cMode mode, DateTime dateStart, DateTime dateEnd)
 		{			
 			this.Objects = new List<ObjectNode>();
 			this.UoW = uow;
+			this.ExportMode = mode;
 
 			this.Version = "2.0";
 			this.ExportDate = DateTime.Now;
@@ -73,6 +78,7 @@ namespace Vodovoz.ExportTo1c
 			this.OrganizationCatalog = new OrganizationCatalog(this);
 			this.WarehouseCatalog = new WarehouseCatalog(this);
 			this.CashlessOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PersonType.legal, PaymentType.cashless);
+			this.TinkoffOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PersonType.natural, PaymentType.ByCard);
 			this.ExchangeRules = new RulesNode();
 		}
 
@@ -83,14 +89,14 @@ namespace Vodovoz.ExportTo1c
 			var exportInvoiceDocument = new InvoiceDocumentNode();
 			exportInvoiceDocument.Id = ++objectCounter;
 			exportInvoiceDocument.Reference = new ReferenceNode(exportInvoiceDocument.Id,
-				new PropertyNode("Номер", Common1cTypes.String, order.Id),
+				new PropertyNode("Номер", Common1cTypes.String, ExportMode == Export1cMode.IPForTinkoff ? order.OnlineOrder.Value : order.Id),
 				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s"))
 			);
 
 			exportInvoiceDocument.Properties.Add(
 				new PropertyNode("Организация",
 					Common1cTypes.ReferenceOrganization,
-					OrganizationCatalog.CreateReferenceTo(CashlessOrganization)
+					OrganizationCatalog.CreateReferenceTo(ExportMode == Export1cMode.IPForTinkoff ? TinkoffOrganization : CashlessOrganization)
 				)
 			);
 
@@ -205,7 +211,7 @@ namespace Vodovoz.ExportTo1c
 			exportSaleDocument.Properties.Add(
 				new PropertyNode("Организация",
 					Common1cTypes.ReferenceOrganization,
-					OrganizationCatalog.CreateReferenceTo(CashlessOrganization)
+					OrganizationCatalog.CreateReferenceTo(ExportMode == Export1cMode.IPForTinkoff ? TinkoffOrganization : CashlessOrganization)
 				)
 			);
 			exportSaleDocument.Properties.Add(

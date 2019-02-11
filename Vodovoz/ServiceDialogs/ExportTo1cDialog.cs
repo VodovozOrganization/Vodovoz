@@ -3,8 +3,8 @@ using System.Linq;
 using System.Xml;
 using Gtk;
 using QSProjectsLib;
-using QS.Tdi;
 using Vodovoz.ExportTo1c;
+using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz
 {
@@ -22,9 +22,19 @@ namespace Vodovoz
 
 		protected void OnButtonExportClicked (object sender, EventArgs e)
 		{
+			Export(Export1cMode.BuhgalteriaOOO);
+		}
+
+		protected void OnButtonExportIPTinkoffClicked(object sender, EventArgs e)
+		{
+			Export(Export1cMode.IPForTinkoff);
+		}
+
+		private void Export(Export1cMode mode)
+		{
 			var dateStart = dateperiodpicker1.StartDate;
 			var dateEnd = dateperiodpicker1.EndDate;
-			var exportOperation = new ExportOperation(dateStart, dateEnd);
+			var exportOperation = new ExportOperation(mode, dateStart, dateEnd);
 
 			this.exportInProgress = true;
 			UpdateExportButtonSensitivity();
@@ -46,9 +56,9 @@ namespace Vodovoz
 				.Count()
 				.ToString();
 			this.labelTotalSum.Text = exportData.OrdersTotalSum.ToString("C");
-			this.labelExportedSum.Markup = String.Format("<span foreground=\"{1}\">{0:C}</span>", 
-			                                             exportData.ExportedTotalSum,
-			                                             exportData.ExportedTotalSum == exportData.OrdersTotalSum ? "green" : "red");
+			this.labelExportedSum.Markup = String.Format("<span foreground=\"{1}\">{0:C}</span>",
+														 exportData.ExportedTotalSum,
+														 exportData.ExportedTotalSum == exportData.OrdersTotalSum ? "green" : "red");
 
 			this.labelTotalInvoices.Text = exportData.Objects
 				.OfType<InvoiceDocumentNode>()
@@ -56,8 +66,7 @@ namespace Vodovoz
 				.ToString();
 
 			GtkScrolledWindowErrors.Visible = exportData.Errors.Count > 0;
-			if(exportData.Errors.Count > 0)
-			{
+			if(exportData.Errors.Count > 0) {
 				TextTagTable textTags = new TextTagTable();
 				var tag = new TextTag("Red");
 				tag.Foreground = "red";
@@ -69,7 +78,7 @@ namespace Vodovoz
 			}
 
 			buttonSave.Sensitive = exportData != null && exportData.Errors.Count == 0;
-		}			
+		}
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{			
@@ -104,7 +113,8 @@ namespace Vodovoz
 		}
 
 		private void UpdateExportButtonSensitivity(){
-			buttonExport.Sensitive = !exportInProgress 
+			buttonExport.Sensitive = buttonExportIPTinkoff.Sensitive 
+				= !exportInProgress 
 				&& dateperiodpicker1.EndDateOrNull != null 
 				&& dateperiodpicker1.StartDateOrNull != null 
 				&& dateperiodpicker1.StartDate <= dateperiodpicker1.EndDate;
