@@ -1123,4 +1123,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		tdiMain.OpenTab<DistrictFinderForDeliveryPointsDlg>();
 	}
+
+	protected void OnChequesReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ChequesReport>(),
+			() => new QSReport.ReportViewDlg(new ChequesReport())
+		);
+	}
 }

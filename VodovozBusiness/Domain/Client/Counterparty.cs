@@ -12,11 +12,11 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QSContacts;
-using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Client
 {
@@ -198,8 +198,15 @@ namespace Vodovoz.Domain.Client
 
 		[Display(Name = "Вид оплаты")]
 		public virtual PaymentType PaymentMethod {
-			get { return paymentMethod; }
-			set { SetField(ref paymentMethod, value, () => PaymentMethod); }
+			get => paymentMethod;
+			set {
+				if(SetField(ref paymentMethod, value, () => PaymentMethod)) {
+					if(!CounterpartyRepository.IsCashPayment(PaymentMethod))
+						NeedCheque = null;
+					else
+						NeedCheque = ChequeResponse.Unknown;
+				}
+			}
 		}
 
 		PersonType personType;
@@ -421,11 +428,30 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref deliveryAddress, value, () => SpecialDeliveryAddress); }
 		}
 
+		ChequeResponse? needCheque;
+		[Display(Name = "Требуется печать чека")]
+		public virtual ChequeResponse? NeedCheque {
+			get => needCheque;
+			set => SetField(ref needCheque, value);
+		}
+
+		#endregion
+
+		#region Calculated Properties
+
+		public virtual string RawJurAddress {
+			get => JurAddress;
+			set {
+				StringBuilder sb = new StringBuilder(value);
+				sb.Replace("\n", "");
+				JurAddress = sb.ToString();
+			}
+		}
+
 		private void CheckSpecialField(ref bool result, string fieldValue)
 		{
-			if(!string.IsNullOrWhiteSpace(fieldValue)) {
+			if(!string.IsNullOrWhiteSpace(fieldValue))
 				result = true;
-			}
 		}
 
 		public virtual bool IsNotEmpty {
@@ -441,17 +467,6 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		#endregion
-
-		#region Calculated Properties
-		public virtual string RawJurAddress{
-			get => JurAddress;
-			set {
-				StringBuilder sb = new StringBuilder(value);
-				sb.Replace("\n", "");
-				JurAddress = sb.ToString();
-			}
-		}
 		#endregion
 
 		public Counterparty()
@@ -472,16 +487,16 @@ namespace Vodovoz.Domain.Client
 			IList<Counterparty> counterarties = Repository.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
 			if(counterarties == null)
 				return false;
-			if(counterarties.Count(x => x.Id != Id) > 0)
+			if(counterarties.Any(x => x.Id != Id))
 				return true;
 			return false;
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(CheckForINNDuplicate()){
+			if(CheckForINNDuplicate()) {
 				yield return new ValidationResult("Контрагент с данным ИНН уже существует.",
-				                                  new[] { this.GetPropertyName(o => o.INN) });
+												  new[] { this.GetPropertyName(o => o.INN) });
 			}
 			if(UseSpecialDocFields && SpecialKPP != null && SpecialKPP.Length != 9) {
 				yield return new ValidationResult("Длина КПП для документов должна равнятся 9-ти.",
@@ -545,6 +560,12 @@ namespace Vodovoz.Domain.Client
 			if(Id == 0 && CameFrom == null) {
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Откуда клиент\"");
 			}
+
+			if(CounterpartyRepository.IsCashPayment(PaymentMethod) && (!NeedCheque.HasValue || NeedCheque.Value == ChequeResponse.Unknown))
+				yield return new ValidationResult(
+					"Укажите, требуется ли печать чека для контрагента",
+					new[] { this.GetPropertyName(o => o.NeedCheque) }
+				);
 		}
 
 		#endregion
@@ -560,9 +581,7 @@ namespace Vodovoz.Domain.Client
 
 	public class PersonTypeStringType : NHibernate.Type.EnumStringType
 	{
-		public PersonTypeStringType() : base(typeof(PersonType))
-		{
-		}
+		public PersonTypeStringType() : base(typeof(PersonType)) { }
 	}
 
 	public enum DefaultDocumentType
@@ -575,11 +594,23 @@ namespace Vodovoz.Domain.Client
 		torg12
 	}
 
+	public enum ChequeResponse
+	{
+		[Display(Name = "Не знаю")]
+		Unknown,
+		[Display(Name = "Да")]
+		Yes,
+		[Display(Name = "Нет")]
+		No
+	}
+
 	public class DefaultDocumentTypeStringType : NHibernate.Type.EnumStringType
 	{
-		public DefaultDocumentTypeStringType() : base(typeof(DefaultDocumentType))
-		{
-		}
+		public DefaultDocumentTypeStringType() : base(typeof(DefaultDocumentType)) { }
+	}
+
+	public class ChequeResponseStringType : NHibernate.Type.EnumStringType
+	{
+		public ChequeResponseStringType() : base(typeof(ChequeResponse)) { }
 	}
 }
-

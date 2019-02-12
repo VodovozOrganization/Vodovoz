@@ -81,6 +81,14 @@ namespace Vodovoz.Repository
 			).SingleOrDefault<int>();
 		}
 
+		public static PaymentType[] GetPaymentTypesForCash() => new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld };
+
+		public static PaymentType[] GetPaymentTypesForCashless() => new PaymentType[] { PaymentType.cashless, PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
+
+		public static bool IsCashPayment(PaymentType payment) => GetPaymentTypesForCash().Contains(payment);
+
+		public static bool IsCashlessPayment(PaymentType payment) => GetPaymentTypesForCashless().Contains(payment);
+
 		public static IList<CounterpartyTo1CNode> GetCounterpartiesWithInnAndAnyContact(IUnitOfWork uow)
 		{
 			Email emailAlias = null;

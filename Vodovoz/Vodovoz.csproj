@@ -1085,6 +1085,8 @@
     <Compile Include="Representations\CashMultipleDocumentVM.cs" />
     <Compile Include="ServiceDialogs\DistrictFinderForDeliveryPointsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.DistrictFinderForDeliveryPointsDlg.cs" />
+    <Compile Include="ReportsParameters\ChequesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ChequesReport.cs" />
     <Compile Include="Core\Journal\IMultipleEntityRepresentationModel.cs" />
     <Compile Include="Core\Journal\ActionForCreateEntityConfig.cs" />
     <Compile Include="Core\Journal\MultipleEntityModelDocumentConfig.cs" />
@@ -1634,6 +1636,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bottles\OrdersByCreationDate.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\ChequesReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

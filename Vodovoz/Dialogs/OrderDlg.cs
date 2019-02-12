@@ -254,8 +254,9 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			var filterAuthor = new EmployeeFilter(UoW);
-			filterAuthor.ShowFired = false;
+			var filterAuthor = new EmployeeFilter(UoW) {
+				ShowFired = false
+			};
 			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
 			referenceAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
 			referenceAuthor.Sensitive = false;
@@ -290,9 +291,10 @@ namespace Vodovoz
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
-			dataSumDifferenceReason.Completion = new EntryCompletion();
-			dataSumDifferenceReason.Completion.Model = OrderRepository.GetListStoreSumDifferenceReasons(UoWGeneric);
-			dataSumDifferenceReason.Completion.TextColumn = 0;
+			dataSumDifferenceReason.Completion = new EntryCompletion {
+				Model = OrderRepository.GetListStoreSumDifferenceReasons(UoWGeneric),
+				TextColumn = 0
+			};
 
 			spinSumDifference.Binding.AddBinding(Entity, e => e.ExtraMoney, w => w.ValueAsDecimal).InitializeFromSource();
 
@@ -320,12 +322,13 @@ namespace Vodovoz
 			OrderItemEquipmentCountHasChanges = false;
 			ShowOrderColumnInDocumentsList();
 
-			UpdateUIState();
-
 			SetSensitivityOfPaymentType();
 			depositrefunditemsview.Configure(UoWGeneric, Entity);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
+
+			enumNeedOfCheque.ItemsEnum = typeof(ChequeResponse);
+			enumNeedOfCheque.Binding.AddBinding(Entity, c => c.NeedCheque, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += WaterSalesAgreement_ObjectUpdatedGeneric;
 			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());
@@ -336,6 +339,9 @@ namespace Vodovoz
 			labelSumDifference.Hide();
 			dataSumDifferenceReason.Hide();
 			labelSumDifferenceReason.Hide();
+
+			UpdateUIState();
+
 			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
 			HasChanges = true;
 			UoW.CanCheckIfDirty = false;
@@ -469,7 +475,6 @@ namespace Vodovoz
 		MenuItem menuItemSelfDeliveryToLoading = null;
 		MenuItem menuItemSelfDeliveryPaid = null;
 		MenuItem menuItemReturnToAccepted = null;
-
 
 		/// <summary>
 		/// Конфигурирование меню кнопок с дополнительными действиями заказа
@@ -1006,11 +1011,12 @@ namespace Vodovoz
 				x => x.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.master },
 				x => x.DefaultSelectedCategory = NomenclatureCategory.master
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Выезд мастера";
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = OrmReferenceMode.Select,
+				TabName = "Выезд мастера",
+				ShowFilter = true
+			};
 			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
-			SelectDialog.ShowFilter = true;
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
@@ -1037,11 +1043,12 @@ namespace Vodovoz
 				x => x.DefaultSelectedCategory = NomenclatureCategory.water,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Номенклатура на продажу";
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = OrmReferenceMode.Select,
+				TabName = "Номенклатура на продажу",
+				ShowFilter = true
+			};
 			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
-			SelectDialog.ShowFilter = true;
 			TabParent.AddSlaveTab(this, SelectDialog);
 
 		}
@@ -1181,11 +1188,12 @@ namespace Vodovoz
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Оборудование к клиенту";
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = OrmReferenceMode.Select,
+				TabName = "Оборудование к клиенту",
+				ShowFilter = true
+			};
 			SelectDialog.ObjectSelected += NomenclatureToClient;
-			SelectDialog.ShowFilter = true;
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
@@ -1211,11 +1219,12 @@ namespace Vodovoz
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Оборудование от клиента";
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = OrmReferenceMode.Select,
+				TabName = "Оборудование от клиента",
+				ShowFilter = true
+			};
 			SelectDialog.ObjectSelected += NomenclatureFromClient;
-			SelectDialog.ShowFilter = true;
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
@@ -1321,10 +1330,6 @@ namespace Vodovoz
 
 				var deletionObjects = OrmMain.GetDeletionObjects(agreementType, agreement.Id);
 
-				//Нахождение, есть объекты которые не связаны с текущим заказом,
-				//но которые необходимо удалить вместе с доп соглашением
-				bool canDelete = true;
-
 				var delAgreement = deletionObjects.FirstOrDefault(x => x.Type == agreementType && x.Id == agreement.Id);
 				if(delAgreement != null) {
 					deletionObjects.Remove(delAgreement);
@@ -1383,16 +1388,13 @@ namespace Vodovoz
 
 		protected void OnButtonDelete1Clicked(object sender, EventArgs e)
 		{
-			OrderItem orderItem = treeItems.GetSelectedObject() as OrderItem;
-			if(orderItem == null) {
-				return;
+			if(treeItems.GetSelectedObject() is OrderItem orderItem) {
+				RemoveOrderItem(orderItem);
+				//при удалении номенклатуры выделение снимается и при последующем удалении exception
+				//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
+				buttonDelete1.Sensitive = treeItems.GetSelectedObject() != null;
 			}
-			RemoveOrderItem(orderItem);
-			//при удалении номенклатуры выделение снимается и при последующем удалении exception
-			//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
-			buttonDelete1.Sensitive = treeItems.GetSelectedObject() != null;
 		}
-
 
 		#endregion
 
@@ -1436,8 +1438,9 @@ namespace Vodovoz
 			OrmReference refWin;
 			switch(type) {
 				case OrderAgreementType.NonfreeRent:
-					refWin = new OrmReference(typeof(PaidRentPackage));
-					refWin.Mode = OrmReferenceMode.Select;
+					refWin = new OrmReference(typeof(PaidRentPackage)) {
+						Mode = OrmReferenceMode.Select
+					};
 					refWin.ObjectSelected += (sender, e) => {
 						dlg = new NonFreeRentAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate, (e.Subject as PaidRentPackage));
 						RunAgreementDialog(dlg);
@@ -1445,8 +1448,9 @@ namespace Vodovoz
 					TabParent.AddTab(refWin, this);
 					break;
 				case OrderAgreementType.DailyRent:
-					refWin = new OrmReference(typeof(PaidRentPackage));
-					refWin.Mode = OrmReferenceMode.Select;
+					refWin = new OrmReference(typeof(PaidRentPackage)) {
+						Mode = OrmReferenceMode.Select
+					};
 					refWin.ObjectSelected += (sender, e) => {
 						dlg = new DailyRentAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate, (e.Subject as PaidRentPackage));
 						RunAgreementDialog(dlg);
@@ -1454,8 +1458,9 @@ namespace Vodovoz
 					TabParent.AddTab(refWin, this);
 					break;
 				case OrderAgreementType.FreeRent:
-					refWin = new OrmReference(typeof(FreeRentPackage));
-					refWin.Mode = OrmReferenceMode.Select;
+					refWin = new OrmReference(typeof(FreeRentPackage)) {
+						Mode = OrmReferenceMode.Select
+					};
 					refWin.ObjectSelected += (sender, e) => {
 						dlg = new FreeRentAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate, (e.Subject as FreeRentPackage));
 						RunAgreementDialog(dlg);
@@ -1617,10 +1622,9 @@ namespace Vodovoz
 		private void EditGoodsCountCellOnAdd(yTreeView treeView)
 		{
 			int index = treeView.Model.IterNChildren() - 1;
-			Gtk.TreeIter iter;
-			Gtk.TreePath path;
+			TreePath path;
 
-			treeView.Model.IterNthChild(out iter, index);
+			treeView.Model.IterNthChild(out TreeIter iter, index);
 			path = treeView.Model.GetPath(iter);
 
 			var column = treeView.Columns.First(x => x.Title == "Кол-во");
@@ -1688,9 +1692,10 @@ namespace Vodovoz
 
 		protected void OnButtonFillCommentClicked(object sender, EventArgs e)
 		{
-			OrmReference SelectDialog = new OrmReference(typeof(CommentTemplate), UoWGeneric);
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
+			OrmReference SelectDialog = new OrmReference(typeof(CommentTemplate), UoWGeneric) {
+				Mode = OrmReferenceMode.Select,
+				ButtonMode = ReferenceButtonMode.CanAdd
+			};
 			SelectDialog.ObjectSelected += (s, ea) => {
 				if(ea.Subject != null) {
 					Entity.Comment = (ea.Subject as CommentTemplate).Comment;
@@ -1718,8 +1723,7 @@ namespace Vodovoz
 
 		protected void OnReferenceDeliveryPointChanged(object sender, EventArgs e)
 		{
-			if(CurrentObjectChanged != null)
-				CurrentObjectChanged(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
+			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
 			if(Entity.DeliveryPoint != null) {
 				UpdateProxyInfo();
 				SetProxyForOrder();
@@ -1789,6 +1793,7 @@ namespace Vodovoz
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			SetProxyForOrder();
 			UpdateProxyInfo();
+			UpdateUIState();
 		}
 
 		protected void OnPickerDeliveryDateDateChanged(object sender, EventArgs e)
@@ -1941,16 +1946,14 @@ namespace Vodovoz
 
 		protected void OnEntryBottlesReturnChanged(object sender, EventArgs e)
 		{
-			int result = 0;
-			if(Int32.TryParse(entryBottlesToReturn.Text, out result)) {
+			if(Int32.TryParse(entryBottlesToReturn.Text, out int result)) {
 				Entity.BottlesReturn = result;
 			}
 		}
 
 		protected void OnEntryTrifleChanged(object sender, EventArgs e)
 		{
-			int result = 0;
-			if(Int32.TryParse(entryTrifle.Text, out result)) {
+			if(Int32.TryParse(entryTrifle.Text, out int result)) {
 				Entity.Trifle = result;
 			}
 		}
@@ -1958,9 +1961,8 @@ namespace Vodovoz
 		protected void OnShown(object sender, EventArgs e)
 		{
 			//Скрывает журнал заказов при открытии заказа, чтобы все элементы умещались на экране
-			var slider = TabParent as TdiSliderTab;
 
-			if(slider != null)
+			if(TabParent is TdiSliderTab slider)
 				slider.IsHideJournal = true;
 		}
 
@@ -2192,17 +2194,16 @@ namespace Vodovoz
 		/// </summary>
 		void ObservableOrderItems_ElementChanged_ChangeCount(object aList, int[] aIdx)
 		{
-			if(!(aList is GenericObservableList<OrderItem>)) {
-				return;
-			}
-			foreach(var i in aIdx) {
-				OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
-				if(oItem == null || oItem.PaidRentEquipment == null) {
-					return;
-				}
-				if(oItem.Nomenclature.Category == NomenclatureCategory.rent
-				  || oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
-					ChangeEquipmentsCount(oItem, oItem.Count);
+			if(aList is GenericObservableList<OrderItem>) {
+				foreach(var i in aIdx) {
+					OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
+					if(oItem == null || oItem.PaidRentEquipment == null) {
+						return;
+					}
+					if(oItem.Nomenclature.Category == NomenclatureCategory.rent
+					  || oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
+						ChangeEquipmentsCount(oItem, oItem.Count);
+					}
 				}
 			}
 		}
@@ -2213,18 +2214,17 @@ namespace Vodovoz
 		/// </summary>
 		void ObservableOrderEquipments_ElementChanged_ChangeCount(object aList, int[] aIdx)
 		{
-			if(!(aList is GenericObservableList<OrderEquipment>)) {
-				return;
-			}
-			foreach(var i in aIdx) {
-				OrderEquipment oEquip = (aList as GenericObservableList<OrderEquipment>)[aIdx] as OrderEquipment;
-				if(oEquip == null
-				   || oEquip.OrderItem == null
-				   || oEquip.OrderItem.PaidRentEquipment == null) {
-					return;
-				}
-				if(oEquip.Count != oEquip.OrderItem.Count) {
-					ChangeEquipmentsCount(oEquip.OrderItem, oEquip.Count);
+			if(aList is GenericObservableList<OrderEquipment>) {
+				foreach(var i in aIdx) {
+					OrderEquipment oEquip = (aList as GenericObservableList<OrderEquipment>)[aIdx] as OrderEquipment;
+					if(oEquip == null
+					   || oEquip.OrderItem == null
+					   || oEquip.OrderItem.PaidRentEquipment == null) {
+						return;
+					}
+					if(oEquip.Count != oEquip.OrderItem.Count) {
+						ChangeEquipmentsCount(oEquip.OrderItem, oEquip.Count);
+					}
 				}
 			}
 		}
@@ -2276,6 +2276,7 @@ namespace Vodovoz
 		{
 			bool val = Entity.CanEditOrder;
 			enumPaymentType.Sensitive = Entity.Client != null && val && !chkContractCloser.Active;
+			enumNeedOfCheque.Visible = lblNeedCheque.Visible = Entity.Client != null && val && CounterpartyRepository.IsCashPayment(Entity.PaymentType);
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable =
 				referenceClient.IsEditable = val;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =
@@ -2369,7 +2370,7 @@ namespace Vodovoz
 
 			DBWorks.SQLHelper text = new DBWorks.SQLHelper("");
 			if(canShow) {
-				var proxies = Entity.Client.Proxies.Where(p => p.IsActiveProxy(Entity.DeliveryDate.Value) && (p.DeliveryPoints == null || p.DeliveryPoints.Count() == 0 || p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, Entity.DeliveryPoint))));
+				var proxies = Entity.Client.Proxies.Where(p => p.IsActiveProxy(Entity.DeliveryDate.Value) && (p.DeliveryPoints == null || !p.DeliveryPoints.Any() || p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, Entity.DeliveryPoint))));
 				foreach(var proxy in proxies) {
 					if(!String.IsNullOrWhiteSpace(text.Text))
 						text.Add("\n");
@@ -2436,8 +2437,7 @@ namespace Vodovoz
 		{
 			DiscountReason reason = (ycomboboxReason.SelectedItem as DiscountReason);
 			DiscountUnits unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
-			decimal discount = 0;
-			if(Decimal.TryParse(spinDiscount.Text, out discount)) {
+			if(Decimal.TryParse(spinDiscount.Text, out decimal discount)) {
 				if(reason == null && discount > 0) {
 					MessageDialogHelper.RunErrorDialog("Необходимо выбрать основание для скидки");
 					return;
@@ -2459,8 +2459,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var billDocument = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill) as BillDocument;
-			if(billDocument == null) {
+			if(!(Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill) is BillDocument billDocument)) {
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
 			}
@@ -2475,14 +2474,15 @@ namespace Vodovoz
 			billDocument.HideSignature = wasHideSignature;
 
 			var billTemplate = billDocument.GetEmailTemplate();
-			Email email = new Email();
-			email.Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title);
-			email.Text = billTemplate.Text;
-			email.HtmlText = billTemplate.TextHtml;
-			email.Recipient = new EmailContact("", emailAddressForBill.Address);
-			email.Sender = new EmailContact("vodovoz-spb.ru", MainSupport.BaseParameters.All["email_for_email_delivery"]);
-			email.Order = Entity.Id;
-			email.OrderDocumentType = OrderDocumentType.Bill;
+			Email email = new Email {
+				Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title),
+				Text = billTemplate.Text,
+				HtmlText = billTemplate.TextHtml,
+				Recipient = new EmailContact("", emailAddressForBill.Address),
+				Sender = new EmailContact("vodovoz-spb.ru", MainSupport.BaseParameters.All["email_for_email_delivery"]),
+				Order = Entity.Id,
+				OrderDocumentType = OrderDocumentType.Bill
+			};
 			foreach(var item in billTemplate.Attachments) {
 				email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
 			}
