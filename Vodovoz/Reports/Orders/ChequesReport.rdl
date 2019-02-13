@@ -810,6 +810,7 @@ FROM(
 	WHERE
 		orders.delivery_date = DATE(@date)
 		AND orders.payment_type IN('cash', 'BeveragesWorld')
+		AND orders.need_cheque = 'Yes'
 		AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups))
 	GROUP BY order_items.id
 	) AS T
