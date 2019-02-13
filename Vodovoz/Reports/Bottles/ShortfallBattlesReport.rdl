@@ -446,7 +446,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>Коммент. менедж.</Value>
+                      <Value>Коммент. вод. тел.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1392,7 +1392,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	bottles_movement_operations.delivery_point_id AS pointid,
@@ -1553,7 +1553,7 @@ ORDER BY reason_type_status</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="ordersIdAlias">
           <DataField>ordersIdAlias</DataField>
           <TypeName>System.UInt32</TypeName>
