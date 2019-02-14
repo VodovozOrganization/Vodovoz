@@ -4,14 +4,12 @@ using Gdk;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Dialogs.Cash
 {

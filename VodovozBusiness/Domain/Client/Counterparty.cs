@@ -16,6 +16,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Client
@@ -539,7 +540,7 @@ namespace Vodovoz.Domain.Client
 					yield return new ValidationResult(
 						String.Format("Вы не можете сдать контрагента в архив так как у него имеется долг: {0}", CurrencyWorks.GetShortCurrencyString(balance)));
 
-				var activeOrders = Repository.OrderRepository.GetCurrentOrders(UoW, this);
+				var activeOrders = OrderRepository.GetCurrentOrders(UoW, this);
 				if(activeOrders.Count > 0)
 					yield return new ValidationResult(
 						String.Format("Вы не можете сдать контрагента в архив с незакрытыми заказами: {0}", String.Join(", ", activeOrders.Select(o => o.Id.ToString()))),

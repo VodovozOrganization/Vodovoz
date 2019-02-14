@@ -17,7 +17,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			
 		public override ReferenceNode CreateReferenceTo(Counterparty counterparty)
 		{
-			if(String.IsNullOrWhiteSpace(counterparty.INN))
+			if(exportData.ExportMode == Repositories.Orders.Export1cMode.BuhgalteriaOOO && String.IsNullOrWhiteSpace(counterparty.INN))
 				exportData.Errors.Add($"Для контрагента {counterparty.Id} - '{counterparty.Name}' не заполнен ИНН.");
 
 			int id = GetReferenceId(counterparty);

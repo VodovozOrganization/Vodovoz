@@ -322,7 +322,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -331,19 +331,19 @@ WHERE
 	'--' AS unit_code,
 	measurement_units.name AS mu_name,
 	IF(
-		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
+		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled') AND NOT orders.self_delivery,
 		actual_count,
 		count
 	) AS count,
 	order_items.price AS item_price,
 	order_items.discount AS item_discount,
 	order_items.price * IF(
-		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
+		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled') AND NOT orders.self_delivery,
 		actual_count,
 		count
 	) AS total_wo_disc,
 	order_items.price * IF(
-		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
+		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled') AND NOT orders.self_delivery,
 		actual_count,
 		count
 	) - order_items.discount_money AS total
@@ -382,7 +382,7 @@ WHERE NOT EXISTS (
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.String</TypeName>
@@ -3288,7 +3288,7 @@ GROUP BY name</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

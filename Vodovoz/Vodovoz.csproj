@@ -658,7 +658,6 @@
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\WarehouseCatalog.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Common1cTypes.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\DomainObjectEqualityComparer.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\EnumExtensions.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportData.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportDefaults\Currency.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportDefaults\Warehouse1c.cs" />
@@ -674,7 +673,6 @@
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\SalesDocumentNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\TableNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\TableRecordNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Exports.cs" />
     <Compile Include="gtk-gui\Vodovoz.DocTemplateDlg.cs" />
     <Compile Include="Dialogs\Client\DocTemplateDlg.cs" />
     <Compile Include="Dialogs\Client\DeliveryPointDlg.cs" />

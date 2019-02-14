@@ -23,6 +23,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools.Logistic;
 
@@ -582,11 +583,11 @@ namespace Vodovoz
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			int totalOrders = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, true)
+			int totalOrders = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, true)
 				.GetExecutableQueryOver(UoW.Session)
 				.Select(NHibernate.Criterion.Projections.Count<Order>(x => x.Id)).SingleOrDefault<int>();
 
-			int totalBottles = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, true)
+			int totalBottles = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, true)
 				.GetExecutableQueryOver(UoW.Session)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -606,12 +607,12 @@ namespace Vodovoz
 			MainClass.progressBarWin.ProgressStart(5);
 			UoW.Session.Clear();
 
-			var ordersQuery = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
+			var ordersQuery = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session)
 				.Fetch(x => x.DeliveryPoint).Eager
 				.Future();
 
-			Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
+			OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session)
 				.Fetch(x => x.OrderItems).Eager
 				.Future();

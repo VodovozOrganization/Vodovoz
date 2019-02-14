@@ -14,7 +14,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Domain.Orders
 {

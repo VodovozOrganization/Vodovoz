@@ -22,6 +22,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Client;
