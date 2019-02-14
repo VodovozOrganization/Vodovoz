@@ -1092,6 +1092,10 @@
     <Compile Include="Core\Journal\MultipleEntityModelDocumentConfig.cs" />
     <Compile Include="Core\Journal\MultipleEntityModelConfiguration.cs" />
     <Compile Include="gtk-gui\Vodovoz.Core.Journal.MultipleEntityJournal.cs" />
+    <Compile Include="Core\Permissions\ISubdivisionDividingFilter.cs" />
+    <Compile Include="JournalFilters\SubdivisionsAccessJournalFilterBase.cs" />
+    <Compile Include="Core\Permissions\AccessFilteredSubdivisionSelectorWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Core.Permissions.AccessFilteredSubdivisionSelectorWidget.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

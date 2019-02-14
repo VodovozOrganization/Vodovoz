@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Permissions
 				return permission;
 			}
 
-			var deniedPermission = new EntityPermission(false, false, false, false);
+			var deniedPermission = EntityPermission.AllDenied;
 
 			Employee employee;
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {

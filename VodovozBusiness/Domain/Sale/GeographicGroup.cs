@@ -4,6 +4,9 @@ using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Sale
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		Nominative = "Часть города",
+		NominativePlural = "Части города")]
 	[EntityPermission]
 	public class GeographicGroup : BusinessObjectBase<ScheduleRestrictedDistrict>, IDomainObject
 	{

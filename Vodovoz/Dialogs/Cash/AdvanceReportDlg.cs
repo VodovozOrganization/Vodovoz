@@ -71,6 +71,15 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
+
+			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(AdvanceReport))) {
+
+				MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
+				FailInitialize = true;
+				return;
+			}
+			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
+
 			Entity.Date = DateTime.Now;
 			ConfigureDlg();
 			FillDebt();
@@ -120,11 +129,22 @@ namespace Vodovoz
 				.AddColumn("Статья").AddTextRenderer(a => a.Advance.ExpenseCategory.Name)
 				.AddColumn("Основание").AddTextRenderer(a => a.Advance.Description)
 				.Finish();
+			UpdateSubdivision();
 		}
 
 		void OnExpenseCategoryUpdated(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
 		{
 			comboExpense.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories(UoW);
+		}
+
+		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)
+		{
+			UpdateSubdivision();
+		}
+
+		private void UpdateSubdivision()
+		{
+			Entity.RelatedToSubdivision = accessfilteredsubdivisionselectorwidget.SelectedSubdivision;
 		}
 
 		public override bool Save()

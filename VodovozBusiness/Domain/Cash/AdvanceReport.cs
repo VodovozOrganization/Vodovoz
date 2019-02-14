@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Permissions;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -13,7 +14,7 @@ namespace Vodovoz.Domain.Cash
 		NominativePlural = "авансовые отчеты",
 		Nominative = "авансовый отчет")]
 	[EntityPermission]
-	public class AdvanceReport : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class AdvanceReport : PropertyChangedBase, IDomainObject, IValidatableObject, ISubdivisionEntity
 	{
 		#region Свойства
 
@@ -25,6 +26,14 @@ namespace Vodovoz.Domain.Cash
 		public virtual DateTime Date {
 			get { return date; }
 			set { SetField (ref date, value, () => Date); }
+		}
+
+		private Subdivision relatedToSubdivision;
+
+		[Display(Name = "Относится к подразделению")]
+		public virtual Subdivision RelatedToSubdivision {
+			get { return relatedToSubdivision; }
+			set { SetField(ref relatedToSubdivision, value, () => RelatedToSubdivision); }
 		}
 
 		Employee casher;

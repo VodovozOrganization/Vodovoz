@@ -153,7 +153,7 @@ namespace Vodovoz.Core.Permissions
 			}
 
 			EntitySubdivisionForUserPermission savedPermission;
-			var foundOriginalPermission = originalPermissionList.FirstOrDefault(x => x.TypeOfEntity == typeOfEntity);
+			var foundOriginalPermission = originalPermissionList.FirstOrDefault(x => x.TypeOfEntity == typeOfEntity && x.Subdivision == subdivision);
 			if(foundOriginalPermission == null) {
 				savedPermission = new EntitySubdivisionForUserPermission() {
 					Subdivision = subdivision,

@@ -11,6 +11,7 @@ using Vodovoz.Repositories.HumanResources;
 using QS.DomainModel.UoW;
 using System.Linq;
 using System.Text;
+using QS.Project.Domain;
 
 namespace Vodovoz
 {
@@ -64,6 +65,24 @@ namespace Vodovoz
 				if(observableChildSubdivisions == null)
 					observableChildSubdivisions = new GenericObservableList<Subdivision>(ChildSubdivisions);
 				return observableChildSubdivisions;
+			}
+		}
+
+		IList<TypeOfEntity> documentTypes = new List<TypeOfEntity>();
+
+		[Display(Name = "Документы используемые в подразделении")]
+		public virtual IList<TypeOfEntity> DocumentTypes {
+			get => documentTypes;
+			set => SetField(ref documentTypes, value, () => DocumentTypes);
+		}
+
+		GenericObservableList<TypeOfEntity> observableDocumentTypes;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<TypeOfEntity> ObservableDocumentTypes {
+			get {
+				if(observableDocumentTypes == null)
+					observableDocumentTypes = new GenericObservableList<TypeOfEntity>(DocumentTypes);
+				return observableDocumentTypes;
 			}
 		}
 

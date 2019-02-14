@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QSSupportLib;
 using System.Linq;
 using Vodovoz.Domain.Store;
+using QS.Project.Domain;
 
 namespace Vodovoz.Repositories.HumanResources
 {
@@ -41,6 +42,19 @@ namespace Vodovoz.Repositories.HumanResources
 		public static IList<Subdivision> GetChildDepartments(IUnitOfWork uow, Subdivision parentSubdivision, bool orderByDescending = false)
 		{
 			return GetAllDepartments(uow, orderByDescending).Where(s => s.ParentSubdivision == parentSubdivision).ToList();
+		}
+
+		/// <summary>
+		/// Список подразделений в которых произодится работа с указанными документами
+		/// </summary>
+		public static IList<Subdivision> GetSubdivisionsForDocumentTypes(IUnitOfWork uow, Type[] documentTypes)
+		{
+			Subdivision subdivisionAlias = null;
+			TypeOfEntity typeOfEntityAlias = null;
+			return uow.Session.QueryOver<Subdivision>(() => subdivisionAlias)
+				.Left.JoinAlias(() => subdivisionAlias.DocumentTypes, () => typeOfEntityAlias)
+				.WhereRestrictionOn(() => typeOfEntityAlias.Type).IsIn(documentTypes.Select(x => x.Name).ToArray())
+				.List();
 		}
 
 		/// <summary>

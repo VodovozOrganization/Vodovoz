@@ -12,6 +12,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository.Cash;
+using Vodovoz.Domain.Permissions;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -19,7 +20,7 @@ namespace Vodovoz.Domain.Cash
 		NominativePlural = "расходные одера",
 		Nominative = "расходный ордер")]
 	[EntityPermission]
-	public class Expense : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class Expense : PropertyChangedBase, IDomainObject, IValidatableObject, ISubdivisionEntity
 	{
 		#region Свойства
 
@@ -31,6 +32,14 @@ namespace Vodovoz.Domain.Cash
 		public virtual DateTime Date {
 			get { return date; }
 			set { SetField (ref date, value, () => Date); }
+		}
+
+		private Subdivision relatedToSubdivision;
+
+		[Display(Name = "Относится к подразделению")]
+		public virtual Subdivision RelatedToSubdivision {
+			get { return relatedToSubdivision; }
+			set { SetField(ref relatedToSubdivision, value, () => RelatedToSubdivision); }
 		}
 
 		private ExpenseInvoiceDocumentType typeDocument;

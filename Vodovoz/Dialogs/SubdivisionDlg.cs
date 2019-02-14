@@ -8,6 +8,9 @@ using QSValidation;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Representations;
 using Vodovoz.ViewModel;
+using Gamma.GtkWidgets;
+using QS.Project.Domain;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -56,12 +59,19 @@ namespace Vodovoz
 				selectedDistrict = repTreeDistricts.GetSelectedObject<ScheduleRestrictedDistrict>();
 				btnRemoveDistrict.Sensitive = selectedDistrict != null;
 			};
+
+			ytreeviewDocuments.ColumnsConfig = ColumnsConfigFactory.Create<TypeOfEntity>()
+				.AddColumn("Документ").AddTextRenderer(x => x.CustomName)
+				.Finish();
+			ytreeviewDocuments.ItemsDataSource = Entity.ObservableDocumentTypes;
+
 			btnRemoveDistrict.Sensitive = selectedDistrict != null;
 			lblWarehouses.LineWrapMode = Pango.WrapMode.Word;
 			if(Entity.Id > 0)
 				lblWarehouses.Text = Entity.GetWarehousesNames(UoW);
 			else
 				frmWarehoses.Visible = false;
+			vboxDocuments.Visible = QSMain.User.Admin;
 		}
 
 		protected void OnBtnAddDistrictClicked(object sender, System.EventArgs e)
@@ -99,6 +109,33 @@ namespace Vodovoz
 
 			UoWGeneric.Save();
 			return true;
+		}
+
+		protected void OnButtonAddDocumentClicked(object sender, System.EventArgs e)
+		{
+			var docTypesJournal = new OrmReference(typeof(TypeOfEntity), UoW);
+			docTypesJournal.Mode = OrmReferenceMode.Select;
+			docTypesJournal.ObjectSelected += DocTypesJournal_ObjectSelected;
+			TabParent.AddSlaveTab(this, docTypesJournal);
+		}
+
+		protected void OnButtonDeleteDocumentClicked(object sender, System.EventArgs e)
+		{
+			TypeOfEntity selectedObject = ytreeviewDocuments.GetSelectedObject() as TypeOfEntity;
+			if(selectedObject == null) {
+				return;
+			}
+			Entity.ObservableDocumentTypes.Remove(selectedObject);
+		}
+
+
+		void DocTypesJournal_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			TypeOfEntity selectedObject = e.Subject as TypeOfEntity;
+			if(selectedObject == null) {
+				return;
+			}
+			Entity.ObservableDocumentTypes.Add(selectedObject);
 		}
 
 		#endregion

@@ -556,6 +556,8 @@
     <Compile Include="Domain\Permissions\EntitySubdivisionOnlyPermission.cs" />
     <Compile Include="Domain\Sale\GeographicGroup.cs" />
     <Compile Include="HibernateMapping\Sale\GeographicGroupMap.cs" />
+    <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermissionValidator.cs" />
+    <Compile Include="Domain\Permissions\ISubdivisionEntity.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

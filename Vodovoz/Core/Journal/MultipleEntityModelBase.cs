@@ -139,7 +139,7 @@ namespace Vodovoz.Core.Journal
 		protected EntityPermission GetPermissionForEntity<TEntity>()
 		{
 			if(PermissionsSettings.EntityPermissionValidator == null) {
-				return new EntityPermission(true, true, true, true);
+				return EntityPermission.AllAllowed;
 			}
 			var user = UserRepository.GetCurrentUser(UoW);
 			return PermissionsSettings.EntityPermissionValidator.Validate<TEntity>(user.Id);

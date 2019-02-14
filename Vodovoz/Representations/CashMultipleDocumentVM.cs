@@ -22,7 +22,6 @@ namespace Vodovoz.Representations
 	{
 		private CashDocumentVMNode resultAlias = null;
 
-
 		public CashDocumentsFilter Filter {
 			get {
 				return RepresentationFilter as CashDocumentsFilter;
@@ -42,6 +41,8 @@ namespace Vodovoz.Representations
 			RegisterIncome();
 			RegisterExpense();
 			RegisterAdvanceReport();
+
+			Filter.InitSubdivisionsAccess(new Type[] { typeof(Income), typeof(Expense), typeof(AdvanceReport) });
 
 			TreeViewConfig = FluentColumnsConfig<CashDocumentVMNode>.Create()
 			.AddColumn("Тип документа").SetDataProperty(node => node.DisplayName)
@@ -71,6 +72,7 @@ namespace Vodovoz.Representations
 
 				if(Filter.RestrictExpenseCategory == null && (Filter.RestrictDocumentType == null || incomeDocTypes.Contains(Filter.RestrictDocumentType.Value))) {
 					var income = UoW.Session.QueryOver<Income>(() => incomeAlias);
+					income = Filter.FilterBySubdivisionsAccess<Income>(income);
 
 					if(Filter.RestrictDocumentType != null) {
 						IncomeInvoiceDocumentType documentType = IncomeInvoiceDocumentType.IncomeInvoice;
@@ -79,7 +81,6 @@ namespace Vodovoz.Representations
 						}
 						income.Where(i => i.TypeDocument == documentType);
 					}
-
 					if(Filter.RestrictExpenseCategory != null)
 						income.Where(i => i.ExpenseCategory == Filter.RestrictExpenseCategory);
 					if(Filter.RestrictIncomeCategory != null)
@@ -173,6 +174,7 @@ namespace Vodovoz.Representations
 				if(Filter.RestrictIncomeCategory == null && (Filter.RestrictDocumentType == null || expenseDocTypes.Contains(Filter.RestrictDocumentType.Value))) {
 
 					var expense = UoW.Session.QueryOver<Expense>(() => expenseAlias);
+					expense = Filter.FilterBySubdivisionsAccess<Expense>(expense);
 
 					if(Filter.RestrictDocumentType != null) {
 						ExpenseInvoiceDocumentType documentType = ExpenseInvoiceDocumentType.ExpenseInvoice;
@@ -265,6 +267,7 @@ namespace Vodovoz.Representations
 
 				if(Filter.RestrictIncomeCategory == null && Filter.RestrictExpenseCategory == null && (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == CashDocumentType.AdvanceReport)) {
 					var advanceReport = UoW.Session.QueryOver<AdvanceReport>(() => advanceReportAlias);
+					advanceReport = Filter.FilterBySubdivisionsAccess<AdvanceReport>(advanceReport);
 
 					if(Filter.RestrictExpenseCategory != null)
 						advanceReport.Where(i => i.ExpenseCategory == Filter.RestrictExpenseCategory);
