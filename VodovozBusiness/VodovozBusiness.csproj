@@ -545,8 +545,6 @@
     <Compile Include="HibernateMapping\Employees\CitizenshipMap.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeContractMap.cs" />
     <Compile Include="DocTemplates\EmployeeContractParser.cs" />
-    <Compile Include="Domain\Client\BottleDebtor.cs" />
-    <Compile Include="HibernateMapping\Counterparty\BottleDebtorMap.cs" />
     <Compile Include="Repositories\Orders\Export1cMode.cs" />
     <Compile Include="Repositories\Orders\OrderRepository.cs" />
   </ItemGroup>

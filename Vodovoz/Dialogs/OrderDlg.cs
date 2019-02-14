@@ -2079,7 +2079,7 @@ namespace Vodovoz
 		public void OnTabAdded()
 		{
 			//если новый заказ и не создан из недовоза (templateOrder заполняется только из недовоза)
-			if(UoW.IsNew && templateOrder == null && Entity.Client==null)
+			if(UoW.IsNew && templateOrder == null)
 				//открыть окно выбора контрагента
 				referenceClient.OpenSelectDialog();
 		}
