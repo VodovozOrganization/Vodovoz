@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -67,7 +68,7 @@ namespace Vodovoz.ViewModel
 			var queryRoutes = UoW.Session.QueryOver<RouteList>(() => routeListAlias)
 				.JoinAlias(rl => rl.Driver, () => employeeAlias)
 				.JoinAlias(rl => rl.Car, () => carAlias)
-			.Where(r => routeListAlias.Status == RouteListStatus.OnClosing);
+			.Where(r => routeListAlias.Status == RouteListStatus.OnClosing || routeListAlias.Status == RouteListStatus.MileageCheck);
 
 			if(Filter.RestrictWarehouse != null) {
 
@@ -95,6 +96,7 @@ namespace Vodovoz.ViewModel
 				   .Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.Patronymic)
 				   .Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.Car)
 				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
+				   .Select(() => routeListAlias.Status).WithAlias(() => resultAlias.Status)
 				)
 				.OrderBy(x => x.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<ReadyForReceptionVMNode>())
@@ -108,6 +110,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Водитель").AddTextRenderer(node => node.Driver)
 			.AddColumn("Машина").AddTextRenderer(node => node.Car)
 			.AddColumn("Дата").AddTextRenderer(node => node.Date.ToShortDateString())
+			.AddColumn("Статус МЛ").SetDataProperty(node => node.Status.GetEnumTitle())
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig => columnsConfig;
@@ -126,6 +129,8 @@ namespace Vodovoz.ViewModel
 		public string Name { get; set; }
 
 		public string LastName { get; set; }
+
+		public RouteListStatus Status { get; set; }
 
 		public string Patronymic { get; set; }
 

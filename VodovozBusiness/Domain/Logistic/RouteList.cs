@@ -187,6 +187,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		bool closedByCashBox;
+
+		[Display(Name = "МЛ закрыт по кассе")]
+		public virtual bool ClosedByCashBox {
+			get { return closedByCashBox; }
+			set { SetField(ref closedByCashBox, value, () => ClosedByCashBox); }
+		}
+
 		string closingComment;
 
 		[Display(Name = "Комментарий")]
@@ -626,9 +634,15 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void ConfirmMileage(IUnitOfWork uow)
 		{
-			Status = RouteListStatus.Closed;
-			ClosingDate = DateTime.Now;
-			ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			if(!ClosedByCashBox && Status!=RouteListStatus.Closed) {
+				ChangeStatus(RouteListStatus.OnClosing);
+				return;
+			} 
+			else {
+				Status = RouteListStatus.Closed;
+				ClosingDate = DateTime.Now;
+				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			}
 			if(Cashier == null)
 				Cashier = ClosedBy;
 		}
@@ -646,23 +660,29 @@ namespace Vodovoz.Domain.Logistic
 					}
 				} else
 					throw new NotImplementedException();
+			} else if(newStatus == RouteListStatus.Confirmed) {
+				if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading) {
+					Status = RouteListStatus.Confirmed;
+				} else {
+					throw new NotImplementedException();
+				}
 			} else if(newStatus == RouteListStatus.InLoading) {
 				if(Status == RouteListStatus.EnRoute) {
 					Status = RouteListStatus.InLoading;
 					foreach(var item in Addresses) {
 						item.Order.ChangeStatus(OrderStatus.OnLoading);
 					}
-				} else if(Status == RouteListStatus.New)
+				} else if(Status == RouteListStatus.Confirmed)
 					Status = RouteListStatus.InLoading;
 				else
 					throw new NotImplementedException();
 			} else if(newStatus == RouteListStatus.New) {
-				if(Status == RouteListStatus.InLoading)
+				if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed)
 					Status = RouteListStatus.New;
 				else
 					throw new NotImplementedException();
 			} else if(newStatus == RouteListStatus.OnClosing) {
-				if(Status == RouteListStatus.Closed) {
+				if(Status == RouteListStatus.Closed || Status == RouteListStatus.MileageCheck) {
 					Status = newStatus;
 				}
 			}
@@ -716,7 +736,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void CompleteRoute()
 		{
-			Status = RouteListStatus.OnClosing;
+			Status = RouteListStatus.MileageCheck;
 			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
 				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
 			}
@@ -1066,8 +1086,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void Confirm(bool sendForMileageCheck)
 		{
-			if(Status != RouteListStatus.OnClosing)
-				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0}", RouteListStatus.OnClosing));
+			if(Status != RouteListStatus.OnClosing && Status != RouteListStatus.MileageCheck)
+				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0} или  {1}", RouteListStatus.OnClosing , RouteListStatus.MileageCheck));
 
 			if(Driver != null && Driver.FirstWorkDay == null) {
 				Driver.FirstWorkDay = date;
@@ -1417,6 +1437,8 @@ namespace Vodovoz.Domain.Logistic
 	{
 		[Display(Name = "Новый")]
 		New,
+		[Display(Name = "Подтвержден")]
+		Confirmed,
 		[Display(Name = "На погрузке")]
 		InLoading,
 		[Display(Name = "В пути")]

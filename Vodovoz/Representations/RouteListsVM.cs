@@ -10,6 +10,9 @@ using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
+using QS.Tdi.Gtk;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Dialogs.Logistic;
@@ -183,12 +186,14 @@ namespace Vodovoz.ViewModel
 		private List<RouteListStatus> CanDeletedStatuses = new List<RouteListStatus>()
 			{
 				RouteListStatus.New,
+				RouteListStatus.Confirmed,
 				RouteListStatus.InLoading
 			};
 
 		private List<RouteListStatus> FuelIssuingStatuses = new List<RouteListStatus>()
 			{
 				RouteListStatus.New,
+				RouteListStatus.Confirmed,
 				RouteListStatus.InLoading,
 				RouteListStatus.EnRoute
 			};
@@ -213,6 +218,41 @@ namespace Vodovoz.ViewModel
 			menuItemRouteListControlDlg.Sensitive = selected.Any(x =>
 				ControlDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemRouteListControlDlg);
+
+			Gtk.MenuItem menuItemRouteListSendToLoading = new Gtk.MenuItem("Отправить Мл на погрузку");
+			menuItemRouteListSendToLoading.Sensitive = selected.Any((x) => (x.VMNode as RouteListsVMNode).StatusEnum == RouteListStatus.Confirmed);
+			menuItemRouteListSendToLoading.Activated += (sender, e) => {
+				bool isSlaveTabActive = false;
+				var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
+				var routeLists = UoW.Session.QueryOver<RouteList>()
+					.Where(x => x.Id.IsIn(routeListIds))
+					.List();
+				routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) => {
+					if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
+						MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
+						isSlaveTabActive = true;
+						return;
+					}
+					foreach(var address in routeList.Addresses) {
+						if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
+							address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading);
+					}
+
+					routeList.ChangeStatus(RouteListStatus.InLoading);
+					UoW.Save(routeList);
+				});
+
+				if(isSlaveTabActive)
+					return;
+
+				foreach(var rlNode in lastMenuSelected) {
+					var node =(rlNode.VMNode as RouteListsVMNode);
+					if(node != null)
+						node.StatusEnum = RouteListStatus.InLoading;
+				}
+				UoW.Commit();
+			};
+			popupMenu.Add(menuItemRouteListSendToLoading);
 
 			Gtk.MenuItem menuItemRouteListKeepingDlg = new Gtk.MenuItem("Открыть диалог ведения");
 			menuItemRouteListKeepingDlg.Activated += MenuItemRouteListKeepingDlg_Activated;

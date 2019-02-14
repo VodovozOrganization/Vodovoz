@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
+using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 

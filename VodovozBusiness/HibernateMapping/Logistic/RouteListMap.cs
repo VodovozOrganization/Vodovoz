@@ -23,6 +23,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.ClosingDate).Column("closing_date");
 			Map (x => x.ClosingComment).Column("closing_comment");
 			Map (x => x.ClosingFilled).Column("closing_filled");
+			Map(x => x.ClosedByCashBox).Column("closed_by_cashbox");
 			Map (x => x.LastCallTime).Column ("last_call_time");
 			Map (x => x.DifferencesConfirmed).Column ("differences_confirmed");
 			Map (x => x.IsManualAccounting).Column("is_manual_accounting");

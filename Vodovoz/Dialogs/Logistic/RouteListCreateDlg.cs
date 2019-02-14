@@ -115,8 +115,8 @@ namespace Vodovoz
 
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
 
-			buttonAccept.Visible = (UoWGeneric.Root.Status == RouteListStatus.New || UoWGeneric.Root.Status == RouteListStatus.InLoading);
-			if (UoWGeneric.Root.Status == RouteListStatus.InLoading) {
+			buttonAccept.Visible = (UoWGeneric.Root.Status == RouteListStatus.New || UoWGeneric.Root.Status == RouteListStatus.InLoading || UoWGeneric.Root.Status == RouteListStatus.Confirmed);
+			if (UoWGeneric.Root.Status == RouteListStatus.InLoading || UoWGeneric.Root.Status == RouteListStatus.Confirmed) {
 				var icon = new Image {
 					Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
 				};
@@ -138,6 +138,7 @@ namespace Vodovoz
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadSofiyskaya, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.OrderOfAddresses, false);
+			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, !(Entity.Status == RouteListStatus.Confirmed) );
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
 			CheckCarLoadDocuments();
 		}
@@ -199,7 +200,17 @@ namespace Vodovoz
 						buttonAccept.Label = "Подтвердить";
 						break;
 					}
-				case RouteListStatus.InLoading: {
+				case RouteListStatus.Confirmed: {
+						IsEditable = (false);
+						var icon = new Image {
+							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
+						};
+						buttonAccept.Image = icon;
+						enumPrint.Sensitive = true;
+						buttonAccept.Label = "Редактировать";
+						break;
+					}
+				case RouteListStatus.InLoading : {
 						IsEditable = (false);
 						var icon = new Image {
 							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
@@ -246,12 +257,7 @@ namespace Vodovoz
 				if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 					return;
 
-				UoWGeneric.Root.ChangeStatus(RouteListStatus.InLoading);
-
-				foreach(var address in UoWGeneric.Root.Addresses) {
-					if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
-						address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading);
-				}
+				UoWGeneric.Root.ChangeStatus(RouteListStatus.Confirmed);
 
 				//Строим маршрут для МЛ.
 				if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
@@ -307,7 +313,7 @@ namespace Vodovoz
 				UpdateButtonStatus();
 				return;
 			}
-			if (UoWGeneric.Root.Status == RouteListStatus.InLoading) {
+			if (UoWGeneric.Root.Status == RouteListStatus.InLoading || UoWGeneric.Root.Status == RouteListStatus.Confirmed) {
 				if(RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any()) {
 					MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
 				}else {
