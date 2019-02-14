@@ -1426,7 +1426,7 @@
 	IFNULL(
 		(
 			SELECT 
-				order_items.count
+				SUM(order_items.count) as count
 			FROM
 				orders
 			LEFT JOIN
