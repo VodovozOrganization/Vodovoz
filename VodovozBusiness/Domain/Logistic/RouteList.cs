@@ -653,7 +653,7 @@ namespace Vodovoz.Domain.Logistic
 				return;
 
 			if(newStatus == RouteListStatus.EnRoute) {
-				if(Status == RouteListStatus.InLoading) {
+				if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed) {
 					Status = RouteListStatus.EnRoute;
 					foreach(var item in Addresses) {
 						item.Order.OrderStatus = OrderStatus.OnTheWay;
