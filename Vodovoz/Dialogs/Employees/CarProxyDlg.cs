@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using NLog;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -78,8 +79,10 @@ namespace Vodovoz.Dialogs.Employees
 
 		void Templatewidget_BeforeOpen(object sender, EventArgs e)
 		{
+			if(Entity.EmployeeDocument == null)
+				GetDocument();
 			if(UoW.HasChanges) {
-				if(MessageDialogWorks.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
+				if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
 					UoWGeneric.Save();
 					RefreshParserRootObject();
 				} else {
