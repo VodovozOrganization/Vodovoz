@@ -559,6 +559,8 @@
     <Compile Include="Domain\Permissions\ISubdivisionEntity.cs" />
     <Compile Include="Repositories\Orders\Export1cMode.cs" />
     <Compile Include="Repositories\Orders\OrderRepository.cs" />
+    <Compile Include="Repositories\Store\CarUnloadRepository.cs" />
+    <Compile Include="Repositories\Store\CarLoadRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

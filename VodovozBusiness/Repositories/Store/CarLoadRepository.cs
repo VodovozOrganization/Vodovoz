@@ -6,13 +6,13 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 
-namespace Vodovoz.Dialogs.Store
+namespace Vodovoz.Repository.Store
 {
 	public static class CarLoadRepository
 	{
-		public static bool IsUniqDocument(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse,int id)
+		public static bool IsUniqDocument(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse,int documentId)
 		{
-			if(id != 0)
+			if(documentId != 0)
 				return true;
 
 			CarLoadDocument carLoadDocument = null;

@@ -8,7 +8,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 
-namespace Vodovoz.Repositories.Store
+namespace Vodovoz.Repository.Store
 {
 	public static class CarUnloadRepository
 	{
@@ -33,9 +33,9 @@ namespace Vodovoz.Repositories.Store
 			return unloadedlist.ToDictionary(r => (int)r[0], r => (decimal)r[1]);
 		}
 
-		public static bool IsUniqDocument(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse,int id)
+		public static bool IsUniqDocument(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse,int documentId)
 		{
-			if(id != 0)
+			if(documentId != 0)
 				return true;
 
 			CarUnloadDocument carUnloadDocument = null;
