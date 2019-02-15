@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Goods;
@@ -13,6 +14,7 @@ namespace Vodovoz.Domain
 		Nominative = "условие платной аренды",
 		Accusative = "условие платной аренды"
 	)]
+	[EntityPermission]
 	public class PaidRentPackage: BusinessObjectBase<PaidRentPackage>, IDomainObject, IValidatableObject
 	{
 		#region Свойства

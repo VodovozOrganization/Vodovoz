@@ -34,20 +34,26 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override PrinterType PrintType => PrinterType.RDL;
 
+		int copiesToPrint = 1;
+		public override int CopiesToPrint {
+			get => copiesToPrint;
+			set => copiesToPrint = value;
+		}
+
 		#region Свои свойства
 
 		bool withoutAdvertising;
 		[Display(Name = "Без рекламы")]
 		public virtual bool WithoutAdvertising {
-			get { return withoutAdvertising; }
-			set { SetField(ref withoutAdvertising, value, () => WithoutAdvertising); }
+			get => withoutAdvertising;
+			set => SetField(ref withoutAdvertising, value, () => WithoutAdvertising);
 		}
 
 		bool hideSignature = true;
 		[Display(Name = "Без подписей и печати")]
 		public virtual bool HideSignature {
-			get { return hideSignature; }
-			set { SetField(ref hideSignature, value, () => HideSignature); }
+			get => hideSignature;
+			set => SetField(ref hideSignature, value, () => HideSignature);
 		}
 
 		#endregion

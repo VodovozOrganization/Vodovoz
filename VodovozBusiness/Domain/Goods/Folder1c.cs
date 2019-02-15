@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Goods
@@ -8,6 +9,7 @@ namespace Vodovoz.Domain.Goods
 	[Appellative(Gender = GrammaticalGender.Feminine,
 	NominativePlural = "папки номенклатуры в 1с",
 	Nominative = "папка номенклатуры в 1с")]
+	[EntityPermission]
 	public class Folder1c : DomainTreeNodeBase<Folder1c>
 	{
 		#region Свойства

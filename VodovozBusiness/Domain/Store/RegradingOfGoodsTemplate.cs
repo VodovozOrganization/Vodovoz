@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Store
@@ -10,6 +11,7 @@ namespace Vodovoz.Domain.Store
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "шаблоны пересортицы",
 		Nominative = "шаблон пересортицы")]
+	[EntityPermission]
 	public class RegradingOfGoodsTemplate: PropertyChangedBase, IDomainObject
 	{
 

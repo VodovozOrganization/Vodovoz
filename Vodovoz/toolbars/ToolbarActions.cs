@@ -3,9 +3,11 @@ using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz;
+using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
@@ -469,8 +471,11 @@ public partial class MainWindow : Window
 	void ActionCashDocuments_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<CashDocumentsView>(),
-			() => new CashDocumentsView()
+			RepresentationJournalDialog.GenerateHashName<CashMultipleDocumentVM>(),
+			() => {
+				var vm = new CashMultipleDocumentVM(new CashDocumentsFilter());
+				return new MultipleEntityJournal("Журнал кассовых документов", vm, vm);
+			}
 		);
 	}
 

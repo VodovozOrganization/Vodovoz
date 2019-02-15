@@ -2,11 +2,16 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "шаблоны групп комментариев",
+		Nominative = "шаблон группы комментариев")]
+	[EntityPermission]
 	public class CommentsTemplates : PropertyChangedBase, IDomainObject
 	{
 		public virtual IUnitOfWork UoW { get; set; }

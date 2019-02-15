@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Logistic
@@ -11,6 +12,7 @@ namespace Vodovoz.Domain.Logistic
 	[Appellative(Gender = GrammaticalGender.Masculine,
 	NominativePlural = "графики работы водителя",
 	Nominative = "график работы водителя")]
+	[EntityPermission]
 	public class DeliveryDaySchedule : PropertyChangedBase, IDomainObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

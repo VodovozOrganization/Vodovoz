@@ -6,6 +6,8 @@ using Gdk;
 using QSSupportLib;
 using Vodovoz.Additions;
 using Vodovoz.DriverTerminal;
+using QS.Permissions;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz
 {
@@ -52,6 +54,12 @@ namespace Vodovoz
 			//Настройка базы
 			CreateBaseConfig ();
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
+
+			//Загрузка предустановленных прав пользователя
+			QSMain.User.LoadUserPermissions();
+
+			PermissionsSettings.ConfigureEntityPermissionFinder(new Vodovoz.Domain.Permissions.EntitiesWithPermissionFinder());
+			PermissionsSettings.EntityPermissionValidator = new Vodovoz.Domain.Permissions.EntityPermissionValidator();
 
 			MainSupport.LoadBaseParameters();
 

@@ -102,7 +102,7 @@ namespace Vodovoz.Representations
 			.AddColumn("Код").AddTextRenderer(node => node.WarehouseId.ToString())
 			.RowCells()
 				.AddSetter<CellRendererText>(
-					(c, n) => c.Foreground = n.WarehouseId.HasValue?"black":"grey"
+					(c, n) => c.Foreground = n.WarehouseId.HasValue ? "black" : "grey"
 				)
 			.Finish();
 

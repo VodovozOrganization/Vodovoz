@@ -10,7 +10,7 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class PumpWarrantyDocument:OrderDocument, IPrintableRDLDocument
+	public class PumpWarrantyDocument : OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.PumpWarranty;
@@ -34,56 +34,47 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name { get { return String.Format ("Гарантийный талон на помпы №{0}", WarrantyFullNumber); } }
+		public override string Name => String.Format("Гарантийный талон на помпы №{0}", WarrantyFullNumber);
 
-		public override PrinterType PrintType {
-			get {
-				return PrinterType.RDL;
-			}
+		public override PrinterType PrintType => PrinterType.RDL;
+
+		int copiesToPrint = 1;
+		public override int CopiesToPrint {
+			get => copiesToPrint;
+			set => copiesToPrint = value;
 		}
 
 		CounterpartyContract contract;
 
 		[Display(Name = "Договор")]
 		public virtual CounterpartyContract Contract {
-			get { return contract; }
-			set { SetField(ref contract, value, () => Contract); }
+			get => contract;
+			set => SetField(ref contract, value, () => Contract);
 		}
 
 		AdditionalAgreement additionalAgreement;
 
 		[Display(Name = "Доп. соглашение")]
 		public virtual AdditionalAgreement AdditionalAgreement {
-			get { return additionalAgreement; }
-			set { SetField(ref additionalAgreement, value, () => AdditionalAgreement); }
+			get => additionalAgreement;
+			set => SetField(ref additionalAgreement, value, () => AdditionalAgreement);
 		}
 
 		int warrantyNumber;
 
 		[Display(Name = "Номер гарантийного талона")]
 		public virtual int WarrantyNumber {
-			get { return warrantyNumber; }
-			set { SetField(ref warrantyNumber, value, () => WarrantyNumber); }
+			get => warrantyNumber;
+			set => SetField(ref warrantyNumber, value, () => WarrantyNumber);
 		}
 
 		public virtual string WarrantyFullNumber {
 			get {
-				if(contract == null) {
+				if(contract == null)
 					return "";
-				}
-				if(additionalAgreement == null) {
-					return String.Format("{0}/Г-{1}",
-										 contract.Id,
-										 warrantyNumber
-										);
-				} else {
-					return String.Format("{0}/{1}-{2}/Г-{3}",
-										 contract.Id,
-										 AdditionalAgreement.GetTypePrefix(additionalAgreement.Type),
-										 additionalAgreement.AgreementNumber,
-										 warrantyNumber
-										);
-				}
+				if(additionalAgreement == null)
+					return String.Format("{0}/Г-{1}", contract.Id, warrantyNumber);
+				return String.Format("{0}/{1}-{2}/Г-{3}", contract.Id, AdditionalAgreement.GetTypePrefix(additionalAgreement.Type), additionalAgreement.AgreementNumber, warrantyNumber);
 			}
 		}
 
@@ -99,18 +90,15 @@ namespace Vodovoz.Domain.Orders.Documents
 			//Вычисляем номер для нового гарантийного талона.
 			var orderDocuments = order.OrderDocuments;
 			var pumpWarrantyNumbers = orderDocuments.Where(x => x.Type == OrderDocumentType.PumpWarranty)
-			                                        .OfType<PumpWarrantyDocument>()
-			                                        .Where(x => x.AdditionalAgreement == agreement)
-			                                        .Select(x => x.WarrantyNumber)
-			                                        .ToList();
+													.OfType<PumpWarrantyDocument>()
+													.Where(x => x.AdditionalAgreement == agreement)
+													.Select(x => x.WarrantyNumber)
+													.ToList();
 
 
 			pumpWarrantyNumbers.Sort();
 
-			if(pumpWarrantyNumbers.Count > 0) {
-				return pumpWarrantyNumbers.Last() + 1;
-			} else
-				return 1;
+			return pumpWarrantyNumbers.Any() ? pumpWarrantyNumbers.Last() + 1 : 1;
 		}
 	}
 }

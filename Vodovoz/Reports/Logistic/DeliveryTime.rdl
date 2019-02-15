@@ -10,7 +10,7 @@
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_null;user=andrey;password=123;port=3306;server=rs.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
@@ -19,60 +19,59 @@
   <LeftMargin>.25in</LeftMargin>
   <RightMargin>.25in</RightMargin>
   <BottomMargin>.25in</BottomMargin>
-  <ReportParameters>
-    <ReportParameter Name="beforeTime">
-      <DataType>String</DataType>
-      <Nullable>False</Nullable>
-      <DefaultValue>
-        <Values>
-          <Value>18:00</Value>
-        </Values>
-      </DefaultValue>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-  </ReportParameters>
   <DataSets>
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    employees.visiting_master,
-    route_list_addresses.route_list_id,
-    CONCAT_WS('',
-            CONCAT(employees.last_name, ' '),
-            IF(employees.name = '',
-                '',
-                CONCAT(LEFT(employees.name, 1), '.')),
-            IF(employees.patronymic = '',
-                '',
-                CONCAT(LEFT(employees.patronymic, 1), '.')),
-            IF(visiting_master = 1, ' (Выездной мастер)', '')) AS driver_name,
-    delivery_schedule.name AS delivery_schedule,
-    delivery_schedule.to_time AS max_time,
-    counterparty.name AS client,
-    delivery_points.compiled_address_short
+	employees.visiting_master,
+	route_list_addresses.route_list_id,
+	CONCAT_WS('',
+			CONCAT(employees.last_name, ' '),
+			IF(employees.name = '',
+				'',
+				CONCAT(LEFT(employees.name, 1), '.')),
+			IF(employees.patronymic = '',
+				'',
+				CONCAT(LEFT(employees.patronymic, 1), '.')),
+			IF(visiting_master = 1, ' (Выездной мастер)', '')) AS driver_name,
+	delivery_schedule.name AS delivery_schedule,
+	delivery_schedule.to_time AS max_time,
+	counterparty.name AS client,
+	delivery_points.compiled_address_short,
+	GROUP_CONCAT(gg.name SEPARATOR ', ')
 FROM
-    route_lists
-        LEFT JOIN
-    route_list_addresses ON route_lists.id = route_list_addresses.route_list_id
-        LEFT JOIN
-    employees ON route_lists.driver_id = employees.id
-        LEFT JOIN
-    orders ON route_list_addresses.order_id = orders.id
-        LEFT JOIN
-    delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
-        LEFT JOIN
-    counterparty ON orders.client_id = counterparty.id
-        LEFT JOIN
-    delivery_points ON delivery_points.id = orders.delivery_point_id
+	route_lists
+LEFT JOIN
+	route_list_addresses ON route_lists.id = route_list_addresses.route_list_id
+LEFT JOIN
+	employees ON route_lists.driver_id = employees.id
+LEFT JOIN
+	orders ON route_list_addresses.order_id = orders.id
+LEFT JOIN
+	delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
+LEFT JOIN
+	counterparty ON orders.client_id = counterparty.id
+LEFT JOIN
+	delivery_points ON delivery_points.id = orders.delivery_point_id
+LEFT JOIN
+	geographic_groups_to_entities gge ON gge.route_list_id = route_lists.id
+LEFT JOIN
+	geographic_groups gg ON gge.geographic_group_id = gg.id
 WHERE
-    route_lists.date = CURDATE()
-        AND route_list_addresses.status = 'EnRoute'
-        AND delivery_schedule.to_time &lt;= @beforeTime
-ORDER BY  driver_name, max_time;</CommandText>
+	route_lists.date = CURDATE()
+	AND route_list_addresses.status = 'EnRoute'
+	AND delivery_schedule.to_time &lt;= @beforeTime
+	AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups))
+GROUP BY route_list_addresses.id
+ORDER BY driver_name, max_time
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="beforeTime">
             <Value>=Parameters!beforeTime</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_groups">
+            <Value>=Parameters!geographic_groups</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -255,12 +254,12 @@ ORDER BY  driver_name, max_time;</CommandText>
             </Header>
             <Grouping Name="driver_nameGroup">
               <GroupExpressions>
-                <GroupExpression >=Fields!driver_name.Value</GroupExpression>
+                <GroupExpression>=Fields!driver_name.Value</GroupExpression>
               </GroupExpressions>
-              <PageBreakAtStart >false</PageBreakAtStart>
-              <PageBreakAtEnd >false</PageBreakAtEnd>
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
             </Grouping>
-            <Sorting >
+            <Sorting>
               <SortBy>
                 <SortExpression>=Fields!visiting_master.Value</SortExpression>
                 <Direction>Ascending</Direction>
@@ -285,9 +284,9 @@ ORDER BY  driver_name, max_time;</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Left>Solid</Left>
-                          <Right >Solid</Right>
-                          <Top >Solid</Top>
-                          <Bottom >Solid</Bottom>
+                          <Right>Solid</Right>
+                          <Top>Solid</Top>
+                          <Bottom>Solid</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -350,6 +349,7 @@ ORDER BY  driver_name, max_time;</CommandText>
       </Table>
     </ReportItems>
     <Height>44.4pt</Height>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -372,4 +372,28 @@ ORDER BY  driver_name, max_time;</CommandText>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
+  <ReportParameters>
+    <ReportParameter Name="beforeTime">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>18:00</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="geographic_groups">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+  </ReportParameters>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
 </Report>

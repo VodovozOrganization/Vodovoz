@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QSOrmProject;
@@ -13,6 +14,7 @@ namespace Vodovoz.Domain.Employees
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "Доверенности на ТС",
 		Nominative = "Доверенность на ТС")]
+	[EntityPermission]
 	public class CarProxyDocument : ProxyDocument, IValidatableObject
 	{
 		public virtual string Title {

@@ -10,6 +10,7 @@ using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repository;
 using Vodovoz.Tools.AdditionalAgreements;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Client
 {
@@ -18,6 +19,7 @@ namespace Vodovoz.Domain.Client
 		NominativePlural = "доп. соглашения продажи воды",
 		Nominative = "доп. соглашение продажи воды")]
 	[HistoryTrace]
+	[EntityPermission]
 	public class WaterSalesAgreement : AdditionalAgreement, IBusinessObject
 	{
 		public virtual IUnitOfWorkGeneric<WaterSalesAgreement> UoWGeneric { set; get; }

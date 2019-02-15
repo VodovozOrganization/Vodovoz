@@ -5,12 +5,14 @@ using QS.DomainModel.UoW;
 using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.Collections.Generic;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Goods
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "группы товаров",
 		Nominative = "группа товаров")]
+	[EntityPermission]
 	public class ProductGroup : DomainTreeNodeBase<ProductGroup>
 	{
 		#region Свойства

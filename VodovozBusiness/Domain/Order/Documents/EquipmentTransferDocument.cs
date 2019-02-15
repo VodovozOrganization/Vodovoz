@@ -33,20 +33,16 @@ namespace Vodovoz.Domain.Orders.Documents
 			//get { return String.Format ("Акт движения оборудования"); }
 		}
 
-		public override DateTime? DocumentDate {
-			get { return Order?.DeliveryDate; }
-		}
+		public override DateTime? DocumentDate => Order?.DeliveryDate;
 
-		public override PrinterType PrintType {
-			get {
-				return PrinterType.RDL;
-			}
-		}
+		public override PrinterType PrintType => PrinterType.RDL;
 
-		public override DocumentOrientation Orientation {
-			get {
-				return DocumentOrientation.Portrait;
-			}
+		public override DocumentOrientation Orientation => DocumentOrientation.Portrait;
+
+		int copiesToPrint = 2;
+		public override int CopiesToPrint {
+			get => copiesToPrint;
+			set => copiesToPrint = value;
 		}
 	}
 }

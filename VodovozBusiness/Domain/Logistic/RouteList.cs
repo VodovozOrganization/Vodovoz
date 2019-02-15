@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Report;
@@ -17,6 +18,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Tools.Logistic;
 
@@ -26,6 +28,7 @@ namespace Vodovoz.Domain.Logistic
 		NominativePlural = "Журнал МЛ",
 		Nominative = "маршрутный лист")]
 	[HistoryTrace]
+	[EntityPermission]
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -48,9 +51,9 @@ namespace Vodovoz.Domain.Logistic
 			get { return driver; }
 			set {
 				Employee oldDriver = driver;
-				if(SetField(ref driver, value, () => Driver)){
+				if(SetField(ref driver, value, () => Driver)) {
 					ChangeFuelDocumentsOnChangeDriver(oldDriver);
-				} 
+				}
 			}
 		}
 
@@ -80,14 +83,22 @@ namespace Vodovoz.Domain.Logistic
 
 		[Display(Name = "Машина")]
 		public virtual Car Car {
-			get { return car; }
+			get => car;
 			set {
 				Car oldCar = car;
-				if(SetField(ref car, value, () => Car)){
+				if(SetField(ref car, value, () => Car)) {
 					ChangeFuelDocumentsChangeCar(oldCar);
+
+					if(value?.Driver != null && value?.Driver.IsFired == false)
+						Driver = value.Driver;
+
+					if(Id == 0) {
+						while(ObservableGeographicGroups.Any())
+							ObservableGeographicGroups.Remove(ObservableGeographicGroups.FirstOrDefault());
+						foreach(var group in value.GeographicGroups)
+							ObservableGeographicGroups.Add(group);
+					}
 				}
-				if(value?.Driver != null && value?.Driver.IsFired == false)
-					Driver = value.Driver;
 			}
 		}
 
@@ -153,7 +164,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Пересчитанное расстояние")]
 		public virtual decimal? RecalculatedDistance {
 			get { return recalculatedDistance; }
-			set {SetField(ref recalculatedDistance, value, () => RecalculatedDistance); }
+			set { SetField(ref recalculatedDistance, value, () => RecalculatedDistance); }
 		}
 
 		RouteListStatus status;
@@ -174,6 +185,14 @@ namespace Vodovoz.Domain.Logistic
 			set {
 				SetField(ref closingDate, value, () => ClosingDate);
 			}
+		}
+
+		bool closedByCashBox;
+
+		[Display(Name = "МЛ закрыт по кассе")]
+		public virtual bool ClosedByCashBox {
+			get { return closedByCashBox; }
+			set { SetField(ref closedByCashBox, value, () => ClosedByCashBox); }
 		}
 
 		string closingComment;
@@ -380,19 +399,17 @@ namespace Vodovoz.Domain.Logistic
 		string mileageComment;
 
 		[Display(Name = "Комментарий к километражу")]
-		public virtual string MileageComment
-		{
+		public virtual string MileageComment {
 			get { return mileageComment; }
-			set { SetField(ref mileageComment, value, () => MileageComment);}
+			set { SetField(ref mileageComment, value, () => MileageComment); }
 		}
 
 		bool mileageCheck;
 
 		[Display(Name = "Проверка километража")]
-		public virtual bool MileageCheck
-		{
+		public virtual bool MileageCheck {
 			get { return mileageCheck; }
-			set { SetField(ref mileageCheck, value, () => MileageCheck);}
+			set { SetField(ref mileageCheck, value, () => MileageCheck); }
 		}
 
 		Employee closedBy;
@@ -400,9 +417,25 @@ namespace Vodovoz.Domain.Logistic
 		[IgnoreHistoryTrace]
 		public virtual Employee ClosedBy {
 			get => closedBy;
-			set { SetField(ref closedBy, value, () => ClosedBy); }
+			set => SetField(ref closedBy, value, () => ClosedBy);
 		}
 
+		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
+		[Display(Name = "Группа района")]
+		public virtual IList<GeographicGroup> GeographicGroups {
+			get => geographicGroups;
+			set => SetField(ref geographicGroups, value, () => GeographicGroups);
+		}
+
+		GenericObservableList<GeographicGroup> observableGeographicGroups;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<GeographicGroup> ObservableGeographicGroups {
+			get {
+				if(observableGeographicGroups == null)
+					observableGeographicGroups = new GenericObservableList<GeographicGroup>(GeographicGroups);
+				return observableGeographicGroups;
+			}
+		}
 		#endregion
 
 		#region readonly Свойства
@@ -419,9 +452,8 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual decimal PhoneSum {
-			get
-			{                
-				if (Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || Driver.WageCalcType == WageCalculationType.withoutPayment)
+			get {
+				if(Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || Driver.WageCalcType == WageCalculationType.withoutPayment)
 					return 0;
 
 				return Wages.GetDriverRates(Date).PhoneServiceCompensationRate * UniqueAddressCount;
@@ -494,8 +526,8 @@ namespace Vodovoz.Domain.Logistic
 			var carDiff = FuelDocuments.Select(x => x.Operation).Any(x => x.Car != null && x.Car.Id != Car.Id)
 									   || (FuelOutlayedOperation.Car != null && FuelOutlayedOperation.Car.Id != Car.Id);
 			var driverDiff = FuelDocuments.Select(x => x.Operation).Any(x => x.Driver != null && x.Driver.Id != Driver.Id)
-			                              || (FuelOutlayedOperation.Driver != null && FuelOutlayedOperation.Driver.Id != Driver.Id);
-			return carDiff || driverDiff; 
+										  || (FuelOutlayedOperation.Driver != null && FuelOutlayedOperation.Driver.Id != Driver.Id);
+			return carDiff || driverDiff;
 		}
 
 		public virtual RouteListItem AddAddressFromOrder(Order order)
@@ -602,9 +634,15 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void ConfirmMileage(IUnitOfWork uow)
 		{
-			Status = RouteListStatus.Closed;
-			ClosingDate = DateTime.Now;
-			ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			if(!ClosedByCashBox && Status!=RouteListStatus.Closed) {
+				ChangeStatus(RouteListStatus.OnClosing);
+				return;
+			} 
+			else {
+				Status = RouteListStatus.Closed;
+				ClosingDate = DateTime.Now;
+				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			}
 			if(Cashier == null)
 				Cashier = ClosedBy;
 		}
@@ -622,23 +660,29 @@ namespace Vodovoz.Domain.Logistic
 					}
 				} else
 					throw new NotImplementedException();
+			} else if(newStatus == RouteListStatus.Confirmed) {
+				if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading) {
+					Status = RouteListStatus.Confirmed;
+				} else {
+					throw new NotImplementedException();
+				}
 			} else if(newStatus == RouteListStatus.InLoading) {
 				if(Status == RouteListStatus.EnRoute) {
 					Status = RouteListStatus.InLoading;
 					foreach(var item in Addresses) {
 						item.Order.ChangeStatus(OrderStatus.OnLoading);
 					}
-				} else if(Status == RouteListStatus.New)
+				} else if(Status == RouteListStatus.Confirmed)
 					Status = RouteListStatus.InLoading;
 				else
 					throw new NotImplementedException();
 			} else if(newStatus == RouteListStatus.New) {
-				if(Status == RouteListStatus.InLoading)
+				if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed)
 					Status = RouteListStatus.New;
 				else
 					throw new NotImplementedException();
 			} else if(newStatus == RouteListStatus.OnClosing) {
-				if(Status == RouteListStatus.Closed) {
+				if(Status == RouteListStatus.Closed || Status == RouteListStatus.MileageCheck) {
 					Status = newStatus;
 				}
 			}
@@ -692,7 +736,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void CompleteRoute()
 		{
-			Status = RouteListStatus.OnClosing;
+			Status = RouteListStatus.MileageCheck;
 			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
 				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
 			}
@@ -744,12 +788,12 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual decimal GetDriversTotalWage()
 		{
-			if(Driver.WageCalcType == WageCalculationType.fixedDay 
+			if(Driver.WageCalcType == WageCalculationType.fixedDay
 			  || Driver.WageCalcType == WageCalculationType.fixedRoute) {
 				//Если все заказы не выполнены, то нет зарплаты
 				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed)) {
 					return FixedDriverWage;
-				}else {
+				} else {
 					return 0m;
 				}
 			}
@@ -889,7 +933,7 @@ namespace Vodovoz.Domain.Logistic
 
 			////FIXME Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
 			//if(addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
-				//throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
+			//throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
 
 			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments)
 					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
@@ -913,7 +957,7 @@ namespace Vodovoz.Domain.Logistic
 
 				var operations = item.Order.UpdateDepositOperations(UoW, equipmentRefundDeposit, bottleRefundDeposit);
 
-				operations.ForEach(x => result.Add(x));				
+				operations.ForEach(x => result.Add(x));
 			}
 			return result;
 		}
@@ -961,27 +1005,27 @@ namespace Vodovoz.Domain.Logistic
 			}
 			if(different > 0) {
 				cashIncome = new Income {
-						IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(UoW),
-						TypeOperation = IncomeType.DriverReport,
-						Date = DateTime.Now,
-						Casher = cashier,
-						Employee = Driver,
-						Description = $"Закрытие МЛ №{Id} от {Date:d}",
-						Money = Math.Round(different, 0, MidpointRounding.AwayFromZero),
-						RouteListClosing = this
-					};
+					IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(UoW),
+					TypeOperation = IncomeType.DriverReport,
+					Date = DateTime.Now,
+					Casher = cashier,
+					Employee = Driver,
+					Description = $"Закрытие МЛ №{Id} от {Date:d}",
+					Money = Math.Round(different, 0, MidpointRounding.AwayFromZero),
+					RouteListClosing = this
+				};
 				messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
-			}else {
+			} else {
 				cashExpense = new Expense {
-						ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(UoW),
-						TypeOperation = ExpenseType.Expense,
-						Date = DateTime.Now,
-						Casher = cashier,
-						Employee = Driver,
-						Description = $"Закрытие МЛ #{Id} от {Date:d}",
-						Money = Math.Round(-different, 0, MidpointRounding.AwayFromZero),
-						RouteListClosing = this
-					};
+					ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(UoW),
+					TypeOperation = ExpenseType.Expense,
+					Date = DateTime.Now,
+					Casher = cashier,
+					Employee = Driver,
+					Description = $"Закрытие МЛ #{Id} от {Date:d}",
+					Money = Math.Round(-different, 0, MidpointRounding.AwayFromZero),
+					RouteListClosing = this
+				};
 				messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
 			}
 			return messages.ToArray();
@@ -1042,8 +1086,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void Confirm(bool sendForMileageCheck)
 		{
-			if(Status != RouteListStatus.OnClosing)
-				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0}", RouteListStatus.OnClosing));
+			if(Status != RouteListStatus.OnClosing && Status != RouteListStatus.MileageCheck)
+				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0} или  {1}", RouteListStatus.OnClosing , RouteListStatus.MileageCheck));
 
 			if(Driver != null && Driver.FirstWorkDay == null) {
 				Driver.FirstWorkDay = date;
@@ -1068,8 +1112,7 @@ namespace Vodovoz.Domain.Logistic
 					address.Order.ChangeStatus(OrderStatus.NotDelivered);
 			}
 
-			if(Status == RouteListStatus.Closed)
-			{
+			if(Status == RouteListStatus.Closed) {
 				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 				ClosingDate = DateTime.Now;
 			}
@@ -1083,9 +1126,9 @@ namespace Vodovoz.Domain.Logistic
 			}
 			decimal distance = 0m;
 			//Необходимо для того, чтобы расход топлива не пересчитывался после подтверждения логистами
-			if(Status == RouteListStatus.Closed && MileageCheck){
+			if(Status == RouteListStatus.Closed && MileageCheck) {
 				distance = ConfirmedDistance;
-			}else {
+			} else {
 				distance = ActualDistance;
 			}
 
@@ -1124,9 +1167,8 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(this.ConfirmedDistance == 0)
 				return;
-			
-			if(FuelOutlayedOperation == null)
-			{
+
+			if(FuelOutlayedOperation == null) {
 				FuelOutlayedOperation = new FuelOperation() {
 					OperationTime = DateTime.Now,
 					Driver = this.Driver,
@@ -1250,7 +1292,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RecalculatePlanTime(RouteGeometryCalculator sputnikCache)
 		{
-			TimeSpan minTime = new TimeSpan();;
+			TimeSpan minTime = new TimeSpan(); ;
 			//Расчет минимального времени к которому нужно\можно подъехать.
 			for(int ix = 0; ix < Addresses.Count; ix++) {
 
@@ -1291,7 +1333,7 @@ namespace Vodovoz.Domain.Logistic
 					if(ix > 0)
 						beforeMin = Addresses[ix - 1].PlanTimeStart.Value
 													 + TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint))
-						                             + TimeSpan.FromSeconds(Addresses[ix - 1].TimeOnPoint);
+													 + TimeSpan.FromSeconds(Addresses[ix - 1].TimeOnPoint);
 					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From) {
 						Addresses[ix].PlanTimeStart = beforeMin < maxTime ? maxTime : beforeMin;
 					}
@@ -1313,7 +1355,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
 								   .Select(x => new Tuple<TimeSpan, RouteList>(
-				                       x.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.Addresses.First().Order.DeliveryPoint)),
+									   x.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.Addresses.First().Order.DeliveryPoint)),
 												 x
 									  ))
 								   .OrderByDescending(x => x.Item1);
@@ -1376,7 +1418,7 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		/// <returns>Вес в килограммах</returns>
 		public virtual double GetTotalWeight() => Addresses.Where(item => item.Status != RouteListItemStatus.Transfered)
-		                                                   .Sum(item => item.Order.GetWeight());
+														   .Sum(item => item.Order.GetWeight());
 		/// <summary>
 		/// Проверка на перегруз автомобиля
 		/// </summary>
@@ -1395,6 +1437,8 @@ namespace Vodovoz.Domain.Logistic
 	{
 		[Display(Name = "Новый")]
 		New,
+		[Display(Name = "Подтвержден")]
+		Confirmed,
 		[Display(Name = "На погрузке")]
 		InLoading,
 		[Display(Name = "В пути")]

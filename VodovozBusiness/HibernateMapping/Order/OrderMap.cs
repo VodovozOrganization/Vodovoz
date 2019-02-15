@@ -51,12 +51,13 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.HasCommentForDriver)			.Column("has_comment_for_driver");
 			Map(x => x.TimeDelivered)               .Column("time_delivered");
 
-			Map (x => x.OrderStatus)				.Column ("order_status").CustomType<OrderStatusStringType> ();
-			Map (x => x.SignatureType)				.Column ("signature_type").CustomType<OrderSignatureTypeStringType> ();
-			Map (x => x.PaymentType)				.Column ("payment_type").CustomType<PaymentTypeStringType> ();
-			Map (x => x.DocumentType)				.Column ("document_type").CustomType<DefaultDocumentTypeStringType> ();
-			Map (x => x.ReasonType)					.Column ("reason_type").CustomType<ReasonTypeStringType> (); 
-			Map (x => x.DriverCallType)				.Column ("driver_call_type").CustomType<DriverCallTypeStringType>();
+			Map(x => x.NeedCheque)					.Column("need_cheque").CustomType<ChequeResponseStringType>();
+			Map(x => x.OrderStatus)					.Column("order_status").CustomType<OrderStatusStringType> ();
+			Map(x => x.SignatureType)				.Column("signature_type").CustomType<OrderSignatureTypeStringType> ();
+			Map(x => x.PaymentType)					.Column("payment_type").CustomType<PaymentTypeStringType> ();
+			Map(x => x.DocumentType)				.Column("document_type").CustomType<DefaultDocumentTypeStringType> ();
+			Map(x => x.ReasonType)					.Column("reason_type").CustomType<ReasonTypeStringType> (); 
+			Map(x => x.DriverCallType)				.Column("driver_call_type").CustomType<DriverCallTypeStringType>();
 			Map(x => x.OrderSource)					.Column("order_source").CustomType<OrderSourceStringType>();
 
 			References(x => x.Client).Column("client_id");

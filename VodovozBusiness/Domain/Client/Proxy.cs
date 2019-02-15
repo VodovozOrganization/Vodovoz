@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QSContacts;
 using QSOrmProject;
@@ -18,6 +19,7 @@ namespace Vodovoz.Domain.Client
 		Genitive = "доверенности",
 		Accusative = "доверенность"
 	)]
+	[EntityPermission]
 	public class Proxy : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства

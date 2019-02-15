@@ -2,12 +2,14 @@
 using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain
 {
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "шаблоны комментариев для штрафов",
 		Nominative = "шаблон комментария для штрафа")]
+	[EntityPermission]
 	public class FineTemplate : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства

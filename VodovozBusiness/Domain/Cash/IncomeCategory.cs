@@ -2,12 +2,14 @@
 using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Cash
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "статьи дохода",
 		Nominative = "статья дохода")]
+	[EntityPermission]
 	public class IncomeCategory : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using DataAnnotationsExtensions;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -15,7 +16,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы производства",
 		Nominative = "документ производства")]
-	//[HistoryTrace]
+	[EntityPermission]
 	public class IncomingWater: Document, IValidatableObject
 	{
 		Nomenclature product;

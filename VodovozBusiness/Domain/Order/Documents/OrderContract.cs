@@ -11,11 +11,7 @@ namespace Vodovoz.Domain.Orders.Documents
 	{
 		#region implemented abstract members of OrderDocument
 
-		public override OrderDocumentType Type {
-			get {
-				return OrderDocumentType.Contract;
-			}
-		}
+		public override OrderDocumentType Type => OrderDocumentType.Contract;
 
 		#endregion
 
@@ -23,17 +19,13 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		[Display(Name = "Договор")]
 		public virtual CounterpartyContract Contract {
-			get { return contract; }
-			set { SetField(ref contract, value, () => Contract); }
+			get => contract;
+			set => SetField(ref contract, value, () => Contract);
 		}
 
-		public override string Name {
-			get { return String.Format("Договор №{0}", contract.ContractFullNumber); }
-		}
+		public override string Name => String.Format("Договор №{0}", contract.ContractFullNumber);
 
-		public override DateTime? DocumentDate {
-			get { return Contract?.IssueDate; }
-		}
+		public override DateTime? DocumentDate => Contract?.IssueDate;
 
 		public virtual void PrepareTemplate(IUnitOfWork uow)
 		{
@@ -44,13 +36,15 @@ namespace Vodovoz.Domain.Orders.Documents
 				Contract.DocumentTemplate.DocParser.SetDocObject(Contract);
 		}
 
-		public virtual IDocTemplate GetTemplate()
-		{
-			return Contract.DocumentTemplate;
-		}
+		public virtual IDocTemplate GetTemplate() => Contract.DocumentTemplate;
 
 		public override PrinterType PrintType => PrinterType.ODT;
-	}
 
+		int copiesToPrint = 2;
+		public override int CopiesToPrint {
+			get => copiesToPrint;
+			set => copiesToPrint = value;
+		}
+	}
 }
 

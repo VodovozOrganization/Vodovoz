@@ -12,6 +12,8 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gamma.Widgets.yDatePicker ydatepicker;
 
+		private global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget geograficGroup;
+
 		private global::Gtk.Button buttonCreateRepot;
 
 		protected virtual void Build()
@@ -54,16 +56,26 @@ namespace Vodovoz.ReportsParameters
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.geograficGroup = new global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget();
+			this.geograficGroup.Events = ((global::Gdk.EventMask)(256));
+			this.geograficGroup.Name = "geograficGroup";
+			this.geograficGroup.Label = "";
+			this.vbox2.Add(this.geograficGroup);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.geograficGroup]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.buttonCreateRepot = new global::Gtk.Button();
 			this.buttonCreateRepot.CanFocus = true;
 			this.buttonCreateRepot.Name = "buttonCreateRepot";
 			this.buttonCreateRepot.UseUnderline = true;
 			this.buttonCreateRepot.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox2.Add(this.buttonCreateRepot);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateRepot]));
-			w4.Position = 2;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateRepot]));
+			w5.Position = 3;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

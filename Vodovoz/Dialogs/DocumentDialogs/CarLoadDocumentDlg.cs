@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.Dialog.GtkUI;
-using NHibernate.Criterion;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
-using Vodovoz.Dialogs.Store;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repositories.Store;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
@@ -102,15 +98,14 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			if(!CarLoadRepository.IsUniqDocument(UoW, Entity.RouteList, Entity.Warehouse,Entity.Id)) 
-			{
-				MessageDialogWorks.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
-				return false;
-			}
-
 			var valid = new QSValidation.QSValidator<CarLoadDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
+
+			if(!CarLoadRepository.IsUniqDocument(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
+				MessageDialogHelper.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
+				return false;
+			}
 
 			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;

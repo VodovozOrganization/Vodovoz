@@ -40,51 +40,43 @@ namespace Vodovoz.Tools.Logistic
 
 			DeliveryPriceNode result = new DeliveryPriceNode();
 
-            //Топливо
-            using (var uow = UnitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки"))
-            {
-                var fuel = FuelTypeRepository.GetDefaultFuel(uow);
-                if (fuel == null)
-                {
-                    result.ErrorMessage = String.Format("Топливо по умолчанию «АИ-92» не найдено в справочке.");
-                    return result;
-                }
-                fuelCost = (double)fuel.Cost;
+			//Топливо
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки")) {
+				var fuel = FuelTypeRepository.GetDefaultFuel(uow);
+				if(fuel == null) {
+					result.ErrorMessage = String.Format("Топливо по умолчанию «АИ-92» не найдено в справочке.");
+					return result;
+				}
+				fuelCost = (double)fuel.Cost;
 
-                //Районы
-                districts = ScheduleRestrictionRepository.AreaWithGeometry(uow);
+				//Районы
+				districts = ScheduleRestrictionRepository.AreaWithGeometry(uow);
 
-                //Координаты
-                if (latitude == null || longitude == null)
-                {
-                    result.ErrorMessage = String.Format("Не указаны координаты. Невозможно расчитать расстояние.");
-                    return result;
-                }
+				//Координаты
+				if(latitude == null || longitude == null) {
+					result.ErrorMessage = String.Format("Не указаны координаты. Невозможно расчитать расстояние.");
+					return result;
+				}
 
-                //Расчет растояния
-                if (deliveryPoint == null)
-                {
-                    var route = new List<PointOnEarth>(2);
-                    route.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
-                    route.Add(new PointOnEarth(latitude.Value, longitude.Value));
-                    var osrmResult = OsrmMain.GetRoute(route, false, GeometryOverview.False);
-                    if (osrmResult == null)
-                    {
-                        result.ErrorMessage = String.Format("Ошибка на сервере расчета расстояний, невозможно расчитать расстояние.");
-                        return result;
-                    }
-                    if (osrmResult.Code != "Ok")
-                    {
-                        result.ErrorMessage = String.Format("Сервер расчета расстояний вернул следующее сообщение: {0}", osrmResult.StatusMessageRus);
-                        return result;
-                    }
-                    distance = osrmResult.Routes[0].TotalDistance / 1000d;
-                }
-                else
-                {
-                    distance = (double)(deliveryPoint.DistanceFromBaseMeters ?? 0) / 1000d;
-                }
-                result.Distance = distance.ToString("N1") + " км";
+				//Расчет растояния
+				if(deliveryPoint == null) {
+					var route = new List<PointOnEarth>(2);
+					route.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
+					route.Add(new PointOnEarth(latitude.Value, longitude.Value));
+					var osrmResult = OsrmMain.GetRoute(route, false, GeometryOverview.False);
+					if(osrmResult == null) {
+						result.ErrorMessage = String.Format("Ошибка на сервере расчета расстояний, невозможно расчитать расстояние.");
+						return result;
+					}
+					if(osrmResult.Code != "Ok") {
+						result.ErrorMessage = String.Format("Сервер расчета расстояний вернул следующее сообщение: {0}", osrmResult.StatusMessageRus);
+						return result;
+					}
+					distance = osrmResult.Routes[0].TotalDistance / 1000d;
+				} else {
+					distance = (double)(deliveryPoint.DistanceFromBaseMeters ?? 0) / 1000d;
+				}
+				result.Distance = distance.ToString("N1") + " км";
 
 				result.Prices = Enumerable.Range(1, 100)
 					.Select(
@@ -94,35 +86,37 @@ namespace Vodovoz.Tools.Logistic
 						}
 					).ToList();
 
-                //Расчет цены
-                var point = new Point((double)latitude, (double)longitude);
-                var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
+				//Расчет цены
+				var point = new Point((double)latitude, (double)longitude);
+				var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
 				result.DistrictName = district?.DistrictName ?? String.Empty;
-                result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
-                result.WithPrice = (
-                    (district != null && district.PriceType != DistrictWaterPrice.ByDistance)
-                    || (result.ByDistance && bottlesCount.HasValue)
-                );
-                if (result.ByDistance)
-                {
-                    //((а * 2/100)*20*б)/в+110
-                    //а - расстояние от границы города минус
-                    //б - стоимость литра топлива(есть в справочниках)
-                    //в - кол-во бут
-                    if (bottlesCount.HasValue)
-                    {
-                        result.Price = PriceByDistance(bottlesCount.Value).ToString("C2");
-                    }
-                }
-                else if (district.PriceType == DistrictWaterPrice.FixForDistrict)
-                    result.Price = district.WaterPrice.ToString("C2");
-                else if (district.PriceType == DistrictWaterPrice.Standart)
-                    result.Price = "прайс";
-                result.MinBottles = district?.MinBottles.ToString();
+				result.WarehousesList = String.Join(
+					", ",
+					ScheduleRestrictionRepository.GetShippingWarehouseForDistrict(uow, district)
+												 .Select(w => w.Name)
+				);
+				result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
+				result.WithPrice = (
+					(district != null && district.PriceType != DistrictWaterPrice.ByDistance)
+					|| (result.ByDistance && bottlesCount.HasValue)
+				);
+				if(result.ByDistance) {
+					//((а * 2/100)*20*б)/в+110
+					//а - расстояние от границы города минус
+					//б - стоимость литра топлива(есть в справочниках)
+					//в - кол-во бут
+					if(bottlesCount.HasValue) {
+						result.Price = PriceByDistance(bottlesCount.Value).ToString("C2");
+					}
+				} else if(district.PriceType == DistrictWaterPrice.FixForDistrict)
+					result.Price = district.WaterPrice.ToString("C2");
+				else if(district.PriceType == DistrictWaterPrice.Standart)
+					result.Price = "прайс";
+				result.MinBottles = district?.MinBottles.ToString();
 				result.Schedule = district != null && district.HaveRestrictions
 					? String.Join(", ", district.GetSchedulesString())
-                    : "любой день";
-            }
+					: "любой день";
+			}
 			return result;
 		}
 
@@ -142,6 +136,7 @@ namespace Vodovoz.Tools.Logistic
 		public bool ByDistance { get; set; }
 		public bool WithPrice { get; set; }
 		public string DistrictName { get; set; }
+		public string WarehousesList { get; set; }
 
 		string errorMessage;
 		public string ErrorMessage {
@@ -167,6 +162,7 @@ namespace Vodovoz.Tools.Logistic
 			MinBottles = String.Empty;
 			Schedule = String.Empty;
 			DistrictName = String.Empty;
+			WarehousesList = String.Empty;
 			Prices = new List<DeliveryPriceRow>();
 		}
 	}

@@ -55,6 +55,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.DeliverySchedule)			.Column("delivery_schedule_id");
 			References(x => x.СoordsLastChangeUser)		.Column("coords_lastchange_user_id");
 			References(x => x.DefaultWaterNomenclature)	.Column("default_nomenclature_id");
+			References(x => x.District)					.Column("schedule_restricted_district_id");
 
 			HasManyToMany(x => x.Contacts).Table("counterparty_delivery_point_contacts")
 				.ParentKeyColumn("delivery_point_id")

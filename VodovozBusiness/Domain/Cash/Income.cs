@@ -4,12 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.Repository.Cash;
 
 namespace Vodovoz.Domain.Cash
@@ -17,8 +18,8 @@ namespace Vodovoz.Domain.Cash
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "приходные одера",
 		Nominative = "приходный ордер")]
-	//[HistoryTrace]
-	public class Income : PropertyChangedBase, IDomainObject, IValidatableObject
+	[EntityPermission]
+	public class Income : PropertyChangedBase, IDomainObject, IValidatableObject, ISubdivisionEntity
 	{
 		#region Свойства
 
@@ -30,6 +31,14 @@ namespace Vodovoz.Domain.Cash
 		public virtual DateTime Date {
 			get { return date; }
 			set { SetField (ref date, value, () => Date); }
+		}
+
+		private Subdivision relatedToSubdivision;
+
+		[Display(Name = "Относится к подразделению")]
+		public virtual Subdivision RelatedToSubdivision {
+			get { return relatedToSubdivision; }
+			set { SetField(ref relatedToSubdivision, value, () => RelatedToSubdivision); }
 		}
 
 		private IncomeInvoiceDocumentType typeDocument;
@@ -159,9 +168,7 @@ namespace Vodovoz.Domain.Cash
 
 		#endregion
 
-		public Income ()
-		{
-		}
+		public Income() { }
 
 		#region Функции
 

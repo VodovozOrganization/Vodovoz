@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
@@ -8,8 +9,11 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Client
 {
-
-
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "комментарии",
+		Nominative = "комментарий"
+	)]
+	[EntityPermission]
 	public class Comments : PropertyChangedBase, IDomainObject
 	{
 		public virtual IUnitOfWork UoW { get; set; }

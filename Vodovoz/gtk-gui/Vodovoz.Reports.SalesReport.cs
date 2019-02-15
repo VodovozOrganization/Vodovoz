@@ -88,6 +88,16 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.Button btnOrderAuthorDeselect;
 
+		private global::Gtk.HBox hboxNomen1;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel11;
+
+		private global::Gamma.GtkWidgets.yLabel lblGeoGroups;
+
+		private global::Gtk.Button btnGeoGroupsSelect;
+
+		private global::Gtk.Button btnGeoGroupsDeselect;
+
 		private global::Gtk.HSeparator hseparator1;
 
 		private global::Gtk.Label labelTableTitle;
@@ -512,33 +522,82 @@ namespace Vodovoz.Reports
 			w41.Expand = false;
 			w41.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.hboxNomen1 = new global::Gtk.HBox();
+			this.hboxNomen1.Name = "hboxNomen1";
+			this.hboxNomen1.Spacing = 6;
+			// Container child hboxNomen1.Gtk.Box+BoxChild
+			this.ylabel11 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel11.Name = "ylabel11";
+			this.ylabel11.Xalign = 0F;
+			this.ylabel11.LabelProp = global::Mono.Unix.Catalog.GetString("Части города:");
+			this.hboxNomen1.Add(this.ylabel11);
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hboxNomen1[this.ylabel11]));
+			w42.Position = 0;
+			w42.Expand = false;
+			w42.Fill = false;
+			// Container child hboxNomen1.Gtk.Box+BoxChild
+			this.lblGeoGroups = new global::Gamma.GtkWidgets.yLabel();
+			this.lblGeoGroups.Name = "lblGeoGroups";
+			this.lblGeoGroups.Xalign = 1F;
+			this.hboxNomen1.Add(this.lblGeoGroups);
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hboxNomen1[this.lblGeoGroups]));
+			w43.Position = 1;
+			// Container child hboxNomen1.Gtk.Box+BoxChild
+			this.btnGeoGroupsSelect = new global::Gtk.Button();
+			this.btnGeoGroupsSelect.CanFocus = true;
+			this.btnGeoGroupsSelect.Name = "btnGeoGroupsSelect";
+			this.btnGeoGroupsSelect.UseUnderline = true;
+			this.btnGeoGroupsSelect.Label = global::Mono.Unix.Catalog.GetString("Вкл.");
+			this.hboxNomen1.Add(this.btnGeoGroupsSelect);
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hboxNomen1[this.btnGeoGroupsSelect]));
+			w44.Position = 2;
+			w44.Expand = false;
+			w44.Fill = false;
+			// Container child hboxNomen1.Gtk.Box+BoxChild
+			this.btnGeoGroupsDeselect = new global::Gtk.Button();
+			this.btnGeoGroupsDeselect.CanFocus = true;
+			this.btnGeoGroupsDeselect.Name = "btnGeoGroupsDeselect";
+			this.btnGeoGroupsDeselect.UseUnderline = true;
+			this.btnGeoGroupsDeselect.Label = global::Mono.Unix.Catalog.GetString("Искл.");
+			this.hboxNomen1.Add(this.btnGeoGroupsDeselect);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hboxNomen1[this.btnGeoGroupsDeselect]));
+			w45.Position = 3;
+			w45.Expand = false;
+			w45.Fill = false;
+			this.vbox1.Add(this.hboxNomen1);
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxNomen1]));
+			w46.Position = 9;
+			w46.Expand = false;
+			w46.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.hseparator1 = new global::Gtk.HSeparator();
 			this.hseparator1.Name = "hseparator1";
 			this.vbox1.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
-			w42.Position = 9;
-			w42.Expand = false;
-			w42.Fill = false;
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
+			w47.Position = 10;
+			w47.Expand = false;
+			w47.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.labelTableTitle = new global::Gtk.Label();
 			this.labelTableTitle.Name = "labelTableTitle";
 			this.labelTableTitle.Xalign = 0F;
 			this.vbox1.Add(this.labelTableTitle);
-			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelTableTitle]));
-			w43.Position = 10;
-			w43.Expand = false;
-			w43.Fill = false;
+			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelTableTitle]));
+			w48.Position = 11;
+			w48.Expand = false;
+			w48.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.searchEntityInSelectedList = new global::QSWidgetLib.SearchEntity();
 			this.searchEntityInSelectedList.Events = ((global::Gdk.EventMask)(256));
 			this.searchEntityInSelectedList.Name = "searchEntityInSelectedList";
 			this.vbox1.Add(this.searchEntityInSelectedList);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchEntityInSelectedList]));
-			w44.Position = 11;
-			w44.Expand = false;
-			w44.Fill = false;
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchEntityInSelectedList]));
+			w49.Position = 12;
+			w49.Expand = false;
+			w49.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -548,11 +607,11 @@ namespace Vodovoz.Reports
 			this.buttonSelectAll.UseUnderline = true;
 			this.buttonSelectAll.Label = global::Mono.Unix.Catalog.GetString("Выбрать всех");
 			this.table1.Add(this.buttonSelectAll);
-			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonSelectAll]));
-			w45.TopAttach = ((uint)(1));
-			w45.BottomAttach = ((uint)(2));
-			w45.XOptions = ((global::Gtk.AttachOptions)(4));
-			w45.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonSelectAll]));
+			w50.TopAttach = ((uint)(1));
+			w50.BottomAttach = ((uint)(2));
+			w50.XOptions = ((global::Gtk.AttachOptions)(4));
+			w50.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.buttonUnselectAll = new global::Gtk.Button();
 			this.buttonUnselectAll.CanFocus = true;
@@ -560,13 +619,13 @@ namespace Vodovoz.Reports
 			this.buttonUnselectAll.UseUnderline = true;
 			this.buttonUnselectAll.Label = global::Mono.Unix.Catalog.GetString("Снять выделение");
 			this.table1.Add(this.buttonUnselectAll);
-			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonUnselectAll]));
-			w46.TopAttach = ((uint)(1));
-			w46.BottomAttach = ((uint)(2));
-			w46.LeftAttach = ((uint)(1));
-			w46.RightAttach = ((uint)(2));
-			w46.XOptions = ((global::Gtk.AttachOptions)(4));
-			w46.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonUnselectAll]));
+			w51.TopAttach = ((uint)(1));
+			w51.BottomAttach = ((uint)(2));
+			w51.LeftAttach = ((uint)(1));
+			w51.RightAttach = ((uint)(2));
+			w51.XOptions = ((global::Gtk.AttachOptions)(4));
+			w51.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -578,11 +637,11 @@ namespace Vodovoz.Reports
 			this.ytreeviewSelectedList.Name = "ytreeviewSelectedList";
 			this.GtkScrolledWindow.Add(this.ytreeviewSelectedList);
 			this.table1.Add(this.GtkScrolledWindow);
-			global::Gtk.Table.TableChild w48 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow]));
-			w48.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w53 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow]));
+			w53.RightAttach = ((uint)(2));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w49.Position = 12;
+			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w54.Position = 13;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -590,11 +649,11 @@ namespace Vodovoz.Reports
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w50.PackType = ((global::Gtk.PackType)(1));
-			w50.Position = 13;
-			w50.Expand = false;
-			w50.Fill = false;
+			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w55.PackType = ((global::Gtk.PackType)(1));
+			w55.Position = 14;
+			w55.Expand = false;
+			w55.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -615,6 +674,8 @@ namespace Vodovoz.Reports
 			this.btnSubdivisionDeselect.Clicked += new global::System.EventHandler(this.OnBtnSubdivisionDeselectClicked);
 			this.btnOrderAuthorSelect.Clicked += new global::System.EventHandler(this.OnBtnOrderAuthorSelectClicked);
 			this.btnOrderAuthorDeselect.Clicked += new global::System.EventHandler(this.OnBtnOrderAuthorDeselectClicked);
+			this.btnGeoGroupsSelect.Clicked += new global::System.EventHandler(this.OnBtnGeoGroupsSelectClicked);
+			this.btnGeoGroupsDeselect.Clicked += new global::System.EventHandler(this.OnBtnGeoGroupsDeselectClicked);
 			this.searchEntityInSelectedList.TextChanged += new global::System.EventHandler(this.OnSearchEntityInSelectedListTextChanged);
 			this.buttonUnselectAll.Clicked += new global::System.EventHandler(this.OnButtonUnselectAllClicked);
 			this.buttonSelectAll.Clicked += new global::System.EventHandler(this.OnButtonSelectAllClicked);

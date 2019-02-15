@@ -140,6 +140,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -251,7 +253,9 @@
     Fields!category.Value = 'additional', 'Товары',
     Fields!category.Value = 'service', 'Услуга',
     Fields!category.Value = 'bottle', 'Тара',
-    Fields!category.Value = 'material', 'Сырьё'
+    Fields!category.Value = 'material', 'Сырьё',
+    Fields!category.Value = 'master', 'Выезд мастера',
+    true, Fields!category.Value
 )</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
@@ -381,82 +385,108 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	counterparty.name as counterparty,
-	delivery_points.compiled_address as delivery_point,
-	orders.id as order_id,
-	nomenclature.official_name AS name,
-	SUM(order_items.count) AS total_count,
-	truncate(SUM(order_items.count * order_items.price - order_items.discount_money), 2) AS total_sum,
-	nomenclature.category,
-	nomenclature.is_disposable_tare,
-	nomenclature.id as nomenclature_id
+	T.counterparty,
+	T.delivery_point,
+	T.order_id,
+	T.name,
+	SUM(T.total_count) AS total_count,
+	SUM(T.total_sum) AS total_sum,
+	T.category,
+	T.is_disposable_tare,
+	T.nomenclature_id as nomenclature_id
 FROM
-	order_items
-		LEFT JOIN
-	orders ON order_id = orders.id
-		LEFT JOIN
-	nomenclature ON order_items.nomenclature_id = nomenclature.id
-		LEFT JOIN
-	counterparty ON orders.client_id = counterparty.id
-		LEFT JOIN
-	delivery_points ON orders.delivery_point_id = delivery_points.id
-		LEFT JOIN
-	counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
-		LEFT JOIN
-	employees ON orders.author_employee_id = employees.id
-WHERE
-	(order_status = 'Accepted'
-		OR order_status = 'InTravelList'
-		OR order_status = 'OnLoading'
-		OR order_status = 'OnTheWay'
-		OR order_status = 'Shipped'
-		OR order_status = 'UnloadingOnStock'
-		OR order_status = 'Closed')
-		AND (delivery_date &gt;= @start_date
-		AND delivery_date &lt;= @end_date)
-		AND !orders.is_contract_closer
-	AND (
-			((nomenclature.id IN (@nomen_include) AND 0 IN (@nomen_exclude) )
-			OR
-			(nomenclature.id NOT IN (@nomen_exclude) AND 0 IN (@nomen_include)))
-			OR (0 IN (@nomen_include) AND 0 IN (@nomen_exclude))
-		)
-	AND (
-			((nomenclature.category IN (@nomtype_include) AND '0' IN (@nomtype_exclude) )
-			OR
-			(nomenclature.category NOT IN (@nomtype_exclude) AND '0' IN (@nomtype_include)))
-			OR ('0' IN (@nomtype_include) AND '0' IN (@nomtype_exclude))
-		)
-	AND (
-			((orders.client_id IN (@client_include) AND 0 IN (@client_exclude) )
-			OR
-			(orders.client_id NOT IN (@client_exclude) AND 0 IN (@client_include)))
-			OR (0 IN (@client_include) AND 0 IN (@client_exclude))
-		)
-	AND (
-			((counterparty_contract.organization_id IN (@org_include) AND 0 IN (@org_exclude) )
-			OR
-			(counterparty_contract.organization_id NOT IN (@org_exclude) AND 0 IN (@org_include)))
-			OR (0 IN (@org_include) AND 0 IN (@org_exclude))
-		)
-	AND ( 
-			((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
-			OR
-			(order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
-			OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
-		)
-	AND (
-			((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
-			OR
-			(IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) NOT IN (@subdivision_exclude) AND 0 IN (@subdivision_include)))
-			OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
-		)
-	AND (
-			((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude) )
-			OR
-			(IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@orderauthor_exclude) AND 0 IN (@orderauthor_include)))
-			OR (0 IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude))
-		)
+	(SELECT
+		counterparty.name as counterparty,
+		delivery_points.compiled_address as delivery_point,
+		orders.id as order_id,
+		nomenclature.official_name AS name,
+		order_items.count AS total_count,
+		truncate(order_items.count * order_items.price - order_items.discount_money, 2) AS total_sum,
+		nomenclature.category,
+		nomenclature.is_disposable_tare,
+		nomenclature.id as nomenclature_id
+		,gge.geographic_group_id
+	FROM
+		order_items
+	LEFT JOIN
+		orders ON order_id = orders.id
+	LEFT JOIN
+		nomenclature ON order_items.nomenclature_id = nomenclature.id
+	LEFT JOIN
+		counterparty ON orders.client_id = counterparty.id
+	LEFT JOIN
+		delivery_points ON orders.delivery_point_id = delivery_points.id
+	LEFT JOIN
+		counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+	LEFT JOIN
+		employees ON orders.author_employee_id = employees.id
+	LEFT JOIN
+		schedule_restricted_districts distr ON delivery_points.schedule_restricted_district_id = distr.id
+	LEFT JOIN
+		geographic_groups_to_entities gge ON gge.district_id = distr.id
+	LEFT JOIN
+		geographic_groups gg ON gge.geographic_group_id = gg.id
+	WHERE
+		(order_status = 'Accepted'
+			OR order_status = 'InTravelList'
+			OR order_status = 'OnLoading'
+			OR order_status = 'OnTheWay'
+			OR order_status = 'Shipped'
+			OR order_status = 'UnloadingOnStock'
+			OR order_status = 'Closed')
+			AND (delivery_date &gt;= @start_date
+			AND delivery_date &lt;= @end_date)
+			AND !orders.is_contract_closer
+		AND (
+				((nomenclature.id IN (@nomen_include) AND 0 IN (@nomen_exclude) )
+				OR
+				(nomenclature.id NOT IN (@nomen_exclude) AND 0 IN (@nomen_include)))
+				OR (0 IN (@nomen_include) AND 0 IN (@nomen_exclude))
+			)
+		AND (
+				((nomenclature.category IN (@nomtype_include) AND '0' IN (@nomtype_exclude) )
+				OR
+				(nomenclature.category NOT IN (@nomtype_exclude) AND '0' IN (@nomtype_include)))
+				OR ('0' IN (@nomtype_include) AND '0' IN (@nomtype_exclude))
+			)
+		AND (
+				((orders.client_id IN (@client_include) AND 0 IN (@client_exclude) )
+				OR
+				(orders.client_id NOT IN (@client_exclude) AND 0 IN (@client_include)))
+				OR (0 IN (@client_include) AND 0 IN (@client_exclude))
+			)
+		AND (
+				((counterparty_contract.organization_id IN (@org_include) AND 0 IN (@org_exclude) )
+				OR
+				(counterparty_contract.organization_id NOT IN (@org_exclude) AND 0 IN (@org_include)))
+				OR (0 IN (@org_include) AND 0 IN (@org_exclude))
+			)
+		AND ( 
+				((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
+				OR
+				(order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
+				OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
+			)
+		AND (
+				((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
+				OR
+				(IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) NOT IN (@subdivision_exclude) AND 0 IN (@subdivision_include)))
+				OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
+			)
+		AND (
+				((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude) )
+				OR
+				(IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@orderauthor_exclude) AND 0 IN (@orderauthor_include)))
+				OR (0 IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude))
+			)
+		AND (
+				((IFNULL(gge.geographic_group_id, 0) IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude) )
+				OR
+				(IFNULL(gge.geographic_group_id, 0) NOT IN (@geographic_groups_exclude) AND 0 IN (@geographic_groups_include)))
+				OR (0 IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude))
+			)
+		GROUP BY order_items.id
+	) as T
 GROUP BY nomenclature_id
 ;</CommandText>
         <QueryParameters>
@@ -507,6 +537,12 @@ GROUP BY nomenclature_id
           </QueryParameter>
           <QueryParameter Name="subdivision_exclude">
             <Value>=Parameters!subdivision_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_groups_include">
+            <Value>=Parameters!geographic_groups_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_groups_exclude">
+            <Value>=Parameters!geographic_groups_exclude</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -574,13 +610,13 @@ GROUP BY nomenclature_id
 		'')),
 		(IF(excluded_org!=0,
 		CONCAT('Искл.орг: ',excluded_org,'\n'),
-		'')),        
-        (IF(included_subdivision!=0,
+		'')),
+		(IF(included_subdivision!=0,
 		CONCAT('Вкл.отделов: ',included_subdivision,'\n'),
 		'')),
 		(IF(excluded_subdivision!=0,
 		CONCAT('Искл.отделов: ',excluded_subdivision,'\n'),
-		'')),        
+		'')),
 		(IF(included_orderauthor!=0,
 		CONCAT('Вкл.авторов заказов: ',included_orderauthor,'\n'),
 		'')),
@@ -592,6 +628,12 @@ GROUP BY nomenclature_id
 		'')),
 		(IF(excluded_discountreason!=0,
 		CONCAT('Искл.причин скидок: ',excluded_discountreason,'\n'),
+		'')),
+		(IF(included_geographic_groups!=0,
+		CONCAT('Вкл.частей города: ',included_geographic_groups,'\n'),
+		'')),
+		(IF(excluded_geographic_groups!=0,
+		CONCAT('Искл.частей города: ',excluded_geographic_groups,'\n'),
 		''))
 	) AS criterions
 FROM
@@ -606,7 +648,7 @@ FROM
 			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@nomen_exclude)),
 			0
 		) AS excluded_noms,
-		
+
 		IF(
 			'0' NOT IN (@nomtype_include),
 			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomtype_include) GROUP BY nomenclature.category) AS q),
@@ -617,7 +659,7 @@ FROM
 			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomtype_exclude) GROUP BY nomenclature.category) AS q),
 			0
 		) AS excluded_nomtypes,
-		
+
 		IF(
 			0 NOT IN (@client_include),
 			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@client_include)),
@@ -628,7 +670,7 @@ FROM
 			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@client_exclude)),
 			0
 		) AS excluded_client,
-		
+
 		IF(
 			0 NOT IN (@org_include),
 			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@org_include)),
@@ -639,8 +681,8 @@ FROM
 			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@org_exclude)),
 			0
 		) AS excluded_org,
-		
-        IF(
+
+		IF(
 			0 NOT IN (@subdivision_include),
 			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@subdivision_include)),
 			0
@@ -650,7 +692,7 @@ FROM
 			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@subdivision_exclude)),
 			0
 		) AS excluded_subdivision,
-        
+
 		IF(
 			0 NOT IN (@orderauthor_include),
 			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@orderauthor_include)),
@@ -661,7 +703,7 @@ FROM
 			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@orderauthor_exclude)),
 			0
 		) AS excluded_orderauthor,
-		
+
 		IF(
 			0 NOT IN (@discountreason_include),
 			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@discountreason_include)),
@@ -671,8 +713,20 @@ FROM
 			0 NOT IN (@discountreason_exclude),
 			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@discountreason_exclude)),
 			0
-		) AS excluded_discountreason
-	) AS tbl;</CommandText>
+		) AS excluded_discountreason,
+
+		IF(
+			0 NOT IN (@geographic_groups_include),
+			(SELECT COUNT(id) FROM geographic_groups WHERE geographic_groups.id IN(@geographic_groups_include)),
+			0
+		) AS included_geographic_groups,
+		IF(
+			0 NOT IN (@geographic_groups_exclude),
+			(SELECT COUNT(id) FROM geographic_groups WHERE geographic_groups.id IN(@geographic_groups_exclude)),
+			0
+		) AS excluded_geographic_groups
+	) AS tbl
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -721,6 +775,12 @@ FROM
           </QueryParameter>
           <QueryParameter Name="subdivision_exclude">
             <Value>=Parameters!subdivision_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_groups_exclude">
+            <Value>=Parameters!geographic_groups_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_groups_include">
+            <Value>=Parameters!geographic_groups_include</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -862,9 +922,25 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="subdivision_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="geographic_groups_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="geographic_groups_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

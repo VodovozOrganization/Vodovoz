@@ -20,9 +20,10 @@ namespace Vodovoz.Repository.Store
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
-			Nomenclature OrderItemNomenclatureAlias = null,
-				OrderEquipmentNomenclatureAlias = null,
+			Nomenclature orderItemNomenclatureAlias = null,
+				orderEquipmentNomenclatureAlias = null,
 				resultNomenclatureAlias = null;
+			Warehouse warehouseAlias = null;
 
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
 
@@ -34,23 +35,26 @@ namespace Vodovoz.Repository.Store
 
 			var orderitemsSubqury = QueryOver.Of<OrderItem>(() => orderItemsAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
-				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
+				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
 				.Select(n => n.Nomenclature.Id)
-				.Where(() => OrderItemNomenclatureAlias.NoDelivey == false);
+				.Where(() => orderItemNomenclatureAlias.NoDelivey == false);
 			var orderEquipmentSubquery = QueryOver.Of<OrderEquipment>(() => orderEquipmentAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
-				.JoinAlias(e => e.Nomenclature, () => OrderEquipmentNomenclatureAlias)
-				.SelectList(list => list.Select(() => OrderEquipmentNomenclatureAlias.Id));
+				.JoinAlias(e => e.Nomenclature, () => orderEquipmentNomenclatureAlias)
+				.SelectList(list => list.Select(() => orderEquipmentNomenclatureAlias.Id));
 
-			return uow.Session.QueryOver<Nomenclature>(() => resultNomenclatureAlias)
+			var warehouses = uow.Session.QueryOver<Nomenclature>(() => resultNomenclatureAlias)
 				.Where(new Disjunction()
 					.Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderitemsSubqury))
 					.Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderEquipmentSubquery))
-				).Where(n => n.Warehouse != null)
-				.Select(Projections.Distinct(Projections.Property<Nomenclature>(n => n.Warehouse)))
+				)
+				.JoinAlias(() => resultNomenclatureAlias.Warehouses, () => warehouseAlias)
+				.Select(Projections.Distinct(Projections.Entity<Warehouse>(() => warehouseAlias)))
 				.List<Warehouse>();
+
+			return warehouses;
 		}
 
 		public static IList<Warehouse> WarehouseForReception(IUnitOfWork uow, int id)
@@ -59,6 +63,7 @@ namespace Vodovoz.Repository.Store
 			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null, orderNewEquipmentAlias = null;
 			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null, OrderNewEquipmentNomenclatureAlias = null, resultNomenclatureAlias = null;
+			Warehouse warehouseAlias = null;
 
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
 
@@ -83,14 +88,17 @@ namespace Vodovoz.Repository.Store
 				.JoinAlias(() => orderNewEquipmentAlias.Nomenclature, () => OrderNewEquipmentNomenclatureAlias)
 				.SelectList(list => list.Select(() => OrderNewEquipmentNomenclatureAlias.Id));
 
-			return uow.Session.QueryOver<Nomenclature>(() => resultNomenclatureAlias)
+			var warehouses = uow.Session.QueryOver<Nomenclature>(() => resultNomenclatureAlias)
 				.Where(new Disjunction()
 					.Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderitemsSubqury))
 					.Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderEquipmentSubquery))
 					.Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderNewEquipmentSubquery))
-				).Where(n => n.Warehouse != null)
-				.Select(Projections.Distinct(Projections.Property<Nomenclature>(n => n.Warehouse)))
+				)
+				.JoinAlias(() => resultNomenclatureAlias.Warehouses, () => warehouseAlias)
+				.Select(Projections.Distinct(Projections.Entity<Warehouse>(() => warehouseAlias)))
 				.List<Warehouse>();
+
+			return warehouses;
 		}
 
 		public static IList<Warehouse> WarehousesForPublishOnlineStore(IUnitOfWork uow)

@@ -447,7 +447,7 @@ namespace Vodovoz
 
 		void UpdateButtonState()
 		{
-			buttonAccept.Sensitive = Entity.Status == RouteListStatus.OnClosing && isConsistentWithUnloadDocument();
+			buttonAccept.Sensitive =( Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck ) && isConsistentWithUnloadDocument();
 		}
 
 		private bool buttonFineEditState;
@@ -658,7 +658,10 @@ namespace Vodovoz
 			}
 
 			Entity.Cashier = casher;
-			Entity.Confirm(checkSendToMileageCheck.Active);
+			if(Entity.Status == RouteListStatus.OnClosing) {
+				Entity.Confirm(checkSendToMileageCheck.Active);
+			}
+			Entity.ClosedByCashBox = true;
 
 			if(!MessageDialogHelper.RunQuestionDialog("Перед выходом распечатать документ?"))
 				SaveAndClose();

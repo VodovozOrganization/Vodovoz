@@ -1,40 +1,43 @@
 ﻿using System;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Gamma.ColumnConfig;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
+using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
 	public partial class CarsDlg : QS.Dialog.Gtk.EntityDialogBase<Car>
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		public override bool HasChanges { 
-			get { return UoWGeneric.HasChanges || attachmentFiles.HasChanges; }
-		}
+		public override bool HasChanges => UoWGeneric.HasChanges || attachmentFiles.HasChanges;
 
-		public CarsDlg ()
+		public CarsDlg()
 		{
-			this.Build ();
+			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Car>();
 			TabName = "Новый автомобиль";
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
-		public CarsDlg (int id)
+		public CarsDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Car> (id);
-			ConfigureDlg ();
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Car>(id);
+			ConfigureDlg();
 		}
 
-		public CarsDlg (Car sub) : this (sub.Id) {}
+		public CarsDlg(Car sub) : this(sub.Id) { }
 
-		private void ConfigureDlg ()
+		private void ConfigureDlg()
 		{
 			notebook1.Page = 0;
 			notebook1.ShowTabs = false;
@@ -80,75 +83,89 @@ namespace Vodovoz
 			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName (typeof(Car));
-			if (!UoWGeneric.IsNew) {
+			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Car));
+			if(!UoWGeneric.IsNew) {
 				attachmentFiles.ItemId = UoWGeneric.Root.Id;
-				attachmentFiles.UpdateFileList ();
+				attachmentFiles.UpdateFileList();
 			}
-			OnDataentryreferenceDriverChanged (null, null);
+			OnDataentryreferenceDriverChanged(null, null);
 			textDriverInfo.Selectable = true;
 
 			checkIsCompanyHavings.Sensitive = CarTypeIsEditable();
 			checkIsRaskat.Sensitive = CarTypeIsEditable();
 			comboTypeOfUse.Sensitive = CarTypeIsEditable();
+
+			yTreeGeographicGroups.Selection.Mode = Gtk.SelectionMode.Single;
+			yTreeGeographicGroups.ColumnsConfig = FluentColumnsConfig<GeographicGroup>.Create()
+				.AddColumn("Название").AddTextRenderer(x => x.Name)
+				.Finish();
+			yTreeGeographicGroups.ItemsDataSource = Entity.ObservableGeographicGroups;
+			//yTreeGeographicGroups.Selection.Changed += (sender, e) => ControlsAccessibility();
 		}
 
-		bool CarTypeIsEditable()
-		{
-			return Entity.Id == 0;
-		}
+		bool CarTypeIsEditable() => Entity.Id == 0;
 
-		public override bool Save ()
+		public override bool Save()
 		{
-			if (!Entity.IsCompanyHavings)
+			if(!Entity.IsCompanyHavings)
 				Entity.TypeOfUse = null;
 
-			var valid = new QSValidator<Car> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var valid = new QSValidator<Car>(UoWGeneric.Root);
+			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			logger.Info ("Сохраняем автомобиль...");
+			logger.Info("Сохраняем автомобиль...");
 			try {
 				UoWGeneric.Save();
-				if (UoWGeneric.IsNew) {
+				if(UoWGeneric.IsNew) {
 					attachmentFiles.ItemId = UoWGeneric.Root.Id;
 				}
-				attachmentFiles.SaveChanges ();
-			} catch (Exception ex) {
-				logger.Error (ex, "Не удалось записать Автомобиль.");
-				QSProjectsLib.QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex);
+				attachmentFiles.SaveChanges();
+			} catch(Exception ex) {
+				logger.Error(ex, "Не удалось записать Автомобиль.");
+				QSProjectsLib.QSMain.ErrorMessage((Gtk.Window)this.Toplevel, ex);
 				return false;
 			}
-			logger.Info ("Ok");
+			logger.Info("Ok");
 			return true;
 
 		}
 
-		protected void OnRadiobuttonFilesToggled (object sender, EventArgs e)
+		protected void OnRadiobuttonMainToggled(object sender, EventArgs e)
 		{
-			if (radiobuttonFiles.Active)
-				notebook1.CurrentPage = 1;
-		}
-
-		protected void OnRadiobuttonMainToggled (object sender, EventArgs e)
-		{
-			if (radiobuttonMain.Active)
+			if(radiobuttonMain.Active)
 				notebook1.CurrentPage = 0;
 		}
 
-		protected void OnDataentryreferenceDriverChanged (object sender, EventArgs e)
+		protected void OnRadioBtnGeographicGroupsToggled(object sender, EventArgs e)
 		{
-			if (UoWGeneric.Root.Driver != null) {
+			if(radioBtnGeographicGroups.Active)
+				notebook1.CurrentPage = 1;
+		}
+
+		protected void OnRadiobuttonFilesToggled(object sender, EventArgs e)
+		{
+			if(radiobuttonFiles.Active)
+				notebook1.CurrentPage = 2;
+		}
+
+		protected void OnDataentryreferenceDriverChanged(object sender, EventArgs e)
+		{
+			if(UoWGeneric.Root.Driver != null) {
 				var docs = Entity.Driver.GetMainDocuments();
-				if(docs.Count > 0)
-					textDriverInfo.Text = "\tПаспорт: " + UoWGeneric.Root.Driver.Documents[0].PassportSeria + " № " + UoWGeneric.Root.Driver.Documents[0].PassportNumber +
-		"\n\tАдрес регистрации: " + UoWGeneric.Root.Driver.AddressRegistration;
+				if(docs.Any())
+					textDriverInfo.Text = string.Format(
+						"\tПаспорт: {0} № {1}\n\tАдрес регистрации: {2}",
+						UoWGeneric.Root.Driver.Documents[0].PassportSeria,
+						UoWGeneric.Root.Driver.Documents[0].PassportNumber,
+						UoWGeneric.Root.Driver.AddressRegistration
+					);
 				else
 					textDriverInfo.Text = "Главный документ отсутствует";
 			}
 		}
 
-		protected void OnCheckIsCompanyHavingsToggled (object sender, EventArgs e)
+		protected void OnCheckIsCompanyHavingsToggled(object sender, EventArgs e)
 		{
 			Entity.IsCompanyHavings = checkIsCompanyHavings.Active;
 			dataentryreferenceDriver.Sensitive = !Entity.IsCompanyHavings;
@@ -177,6 +194,29 @@ namespace Vodovoz
 				Entity.TypeOfUse = null;
 			}
 		}
+
+		protected void OnBtnAddGeographicGroupClicked(object sender, EventArgs e)
+		{
+			var selectGeographicGroups = new OrmReference(typeof(GeographicGroup), UoW);
+			selectGeographicGroups.Mode = OrmReferenceMode.MultiSelect;
+			selectGeographicGroups.ObjectSelected += SelectGeographicGroups_ObjectSelected;
+			TabParent.AddSlaveTab(this, selectGeographicGroups);
+		}
+
+		void SelectGeographicGroups_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			if(yTreeGeographicGroups.ItemsDataSource is GenericObservableList<GeographicGroup> ggList)
+				foreach(var item in e.Subjects) {
+					if(item is GeographicGroup group && !ggList.Any(x => x.Id == group.Id))
+						ggList.Add(group);
+				}
+		}
+
+		protected void OnBtnRemoveGeographicGroupClicked(object sender, EventArgs e)
+		{
+			var ggList = yTreeGeographicGroups.ItemsDataSource as GenericObservableList<GeographicGroup>;
+			if(yTreeGeographicGroups.GetSelectedObject() is GeographicGroup selectedObj && ggList != null)
+				ggList.Remove(selectedObj);
+		}
 	}
 }
-

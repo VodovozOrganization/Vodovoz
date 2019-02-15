@@ -14,6 +14,7 @@ using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
@@ -29,7 +30,7 @@ namespace Vodovoz
 
 		public Counterparty Counterparty => UoWGeneric.Root;
 		public override bool HasChanges {
-			get{
+			get {
 				phonesView.RemoveEmpty();
 				emailsView.RemoveEmpty();
 				return base.HasChanges;
@@ -51,8 +52,7 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public CounterpartyDlg(Counterparty sub) : this(sub.Id)
-		{}
+		public CounterpartyDlg(Counterparty sub) : this(sub.Id) { }
 
 		private void ConfigureDlg()
 		{
@@ -163,6 +163,9 @@ namespace Vodovoz
 
 			ytreeviewTags.ItemsDataSource = Entity.ObservableTags;
 
+			enumNeedOfCheque.ItemsEnum = typeof(ChequeResponse);
+			enumNeedOfCheque.Binding.AddBinding(Entity, c => c.NeedCheque, w => w.SelectedItemOrNull).InitializeFromSource();
+
 			//make actions menu
 			var menu = new Gtk.Menu();
 			var menuItem = new Gtk.MenuItem("Все заказы контрагента");
@@ -170,27 +173,28 @@ namespace Vodovoz
 			menu.Add(menuItem);
 			menuActions.Menu = menu;
 			menu.ShowAll();
+
 			menuActions.Sensitive = !UoWGeneric.IsNew;
 			contactsview1.Visible = false;
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
 			referenceCameFrom.Sensitive = Entity.Id == 0;
+			referenceCameFrom.Sensitive = Entity.Id == 0;
+			enumNeedOfCheque.Visible = lblNeedCheque.Visible = CounterpartyRepository.IsCashPayment(Entity.PaymentMethod);
 		}
 
 		void ButtonLoadFromDP_Clicked(object sender, EventArgs e)
 		{
-			var deliveryPointSelectDlg = new ReferenceRepresentation(new ViewModel.ClientDeliveryPointsVM(UoW, Entity));
-			deliveryPointSelectDlg.Mode = OrmReferenceMode.Select;
+			var deliveryPointSelectDlg = new ReferenceRepresentation(new ClientDeliveryPointsVM(UoW, Entity)) {
+				Mode = OrmReferenceMode.Select
+			};
 			deliveryPointSelectDlg.ObjectSelected += DeliveryPointRep_ObjectSelected;
 			TabParent.AddSlaveTab(this, deliveryPointSelectDlg);
 		}
 
 		void DeliveryPointRep_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
-			var node = e.VMNode as DeliveryPointVMNode;
-			if(node == null) {
-				return;
-			}
-			yentrySpecialDeliveryAddress.Text = node.CompiledAddress;
+			if(e.VMNode is DeliveryPointVMNode node)
+				yentrySpecialDeliveryAddress.Text = node.CompiledAddress;
 		}
 
 
@@ -205,8 +209,9 @@ namespace Vodovoz
 			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
 			filter.SetAndRefilterAtOnce(x => x.RestrictCounterparty = Entity);
 
-			ReferenceRepresentation OrdersDialog = new ReferenceRepresentation(new ViewModel.OrdersVM(filter));
-			OrdersDialog.Mode = OrmReferenceMode.Normal;
+			ReferenceRepresentation OrdersDialog = new ReferenceRepresentation(new OrdersVM(filter)) {
+				Mode = OrmReferenceMode.Normal
+			};
 			OrdersDialog.Buttons(QSMain.User.Permissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit));
 
 			TabParent.AddTab(OrdersDialog, this, false);
@@ -291,13 +296,14 @@ namespace Vodovoz
 			labelShort.Visible = datalegalname1.Visible =
 					labelFullName.Visible = entryFullName.Visible =
 					referenceMainCounterparty.Visible = labelMainCounterparty.Visible =
-						radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible = 
+						radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible =
 							enumPayment.Visible = (Entity.PersonType == PersonType.legal);
 		}
 
 		protected void OnEnumPaymentEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			enumDefaultDocumentType.Visible = labelDefaultDocumentType.Visible = (PaymentType)e.SelectedItem == PaymentType.cashless;
+			enumNeedOfCheque.Visible = lblNeedCheque.Visible = CounterpartyRepository.IsCashPayment(Entity.PaymentMethod);
 		}
 
 		protected void OnEnumPaymentChangedByUser(object sender, EventArgs e)
@@ -350,28 +356,23 @@ namespace Vodovoz
 
 		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			var tag = e.Subject as Tag;
-			if(tag == null) {
-				return;
-			}
-			Entity.ObservableTags.Add(tag);
+			if(e.Subject is Tag tag)
+				Entity.ObservableTags.Add(tag);
 		}
 
 		protected void OnButtonAddTagClicked(object sender, EventArgs e)
 		{
-			var refWin = new OrmReference(typeof(Tag));
-			refWin.Mode = OrmReferenceMode.Select;
+			var refWin = new OrmReference(typeof(Tag)) {
+				Mode = OrmReferenceMode.Select
+			};
 			refWin.ObjectSelected += RefWin_ObjectSelected;
 			TabParent.AddSlaveTab(this, refWin);
 		}
 
 		protected void OnButtonDeleteTagClicked(object sender, EventArgs e)
 		{
-			var tag = ytreeviewTags.GetSelectedObject() as Tag;
-			if(tag == null) {
-				return;
-			}
-			Entity.ObservableTags.Remove(tag);
+			if(ytreeviewTags.GetSelectedObject() is Tag tag)
+				Entity.ObservableTags.Remove(tag);
 		}
 
 		protected void OnDatalegalname1OwnershipChanged(object sender, EventArgs e)

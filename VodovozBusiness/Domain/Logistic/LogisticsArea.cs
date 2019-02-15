@@ -2,12 +2,14 @@
 using System.ComponentModel.DataAnnotations;
 using GeoAPI.Geometries;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Logistic
 {
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "логистические районы",
 		Nominative = "логистический район")]
+	[EntityPermission]
 	public class LogisticsArea : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

@@ -5,13 +5,13 @@ using Gamma.ColumnConfig;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModel
 {
@@ -47,7 +47,8 @@ namespace Vodovoz.ViewModel
 			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Equipment equipmentAlias = null;
-			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null;
+			Nomenclature orderItemNomenclatureAlias = null, orderEquipmentNomenclatureAlias = null;
+			Warehouse warehouseAlias = null;
 
 			RouteList routeListAlias = null;
 			RouteListItem routeListAddressAlias = null;
@@ -55,18 +56,19 @@ namespace Vodovoz.ViewModel
 			Employee employeeAlias = null;
 			Car carAlias = null;
 			DeliveryShift shiftAlias = null;
-			CarLoadDocument carLoadDocAlias = null;
 
 			var orderitemsSubqury = QueryOver.Of<OrderItem> (() => orderItemsAlias)
 				.Where (() => orderItemsAlias.Order.Id == orderAlias.Id)
-				.JoinAlias (() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
-				.Where (() => OrderItemNomenclatureAlias.Warehouse == Filter.RestrictWarehouse)
+				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
+				.JoinAlias(() => orderItemNomenclatureAlias.Warehouses, () => warehouseAlias)
+				.Where (() => Filter.RestrictWarehouse.Id == warehouseAlias.Id)
 				.Select (i => i.Order);
 			var orderEquipmentSubquery = QueryOver.Of<OrderEquipment> (() => orderEquipmentAlias)
 				.Where(() => orderEquipmentAlias.Order.Id == orderAlias.Id)
 				.JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias)
-				.JoinAlias (() => equipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias)
-				.Where(() => OrderEquipmentNomenclatureAlias.Warehouse == Filter.RestrictWarehouse && orderEquipmentAlias.Direction == Direction.Deliver)
+				.JoinAlias (() => equipmentAlias.Nomenclature, () => orderEquipmentNomenclatureAlias)
+				.JoinAlias(() => orderEquipmentNomenclatureAlias.Warehouses, () => warehouseAlias)
+				.Where(() => Filter.RestrictWarehouse.Id == warehouseAlias.Id && orderEquipmentAlias.Direction == Direction.Deliver)
 				.Select (i => i.Order);
 
 			var queryRoutes = UoW.Session.QueryOver<RouteList> (() => routeListAlias)

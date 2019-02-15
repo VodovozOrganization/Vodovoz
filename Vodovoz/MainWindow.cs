@@ -4,6 +4,7 @@ using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.Project.Dialogs;
+using QS.Project.Domain;
 using QS.Tdi.Gtk;
 using QSBanks;
 using QSBusinessCommon.Domain;
@@ -59,12 +60,10 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		QSMain.StatusBarLabel = labelStatus;
 		this.Title = MainSupport.GetTitle();
 		QSMain.MakeNewStatusTargetForNlog();
-
 		//Настраиваем модули
 		MainClass.SetupAppFromBase();
-
-		UsersAction.Sensitive = QSMain.User.Admin;
-		ActionParameters.Sensitive = QSMain.User.Admin;
+		ActionUsers.Sensitive = QSMain.User.Admin;
+		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
 		ActionCash.Sensitive = QSMain.User.Permissions["money_manage_cash"];
 		ActionAccounting.Sensitive = QSMain.User.Permissions["money_manage_bookkeeping"];
@@ -86,8 +85,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = QSMain.User.Permissions["access_to_fines_bonuses"];
 		ActionReports.Sensitive = false;
 		ActionServices.Visible = false;
-		ActionMaintenance.Sensitive = QSMain.User.Permissions["database_maintenance"];
 		ActionDocTemplates.Visible = QSMain.User.Admin;
+		ActionService.Sensitive = QSMain.User.Permissions["database_maintenance"];
+
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle) {
@@ -216,14 +216,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnDialogAuthenticationActionActivated(object sender, EventArgs e)
 	{
 		QSMain.User.ChangeUserPassword(this);
-	}
-
-	protected void OnAction3Activated(object sender, EventArgs e)
-	{
-		Users winUsers = new Users();
-		winUsers.Show();
-		winUsers.Run();
-		winUsers.Destroy();
 	}
 
 	protected void OnAboutActionActivated(object sender, EventArgs e)
@@ -1099,6 +1091,44 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrdersByCreationDateReport>(),
 			() => new QSReport.ReportViewDlg(new OrdersByCreationDateReport())
+		);
+	}
+
+	protected void OnActionTypesOfEntitiesActivated(object sender, EventArgs e)
+	{
+		if(QSMain.User.Admin)
+			tdiMain.OpenTab(
+				OrmReference.GenerateHashName<TypeOfEntity>(),
+				() => new OrmReference(typeof(TypeOfEntity))
 			);
+	}
+
+	protected void OnActionUsersActivated(object sender, EventArgs e)
+	{
+		Users winUsers = new Users();
+		winUsers.Show();
+		winUsers.Run();
+		winUsers.Destroy();
+	}
+
+	protected void OnActionGeographicGroupsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<GeographicGroup>(),
+			() => new OrmReference(typeof(GeographicGroup))
+		);
+	}
+
+	protected void OnActionSetDistrictsToDeliveryPointsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab<DistrictFinderForDeliveryPointsDlg>();
+	}
+
+	protected void OnChequesReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ChequesReport>(),
+			() => new QSReport.ReportViewDlg(new ChequesReport())
+		);
 	}
 }

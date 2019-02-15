@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -14,7 +15,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "пересортицы товаров",
 		Nominative = "пересортица товаров")]
-	//[HistoryTrace]
+	[EntityPermission]
 	public class RegradingOfGoodsDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {

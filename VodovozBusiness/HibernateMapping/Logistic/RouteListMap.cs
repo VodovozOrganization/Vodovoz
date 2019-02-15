@@ -23,6 +23,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.ClosingDate).Column("closing_date");
 			Map (x => x.ClosingComment).Column("closing_comment");
 			Map (x => x.ClosingFilled).Column("closing_filled");
+			Map(x => x.ClosedByCashBox).Column("closed_by_cashbox");
 			Map (x => x.LastCallTime).Column ("last_call_time");
 			Map (x => x.DifferencesConfirmed).Column ("differences_confirmed");
 			Map (x => x.IsManualAccounting).Column("is_manual_accounting");
@@ -55,6 +56,10 @@ namespace Vodovoz.HibernateMapping
 				.KeyColumn ("route_list_id")
 				.AsList (x => x.Column ("order_in_route"));
 			HasMany(x => x.FuelDocuments).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
+			HasManyToMany(x => x.GeographicGroups).Table("geographic_groups_to_entities")
+			                                      .ParentKeyColumn("route_list_id")
+												  .ChildKeyColumn("geographic_group_id")
+												  .LazyLoad();
 		}
 	}
 }

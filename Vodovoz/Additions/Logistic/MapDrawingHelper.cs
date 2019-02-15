@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -15,9 +14,9 @@ namespace Vodovoz.Additions.Logistic
 			List<PointLatLng> points;
 			if(geometryCalc != null) {
 				var address = routeList.GenerateHashPiontsOfRoute();
-				MainClass.progressBarWin.ProgressStart(address.Length);
-				points = geometryCalc.GetGeometryOfRoute(address, (val, max) => MainClass.progressBarWin.ProgressUpdate(val));
-				MainClass.progressBarWin.ProgressClose();
+				StartProgress(address.Length);
+				points = geometryCalc.GetGeometryOfRoute(address, UpdateProgress);
+				CloseProgress();
 			} else {
 				points = new List<PointLatLng>();
 				points.Add(DistanceCalculator.BasePoint);
@@ -25,14 +24,30 @@ namespace Vodovoz.Additions.Logistic
 				points.Add(DistanceCalculator.BasePoint);
 			}
 
-			var route = new GMapRoute(points, routeList.Id.ToString());
-
-			route.Stroke = new System.Drawing.Pen(System.Drawing.Color.Blue);
-			route.Stroke.Width = 2;
-			route.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+			var route = new GMapRoute(points, routeList.Id.ToString()) {
+				Stroke = new System.Drawing.Pen(System.Drawing.Color.Blue) {
+					Width = 2,
+					DashStyle = System.Drawing.Drawing2D.DashStyle.Solid
+				}
+			};
 
 			overlay.Routes.Add(route);
 			return route;
+		}
+
+		static void StartProgress(int length)
+		{
+			Gtk.Application.Invoke((sender, args) => MainClass.progressBarWin.ProgressStart(length));
+		}
+
+		static void UpdateProgress(uint value, uint max)
+		{
+			Gtk.Application.Invoke((sender, args) => MainClass.progressBarWin.ProgressUpdate(value));
+		}
+
+		static void CloseProgress()
+		{
+			Gtk.Application.Invoke((sender, args) => MainClass.progressBarWin.ProgressClose());
 		}
 
 		public static void DrawAddressesOfRoute(GMapOverlay overlay, RouteList routeList)
@@ -43,7 +58,7 @@ namespace Vodovoz.Additions.Logistic
 					continue;
 				if(point.Latitude.HasValue && point.Longitude.HasValue) {
 					GMapMarker addressMarker = new NumericPointMarker(new PointLatLng((double)point.Latitude, (double)point.Longitude),
-					                                                  NumericPointMarkerType.white_large, orderItem.IndexInRoute + 1);
+																	  NumericPointMarkerType.white_large, orderItem.IndexInRoute + 1);
 					var text = point.ShortAddress;
 					addressMarker.ToolTipText = text;
 					overlay.Markers.Add(addressMarker);

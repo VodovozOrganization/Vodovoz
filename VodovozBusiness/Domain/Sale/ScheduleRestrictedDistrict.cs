@@ -6,11 +6,16 @@ using System.Linq;
 using Gamma.Utilities;
 using GeoAPI.Geometries;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Domain.Sale
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "правила районов доставок",
+		Nominative = "правила района доставки")]
+	[EntityPermission]
 	public class ScheduleRestrictedDistrict : BusinessObjectBase<ScheduleRestrictedDistrict>, IDomainObject, IValidatableObject
 	{
 		#region Свойства
@@ -136,6 +141,22 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
+		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
+		[Display(Name = "Группа района")]
+		public virtual IList<GeographicGroup> GeographicGroups {
+			get => geographicGroups;
+			set => SetField(ref geographicGroups, value, () => GeographicGroups);
+		}
+
+		GenericObservableList<GeographicGroup> observableGeographicGroups;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<GeographicGroup> ObservableGeographicGroups {
+			get {
+				if(observableGeographicGroups == null)
+					observableGeographicGroups = new GenericObservableList<GeographicGroup>(GeographicGroups);
+				return observableGeographicGroups;
+			}
+		}
 		#endregion
 
 		#region Функции
@@ -275,9 +296,15 @@ namespace Vodovoz.Domain.Sale
 					"Для всех правил доставки должны быть указаны цены",
 					new[] { this.GetPropertyName(o => o.ScheduleRestrictedDistrictRuleItems) }
 				);
+
+			if(!GeographicGroups.Any())
+				yield return new ValidationResult(
+					string.Format("Для района \"{0}\" необходимо указать часть города, содержащую этот район доставки", DistrictName),
+					new[] { this.GetPropertyName(o => o.GeographicGroups) }
+				);
 		}
 		#endregion
-	}	
+	}
 	public enum DistrictWaterPrice
 	{
 		[Display(Name = "По прайсу")]

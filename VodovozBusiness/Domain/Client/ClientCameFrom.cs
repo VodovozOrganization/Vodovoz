@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 
@@ -11,6 +12,7 @@ namespace Vodovoz.Domain.Client
 		NominativePlural = "Откуда клиенты",
 	    Nominative = "Откуда клиент"
 	)]
+	[EntityPermission]
 	public class ClientCameFrom : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства

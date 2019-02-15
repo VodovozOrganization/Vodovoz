@@ -4,6 +4,7 @@ using QSOrmProject;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Goods;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Store
 {
@@ -11,6 +12,7 @@ namespace Vodovoz.Domain.Store
 		NominativePlural = "cпецификации продукции",
 		Nominative = "cпецификация продукции"
 	)]
+	[EntityPermission]
 	public class ProductSpecification : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

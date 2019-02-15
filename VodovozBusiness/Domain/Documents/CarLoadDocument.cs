@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
@@ -16,7 +17,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы погрузки автомобилей",
 		Nominative = "документ погрузки автомобиля")]
-	//[HistoryTrace]
+	[EntityPermission]
 	public class CarLoadDocument : Document, IValidatableObject
 	{
 		DateTime version;

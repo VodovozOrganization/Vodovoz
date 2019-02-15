@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -14,6 +15,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "переносы",
 		Nominative = "перенос")]
+	[EntityPermission]
 	public class TransferOperationDocument : Document, IValidatableObject, IDomainObject
 	{
 		[Display(Name = "Дата")]

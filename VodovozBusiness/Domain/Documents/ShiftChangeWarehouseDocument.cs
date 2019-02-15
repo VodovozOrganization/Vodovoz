@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
@@ -16,7 +17,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "акты передачи склада",
 		Nominative = "акт передачи склада",
 		Prepositional = "акте передачи склада")]
-	//[HistoryTrace]
+	[EntityPermission]
 	public class ShiftChangeWarehouseDocument : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
