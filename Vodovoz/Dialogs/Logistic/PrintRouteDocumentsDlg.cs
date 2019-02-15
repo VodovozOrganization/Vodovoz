@@ -54,6 +54,7 @@ namespace Vodovoz.Dialogs.Logistic
 			geograficGroup.Label = "Часть города:";
 			geographicGroups = new GenericObservableList<GeographicGroup>();
 			geograficGroup.Items = geographicGroups;
+			geograficGroup.ListContentChanged += OnYdatePrintDateChanged;
 			foreach(var gg in uow.Session.QueryOver<GeographicGroup>().List())
 				geographicGroups.Add(gg);
 
@@ -178,20 +179,18 @@ namespace Vodovoz.Dialogs.Logistic
 						rlPrintableDoc.routeList,
 						rlDocTypesToPrint.ToArray(),
 						oDocTypesToPrint
-					) {
-						PrinterSettings = printSettings
-					};
+					);
+					if(EntitiyDocumentsPrinter.PrinterSettings?.Printer == null) {
+						progressPrint.Text = "Печать отменена";
+						break;
+					}
 					printer.Print();
-					printSettings = printer.PrinterSettings;
-				}
-				if(printSettings?.Printer == null) {
-					progressPrint.Text = "Печать отменена";
-					return;
 				}
 				progressPrint.Text = "Готово";
 
 				progressPrint.Adjustment.Value++;
 			}
+			EntitiyDocumentsPrinter.PrinterSettings = null;
 		}
 	}
 }

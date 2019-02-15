@@ -26,8 +26,9 @@ namespace Vodovoz.Additions.Printing
 		public MultipleDocumentPrinter MultiDocPrinter { get; set; }
 		public string ODTTemplateNotFoundMessages { get; set; }
 		public event EventHandler DocumentsPrinted;
-		public PrintSettings PrinterSettings { get; set; }
+		public static PrintSettings PrinterSettings { get; set; }
 
+		bool printOrderDocsFromRL = false;
 		RouteList currentRouteList;
 		IUnitOfWork uow;
 
@@ -118,16 +119,9 @@ namespace Vodovoz.Additions.Printing
 					DocumentsToPrint.Add(doc);
 				}
 			}
-
-			if(orderDocumentTypes != null) {
-				var orders = routeList.Addresses
-					.Where(a => a.Status != RouteListItemStatus.Transfered)
-					.Select(a => a.Order)
-					;
-
-				foreach(var o in orders)
-					FindODTTemplates(o, orderDocumentTypes);
-			}
+			printOrderDocsFromRL = orderDocumentTypes != null;
+			if(orderDocumentTypes != null)
+				PrintOrderDocumentsFromTheRouteList(routeList);
 		}
 
 		void DocPrinterInit()
@@ -154,6 +148,21 @@ namespace Vodovoz.Additions.Printing
 			else
 				MultiDocPrinter.PrintDocument(document);
 			PrinterSettings = MultiDocPrinter.PrinterSettings;
+		}
+
+		//для печати документов заказов из МЛ, если есть при печати требуется их печать
+		void PrintOrderDocumentsFromTheRouteList(RouteList routeList)
+		{
+			var orders = routeList.Addresses
+				.Where(a => a.Status != RouteListItemStatus.Transfered)
+				.Select(a => a.Order)
+				;
+
+			foreach(var o in orders) {
+				new EntitiyDocumentsPrinter(o).Print();
+				if(PrinterSettings?.Printer == null)
+					return;
+			}
 		}
 	}
 }

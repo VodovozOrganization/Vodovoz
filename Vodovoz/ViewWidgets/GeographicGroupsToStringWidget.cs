@@ -16,6 +16,7 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class GeographicGroupsToStringWidget : Gtk.Bin
 	{
+		public event EventHandler<EventArgs> ListContentChanged;
 		public BindingControler<GeographicGroupsToStringWidget> Binding { get; private set; }
 
 		public IUnitOfWork UoW { get; set; }
@@ -59,6 +60,7 @@ namespace Vodovoz.ViewWidgets
 					: "Нет"
 			);
 			lblElements.Markup = text;
+			ListContentChanged?.Invoke(this, new EventArgs());
 		}
 
 		protected void OnBtnChangeListClicked(object sender, EventArgs e)
