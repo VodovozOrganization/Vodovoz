@@ -113,7 +113,8 @@ namespace Vodovoz.Domain.Cash
 					ExpenseCategory = ExpenseCategory,
 					Money = Math.Abs (balance),
 					Description = String.Format ("Доплата денежных средств сотруднику по авансовому отчету №{0}", Id),
-					AdvanceClosed = true
+					AdvanceClosed = true,
+					RelatedToSubdivision = RelatedToSubdivision
 				};
 				resultClosing.Add (surcharge.AddAdvanceCloseItem(this, surcharge.Money));
 			}
@@ -126,7 +127,8 @@ namespace Vodovoz.Domain.Cash
 					ExpenseCategory = ExpenseCategory,
 					TypeOperation = IncomeType.Return,
 					Money = Math.Abs (balance),
-					Description = String.Format ("Возврат в кассу денежных средств по авансовому отчету №{0}", Id)
+					Description = String.Format ("Возврат в кассу денежных средств по авансовому отчету №{0}", Id),
+					RelatedToSubdivision = RelatedToSubdivision
 				};
 				ChangeReturn = returnChange;
 			}

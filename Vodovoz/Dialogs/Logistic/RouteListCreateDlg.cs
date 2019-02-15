@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
+using Gamma.Widgets;
 using Gtk;
 using NLog;
 using QS.Dialog.GtkUI;
@@ -12,6 +13,7 @@ using QSValidation;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Dialogs;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;
@@ -46,6 +48,11 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
+
+			if(!ConfigSubdivisionCombo()) {
+				return;
+			}
+
 			UoWGeneric.Root.Date = DateTime.Now;
 			ConfigureDlg ();
 		}
@@ -56,7 +63,27 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList> (id);
-			ConfigureDlg ();
+
+			if(!ConfigSubdivisionCombo()) {
+				return;
+			}
+
+			ConfigureDlg();
+		}
+
+		private bool ConfigSubdivisionCombo()
+		{
+			var subdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			if(!subdivisions.Any()) {
+				MessageDialogHelper.RunErrorDialog("Не правильно сконфигурированы подразделения кассы, невозможно будет указать подразделение в которое будут сдаваться маршрутные листы");
+				FailInitialize = true;
+				return false;
+			}
+			yspeccomboboxCashSubdivision.ShowSpecialStateNot = true;
+			yspeccomboboxCashSubdivision.ItemsList = subdivisions;
+			yspeccomboboxCashSubdivision.SelectedItem = SpecialComboState.Not;
+			yspeccomboboxCashSubdivision.ItemSelected += YspeccomboboxCashSubdivision_ItemSelected;
+			return true;
 		}
 
 		private void ConfigureDlg ()
@@ -141,6 +168,11 @@ namespace Vodovoz
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, !(Entity.Status == RouteListStatus.Confirmed) );
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
 			CheckCarLoadDocuments();
+		}
+
+		void YspeccomboboxCashSubdivision_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			Entity.ClosingSubdivision = yspeccomboboxCashSubdivision.SelectedItem as Subdivision;
 		}
 
 		void CheckCarLoadDocuments()

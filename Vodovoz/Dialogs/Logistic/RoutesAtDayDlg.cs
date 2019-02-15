@@ -18,6 +18,7 @@ using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Dialogs.Logistic;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -26,6 +27,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools.Logistic;
+using Gamma.Widgets;
 
 namespace Vodovoz
 {
@@ -176,8 +178,20 @@ namespace Vodovoz
 			yspinMaxTime.Binding.AddBinding(optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt);
 			btnRefresh.Clicked += OnButtonCancelChangesClicked;
 
+			var subdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			if(!subdivisions.Any()) {
+				MessageDialogHelper.RunErrorDialog("Не правильно сконфигурированы подразделения кассы, невозможно будет указать подразделение в которое будут сдаваться маршрутные листы");
+				FailInitialize = true;
+				return;
+			}
+			yspeccomboboxCashSubdivision.ShowSpecialStateNot = true;
+			yspeccomboboxCashSubdivision.ItemsList = subdivisions;
+			yspeccomboboxCashSubdivision.SelectedItem = SpecialComboState.Not;
+
 			OrmMain.GetObjectDescription<RouteList>().ObjectUpdatedGeneric += RouteListExternalUpdated;
 		}
+
+		private Subdivision ClosingSubdivision => yspeccomboboxCashSubdivision.SelectedItem as Subdivision;
 
 		void GmapWidget_ButtonReleaseEvent(object o, Gtk.ButtonReleaseEventArgs args)
 		{
@@ -992,9 +1006,16 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			if(yspeccomboboxCashSubdivision.IsSelectedNot || ClosingSubdivision == null) {
+				MessageDialogHelper.RunWarningDialog("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
+				return false;
+			}
 			//Перестраиваем все маршруты
 			RebuildAllRoutes();
-			routesAtDay.ToList().ForEach(x => UoW.Save(x));
+			routesAtDay.ToList().ForEach(x => {
+				x.ClosingSubdivision = ClosingSubdivision;
+				UoW.Save(x); 
+			});
 			//DriversAtDay.ToList().ForEach(x => uow.Save(x));
 			//ForwardersAtDay.ToList().ForEach(x => uow.Save(x));
 			UoW.Commit();
@@ -1050,7 +1071,9 @@ namespace Vodovoz
 				RouteList routeList = row as RouteList;
 				if(!HasNoChanges) {
 					if(MessageDialogHelper.RunQuestionDialog("Сохранить маршрутный лист перед открытием?"))
-						Save();
+						if(!Save()) {
+							return;
+						}
 					else
 						return;
 				}

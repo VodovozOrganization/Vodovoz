@@ -420,6 +420,14 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref closedBy, value, () => ClosedBy);
 		}
 
+		private Subdivision closingSubdivision;
+		[Display(Name = "Сдается в подразделение")]
+		public virtual Subdivision ClosingSubdivision {
+			get => closingSubdivision;
+			set => SetField(ref closingSubdivision, value, () => ClosingSubdivision);
+		}
+
+
 		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
 		[Display(Name = "Группа района")]
 		public virtual IList<GeographicGroup> GeographicGroups {
@@ -722,6 +730,11 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
+			if(ClosingSubdivision == null) {
+				yield return new ValidationResult("Не выбрана касса в которую должен будет сдаваться водитель.",
+					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.ClosingSubdivision) });
+			}
+
 			if(Driver == null)
 				yield return new ValidationResult("Не заполнен водитель.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Driver) });
@@ -1012,7 +1025,8 @@ namespace Vodovoz.Domain.Logistic
 					Employee = Driver,
 					Description = $"Закрытие МЛ №{Id} от {Date:d}",
 					Money = Math.Round(different, 0, MidpointRounding.AwayFromZero),
-					RouteListClosing = this
+					RouteListClosing = this,
+					RelatedToSubdivision = ClosingSubdivision
 				};
 				messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
 			} else {
@@ -1024,7 +1038,8 @@ namespace Vodovoz.Domain.Logistic
 					Employee = Driver,
 					Description = $"Закрытие МЛ #{Id} от {Date:d}",
 					Money = Math.Round(-different, 0, MidpointRounding.AwayFromZero),
-					RouteListClosing = this
+					RouteListClosing = this,
+					RelatedToSubdivision = ClosingSubdivision
 				};
 				messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
 			}
@@ -1043,7 +1058,8 @@ namespace Vodovoz.Domain.Logistic
 					Employee = Driver,
 					Description = $"Дополнение к МЛ №{this.Id} от {Date:d}",
 					Money = Math.Round(casheInput, 0, MidpointRounding.AwayFromZero),
-					RouteListClosing = this
+					RouteListClosing = this,
+					RelatedToSubdivision = ClosingSubdivision
 				};
 
 				messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
@@ -1057,7 +1073,8 @@ namespace Vodovoz.Domain.Logistic
 					Employee = Driver,
 					Description = $"Дополнение к МЛ #{this.Id} от {Date:d}",
 					Money = Math.Round(-casheInput, 0, MidpointRounding.AwayFromZero),
-					RouteListClosing = this
+					RouteListClosing = this,
+					RelatedToSubdivision = ClosingSubdivision
 				};
 				messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
 			}
@@ -1088,6 +1105,19 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(Status != RouteListStatus.OnClosing && Status != RouteListStatus.MileageCheck)
 				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0} или  {1}", RouteListStatus.OnClosing , RouteListStatus.MileageCheck));
+
+			//FIXME исправить на нормальную проверку права этого подразделения менять статус МЛ
+			if(!MainSupport.BaseParameters.All.ContainsKey("accept_route_list_subdivision_restrict")) {
+				throw new InvalidOperationException(String.Format("В базе не настроен параметр: accept_route_list_subdivision_restrict"));
+			}
+			int restrictSubdivision = int.Parse(MainSupport.BaseParameters.All["accept_route_list_subdivision_restrict"]);
+			if(cashier == null) {
+				throw new InvalidOperationException(String.Format("Должен быть заполнен кассир"));
+			}
+			if(cashier.Subdivision.Id == restrictSubdivision) {
+				return;
+			}
+
 
 			if(Driver != null && Driver.FirstWorkDay == null) {
 				Driver.FirstWorkDay = date;

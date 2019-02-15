@@ -629,7 +629,6 @@ namespace Vodovoz
 			return true;
 		}
 
-
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
 			var casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
@@ -674,8 +673,6 @@ namespace Vodovoz
 				this.OnCloseTab(false);
 			}
 		}
-
-
 
 		void PrintSelectedDocument(RouteListPrintDocuments choise)
 		{

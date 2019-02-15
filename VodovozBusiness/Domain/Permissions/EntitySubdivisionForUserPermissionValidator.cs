@@ -33,9 +33,29 @@ namespace Vodovoz.Domain.Permissions
 			var employee = EmployeeRepository.GetEmployeesForUser(uow, userId).FirstOrDefault();
 			Subdivision mainSubdivision = employee == null ? null : employee.Subdivision;
 
+			if(mainSubdivision != null) {
+				var mainTypesName = mainSubdivision.DocumentTypes.Select(x => x.Type);
+				var mainAvailableTypes = entityTypes.Where(x => mainTypesName.Contains(x.Name));
+				if(mainAvailableTypes.Any()) {
+					EntitySubdivisionForUserPermissionValidationResult mainResultItem = new EntitySubdivisionForUserPermissionValidationResult(mainSubdivision, true);
+					foreach(var mainAvailableType in mainAvailableTypes) {
+						var mainPermission = PermissionsSettings.EntityPermissionValidator.Validate(mainAvailableType, userId);
+						mainResultItem.AddPermission(
+							mainAvailableType,
+							new EntityPermission(
+								mainPermission.Create,
+								mainPermission.Read,
+								mainPermission.Update,
+								mainPermission.Delete
+							)
+						);
+					}
+					result.Add(mainResultItem);
+				}
+			}
+
 			var subdivisionsForEntities = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(uow, entityTypes);
-			var sdsdsds = PermissionRepository.GetAllSubdivisionForUserEntityPermissionForSomeEntities(uow, userId, entityNames);
-			var specialPermissions = sdsdsds
+			var specialPermissions = PermissionRepository.GetAllSubdivisionForUserEntityPermissionForSomeEntities(uow, userId, entityNames)
 				.Where(x => subdivisionsForEntities.Contains(x.Subdivision) || Subdivision.ReferenceEquals(x.Subdivision, mainSubdivision));
 
 			foreach(var entityType in entityTypes) {
@@ -57,7 +77,7 @@ namespace Vodovoz.Domain.Permissions
 						)
 					);
 				}
-			} 
+			}
 
 			return result;
 		}
@@ -78,6 +98,24 @@ namespace Vodovoz.Domain.Permissions
 			var employee = EmployeeRepository.GetEmployeesForUser(uow, userId).FirstOrDefault();
 			var mainPermission = PermissionsSettings.EntityPermissionValidator.Validate(entityType, userId);
 			Subdivision mainSubdivision = employee == null ? null : employee.Subdivision;
+
+			if(mainSubdivision != null) {
+				var mainTypesName = mainSubdivision.DocumentTypes.Select(x => x.Type);
+				if(mainTypesName.Contains(entityType.Name)) {
+					EntitySubdivisionForUserPermissionValidationResult mainResultItem = new EntitySubdivisionForUserPermissionValidationResult(mainSubdivision, true);
+					mainResultItem.AddPermission(
+						entityType,
+						new EntityPermission(
+							mainPermission.Create,
+							mainPermission.Read,
+							mainPermission.Update,
+							mainPermission.Delete
+						)
+					);
+					result.Add(mainResultItem);
+				}
+			}
+
 
 			var subdivisionsForEntities = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(uow, new Type[] { entityType });
 			var specialPermissions = PermissionRepository.GetAllSubdivisionForUserEntityPermissionForOneEntity(uow, userId, entityType.Name)

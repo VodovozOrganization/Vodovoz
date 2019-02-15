@@ -19,6 +19,8 @@ using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using QSSupportLib;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.ViewModel
 {
@@ -260,7 +262,17 @@ namespace Vodovoz.ViewModel
 				KeepingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemRouteListKeepingDlg);
 
-			Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem("Открыть диалог закрытия");
+			//FIXME исправить на нормальную проверку права этого подразделения
+			if(!MainSupport.BaseParameters.All.ContainsKey("accept_route_list_subdivision_restrict")) {
+				throw new InvalidOperationException(String.Format("В базе не настроен параметр: accept_route_list_subdivision_restrict"));
+			}
+			int restrictSubdivision = int.Parse(MainSupport.BaseParameters.All["accept_route_list_subdivision_restrict"]);
+			var userSubdivision = EmployeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision;
+			string closingDlgName = "Открыть диалог закрытия";
+			if(userSubdivision != null && userSubdivision.Id == restrictSubdivision) {
+				closingDlgName = "Принять ДС по МЛ";
+			}
+			Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem(closingDlgName);
 			menuItemRouteListClosingDlg.Activated += MenuItemRouteListClosingDlg_Activated;
 			menuItemRouteListClosingDlg.Sensitive = selected.Any(x =>
 				ClosingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
