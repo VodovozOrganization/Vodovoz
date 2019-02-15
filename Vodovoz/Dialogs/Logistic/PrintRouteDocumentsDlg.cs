@@ -15,6 +15,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -26,6 +27,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		List<SelectablePrintDocument> Routes = new List<SelectablePrintDocument>();
 		GenericObservableList<OrderDocTypeNode> OrderDocTypesToPrint = new GenericObservableList<OrderDocTypeNode>();
+		GenericObservableList<GeographicGroup> geographicGroups;
 
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -47,6 +49,14 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null ? (x.Document as RouteListPrintableDocs).routeList.Car.RegistrationNumber : "нет")
 				.AddColumn("")
 				.Finish();
+
+			geograficGroup.UoW = uow;
+			geograficGroup.Label = "Часть города:";
+			geographicGroups = new GenericObservableList<GeographicGroup>();
+			geograficGroup.Items = geographicGroups;
+			foreach(var gg in uow.Session.QueryOver<GeographicGroup>().List())
+				geographicGroups.Add(gg);
+
 			ydatePrint.Date = DateTime.Today;
 
 			OrderDocumentType[] selectedByDefault = {
@@ -113,7 +123,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void UpdateRouteList()
 		{
-			var routeQuery = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydatePrint.Date).GetExecutableQueryOver(uow.Session);
+			var ggIds = geographicGroups.Select(x => x.Id).ToList();
+			var routeQuery = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydatePrint.Date, ggIds).GetExecutableQueryOver(uow.Session);
 			Routes = routeQuery.Fetch(SelectMode.Fetch, x => x.Driver)
 							   .Fetch(SelectMode.Fetch, x => x.Car)
 							   .List()
@@ -140,9 +151,7 @@ namespace Vodovoz.Dialogs.Logistic
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
 			PrintSettings printSettings = null;
-			//var docCount = (checkRoute.Active ? 1 : 0) + /*(checkDailyList.Active ? 1 : 0) + */(checkRouteMap.Active ? 1 : 0) + (chkLoadDocument.Active ? 1 : 0);
 			var routeCount = Routes.Count(x => x.Selected);
-			//progressPrint.Adjustment.Upper = docCount * routeCount;
 			progressPrint.Adjustment.Upper = routeCount;
 			progressPrint.Adjustment.Value = 0;
 

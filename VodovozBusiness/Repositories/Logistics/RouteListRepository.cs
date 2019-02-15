@@ -12,6 +12,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Repository.Logistics
@@ -33,6 +34,20 @@ namespace Vodovoz.Repository.Logistics
 		{
 			return QueryOver.Of<RouteList>()
 				.Where(x => x.Date == date);
+		}
+
+		public static QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds)
+		{
+			GeographicGroup geographicGroupAlias = null;
+
+			var query = QueryOver.Of<RouteList>()
+								 .Where(x => x.Date == date)
+								 .Left.JoinAlias(r => r.GeographicGroups, () => geographicGroupAlias)
+								 .Where(() => geographicGroupAlias.Id.IsIn(geographicGroupsIds))
+								 //.Select(Projections.Distinct(Projections.Property<RouteList>(x => x)))
+								 ;
+
+			return query;
 		}
 
 		public static IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
