@@ -166,8 +166,7 @@ namespace Vodovoz
 
 		void Dlg_DocumentsPrinted(object sender, EventArgs e)
 		{
-			if(!Entity.Printed && e is EndPrintArgs) {
-				var printArgs = e as EndPrintArgs;
+			if(!Entity.Printed && e is EndPrintArgs printArgs) {
 				if(printArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle())) {
 					Entity.Printed = true;
 					Save();

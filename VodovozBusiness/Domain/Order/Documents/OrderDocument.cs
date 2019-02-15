@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -14,15 +16,14 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual int Id { get; set; }
 
 		Order order;
-
 		/// <summary>
 		/// Заказ для которого создавался документ
 		/// </summary>
 		/// <value>The order.</value>
 		[Display(Name = "Заказ")]
 		public virtual Order Order {
-			get { return order; }
-			set { SetField(ref order, value, () => Order); }
+			get => order;
+			set => SetField(ref order, value, () => Order);
 		}
 
 		Order attachedToOrder;
@@ -34,8 +35,8 @@ namespace Vodovoz.Domain.Orders.Documents
 		/// </summary>
 		[Display(Name = "Заказ")]
 		public virtual Order AttachedToOrder {
-			get { return attachedToOrder; }
-			set { SetField(ref attachedToOrder, value, () => AttachedToOrder); }
+			get => attachedToOrder;
+			set => SetField(ref attachedToOrder, value, () => AttachedToOrder);
 		}
 
 		public abstract OrderDocumentType Type { get; }
@@ -50,7 +51,22 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual DocumentOrientation Orientation => DocumentOrientation.Portrait;
 
-		public virtual int CopiesToPrint { get; set; }
+		readonly OrderDocumentType[] typesForVariableQuantity = {
+			OrderDocumentType.UPD,
+			OrderDocumentType.SpecialUPD,
+			OrderDocumentType.Torg12,
+			OrderDocumentType.ShetFactura
+		};
+
+		int copiesToPrint = -1;
+		public virtual int CopiesToPrint {
+			get {
+				if(copiesToPrint < 0 && typesForVariableQuantity.Contains(Type))
+					return Order.DocumentType.Value == DefaultDocumentType.torg12 ? 1 : 2;
+				return copiesToPrint;
+			}
+			set => copiesToPrint = value;
+		}
 	}
 
 

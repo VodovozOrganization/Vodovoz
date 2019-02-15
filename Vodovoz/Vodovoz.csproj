@@ -1090,6 +1090,7 @@
     <Compile Include="Core\Journal\MultipleEntityModelDocumentConfig.cs" />
     <Compile Include="Core\Journal\MultipleEntityModelConfiguration.cs" />
     <Compile Include="gtk-gui\Vodovoz.Core.Journal.MultipleEntityJournal.cs" />
+    <Compile Include="Additions\Printing\EntitiyDocumentsPrinter.cs" />
     <Compile Include="Core\Permissions\ISubdivisionDividingFilter.cs" />
     <Compile Include="JournalFilters\SubdivisionsAccessJournalFilterBase.cs" />
     <Compile Include="Core\Permissions\AccessFilteredSubdivisionSelectorWidget.cs" />
@@ -1281,6 +1282,7 @@
     <Folder Include="icons\map\points\" />
     <Folder Include="ReportsParameters\Payments\" />
     <Folder Include="Core\Journal\" />
+    <Folder Include="Additions\Printing\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

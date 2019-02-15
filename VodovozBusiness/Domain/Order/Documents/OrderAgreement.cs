@@ -1,14 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using QS.DomainModel.UoW;
 using QS.Print;
 using QSDocTemplates;
-using QS.DomainModel.Entity;
-using QSOrmProject;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repositories.Client;
-using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -16,37 +14,25 @@ namespace Vodovoz.Domain.Orders.Documents
 	{
 		#region implemented abstract members of OrderDocument
 
-		public override OrderDocumentType Type {
-			get {
-				return OrderDocumentType.AdditionalAgreement;	
-			}
-		}
+		public override OrderDocumentType Type => OrderDocumentType.AdditionalAgreement;
 
 		#endregion
 
 		AdditionalAgreement additionalAgreement;
 
-		[Display (Name = "Доп. соглашение")]
+		[Display(Name = "Доп. соглашение")]
 		public virtual AdditionalAgreement AdditionalAgreement {
-			get { return additionalAgreement; }
-			set { SetField (ref additionalAgreement, value, () => AdditionalAgreement); }
-		}			
-
-		public override string Name {
-			get {
-				return String.Format ("Доп. соглашение {0} №{1}",
-				                      additionalAgreement.AgreementTypeTitle,
-				                      additionalAgreement.FullNumberText);
-			}
+			get => additionalAgreement;
+			set => SetField(ref additionalAgreement, value, () => AdditionalAgreement);
 		}
 
-		public override DateTime? DocumentDate {
-			get { return AdditionalAgreement?.IssueDate;}
-		}
+		public override string Name => String.Format("Доп. соглашение {0} №{1}", additionalAgreement.AgreementTypeTitle, additionalAgreement.FullNumberText);
+
+		public override DateTime? DocumentDate => AdditionalAgreement?.IssueDate;
 
 		public virtual void PrepareTemplate(IUnitOfWork uow)
 		{
-			if (AdditionalAgreement.DocumentTemplate == null)
+			if(AdditionalAgreement.DocumentTemplate == null)
 				AdditionalAgreement.UpdateContractTemplate(uow);
 
 			if(AdditionalAgreement.DocumentTemplate != null) {
@@ -72,7 +58,7 @@ namespace Vodovoz.Domain.Orders.Documents
 					case AgreementType.EquipmentSales:
 						var equipmentAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as EquipmentAgreementParser);
 						equipmentAgreementParser.AddPricesTable((AdditionalAgreement.Self as SalesEquipmentAgreement).SalesEqipments.ToList());
-					break;
+						break;
 					case AgreementType.Repair:
 						break;
 					default:
@@ -83,6 +69,12 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual IDocTemplate GetTemplate() => AdditionalAgreement.DocumentTemplate;
 
 		public override PrinterType PrintType => PrinterType.ODT;
+
+		int copiesToPrint = 2;
+		public override int CopiesToPrint {
+			get => copiesToPrint;
+			set => copiesToPrint = value;
+		}
 	}
 }
 

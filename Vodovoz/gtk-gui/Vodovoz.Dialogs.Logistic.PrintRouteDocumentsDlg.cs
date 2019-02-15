@@ -30,17 +30,17 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.Label label2;
 
-		private global::Gtk.CheckButton checkDailyList;
-
-		private global::Gtk.HBox hbox4;
-
 		private global::Gtk.CheckButton checkRoute;
-
-		private global::Gtk.SpinButton spinRoute;
 
 		private global::Gtk.CheckButton checkRouteMap;
 
-		private global::Gtk.CheckButton checkLoadSofiyskaya;
+		private global::Gtk.CheckButton chkLoadDocument;
+
+		private global::Gtk.CheckButton chkDocumentsOfOrders;
+
+		private global::Gtk.ScrolledWindow gtkScrlWnd;
+
+		private global::Gamma.GtkWidgets.yTreeView yTreeOrderDocumentTypes;
 
 		protected virtual void Build()
 		{
@@ -123,7 +123,6 @@ namespace Vodovoz.Dialogs.Logistic
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.checkSelectAll]));
 			w7.Position = 0;
 			w7.Expand = false;
-			w7.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -151,25 +150,7 @@ namespace Vodovoz.Dialogs.Logistic
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.label2]));
 			w11.Position = 0;
 			w11.Expand = false;
-			w11.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.checkDailyList = new global::Gtk.CheckButton();
-			this.checkDailyList.CanFocus = true;
-			this.checkDailyList.Name = "checkDailyList";
-			this.checkDailyList.Label = global::Mono.Unix.Catalog.GetString("Список ежедневных номеров");
-			this.checkDailyList.Active = true;
-			this.checkDailyList.DrawIndicator = true;
-			this.checkDailyList.UseUnderline = true;
-			this.vbox3.Add(this.checkDailyList);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.checkDailyList]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
-			// Container child vbox3.Gtk.Box+BoxChild
-			this.hbox4 = new global::Gtk.HBox();
-			this.hbox4.Name = "hbox4";
-			this.hbox4.Spacing = 6;
-			// Container child hbox4.Gtk.Box+BoxChild
 			this.checkRoute = new global::Gtk.CheckButton();
 			this.checkRoute.CanFocus = true;
 			this.checkRoute.Name = "checkRoute";
@@ -177,27 +158,11 @@ namespace Vodovoz.Dialogs.Logistic
 			this.checkRoute.Active = true;
 			this.checkRoute.DrawIndicator = true;
 			this.checkRoute.UseUnderline = true;
-			this.hbox4.Add(this.checkRoute);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.checkRoute]));
-			w13.Position = 0;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.spinRoute = new global::Gtk.SpinButton(1D, 20D, 1D);
-			this.spinRoute.CanFocus = true;
-			this.spinRoute.Name = "spinRoute";
-			this.spinRoute.Adjustment.PageIncrement = 10D;
-			this.spinRoute.ClimbRate = 1D;
-			this.spinRoute.Numeric = true;
-			this.spinRoute.Value = 5D;
-			this.hbox4.Add(this.spinRoute);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.spinRoute]));
-			w14.Position = 1;
-			w14.Expand = false;
-			w14.Fill = false;
-			this.vbox3.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox4]));
-			w15.Position = 2;
-			w15.Expand = false;
-			w15.Fill = false;
+			this.vbox3.Add(this.checkRoute);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.checkRoute]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.checkRouteMap = new global::Gtk.CheckButton();
 			this.checkRouteMap.CanFocus = true;
@@ -207,28 +172,51 @@ namespace Vodovoz.Dialogs.Logistic
 			this.checkRouteMap.DrawIndicator = true;
 			this.checkRouteMap.UseUnderline = true;
 			this.vbox3.Add(this.checkRouteMap);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.checkRouteMap]));
-			w16.Position = 3;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.checkRouteMap]));
+			w13.Position = 2;
+			w13.Expand = false;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.checkLoadSofiyskaya = new global::Gtk.CheckButton();
-			this.checkLoadSofiyskaya.CanFocus = true;
-			this.checkLoadSofiyskaya.Name = "checkLoadSofiyskaya";
-			this.checkLoadSofiyskaya.Label = global::Mono.Unix.Catalog.GetString("Погрузка Софийская");
-			this.checkLoadSofiyskaya.Active = true;
-			this.checkLoadSofiyskaya.DrawIndicator = true;
-			this.checkLoadSofiyskaya.UseUnderline = true;
-			this.vbox3.Add(this.checkLoadSofiyskaya);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.checkLoadSofiyskaya]));
-			w17.Position = 4;
-			w17.Expand = false;
-			w17.Fill = false;
+			this.chkLoadDocument = new global::Gtk.CheckButton();
+			this.chkLoadDocument.CanFocus = true;
+			this.chkLoadDocument.Name = "chkLoadDocument";
+			this.chkLoadDocument.Label = global::Mono.Unix.Catalog.GetString("Документ погрузки");
+			this.chkLoadDocument.Active = true;
+			this.chkLoadDocument.DrawIndicator = true;
+			this.chkLoadDocument.UseUnderline = true;
+			this.vbox3.Add(this.chkLoadDocument);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.chkLoadDocument]));
+			w14.Position = 3;
+			w14.Expand = false;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.chkDocumentsOfOrders = new global::Gtk.CheckButton();
+			this.chkDocumentsOfOrders.TooltipMarkup = "Без договоров и доп.соглашений";
+			this.chkDocumentsOfOrders.CanFocus = true;
+			this.chkDocumentsOfOrders.Name = "chkDocumentsOfOrders";
+			this.chkDocumentsOfOrders.Label = global::Mono.Unix.Catalog.GetString("Документы заказов");
+			this.chkDocumentsOfOrders.Active = true;
+			this.chkDocumentsOfOrders.DrawIndicator = true;
+			this.chkDocumentsOfOrders.UseUnderline = true;
+			this.vbox3.Add(this.chkDocumentsOfOrders);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.chkDocumentsOfOrders]));
+			w15.Position = 4;
+			w15.Expand = false;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.gtkScrlWnd = new global::Gtk.ScrolledWindow();
+			this.gtkScrlWnd.Name = "gtkScrlWnd";
+			this.gtkScrlWnd.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.gtkScrlWnd.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child gtkScrlWnd.Gtk.Container+ContainerChild
+			this.yTreeOrderDocumentTypes = new global::Gamma.GtkWidgets.yTreeView();
+			this.yTreeOrderDocumentTypes.CanFocus = true;
+			this.yTreeOrderDocumentTypes.Name = "yTreeOrderDocumentTypes";
+			this.gtkScrlWnd.Add(this.yTreeOrderDocumentTypes);
+			this.vbox3.Add(this.gtkScrlWnd);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.gtkScrlWnd]));
+			w17.Position = 5;
 			this.hbox3.Add(this.vbox3);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox3]));
 			w18.Position = 1;
 			w18.Expand = false;
-			w18.Fill = false;
 			this.vbox1.Add(this.hbox3);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
 			w19.Position = 2;

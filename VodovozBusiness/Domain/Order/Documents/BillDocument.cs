@@ -41,6 +41,12 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override PrinterType PrintType => PrinterType.RDL;
 
+		int copiesToPrint = 1;
+		public override int CopiesToPrint {
+			get => copiesToPrint;
+			set => copiesToPrint = value;
+		}
+
 		#region Свои свойства
 
 		private bool hideSignature = true;
@@ -108,7 +114,5 @@ namespace Vodovoz.Domain.Orders.Documents
 
 			return template;
 		}
-
 	}
 }
-

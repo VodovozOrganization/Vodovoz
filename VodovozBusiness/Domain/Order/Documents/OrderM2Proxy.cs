@@ -13,31 +13,20 @@ namespace Vodovoz.Domain.Orders.Documents
 	{
 		#region implemented abstract members of OrderDocument
 
-		public override OrderDocumentType Type {
-			get {
-				return OrderDocumentType.M2Proxy;
-			}
-		}
+		public override OrderDocumentType Type => OrderDocumentType.M2Proxy;
 
 		#endregion
 
 		M2ProxyDocument m2Proxy;
-
 		[Display(Name = "Доверенность М-2")]
 		public virtual M2ProxyDocument M2Proxy {
-			get { return m2Proxy; }
-			set { SetField(ref m2Proxy, value, () => M2Proxy); }
+			get => m2Proxy;
+			set => SetField(ref m2Proxy, value, () => M2Proxy);
 		}
 
-		public override string Name {
-			get {
-				return String.Format("Доверенность М-2 №{0}", M2Proxy.Id);
-			}
-		}
+		public override string Name => String.Format("Доверенность М-2 №{0}", M2Proxy.Id);
 
-		public override DateTime? DocumentDate {
-			get { return M2Proxy?.Date; }
-		}
+		public override DateTime? DocumentDate => M2Proxy?.Date;
 
 		public virtual void PrepareTemplate(IUnitOfWork uow)
 		{
@@ -51,11 +40,14 @@ namespace Vodovoz.Domain.Orders.Documents
 			}
 		}
 
-		public virtual IDocTemplate GetTemplate()
-		{
-			return M2Proxy.DocumentTemplate;
-		}
+		public virtual IDocTemplate GetTemplate() => M2Proxy.DocumentTemplate;
 
 		public override PrinterType PrintType => PrinterType.ODT;
+
+		int copiesToPrint = 1;
+		public override int CopiesToPrint {
+			get => copiesToPrint;
+			set => copiesToPrint = value;
+		}
 	}
 }

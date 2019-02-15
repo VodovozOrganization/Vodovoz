@@ -5,14 +5,16 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using NHibernate;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
-using QS.Tdi;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Additions.Printing;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -22,168 +24,165 @@ namespace Vodovoz.Dialogs.Logistic
 
 		Gdk.Pixbuf vodovozCarIcon = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
 
-		List<PrintRoute> Routes = new List<PrintRoute>();
+		List<SelectablePrintDocument> Routes = new List<SelectablePrintDocument>();
+		GenericObservableList<OrderDocTypeNode> OrderDocTypesToPrint = new GenericObservableList<OrderDocTypeNode>();
 
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
-
-		Gtk.PrintOperation Printer;
-		PrintSettings PrintSettings;
-
-		bool showDialog = true;
 
 		public PrintRouteDocumentsDlg()
 		{
 			this.Build();
 
-			TabName = "Печать МЛ";
+			TabName = "Массовая печать документов МЛ";
 
-			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<PrintRoute>.Create()
+			chkDocumentsOfOrders.Toggled += ChkDocumentsOfOrders_Toggled;
+			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<SelectablePrintDocument>.Create()
 				.AddColumn("Печатать").AddToggleRenderer(x => x.Selected)
-				.AddSetter((c, n) => c.Visible = n.RouteList.Status >= RouteListStatus.InLoading)
-				.AddColumn("Номер").AddTextRenderer(x => x.RouteList.Id.ToString())
-				.AddColumn("Статус").AddTextRenderer(x => x.RouteList.Status.GetEnumTitle())
-				.AddColumn("Водитель").AddTextRenderer(x => x.RouteList.Driver.ShortName)
+				.AddSetter((c, n) => c.Visible = (n.Document as RouteListPrintableDocs).routeList.Status >= RouteListStatus.InLoading)
+				.AddColumn("Номер").AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Id.ToString())
+				.AddColumn("Статус").AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Status.GetEnumTitle())
+				.AddColumn("Водитель").AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Driver.ShortName)
 				.AddColumn("Автомобиль")
-				.AddPixbufRenderer(x => x.RouteList.Car != null && x.RouteList.Car.IsCompanyHavings ? vodovozCarIcon : null)
-					.AddTextRenderer(x => x.RouteList.Car != null ? x.RouteList.Car.RegistrationNumber : "нет")
+				.AddPixbufRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null && (x.Document as RouteListPrintableDocs).routeList.Car.IsCompanyHavings ? vodovozCarIcon : null)
+					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null ? (x.Document as RouteListPrintableDocs).routeList.Car.RegistrationNumber : "нет")
 				.AddColumn("")
 				.Finish();
-
 			ydatePrint.Date = DateTime.Today;
+
+			OrderDocumentType[] selectedByDefault = {
+				OrderDocumentType.Invoice,
+				OrderDocumentType.InvoiceBarter,
+				OrderDocumentType.InvoiceContractDoc,
+				OrderDocumentType.Bill,
+				OrderDocumentType.UPD,
+				OrderDocumentType.SpecialBill,
+				OrderDocumentType.SpecialUPD,
+				OrderDocumentType.DriverTicket,
+				OrderDocumentType.M2Proxy,
+				OrderDocumentType.EquipmentTransfer,
+				OrderDocumentType.DoneWorkReport,
+				OrderDocumentType.EquipmentReturn,
+				OrderDocumentType.PumpWarranty,
+				OrderDocumentType.CoolerWarranty,
+				OrderDocumentType.Torg12,
+				OrderDocumentType.ShetFactura,
+				OrderDocumentType.RefundBottleDeposit,
+				OrderDocumentType.RefundEquipmentDeposit,
+				OrderDocumentType.BottleTransfer
+			};
+
+			foreach(OrderDocumentType t in Enum.GetValues(typeof(OrderDocumentType)))
+				OrderDocTypesToPrint.Add(new OrderDocTypeNode(t, selectedByDefault.Contains(t)));
+
+			yTreeOrderDocumentTypes.ColumnsConfig = FluentColumnsConfig<OrderDocTypeNode>.Create()
+				.AddColumn("Печатать")
+					.AddToggleRenderer(x => x.Selected)
+					.Editing()
+					.ChangeSetProperty(PropertyUtil.GetPropertyInfo<OrderDocTypeNode>(x => x.Selected))
+				.AddColumn("Название").AddTextRenderer(x => x.Type.GetEnumTitle())
+				.AddColumn("")
+				.Finish();
+			yTreeOrderDocumentTypes.SetItemsSource(OrderDocTypesToPrint);
+			yTreeOrderDocumentTypes.HeadersVisible = false;
+			ChkDocumentsOfOrders_Toggled(this, null);
 		}
 
-
-		class PrintRoute : PropertyChangedBase
+		class OrderDocTypeNode : PropertyChangedBase
 		{
-			private bool selected;
+			bool selected;
+
+			public OrderDocTypeNode(OrderDocumentType type, bool selected)
+			{
+				Type = type;
+				Selected = selected;
+			}
 
 			public virtual bool Selected {
-				get { return selected; }
-				set { SetField(ref selected, value, () => Selected); }
+				get => selected;
+				set => SetField(ref selected, value, () => Selected);
 			}
-
-			public RouteList RouteList;
-
-			public PrintRoute(RouteList routeList)
-			{
-				RouteList = routeList;
-			}
+			public OrderDocumentType Type { get; set; }
 		}
 
-		protected void OnYdatePrintDateChanged(object sender, EventArgs e)
+		void ChkDocumentsOfOrders_Toggled(object sender, EventArgs e)
 		{
-			UpdateRouteList();
+			gtkScrlWnd.Visible = chkDocumentsOfOrders.Active;
 		}
+
+		protected void OnYdatePrintDateChanged(object sender, EventArgs e) => UpdateRouteList();
 
 		private void UpdateRouteList()
 		{
 			var routeQuery = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydatePrint.Date).GetExecutableQueryOver(uow.Session);
-			Routes = routeQuery.Fetch(x => x.Driver).Eager
-								 .Fetch(x => x.Car).Eager
-								 .List()
-			                   	 .Select(x => new PrintRoute(x))
-			                   	 .OrderBy(x => x.RouteList.Driver.LastName)
-			                     .ToList();
-			ytreeRoutes.SetItemsSource<PrintRoute>(new GenericObservableList<PrintRoute>(Routes));
-			var notPrintedRoutes = Routes.Where(x => x.RouteList.Status < RouteListStatus.InLoading).ToList();
-			if(notPrintedRoutes.Count > 0)
-				MessageDialogWorks.RunWarningDialog(String.Format("Маршрутные листы {0} не могут быть напечатаны, так как еще не подтверждены.",
-				                                                  String.Join(", ", notPrintedRoutes.Select(x => $"{x.RouteList.Id}({x.RouteList.Driver.ShortName})"))));
+			Routes = routeQuery.Fetch(SelectMode.Fetch, x => x.Driver)
+							   .Fetch(SelectMode.Fetch, x => x.Car)
+							   .List()
+							   .Select(x => new SelectablePrintDocument(new RouteListPrintableDocs(uow, x, RouteListPrintableDocuments.RouteList)))
+							   .OrderBy(x => (x.Document as RouteListPrintableDocs).routeList.Driver.LastName)
+							   .ToList();
+			ytreeRoutes.SetItemsSource(new GenericObservableList<SelectablePrintDocument>(Routes));
+			var notPrintedRoutes = Routes.Where(x => (x.Document as RouteListPrintableDocs).routeList.Status < RouteListStatus.InLoading).ToList();
+
+			if(notPrintedRoutes.Any())
+				MessageDialogHelper.RunWarningDialog(
+					String.Format(
+						"Маршрутные листы {0} не могут быть напечатаны, так как еще не подтверждены.",
+						String.Join(", ", notPrintedRoutes.Select(x => $"{(x.Document as RouteListPrintableDocs).routeList.Id}({(x.Document as RouteListPrintableDocs).routeList.Driver.ShortName})"))
+					)
+				);
 		}
 
 		protected void OnCheckSelectAllToggled(object sender, EventArgs e)
 		{
-			Routes.Where(x => x.RouteList.Status >= RouteListStatus.InLoading).ToList().ForEach(x => x.Selected = checkSelectAll.Active);
+			Routes.Where(x => (x.Document as RouteListPrintableDocs).routeList.Status >= RouteListStatus.InLoading).ToList().ForEach(x => x.Selected = checkSelectAll.Active);
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			var docCount = (checkRoute.Active ? 1 : 0) + (checkDailyList.Active ? 1 : 0) + (checkRouteMap.Active ? 1 : 0) + (checkLoadSofiyskaya.Active ? 1 : 0);
+			PrintSettings printSettings = null;
+			//var docCount = (checkRoute.Active ? 1 : 0) + /*(checkDailyList.Active ? 1 : 0) + */(checkRouteMap.Active ? 1 : 0) + (chkLoadDocument.Active ? 1 : 0);
 			var routeCount = Routes.Count(x => x.Selected);
-			progressPrint.Adjustment.Upper = docCount * routeCount;
+			//progressPrint.Adjustment.Upper = docCount * routeCount;
+			progressPrint.Adjustment.Upper = routeCount;
 			progressPrint.Adjustment.Value = 0;
-			showDialog = true;
-			bool needCommit = false;
 
-			foreach(var route in Routes.Where(x => x.Selected))
-			{
-				progressPrint.Text = String.Format("Печатаем МЛ {0} - {1}", route.RouteList.Id, route.RouteList.Driver.ShortName);
-				QSMain.WaitRedraw();
-				bool printed = false;
-
-				if(checkDailyList.Active) {
-					PrintDoc(route.RouteList, RouteListPrintableDocuments.DailyList, PageOrientation.Portrait, 1);
-					progressPrint.Adjustment.Value++;
+			foreach(var item in Routes.Where(x => x.Selected)) {
+				if(item.Document is RouteListPrintableDocs rlPrintableDoc) {
+					progressPrint.Text = String.Format("Печатаем МЛ {0} - {1}", rlPrintableDoc.routeList.Id, rlPrintableDoc.routeList.Driver.ShortName);
 					QSMain.WaitRedraw();
-				}
+					var rlDocTypesToPrint = new List<RouteListPrintableDocuments>();
+					OrderDocumentType[] oDocTypesToPrint = null;
 
-				if(checkRoute.Active) {
-					PrintDoc(route.RouteList, RouteListPrintableDocuments.RouteList, PageOrientation.Landscape, spinRoute.ValueAsInt);
-					progressPrint.Adjustment.Value++;
-					QSMain.WaitRedraw();
-					printed = true;
-				}
+					if(checkRoute.Active)
+						rlDocTypesToPrint.Add(RouteListPrintableDocuments.RouteList);
+					if(checkRouteMap.Active)
+						rlDocTypesToPrint.Add(RouteListPrintableDocuments.RouteMap);
+					if(chkLoadDocument.Active)
+						rlDocTypesToPrint.Add(RouteListPrintableDocuments.LoadDocument);
+					if(chkDocumentsOfOrders.Active)
+						oDocTypesToPrint = OrderDocTypesToPrint.Where(n => n.Selected)
+															   .Select(n => n.Type)
+															   .ToArray();
 
-				if(checkRouteMap.Active) {
-					PrintDoc(route.RouteList, RouteListPrintableDocuments.RouteMap, PageOrientation.Portrait, 1);
-					progressPrint.Adjustment.Value++;
-					QSMain.WaitRedraw();
+					EntitiyDocumentsPrinter printer = new EntitiyDocumentsPrinter(
+						uow,
+						rlPrintableDoc.routeList,
+						rlDocTypesToPrint.ToArray(),
+						oDocTypesToPrint
+					) {
+						PrinterSettings = printSettings
+					};
+					printer.Print();
+					printSettings = printer.PrinterSettings;
 				}
+				if(printSettings?.Printer == null) {
+					progressPrint.Text = "Печать отменена";
+					return;
+				}
+				progressPrint.Text = "Готово";
 
-				if(checkLoadSofiyskaya.Active) {
-					PrintDoc(route.RouteList, RouteListPrintableDocuments.LoadSofiyskaya, PageOrientation.Portrait, 1);
-					progressPrint.Adjustment.Value++;
-					QSMain.WaitRedraw();
-				}
-
-				if(printed)
-				{
-					route.RouteList.Printed = true;
-					uow.Save(route.RouteList);
-					needCommit = true;
-				}
+				progressPrint.Adjustment.Value++;
 			}
-
-			if(needCommit)
-				uow.Commit();
-			progressPrint.Text = "Готово";
-		}
-
-		private void PrintDoc(RouteList route, RouteListPrintableDocuments type, PageOrientation orientation, int copies)
-		{
-			var reportInfo = PrintRouteListHelper.GetRDL(route, type, uow);
-
-			var action = showDialog ? PrintOperationAction.PrintDialog : PrintOperationAction.Print;
-			showDialog = false;
-
-			Printer = new PrintOperation();
-			Printer.Unit = Unit.Points;
-			Printer.UseFullPage = true;
-			//Printer.DefaultPageSetup = new PageSetup();
-
-			if(PrintSettings == null)
-			{
-				Printer.PrintSettings = new PrintSettings();
-			}
-			else
-			{
-				Printer.PrintSettings = PrintSettings;
-			}
-
-			Printer.PrintSettings.Orientation = orientation;
-
-			var rprint = new ReportPrinter(reportInfo);
-			rprint.PrepareReport();
-
-			Printer.NPages = rprint.PageCount;
-			Printer.PrintSettings.NCopies = copies;
-			if(copies > 1)
-				Printer.PrintSettings.Collate = true;
-
-			Printer.DrawPage += rprint.DrawPage;
-			Printer.Run(action, null);
-
-			PrintSettings = Printer.PrintSettings;
 		}
 	}
 }

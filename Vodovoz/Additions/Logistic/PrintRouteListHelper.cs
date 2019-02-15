@@ -24,7 +24,7 @@ namespace Vodovoz.Additions.Logistic
 		public static ReportInfo GetRDLTimeList(int routeListId)
 		{
 			return new ReportInfo {
-				Title = String.Format ("Лист времени для МЛ № {0}", routeListId),
+				Title = String.Format("Лист времени для МЛ № {0}", routeListId),
 				Identifier = "Documents.TimeList",
 				Parameters = new Dictionary<string, object> {
 					{ "route_list_id", routeListId }
@@ -45,16 +45,15 @@ namespace Vodovoz.Additions.Logistic
 
 		public static ReportInfo GetRDLRouteList(IUnitOfWork uow, RouteList routeList)
 		{
-			var RouteColumns = RouteColumnRepository.ActiveColumns (uow);
+			var RouteColumns = RouteColumnRepository.ActiveColumns(uow);
 
-			if (RouteColumns.Count < 1)
-				MessageDialogWorks.RunErrorDialog ("В справочниках не заполнены колонки маршрутного листа. Заполните данные и повторите попытку.");
+			if(RouteColumns.Count < 1)
+				MessageDialogWorks.RunErrorDialog("В справочниках не заполнены колонки маршрутного листа. Заполните данные и повторите попытку.");
 
 			string documentName = "RouteList";
 			bool isClosed = false;
 
-			switch (routeList.Status)
-			{
+			switch(routeList.Status) {
 				case RouteListStatus.OnClosing:
 				case RouteListStatus.MileageCheck:
 				case RouteListStatus.Closed:
@@ -64,8 +63,8 @@ namespace Vodovoz.Additions.Logistic
 			}
 
 			string RdlText = String.Empty;
-			using (var rdr = new StreamReader (System.IO.Path.Combine (Environment.CurrentDirectory, "Reports/Logistic/" + documentName + ".rdl"))) {
-				RdlText = rdr.ReadToEnd ();
+			using(var rdr = new StreamReader(System.IO.Path.Combine(Environment.CurrentDirectory, "Reports/Logistic/" + documentName + ".rdl"))) {
+				RdlText = rdr.ReadToEnd();
 			}
 			//Для уникальности номеров Textbox.
 			int TextBoxNumber = 100;
@@ -73,28 +72,27 @@ namespace Vodovoz.Additions.Logistic
 			//Шаблон стандартной ячейки
 			string numericCellTemplate =
 				"<TableCell><ReportItems>" +
-			    "<Textbox Name=\"Textbox{0}\">" +
-			    "<Value>{1}</Value>" +
-			    "<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
-			    "<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth /><FontSize>8pt</FontSize>" +
+				"<Textbox Name=\"Textbox{0}\">" +
+				"<Value>{1}</Value>" +
+				"<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
+				"<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth /><FontSize>8pt</FontSize>" +
 				"<TextAlign>Center</TextAlign><Format>{2}</Format>";
 
-			if (isClosed)
-			{
+			if(isClosed) {
 				numericCellTemplate += "<BackgroundColor>=Iif((Fields!Status.Value = \"EnRoute\") or (Fields!Status.Value = \"Completed\"), White, Lightgrey)</BackgroundColor>";
-			}				
+			}
 			numericCellTemplate += "</Style></Textbox></ReportItems></TableCell>";
 
 			//Расширяем требуемые колонки на нужную ширину
-			RdlText = RdlText.Replace ("<!--colspan-->", String.Format ("<ColSpan>{0}</ColSpan>", RouteColumns.Count));
+			RdlText = RdlText.Replace("<!--colspan-->", String.Format("<ColSpan>{0}</ColSpan>", RouteColumns.Count));
 
 			//Расширяем таблицу
 			string columnsXml = "<TableColumn><Width>20pt</Width></TableColumn>";
 			string columns = String.Empty;
-			for (int i = 0; i < RouteColumns.Count; i++) {
+			for(int i = 0; i < RouteColumns.Count; i++) {
 				columns += columnsXml;
 			}
-			RdlText = RdlText.Replace ("<!--table_column-->", columns);
+			RdlText = RdlText.Replace("<!--table_column-->", columns);
 
 			//Создаем колонки, дополняем запрос и тд.
 			string CellColumnHeader = String.Empty;
@@ -105,94 +103,91 @@ namespace Vodovoz.Additions.Logistic
 			string SqlSelectSubquery = String.Empty;
 			string Fields = String.Empty;
 			string TotalSum = "= 0";
-			foreach (var column in RouteColumns) {
+			foreach(var column in RouteColumns) {
 				//Заголовки колонок
-				CellColumnHeader += String.Format (
+				CellColumnHeader += String.Format(
 					"<TableCell><ReportItems>" +
 					"<Textbox Name=\"Textbox{0}\">" +
 					"<Value>{1}</Value>" +
 					"<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
 					"<BorderStyle><Default>Solid</Default><Top>Solid</Top><Bottom>Solid</Bottom></BorderStyle>" +
 					"<BorderColor /><BorderWidth /><FontSize>8pt</FontSize><TextAlign>Center</TextAlign></Style>" +
-					"<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>", 
+					"<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>",
 					TextBoxNumber++, column.Name);
 				//Формула для колонки с водой для информации из запроса
 				//'' + {{Water_fact{0}}} + '(' + ({{Water_fact{0}}} - {{Water{0}}}) + ')'
 				if(isClosed)
-					CellColumnValue += String.Format (numericCellTemplate,
-					                                  TextBoxNumber++, 
-					                                  String.Format ("=Iif({{Water{0}}} + {{Water_fact{0}}} = 0, \"\", Iif( {{Water{0}}} = {{Water_fact{0}}}, Format({{Water{0}}}, '0'), '' + {{Water_fact{0}}} + '(' + Iif({{Water_fact{0}}} - {{Water{0}}} > 0, '+', '') + ({{Water_fact{0}}} - {{Water{0}}}) + ')'))", column.Id),
-					                                  String.Format ("=Iif({{Water{0}}} = {{Water_fact{0}}}, \"0\", \"\")", column.Id)
-					                                 );
+					CellColumnValue += String.Format(numericCellTemplate,
+													  TextBoxNumber++,
+													  String.Format("=Iif({{Water{0}}} + {{Water_fact{0}}} = 0, \"\", Iif( {{Water{0}}} = {{Water_fact{0}}}, Format({{Water{0}}}, '0'), '' + {{Water_fact{0}}} + '(' + Iif({{Water_fact{0}}} - {{Water{0}}} > 0, '+', '') + ({{Water_fact{0}}} - {{Water{0}}}) + ')'))", column.Id),
+													  String.Format("=Iif({{Water{0}}} = {{Water_fact{0}}}, \"0\", \"\")", column.Id)
+													 );
 				else
-					CellColumnValue += String.Format (numericCellTemplate,
-					TextBoxNumber++, String.Format("=Iif({{Water{0}}} = 0, \"\", {{Water{0}}})", column.Id ), 'C');
+					CellColumnValue += String.Format(numericCellTemplate,
+					TextBoxNumber++, String.Format("=Iif({{Water{0}}} = 0, \"\", {{Water{0}}})", column.Id), 'C');
 				//Ячейка с запасом. Пока там пусто
-				CellColumnStock += String.Format (numericCellTemplate,
-				                                  TextBoxNumber++, "", 0);
-				
+				CellColumnStock += String.Format(numericCellTemplate,
+												  TextBoxNumber++, "", 0);
+
 				//Ячейка с суммой по бутылям.
 				string formula;
-				if (isClosed)
-					formula = String.Format ("=Iif(Sum({{Water_fact{0}}}) = 0, \"\", Sum({{Water_fact{0}}}))", column.Id);
+				if(isClosed)
+					formula = String.Format("=Iif(Sum({{Water_fact{0}}}) = 0, \"\", Sum({{Water_fact{0}}}))", column.Id);
 				else
-					formula = String.Format ("=Iif(Sum({{Water{0}}}) = 0, \"\", Sum({{Water{0}}}))", column.Id);
-				CellColumnTotal += String.Format (numericCellTemplate, TextBoxNumber++, formula, 0);
+					formula = String.Format("=Iif(Sum({{Water{0}}}) = 0, \"\", Sum({{Water{0}}}))", column.Id);
+				CellColumnTotal += String.Format(numericCellTemplate, TextBoxNumber++, formula, 0);
 
 				//Запрос..
-				SqlSelect += String.Format (", IFNULL(wt_qry.Water{0}, 0) AS Water{0}", column.Id.ToString ());
-				SqlSelectSubquery += String.Format (", SUM(IF(nomenclature_route_column.id = {0}, order_items.count, 0)) AS {1}",
-					column.Id, "Water" + column.Id.ToString ());
-				if(isClosed)
-				{
-					SqlSelect += String.Format (", IF(route_list_addresses.status = 'Transfered', 0, IFNULL(wt_qry.Water_fact{0}, 0)) AS Water_fact{0}", column.Id.ToString ());
-					SqlSelectSubquery += String.Format (", SUM(IF(nomenclature_route_column.id = {0}, order_items.actual_count, 0)) AS {1}",
-						column.Id, "Water_fact" + column.Id.ToString ());
+				SqlSelect += String.Format(", IFNULL(wt_qry.Water{0}, 0) AS Water{0}", column.Id.ToString());
+				SqlSelectSubquery += String.Format(", SUM(IF(nomenclature_route_column.id = {0}, order_items.count, 0)) AS {1}",
+					column.Id, "Water" + column.Id.ToString());
+				if(isClosed) {
+					SqlSelect += String.Format(", IF(route_list_addresses.status = 'Transfered', 0, IFNULL(wt_qry.Water_fact{0}, 0)) AS Water_fact{0}", column.Id.ToString());
+					SqlSelectSubquery += String.Format(", SUM(IF(nomenclature_route_column.id = {0}, order_items.actual_count, 0)) AS {1}",
+						column.Id, "Water_fact" + column.Id.ToString());
 				}
 				//Линкуем запрос на переменные RDL
-				Fields += String.Format ("" +
+				Fields += String.Format("" +
 					"<Field Name=\"{0}\">" +
 					"<DataField>{0}</DataField>" +
 					"<TypeName>System.Int32</TypeName>" +
-					"</Field>", "Water" + column.Id.ToString ());
-				if(isClosed)
-				{
-					Fields += String.Format ("" +
+					"</Field>", "Water" + column.Id.ToString());
+				if(isClosed) {
+					Fields += String.Format("" +
 						"<Field Name=\"{0}\">" +
 						"<DataField>{0}</DataField>" +
 						"<TypeName>System.Int32</TypeName>" +
-						"</Field>", "Water_fact" + column.Id.ToString ());
+						"</Field>", "Water_fact" + column.Id.ToString());
 				}
 				//Формула итоговой суммы по всем бутылям.
-				if(RouteColumnRepository.NomenclaturesForColumn(uow, column).Any(x => x.Category == NomenclatureCategory.water && x.TareVolume == TareVolume.Vol19L))
-				{
+				if(RouteColumnRepository.NomenclaturesForColumn(uow, column).Any(x => x.Category == NomenclatureCategory.water && x.TareVolume == TareVolume.Vol19L)) {
 					if(isClosed)
 						TotalSum += $"+ Sum(Iif(Fields!Status.Value = \"Completed\", {{Water_fact{column.Id}}}, 0))";
 					else
 						TotalSum += $"+ Sum({{Water{column.Id}}})";
 				}
 			}
-			RdlText = RdlText.Replace ("<!--table_cell_name-->", CellColumnHeader);
-			RdlText = RdlText.Replace ("<!--table_cell_value-->", CellColumnValue);
-			RdlText = RdlText.Replace ("<!--table_cell_stock-->", CellColumnStock);
-			RdlText = RdlText.Replace ("<!--table_cell_total-->", CellColumnTotal);
-			RdlText = RdlText.Replace ("<!--sql_select-->", SqlSelect);
-			RdlText = RdlText.Replace ("<!--sql_select_subquery-->", SqlSelectSubquery);
-			RdlText = RdlText.Replace ("<!--fields-->", Fields);
-			RdlText = RdlText.Replace ("<!--table_cell_total_without_stock-->", TotalSum);
+			RdlText = RdlText.Replace("<!--table_cell_name-->", CellColumnHeader);
+			RdlText = RdlText.Replace("<!--table_cell_value-->", CellColumnValue);
+			RdlText = RdlText.Replace("<!--table_cell_stock-->", CellColumnStock);
+			RdlText = RdlText.Replace("<!--table_cell_total-->", CellColumnTotal);
+			RdlText = RdlText.Replace("<!--sql_select-->", SqlSelect);
+			RdlText = RdlText.Replace("<!--sql_select_subquery-->", SqlSelectSubquery);
+			RdlText = RdlText.Replace("<!--fields-->", Fields);
+			RdlText = RdlText.Replace("<!--table_cell_total_without_stock-->", TotalSum);
 
-			var TempFile = System.IO.Path.GetTempFileName ();
-			using (StreamWriter sw = new StreamWriter (TempFile)) {
-				sw.Write (RdlText);
+			var TempFile = System.IO.Path.GetTempFileName();
+			using(StreamWriter sw = new StreamWriter(TempFile)) {
+				sw.Write(RdlText);
 			}
-			#if DEBUG
+#if DEBUG
 			Console.WriteLine(RdlText);
-			#endif
+#endif
 			var date = DateTime.Now;
 			string printDatestr = String.Format($"Дата печати: {date.Day}.{date.Month}.{date.Year} {date.Hour}:{date.Minute}");
 
 			return new ReportInfo {
-				Title = String.Format ("Маршрутный лист № {0}", routeList.Id),
+				Title = String.Format("Маршрутный лист № {0}", routeList.Id),
 				Path = TempFile,
 				Parameters = new Dictionary<string, object> {
 					{ "RouteListId", routeList.Id },
@@ -248,7 +243,7 @@ namespace Vodovoz.Additions.Logistic
 		public static ReportInfo GetRDLLoadDocument(int routeListId)
 		{
 			return new ReportInfo {
-				Title = String.Format ("Документ погрузки для МЛ № {0}", routeListId),
+				Title = String.Format("Документ погрузки для МЛ № {0}", routeListId),
 				Identifier = "RouteList.CarLoadDocument",
 				Parameters = new Dictionary<string, object> {
 					{ "route_list_id", routeListId },
@@ -271,7 +266,7 @@ namespace Vodovoz.Additions.Logistic
 
 		public static ReportInfo GetRDLFine(RouteList routeList)
 		{
-			
+
 			return new ReportInfo {
 				Title = String.Format("Штрафы сотрудника {0}", routeList.Driver.LastName),
 				Identifier = "Employees.Fines",
@@ -311,17 +306,17 @@ namespace Vodovoz.Additions.Logistic
 
 	public enum RouteListPrintableDocuments
 	{
-		[Display (Name = "Все")]
+		[Display(Name = "Все")]
 		All,
-		[Display (Name = "Маршрутный лист")]
+		[Display(Name = "Маршрутный лист")]
 		RouteList,
 		[Display(Name = "Карта маршрута")]
 		RouteMap,
 		[Display(Name = "Адреса по ежедневным номерам")]
 		DailyList,
-		[Display (Name = "Лист времени")]
+		[Display(Name = "Лист времени")]
 		TimeList,
-		[Display (Name = "Документ погрузки")]
+		[Display(Name = "Документ погрузки")]
 		LoadDocument,
 		[Display(Name = "Погрузка Софийская")]
 		LoadSofiyskaya,
@@ -333,13 +328,14 @@ namespace Vodovoz.Additions.Logistic
 	{
 		public RouteListPrintableDocs(IUnitOfWork uow, RouteList routeList, RouteListPrintableDocuments type)
 		{
-			this.UoW 		 = uow;
-			this.routeList 	 = routeList;
-			this.type 		 = type;
+			this.uow = uow;
+			this.routeList = routeList;
+			this.type = type;
+			CopiesToPrint = DefaultCopies;
 		}
 
 		#region IPrintableRDLDocument implementation 
-		public ReportInfo GetReportInfo() => PrintRouteListHelper.GetRDL(routeList, type, UoW, IsBatchPrint);
+		public ReportInfo GetReportInfo() => PrintRouteListHelper.GetRDL(routeList, type, uow, IsBatchPrint);
 		public Dictionary<object, object> Parameters { get; set; } = new Dictionary<object, object>();
 		#endregion
 
@@ -358,13 +354,31 @@ namespace Vodovoz.Additions.Logistic
 			}
 		}
 
+		int DefaultCopies {
+			get {
+				switch(type) {
+					case RouteListPrintableDocuments.RouteList:
+						return 2;
+					case RouteListPrintableDocuments.RouteMap:
+					case RouteListPrintableDocuments.DailyList:
+					case RouteListPrintableDocuments.TimeList:
+					case RouteListPrintableDocuments.LoadDocument:
+					case RouteListPrintableDocuments.LoadSofiyskaya:
+					case RouteListPrintableDocuments.OrderOfAddresses:
+						return 1;
+					default:
+						throw new NotImplementedException("Документ не поддерживается");
+				}
+			}
+		}
+
 		public string Name => type.GetEnumTitle();
 
 		public int CopiesToPrint { get; set; }
 		#endregion
 
-		IUnitOfWork UoW;
-		RouteList routeList;
+		IUnitOfWork uow;
+		public RouteList routeList;
 		RouteListPrintableDocuments type;
 		bool IsBatchPrint => Parameters.ContainsKey("IsBatchPrint") && (bool)Parameters["IsBatchPrint"];
 	}
