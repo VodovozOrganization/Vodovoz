@@ -322,7 +322,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -382,7 +382,7 @@ WHERE NOT EXISTS (
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.String</TypeName>
@@ -2501,8 +2501,8 @@ GROUP BY name</CommandText>
       <Image Name="Image8">
         <Height>47.78pt</Height>
         <Width>86.00pt</Width>
-        <Left>18.8pt</Left>
-        <Top>727.8pt</Top>
+        <Left>29.4pt</Left>
+        <Top>653.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2518,8 +2518,8 @@ GROUP BY name</CommandText>
       <Image Name="Image9">
         <Height>67.48pt</Height>
         <Width>456.61pt</Width>
-        <Left>105.9pt</Left>
-        <Top>717.6pt</Top>
+        <Left>116.5pt</Left>
+        <Top>643.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2794,29 +2794,6 @@ GROUP BY name</CommandText>
           <Hidden>={?hide_signature}</Hidden>
         </Visibility>
       </Image>
-      <Textbox Name="Textbox30" >
-        <Height>28.58pt</Height>
-        <Width>481.81pt</Width>
-        <Value>Принятие товара, означает согласие покупателя с условиями договора публичной оферты,
-размещенный на сайте www.vodovoz-spb.ru</Value>
-        <ZIndex>1</ZIndex>
-        <Left>27.3pt</Left>
-        <Top>646.1pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox82" >
-        <Height>31.56pt</Height>
-        <Width>466.02pt</Width>
-        <Value>Просим Вас бережно относиться к бутылям, так как они являются собственностью компании.
-Напоминаем, что в случае потери и/или порчи бутыли сумма неустойки 150 рублей за бутыль </Value>
-        <ZIndex>1</ZIndex>
-        <Left>26.1pt</Left>
-        <Top>679.7pt</Top>
-      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
