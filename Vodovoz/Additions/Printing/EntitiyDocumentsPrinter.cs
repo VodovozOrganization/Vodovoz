@@ -32,10 +32,10 @@ namespace Vodovoz.Additions.Printing
 		RouteList currentRouteList;
 		IUnitOfWork uow;
 
-		public EntitiyDocumentsPrinter(Order currentOrder)
+		public EntitiyDocumentsPrinter(Order currentOrder, OrderDocumentType[] orderDocumentTypesToSelect = null)
 		{
 			DocPrinterInit();
-			FindODTTemplates(currentOrder);
+			FindODTTemplates(currentOrder, orderDocumentTypesToSelect);
 		}
 
 		void FindODTTemplates(Order currentOrder, OrderDocumentType[] orderDocumentTypesToSelect = null)
@@ -121,7 +121,7 @@ namespace Vodovoz.Additions.Printing
 			}
 			printOrderDocsFromRL = orderDocumentTypes != null;
 			if(orderDocumentTypes != null)
-				PrintOrderDocumentsFromTheRouteList(routeList);
+				PrintOrderDocumentsFromTheRouteList(routeList, orderDocumentTypes);
 		}
 
 		void DocPrinterInit()
@@ -151,7 +151,7 @@ namespace Vodovoz.Additions.Printing
 		}
 
 		//для печати документов заказов из МЛ, если есть при печати требуется их печать
-		void PrintOrderDocumentsFromTheRouteList(RouteList routeList)
+		void PrintOrderDocumentsFromTheRouteList(RouteList routeList, OrderDocumentType[] orderDocumentTypes)
 		{
 			var orders = routeList.Addresses
 				.Where(a => a.Status != RouteListItemStatus.Transfered)
@@ -159,7 +159,7 @@ namespace Vodovoz.Additions.Printing
 				;
 
 			foreach(var o in orders) {
-				new EntitiyDocumentsPrinter(o).Print();
+				new EntitiyDocumentsPrinter(o, orderDocumentTypes).Print();
 				if(PrinterSettings?.Printer == null)
 					return;
 			}

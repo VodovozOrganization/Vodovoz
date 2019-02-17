@@ -7,10 +7,10 @@ using System.Xml;
 using Gamma.Utilities;
 using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Report;
-using QSProjectsLib;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
@@ -48,7 +48,7 @@ namespace Vodovoz.Additions.Logistic
 			var RouteColumns = RouteColumnRepository.ActiveColumns(uow);
 
 			if(RouteColumns.Count < 1)
-				MessageDialogWorks.RunErrorDialog("В справочниках не заполнены колонки маршрутного листа. Заполните данные и повторите попытку.");
+				MessageDialogHelper.RunErrorDialog("В справочниках не заполнены колонки маршрутного листа. Заполните данные и повторите попытку.");
 
 			string documentName = "RouteList";
 			bool isClosed = false;

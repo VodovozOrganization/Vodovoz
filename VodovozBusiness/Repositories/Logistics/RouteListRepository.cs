@@ -42,11 +42,13 @@ namespace Vodovoz.Repository.Logistics
 
 			var query = QueryOver.Of<RouteList>()
 								 .Where(x => x.Date == date)
-								 .Left.JoinAlias(r => r.GeographicGroups, () => geographicGroupAlias)
-								 .Where(() => geographicGroupAlias.Id.IsIn(geographicGroupsIds))
-								 //.Select(Projections.Distinct(Projections.Property<RouteList>(x => x)))
 								 ;
-
+			
+			if(geographicGroupsIds.Any())
+				query = query.Left.JoinAlias(r => r.GeographicGroups, () => geographicGroupAlias)
+				             .Where(() => geographicGroupAlias.Id.IsIn(geographicGroupsIds))
+				             //.Select(Projections.Distinct(Projections.Property<RouteList>(x => x)))
+				             ;
 			return query;
 		}
 

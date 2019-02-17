@@ -151,7 +151,6 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			PrintSettings printSettings = null;
 			var routeCount = Routes.Count(x => x.Selected);
 			progressPrint.Adjustment.Upper = routeCount;
 			progressPrint.Adjustment.Value = 0;
