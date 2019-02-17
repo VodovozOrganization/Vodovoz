@@ -33,7 +33,7 @@ namespace Vodovoz
 			set {
 				isEditable = value;
 				speccomboShift.Sensitive = isEditable;
-				ggToStringWidget.Sensitive = datepickerDate.Sensitive = referenceCar.Sensitive = referenceForwarder.Sensitive = isEditable;
+				ggToStringWidget.Sensitive = datepickerDate.Sensitive = referenceCar.Sensitive = referenceForwarder.Sensitive = yspeccomboboxCashSubdivision.Sensitive = isEditable;
 				createroutelistitemsview1.IsEditable(isEditable);
 			}
 		}
@@ -83,6 +83,11 @@ namespace Vodovoz
 			yspeccomboboxCashSubdivision.ItemsList = subdivisions;
 			yspeccomboboxCashSubdivision.SelectedItem = SpecialComboState.Not;
 			yspeccomboboxCashSubdivision.ItemSelected += YspeccomboboxCashSubdivision_ItemSelected;
+
+			if(Entity.ClosingSubdivision != null && subdivisions.Any(x => x.Id == Entity.ClosingSubdivision.Id)) {
+				yspeccomboboxCashSubdivision.SelectedItem = Entity.ClosingSubdivision;
+			}
+
 			return true;
 		}
 

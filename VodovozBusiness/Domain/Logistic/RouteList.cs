@@ -1094,7 +1094,8 @@ namespace Vodovoz.Domain.Logistic
 				Employee = Driver,
 				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}", // Уточнить дескрипшен.
 				Money = Math.Round(cashInput, 0, MidpointRounding.AwayFromZero),
-				RouteListClosing = this
+				RouteListClosing = this,
+				RelatedToSubdivision = ClosingSubdivision
 			};
 
 			message = String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money);
