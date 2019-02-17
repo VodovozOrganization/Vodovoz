@@ -24,6 +24,7 @@ namespace Vodovoz.Core.Journal
 		{
 			this.Build();
 			this.RepresentationModel = model;
+			UoW = model.UoW;
 			this.permissionModel = permissionModel;
 			TreeView.ColumnsConfig = model.ColumnsConfig;
 			ConfigureDlg();
