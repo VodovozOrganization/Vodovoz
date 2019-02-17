@@ -76,7 +76,7 @@ namespace Vodovoz.Additions.Logistic
 				"<Value>{1}</Value>" +
 				"<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
 				"<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth /><FontSize>8pt</FontSize>" +
-				"<TextAlign>Center</TextAlign><Format>{2}</Format>";
+				"<TextAlign>Center</TextAlign><Format>{2}</Format><VerticalAlign>Middle</VerticalAlign>";
 
 			if(isClosed) {
 				numericCellTemplate += "<BackgroundColor>=Iif((Fields!Status.Value = \"EnRoute\") or (Fields!Status.Value = \"Completed\"), White, Lightgrey)</BackgroundColor>";
@@ -191,7 +191,8 @@ namespace Vodovoz.Additions.Logistic
 				Path = TempFile,
 				Parameters = new Dictionary<string, object> {
 					{ "RouteListId", routeList.Id },
-					{ "Print_date", printDatestr}
+					{ "Print_date", printDatestr},
+					{ "RouteListDate", routeList.Date}
 				}
 			};
 		}
