@@ -4,7 +4,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
-using Gtk;
 using NHibernate;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
@@ -47,6 +46,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Автомобиль")
 				.AddPixbufRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null && (x.Document as RouteListPrintableDocs).routeList.Car.IsCompanyHavings ? vodovozCarIcon : null)
 					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null ? (x.Document as RouteListPrintableDocs).routeList.Car.RegistrationNumber : "нет")
+				.AddColumn("Часть города").AddTextRenderer(x => string.Join(", ", (x.Document as RouteListPrintableDocs).routeList.GeographicGroups.Select(g => g.Name)))
 				.AddColumn("")
 				.Finish();
 
@@ -131,7 +131,10 @@ namespace Vodovoz.Dialogs.Logistic
 							   .List()
 							   .Select(x => new SelectablePrintDocument(new RouteListPrintableDocs(uow, x, RouteListPrintableDocuments.RouteList)))
 							   .OrderBy(x => (x.Document as RouteListPrintableDocs).routeList.Driver.LastName)
-							   .ToList();
+							   .ToList()
+							   .Distinct()
+							   .ToList()
+							   ;
 			ytreeRoutes.SetItemsSource(new GenericObservableList<SelectablePrintDocument>(Routes));
 			var notPrintedRoutes = Routes.Where(x => (x.Document as RouteListPrintableDocs).routeList.Status < RouteListStatus.InLoading).ToList();
 
@@ -173,17 +176,21 @@ namespace Vodovoz.Dialogs.Logistic
 															   .Select(n => n.Type)
 															   .ToArray();
 
+					bool cancelPrinting = false;
 					EntitiyDocumentsPrinter printer = new EntitiyDocumentsPrinter(
 						uow,
 						rlPrintableDoc.routeList,
 						rlDocTypesToPrint.ToArray(),
 						oDocTypesToPrint
 					);
-					if(EntitiyDocumentsPrinter.PrinterSettings?.Printer == null) {
+					printer.PrintingCanceled += (s, ea) => {
+						cancelPrinting = true;
+					};
+					printer.Print();
+					if(cancelPrinting) {
 						progressPrint.Text = "Печать отменена";
 						break;
 					}
-					printer.Print();
 				}
 				progressPrint.Text = "Готово";
 

@@ -26,8 +26,10 @@ namespace Vodovoz.Additions.Printing
 		public MultipleDocumentPrinter MultiDocPrinter { get; set; }
 		public string ODTTemplateNotFoundMessages { get; set; }
 		public event EventHandler DocumentsPrinted;
+		public event EventHandler PrintingCanceled;
 		public static PrintSettings PrinterSettings { get; set; }
 
+		bool cancelPrinting = false;
 		bool printOrderDocsFromRL = false;
 		RouteList currentRouteList;
 		IUnitOfWork uow;
@@ -138,16 +140,21 @@ namespace Vodovoz.Additions.Printing
 				}
 				DocumentsPrinted?.Invoke(o, args);
 			};
+			MultiDocPrinter.PrintingCanceled += (o, args) => PrintingCanceled?.Invoke(o, args);
 		}
 
 		public void Print(SelectablePrintDocument document = null)
 		{
-			MultiDocPrinter.PrinterSettings = PrinterSettings;
-			if(document == null)
-				MultiDocPrinter.PrintSelectedDocuments();
-			else
-				MultiDocPrinter.PrintDocument(document);
-			PrinterSettings = MultiDocPrinter.PrinterSettings;
+			if(!cancelPrinting) {
+				MultiDocPrinter.PrinterSettings = PrinterSettings;
+				if(document == null)
+					MultiDocPrinter.PrintSelectedDocuments();
+				else
+					MultiDocPrinter.PrintDocument(document);
+				PrinterSettings = MultiDocPrinter.PrinterSettings;
+			} else {
+				PrintingCanceled?.Invoke(this, new EventArgs());
+			}
 		}
 
 		//для печати документов заказов из МЛ, если есть при печати требуется их печать
@@ -159,8 +166,13 @@ namespace Vodovoz.Additions.Printing
 				;
 
 			foreach(var o in orders) {
-				new EntitiyDocumentsPrinter(o, orderDocumentTypes).Print();
-				if(PrinterSettings?.Printer == null)
+				var orderPrinter = new EntitiyDocumentsPrinter(o, orderDocumentTypes);
+				orderPrinter.PrintingCanceled += (sender, e) => {
+					cancelPrinting = true;
+					PrintingCanceled?.Invoke(sender, e);
+				};
+				orderPrinter.Print();
+				if(cancelPrinting)
 					return;
 			}
 		}
