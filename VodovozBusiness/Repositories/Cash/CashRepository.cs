@@ -38,6 +38,19 @@ namespace Vodovoz.Repository.Cash
 			return income - expense;
 		}
 
+		public static decimal CurrentCashForSubdivision(IUnitOfWork uow, Subdivision subdivision)
+		{
+			decimal expense = uow.Session.QueryOver<Expense>()
+				.Where(x => x.RelatedToSubdivision == subdivision)
+				.Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
+
+			decimal income = uow.Session.QueryOver<Income>()
+				.Where(x => x.RelatedToSubdivision == subdivision)
+				.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
+
+			return income - expense;
+		}
+
 		public static Income GetIncomeByRouteList(IUnitOfWork uow, int routeListId)
 		{
 			return uow.Session.QueryOver<Income>()

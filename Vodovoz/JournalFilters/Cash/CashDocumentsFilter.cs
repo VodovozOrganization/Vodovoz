@@ -7,6 +7,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.JournalFilters;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -49,6 +50,8 @@ namespace Vodovoz
 			accessfilteredsubdivisionselectorwidget.NeedChooseSubdivision = ShowSubdivisions;
 			accessfilteredsubdivisionselectorwidget.Configure(UoW, AllowedSubdivisions);
 		}
+
+		public IEnumerable<Subdivision> SelectedSubdivisions => Subdivisions.Distinct();
 
 		protected override IEnumerable<Subdivision> Subdivisions { 
 			get {

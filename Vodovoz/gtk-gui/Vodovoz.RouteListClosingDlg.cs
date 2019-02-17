@@ -223,6 +223,7 @@ namespace Vodovoz
 			this.enumPrint.Name = "enumPrint";
 			this.enumPrint.UseUnderline = true;
 			this.enumPrint.UseMarkup = false;
+			this.enumPrint.LabelXAlign = 0F;
 			this.enumPrint.Label = global::Mono.Unix.Catalog.GetString("Распечатать");
 			global::Gtk.Image w5 = new global::Gtk.Image();
 			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-print", global::Gtk.IconSize.Menu);
@@ -239,6 +240,7 @@ namespace Vodovoz
 			this.enummenuRLActions.Name = "enummenuRLActions";
 			this.enummenuRLActions.UseUnderline = true;
 			this.enummenuRLActions.UseMarkup = false;
+			this.enummenuRLActions.LabelXAlign = 0F;
 			global::Gtk.Image w7 = new global::Gtk.Image();
 			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-justify-fill", global::Gtk.IconSize.Menu);
 			this.enummenuRLActions.Image = w7;
@@ -260,7 +262,6 @@ namespace Vodovoz
 			this.expander1.Expanded = true;
 			// Container child expander1.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(7)), ((uint)(7)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild

@@ -10,5 +10,6 @@ namespace Vodovoz.Core.Journal
 		ITdiTab GetOpenEntityDlg(object node);
 		Type GetEntityType(object node);
 		int GetDocumentId(object node);
+		string GetSummaryInfo();
 	}
 }

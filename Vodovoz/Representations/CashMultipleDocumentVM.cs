@@ -15,6 +15,7 @@ using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using QS.Utilities.Text;
+using Vodovoz.Repository.Cash;
 
 namespace Vodovoz.Representations
 {
@@ -53,6 +54,34 @@ namespace Vodovoz.Representations
 			.AddColumn("Кассир").SetDataProperty(node => node.CasherString)
 			.AddColumn("Основание").SetDataProperty(node => node.Description)
 			.Finish();
+		}
+
+		private string GetTotalSumInfo()
+		{
+			decimal total = 0;
+			foreach(var node in ItemsList.Cast<CashDocumentVMNode>()) {
+				total += node.MoneySigned;
+			}
+			return CurrencyWorks.GetShortCurrencyString(total);
+		}
+
+		private string GetAllCashSummaryInfo()
+		{
+			decimal totalCash = 0;
+			string allCashString = "";
+			foreach(var item in Filter.SelectedSubdivisions) {
+				var currentSubdivisionCash = CashRepository.CurrentCashForSubdivision(UoW, item);
+				totalCash += currentSubdivisionCash;
+				allCashString += $"{item.Name}: {CurrencyWorks.GetShortCurrencyString(currentSubdivisionCash)} ";
+			}
+			string total = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}. ";
+			string separatedCash = Filter.SelectedSubdivisions.Any() ? $"Из них { allCashString}. " : "";
+			return total + separatedCash;
+		}
+
+		public override string GetSummaryInfo()
+		{
+			return $"{GetAllCashSummaryInfo()} Сумма выбранных документов: {GetTotalSumInfo()}. {base.GetSummaryInfo()}";
 		}
 
 		private void RegisterIncome()
@@ -380,5 +409,21 @@ namespace Vodovoz.Representations
 		public string Description { get; set; }
 
 		public decimal Money { get; set; }
+
+		public decimal MoneySigned {
+			get {
+				switch(DocTypeEnum) {
+					case CashDocumentType.Expense:
+					case CashDocumentType.ExpenseSelfDelivery:
+						return -Money;
+						break;
+					case CashDocumentType.AdvanceReport:
+						return 0;
+						break;
+					default:
+						return Money;
+				}
+			}
+		}
 	}
 }

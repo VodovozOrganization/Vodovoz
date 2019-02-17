@@ -64,6 +64,11 @@ namespace Vodovoz.Core.Journal
 			return permissions[document.EntityType].Delete;
 		}
 
+		public virtual string GetSummaryInfo()
+		{
+			return $"Количество: {ItemsList.Count}";
+		}
+
 		#endregion
 
 		#region IMultipleEntityRepresentationModel implementation

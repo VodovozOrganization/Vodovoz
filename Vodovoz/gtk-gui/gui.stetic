@@ -96,7 +96,7 @@
       </source>
     </icon-set>
   </icon-factory>
-  <widget class="Gtk.Window" id="MainWindow" design-size="1005 530">
+  <widget class="Gtk.Window" id="MainWindow" design-size="1000 530">
     <action-group name="Default">
       <action id="ActionBaseMenu">
         <property name="Type">Action</property>
@@ -725,7 +725,7 @@
         <property name="ShortLabel" translatable="yes">Отчёт по заказам меньше 100 р.</property>
         <signal name="Activated" handler="OnActionOrdersWithMinPriceLessThanActivated" />
       </action>
-      <action id="Action551">
+      <action id="ActionUnclosedRouteLists">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчет по незакрытым МЛ</property>
         <property name="ShortLabel" translatable="yes">Отчет по незакрытым МЛ</property>
@@ -1210,7 +1210,7 @@
                       <node type="Menuitem" action="ActionFuelReport" />
                       <node type="Menuitem" action="ActionDriversWageBalance" />
                       <node type="Menuitem" action="ActionDeliveriesLate" />
-                      <node type="Menuitem" action="Action55" />
+                      <node type="Menuitem" action="ActionUnclosedRouteLists" />
                       <node type="Separator" />
                       <node type="Menuitem" action="ActionRoutesListRegister" />
                       <node type="Menuitem" action="ActionOnLoadTime" />

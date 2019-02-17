@@ -172,8 +172,7 @@ namespace Vodovoz.Core.Journal
 
 		protected void UpdateSum()
 		{
-			labelSum.LabelProp = String.Format("Количество: {0}", RepresentationModel.ItemsList.Count);
-			logger.Debug("Количество обновлено {0}", RepresentationModel.ItemsList.Count);
+			labelSum.LabelProp = representationModel.GetSummaryInfo();
 		}
 
 		#region ITdiJournal implementation
