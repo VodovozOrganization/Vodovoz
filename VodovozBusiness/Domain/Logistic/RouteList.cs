@@ -542,8 +542,9 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(order.DeliveryPoint == null)
 				throw new NullReferenceException("В маршрутный нельзя добавить заказ без точки доставки.");
-			var item = new RouteListItem(this, order, RouteListItemStatus.EnRoute);
-			item.WithForwarder = Forwarder != null;
+			var item = new RouteListItem(this, order, RouteListItemStatus.EnRoute) {
+				WithForwarder = Forwarder != null
+			};
 			ObservableAddresses.Add(item);
 			return item;
 		}
@@ -642,11 +643,10 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void ConfirmMileage(IUnitOfWork uow)
 		{
-			if(!ClosedByCashBox && Status!=RouteListStatus.Closed) {
+			if(!ClosedByCashBox && Status != RouteListStatus.Closed) {
 				ChangeStatus(RouteListStatus.OnClosing);
 				return;
-			} 
-			else {
+			} else {
 				Status = RouteListStatus.Closed;
 				ClosingDate = DateTime.Now;
 				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(uow);
@@ -671,6 +671,11 @@ namespace Vodovoz.Domain.Logistic
 			} else if(newStatus == RouteListStatus.Confirmed) {
 				if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading) {
 					Status = RouteListStatus.Confirmed;
+					foreach(var address in Addresses) {
+						if(address.Order.OrderStatus < OrderStatus.OnLoading)
+							address.Order.ChangeStatus(OrderStatus.OnLoading);
+					}
+
 				} else {
 					throw new NotImplementedException();
 				}
@@ -678,7 +683,8 @@ namespace Vodovoz.Domain.Logistic
 				if(Status == RouteListStatus.EnRoute) {
 					Status = RouteListStatus.InLoading;
 					foreach(var item in Addresses) {
-						item.Order.ChangeStatus(OrderStatus.OnLoading);
+						if(item.Order.OrderStatus != OrderStatus.OnLoading)
+							item.Order.ChangeStatus(OrderStatus.OnLoading);
 					}
 				} else if(Status == RouteListStatus.Confirmed)
 					Status = RouteListStatus.InLoading;
@@ -1105,7 +1111,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void Confirm(bool sendForMileageCheck)
 		{
 			if(Status != RouteListStatus.OnClosing && Status != RouteListStatus.MileageCheck)
-				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0} или  {1}", RouteListStatus.OnClosing , RouteListStatus.MileageCheck));
+				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0} или  {1}", RouteListStatus.OnClosing, RouteListStatus.MileageCheck));
 
 			//FIXME исправить на нормальную проверку права этого подразделения менять статус МЛ
 			if(!MainSupport.BaseParameters.All.ContainsKey("accept_route_list_subdivision_restrict")) {

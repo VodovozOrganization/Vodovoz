@@ -294,12 +294,8 @@ namespace Vodovoz
 					return;
 
 				UoWGeneric.Root.ChangeStatus(RouteListStatus.Confirmed);
-				foreach(var address in UoWGeneric.Root.Addresses) {
-					if(address.Order.OrderStatus < Domain.Orders.OrderStatus.InTravelList)
-						address.Order.ChangeStatus(Domain.Orders.OrderStatus.InTravelList);
-				}
-					//Строим маршрут для МЛ.
-					if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
+				//Строим маршрут для МЛ.
+				if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 					RouteOptimizer optimizer = new RouteOptimizer();
 					var newRoute = optimizer.RebuidOneRoute(Entity);
 					if(newRoute != null) {

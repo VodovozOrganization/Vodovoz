@@ -51456,7 +51456,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.PrintRouteDocumentsDlg" design-size="578 613">
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.PrintRouteDocumentsDlg" design-size="578 322">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
