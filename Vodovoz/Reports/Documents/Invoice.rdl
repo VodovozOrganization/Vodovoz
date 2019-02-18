@@ -1497,7 +1497,7 @@ GROUP BY name</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox31" >
+                    <Textbox Name="Textbox31">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1519,7 +1519,7 @@ GROUP BY name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox13" >
+                    <Textbox Name="Textbox13">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1543,7 +1543,7 @@ GROUP BY name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox32" >
+                    <Textbox Name="Textbox32">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1567,8 +1567,8 @@ GROUP BY name</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>29.8pt</Left>
-        <Top>296.3pt</Top>
+        <Left>24.3pt</Left>
+        <Top>315.6pt</Top>
         <Visibility>
           <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
         </Visibility>
@@ -2069,8 +2069,8 @@ GROUP BY name</CommandText>
       <Image Name="Image8">
         <Height>47.78pt</Height>
         <Width>86.00pt</Width>
-        <Left>28.1pt</Left>
-        <Top>392.0pt</Top>
+        <Left>22.6pt</Left>
+        <Top>411.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2086,8 +2086,8 @@ GROUP BY name</CommandText>
       <Image Name="Image9">
         <Height>67.48pt</Height>
         <Width>456.61pt</Width>
-        <Left>128.7pt</Left>
-        <Top>384.0pt</Top>
+        <Left>123.2pt</Left>
+        <Top>403.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2190,7 +2190,7 @@ GROUP BY name</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5" >
+                    <Textbox Name="Textbox5">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2224,29 +2224,49 @@ GROUP BY name</CommandText>
         <Left>128.00pt</Left>
         <Top>62.20pt</Top>
       </Textbox>
-      <Textbox Name="Textbox30" >
+      <Textbox Name="Textbox30">
         <Height>28.58pt</Height>
         <Width>481.81pt</Width>
         <Value>Принятие товара, означает согласие покупателя с условиями договора публичной оферты,
 размещенный на сайте www.vodovoz-spb.ru</Value>
         <ZIndex>1</ZIndex>
-        <Left>28.1pt</Left>
-        <Top>310.3pt</Top>
+        <Left>22.6pt</Left>
+        <Top>329.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox82" >
+      <Textbox Name="Textbox82">
         <Height>31.56pt</Height>
         <Width>466.02pt</Width>
         <Value>Просим Вас бережно относиться к бутылям, так как они являются собственностью компании.
 Напоминаем, что в случае потери и/или порчи бутыли сумма неустойки 150 рублей за бутыль </Value>
         <ZIndex>1</ZIndex>
-        <Left>28.1pt</Left>
-        <Top>343.9pt</Top>
+        <Left>22.6pt</Left>
+        <Top>363.2pt</Top>
       </Textbox>
+      <Table Name="Table6" >
+        <DataSetName>Order</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>5in</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+<TableRow><Height>13.6pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox33"><Value></Value><Style><BorderStyle><Default>None</Default></BorderStyle><FontWeight>Bold</FontWeight><Color>Crimson</Color><BorderColor /><BorderWidth /></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>12 pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox34"><Value>=Fields!order_comment.Value</Value><CanGrow>true</CanGrow><Style><BorderStyle><Default>None</Default></BorderStyle></Style></Textbox></ReportItems></TableCell></TableCells></TableRow></TableRows>
+        </Details>
+        <Left>27.1pt</Left>
+        <Top>291.4pt</Top>
+      </Table>
     </ReportItems>
   </Body>
   <PageFooter>
