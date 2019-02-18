@@ -25,16 +25,9 @@ namespace Vodovoz
 	{
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
 
-		public IList<ReceptionItemNode> Items {
-			get {
-				return ReceptionReturnsList;
-			}
-		}
+		public IList<ReceptionItemNode> Items => ReceptionReturnsList;
 
-		public void AddItem(ReceptionItemNode item)
-		{
-			ReceptionReturnsList.Add(item);
-		}
+		public void AddItem(ReceptionItemNode item) => ReceptionReturnsList.Add(item);
 
 		public ReturnsReceptionView()
 		{
@@ -61,9 +54,7 @@ namespace Vodovoz
 		private IUnitOfWork uow;
 
 		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
+			get => uow;
 			set {
 				if(uow == value)
 					return;
@@ -73,9 +64,7 @@ namespace Vodovoz
 
 		Warehouse warehouse;
 		public Warehouse Warehouse {
-			get {
-				return warehouse;
-			}
+			get => warehouse;
 			set {
 				warehouse = value;
 				FillListReturnsFromRoute();
@@ -84,9 +73,7 @@ namespace Vodovoz
 
 		RouteList routeList;
 		public RouteList RouteList {
-			get {
-				return routeList;
-			}
+			get => routeList;
 			set {
 				if(routeList == value)
 					return;
@@ -101,9 +88,7 @@ namespace Vodovoz
 		}
 
 		public bool Sensitive {
-			set {
-				ytreeReturns.Sensitive = buttonAddNomenclature.Sensitive = value;
-			}
+			set => ytreeReturns.Sensitive = buttonAddNomenclature.Sensitive = value;
 		}
 
 		public IList<Equipment> AlreadyUnloadedEquipment;
@@ -119,14 +104,16 @@ namespace Vodovoz
 			Nomenclature nomenclatureAlias = null;
 			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
+			Warehouse warehouseAlias = null;
 
 			var returnableItems = UoW.Session.QueryOver<RouteListItem>().Where(r => r.RouteList.Id == RouteList.Id)
 				.JoinAlias(rli => rli.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
+				.JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
 				.Where(Restrictions.Or(
-					Restrictions.On(() => nomenclatureAlias.Warehouse).IsNull,
-					Restrictions.Eq(Projections.Property(() => nomenclatureAlias.Warehouse), Warehouse)
+					Restrictions.On(() => warehouseAlias.Id).IsNull,
+					Restrictions.Eq(Projections.Property(() => warehouseAlias.Id), Warehouse.Id)
 				))
 				.Where(() => nomenclatureAlias.Category != NomenclatureCategory.rent
 				   && nomenclatureAlias.Category != NomenclatureCategory.deposit)
@@ -144,9 +131,10 @@ namespace Vodovoz
 				.JoinAlias(() => orderEquipmentAlias.Equipment, () => equipmentAlias)
 				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => orderEquipmentAlias.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
+				.JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
 				.Where(Restrictions.Or(
-					Restrictions.On(() => nomenclatureAlias.Warehouse).IsNull,
-					Restrictions.Eq(Projections.Property(() => nomenclatureAlias.Warehouse), Warehouse)
+					Restrictions.On(() => warehouseAlias.Id).IsNull,
+					Restrictions.Eq(Projections.Property(() => warehouseAlias.Id), Warehouse.Id)
 				))
 				.Where(() => nomenclatureAlias.Category != NomenclatureCategory.rent
 				   && nomenclatureAlias.Category != NomenclatureCategory.deposit)
@@ -200,26 +188,20 @@ namespace Vodovoz
 		int amount;
 
 		public virtual int Amount {
-			get { return amount; }
-			set {
-				SetField(ref amount, value, () => Amount);
-			}
+			get => amount;
+			set => SetField(ref amount, value, () => Amount);
 		}
 
 		int equipmentId;
 		[PropertyChangedAlso("Serial")]
 		public int EquipmentId {
-			get {
-				return equipmentId;
-			}
-			set {
-				SetField(ref equipmentId, value, () => EquipmentId);
-			}
+			get => equipmentId;
+			set => SetField(ref equipmentId, value, () => EquipmentId);
 		}
 
 		[Display(Name = "№ кулера")]
 		public string Redhead {
-			get { return CarUnloadDocumentItem.Redhead; }
+			get => CarUnloadDocumentItem.Redhead;
 			set {
 				if(value != CarUnloadDocumentItem.Redhead)
 					CarUnloadDocumentItem.Redhead = value;
@@ -229,27 +211,21 @@ namespace Vodovoz
 		ServiceClaim serviceClaim;
 
 		public virtual ServiceClaim ServiceClaim {
-			get { return serviceClaim; }
-			set {
-				SetField(ref serviceClaim, value, () => ServiceClaim);
-			}
+			get => serviceClaim;
+			set => SetField(ref serviceClaim, value, () => ServiceClaim);
 		}
 
 		public Equipment NewEquipment { get; set; }
 		public bool Returned {
-			get {
-				return Amount > 0;
-			}
-			set {
-				Amount = value ? 1 : 0;
-			}
+			get => Amount > 0;
+			set => Amount = value ? 1 : 0;
 		}
 
 		WarehouseMovementOperation movementOperation = new WarehouseMovementOperation();
 
 		public virtual WarehouseMovementOperation MovementOperation {
-			get { return movementOperation; }
-			set { SetField(ref movementOperation, value, () => MovementOperation); }
+			get => movementOperation;
+			set => SetField(ref movementOperation, value, () => MovementOperation);
 		}
 
 		public ReceptionItemNode(Nomenclature nomenclature, int amount)
@@ -268,8 +244,8 @@ namespace Vodovoz
 		CarUnloadDocumentItem carUnloadDocumentItem = new CarUnloadDocumentItem();
 
 		public virtual CarUnloadDocumentItem CarUnloadDocumentItem {
-			get { return carUnloadDocumentItem; }
-			set { SetField(ref carUnloadDocumentItem, value, () => CarUnloadDocumentItem); }
+			get => carUnloadDocumentItem;
+			set => SetField(ref carUnloadDocumentItem, value, () => CarUnloadDocumentItem);
 		}
 
 		public ReceptionItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.MovementOperation)
@@ -281,7 +257,7 @@ namespace Vodovoz
 
 		[Display(Name = "Цена")]
 		public virtual decimal PrimeCost {
-			get { return MovementOperation.PrimeCost; }
+			get => MovementOperation.PrimeCost;
 			set {
 				if(value != MovementOperation.PrimeCost)
 					MovementOperation.PrimeCost = value;

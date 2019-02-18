@@ -4,16 +4,17 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QS.HistoryLog;
+using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Permissions;
 
 namespace Vodovoz.Domain.Cash
 {
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "авансовые отчеты",
 		Nominative = "авансовый отчет")]
-	//[HistoryTrace]
-	public class AdvanceReport : PropertyChangedBase, IDomainObject, IValidatableObject
+	[EntityPermission]
+	public class AdvanceReport : PropertyChangedBase, IDomainObject, IValidatableObject, ISubdivisionEntity
 	{
 		#region Свойства
 
@@ -25,6 +26,14 @@ namespace Vodovoz.Domain.Cash
 		public virtual DateTime Date {
 			get { return date; }
 			set { SetField (ref date, value, () => Date); }
+		}
+
+		private Subdivision relatedToSubdivision;
+
+		[Display(Name = "Относится к подразделению")]
+		public virtual Subdivision RelatedToSubdivision {
+			get { return relatedToSubdivision; }
+			set { SetField(ref relatedToSubdivision, value, () => RelatedToSubdivision); }
 		}
 
 		Employee casher;
@@ -81,9 +90,7 @@ namespace Vodovoz.Domain.Cash
 
 		#endregion
 
-		public AdvanceReport ()
-		{
-		}
+		public AdvanceReport() { }
 
 		public virtual List<AdvanceClosing> CloseAdvances(out Expense surcharge, out Income returnChange, List<Expense> advances )
 		{
@@ -106,7 +113,8 @@ namespace Vodovoz.Domain.Cash
 					ExpenseCategory = ExpenseCategory,
 					Money = Math.Abs (balance),
 					Description = String.Format ("Доплата денежных средств сотруднику по авансовому отчету №{0}", Id),
-					AdvanceClosed = true
+					AdvanceClosed = true,
+					RelatedToSubdivision = RelatedToSubdivision
 				};
 				resultClosing.Add (surcharge.AddAdvanceCloseItem(this, surcharge.Money));
 			}
@@ -119,7 +127,8 @@ namespace Vodovoz.Domain.Cash
 					ExpenseCategory = ExpenseCategory,
 					TypeOperation = IncomeType.Return,
 					Money = Math.Abs (balance),
-					Description = String.Format ("Возврат в кассу денежных средств по авансовому отчету №{0}", Id)
+					Description = String.Format ("Возврат в кассу денежных средств по авансовому отчету №{0}", Id),
+					RelatedToSubdivision = RelatedToSubdivision
 				};
 				ChangeReturn = returnChange;
 			}

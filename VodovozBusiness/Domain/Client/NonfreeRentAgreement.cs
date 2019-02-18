@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 
@@ -12,6 +13,7 @@ namespace Vodovoz.Domain.Client
 	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения платной аренды",
 		Nominative = "доп. соглашение платной аренды")]
+	[EntityPermission]
 	public class NonfreeRentAgreement : AdditionalAgreement
 	{
 		[Display(Name = "Количество месяцев аренды для оплаты")]

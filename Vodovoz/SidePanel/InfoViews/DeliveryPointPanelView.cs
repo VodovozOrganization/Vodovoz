@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using Gtk;
 using NHibernate.Util;
 using QS.Dialog.Gtk;
@@ -9,7 +10,7 @@ using QS.Tdi.Gtk;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel.InfoProviders;

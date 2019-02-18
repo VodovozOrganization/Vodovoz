@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 
@@ -9,6 +10,7 @@ namespace Vodovoz.Domain.Client
 	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения сервиса",
 		Nominative = "доп. соглашение сервиса")]
+	[EntityPermission]
 	public class RepairAgreement : AdditionalAgreement
 	{
 		public static IUnitOfWorkGeneric<RepairAgreement> Create (CounterpartyContract contract)

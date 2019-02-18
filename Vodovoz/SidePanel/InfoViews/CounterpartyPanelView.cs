@@ -9,7 +9,7 @@ using QS.Utilities;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel.InfoProviders;
 

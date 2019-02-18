@@ -2,12 +2,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Domain.Orders
 {

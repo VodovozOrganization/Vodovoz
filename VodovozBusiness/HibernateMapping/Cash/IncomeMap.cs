@@ -25,6 +25,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.ExpenseCategory).Column ("cash_expense_category_id");
 			References(x => x.RouteListClosing).Column("route_list_id");
 			References(x => x.Order).Column("order_id");
+			References(x => x.RelatedToSubdivision).Column("related_to_subdivision_id");
 		}
 	}
 }

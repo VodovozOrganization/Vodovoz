@@ -4,12 +4,14 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using Gamma.Utilities;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Logistic
 {
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "графики доставки",
 		Nominative = "график доставки")]
+	[EntityPermission]
 	public class DeliverySchedule: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }

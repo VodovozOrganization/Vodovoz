@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
+using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Helpers;
+using QS.Project.Dialogs;
 using QSBusinessCommon.Domain;
 using QSOrmProject;
 using QSProjectsLib;
@@ -13,6 +15,7 @@ using Vodovoz.Additions.Store;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Store;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
 using Vodovoz.ServiceDialogs.Database;
@@ -22,28 +25,27 @@ namespace Vodovoz
 {
 	public partial class NomenclatureDlg : QS.Dialog.Gtk.EntityDialogBase<Nomenclature>
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+		Warehouse selectedWarehouse;
 
-		public NomenclatureDlg ()
+		public NomenclatureDlg()
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Nomenclature> ();
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Nomenclature>();
 			TabName = "Новая номенклатура";
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
-		public NomenclatureDlg (int id)
+		public NomenclatureDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Nomenclature> (id);
-			ConfigureDlg ();
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Nomenclature>(id);
+			ConfigureDlg();
 		}
 
-		public NomenclatureDlg (Nomenclature sub) : this (sub.Id)
-		{
-		}
+		public NomenclatureDlg(Nomenclature sub) : this(sub.Id) { }
 
-		private void ConfigureDlg ()
+		private void ConfigureDlg()
 		{
 			notebook1.ShowTabs = false;
 			spinWeight.Sensitive = false;
@@ -80,18 +82,18 @@ namespace Vodovoz
 
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			yentryOfficialName.Binding.AddBinding(Entity, e => e.OfficialName, w => w.Text).InitializeFromSource();
-			var parallel = new ParallelEditing (yentryOfficialName);
-			parallel.SubscribeOnChanges (entryName);
+			var parallel = new ParallelEditing(yentryOfficialName);
+			parallel.SubscribeOnChanges(entryName);
 			parallel.GetParallelTextFunc = GenerateOfficialName;
 
 			ycheckRentPriority.Binding.AddBinding(Entity, e => e.RentPriority, w => w.Active).InitializeFromSource();
 			checkNotReserve.Binding.AddBinding(Entity, e => e.DoNotReserve, w => w.Active).InitializeFromSource();
-			checkcanPrintPrice.Binding.AddBinding (Entity, e => e.CanPrintPrice, w => w.Active).InitializeFromSource ();
+			checkcanPrintPrice.Binding.AddBinding(Entity, e => e.CanPrintPrice, w => w.Active).InitializeFromSource();
 			labelCanPrintPrice.Visible = checkcanPrintPrice.Visible = Entity.Category == NomenclatureCategory.water && !Entity.IsDisposableTare;
-			checkHide.Binding.AddBinding (Entity, e => e.Hide, w => w.Active).InitializeFromSource ();
-			entryCode1c.Binding.AddBinding (Entity, e => e.Code1c, w => w.Text).InitializeFromSource();
+			checkHide.Binding.AddBinding(Entity, e => e.Hide, w => w.Active).InitializeFromSource();
+			entryCode1c.Binding.AddBinding(Entity, e => e.Code1c, w => w.Text).InitializeFromSource();
 			yspinSumOfDamage.Binding.AddBinding(Entity, e => e.SumOfDamage, w => w.ValueAsDecimal).InitializeFromSource();
-			spinWeight.Binding.AddBinding (Entity, e => e.Weight, w => w.Value).InitializeFromSource ();
+			spinWeight.Binding.AddBinding(Entity, e => e.Weight, w => w.Value).InitializeFromSource();
 			spinVolume.Binding.AddBinding(Entity, e => e.Volume, w => w.Value).InitializeFromSource();
 			spinPercentForMaster.Binding.AddBinding(Entity, e => e.PercentForMaster, w => w.Value).InitializeFromSource();
 			checkSerial.Binding.AddBinding(Entity, e => e.IsSerial, w => w.Active).InitializeFromSource();
@@ -104,16 +106,14 @@ namespace Vodovoz
 			yentryFolder1c.Binding.AddBinding(Entity, e => e.Folder1C, w => w.Subject).InitializeFromSource();
 			yentryProductGroup.SubjectType = typeof(ProductGroup);
 			yentryProductGroup.Binding.AddBinding(Entity, e => e.ProductGroup, w => w.Subject).InitializeFromSource();
-			referenceUnit.SubjectType = typeof (MeasurementUnits);
-			referenceUnit.Binding.AddBinding (Entity, n => n.Unit, w => w.Subject).InitializeFromSource ();
+			referenceUnit.SubjectType = typeof(MeasurementUnits);
+			referenceUnit.Binding.AddBinding(Entity, n => n.Unit, w => w.Subject).InitializeFromSource();
 			yentryrefEqupmentType.SubjectType = typeof(EquipmentType);
 			yentryrefEqupmentType.Binding.AddBinding(Entity, e => e.Type, w => w.Subject).InitializeFromSource();
 			referenceColor.SubjectType = typeof(EquipmentColors);
 			referenceColor.Binding.AddBinding(Entity, e => e.EquipmentColor, w => w.Subject).InitializeFromSource();
-			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
-			referenceWarehouse.Binding.AddBinding (Entity, n => n.Warehouse, w => w.Subject).InitializeFromSource ();
-			referenceRouteColumn.SubjectType = typeof (Domain.Logistic.RouteColumn);
-			referenceRouteColumn.Binding.AddBinding (Entity, n => n.RouteListColumn, w => w.Subject).InitializeFromSource ();
+			referenceRouteColumn.SubjectType = typeof(Domain.Logistic.RouteColumn);
+			referenceRouteColumn.Binding.AddBinding(Entity, n => n.RouteListColumn, w => w.Subject).InitializeFromSource();
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
 			referenceManufacturer.Binding.AddBinding(Entity, e => e.Manufacturer, w => w.Subject).InitializeFromSource();
 			checkNoDeliver.Binding.AddBinding(Entity, e => e.NoDelivey, w => w.Active).InitializeFromSource();
@@ -122,6 +122,22 @@ namespace Vodovoz
 			yentryShortName.MaxLength = 220;
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			checkIsArchive.Sensitive = QSMain.User.Permissions["can_create_and_arc_nomenclatures"];
+
+			#region Вкладка "Склады отгрузки"
+
+			//repTreeViewWarehouses.RepresentationModel = new WarehousesVM(UoW);
+			repTreeViewWarehouses.ColumnsConfig = ColumnsConfigFactory.Create<Warehouse>()
+				.AddColumn("Название").AddTextRenderer(node => node.Name)
+				.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+				.Finish();
+			repTreeViewWarehouses.SetItemsSource(Entity.ObservableWarehouses);
+			repTreeViewWarehouses.Selection.Changed += (sender, e) => {
+				selectedWarehouse = repTreeViewWarehouses.GetSelectedObject<Warehouse>();
+				btnRemoveWarehouse.Sensitive = selectedWarehouse != null;
+			};
+			btnRemoveWarehouse.Sensitive = selectedWarehouse != null;
+
+			#endregion
 
 			#region Вкладка характиристики
 
@@ -135,7 +151,7 @@ namespace Vodovoz
 			dependsOnNomenclature.RepresentationModel = new NomenclatureDependsFromVM(Entity);
 			dependsOnNomenclature.Binding.AddBinding(Entity, e => e.DependsOnNomenclature, w => w.Subject).InitializeFromSource();
 
-			ConfigureInputs (Entity.Category);
+			ConfigureInputs(Entity.Category);
 
 			pricesView.UoWGeneric = UoWGeneric;
 			pricesView.Sensitive = QSMain.User.Permissions["can_create_and_arc_nomenclatures"];
@@ -147,7 +163,7 @@ namespace Vodovoz
 			//make actions menu
 			var menu = new Gtk.Menu();
 			var menuItem = new Gtk.MenuItem("Заменить все ссылки на номенклатуру...");
-			menuItem.Activated += MenuItem_ReplaceLinks_Activated;;
+			menuItem.Activated += MenuItem_ReplaceLinks_Activated; ;
 			menu.Add(menuItem);
 			menuActions.Menu = menu;
 			menu.ShowAll();
@@ -175,44 +191,43 @@ namespace Vodovoz
 			var employee = EmployeeRepository.GetEmployeesForUser(UoW, s.Id).FirstOrDefault();
 			if(employee == null) {
 				return Entity.CreatedBy.Name;
-			}else {
+			} else {
 				return employee.ShortName;
 			}
 		}
 
-		string GenerateOfficialName (object arg)
+		string GenerateOfficialName(object arg)
 		{
 			var widget = arg as Gtk.Entry;
 			return widget.Text;
 		}
 
-		public override bool Save ()
+		public override bool Save()
 		{
-			if(String.IsNullOrWhiteSpace(Entity.Code1c))
-			{
+			if(String.IsNullOrWhiteSpace(Entity.Code1c)) {
 				Entity.Code1c = NomenclatureRepository.GetNextCode1c(UoW);
 			}
 
-			var valid = new QSValidator<Nomenclature> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var valid = new QSValidator<Nomenclature>(UoWGeneric.Root);
+			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
-			logger.Info ("Сохраняем номенклатуру...");
+			logger.Info("Сохраняем номенклатуру...");
 			Entity.SetNomenclatureCreationInfo();
-			pricesView.SaveChanges ();
-			UoWGeneric.Save ();
+			pricesView.SaveChanges();
+			UoWGeneric.Save();
 			return true;
 		}
 
-		protected void OnEnumTypeChanged (object sender, EventArgs e)
+		protected void OnEnumTypeChanged(object sender, EventArgs e)
 		{
-			ConfigureInputs (Entity.Category);
+			ConfigureInputs(Entity.Category);
 
 			if(Entity.Category != NomenclatureCategory.deposit) {
 				Entity.TypeOfDepositCategory = null;
 			}
 		}
 
-		protected void ConfigureInputs (NomenclatureCategory selected)
+		protected void ConfigureInputs(NomenclatureCategory selected)
 		{
 			enumDepositType.Visible = selected == NomenclatureCategory.deposit;
 			enumEquipmentSubtype.Visible = radioEuqpment.Sensitive = selected == NomenclatureCategory.equipment;
@@ -233,42 +248,47 @@ namespace Vodovoz
 			labelBottle.Sensitive = ycheckNewBottle.Sensitive = ycheckDefectiveBottle.Sensitive = selected == NomenclatureCategory.bottle;
 			//FIXME запуск оборудования - временный фикс
 			//if (Entity.Category == NomenclatureCategory.equipment)
-				//Entity.Serial = true;
+			//Entity.Serial = true;
 		}
 
-#region Переключение вкладок
+		#region Переключение вкладок
 
-		protected void OnRadioInfoToggled (object sender, EventArgs e)
+		protected void OnRadioInfoToggled(object sender, EventArgs e)
 		{
-			if (radioInfo.Active)
+			if(radioInfo.Active)
 				notebook1.CurrentPage = 0;
+		}
+
+		protected void OnRadioWarehousesToggled(object sender, EventArgs e)
+		{
+			if(radioWarehouses.Active)
+				notebook1.CurrentPage = 1;
 		}
 
 		protected void OnRadioEuqpmentToggled(object sender, EventArgs e)
 		{
-			if (radioEuqpment.Active)
-				notebook1.CurrentPage = 1;
+			if(radioEuqpment.Active)
+				notebook1.CurrentPage = 2;
 		}
 
 		protected void OnRadioCharacteristicsToggled(object sender, EventArgs e)
 		{
 			if(radioCharacteristics.Active)
-				notebook1.CurrentPage = 2;
+				notebook1.CurrentPage = 3;
 		}
 
 		protected void OnRadioImagesToggled(object sender, EventArgs e)
 		{
-			if(radioImages.Active)
-			{
-				notebook1.CurrentPage = 3;
+			if(radioImages.Active) {
+				notebook1.CurrentPage = 4;
 				ImageTabOpen();
 			}
 		}
 
-		protected void OnRadioPriceToggled (object sender, EventArgs e)
+		protected void OnRadioPriceToggled(object sender, EventArgs e)
 		{
-			if (radioPrice.Active)
-				notebook1.CurrentPage = 4;
+			if(radioPrice.Active)
+				notebook1.CurrentPage = 5;
 		}
 
 		#endregion
@@ -280,8 +300,7 @@ namespace Vodovoz
 
 		private void ImageTabOpen()
 		{
-			if(!imageLoaded)
-			{
+			if(!imageLoaded) {
 				ReloadImages();
 				imageLoaded = true;
 			}
@@ -328,7 +347,7 @@ namespace Vodovoz
 				popupMenuOn = (NomenclatureImage)e.Tag;
 				Gtk.Menu jBox = new Gtk.Menu();
 				Gtk.MenuItem MenuItem1 = new MenuItem("Удалить");
-				MenuItem1.Activated += DeleteImage_Activated;;
+				MenuItem1.Activated += DeleteImage_Activated; ;
 				jBox.Add(MenuItem1);
 				jBox.ShowAll();
 				jBox.Popup();
@@ -342,12 +361,36 @@ namespace Vodovoz
 			ReloadImages();
 		}
 
-  		#endregion
+		#endregion
 
 		protected void OnDependsOnNomenclatureChanged(object sender, EventArgs e)
 		{
 			radioPrice.Sensitive = Entity.DependsOnNomenclature == null;
 		}
+
+		protected void OnBtnAddWarehouseClicked(object sender, EventArgs e)
+		{
+			var refWin = new OrmReference(StoreDocumentHelper.GetWarehouseQuery()) {
+				ButtonMode = ReferenceButtonMode.None,
+				Mode = OrmReferenceMode.MultiSelect
+			};
+			refWin.ObjectSelected += RefWin_ObjectSelected;
+			TabParent.AddSlaveTab(this, refWin);
+		}
+
+		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			var warehouses = e.Subjects.OfType<Warehouse>();
+			foreach(var w in warehouses) {
+				if(w != null && !Entity.ObservableWarehouses.Any(x => x.Id == w.Id))
+					Entity.ObservableWarehouses.Add(w);
+			}
+		}
+
+		protected void OnBtnRemoveWarehouseClicked(object sender, EventArgs e)
+		{
+			if(selectedWarehouse != null)
+				Entity.ObservableWarehouses.Remove(selectedWarehouse);
+		}
 	}
 }
-

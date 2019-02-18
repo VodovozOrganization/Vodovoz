@@ -36,18 +36,16 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual string Title => String.Format("Особый счет №{0} от {1:d}", Order.Id, Order.BillDate);
 
-		public override string Name {
-			get { return String.Format("Особый счет №{0}", Order.Id); }
-		}
+		public override string Name => String.Format("Особый счет №{0}", Order.Id);
 
-		public override DateTime? DocumentDate {
-			get { return Order?.BillDate; }
-		}
+		public override DateTime? DocumentDate => Order?.BillDate;
 
-		public override PrinterType PrintType {
-			get {
-				return PrinterType.RDL;
-			}
+		public override PrinterType PrintType => PrinterType.RDL;
+
+		int copiesToPrint = 1;
+		public override int CopiesToPrint {
+			get => copiesToPrint;
+			set => copiesToPrint = value;
 		}
 
 		#region Свои свойства

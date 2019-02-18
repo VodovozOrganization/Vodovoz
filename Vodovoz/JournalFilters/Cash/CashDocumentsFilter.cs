@@ -5,11 +5,14 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.JournalFilters;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz
 {
 	[OrmDefaultIsFiltered(true)]
-	public partial class CashDocumentsFilter : RepresentationFilterBase<CashDocumentsFilter>
+	public partial class CashDocumentsFilter : SubdivisionsAccessJournalFilterBase<CashDocumentsFilter>
 	{
 		protected override void ConfigureWithUow()
 		{
@@ -17,7 +20,6 @@ namespace Vodovoz
 			entryEmployee.RepresentationModel = new ViewModel.EmployeesVM(new EmployeeFilter(uow: UoW, showFired: false));
 			yentryIncome.ItemsQuery = Repository.Cash.CategoryRepository.IncomeCategoriesQuery();
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
-
 			//Последние 30 дней.
 			dateperiodDocs.StartDateOrNull = DateTime.Today.AddDays(-30);
 			dateperiodDocs.EndDateOrNull = DateTime.Today.AddDays(1);
@@ -31,6 +33,39 @@ namespace Vodovoz
 		public CashDocumentsFilter()
 		{
 			this.Build();
+			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
+		}
+
+		private IEnumerable<Subdivision> allowedSubdivisions;
+		protected override IEnumerable<Subdivision> AllowedSubdivisions {
+			get { return allowedSubdivisions; }
+			set {
+				allowedSubdivisions = value;
+				UpdateSubdivisionsWidget();
+			}
+		}
+
+		private void UpdateSubdivisionsWidget()
+		{
+			accessfilteredsubdivisionselectorwidget.NeedChooseSubdivision = ShowSubdivisions;
+			accessfilteredsubdivisionselectorwidget.Configure(UoW, AllowedSubdivisions);
+		}
+
+		public IEnumerable<Subdivision> SelectedSubdivisions => Subdivisions.Distinct();
+
+		protected override IEnumerable<Subdivision> Subdivisions { 
+			get {
+				if(!ShowSubdivisions) {
+					return base.Subdivisions;
+				}
+				if(accessfilteredsubdivisionselectorwidget.SelectedSubdivision != null) {
+					return new Subdivision[] { accessfilteredsubdivisionselectorwidget.SelectedSubdivision };
+				}
+				if(accessfilteredsubdivisionselectorwidget.AllSelected) {
+					return AllowedSubdivisions;
+				}
+				return new Subdivision[0];
+			} 
 		}
 
 		public CashDocumentType? RestrictDocumentType {
@@ -105,6 +140,12 @@ namespace Vodovoz
 		{
 			OnRefiltered();
 		}
+
+		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
 	}
 }
 

@@ -13,7 +13,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.Repository
+namespace Vodovoz.Repositories.Orders
 {
 	public static class OrderRepository
 	{
@@ -83,12 +83,12 @@ namespace Vodovoz.Repository
 				.List();
 		}
 
-		public static IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork UoW, DateTime startDate, DateTime endDate)
+		public static IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork UoW, Export1cMode mode, DateTime startDate, DateTime endDate)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 
-			var subquerySum = QueryOver.Of<OrderItem>(() => orderItemAlias)
+			var export1cSubquerySum = QueryOver.Of<OrderItem>(() => orderItemAlias)
 									   .Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 									   .Select(Projections.Sum(
 										   Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
@@ -107,12 +107,18 @@ namespace Vodovoz.Repository
 										  ))
 									   ;
 
-			return UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
+			var query = UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
 					  .Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
-					  .Where(o => o.PaymentType == PaymentType.cashless)
 					  .Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
-					  .Where(Subqueries.Le(0.01, subquerySum.DetachedCriteria))
-					  .List();
+					  .Where(Subqueries.Le(0.01, export1cSubquerySum.DetachedCriteria));
+			if(mode == Export1cMode.IPForTinkoff) {
+				query.Where(o => o.PaymentType == PaymentType.ByCard)
+					.Where(o => o.OnlineOrder != null);
+			} else {
+				query.Where(o => o.PaymentType == PaymentType.cashless);
+			}
+
+			return query.List();
 		}
 
 		public static IList<VodovozOrder> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)

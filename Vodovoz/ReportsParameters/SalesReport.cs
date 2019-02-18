@@ -19,6 +19,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Gamma.Utilities;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Reports
 {
@@ -32,9 +34,9 @@ namespace Vodovoz.Reports
 
 			private bool selected;
 
-			public bool Selected { 
-				get{ return selected; }
-				set{ SetField(ref selected, value, () => Selected); }
+			public bool Selected {
+				get => selected;
+				set => SetField(ref selected, value, () => Selected);
 			}
 		}
 
@@ -70,12 +72,12 @@ namespace Vodovoz.Reports
 
 			public void SubcribeWithClearOld(Action<string> action)
 			{
-				Changed = delegate {};
+				Changed = delegate { };
 				Changed += action;
 			}
 
-			public bool HaveSelected{
-				get{ return list.Any(x => x.Selected); }
+			public bool HaveSelected {
+				get { return list.Any(x => x.Selected); }
 			}
 
 			public void Unselect()
@@ -121,10 +123,7 @@ namespace Vodovoz.Reports
 				RefreshItems();
 			}
 
-			string SumSelected()
-			{
-				return ObservableList.Where(x => x.Selected).Count().ToString();
-			}
+			string SumSelected() => ObservableList.Count(x => x.Selected).ToString();
 		}
 
 		enum FilterTypes
@@ -142,7 +141,9 @@ namespace Vodovoz.Reports
 			SubdivisionInclude,
 			SubdivisionExclude,
 			OrderAuthorInclude,
-			OrderAuthorExclude
+			OrderAuthorExclude,
+			GeoGrpInclude,
+			GeoGrpExclude,
 		}
 
 		Dictionary<FilterTypes, Criterion> criterions = new Dictionary<FilterTypes, Criterion>();
@@ -179,6 +180,9 @@ namespace Vodovoz.Reports
 			// Авторы заказов
 			Criterion orderAuthorIncludeCrit = CreateOrderAuthorCriterion();
 			Criterion orderAuthorExcludeCrit = CreateOrderAuthorCriterion();
+			//Части города
+			Criterion geoGrpIncludeCrit = CreategeoGrpCriterion();
+			Criterion geoGrpExcludeCrit = CreategeoGrpCriterion();
 
 
 			//Задание связей по фильтрации и снятию выделения между критериями
@@ -219,6 +223,9 @@ namespace Vodovoz.Reports
 			//Авторы заказов
 			orderAuthorIncludeCrit.UnselectRelation.Add(orderAuthorExcludeCrit);
 			orderAuthorExcludeCrit.UnselectRelation.Add(orderAuthorIncludeCrit);
+			//Части города
+			geoGrpIncludeCrit.UnselectRelation.Add(geoGrpExcludeCrit);
+			geoGrpExcludeCrit.UnselectRelation.Add(geoGrpIncludeCrit);
 
 			//Сохранение фильтров для использования
 			criterions.Add(FilterTypes.NomenclatureInclude, nomenclatureIncludeCrit);
@@ -235,6 +242,8 @@ namespace Vodovoz.Reports
 			criterions.Add(FilterTypes.SubdivisionExclude, subdivisionExcludeCrit);
 			criterions.Add(FilterTypes.OrderAuthorInclude, orderAuthorIncludeCrit);
 			criterions.Add(FilterTypes.OrderAuthorExclude, orderAuthorExcludeCrit);
+			criterions.Add(FilterTypes.GeoGrpInclude, geoGrpIncludeCrit);
+			criterions.Add(FilterTypes.GeoGrpExclude, geoGrpExcludeCrit);
 		}
 
 		#region Создание фильтров
@@ -364,6 +373,23 @@ namespace Vodovoz.Reports
 			});
 		}
 
+		Criterion CreategeoGrpCriterion()
+		{
+			return new Criterion(
+				arg => {
+					SalesReportNode alias = null;
+					var query = UoW.Session.QueryOver<GeographicGroup>();
+					var queryResult = query.SelectList(
+						list => list.Select(x => x.Id).WithAlias(() => alias.Id)
+									.Select(x => x.Name).WithAlias(() => alias.Name)
+						)
+						.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
+						.List<SalesReportNode>();
+					return queryResult.ToList();
+				}
+			);
+		}
+
 		#endregion
 
 		private IColumnsConfig columnsConfig = ColumnsConfigFactory
@@ -383,11 +409,7 @@ namespace Vodovoz.Reports
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчет по продажам";
-			}
-		}
+		public string Title => "Отчет по продажам";
 
 		#endregion
 
@@ -405,11 +427,7 @@ namespace Vodovoz.Reports
 
 		private int[] GetResultIds(IEnumerable<int> ids)
 		{
-			if(ids.Any()) {
-				return ids.ToArray();
-			}else {
-				return new int[] { 0 };
-			}
+			return ids.Any() ? ids.ToArray() : new int[] { 0 };
 		}
 
 		private ReportInfo GetReportInfo()
@@ -417,15 +435,8 @@ namespace Vodovoz.Reports
 			string[] includeCategories = GetCategories(criterions[FilterTypes.NomenclatureTypeInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id).ToArray());
 			string[] excludeCategories = GetCategories(criterions[FilterTypes.NomenclatureTypeExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id).ToArray());
 
-			string identifier;
-			if(ycheckbuttonDetail.Active) {
-				identifier = "Sales.SalesReportDetail";
-			}else {
-				identifier = "Sales.SalesReport";
-			}
-
 			return new ReportInfo {
-				Identifier = identifier,
+				Identifier = ycheckbuttonDetail.Active ? "Sales.SalesReportDetail" : "Sales.SalesReport",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
@@ -450,7 +461,10 @@ namespace Vodovoz.Reports
 					{ "subdivision_exclude", GetResultIds(criterions[FilterTypes.SubdivisionExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 					//авторы заказа
 					{ "orderauthor_include", GetResultIds(criterions[FilterTypes.OrderAuthorInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-					{ "orderauthor_exclude", GetResultIds(criterions[FilterTypes.OrderAuthorExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
+					{ "orderauthor_exclude", GetResultIds(criterions[FilterTypes.OrderAuthorExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					//Части города
+					{ "geographic_groups_include", GetResultIds(criterions[FilterTypes.GeoGrpInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					{ "geographic_groups_exclude", GetResultIds(criterions[FilterTypes.GeoGrpExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
 				}
 			};
 		}
@@ -462,9 +476,7 @@ namespace Vodovoz.Reports
 
 		void OnUpdate(bool hide = false)
 		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
 		GenericObservableList<SalesReportNode> treeNodes;
@@ -652,6 +664,25 @@ namespace Vodovoz.Reports
 			});
 			labelTableTitle.Text = "Исключаемые отделы";
 		}
+
+		protected void OnBtnGeoGroupsSelectClicked(object sender, EventArgs e)
+		{
+			treeNodes = criterions[FilterTypes.GeoGrpInclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
+			criterions[FilterTypes.GeoGrpInclude].SubcribeWithClearOld((string obj) => {
+				lblGeoGroups.Text = String.Format("Вкл.: {0} елем.", obj);
+			});
+			labelTableTitle.Text = "Включаемые части города";
+		}
+
+		protected void OnBtnGeoGroupsDeselectClicked(object sender, EventArgs e)
+		{
+			treeNodes = criterions[FilterTypes.GeoGrpExclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
+			criterions[FilterTypes.GeoGrpExclude].SubcribeWithClearOld((string obj) => {
+				lblGeoGroups.Text = String.Format("Искл.: {0} елем.", obj);
+			});
+			labelTableTitle.Text = "Исключаемые части города";
+		}
 	}
 }
-

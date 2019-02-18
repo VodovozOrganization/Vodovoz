@@ -21,7 +21,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		{
 			int id = GetReferenceId(contract);
 
-			if(contract.Organization.INN != "7816453294")
+			if(exportData.ExportMode == Repositories.Orders.Export1cMode.BuhgalteriaOOO && contract.Organization.INN != "7816453294")
 				exportData.Errors.Add($"Выгрузка в 1с возможна только для организации ООО \"Весёлый водовоз\" (ИНН 7816453294). Договор {contract.Title} оформлен на дугую организацию.");
 
 			return new ReferenceNode(id,

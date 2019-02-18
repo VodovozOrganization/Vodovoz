@@ -3,13 +3,22 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Store;
+using Vodovoz.Repositories.HumanResources;
+using QS.DomainModel.UoW;
+using System.Linq;
+using System.Text;
+using QS.Project.Domain;
 
 namespace Vodovoz
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "подразделения",
 		Nominative = "подразделение")]
+	[EntityPermission]
 	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
@@ -59,6 +68,42 @@ namespace Vodovoz
 			}
 		}
 
+		IList<TypeOfEntity> documentTypes = new List<TypeOfEntity>();
+
+		[Display(Name = "Документы используемые в подразделении")]
+		public virtual IList<TypeOfEntity> DocumentTypes {
+			get => documentTypes;
+			set => SetField(ref documentTypes, value, () => DocumentTypes);
+		}
+
+		GenericObservableList<TypeOfEntity> observableDocumentTypes;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<TypeOfEntity> ObservableDocumentTypes {
+			get {
+				if(observableDocumentTypes == null)
+					observableDocumentTypes = new GenericObservableList<TypeOfEntity>(DocumentTypes);
+				return observableDocumentTypes;
+			}
+		}
+
+		IList<ScheduleRestrictedDistrict> servicingDistricts = new List<ScheduleRestrictedDistrict>();
+
+		[Display(Name = "Обслуживаемые районы")]
+		public virtual IList<ScheduleRestrictedDistrict> ServicingDistricts {
+			get => servicingDistricts;
+			set => SetField(ref servicingDistricts, value, () => ServicingDistricts);
+		}
+
+		GenericObservableList<ScheduleRestrictedDistrict> observableServicingDistricts;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ScheduleRestrictedDistrict> ObservableServicingDistricts {
+			get {
+				if(observableServicingDistricts == null)
+					observableServicingDistricts = new GenericObservableList<ScheduleRestrictedDistrict>(ServicingDistricts);
+				return observableServicingDistricts;
+			}
+		}
+
 		#endregion
 
 		#region Геттеры и методы
@@ -84,6 +129,16 @@ namespace Vodovoz
 				parent = parent.ParentSubdivision;
 			}
 			return false;
+		}
+
+		public virtual string GetWarehousesNames(IUnitOfWork uow)
+		{
+			string result = string.Empty;
+			if(Id != 0) {
+				var whs = SubdivisionsRepository.GetWarehouses(uow, this).Select(w => w.Name);
+				result = string.Join(", ", whs);
+			}
+			return result;
 		}
 
 		#endregion

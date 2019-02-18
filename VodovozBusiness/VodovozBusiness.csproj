@@ -352,7 +352,6 @@
     <Compile Include="Repositories\Operations\BottlesRepository.cs" />
     <Compile Include="Repositories\Operations\DepositRepository.cs" />
     <Compile Include="Repositories\Operations\MoneyRepository.cs" />
-    <Compile Include="Repositories\OrderRepository.cs" />
     <Compile Include="Repositories\OrganizationRepository.cs" />
     <Compile Include="Repositories\RentPackageRepository.cs" />
     <Compile Include="Repositories\ServiceClaimRepository.cs" />
@@ -546,6 +545,22 @@
     <Compile Include="HibernateMapping\Employees\CitizenshipMap.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeContractMap.cs" />
     <Compile Include="DocTemplates\EmployeeContractParser.cs" />
+    <Compile Include="Domain\Permissions\EntitySubdivisionPermission.cs" />
+    <Compile Include="HibernateMapping\Permissions\EntitySubdivisionPermissionMap.cs" />
+    <Compile Include="Domain\Permissions\EntityPermissionValidator.cs" />
+    <Compile Include="Domain\Permissions\EntitiesWithPermissionFinder.cs" />
+    <Compile Include="Domain\Permissions\PermissionHelper.cs" />
+    <Compile Include="Repositories\Permissions\PermissionRepository.cs" />
+    <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermission.cs" />
+    <Compile Include="Domain\Permissions\EntitySubdivisionOnlyPermission.cs" />
+    <Compile Include="Domain\Sale\GeographicGroup.cs" />
+    <Compile Include="HibernateMapping\Sale\GeographicGroupMap.cs" />
+    <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermissionValidator.cs" />
+    <Compile Include="Domain\Permissions\ISubdivisionEntity.cs" />
+    <Compile Include="Repositories\Orders\Export1cMode.cs" />
+    <Compile Include="Repositories\Orders\OrderRepository.cs" />
+    <Compile Include="Repositories\Store\CarUnloadRepository.cs" />
+    <Compile Include="Repositories\Store\CarLoadRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -574,6 +589,10 @@
     <Folder Include="HibernateMapping\Payments\" />
     <Folder Include="Repositories\Payments\" />
     <Folder Include="Repositories\HumanResourses\" />
+    <Folder Include="Domain\Permissions\" />
+    <Folder Include="HibernateMapping\Permissions\" />
+    <Folder Include="Repositories\Permissions\" />
+    <Folder Include="Repositories\Orders\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

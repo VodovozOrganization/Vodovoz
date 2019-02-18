@@ -6,6 +6,7 @@ using QS.DomainModel.Entity;
 using QSOrmProject;
 using QSProjectsLib;
 using QS.DomainModel.UoW;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Client
 {
@@ -16,6 +17,7 @@ namespace Vodovoz.Domain.Client
 		AccusativePlural = "контакты"
 
 	)]
+	[EntityPermission]
 	public class Contact : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

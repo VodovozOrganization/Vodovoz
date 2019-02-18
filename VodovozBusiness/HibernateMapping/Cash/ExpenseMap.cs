@@ -25,6 +25,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.RouteListClosing)	.Column("route_list_id");
 			References(x => x.WagesOperation)	.Column("wages_movement_operations_id");
 			References(x => x.Order)			.Column("order_id");
+			References(x => x.RelatedToSubdivision).Column("related_to_subdivision_id");
 
 			HasMany(x => x.AdvanceCloseItems).Cascade.AllDeleteOrphan ().Inverse ().LazyLoad ().KeyColumn ("expense_id");
 		}

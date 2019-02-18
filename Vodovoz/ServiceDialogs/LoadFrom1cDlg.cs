@@ -5,7 +5,6 @@ using System.Linq;
 using System.Xml;
 using Gamma.GtkWidgets;
 using Gtk;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSBanks;
 using QSBanks.Repositories;
@@ -19,6 +18,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.LoadFrom1c;
+using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Client;
 
 namespace Vodovoz
@@ -1020,7 +1020,7 @@ namespace Vodovoz
 
 			progressbar.Text = "Загружаем таблицу существующих заказов.";
 			var orderCodes1c = OrdersList.Select(c => c.Code1c).ToArray();
-			var ExistOrders = Repository.OrderRepository.GetOrdersByCode1c(UoW, orderCodes1c);
+			var ExistOrders = OrderRepository.GetOrdersByCode1c(UoW, orderCodes1c);
 
 			progressbar.Text = "Сверяем заказы...";
 			progressbar.Adjustment.Value = 0;
@@ -1029,7 +1029,7 @@ namespace Vodovoz
 
 			List<Order> OrdersInDataBase = new List<Order>();
 			foreach (var date in LoadedOrderDates)
-				OrdersInDataBase.AddRange(Repository.OrderRepository.GetOrdersBetweenDates(UoW, date, date));
+				OrdersInDataBase.AddRange(OrderRepository.GetOrdersBetweenDates(UoW, date, date));
 			
 
 			//Проверка заказов

@@ -23,7 +23,7 @@ namespace Vodovoz.Repositories.Sale
 		public static IList<ScheduleRestrictedDistrictRuleItem> GetScheduleRestrictedDistrictRuleItemsForDistrict(IUnitOfWork uow, ScheduleRestrictedDistrict district)
 		{
 			var res = uow.Session.QueryOver<ScheduleRestrictedDistrictRuleItem>()
-			             .Where(i => i.ScheduleRestrictedDistrict.Id == district.Id)
+						 .Where(i => i.ScheduleRestrictedDistrict.Id == district.Id)
 						 .List();
 			return res;
 		}

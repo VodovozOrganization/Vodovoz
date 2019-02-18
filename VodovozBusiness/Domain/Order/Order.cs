@@ -6,6 +6,7 @@ using System.Linq;
 using Gamma.Utilities;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QSProjectsLib;
@@ -21,6 +22,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Client;
@@ -38,6 +40,7 @@ namespace Vodovoz.Domain.Orders
 		PrepositionalPlural = "заказах"
 	)]
 	[HistoryTrace]
+	[EntityPermission]
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -88,7 +91,7 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Клиент")]
 		public virtual Counterparty Client {
-			get { return client; }
+			get => client;
 			set {
 				if(value == client)
 					return;
@@ -97,11 +100,15 @@ namespace Vodovoz.Domain.Orders
 				} else if(client != null && !CanChangeContractor()) {
 					throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
 				}
-				SetField(ref client, value, () => Client);
-				if(DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id)) {
-					//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
-					logger.Warn("Очищаем точку доставки, при установке клиента. Возможно это не нужно.");
-					DeliveryPoint = null;
+
+				if(SetField(ref client, value, () => Client)) {
+					if(DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id)) {
+						//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
+						logger.Warn("Очищаем точку доставки, при установке клиента. Возможно это не нужно.");
+						DeliveryPoint = null;
+					}
+					if(!NeedCheque.HasValue && Client.NeedCheque.HasValue)
+						NeedCheque = Client.NeedCheque;
 				}
 			}
 		}
@@ -287,15 +294,19 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Форма оплаты")]
 		public virtual PaymentType PaymentType {
-			get { return paymentType; }
+			get => paymentType;
 			set {
-				if(value == paymentType)
-					return;
-				//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
-				if(Client != null && OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
-					OnChangePaymentType();
+				if(value != paymentType && SetField(ref paymentType, value, () => PaymentType)) {
+					if(PaymentType != PaymentType.cash)
+						NeedCheque = null;
+					else if(Client != null && Client.NeedCheque != null)
+						NeedCheque = Client.NeedCheque;
+					else
+						NeedCheque = ChequeResponse.Unknown;
+					//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
+					if(Client != null && OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
+						OnChangePaymentType();
 				}
-				SetField(ref paymentType, value, () => PaymentType);
 			}
 		}
 
@@ -337,12 +348,8 @@ namespace Vodovoz.Domain.Orders
 		bool collectBottles;
 
 		public virtual bool CollectBottles {
-			get {
-				return collectBottles;
-			}
-			set {
-				SetField(ref collectBottles, value, () => CollectBottles);
-			}
+			get => collectBottles;
+			set => SetField(ref collectBottles, value, () => CollectBottles);
 		}
 
 		DefaultDocumentType? documentType;
@@ -559,15 +566,22 @@ namespace Vodovoz.Domain.Orders
 		[IgnoreHistoryTrace]
 		public virtual bool HasCommentForDriver {
 			get => hasCommentForDriver;
-			set { SetField(ref hasCommentForDriver, value, () => HasCommentForDriver); }
+			set => SetField(ref hasCommentForDriver, value, () => HasCommentForDriver);
 		}
 
 		private OrderSource orderSource = OrderSource.VodovozApp;
 
 		[Display(Name = "Источник заказа")]
 		public virtual OrderSource OrderSource {
-			get { return orderSource; }
-			set { SetField(ref orderSource, value); }
+			get => orderSource;
+			set => SetField(ref orderSource, value);
+		}
+
+		ChequeResponse? needCheque;
+		[Display(Name = "Требуется печать чека")]
+		public virtual ChequeResponse? NeedCheque {
+			get => needCheque;
+			set => SetField(ref needCheque, value, () => NeedCheque);
 		}
 
 		#endregion
@@ -751,8 +765,8 @@ namespace Vodovoz.Domain.Orders
 					//если ни у точки доставки, ни у контрагента нет ни одного номера телефона
 					if(!IsLoadedFrom1C && !((DeliveryPoint != null && DeliveryPoint.Phones.Any()) || Client.Phones.Any()))
 						yield return new ValidationResult("Ни для контрагента, ни для точки доставки заказа не указано ни одного номера телефона.");
-					
-					if(!IsLoadedFrom1C && DeliveryPoint != null){
+
+					if(!IsLoadedFrom1C && DeliveryPoint != null) {
 						if(string.IsNullOrWhiteSpace(DeliveryPoint.Entrance)) {
 							yield return new ValidationResult("Не заполнена парадная в точке доставки");
 						}
@@ -767,9 +781,9 @@ namespace Vodovoz.Domain.Orders
 					//В случае, если редактируется заказ "В пути", то должен быть оставлен комментарий, поясняющий причину редактирования.
 					//Если заказ "В пути" редактируется больше одного раза, то комментарий должен отличаться от предыдущего.
 					var order = UnitOfWorkFactory.CreateWithoutRoot($"Валидация заказа").GetById<Order>(Id);
-					if(OrderStatus == OrderStatus.OnTheWay && 
+					if(OrderStatus == OrderStatus.OnTheWay &&
 					   (order == null && OnRouteEditReason == null
-					    || order != null && order.OnRouteEditReason == OnRouteEditReason))
+						|| order != null && order.OnRouteEditReason == OnRouteEditReason))
 						yield return new ValidationResult("При изменении заказа в статусе 'В пути' необходимо указывать причину редактирования",
 														  new[] { this.GetPropertyName(o => o.OnRouteEditReason) });
 					// Проверка соответствия цен в заказе ценам в номенклатуре
@@ -804,11 +818,11 @@ namespace Vodovoz.Domain.Orders
 					if(!SelfDelivery && DeliveryPoint != null) {
 						var ordersForDeliveryPoints = OrderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
 																	 .Where(
-							                                             o => o.Id != Id
-							                                             && o.DeliveryDate == DeliveryDate
-							                                             && !OrderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
-							                                             && !o.IsService
-							                                            );
+																		 o => o.Id != Id
+																		 && o.DeliveryDate == DeliveryDate
+																		 && !OrderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
+																		 && !o.IsService
+																		);
 
 						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
@@ -821,6 +835,19 @@ namespace Vodovoz.Domain.Orders
 								new[] { this.GetPropertyName(o => o.OrderEquipments) });
 						}
 					}
+
+					if(!DeliveryPoint.FindAndAssociateDistrict(UoW))
+						yield return new ValidationResult(
+							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
+							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
+					);
+
+					if(PaymentType == PaymentType.cash && (!NeedCheque.HasValue || NeedCheque.Value == ChequeResponse.Unknown))
+						yield return new ValidationResult(
+							"Укажите, нужно ли напечатать чек клиенту",
+							new[] { this.GetPropertyName(o => o.NeedCheque) }
+						);
+
 				}
 
 				if(newStatus == OrderStatus.Closed) {
@@ -834,7 +861,7 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				if(IsService && PaymentType == PaymentType.cashless
-				   && newStatus == OrderStatus.Accepted 
+				   && newStatus == OrderStatus.Accepted
 				   && !QSMain.User.Permissions["can_accept_cashles_service_orders"]) {
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
@@ -886,7 +913,7 @@ namespace Vodovoz.Domain.Orders
 			if(!IsLoadedFrom1C && ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.IsDisposableTare) &&
 			   //Если нет ни одного допсоглашения на воду подходящего на точку доставку в заказе 
 			   //(или без точки доставки если относится на все точки)
-			   !HaveActualWaterSaleAgreementByDeliveryPoint() ) {
+			   !HaveActualWaterSaleAgreementByDeliveryPoint()) {
 				yield return new ValidationResult("В заказе выбрана точка доставки для которой нет актуального дополнительного соглашения по доставке воды");
 			}
 
@@ -910,47 +937,21 @@ namespace Vodovoz.Domain.Orders
 
 		#region Вычисляемые
 
-		public virtual bool IsLoadedFrom1C
-		{
-			get{
-				return !string.IsNullOrEmpty(Code1c);
-			}
-		}
+		public virtual bool IsLoadedFrom1C => !string.IsNullOrEmpty(Code1c);
 
-		public override string ToString()
-		{
-			return String.Format("Заказ №{0}({1})", Id, Code1c);
-		}
+		public override string ToString() => String.Format("Заказ №{0}({1})", Id, Code1c);
 
-		public virtual string Title {
-			get { return String.Format("Заказ №{0} от {1:d}", Id, DeliveryDate); }
-		}
+		public virtual string Title => String.Format("Заказ №{0} от {1:d}", Id, DeliveryDate);
 
-		public virtual int TotalDeliveredBottles {
-			get {
-				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
-			}
-		}
+		public virtual int TotalDeliveredBottles => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 
-		public virtual int TotalDeliveredBottlesSix {
-			get {
-				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
-			}
-		}
+		public virtual int TotalDeliveredBottlesSix => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
 
-		public virtual int TotalDeliveredBottlesSmall {
-			get {
-				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
-			}
-		}
+		public virtual int TotalDeliveredBottlesSmall => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
 
-		public virtual int TotalWeight {
-			get {
-				return (int)OrderItems.Sum(x => x.Count * x.Nomenclature.Weight);
-			}
-		}
+		public virtual int TotalWeight => (int)OrderItems.Sum(x => x.Count * x.Nomenclature.Weight);
 
-		public virtual string RowColor { get { return PreviousOrder == null ? "black" : "red"; } }
+		public virtual string RowColor => PreviousOrder == null ? "black" : "red";
 
 		[Display(Name = "Наличных к получению")]
 		public virtual Decimal SumToReceive {
@@ -1023,24 +1024,20 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		public virtual decimal MoneyForMaster =>
-		ObservableOrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.master)
-							.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount * i.Price);
+			ObservableOrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.master)
+								.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount * i.Price);
 
 		public virtual decimal ActualGoodsTotalSum =>
-		OrderItems.Sum(item => item.Price * item.ActualCount - item.DiscountMoney);
+			OrderItems.Sum(item => item.Price * item.ActualCount - item.DiscountMoney);
 
 		/// <summary>
 		/// Количество 19л бутылей в заказе
 		/// </summary>
-		public virtual int TotalWaterBottles {
-			get {
-				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
-			}
-		}
+		public virtual int TotalWaterBottles => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 
 		public virtual bool CanBeMovedFromClosedToAcepted => RouteListItemRepository.WasOrderInAnyRouteList(UoW, this)
-		                                                     	&& QSMain.User.Permissions["can_move_order_from_closed_to_acepted"];
-		
+																 && QSMain.User.Permissions["can_move_order_from_closed_to_acepted"];
+
 		#endregion
 
 		#region Автосоздание договоров, допсоглашений при изменении подтвержденного заказа
@@ -1437,7 +1434,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		void AddEquipmentForSale(AdditionalAgreement agreement, Nomenclature nomenclature, IUnitOfWork UoW)
+		void AddEquipmentForSale(AdditionalAgreement agreement, Nomenclature nomenclature, IUnitOfWork uow)
 		{
 			if(nomenclature.Category != NomenclatureCategory.equipment)
 				return;
@@ -1451,7 +1448,7 @@ namespace Vodovoz.Domain.Orders
 					Price = nomenclature.GetPrice(1)
 				});
 			} else {
-				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, nomenclature);
+				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature(uow, nomenclature);
 				ObservableOrderItems.AddWithReturn(new OrderItem {
 					Order = this,
 					AdditionalAgreement = agreement,
@@ -1594,7 +1591,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			#endregion
 
-			var districts = DeliveryPoint?.GetDistricts(UoW);
+			var districts = DeliveryPoint?.CalculateDistricts(UoW);
 
 			OrderStateKey orderKey = new OrderStateKey(this);
 			var price = districts.Any() ? districts.Max(x => x.GetDeliveryPrice(orderKey)) : 0m;

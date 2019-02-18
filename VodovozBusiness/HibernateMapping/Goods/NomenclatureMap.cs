@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.HibernateMapping
@@ -72,12 +71,15 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.Type).Column("type_id");
 			References(x => x.Manufacturer).Column("manufacturer_id");
 			References(x => x.RouteListColumn).Column("route_column_id");
-			References(x => x.Warehouse).Column("warehouse_id");
 			References(x => x.Folder1C).Column("folder_1c_id");
 			References(x => x.ProductGroup).Column("group_id");
 
 			HasMany(x => x.NomenclaturePrice).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.Images).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasManyToMany(x => x.Warehouses).Table("nomenclatures_to_warehouses")
+											.ParentKeyColumn("nomenclature_id")
+											.ChildKeyColumn("warehouse_id")
+											.LazyLoad();
 		}
 	}
 }

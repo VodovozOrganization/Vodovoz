@@ -7,25 +7,28 @@ using Gamma.Utilities;
 using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Utilities.Text;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
+using QS.Tdi.Gtk;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using QSProjectsLib;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
+using QSSupportLib;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.ViewModel
 {
 	public class RouteListsVM : RepresentationModelEntityBase<RouteList, RouteListsVMNode>
 	{
 		public RouteListsFilter Filter {
-			get {
-				return RepresentationFilter as RouteListsFilter;
-			}
-			set {
-				RepresentationFilter = value as IRepresentationFilter;
-			}
+			get => RepresentationFilter as RouteListsFilter;
+			set => RepresentationFilter = value as IRepresentationFilter;
 		}
 
 		#region IRepresentationModel implementation
@@ -38,6 +41,7 @@ namespace Vodovoz.ViewModel
 
 			Car carAlias = null;
 			Employee driverAlias = null;
+			GeographicGroup geographicGroupsAlias = null;
 
 			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
 
@@ -59,6 +63,11 @@ namespace Vodovoz.ViewModel
 
 			if(Filter.RestrictEndDate != null) {
 				query.Where(o => o.Date <= Filter.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+			}
+
+			if(Filter.RestrictGeographicGroup != null) {
+				query.Left.JoinAlias(o => o.GeographicGroups, () => geographicGroupsAlias)
+				     .Where(() => geographicGroupsAlias.Id == Filter.RestrictGeographicGroup.Id);
 			}
 
 			//логика фильтра ТС
@@ -84,7 +93,7 @@ namespace Vodovoz.ViewModel
 				.JoinAlias(o => o.Car, () => carAlias)
 				.JoinAlias(o => o.Driver, () => driverAlias)
 				.SelectList(list => list
-				   .Select(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
+				   .SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
 				   .Select(() => routeListAlias.Status).WithAlias(() => resultAlias.StatusEnum)
 				   .Select(() => shiftAlias.Name).WithAlias(() => resultAlias.ShiftName)
@@ -179,12 +188,14 @@ namespace Vodovoz.ViewModel
 		private List<RouteListStatus> CanDeletedStatuses = new List<RouteListStatus>()
 			{
 				RouteListStatus.New,
+				RouteListStatus.Confirmed,
 				RouteListStatus.InLoading
 			};
 
 		private List<RouteListStatus> FuelIssuingStatuses = new List<RouteListStatus>()
 			{
 				RouteListStatus.New,
+				RouteListStatus.Confirmed,
 				RouteListStatus.InLoading,
 				RouteListStatus.EnRoute
 			};
@@ -210,13 +221,58 @@ namespace Vodovoz.ViewModel
 				ControlDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemRouteListControlDlg);
 
+			Gtk.MenuItem menuItemRouteListSendToLoading = new Gtk.MenuItem("Отправить Мл на погрузку");
+			menuItemRouteListSendToLoading.Sensitive = selected.Any((x) => (x.VMNode as RouteListsVMNode).StatusEnum == RouteListStatus.Confirmed);
+			menuItemRouteListSendToLoading.Activated += (sender, e) => {
+				bool isSlaveTabActive = false;
+				var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
+				var routeLists = UoW.Session.QueryOver<RouteList>()
+					.Where(x => x.Id.IsIn(routeListIds))
+					.List();
+				routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) => {
+					if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
+						MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
+						isSlaveTabActive = true;
+						return;
+					}
+					foreach(var address in routeList.Addresses) {
+						if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
+							address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading);
+					}
+
+					routeList.ChangeStatus(RouteListStatus.InLoading);
+					UoW.Save(routeList);
+				});
+
+				if(isSlaveTabActive)
+					return;
+
+				foreach(var rlNode in lastMenuSelected) {
+					var node =(rlNode.VMNode as RouteListsVMNode);
+					if(node != null)
+						node.StatusEnum = RouteListStatus.InLoading;
+				}
+				UoW.Commit();
+			};
+			popupMenu.Add(menuItemRouteListSendToLoading);
+
 			Gtk.MenuItem menuItemRouteListKeepingDlg = new Gtk.MenuItem("Открыть диалог ведения");
 			menuItemRouteListKeepingDlg.Activated += MenuItemRouteListKeepingDlg_Activated;
 			menuItemRouteListKeepingDlg.Sensitive = selected.Any(x =>
 				KeepingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemRouteListKeepingDlg);
 
-			Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem("Открыть диалог закрытия");
+			//FIXME исправить на нормальную проверку права этого подразделения
+			if(!MainSupport.BaseParameters.All.ContainsKey("accept_route_list_subdivision_restrict")) {
+				throw new InvalidOperationException(String.Format("В базе не настроен параметр: accept_route_list_subdivision_restrict"));
+			}
+			int restrictSubdivision = int.Parse(MainSupport.BaseParameters.All["accept_route_list_subdivision_restrict"]);
+			var userSubdivision = EmployeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision;
+			string closingDlgName = "Открыть диалог закрытия";
+			if(userSubdivision != null && userSubdivision.Id == restrictSubdivision) {
+				closingDlgName = "Принять ДС по МЛ";
+			}
+			Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem(closingDlgName);
 			menuItemRouteListClosingDlg.Activated += MenuItemRouteListClosingDlg_Activated;
 			menuItemRouteListClosingDlg.Sensitive = selected.Any(x =>
 				ClosingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
@@ -269,7 +325,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var rl in routeLists.Where(x => MileageCheckDlgStatuses.Contains(x.Status))) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
+					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
 					() => new RouteListMileageCheckDlg(rl.Id)
 				);
 			}
@@ -285,7 +341,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var rl in routeLists.Where(x => ClosingDlgStatuses.Contains(x.Status))) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
+					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
 					() => new RouteListClosingDlg(rl.Id)
 				);
 			}
@@ -301,7 +357,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var rl in routeLists.Where(x => ControlDlgStatuses.Contains(x.Status))) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
+					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
 					() => new RouteListControlDlg(rl.Id)
 				);
 			}
@@ -318,7 +374,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var rl in routeLists.Where(x => KeepingDlgStatuses.Contains(x.Status))) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
+					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
 					() => new RouteListKeepingDlg(rl.Id)
 				);
 			}
@@ -330,7 +386,7 @@ namespace Vodovoz.ViewModel
 
 			foreach(var routeId in routeListIds) {
 				MainClass.MainWin.TdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(routeId),
+					DialogHelper.GenerateDialogHashName<RouteList>(routeId),
 					() => new RouteListCreateDlg(routeId)
 				);
 			}
@@ -363,7 +419,7 @@ namespace Vodovoz.ViewModel
 			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
 			var RouteList = UoW.GetById<RouteList>(routeListIds[0]);
 			MainClass.MainWin.TdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(routeListIds[0]),
+					DialogHelper.GenerateDialogHashName<RouteList>(routeListIds[0]),
 					() => new FuelDocumentDlg(RouteList)
 				);
 		}
@@ -384,11 +440,7 @@ namespace Vodovoz.ViewModel
 		public string DriverName { get; set; }
 		public string DriverPatronymic { get; set; }
 
-		public string Driver {
-			get {
-				return StringWorks.PersonFullName(DriverSurname, DriverName, DriverPatronymic);
-			}
-		}
+		public string Driver => PersonHelper.PersonFullName(DriverSurname, DriverName, DriverPatronymic);
 
 		public string CarModel { get; set; }
 

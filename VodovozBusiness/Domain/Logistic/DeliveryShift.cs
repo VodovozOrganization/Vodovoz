@@ -4,6 +4,7 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using Gamma.Utilities;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -11,6 +12,7 @@ namespace Vodovoz.Domain.Logistic
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "смены доставки",
 		Nominative = "смена доставки")]
+	[EntityPermission]
 	public class DeliveryShift : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }

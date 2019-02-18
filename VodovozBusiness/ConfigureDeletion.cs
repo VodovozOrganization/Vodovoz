@@ -581,7 +581,7 @@ namespace Vodovoz
 				.AddDeleteDependence<ShiftChangeWarehouseDocument>(x => x.Warehouse)
 				.AddDeleteDependence<RegradingOfGoodsDocument>(x => x.Warehouse)
 				.AddDeleteDependence<SelfDeliveryDocument>(x => x.Warehouse)
-				.AddClearDependence<Nomenclature>(x => x.Warehouse)
+				//.AddClearDependence<Nomenclature>(x => x.Warehouse)
 				.AddClearDependence<UserSettings>(x => x.DefaultWarehouse);
 
 			DeleteConfig.AddHibernateDeleteInfo<IncomingInvoice>()

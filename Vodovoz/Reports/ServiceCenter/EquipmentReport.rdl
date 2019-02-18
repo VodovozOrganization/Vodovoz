@@ -12,17 +12,17 @@
   <RightMargin>5mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
   <PageHeader>
-    <Height>29.9pt</Height>
+    <Height>20.3pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>22.55pt</Height>
-        <Width>568.36pt</Width>
+        <Height>21.04pt</Height>
+        <Width>814.47pt</Width>
         <Value>="Отчет по оборудованию с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>5.5pt</Top>
+        <Left>0.00pt</Left>
+        <Top>0.00pt</Top>
         <Style>
           <FontSize>16pt</FontSize>
           <BorderStyle />
@@ -34,7 +34,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>42.3pt</Height>
+    <Height>45.4pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Orders</DataSetName>
@@ -57,16 +57,16 @@
             <Width>126.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>94.0pt</Width>
+            <Width>114.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>78.8pt</Width>
+            <Width>107.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>72.3pt</Width>
+            <Width>27.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>223.4pt</Width>
@@ -89,6 +89,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -105,6 +106,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -121,6 +123,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -137,6 +140,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -153,6 +157,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -169,6 +174,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -176,7 +182,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>Ежедневный номер</Value>
+                      <Value>Еж. ном.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -185,6 +191,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -202,6 +209,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -228,6 +236,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -241,6 +250,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -254,6 +266,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -269,6 +284,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -284,6 +300,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -298,6 +315,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -312,6 +331,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -326,6 +347,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -363,12 +385,12 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    orders.id AS order_id,
-    counterparty.full_name AS client_name,
-    delivery_points.compiled_address_short AS address,
+	orders.id AS order_id,
+	counterparty.full_name AS client_name,
+	delivery_points.compiled_address_short AS address,
 	CONCAT_WS(
-		', ',		
-        NULLIF(CONCAT_WS(
+		', ',
+		NULLIF(CONCAT_WS(
 			' ', 
 			orders.to_client_text,
 			GROUP_CONCAT(
@@ -378,29 +400,30 @@
 				) 
 			SEPARATOR ' ')
 		), ' '),
-        equipments.equipment_to_client
-    ) AS to_client,
-    CONCAT_WS(
+		equipments.equipment_to_client
+	) AS to_client,
+	CONCAT_WS(
 		', ',
 		orders.from_client_text,
-        equipments.equipment_from_client
+		equipments.equipment_from_client
 	) AS from_client,
-    orders.order_status AS status,
-    orders.daily_number_1c AS dailynum,
-    IF(nomenclature.category != 'water', GROUP_CONCAT( CONCAT_WS(' ', nomenclature.name, '-', order_items.count, 'шт.') SEPARATOR ',\n'), '') as nomenclatures
+	orders.order_status AS status,
+	orders.daily_number_1c AS dailynum,
+	IF(nomenclature.category != 'water', GROUP_CONCAT(DISTINCT CONCAT_WS(' ', nomenclature.name, '-', order_items.count, 'шт.') SEPARATOR ',\n'), '') as nomenclatures,
+	GROUP_CONCAT(gg.name SEPARATOR ', ')
 FROM
-    orders
-        LEFT JOIN
-    counterparty ON counterparty.id = orders.client_id
-        LEFT JOIN
-    delivery_points ON delivery_points.id = orders.delivery_point_id
-        LEFT JOIN
-    order_items ON order_items.order_id = orders.id
-        LEFT JOIN
-        (
+	orders
+		LEFT JOIN
+	counterparty ON counterparty.id = orders.client_id
+		LEFT JOIN
+	delivery_points ON delivery_points.id = orders.delivery_point_id
+		LEFT JOIN
+	order_items ON order_items.order_id = orders.id
+		LEFT JOIN
+		(
 			SELECT
 				order_equipment.order_id as order_id,
-                GROUP_CONCAT(
+				GROUP_CONCAT(
 					IF(order_equipment.direction = 'Deliver',
 						CONCAT(
 							IFNULL(equip_nomenclature.name, equip_nomenclature.official_name),
@@ -409,22 +432,22 @@ FROM
 								when order_equipment.direction_reason = 'Rent' then 'Аренда'
 								when order_equipment.direction_reason = 'Repair' then 'Ремонт'
 								when order_equipment.direction_reason = 'Cleaning' then 'Санобработка'
-								when order_equipment.direction_reason = 'RepairAndCleaning' then 'Ремонт и санобработка'       
+								when order_equipment.direction_reason = 'RepairAndCleaning' then 'Ремонт и санобработка'
 								else ''
 							end,
 							', ',
 							Case
 								when order_equipment.own_type = 'Client' then 'Клиент'
 								when order_equipment.own_type = 'Duty' then 'Дежурный'
-								when order_equipment.own_type = 'Rent' then 'Аренда'       
+								when order_equipment.own_type = 'Rent' then 'Аренда'
 								else ''
 							end,
 							')'
 						), null)
 					SEPARATOR ', '
 				) as equipment_to_client,
-                
-                GROUP_CONCAT(
+				
+				GROUP_CONCAT(
 					IF(order_equipment.direction = 'PickUp',
 						CONCAT(
 							IFNULL(equip_nomenclature.name, equip_nomenclature.official_name),
@@ -433,13 +456,13 @@ FROM
 								when order_equipment.direction_reason = 'Rent' then 'Аренда, '
 								when order_equipment.direction_reason = 'Repair' then 'Ремонт, '
 								when order_equipment.direction_reason = 'Cleaning' then 'Санобработка, '
-								when order_equipment.direction_reason = 'RepairAndCleaning' then 'Ремонт и санобработка, '       
+								when order_equipment.direction_reason = 'RepairAndCleaning' then 'Ремонт и санобработка, '
 								else ''
 							end,
 							Case
 								when order_equipment.own_type = 'Client' then 'Клиент'
 								when order_equipment.own_type = 'Duty' then 'Дежурный'
-								when order_equipment.own_type = 'Rent' then 'Аренда'       
+								when order_equipment.own_type = 'Rent' then 'Аренда'
 								else ''
 							end,
 							')'
@@ -452,12 +475,15 @@ FROM
 				LEFT JOIN
 				nomenclature as equip_nomenclature ON equip_nomenclature.id = order_equipment.nomenclature_id
 			WHERE equip_nomenclature.category = 'equipment'
-            GROUP BY order_equipment.order_id
-        ) as equipments ON equipments.order_id = orders.id
-        LEFT JOIN
-    nomenclature ON nomenclature.id = order_items.nomenclature_id
+			GROUP BY order_equipment.order_id
+		) as equipments ON equipments.order_id = orders.id
+		LEFT JOIN
+	nomenclature ON nomenclature.id = order_items.nomenclature_id
+LEFT JOIN schedule_restricted_districts distr ON delivery_points.schedule_restricted_district_id = distr.id
+LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
+LEFT JOIN geographic_groups gg ON gge.geographic_group_id = gg.id
 		#LEFT JOIN
-    #nomenclature as equip_nomenclature ON equip_nomenclature.id = order_equipment.nomenclature_id AND equip_nomenclature.category = 'equipment'
+	#nomenclature as equip_nomenclature ON equip_nomenclature.id = order_equipment.nomenclature_id AND equip_nomenclature.category = 'equipment'
 WHERE
 		orders.delivery_date &gt;= @start_date
 	AND orders.delivery_date &lt;= @end_date
@@ -476,15 +502,20 @@ WHERE
 					AND nomenclature.category = 'additional'
 				   )
 				)
-            OR equipments.order_id IS NOT NULL
+			OR equipments.order_id IS NOT NULL
 		)
-GROUP BY orders.id</CommandText>
+	AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups))
+GROUP BY orders.id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_groups">
+            <Value>=Parameters!geographic_groups</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -551,6 +582,13 @@ GROUP BY orders.id</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="geographic_groups">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

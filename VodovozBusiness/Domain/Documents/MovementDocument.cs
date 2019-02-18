@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -16,7 +17,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы перемещения ТМЦ",
 		Nominative = "документ перемещения ТМЦ")]
-	//[HistoryTrace]
+	[EntityPermission]
 	public class MovementDocument : Document, IValidatableObject
 	{
 		MovementDocumentCategory category;

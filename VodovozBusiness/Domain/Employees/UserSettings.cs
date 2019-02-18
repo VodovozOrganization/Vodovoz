@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Gtk;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QSOrmProject;
 using Vodovoz.Domain.Store;
 
@@ -10,6 +11,7 @@ namespace Vodovoz.Domain.Employees
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "настройки пользователей",
 		Nominative = "настройки пользователя")]
+	[EntityPermission]
 	public class UserSettings: PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

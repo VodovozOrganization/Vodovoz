@@ -26,24 +26,13 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name { get { return String.Format ("УПД №{0}", Order.Id); } }
+		public override string Name => String.Format("УПД №{0}", Order.Id);
 
-		public override DateTime? DocumentDate {
-			get { return Order?.DeliveryDate; }
-		}
+		public override DateTime? DocumentDate => Order?.DeliveryDate;
 
-		public override PrinterType PrintType {
-			get {
-				return PrinterType.RDL;
-			}
-		}
+		public override PrinterType PrintType => PrinterType.RDL;
 
-		public override DocumentOrientation Orientation
-		{
-			get	{
-				return DocumentOrientation.Landscape;
-			}
-		}
+		public override DocumentOrientation Orientation => DocumentOrientation.Landscape;
 	}
 }
 

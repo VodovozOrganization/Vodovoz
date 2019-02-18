@@ -12,17 +12,17 @@
   <RightMargin>10mm</RightMargin>
   <BottomMargin>10mm</BottomMargin>
   <PageHeader>
-    <Height>.5in</Height>
+    <Height>21.3pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox20">
-        <Height>23.34pt</Height>
-        <Width>531.75pt</Width>
+        <Height>24.09pt</Height>
+        <Width>539.27pt</Width>
         <Value>= "Реестр заказов от " + (Format(Convert.ToDateTime({?date}), "dd.MM.yyyy"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.80pt</Left>
-        <Top>5.90pt</Top>
+        <Left>0.00pt</Left>
+        <Top>0.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -34,7 +34,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>114.2pt</Height>
+    <Height>63.5pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>orders</DataSetName>
@@ -43,16 +43,18 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>43.8pt</Width>
+            <Width>26.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>102.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>168.9pt</Width>
+            <Width>185.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>55.8pt</Width>
@@ -61,10 +63,10 @@
             <Width>55.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>82.2pt</Width>
+            <Width>72.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.3pt</Width>
+            <Width>38.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -75,8 +77,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>Ежедн.
-номер</Value>
+                      <Value>Еж.
+ном.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -85,6 +87,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -101,6 +104,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -117,6 +121,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -133,6 +138,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -149,6 +155,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -165,6 +172,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -181,6 +189,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -206,6 +215,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -221,6 +232,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -236,6 +248,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -250,6 +263,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -264,6 +279,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -278,6 +295,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -292,6 +311,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -301,7 +322,42 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>13.3pt</Top>
+        <Top>1.3pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>16.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <Value>='Итого: адресов - '
+    + COUNT({order_id})
+    + ' шт., 19 л. бутылей - '
+    + SUM({water19_count})
+    + ' шт.'</Value>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>7</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -328,43 +384,64 @@
     <DataSet Name="orders">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
+        <CommandText>SELECT 
 	daily_number_1c AS daily_number,
-    counterparty.full_name AS client,
-    delivery_points.compiled_address AS address,
-    orders.id AS order_id,
-    SUM(IF( nomenclature.tare_volume='Vol19L', order_items.count, 0)) as water_count,
-    case
-		when orders.order_status = 'NewOrder' then 'Новый'
-		when orders.order_status = 'WaitForPayment' then 'Ожидание оплаты'
-		when orders.order_status = 'Accepted' then 'Принят'
-		when orders.order_status = 'InTravelList' then 'В маршрутном листе'
-		when orders.order_status = 'OnLoading' then 'На погрузке'    
-		when orders.order_status = 'OnTheWay' then 'В пути'
-		when orders.order_status = 'Shipped' then 'Доставлен'
-        when orders.order_status = 'UnloadingOnStock' then 'Выгрузка на складе'
-        when orders.order_status = 'Closed' then 'Закрыт'
-        when orders.order_status = 'Canceled' then 'Отменён'
-        when orders.order_status = 'NotDelivered' then 'Недовоз'
-        when orders.order_status = 'DeliveryCanceled' then 'Доставка отменена'        
-		else ''
-	end as status,
-    CONCAT(TIME_FORMAT(delivery_schedule.from_time, "%H:%i"), '-', TIME_FORMAT(delivery_schedule.to_time, "%H:%i")) as delivery_time
-FROM orders
-LEFT JOIN order_items on order_items.order_id=orders.id
+	counterparty.full_name AS client,
+	delivery_points.compiled_address AS address,
+	orders.id AS order_id,
+	SUM(
+		IF(
+			nomenclature.tare_volume = 'Vol19L',
+			order_items.count,
+			0
+		)
+	) AS water_count,
+	CASE
+		WHEN orders.order_status = 'NewOrder' THEN 'Новый'
+		WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
+		WHEN orders.order_status = 'Accepted' THEN 'Принят'
+		WHEN orders.order_status = 'InTravelList' THEN 'В маршрутном листе'
+		WHEN orders.order_status = 'OnLoading' THEN 'На погрузке'
+		WHEN orders.order_status = 'OnTheWay' THEN 'В пути'
+		WHEN orders.order_status = 'Shipped' THEN 'Доставлен'
+		WHEN orders.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
+		WHEN orders.order_status = 'Closed' THEN 'Закрыт'
+		WHEN orders.order_status = 'Canceled' THEN 'Отменён'
+		WHEN orders.order_status = 'NotDelivered' THEN 'Недовоз'
+		WHEN orders.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'
+		ELSE ''
+	END AS status,
+	CONCAT(
+		TIME_FORMAT(delivery_schedule.from_time, '%H:%i'),
+		'-',
+		TIME_FORMAT(delivery_schedule.to_time, '%H:%i')
+	) AS delivery_time,
+	GROUP_CONCAT(gg.name SEPARATOR ', ')
+FROM
+	orders
+LEFT JOIN order_items ON order_items.order_id = orders.id
 LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
 LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+LEFT JOIN schedule_restricted_districts distr ON delivery_points.schedule_restricted_district_id = distr.id
+LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
+LEFT JOIN geographic_groups gg ON gge.geographic_group_id = gg.id
 LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
-WHERE orders.delivery_date = DATE(@date)
-GROUP BY order_id;</CommandText>
+WHERE
+	orders.delivery_date = DATE(@date)
+	AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups))
+GROUP BY order_id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
           </QueryParameter>
+          <QueryParameter Name="geographic_groups">
+            <Value>=Parameters!geographic_groups</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="daily_number">
           <DataField>daily_number</DataField>
           <TypeName>System.Int32</TypeName>
@@ -391,6 +468,7 @@ GROUP BY order_id;</CommandText>
         </Field>
         <Field Name="water19_count">
           <DataField>water_count</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -415,6 +493,13 @@ GROUP BY order_id;</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="geographic_groups">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog.GtkUI;
-using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -13,8 +12,8 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repositories.Store;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repository.Store;
 using Vodovoz.ViewWidgets.Store;
 
 namespace Vodovoz
@@ -108,18 +107,17 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			if(!CarUnloadRepository.IsUniqDocument(UoW,Entity.RouteList,Entity.Warehouse,Entity.Id)) 
-			{
-				MessageDialogWorks.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
-				return false;
-			}
-
 			if(!UpdateReceivedItemsOnEntity())
 				return false;
 				
 			var valid = new QSValidation.QSValidator<CarUnloadDocument>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
+
+			if(!CarUnloadRepository.IsUniqDocument(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
+				MessageDialogHelper.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
+				return false;
+			}
 
 			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
@@ -162,7 +160,7 @@ namespace Vodovoz
 		{
 			if(Entity.RouteList == null || Entity.Warehouse == null)
 				return;
-			Dictionary<int, decimal> returns = Repositories.Store.CarUnloadRepository.NomenclatureUnloaded(UoW, Entity.RouteList, Entity.Warehouse, Entity);
+			Dictionary<int, decimal> returns = CarUnloadRepository.NomenclatureUnloaded(UoW, Entity.RouteList, Entity.Warehouse, Entity);
 
 			treeOtherReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<Nomenclature>()
 				.AddColumn("Название").AddTextRenderer(x => x.Name)

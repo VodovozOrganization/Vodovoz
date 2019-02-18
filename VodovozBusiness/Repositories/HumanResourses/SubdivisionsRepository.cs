@@ -4,6 +4,8 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QSSupportLib;
 using System.Linq;
+using Vodovoz.Domain.Store;
+using QS.Project.Domain;
 
 namespace Vodovoz.Repositories.HumanResources
 {
@@ -40,6 +42,34 @@ namespace Vodovoz.Repositories.HumanResources
 		public static IList<Subdivision> GetChildDepartments(IUnitOfWork uow, Subdivision parentSubdivision, bool orderByDescending = false)
 		{
 			return GetAllDepartments(uow, orderByDescending).Where(s => s.ParentSubdivision == parentSubdivision).ToList();
+		}
+
+		/// <summary>
+		/// Список подразделений в которых произодится работа с указанными документами
+		/// </summary>
+		public static IList<Subdivision> GetSubdivisionsForDocumentTypes(IUnitOfWork uow, Type[] documentTypes)
+		{
+			Subdivision subdivisionAlias = null;
+			TypeOfEntity typeOfEntityAlias = null;
+			return uow.Session.QueryOver<Subdivision>(() => subdivisionAlias)
+				.Left.JoinAlias(() => subdivisionAlias.DocumentTypes, () => typeOfEntityAlias)
+				.WhereRestrictionOn(() => typeOfEntityAlias.Type).IsIn(documentTypes.Select(x => x.Name).ToArray())
+				.List();
+		}
+
+		/// <summary>
+		/// Список складов, которые привязаны к подразделению
+		/// </summary>
+		/// <returns>Склады подразделения</returns>
+		/// <param name="uow">Uow.</param>
+		/// <param name="subdivision">подразделение</param>
+		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
+		public static IList<Warehouse> GetWarehouses(IUnitOfWork uow, Subdivision subdivision, bool orderByDescending = false)
+		{
+			var query = uow.Session.QueryOver<Warehouse>()
+							.Where(w => w.OwningSubdivision == subdivision)
+							.OrderBy(w => w.Name);
+			return orderByDescending ? query.Desc().List() : query.Asc().List();
 		}
 	}
 }

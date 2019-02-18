@@ -9,7 +9,9 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using NHibernate.Util;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Utilities.Text;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
@@ -18,6 +20,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.JournalViewers;
 using Vodovoz.Repositories;
 using Vodovoz.Repository;
@@ -27,25 +30,16 @@ namespace Vodovoz.ViewModel
 	public class OrdersVM : RepresentationModelEntityBase<Vodovoz.Domain.Orders.Order, OrdersVMNode>
 	{
 		public OrdersFilter Filter {
-			get {
-				return RepresentationFilter as OrdersFilter;
-			}
-			set {
-				RepresentationFilter = value as IRepresentationFilter;
-			}
+			get => RepresentationFilter as OrdersFilter;
+			set => RepresentationFilter = value as IRepresentationFilter;
 		}
-
-		bool canToggleVisibilityColumns;
-		public bool CanToggleVisibilityOfColumns {
-			get => canToggleVisibilityColumns;
-			set => canToggleVisibilityColumns = value;
-		}
+		public bool CanToggleVisibilityOfColumns { get; set; }
 
 		#region IRepresentationModel implementation
 
 		Nomenclature sanitizationNomenclature = null;
 
-		public override void UpdateNodes ()
+		public override void UpdateNodes()
 		{
 			OrdersVMNode resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
@@ -56,11 +50,12 @@ namespace Vodovoz.ViewModel
 			DeliverySchedule deliveryScheduleAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			ScheduleRestrictedDistrict districtAlias = null;
 
-			var query = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order> (() => orderAlias);
+			var query = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias);
 
-			if (Filter.RestrictStatus != null) {
-				query.Where (o => o.OrderStatus == Filter.RestrictStatus);
+			if(Filter.RestrictStatus != null) {
+				query.Where(o => o.OrderStatus == Filter.RestrictStatus);
 			}
 
 			if(Filter.RestrictPaymentType != null) {
@@ -71,36 +66,35 @@ namespace Vodovoz.ViewModel
 				query.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(Filter.HideStatuses);
 			}
 
-			if (Filter.RestrictSelfDelivery != null) {
-				query.Where (o => o.SelfDelivery == Filter.RestrictSelfDelivery);
+			if(Filter.RestrictSelfDelivery != null) {
+				query.Where(o => o.SelfDelivery == Filter.RestrictSelfDelivery);
 			}
 
-			if (Filter.RestrictWithoutSelfDelivery != null) {
-				query.Where (o => o.SelfDelivery != Filter.RestrictWithoutSelfDelivery);
+			if(Filter.RestrictWithoutSelfDelivery != null) {
+				query.Where(o => o.SelfDelivery != Filter.RestrictWithoutSelfDelivery);
 			}
 
-			if (Filter.RestrictCounterparty != null) {
-				query.Where (o => o.Client == Filter.RestrictCounterparty);
+			if(Filter.RestrictCounterparty != null) {
+				query.Where(o => o.Client == Filter.RestrictCounterparty);
 			}
 
-			if (Filter.RestrictDeliveryPoint != null) {
-				query.Where (o => o.DeliveryPoint == Filter.RestrictDeliveryPoint);
+			if(Filter.RestrictDeliveryPoint != null) {
+				query.Where(o => o.DeliveryPoint == Filter.RestrictDeliveryPoint);
 			}
 
-			if (Filter.RestrictStartDate != null) {
-				query.Where (o => o.DeliveryDate >= Filter.RestrictStartDate);
+			if(Filter.RestrictStartDate != null) {
+				query.Where(o => o.DeliveryDate >= Filter.RestrictStartDate);
 			}
 
-			if (Filter.RestrictEndDate != null) {
-				query.Where (o => o.DeliveryDate <= Filter.RestrictEndDate.Value.AddDays (1).AddTicks (-1));
+			if(Filter.RestrictEndDate != null) {
+				query.Where(o => o.DeliveryDate <= Filter.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
 			}
 
-			if (Filter.RestrictOnlyWithoutCoodinates) {
-				query.Where (() => deliveryPointAlias.Longitude == null && deliveryPointAlias.Latitude == null);
+			if(Filter.RestrictOnlyWithoutCoodinates) {
+				query.Where(() => deliveryPointAlias.Longitude == null && deliveryPointAlias.Latitude == null);
 			}
 
-			if (Filter.RestrictLessThreeHours == true)
-			{
+			if(Filter.RestrictLessThreeHours == true) {
 				query.Where(Restrictions
 							.GtProperty(Projections.SqlFunction(
 											new SQLFunctionTemplate(NHibernateUtil.Time, "ADDTIME(?1, ?2)"),
@@ -110,80 +104,85 @@ namespace Vodovoz.ViewModel
 											Projections.Property(() => deliveryScheduleAlias.To)));
 			}
 
-			if (Filter.RestrictHideService != null) {
+			if(Filter.RestrictHideService != null) {
 				query.Where(o => o.IsService != Filter.RestrictHideService);
 			}
 
-			if (Filter.RestrictOnlyService != null)
-			{
+			if(Filter.RestrictOnlyService != null) {
 				query.Where(o => o.IsService == Filter.RestrictOnlyService);
 			}
 
-			if (Filter.ExceptIds != null && Filter.ExceptIds.Length > 0)
-				query.Where (o => !NHibernate.Criterion.RestrictionExtensions.IsIn (o.Id, Filter.ExceptIds));
+			if(Filter.ExceptIds != null && Filter.ExceptIds.Any())
+				query.Where(o => !RestrictionExtensions.IsIn(o.Id, Filter.ExceptIds));
 
-			var bottleCountSubquery = NHibernate.Criterion.QueryOver.Of<OrderItem>(() => orderItemAlias)
+			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.Select(NHibernate.Criterion.Projections.Sum(() => orderItemAlias.Count));
+				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var sanitisationCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
-			                                         .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-			                                         .Where(() => orderItemAlias.Nomenclature.Id == sanitizationNomenclature.Id)
-			                                         .Select(Projections.Sum(() => orderItemAlias.Count));
+													 .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
+													 .Where(() => orderItemAlias.Nomenclature.Id == sanitizationNomenclature.Id)
+													 .Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
-			                                .Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-			                                .Select(
-				                                Projections.Sum(
-					                                Projections.SqlFunction(
-						                                new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2 - ?3"),
-						                                NHibernateUtil.Decimal,
-						                                Projections.Property<OrderItem>(x => x.Count),
-				                                        Projections.Property<OrderItem>(x => x.Price),
-				                                        Projections.Property<OrderItem>(x => x.DiscountMoney)
-						                               )
-					                               )
-				                               );
+											.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+											.Select(
+												Projections.Sum(
+													Projections.SqlFunction(
+														new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2 - ?3"),
+														NHibernateUtil.Decimal,
+														Projections.Property<OrderItem>(x => x.Count),
+														Projections.Property<OrderItem>(x => x.Price),
+														Projections.Property<OrderItem>(x => x.DiscountMoney)
+													   )
+												   )
+											   );
+
+			query.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				 .JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				 .JoinAlias(o => o.Client, () => counterpartyAlias)
+				 .JoinAlias(o => o.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				 .JoinAlias(o => o.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				 .Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias);
+
+			if(Filter.IncludeDistrictsIds != null && Filter.IncludeDistrictsIds.Any())
+				query = query.Where(() => deliveryPointAlias.District.Id.IsIn(Filter.IncludeDistrictsIds));
 
 			var result = query
-				.JoinAlias (o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias (o => o.DeliverySchedule, () => deliveryScheduleAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias (o => o.Client, () => counterpartyAlias)
-				.JoinAlias (o => o.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias (o => o.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin) 
-				.SelectList (list => list
-					.Select (() => orderAlias.Id).WithAlias (() => resultAlias.Id)
-					.Select (() => orderAlias.DeliveryDate).WithAlias (() => resultAlias.Date)
-					.Select (() => deliveryScheduleAlias.Name).WithAlias (() => resultAlias.DeliveryTime)
-					.Select (() => orderAlias.OrderStatus).WithAlias (() => resultAlias.StatusEnum)
-					.Select (() => orderAlias.Address1c).WithAlias (() => resultAlias.Address1c)
-				    .Select (() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
-					.Select (() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
-					.Select (() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
-				    .Select (() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorLastName)
-				    .Select (() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
-				    .Select (() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-				    .Select (() => orderAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
-				    .Select (() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
-					.Select (() => counterpartyAlias.Name).WithAlias (() => resultAlias.Counterparty)
-					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
-					.Select (() => deliveryPointAlias.Street).WithAlias (() => resultAlias.Street)
-					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
-					.Select (() => deliveryPointAlias.Latitude).WithAlias (() => resultAlias.Latitude)
-					.Select (() => deliveryPointAlias.Longitude).WithAlias (() => resultAlias.Longitude)
-				    .SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
-				    .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
-				    .SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
-				).OrderBy (x => x.DeliveryDate).Desc
-				.TransformUsing (Transformers.AliasToBean<OrdersVMNode> ())
-				.List<OrdersVMNode> ();
+				.SelectList(list => list
+				   .Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
+				   .Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
+				   .Select(() => deliveryScheduleAlias.Name).WithAlias(() => resultAlias.DeliveryTime)
+				   .Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
+				   .Select(() => orderAlias.Address1c).WithAlias(() => resultAlias.Address1c)
+				   .Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
+				   .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+				   .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+				   .Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorLastName)
+				   .Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+				   .Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+				   .Select(() => orderAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+				   .Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
+				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+				   .Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+				   .Select(() => deliveryPointAlias.City).WithAlias(() => resultAlias.City)
+				   .Select(() => deliveryPointAlias.Street).WithAlias(() => resultAlias.Street)
+				   .Select(() => deliveryPointAlias.Building).WithAlias(() => resultAlias.Building)
+				   .Select(() => deliveryPointAlias.Latitude).WithAlias(() => resultAlias.Latitude)
+				   .Select(() => deliveryPointAlias.Longitude).WithAlias(() => resultAlias.Longitude)
+				   .SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
+				   .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
+				   .SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
+				).OrderBy(x => x.DeliveryDate).Desc
+				.TransformUsing(Transformers.AliasToBean<OrdersVMNode>())
+				.List<OrdersVMNode>();
 
 			if(CanToggleVisibilityOfColumns)
 				ShowColumns(Filter.RestrictOnlyService);
 
-			SetItemsSource (result);
+			SetItemsSource(result);
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<OrdersVMNode>.Create()
@@ -193,12 +192,13 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Время").SetDataProperty(node => node.DeliveryTime)
 			.AddColumn("Статус").SetDataProperty(node => node.StatusEnum.GetEnumTitle())
 			.AddColumn("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
-		    .AddColumn("Кол-во с/о")
+			.AddColumn("Кол-во с/о")
 				.SetTag("Hidden")
 				.AddTextRenderer(node => node.SanitisationAmount.ToString())
 			.AddColumn("Клиент").SetDataProperty(node => node.Counterparty)
 			.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 			.AddColumn("Коор.").AddTextRenderer(x => x.Latitude.HasValue && x.Longitude.HasValue ? "Есть" : String.Empty)
+			.AddColumn("Район доставки").SetDataProperty(node => node.DistrictName)
 			.AddColumn("Адрес").SetDataProperty(node => node.Address)
 			.AddColumn("Изменил").SetDataProperty(node => node.LastEditor)
 			.AddColumn("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
@@ -210,67 +210,69 @@ namespace Vodovoz.ViewModel
 		public override bool PopupMenuExist => true;
 
 		public void ShowColumns(bool? val = null)
-		{ 
-			columnsConfig.GetColumnsByTag("Hidden").ForEach(c => c.Visible = val.HasValue ? val.Value : false);
+		{
+			foreach(var c in columnsConfig.GetColumnsByTag("Hidden"))
+				c.Visible = val.HasValue && val.Value;
 		}
-		public override Gtk.Menu GetPopupMenu (RepresentationSelectResult [] selected)
+
+		public override Gtk.Menu GetPopupMenu(RepresentationSelectResult[] selected)
 		{
 			lastMenuSelected = selected;
 
-			Menu popupMenu = new Gtk.Menu ();
-			Gtk.MenuItem menuItemRouteList = new MenuItem ("Перейти в маршрутный лист");
+			Menu popupMenu = new Gtk.Menu();
+			Gtk.MenuItem menuItemRouteList = new MenuItem("Перейти в маршрутный лист");
 			menuItemRouteList.Activated += MenuItemRouteList_Activated;
-			menuItemRouteList.Sensitive = selected.Any (x => ((OrdersVMNode)x.VMNode).StatusEnum != OrderStatus.Accepted && ((OrdersVMNode)x.VMNode).StatusEnum != OrderStatus.NewOrder);
-			popupMenu.Add (menuItemRouteList);
+			menuItemRouteList.Sensitive = selected.Any(x => ((OrdersVMNode)x.VMNode).StatusEnum != OrderStatus.Accepted && ((OrdersVMNode)x.VMNode).StatusEnum != OrderStatus.NewOrder);
+			popupMenu.Add(menuItemRouteList);
 
 			Gtk.MenuItem menuItemUndelivery = new MenuItem("Перейти в недовоз");
-			menuItemUndelivery.Activated += MenuItemUndelivery_Activated;;
+			menuItemUndelivery.Activated += MenuItemUndelivery_Activated;
 			menuItemUndelivery.Sensitive = selected.Any(o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, o.EntityId).Any());
 			popupMenu.Add(menuItemUndelivery);
 
-			Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem ("Открыть диалог закрытия");
+			Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem("Открыть диалог закрытия");
 			menuItemRouteListClosingDlg.Activated += MenuItemRouteListClosingDlg_Activated;
-			menuItemRouteListClosingDlg.Sensitive = selected.Any (x => IsOrderInRouteListStatusEnRouted (x.EntityId));
-			popupMenu.Add (menuItemRouteListClosingDlg);
+			menuItemRouteListClosingDlg.Sensitive = selected.Any(x => IsOrderInRouteListStatusEnRouted(x.EntityId));
+			popupMenu.Add(menuItemRouteListClosingDlg);
 
-			popupMenu.Add (new SeparatorMenuItem ());
+			popupMenu.Add(new SeparatorMenuItem());
 
-			Gtk.MenuItem menuItemYandex = new MenuItem ("Открыть на Yandex картах(координаты)");
+			Gtk.MenuItem menuItemYandex = new MenuItem("Открыть на Yandex картах(координаты)");
 			menuItemYandex.Activated += MenuItemYandex_Activated;
-			popupMenu.Add (menuItemYandex);
-			Gtk.MenuItem menuItemYandexAddress = new MenuItem ("Открыть на Yandex картах(адрес)");
+			popupMenu.Add(menuItemYandex);
+			Gtk.MenuItem menuItemYandexAddress = new MenuItem("Открыть на Yandex картах(адрес)");
 			menuItemYandexAddress.Activated += MenuItemYandexAddress_Activated;
-			popupMenu.Add (menuItemYandexAddress);
-			Gtk.MenuItem menuItemOSM = new MenuItem ("Открыть на карте OSM");
+			popupMenu.Add(menuItemYandexAddress);
+			Gtk.MenuItem menuItemOSM = new MenuItem("Открыть на карте OSM");
 			menuItemOSM.Activated += MenuItemOSM_Activated;
-			popupMenu.Add (menuItemOSM);
+			popupMenu.Add(menuItemOSM);
 			return popupMenu;
 		}
 
 		#endregion
 
-		private RepresentationSelectResult [] lastMenuSelected;
+		private RepresentationSelectResult[] lastMenuSelected;
 
-		void MenuItemOSM_Activated (object sender, EventArgs e)
+		void MenuItemOSM_Activated(object sender, EventArgs e)
 		{
-			foreach (var sel in lastMenuSelected) {
-				var order = UoW.GetById<Vodovoz.Domain.Orders.Order> (sel.EntityId);
-				if (order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
+			foreach(var sel in lastMenuSelected) {
+				var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.EntityId);
+				if(order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
 					continue;
 
-				System.Diagnostics.Process.Start (String.Format (CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
+				System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
 			}
 		}
 
-		bool IsOrderInRouteListStatusEnRouted (int orderId)
+		bool IsOrderInRouteListStatusEnRouted(int orderId)
 		{
-			var orderIdArr = new [] { orderId };
-			var routeListItems = UoW.Session.QueryOver<RouteListItem> ()
-						.Where (x => x.Order.Id.IsIn (orderIdArr)).List ();
+			var orderIdArr = new[] { orderId };
+			var routeListItems = UoW.Session.QueryOver<RouteListItem>()
+						.Where(x => x.Order.Id.IsIn(orderIdArr)).List();
 
-			if (routeListItems.Count != 0) {
-				foreach (var routeListItem in routeListItems) {
-					if (routeListItem.RouteList.Status >= RouteListStatus.EnRoute)
+			if(routeListItems.Count != 0) {
+				foreach(var routeListItem in routeListItems) {
+					if(routeListItem.RouteList.Status >= RouteListStatus.EnRoute)
 						return true;
 					return false;
 				}
@@ -278,20 +280,20 @@ namespace Vodovoz.ViewModel
 			return false;
 		}
 
-		void MenuItemRouteList_Activated (object sender, EventArgs e)
+		void MenuItemRouteList_Activated(object sender, EventArgs e)
 		{
-			var ordersIds = lastMenuSelected.Select (x => x.EntityId).ToArray ();
-			var addresses = UoW.Session.QueryOver<RouteListItem> ()
-				.Where (x => x.Order.Id.IsIn (ordersIds)).List ();
+			var ordersIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
+			var addresses = UoW.Session.QueryOver<RouteListItem>()
+				.Where(x => x.Order.Id.IsIn(ordersIds)).List();
 
-			var routes = addresses.GroupBy (x => x.RouteList.Id);
+			var routes = addresses.GroupBy(x => x.RouteList.Id);
 
 			var tdiMain = MainClass.MainWin.TdiMain;
 
-			foreach (var route in routes) {
-				tdiMain.OpenTab (
-					OrmMain.GenerateDialogHashName<RouteList> (route.Key),
-					() => new RouteListKeepingDlg (route.Key, route.Select (x => x.Order.Id).ToArray ())
+			foreach(var route in routes) {
+				tdiMain.OpenTab(
+					DialogHelper.GenerateDialogHashName<RouteList>(route.Key),
+					() => new RouteListKeepingDlg(route.Key, route.Select(x => x.Order.Id).ToArray())
 				);
 			}
 		}
@@ -311,32 +313,32 @@ namespace Vodovoz.ViewModel
 		}
 
 
-		void MenuItemRouteListClosingDlg_Activated (object sender, EventArgs e)
+		void MenuItemRouteListClosingDlg_Activated(object sender, EventArgs e)
 		{
-			var routeListIds = lastMenuSelected.Select (x => x.EntityId).ToArray ();
-			var addresses = UoW.Session.QueryOver<RouteListItem> ()
-				.Where (x => x.Order.Id.IsIn (routeListIds)).List ();
+			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
+			var addresses = UoW.Session.QueryOver<RouteListItem>()
+				.Where(x => x.Order.Id.IsIn(routeListIds)).List();
 
-			var routes = addresses.GroupBy (x => x.RouteList.Id);
+			var routes = addresses.GroupBy(x => x.RouteList.Id);
 			var tdiMain = MainClass.MainWin.TdiMain;
 
-			foreach (var rl in routes) {
-				tdiMain.OpenTab (
-					OrmMain.GenerateDialogHashName<RouteList> (rl.Key),
-					() => new RouteListClosingDlg (rl.Key)
+			foreach(var rl in routes) {
+				tdiMain.OpenTab(
+					DialogHelper.GenerateDialogHashName<RouteList>(rl.Key),
+					() => new RouteListClosingDlg(rl.Key)
 				);
 			}
 		}
 
-		void MenuItemYandexAddress_Activated (object sender, EventArgs e)
+		void MenuItemYandexAddress_Activated(object sender, EventArgs e)
 		{
-			foreach (var sel in lastMenuSelected) {
-				var order = UoW.GetById<Vodovoz.Domain.Orders.Order> (sel.EntityId);
-				if (order.DeliveryPoint == null)
+			foreach(var sel in lastMenuSelected) {
+				var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.EntityId);
+				if(order.DeliveryPoint == null)
 					continue;
 
-				System.Diagnostics.Process.Start (
-					String.Format (CultureInfo.InvariantCulture,
+				System.Diagnostics.Process.Start(
+					String.Format(CultureInfo.InvariantCulture,
 						"https://maps.yandex.ru/?text={0} {1} {2}",
 						order.DeliveryPoint.City,
 						order.DeliveryPoint.Street,
@@ -345,14 +347,14 @@ namespace Vodovoz.ViewModel
 			}
 		}
 
-		void MenuItemYandex_Activated (object sender, EventArgs e)
+		void MenuItemYandex_Activated(object sender, EventArgs e)
 		{
-			foreach (var sel in lastMenuSelected) {
-				var order = UoW.GetById<Vodovoz.Domain.Orders.Order> (sel.EntityId);
-				if (order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
+			foreach(var sel in lastMenuSelected) {
+				var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.EntityId);
+				if(order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
 					continue;
 
-				System.Diagnostics.Process.Start (String.Format (CultureInfo.InvariantCulture, "https://maps.yandex.ru/?ll={0},{1}&z=17", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
+				System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "https://maps.yandex.ru/?ll={0},{1}&z=17", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
 			}
 		}
 
@@ -362,17 +364,17 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public OrdersVM (OrdersFilter filter) : this (filter.UoW)
+		public OrdersVM(OrdersFilter filter) : this(filter.UoW)
 		{
 			Filter = filter;
 		}
 
-		public OrdersVM () : this (UnitOfWorkFactory.CreateWithoutRoot ())
+		public OrdersVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			CreateRepresentationFilter = () => new OrdersFilter (UoW);
+			CreateRepresentationFilter = () => new OrdersFilter(UoW);
 		}
 
-		public OrdersVM (IUnitOfWork uow) : base ()
+		public OrdersVM(IUnitOfWork uow) : base()
 		{
 			this.UoW = uow;
 			sanitizationNomenclature = NomenclatureRepository.GetSanitisationNomenclature(UoW);
@@ -399,6 +401,7 @@ namespace Vodovoz.ViewModel
 
 		public decimal Sum { get; set; }
 
+		public string DistrictName { get; set; }
 		public string City { get; set; }
 		public string Street { get; set; }
 		public string Building { get; set; }
@@ -409,7 +412,7 @@ namespace Vodovoz.ViewModel
 
 		[UseForSearch]
 		[SearchHighlight]
-		public string Address { get { return String.Format ("{0}, {1} д.{2}", City, Street, Building); } }
+		public string Address => String.Format("{0}, {1} д.{2}", City, Street, Building);
 
 		public string AuthorLastName { get; set; }
 		public string AuthorName { get; set; }
@@ -421,11 +424,11 @@ namespace Vodovoz.ViewModel
 
 		[UseForSearch]
 		[SearchHighlight]
-		public string Author { get { return StringWorks.PersonNameWithInitials(AuthorLastName, AuthorName, AuthorPatronymic); } }
+		public string Author => PersonHelper.PersonNameWithInitials(AuthorLastName, AuthorName, AuthorPatronymic);
 
 		[UseForSearch]
 		[SearchHighlight]
-		public string LastEditor { get { return StringWorks.PersonNameWithInitials(LastEditorLastName, LastEditorName, LastEditorPatronymic); } }
+		public string LastEditor => PersonHelper.PersonNameWithInitials(LastEditorLastName, LastEditorName, LastEditorPatronymic);
 
 		[UseForSearch]
 		[SearchHighlight]
@@ -440,11 +443,11 @@ namespace Vodovoz.ViewModel
 
 		public string RowColor {
 			get {
-				if (StatusEnum == OrderStatus.Canceled || StatusEnum == OrderStatus.DeliveryCanceled)
+				if(StatusEnum == OrderStatus.Canceled || StatusEnum == OrderStatus.DeliveryCanceled)
 					return "grey";
-				if (StatusEnum == OrderStatus.Closed)
+				if(StatusEnum == OrderStatus.Closed)
 					return "green";
-				if (StatusEnum == OrderStatus.NotDelivered)
+				if(StatusEnum == OrderStatus.NotDelivered)
 					return "blue";
 				return "black";
 			}

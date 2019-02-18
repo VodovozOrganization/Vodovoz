@@ -29,6 +29,15 @@ namespace Vodovoz.Dialogs.Cash
 				FailInitialize = true;
 				return;
 			}
+
+			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Expense))) {
+
+				MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
+				FailInitialize = true;
+				return;
+			}
+			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
+
 			Entity.Date = DateTime.Now;
 			ConfigureDlg();
 		}
@@ -86,11 +95,22 @@ namespace Vodovoz.Dialogs.Cash
 
 			ytextviewDescription.Binding.AddBinding(Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource();
 
+			UpdateSubdivision();
 		}
 
 		void OnExpenseCategoryUpdated(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
 		{
 			comboExpense.ItemsList = CategoryRepository.ExpenseSelfDeliveryCategories(UoW);
+		}
+
+		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)
+		{
+			UpdateSubdivision();
+		}
+
+		private void UpdateSubdivision()
+		{
+			Entity.RelatedToSubdivision = accessfilteredsubdivisionselectorwidget.SelectedSubdivision;
 		}
 
 		public override bool Save()

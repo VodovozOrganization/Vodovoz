@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 
@@ -10,6 +11,7 @@ namespace Vodovoz.Domain
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "пакеты бесплатной аренды",
 		Nominative = "пакет бесплатной аренды")]
+	[EntityPermission]
 	public class FreeRentPackage: BusinessObjectBase<FreeRentPackage>, IDomainObject, IValidatableObject
 	{
 		#region Свойства

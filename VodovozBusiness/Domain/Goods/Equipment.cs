@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using NHibernate;
 using NHibernate.Criterion;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 
@@ -17,6 +18,7 @@ namespace Vodovoz.Domain.Goods
 		Nominative = "оборудование",
 		Prepositional = "оборудовании"
 	)]
+	[EntityPermission]
 	public class Equipment: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства

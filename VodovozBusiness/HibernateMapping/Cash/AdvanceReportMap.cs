@@ -18,6 +18,7 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.ChangeReturn).Column ("return_id");
 			Map (x => x.Money).Column ("money");
 			Map (x => x.Description).Column ("description");
+			References(x => x.RelatedToSubdivision).Column("related_to_subdivision_id");
 		}
 	}
 }

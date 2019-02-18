@@ -4,10 +4,10 @@ namespace Vodovoz.Domain.Goods
 {
 	public enum VAT
 	{
-		[Display (Name = "Без НДС")]
+		[Display(Name = "Без НДС")]
 		[Value1c("БезНДС")]
 		No,
-		[Display (Name = "НДС 10%")]
+		[Display(Name = "НДС 10%")]
 		[Value1c("НДС10")]
 		Vat10,
 		[Display(Name = "НДС 18%")]
@@ -20,9 +20,7 @@ namespace Vodovoz.Domain.Goods
 
 	public class VATStringType : NHibernate.Type.EnumStringType
 	{
-		public VATStringType () : base (typeof(VAT))
-		{
-		}
+		public VATStringType() : base(typeof(VAT)) { }
 	}
 }
 
@@ -30,13 +28,13 @@ namespace Vodovoz.Domain.Client
 {
 	public enum PaymentType
 	{
-		[Display (Name = "Наличная", ShortName = "нал." )]
+		[Display(Name = "Наличная", ShortName = "нал.")]
 		cash,
 		[Display(Name = "Мир напитков", ShortName = "нал.")]
 		BeveragesWorld,
-		[Display (Name = "Безналичная", ShortName = "б/н." )]
+		[Display(Name = "Безналичная", ShortName = "б/н.")]
 		cashless,
-		[Display (Name="Бартер", ShortName = "бар." )]
+		[Display(Name = "Бартер", ShortName = "бар.")]
 		barter,
 		[Display(Name = "По карте", ShortName = "карта")]
 		ByCard,
@@ -46,9 +44,7 @@ namespace Vodovoz.Domain.Client
 
 	public class PaymentTypeStringType : NHibernate.Type.EnumStringType
 	{
-		public PaymentTypeStringType () : base (typeof(PaymentType))
-		{
-		}
+		public PaymentTypeStringType() : base(typeof(PaymentType)) { }
 	}
 
 	public enum ContractType
@@ -69,8 +65,6 @@ namespace Vodovoz.Domain.Client
 
 	public class ContractTypeStringType : NHibernate.Type.EnumStringType
 	{
-		public ContractTypeStringType() : base(typeof(ContractType))
-		{
-		}
+		public ContractTypeStringType() : base(typeof(ContractType)) { }
 	}
 }

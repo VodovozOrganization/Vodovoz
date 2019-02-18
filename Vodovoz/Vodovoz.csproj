@@ -658,7 +658,6 @@
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\WarehouseCatalog.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Common1cTypes.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\DomainObjectEqualityComparer.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\EnumExtensions.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportData.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportDefaults\Currency.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportDefaults\Warehouse1c.cs" />
@@ -674,7 +673,6 @@
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\SalesDocumentNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\TableNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\TableRecordNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Exports.cs" />
     <Compile Include="gtk-gui\Vodovoz.DocTemplateDlg.cs" />
     <Compile Include="Dialogs\Client\DocTemplateDlg.cs" />
     <Compile Include="Dialogs\Client\DeliveryPointDlg.cs" />
@@ -940,7 +938,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\ShiftChangeWarehouseDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentItemsView.cs" />
-    <Compile Include="Dialogs\Store\CarUnloadRepository.cs" />
     <Compile Include="Representations\EmployeesVM.cs" />
     <Compile Include="ReportsParameters\NotDeliveredOrdersReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NotDeliveredOrdersReport.cs" />
@@ -1065,13 +1062,37 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SaveTemplateWidget.cs" />
     <Compile Include="Dialogs\Logistic\LogisticAreasEditDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.LogisticAreasEditDlg.cs" />
-    <Compile Include="Dialogs\Store\CarLoadRepository.cs" />
     <Compile Include="Representations\SubdivisionsVM.cs" />
     <Compile Include="Representations\WarehousesVM.cs" />
     <Compile Include="JournalViewers\WarehousesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.WarehousesView.cs" />
+    <Compile Include="Representations\ScheduleRestrictedDistrictVM.cs" />
+    <Compile Include="Core\Permissions\SubdivisionEntityPermissionWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Core.Permissions.SubdivisionEntityPermissionWidget.cs" />
     <Compile Include="ReportsParameters\Bottles\OrdersByCreationDateReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.OrdersByCreationDateReport.cs" />
+    <Compile Include="ViewWidgets\GeographicGroupsToStringWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GeographicGroupsToStringWidget.cs" />
+    <Compile Include="Core\Permissions\SubdivisionForUserEntityPermissionWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Core.Permissions.SubdivisionForUserEntityPermissionWidget.cs" />
+    <Compile Include="Core\Journal\MultipleEntityJournal.cs" />
+    <Compile Include="Core\Journal\MultipleEntityVMNodeBase.cs" />
+    <Compile Include="Core\Journal\MultipleEntityModelBase.cs" />
+    <Compile Include="Representations\CashMultipleDocumentVM.cs" />
+    <Compile Include="ServiceDialogs\DistrictFinderForDeliveryPointsDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.DistrictFinderForDeliveryPointsDlg.cs" />
+    <Compile Include="ReportsParameters\ChequesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ChequesReport.cs" />
+    <Compile Include="Core\Journal\IMultipleEntityRepresentationModel.cs" />
+    <Compile Include="Core\Journal\ActionForCreateEntityConfig.cs" />
+    <Compile Include="Core\Journal\MultipleEntityModelDocumentConfig.cs" />
+    <Compile Include="Core\Journal\MultipleEntityModelConfiguration.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Core.Journal.MultipleEntityJournal.cs" />
+    <Compile Include="Additions\Printing\EntitiyDocumentsPrinter.cs" />
+    <Compile Include="Core\Permissions\ISubdivisionDividingFilter.cs" />
+    <Compile Include="JournalFilters\SubdivisionsAccessJournalFilterBase.cs" />
+    <Compile Include="Core\Permissions\AccessFilteredSubdivisionSelectorWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Core.Permissions.AccessFilteredSubdivisionSelectorWidget.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1258,6 +1279,8 @@
     <Folder Include="DriverTerminal\" />
     <Folder Include="icons\map\points\" />
     <Folder Include="ReportsParameters\Payments\" />
+    <Folder Include="Core\Journal\" />
+    <Folder Include="Additions\Printing\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1615,6 +1638,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bottles\OrdersByCreationDate.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\ChequesReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

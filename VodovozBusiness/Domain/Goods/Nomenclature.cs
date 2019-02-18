@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QSBusinessCommon.Domain;
 using QSProjectsLib;
@@ -17,6 +19,7 @@ namespace Vodovoz.Domain.Goods
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "номенклатуры",
 		Nominative = "номенклатура")]
+	[EntityPermission]
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
 	{
 		#region Свойства
@@ -262,14 +265,6 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref routeListColumn, value, () => RouteListColumn); }
 		}
 
-		Warehouse warehouse;
-
-		[Display(Name = "Склад")]
-		public virtual Warehouse Warehouse {
-			get { return warehouse; }
-			set { SetField(ref warehouse, value, () => Warehouse); }
-		}
-
 		decimal sumOfDamage;
 
 		[Display(Name = "Сумма ущерба")]
@@ -316,10 +311,9 @@ namespace Vodovoz.Domain.Goods
 
 		[Display(Name = "Это новая бутыль")]
 		public virtual bool IsNewBottle {
-			get { return isNewBottle; }
+			get => isNewBottle;
 			set {
-				SetField(ref isNewBottle, value, () => IsNewBottle);
-				if(isNewBottle)
+				if(SetField(ref isNewBottle, value, () => IsNewBottle) && isNewBottle)
 					IsDefectiveBottle = false;
 			}
 		}
@@ -330,8 +324,7 @@ namespace Vodovoz.Domain.Goods
 		public virtual bool IsDefectiveBottle {
 			get { return isDefectiveBottle; }
 			set {
-				SetField(ref isDefectiveBottle, value, () => IsDefectiveBottle);
-				if(isDefectiveBottle)
+				if(SetField(ref isDefectiveBottle, value, () => IsDefectiveBottle) && isDefectiveBottle)
 					IsNewBottle = false;
 			}
 		}
@@ -390,6 +383,24 @@ namespace Vodovoz.Domain.Goods
 		public virtual string Description {
 			get { return description; }
 			set { SetField(ref description, value); }
+		}
+
+		IList<Warehouse> warehouses = new List<Warehouse>();
+
+		[Display(Name = "Склады для отгрузки")]
+		public virtual IList<Warehouse> Warehouses {
+			get => warehouses;
+			set => SetField(ref warehouses, value, () => Warehouses);
+		}
+
+		GenericObservableList<Warehouse> observableWarehouses;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Warehouse> ObservableWarehouses {
+			get {
+				if(observableWarehouses == null)
+					observableWarehouses = new GenericObservableList<Warehouse>(Warehouses);
+				return observableWarehouses;
+			}
 		}
 
 		#endregion
@@ -577,7 +588,7 @@ namespace Vodovoz.Domain.Goods
 			Category = NomenclatureCategory.water;
 		}
 
-#region Методы
+		#region Методы
 
 		public virtual decimal GetPrice(int? itemsCount)
 		{
@@ -606,7 +617,7 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-#endregion
+		#endregion
 
 		#region IValidatableObject implementation
 
@@ -754,9 +765,10 @@ namespace Vodovoz.Domain.Goods
 
 		public static NomenclatureCategory[] GetCategoriesForMaster()
 		{
-			List<NomenclatureCategory> list = new List<NomenclatureCategory>(GetCategoriesForSale());
-			list.Add(NomenclatureCategory.master);
-			list.Add(NomenclatureCategory.spare_parts);
+			List<NomenclatureCategory> list = new List<NomenclatureCategory>(GetCategoriesForSale()) {
+				NomenclatureCategory.master,
+				NomenclatureCategory.spare_parts
+			};
 			return list.ToArray();
 		}
 

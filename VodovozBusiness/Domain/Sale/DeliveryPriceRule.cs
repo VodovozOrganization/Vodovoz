@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QSSupportLib;
 using Vodovoz.Repositories.Sale;
 
@@ -18,6 +19,7 @@ namespace Vodovoz.Domain.Sale
 			PrepositionalPlural = "правилах цен доставки"
 		)
 	]
+	[EntityPermission]
 	public class DeliveryPriceRule : BusinessObjectBase<DeliveryPriceRule>, IDomainObject, IDeliveryPriceRule, IValidatableObject
 	{
 		public DeliveryPriceRule(){}

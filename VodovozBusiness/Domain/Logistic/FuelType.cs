@@ -3,6 +3,7 @@ using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -10,6 +11,7 @@ namespace Vodovoz.Domain.Logistic
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "виды топлива",
 		Nominative = "вид топлива")]
+	[EntityPermission]
 	public class FuelType : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }

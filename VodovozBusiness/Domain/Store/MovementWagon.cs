@@ -2,12 +2,14 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QSOrmProject;
+using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Store
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "фуры",
 		Nominative = "фура")]
+	[EntityPermission]
 	public class MovementWagon : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

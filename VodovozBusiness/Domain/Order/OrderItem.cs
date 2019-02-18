@@ -7,7 +7,7 @@ using QS.HistoryLog;
 using QSSupportLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Domain.Orders
 {

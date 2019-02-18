@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Store;
@@ -13,7 +14,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "входящие накладные",
 		Nominative = "входящая накладная")]
-	//[HistoryTrace]
+	[EntityPermission]
 	public class IncomingInvoice : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
