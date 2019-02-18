@@ -39,7 +39,7 @@ namespace Vodovoz.Dialogs.Logistic
 			chkDocumentsOfOrders.Toggled += ChkDocumentsOfOrders_Toggled;
 			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<SelectablePrintDocument>.Create()
 				.AddColumn("Печатать").AddToggleRenderer(x => x.Selected)
-				.AddSetter((c, n) => c.Visible = (n.Document as RouteListPrintableDocs).routeList.Status >= RouteListStatus.InLoading)
+				.AddSetter((c, n) => c.Visible = (n.Document as RouteListPrintableDocs).routeList.Status >= RouteListStatus.Confirmed)
 				.AddColumn("Номер").AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Id.ToString())
 				.AddColumn("Статус").AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Status.GetEnumTitle())
 				.AddColumn("Водитель").AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Driver.ShortName)
@@ -136,7 +136,7 @@ namespace Vodovoz.Dialogs.Logistic
 							   .ToList()
 							   ;
 			ytreeRoutes.SetItemsSource(new GenericObservableList<SelectablePrintDocument>(Routes));
-			var notPrintedRoutes = Routes.Where(x => (x.Document as RouteListPrintableDocs).routeList.Status < RouteListStatus.InLoading).ToList();
+			var notPrintedRoutes = Routes.Where(x => (x.Document as RouteListPrintableDocs).routeList.Status < RouteListStatus.Confirmed).ToList();
 
 			if(notPrintedRoutes.Any())
 				MessageDialogHelper.RunWarningDialog(
@@ -149,7 +149,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnCheckSelectAllToggled(object sender, EventArgs e)
 		{
-			Routes.Where(x => (x.Document as RouteListPrintableDocs).routeList.Status >= RouteListStatus.InLoading).ToList().ForEach(x => x.Selected = checkSelectAll.Active);
+			Routes.Where(x => (x.Document as RouteListPrintableDocs).routeList.Status >= RouteListStatus.Confirmed).ToList().ForEach(x => x.Selected = checkSelectAll.Active);
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)

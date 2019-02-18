@@ -20,7 +20,7 @@
         <Height>18.03pt</Height>
         <Width>559.42pt</Width>
         <Value>="Маршрутный лист №" + {?RouteListId}
-+ " от " + Format(Convert.ToDateTime({?RouteListDate}), "dd.MM.yy")</Value>
++ " от " + Format({?RouteListDate}, "dd.MM.yy")</Value>
         <ZIndex>1</ZIndex>
         <Left>100.00pt</Left>
         <Top>2.80pt</Top>
@@ -1977,7 +1977,7 @@ ORDER BY order_in_route;
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="RouteListDate">
-      <DataType>String</DataType>
+      <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
