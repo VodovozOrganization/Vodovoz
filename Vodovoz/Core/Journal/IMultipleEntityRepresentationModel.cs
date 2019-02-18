@@ -10,6 +10,8 @@ namespace Vodovoz.Core.Journal
 		ITdiTab GetOpenEntityDlg(object node);
 		Type GetEntityType(object node);
 		int GetDocumentId(object node);
+
+		//FIXME думаю что лучше будет добавить этот метод в базовый интерфейс IRepresentationModel
 		string GetSummaryInfo();
 	}
 }
