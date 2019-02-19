@@ -78,7 +78,6 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
 
 			Entity.Date = DateTime.Now;
 			ConfigureDlg();
@@ -89,6 +88,14 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<AdvanceReport>(id);
+
+			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Income))) {
+
+				MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
+				FailInitialize = true;
+				return;
+			}
+
 			//Отключаем отображение ненужных элементов.
 			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = labelCreating.Visible = false;
 
@@ -101,6 +108,11 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
+			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
+			if(Entity.RelatedToSubdivision != null) {
+				accessfilteredsubdivisionselectorwidget.SelectIfPossible(Entity.RelatedToSubdivision);
+			}
+
 			var filterEmployee = new EmployeeFilter(UoW);
 			filterEmployee.ShowFired = false;
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
@@ -144,7 +156,9 @@ namespace Vodovoz
 
 		private void UpdateSubdivision()
 		{
-			Entity.RelatedToSubdivision = accessfilteredsubdivisionselectorwidget.SelectedSubdivision;
+			if(accessfilteredsubdivisionselectorwidget.SelectedSubdivision != null && accessfilteredsubdivisionselectorwidget.NeedChooseSubdivision) {
+				Entity.RelatedToSubdivision = accessfilteredsubdivisionselectorwidget.SelectedSubdivision;
+			}
 		}
 
 		public override bool Save()

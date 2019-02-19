@@ -159,7 +159,12 @@ namespace Vodovoz.Domain.Cash
 			if(String.IsNullOrWhiteSpace (Description))
 				yield return new ValidationResult ("Основание должно быть заполнено.",
 					new[] { this.GetPropertyName (o => o.Description) });
-			
+
+			if(RelatedToSubdivision == null) {
+				yield return new ValidationResult("Должно быть выбрано подразделение",
+					new[] { this.GetPropertyName(o => o.RelatedToSubdivision) });
+			}
+
 		}
 
 		#endregion
