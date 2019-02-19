@@ -637,6 +637,8 @@ namespace Vodovoz
 				return;
 			}
 
+			Entity.Cashier = casher;
+
 			if(!isConsistentWithUnloadDocument())
 				return;
 
@@ -656,7 +658,6 @@ namespace Vodovoz
 				EmployeeAdvanceOrder((decimal)advanceSpinbutton.Value);
 			}
 
-			Entity.Cashier = casher;
 			if(Entity.Status == RouteListStatus.OnClosing) {
 				Entity.Confirm(checkSendToMileageCheck.Active);
 			}
