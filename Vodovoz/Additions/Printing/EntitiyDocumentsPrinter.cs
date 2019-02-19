@@ -29,18 +29,19 @@ namespace Vodovoz.Additions.Printing
 		public event EventHandler PrintingCanceled;
 		public static PrintSettings PrinterSettings { get; set; }
 
+		bool? hideSignaturesAndStamps = null;
 		bool cancelPrinting = false;
-		bool printOrderDocsFromRL = false;
 		RouteList currentRouteList;
 		IUnitOfWork uow;
 
-		public EntitiyDocumentsPrinter(Order currentOrder, OrderDocumentType[] orderDocumentTypesToSelect = null)
+		public EntitiyDocumentsPrinter(Order currentOrder, bool? hideSignaturesAndStamps = null, IList<OrderDocumentType> orderDocumentTypesToSelect = null)
 		{
+			this.hideSignaturesAndStamps = hideSignaturesAndStamps;
 			DocPrinterInit();
 			FindODTTemplates(currentOrder, orderDocumentTypesToSelect);
 		}
 
-		void FindODTTemplates(Order currentOrder, OrderDocumentType[] orderDocumentTypesToSelect = null)
+		void FindODTTemplates(Order currentOrder, IList<OrderDocumentType> orderDocumentTypesToSelect = null)
 		{
 			List<string> msgs = null;
 			bool? successfulUpdate = null;
@@ -74,6 +75,9 @@ namespace Vodovoz.Additions.Printing
 					}
 				}
 
+				if(hideSignaturesAndStamps.HasValue && item is ISignableDocument doc)
+					doc.HideSignature = hideSignaturesAndStamps.Value;
+
 				DocumentsToPrint.Add(
 					new SelectablePrintDocument(item) {
 						Selected = orderDocumentTypesToSelect == null || orderDocumentTypesToSelect != null && orderDocumentTypesToSelect.Contains(item.Type)
@@ -99,7 +103,7 @@ namespace Vodovoz.Additions.Printing
 		/// <param name="routeList">Маршрутный лист</param>
 		/// <param name="routeListPrintableDocumentTypes">Типы документов МЛ, которые необходимо отметить</param>
 		/// <param name="orderDocumentTypes">Типы документов заказа, которые необходимо отметить</param>
-		public EntitiyDocumentsPrinter(IUnitOfWork uow, RouteList routeList, RouteListPrintableDocuments[] routeListPrintableDocumentTypes, OrderDocumentType[] orderDocumentTypes = null)
+		public EntitiyDocumentsPrinter(IUnitOfWork uow, RouteList routeList, RouteListPrintableDocuments[] routeListPrintableDocumentTypes, IList<OrderDocumentType> orderDocumentTypes = null)
 		{
 			this.uow = uow;
 			currentRouteList = routeList;
@@ -121,7 +125,6 @@ namespace Vodovoz.Additions.Printing
 					DocumentsToPrint.Add(doc);
 				}
 			}
-			printOrderDocsFromRL = orderDocumentTypes != null;
 			if(orderDocumentTypes != null)
 				PrintOrderDocumentsFromTheRouteList(routeList, orderDocumentTypes);
 		}
@@ -134,9 +137,13 @@ namespace Vodovoz.Additions.Printing
 			MultiDocPrinter.DocumentsPrinted += (o, args) => {
 				//если среди распечатанных документов есть МЛ, то выставляем его соответствующий признак в true
 				if(args is EndPrintArgs endPrintArgs && endPrintArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle())) {
-					currentRouteList.Printed = true;
-					uow.Save(currentRouteList);
-					uow.Commit();
+					using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+						var rl = uow.GetById<RouteList>(currentRouteList.Id);
+						rl.Printed = true;
+						uow.Save(rl);
+						uow.Commit();
+					}
+					uow.Session.Refresh(currentRouteList);
 				}
 				DocumentsPrinted?.Invoke(o, args);
 			};
@@ -158,7 +165,7 @@ namespace Vodovoz.Additions.Printing
 		}
 
 		//для печати документов заказов из МЛ, если есть при печати требуется их печать
-		void PrintOrderDocumentsFromTheRouteList(RouteList routeList, OrderDocumentType[] orderDocumentTypes)
+		void PrintOrderDocumentsFromTheRouteList(RouteList routeList, IList<OrderDocumentType> orderDocumentTypes)
 		{
 			var orders = routeList.Addresses
 				.Where(a => a.Status != RouteListItemStatus.Transfered)
@@ -166,11 +173,17 @@ namespace Vodovoz.Additions.Printing
 				;
 
 			foreach(var o in orders) {
-				var orderPrinter = new EntitiyDocumentsPrinter(o, orderDocumentTypes);
+				var orderPrinter = new EntitiyDocumentsPrinter(
+					o,
+					true,
+					//При массовой печати документов заказов из МЛ, в случае наличия у клиента признака UseSpecialDocFields, не будут печататься обычные счета и УПД
+					orderDocumentTypes.Where(t => !o.Client.UseSpecialDocFields || t != OrderDocumentType.UPD && t != OrderDocumentType.Bill).ToList()
+				);
 				orderPrinter.PrintingCanceled += (sender, e) => {
 					cancelPrinting = true;
 					PrintingCanceled?.Invoke(sender, e);
 				};
+				ODTTemplateNotFoundMessages = string.Concat(orderPrinter.ODTTemplateNotFoundMessages);
 				orderPrinter.Print();
 				if(cancelPrinting)
 					return;

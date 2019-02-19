@@ -54,8 +54,8 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		[Display(Name = "Без подписей и печати")]
 		public virtual bool HideSignature {
-			get { return hideSignature; }
-			set { SetField(ref hideSignature, value, () => HideSignature); }
+			get => hideSignature;
+			set => SetField(ref hideSignature, value, () => HideSignature);
 		}
 
 		#endregion

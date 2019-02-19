@@ -47,14 +47,14 @@ namespace Vodovoz.Tools.Orders
 				)
 			);
 			//ContractDocumentationInvoice
-			rules.Add(
+			/*rules.Add(
 				new Rule(
 					key => GetConditionForContractDocumentationInvoice(key),
 					new[] {
 						OrderDocumentType.InvoiceContractDoc
 					}
 				)
-			);
+			);*/
 			//EquipmentTransfer
 			rules.Add(
 				new Rule(
@@ -104,7 +104,7 @@ namespace Vodovoz.Tools.Orders
 			//Special UPD
 			rules.Add(
 				new Rule(
-					key => GetConditionForSpecialUPD(key),
+					GetConditionForSpecialUPD,
 					new[] {
 						OrderDocumentType.SpecialUPD
 					}
@@ -173,8 +173,8 @@ namespace Vodovoz.Tools.Orders
 		(
 			key.OrderStatus >= OrderStatus.Accepted
 			&& key.OnlyEquipments.Any(e => (e.Direction == Direction.PickUp && e.DirectionReason != DirectionReason.Rent)
-			                                 || (e.Direction == Direction.Deliver && (e.OwnType == OwnTypes.Duty || e.DirectionReason == DirectionReason.Rent))
-			                                )
+											 || (e.Direction == Direction.Deliver && (e.OwnType == OwnTypes.Duty || e.DirectionReason == DirectionReason.Rent))
+											)
 		);
 
 		static bool GetConditionForEquipmentReturn(OrderStateKey key) =>
@@ -205,6 +205,9 @@ namespace Vodovoz.Tools.Orders
 		(
 			GetConditionForBill(key)
 			&& (key.OrderStatus >= OrderStatus.Accepted || (key.OrderStatus == OrderStatus.WaitForPayment && key.IsSelfDelivery && key.PayAfterShipment))
+			||
+			key.PaymentType == PaymentType.ContractDoc
+			&& key.OrderStatus >= OrderStatus.Accepted
 		);
 
 		static bool GetConditionForSpecialUPD(OrderStateKey key) =>
@@ -263,18 +266,16 @@ namespace Vodovoz.Tools.Orders
 
 		static OrderAcceptProhibitionRulesRepository()
 		{
-			rules.Add(new ProhibitionRule(key => GetConditionForDepositReturn(key), 
-			                              "Возврат залога не применим для заказа в текущем состоянии"));
-			rules.Add(new ProhibitionRule(key => GetConditionForOrderWithoutMoney(key), 
-			                              "Невозможно подтвердить или перевести в статус ожидания оплаты заказ в текущем состоянии без суммы"));
-			rules.Add(new ProhibitionRule(key => GetConditionForEmptyOrder(key), 
-			                              "Невозможно подтвердить или перевести в статус ожидания оплаты пустой заказ"));
+			rules.Add(new ProhibitionRule(GetConditionForDepositReturn, "Возврат залога не применим для заказа в текущем состоянии"));
+			rules.Add(new ProhibitionRule(GetConditionForOrderWithoutMoney, "Невозможно подтвердить или перевести в статус ожидания оплаты заказ в текущем состоянии без суммы"));
+			rules.Add(new ProhibitionRule(GetConditionForEmptyOrder, "Невозможно подтвердить или перевести в статус ожидания оплаты пустой заказ"));
 		}
 
 		/// <summary>
 		/// Причина запрета: Возврат залога не применим для заказа в текущем состоянии
 		/// </summary>
-		static bool GetConditionForDepositReturn(OrderStateKey key){
+		static bool GetConditionForDepositReturn(OrderStateKey key)
+		{
 			bool result = false;
 			if(!key.NeedToRefundDepositToClient) {
 				return result;
@@ -284,7 +285,7 @@ namespace Vodovoz.Tools.Orders
 				result = true;
 			}
 
-			if((key.PaymentType == PaymentType.cashless || key.PaymentType == PaymentType.ByCard) 
+			if((key.PaymentType == PaymentType.cashless || key.PaymentType == PaymentType.ByCard)
 			   && !key.HasOrderItems) {
 				result = true;
 			}
@@ -298,11 +299,11 @@ namespace Vodovoz.Tools.Orders
 		{
 			bool result = false;
 
-			if(key.HasOrderItems || key.NeedToRefundDepositToClient){
+			if(key.HasOrderItems || key.NeedToRefundDepositToClient) {
 				return false;
 			}
 
-			if(key.PaymentType == PaymentType.ByCard && 
+			if(key.PaymentType == PaymentType.ByCard &&
 			   (key.HasOrderEquipment || (!key.HasOrderEquipment && key.NeedToReturnBottles))) {
 				result = true;
 			}
@@ -315,8 +316,8 @@ namespace Vodovoz.Tools.Orders
 		/// </summary>
 		static bool GetConditionForEmptyOrder(OrderStateKey key)
 		{
-			if(!key.HasOrderItems 
-			   && !key.NeedToRefundDepositToClient 
+			if(!key.HasOrderItems
+			   && !key.NeedToRefundDepositToClient
 			   && !key.NeedToReturnBottles
 			   && !key.HasOrderEquipment
 			   && !key.HasOrderItems) {

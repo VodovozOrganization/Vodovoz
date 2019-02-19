@@ -29435,6 +29435,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -51543,7 +51544,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.HBox" id="hbox3">
+          <widget class="Gtk.HBox" id="hbox4">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
@@ -51581,6 +51582,25 @@ not tooltip</property>
                   <packing>
                     <property name="Position">1</property>
                     <property name="AutoSize">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.ScrolledWindow" id="gtkScrollWndWarnings">
+                    <property name="MemberName" />
+                    <property name="Visible">False</property>
+                    <property name="ShadowType">In</property>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.yTreeView" id="yTreeViewWarnings">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="ShowScrollbars">True</property>
+                      </widget>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">2</property>
+                    <property name="AutoSize">False</property>
+                    <property name="Expand">False</property>
                   </packing>
                 </child>
               </widget>
@@ -51656,7 +51676,6 @@ not tooltip</property>
                 <child>
                   <widget class="Gtk.CheckButton" id="chkDocumentsOfOrders">
                     <property name="MemberName" />
-                    <property name="Tooltip" translatable="yes">Без договоров и доп.соглашений</property>
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Документы заказов</property>
                     <property name="Active">True</property>
