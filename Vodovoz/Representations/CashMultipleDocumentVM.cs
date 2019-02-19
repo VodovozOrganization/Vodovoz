@@ -43,6 +43,8 @@ namespace Vodovoz.Representations
 			RegisterExpense();
 			RegisterAdvanceReport();
 
+			FinalListFunction = OrderFunc;
+
 			Filter.InitSubdivisionsAccess(new Type[] { typeof(Income), typeof(Expense), typeof(AdvanceReport) });
 
 			TreeViewConfig = FluentColumnsConfig<CashDocumentVMNode>.Create()
@@ -55,6 +57,12 @@ namespace Vodovoz.Representations
 			.AddColumn("Основание").SetDataProperty(node => node.Description)
 			.Finish();
 		}
+
+		List<CashDocumentVMNode> OrderFunc(List<CashDocumentVMNode> arg)
+		{
+			return arg.OrderByDescending(x => x.Date).ToList();
+		}
+
 
 		private string GetTotalSumInfo()
 		{
