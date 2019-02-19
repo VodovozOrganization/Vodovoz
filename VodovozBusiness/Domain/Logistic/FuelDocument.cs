@@ -158,6 +158,7 @@ namespace Vodovoz.Domain.Logistic
 						Date = DateTime.Now,
 						Casher = cashier,
 						Employee = Driver,
+						RelatedToSubdivision = RouteList.ClosingSubdivision,
 						Description = $"Оплата топлива по МЛ №{RouteList.Id}",
 					};
 				}

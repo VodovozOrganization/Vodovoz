@@ -552,9 +552,7 @@
     <Compile Include="JournalFilters\CounterpartyFilter.cs" />
     <Compile Include="JournalFilters\ReadyForShipmentFilter.cs" />
     <Compile Include="JournalFilters\ServiceClaimFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.CashDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
-    <Compile Include="Representations\CashDocumentsVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.CashDocumentsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockDocumentsFilter.cs" />
     <Compile Include="Dialogs\Cash\CashIncomeDlg.cs" />
@@ -585,7 +583,6 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.AccountFlow.cs" />
     <Compile Include="JournalViewers\Cash\AccountableDebts.cs" />
     <Compile Include="JournalViewers\Cash\AccountableSlipsView.cs" />
-    <Compile Include="JournalViewers\Cash\CashDocumentsView.cs" />
     <Compile Include="JournalViewers\Cash\UnclosedAdvancesView.cs" />
     <Compile Include="JournalFilters\Cash\UnclosedAdvancesFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountableSlipsView.cs" />
