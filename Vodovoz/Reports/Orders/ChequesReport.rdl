@@ -743,7 +743,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	T.order_id,
@@ -809,8 +809,7 @@ FROM(
 	LEFT JOIN employees driver ON driver.id = rl.driver_id
 	WHERE
 		orders.delivery_date = DATE(@date)
-		AND orders.payment_type IN('cash', 'BeveragesWorld')
-		AND orders.need_cheque = 'Yes'
+		AND ((orders.payment_type = 'cash' AND orders.need_cheque = 'Yes') OR orders.payment_type = 'BeveragesWorld')
 		AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups))
 	GROUP BY order_items.id
 	) AS T
@@ -826,7 +825,7 @@ HAVING SUM(T.sum_cash) &gt; 0
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
