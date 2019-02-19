@@ -1613,8 +1613,8 @@ GROUP BY name</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>18.0pt</Left>
-        <Top>350.4pt</Top>
+        <Left>14.1pt</Left>
+        <Top>359.0pt</Top>
         <Visibility>
           <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
         </Visibility>
@@ -2115,8 +2115,8 @@ GROUP BY name</CommandText>
       <Image Name="Image8">
         <Height>47.78pt</Height>
         <Width>86.00pt</Width>
-        <Left>16.3pt</Left>
-        <Top>446.1pt</Top>
+        <Left>24.8pt</Left>
+        <Top>471.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2259,8 +2259,8 @@ GROUP BY name</CommandText>
         <Value>Принятие товара, означает согласие покупателя с условиями договора публичной оферты,
 размещенный на сайте www.vodovoz-spb.ru</Value>
         <ZIndex>1</ZIndex>
-        <Left>16.3pt</Left>
-        <Top>364.4pt</Top>
+        <Left>27.9pt</Left>
+        <Top>366.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2273,8 +2273,8 @@ GROUP BY name</CommandText>
         <Value>Просим Вас бережно относиться к бутылям, так как они являются собственностью компании.
 Напоминаем, что в случае потери и/или порчи бутыли сумма неустойки 150 рублей за бутыль </Value>
         <ZIndex>1</ZIndex>
-        <Left>16.3pt</Left>
-        <Top>398.0pt</Top>
+        <Left>26.8pt</Left>
+        <Top>405.8pt</Top>
       </Textbox>
       <Table Name="Table6">
         <DataSetName>Order</DataSetName>
@@ -2325,6 +2325,8 @@ GROUP BY name</CommandText>
                         <BorderStyle>
                           <Default>None</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2333,8 +2335,8 @@ GROUP BY name</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>9.7pt</Left>
-        <Top>512.8pt</Top>
+        <Left>24.0pt</Left>
+        <Top>546.4pt</Top>
       </Table>
       <Table Name="Table7">
         <DataSetName>Order</DataSetName>
@@ -2346,7 +2348,7 @@ GROUP BY name</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>444.7pt</Width>
+            <Width>546.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -2374,7 +2376,7 @@ GROUP BY name</CommandText>
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>27.3pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -2387,6 +2389,8 @@ GROUP BY name</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontWeight >Bold</FontWeight>
+                        <FontSize >12pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2395,14 +2399,14 @@ GROUP BY name</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>16.0pt</Left>
-        <Top>325.1pt</Top>
+        <Left>26.5pt</Left>
+        <Top>317.4pt</Top>
       </Table>
       <Image Name="Image2">
-        <Height>111.38pt</Height>
-        <Width>486.23pt</Width>
-        <Left>109.9pt</Left>
-        <Top>416.2pt</Top>
+        <Height>113.60pt</Height>
+        <Width>456.15pt</Width>
+        <Left>117.6pt</Left>
+        <Top>451.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2437,7 +2441,7 @@ GROUP BY name</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>569.7pt</Width>
+            <Width>540.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -2523,8 +2527,8 @@ GROUP BY name</CommandText>
                           <Top>2pt</Top>
                           <Bottom>2pt</Bottom>
                         </BorderWidth>
-                        <FontSize >12pt</FontSize>
-                        <FontWeight >Bold</FontWeight>
+                        <FontSize>12pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2533,7 +2537,7 @@ GROUP BY name</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>16.2pt</Left>
+        <Left>32.5pt</Left>
         <Top>249.1pt</Top>
       </Table>
     </ReportItems>
