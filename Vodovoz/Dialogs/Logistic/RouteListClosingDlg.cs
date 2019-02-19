@@ -640,10 +640,6 @@ namespace Vodovoz
 			if(!isConsistentWithUnloadDocument())
 				return;
 
-			if(!checkSendToMileageCheck.Active) {
-				Entity.ConfirmedDistance = Entity.ActualDistance;
-			}
-
 			var valid = new QSValidator<RouteList>(UoWGeneric.Root,
 							new Dictionary<object, object>
 				{
