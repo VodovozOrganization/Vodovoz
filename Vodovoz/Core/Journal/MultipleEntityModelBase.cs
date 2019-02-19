@@ -136,10 +136,16 @@ namespace Vodovoz.Core.Journal
 			foreach(var item in dataFunctions) {
 				source.AddRange(item.Invoke());
 			}
+			if(FinalListFunction != null) {
+				source = FinalListFunction.Invoke(source);
+			}
+
 			SetItemsSource(source);
 		}
 
 		#endregion
+
+		public Func<List<TNode>, List<TNode>> FinalListFunction;
 
 		protected EntityPermission GetPermissionForEntity<TEntity>()
 		{
