@@ -184,7 +184,7 @@ namespace Vodovoz.ExportTo1c
 			var exportSaleDocument = new SalesDocumentNode();
 			exportSaleDocument.Id = ++objectCounter;
 			exportSaleDocument.Reference = new ReferenceNode(exportSaleDocument.Id,
-				new PropertyNode("Номер", Common1cTypes.String, order.Id),
+				new PropertyNode("Номер", Common1cTypes.String, ExportMode == Export1cMode.IPForTinkoff ? order.OnlineOrder.Value : order.Id),
 				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s"))
 			);
 
