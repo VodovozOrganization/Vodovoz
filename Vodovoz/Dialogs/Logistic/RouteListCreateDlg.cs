@@ -288,7 +288,7 @@ namespace Vodovoz
 			if (UoWGeneric.Root.Status == RouteListStatus.New) {
 				var valid = new QSValidator<RouteList>(UoWGeneric.Root,
 								new Dictionary<object, object> {
-						{ "NewStatus", RouteListStatus.InLoading }
+						{ "NewStatus", RouteListStatus.Confirmed }
 					});
 				if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 					return;

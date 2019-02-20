@@ -715,6 +715,10 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
+				if(newStatus == RouteListStatus.Confirmed) {
+					if(!GeographicGroups.Any())
+						yield return new ValidationResult("Необходимо указать район");
+				}
 				if(newStatus == RouteListStatus.InLoading) {
 				}
 				if(newStatus == RouteListStatus.Closed) {

@@ -580,6 +580,13 @@ namespace Vodovoz
 				return false;
 			}
 
+			var casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(casher == null) {
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
+				return false;
+			}
+			Entity.Cashier = casher;
+
 			var messages = new List<string>();
 
 			if(Entity.FuelOperationHaveDiscrepancy()) {
