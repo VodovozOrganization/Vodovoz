@@ -1,20 +1,16 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using NLog;
-using QS.Dialog.Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.DomainModel.UoW;
 using QS.Permissions;
 using QS.Project.Repositories;
+using QS.RepresentationModel;
 using QS.Tdi;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using QS.RepresentationModel.GtkUI;
-using QS.RepresentationModel;
 
 namespace Vodovoz.Core.Journal
 {
@@ -181,7 +177,7 @@ namespace Vodovoz.Core.Journal
 			}
 
 			//FIXME Сомнительный вариант, возможно можно сделать лучше
-			Action<Func<IList<TNode>>, List<MultipleEntityModelDocumentConfig<TNode>>> finishConfigAction = (Func<IList<TNode>> dataFunc, List<MultipleEntityModelDocumentConfig<TNode>> docConfigs) => {
+			Action<Func<IList<TNode>>, IEnumerable<MultipleEntityModelDocumentConfig<TNode>>> finishConfigAction = (Func<IList<TNode>> dataFunc, IEnumerable<MultipleEntityModelDocumentConfig<TNode>> docConfigs) => {
 				if(permission.Read) {
 					configList.AddRange(docConfigs);
 					dataFunctions.Add(dataFunc);
