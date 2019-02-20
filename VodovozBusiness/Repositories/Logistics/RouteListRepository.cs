@@ -43,12 +43,15 @@ namespace Vodovoz.Repository.Logistics
 			var query = QueryOver.Of<RouteList>()
 								 .Where(x => x.Date == date)
 								 ;
-			
-			if(geographicGroupsIds.Any())
-				query = query.Left.JoinAlias(r => r.GeographicGroups, () => geographicGroupAlias)
-				             .Where(() => geographicGroupAlias.Id.IsIn(geographicGroupsIds))
-				             //.Select(Projections.Distinct(Projections.Property<RouteList>(x => x)))
-				             ;
+
+			if(geographicGroupsIds.Any()) {
+				var routeListsWithGeoGroupsSubquery = QueryOver.Of<RouteList>()
+															   .Left.JoinAlias(r => r.GeographicGroups, () => geographicGroupAlias)
+															   .Where(() => geographicGroupAlias.Id.IsIn(geographicGroupsIds))
+															   .Select(r => r.Id);
+				query.WithSubquery.WhereProperty(r => r.Id).In(routeListsWithGeoGroupsSubquery);
+			}
+
 			return query;
 		}
 

@@ -33,7 +33,6 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
 
 			Entity.Date = DateTime.Now;
 			ConfigureDlg ();
@@ -42,7 +41,15 @@ namespace Vodovoz
 		public CashExpenseDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Expense> (id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Expense>(id);
+
+			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Expense))) {
+
+				MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
+				FailInitialize = true;
+				return;
+			}
+
 			ConfigureDlg ();
 		}
 
@@ -50,6 +57,11 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
+			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
+			if(Entity.RelatedToSubdivision != null) {
+				accessfilteredsubdivisionselectorwidget.SelectIfPossible(Entity.RelatedToSubdivision);
+			}
+
 			enumcomboOperation.ItemsEnum = typeof(ExpenseType);
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
@@ -93,7 +105,9 @@ namespace Vodovoz
 
 		private void UpdateSubdivision()
 		{
-			Entity.RelatedToSubdivision = accessfilteredsubdivisionselectorwidget.SelectedSubdivision;
+			if(accessfilteredsubdivisionselectorwidget.SelectedSubdivision != null && accessfilteredsubdivisionselectorwidget.NeedChooseSubdivision) {
+				Entity.RelatedToSubdivision = accessfilteredsubdivisionselectorwidget.SelectedSubdivision;
+			}
 		}
 
 		public override bool Save ()

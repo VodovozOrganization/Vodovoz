@@ -643,7 +643,6 @@ namespace Vodovoz
 
 			treeItems.Selection.UnselectAll();
 			Save();
-			PrintOrderDocuments();
 			UpdateUIState();
 		}
 
@@ -731,16 +730,6 @@ namespace Vodovoz
 		#endregion
 
 		#region Документы заказа
-
-		public void PrintOrderDocuments()
-		{
-			if(Entity.OrderDocuments.Any()) {
-				if(MessageDialogHelper.RunQuestionDialog("Открыть документы для печати?")) {
-					var documentPrinterDlg = new DocumentsPrinterDlg(Entity);
-					TabParent.AddSlaveTab(this, documentPrinterDlg);
-				}
-			}
-		}
 
 		protected void OnBtnRemExistingDocumentClicked(object sender, EventArgs e)
 		{
@@ -933,15 +922,16 @@ namespace Vodovoz
 			if(!SaveOrderBeforeContinue<ServiceClaim>())
 				return;
 			OrmReference SelectDialog = new OrmReference(
-				typeof(ServiceClaim), 
+				typeof(ServiceClaim),
 				UoWGeneric,
 				ServiceClaimRepository
 					.GetDoneClaimsForClient(Entity)
 					.GetExecutableQueryOver(UoWGeneric.Session)
 					.RootCriteria
-			);
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
+			) {
+				Mode = OrmReferenceMode.Select,
+				ButtonMode = ReferenceButtonMode.CanEdit
+			};
 			SelectDialog.ObjectSelected += DoneServiceSelected;
 
 			TabParent.AddSlaveTab(this, SelectDialog);

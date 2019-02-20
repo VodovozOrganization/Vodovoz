@@ -299,6 +299,11 @@ namespace Vodovoz.Domain.Cash
 				}
 			}
 
+			if(RelatedToSubdivision == null) {
+				yield return new ValidationResult("Должно быть выбрано подразделение",
+					new[] { this.GetPropertyName(o => o.RelatedToSubdivision) });
+			}
+
 			if(Money <= 0)
 				yield return new ValidationResult("Сумма должна больше нуля",
 					new[] { this.GetPropertyName(o => o.Money) });

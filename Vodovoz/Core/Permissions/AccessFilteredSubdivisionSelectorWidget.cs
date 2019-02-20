@@ -15,7 +15,7 @@ namespace Vodovoz.Core.Permissions
 
 		public bool AllSelected => yspeccomboboxSubdivision.IsSelectedAll;
 
-		private IEnumerable<Subdivision> subdivisions;
+		public IEnumerable<Subdivision> AvailableSubdivisions { get; private set; }
 
 		public Subdivision SelectedSubdivision
 		{
@@ -27,11 +27,10 @@ namespace Vodovoz.Core.Permissions
 				if(yspeccomboboxSubdivision.IsSelectedAll) {
 					return null;
 				}
-				var firstSubdivision = subdivisions.First();
+				var firstSubdivision = AvailableSubdivisions.First();
 				yspeccomboboxSubdivision.SelectedItem = firstSubdivision;
 				return firstSubdivision;
 			}
-			  
 		}
 
 		public event EventHandler OnSelected;
@@ -47,6 +46,13 @@ namespace Vodovoz.Core.Permissions
 		void YspeccomboboxSubdivision_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			OnSelected?.Invoke(this, EventArgs.Empty);
+		}
+
+		public void SelectIfPossible(Subdivision subdivision)
+		{
+			if(AvailableSubdivisions.Any(x => x.Id == subdivision.Id)) {
+				yspeccomboboxSubdivision.SelectedItem = AvailableSubdivisions.First(x => x.Id == subdivision.Id);
+			}
 		}
 
 		/// <summary>
@@ -91,10 +97,10 @@ namespace Vodovoz.Core.Permissions
 
 		private void FillList(IEnumerable<Subdivision> subdivisions)
 		{
-			this.subdivisions = subdivisions.Distinct();
-			yspeccomboboxSubdivision.ItemsList = this.subdivisions;
+			this.AvailableSubdivisions = subdivisions.Distinct();
+			yspeccomboboxSubdivision.ItemsList = this.AvailableSubdivisions;
 			if(!yspeccomboboxSubdivision.ShowSpecialStateAll) {
-				yspeccomboboxSubdivision.SelectedItem = this.subdivisions.First();
+				yspeccomboboxSubdivision.SelectedItem = this.AvailableSubdivisions.First();
 			}
 		}
 

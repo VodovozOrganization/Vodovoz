@@ -33,6 +33,11 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override PrinterType PrintType => PrinterType.RDL;
 
 		public override DocumentOrientation Orientation => DocumentOrientation.Landscape;
+
+		int copiesToPrint = 2;
+		public override int CopiesToPrint {
+			get => copiesToPrint;
+			set => copiesToPrint = value;
+		}
 	}
 }
-

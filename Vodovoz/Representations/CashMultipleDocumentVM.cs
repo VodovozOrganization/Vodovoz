@@ -387,12 +387,14 @@ namespace Vodovoz.Representations
 
 		public DateTime Date { get; set; }
 
+		[UseForSearch]
 		public string DateString { get { return Date.ToShortDateString(); } }
 
 		public string EmployeeSurname { get; set; }
 		public string EmployeeName { get; set; }
 		public string EmployeePatronymic { get; set; }
 
+		[UseForSearch]
 		public string EmployeeString {
 			get {
 				return PersonHelper.PersonNameWithInitials(EmployeeSurname, EmployeeName, EmployeePatronymic);
@@ -412,8 +414,10 @@ namespace Vodovoz.Representations
 		public IncomeInvoiceDocumentType IncomeDocumentType { get; set; }
 		public ExpenseInvoiceDocumentType ExpenseDocumentType { get; set; }
 
+		[UseForSearch]
 		public string Category { get; set; }
 
+		[UseForSearch]
 		public string Description { get; set; }
 
 		public decimal Money { get; set; }
