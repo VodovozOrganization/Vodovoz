@@ -116,10 +116,10 @@
             <Width>118.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.0pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.0pt</Width>
+            <Width>45.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43pt</Width>
@@ -223,7 +223,11 @@
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                          <Top>3pt</Top>
+                        </BorderWidth>
                         <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
@@ -280,7 +284,11 @@
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                          <Top>3pt</Top>
+                        </BorderWidth>
                         <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
@@ -380,7 +388,10 @@
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                        </BorderWidth>
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
@@ -439,7 +450,10 @@
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                        </BorderWidth>
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
@@ -589,7 +603,10 @@
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                        </BorderWidth>
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
@@ -647,7 +664,10 @@
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                        </BorderWidth>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -676,7 +696,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>Зак.</Value>
+                      <Value>Зак.
+Еж.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -686,7 +707,7 @@
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -774,7 +795,10 @@
                           <Top>None</Top>
                         </BorderStyle>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                        </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -831,7 +855,10 @@
                           <Top>None</Top>
                         </BorderStyle>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                        </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <FontSize>8pt</FontSize>
@@ -860,8 +887,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -869,7 +896,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>={OrderId}</Value>
+                      <Value>={order_and_daily_nr}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -881,7 +908,7 @@
                         <FontFamily>Arial</FontFamily>
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -905,8 +932,8 @@
 )
 
 </FontWeight>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -924,7 +951,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -974,7 +1001,10 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                        </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                       </Style>
@@ -990,7 +1020,9 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                        </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                       </Style>
@@ -1026,7 +1058,10 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                        </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <Format>0.00</Format>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
@@ -1504,7 +1539,7 @@
       <Textbox Name="Textbox51">
         <Height>11.24pt</Height>
         <Width>222.13pt</Width>
-        <Value>="Погрузка складе с " + Format(First({on_load_start}, 'RouteList'), "hh\:mm") + " по " + Format(First({on_load_end}, 'RouteList'), "hh\\:mm")</Value>
+        <Value>="Погрузка на складе с " + Format(First({on_load_start}, 'RouteList'), "hh\:mm") + " по " + Format(First({on_load_end}, 'RouteList'), "hh\\:mm")</Value>
         <ZIndex>1</ZIndex>
         <Left>195.6pt</Left>
         <Top>1.0pt</Top>
@@ -1714,9 +1749,9 @@ WHERE route_lists.id = @route_list_id;</CommandText>
     <DataSet Name="Orders">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>
-SELECT 
+        <CommandText>SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
+CONCAT_WS('\n', orders.id, orders.daily_number_1c) AS order_and_daily_nr,
 orders.daily_number_1c, orders.has_comment_for_driver, route_list_addresses.need_to_reload AS Reloaded,
 (SELECT SUM(order_items.count * nomenclature.weight) FROM order_items
 LEFT JOIN nomenclature ON nomenclature.id=order_items.nomenclature_id
@@ -1728,47 +1763,47 @@ CONCAT_WS(' ', IFNULL(delivery_points.compiled_address_short, delivery_points.co
 counterparty.need_new_bottles AS NeedNewBottles,
 CONCAT_WS(
 	' ', 
-    GROUP_CONCAT(DISTINCT
+	GROUP_CONCAT(DISTINCT
 		CONCAT(
 			' ', 
-            eq_qry.name, 
-            ': ', 
-            eq_qry.cnt)
+			eq_qry.name, 
+			': ', 
+			eq_qry.cnt)
 		), 
 	IF(
 		(orders.to_client_text IS NOT NULL) AND (eq_qry.name IS NOT NULL), 
 		"; ", 
-        ""
-    ), 
-    orders.to_client_text
+		""
+	), 
+	orders.to_client_text
 ) AS ToClient,
 CONCAT_WS(
 	' ', 
-    GROUP_CONCAT(DISTINCT
+	GROUP_CONCAT(DISTINCT
 		CONCAT(
 			' ', 
 			pickup_eq_qry.name, 
-            ': ', 
-            pickup_eq_qry.cnt
+			': ', 
+			pickup_eq_qry.cnt
 		)
-    ), 
-    orders.from_client_text,
-    "\n",
-    IF(
-        (EXISTS(
-            SELECT oi.id
-            FROM order_items oi LEFT JOIN nomenclature n
-            ON (oi.nomenclature_id=n.id AND n.category IN ('water', 'equipment', 'spare_parts', 'additional', 'bottle', 'material'))
-        	WHERE oi.order_id=orders.id
+	), 
+	orders.from_client_text,
+	"\n",
+	IF(
+		(EXISTS(
+			SELECT oi.id
+			FROM order_items oi LEFT JOIN nomenclature n
+			ON (oi.nomenclature_id=n.id AND n.category IN ('water', 'equipment', 'spare_parts', 'additional', 'bottle', 'material'))
+			WHERE oi.order_id=orders.id
 		) OR
-        EXISTS(
-            SELECT id
-            FROM order_equipment
-            WHERE direction = 'Deliver' AND order_equipment.order_id=orders.id
-        )),
-        "",
-        CONCAT("Тара: ", orders.bottles_return)
-    )
+		EXISTS(
+			SELECT id
+			FROM order_equipment
+			WHERE direction = 'Deliver' AND order_equipment.order_id=orders.id
+		)),
+		"",
+		CONCAT("Тара: ", orders.bottles_return)
+	)
 ) AS FromClient,
 #IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit,
 #База в запросе выше на проде пустая, залоги гребутся из той, что в запросе ниже.
@@ -1783,9 +1818,9 @@ LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_i
 LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN 
 	(SELECT
-    route_list_addresses.id,
-    route_list_addresses.route_list_id    
-    FROM route_list_addresses) as TransferedAddresses
+	route_list_addresses.id,
+	route_list_addresses.route_list_id	
+	FROM route_list_addresses) as TransferedAddresses
 ON TransferedAddresses.id = route_list_addresses.transfered_to_id
 
 /*LEFT JOIN ( 
@@ -1805,13 +1840,13 @@ LEFT JOIN (
 		order_items.order_id as order_id, 
 		nomenclature.id AS nomenclature_id,
 		IFNULL(nomenclature.short_name, nomenclature.name) as name, 
-        SUM(order_items.count) AS cnt 
+		SUM(order_items.count) AS cnt 
 	FROM order_items
 		LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id 
 	WHERE 
 		nomenclature.category = 'equipment' 
-        OR nomenclature.category = 'additional' 
-        AND nomenclature.hide = 0
+		OR nomenclature.category = 'additional' 
+		AND nomenclature.hide = 0
 	GROUP BY order_id, nomenclature_id
 UNION ALL
 	SELECT 
@@ -1825,11 +1860,11 @@ UNION ALL
 				when order_equipment.own_type = 'Duty' then '(Дежурный)'
 				else ''
 			end
-        ) as name, 
-        SUM(order_equipment.count) AS cnt 
+		) as name, 
+		SUM(order_equipment.count) AS cnt 
 	FROM order_equipment
 		LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
-    WHERE 
+	WHERE 
 		order_equipment.direction = 'Deliver' AND nomenclature.hide = 0
 	GROUP BY order_id, nomenclature_id
 ) AS eq_qry ON eq_qry.order_id = orders.id
@@ -1837,7 +1872,7 @@ UNION ALL
 LEFT JOIN (
 	SELECT
 		order_equipment.order_id as order_id, 
-        nomenclature.id AS nomenclature_id,
+		nomenclature.id AS nomenclature_id,
 		CONCAT(
 			IFNULL(nomenclature.short_name, nomenclature.name), 
 			case
@@ -1846,9 +1881,9 @@ LEFT JOIN (
 				when order_equipment.own_type = 'Duty' then '(Дежурный)'
 				else ''
 			end
-        ) as name, 
-        SUM(order_equipment.count) AS cnt 
-    FROM order_equipment 
+		) as name, 
+		SUM(order_equipment.count) AS cnt 
+	FROM order_equipment 
 		LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
 	WHERE order_equipment.direction = 'PickUp' AND nomenclature.hide = 0
 	GROUP BY order_id, nomenclature_id
@@ -1868,8 +1903,8 @@ GROUP BY order_id) AS wt_qry ON wt_qry.order_id = orders.id
 
 WHERE route_list_addresses.route_list_id = @route_list_id
 GROUP BY orders.id
-ORDER BY order_in_route;
-        </CommandText>
+ORDER BY order_in_route
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="@route_list_id">
             <Value>={?RouteListId}</Value>
@@ -1941,6 +1976,10 @@ ORDER BY order_in_route;
           <DataField>Status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="order_and_daily_nr">
+          <DataField>order_and_daily_nr</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
         <!--fields-->
       </Fields>
     </DataSet>
@@ -1954,7 +1993,7 @@ ORDER BY order_in_route;
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="RouteListId">
       <DataType>Integer</DataType>
       <DefaultValue>
