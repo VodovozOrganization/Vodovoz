@@ -41,7 +41,7 @@ namespace Vodovoz.Domain
 			var r = new Rates();
 			r.PhoneServiceCompensationRate = 0;
 			r.FullBottleRate = 5;
-			r.SmallBottleRate = 0;
+			r.SmallBottleRate = 5;
 			r.EmptyBottleRate = 5;
 			r.CoolerRate = 10;
 			r.PaymentPerAddress = 0;
