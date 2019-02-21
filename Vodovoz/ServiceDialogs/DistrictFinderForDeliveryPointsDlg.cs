@@ -85,7 +85,7 @@ namespace Vodovoz.ServiceDialogs
 			progressbar.Text = string.Format("Загрузка контрагентов и счетов");
 
 			var deliveryPointsQuery = UoW.Session.QueryOver<DeliveryPoint>()
-												 //.Where(d => d.Id <= 2000)
+												 .Where(d => d.District == null)
 												 .Future<DeliveryPoint>();
 
 			var districtSource = ScheduleRestrictionRepository.AreaWithGeometry(UoW);

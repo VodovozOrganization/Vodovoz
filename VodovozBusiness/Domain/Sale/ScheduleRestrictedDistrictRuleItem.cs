@@ -4,6 +4,9 @@ using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Sale
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "стоимости доставки",
+		Nominative = "стоимость доставки")]
 	public class ScheduleRestrictedDistrictRuleItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -28,5 +31,7 @@ namespace Vodovoz.Domain.Sale
 			get { return deliveryPrice; }
 			set { SetField(ref deliveryPrice, value, () => DeliveryPrice); }
 		}
+
+		public virtual string Title => string.Format("{0}, то цена {1}", DeliveryPriceRule, DeliveryPrice.ToString("C0"));
 	}
 }

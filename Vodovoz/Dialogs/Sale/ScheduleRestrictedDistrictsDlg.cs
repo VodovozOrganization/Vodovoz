@@ -153,18 +153,21 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnButtonDeleteDistrictClicked(object sender, EventArgs e)
 		{
-			currentDistrict.Remove(uow);
-			var districtToDelete = bordersOverlay.Polygons.FirstOrDefault(p => (p.Tag as ScheduleRestrictedDistrict) == currentDistrict);
-			if(districtToDelete != null)
-				districtToDelete.IsVisible = false;
+			if(currentDistrict.Id != 0)
+				OrmMain.DeleteObject(typeof(ScheduleRestrictedDistrict), currentDistrict.Id);
+
+			var mapPolygon = bordersOverlay.Polygons.FirstOrDefault(p => (p.Tag as ScheduleRestrictedDistrict) == currentDistrict);
+			if(mapPolygon != null)
+				mapPolygon.IsVisible = false;
 			observableRestrictedDistricts.Remove(currentDistrict);
 			UpdateCurrentDistrict();
 		}
 
 		protected void OnButtonAddScheduleClicked(object sender, EventArgs e)
 		{
-			var SelectSchedules = new OrmReference(typeof(DeliverySchedule), uow);
-			SelectSchedules.Mode = OrmReferenceMode.MultiSelect;
+			var SelectSchedules = new OrmReference(typeof(DeliverySchedule), uow) {
+				Mode = OrmReferenceMode.MultiSelect
+			};
 			SelectSchedules.ObjectSelected += SelectSchedules_ObjectSelected;
 			TabParent.AddSlaveTab(this, SelectSchedules);
 		}
@@ -305,8 +308,9 @@ namespace Vodovoz.Dialogs.Logistic
 
 			foreach(ScheduleRestrictedDistrict district in observableRestrictedDistricts) {
 				if(district.DistrictBorder != null) {
-					var border = new GMapPolygon(district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(), district.DistrictName);
-					border.Tag = district;
+					var border = new GMapPolygon(district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(), district.DistrictName) {
+						Tag = district
+					};
 					bordersOverlay.Polygons.Add(border);
 				}
 			}
@@ -403,8 +407,9 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnBtnAddGeographicGroupClicked(object sender, EventArgs e)
 		{
-			var selectGeographicGroups = new OrmReference(typeof(GeographicGroup), uow);
-			selectGeographicGroups.Mode = OrmReferenceMode.MultiSelect;
+			var selectGeographicGroups = new OrmReference(typeof(GeographicGroup), uow) {
+				Mode = OrmReferenceMode.MultiSelect
+			};
 			selectGeographicGroups.ObjectSelected += SelectGeographicGroups_ObjectSelected;
 			TabParent.AddSlaveTab(this, selectGeographicGroups);
 		}

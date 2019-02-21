@@ -657,7 +657,7 @@ namespace Vodovoz.Domain.Goods
 				}
 				if(DependsOnNomenclature.DependsOnNomenclature != null)
 					yield return new ValidationResult(
-						String.Format("Номенклатура '{0}' указанная в качеcтве основной для цен этой номеклатуры, сама зависить от '{1}'",
+						String.Format("Номенклатура '{0}' указанная в качеcтве основной для цен этой номеклатуры, сама зависит от '{1}'",
 						              DependsOnNomenclature.ShortOrFullName, DependsOnNomenclature.DependsOnNomenclature.ShortOrFullName),
 						new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
 			}

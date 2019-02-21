@@ -65,7 +65,9 @@ namespace Vodovoz
 				.AddClearDependence<PaidRentPackage>(x => x.RentServiceDaily)
 				.AddClearDependence<PaidRentPackage>(x => x.RentServiceMonthly)
 				.AddClearDependence<PaidRentPackage>(x => x.DepositService)
-				.AddClearDependence<FreeRentPackage>(x => x.DepositService);
+				.AddClearDependence<FreeRentPackage>(x => x.DepositService)
+				.AddClearDependence<DeliveryPoint>(x => x.DefaultWaterNomenclature)
+				.AddClearDependence<Nomenclature>(x => x.DependsOnNomenclature);
 
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(EquipmentColors),
@@ -474,9 +476,27 @@ namespace Vodovoz
 
 			#endregion
 
+			#endregion
+
+			#region ScheduleRestriction
+
+			DeleteConfig.AddHibernateDeleteInfo<ScheduleRestriction>()
+				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionMonday)
+				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionTuesday)
+				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionWednesday)
+				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionThursday)
+				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionFriday)
+				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionSaturday)
+				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionSunday)
+				;
+
 			DeleteConfig.AddHibernateDeleteInfo<ScheduleRestrictedDistrict>()
-				.AddDeleteDependence<ScheduleRestrictedDistrictRuleItem>(item => item.ScheduleRestrictedDistrict);
+				.AddClearDependence<DeliveryPoint>(i => i.District)
+				.AddDeleteDependence<ScheduleRestrictedDistrictRuleItem>(item => item.ScheduleRestrictedDistrict)
+				;
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPriceRule>();
+
+			DeleteConfig.AddHibernateDeleteInfo<ScheduleRestrictedDistrictRuleItem>();
 
 			#endregion
 

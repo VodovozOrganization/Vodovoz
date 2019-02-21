@@ -23,6 +23,7 @@ namespace Vodovoz.Domain.Sale
 
 		string districtName;
 
+		[Required(ErrorMessage = "Имя района обязательно")]
 		public virtual string DistrictName {
 			get { return districtName; }
 			set { SetField(ref districtName, value, () => DistrictName); }
@@ -160,6 +161,8 @@ namespace Vodovoz.Domain.Sale
 		#endregion
 
 		#region Функции
+
+		public virtual string Title => DistrictName;
 
 		public virtual string GetSchedulesString()
 		{
@@ -301,6 +304,12 @@ namespace Vodovoz.Domain.Sale
 				yield return new ValidationResult(
 					string.Format("Для района \"{0}\" необходимо указать часть города, содержащую этот район доставки", DistrictName),
 					new[] { this.GetPropertyName(o => o.GeographicGroups) }
+				);
+
+			if(DistrictBorder == null)
+				yield return new ValidationResult(
+					string.Format("Для района \"{0}\" необходимо нарисовать границы на карте", DistrictName),
+					new[] { this.GetPropertyName(o => o.DistrictBorder) }
 				);
 		}
 		#endregion
