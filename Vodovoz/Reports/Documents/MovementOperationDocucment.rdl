@@ -23,11 +23,11 @@
       <Textbox Name="Textbox1">
         <Height>51.86pt</Height>
         <Width>341.62pt</Width>
-        <Value>="АКТ ПЕРЕМЕЩЕНИЯ ТОВАРОВ
-№" + {?documentId}  + " от "  + {?date}</Value>
+        <Value>="ДОКУМЕНТ ПЕРЕМЕЩЕНИЯ ТОВАРОВ
+№" + {?documentId}  +  " от "  + {?date}</Value>
         <ZIndex>1</ZIndex>
-        <Left>96.9pt</Left>
-        <Top>7.2pt</Top>
+        <Left>119.3pt</Left>
+        <Top>6.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -60,8 +60,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -183,8 +183,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -223,7 +223,7 @@
         </Details>
         <Left>30.8pt</Left>
         <Top>188.5pt</Top>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>27.8pt</Height>
@@ -313,27 +313,25 @@
         </Footer>
       </Table>
       <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid1">
-        <Style >
+        <Style>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
         </Style>
-        <TableColumns >
+        <TableColumns>
           <TableColumn>
-            <Width>201.7pt</Width>
+            <Width>193.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>306.5pt</Width>
           </TableColumn>
-          
         </TableColumns>
-        
-        <Details >
+        <Details>
           <TableRows>
             <TableRow>
-              <Height>37.2pt</Height>
+              <Height>33.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -342,9 +340,18 @@
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                      <BorderColor /><BorderWidth /><FontWeight>Bold</FontWeight><FontSize>12pt</FontSize></Style>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Bottom</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -355,13 +362,21 @@
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                      <BorderColor /><BorderWidth /><FontSize>12pt</FontSize></Style>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Bottom</VerticalAlign>
+                        <TextDecoration>Underline</TextDecoration>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                
               </TableCells>
             </TableRow>
             <TableRow>
@@ -370,12 +385,20 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>Склад отправитель:</Value>
+                      <Value>Откуда:</Value>
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                      <BorderColor /><BorderWidth /><FontWeight>Bold</FontWeight><FontSize>12pt</FontSize></Style>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>12pt</FontSize>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -385,22 +408,27 @@
                       <Value>={?WarehouseFrom}</Value>
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                      <FontSize>12pt</FontSize></Style>
+                        <FontSize>12pt</FontSize>
+                        <TextDecoration>Underline</TextDecoration>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                
               </TableCells>
             </TableRow>
           </TableRows>
         </Details>
-        <Left >31.7pt</Left>
-        <Top >62.9pt</Top>
-        <Footer >
+        <Left>26.1pt</Left>
+        <Top>71.4pt</Top>
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>22.4pt</Height>
@@ -410,10 +438,18 @@
                     <Textbox Name="Textbox24">
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                      <BorderColor /><BorderWidth /><FontWeight>Bold</FontWeight><FontSize>12pt</FontSize></Style>
-                      <Value>Склад получатель:</Value>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                      <Value>Куда:</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -422,190 +458,580 @@
                     <Textbox Name="Textbox25">
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                      <BorderColor /><BorderWidth /><FontSize>12pt</FontSize></Style>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <TextDecoration>Underline</TextDecoration>
+                      </Style>
                       <Value>={?WarehouseTo}</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                
               </TableCells>
             </TableRow>
           </TableRows>
         </Footer>
       </fyi:Grid>
-                <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid2"><Style >
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid2">
+        <Style>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
         </Style>
-        <TableColumns >
+        <TableColumns>
           <TableColumn>
-            <Width>79.1pt</Width>
+            <Width>83.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>138.3pt</Width>
+            <Width>117.0pt</Width>
           </TableColumn>
-          
+          <TableColumn>
+            <Width>125.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>107.2pt</Width>
+          </TableColumn>
         </TableColumns>
-        
-        <Details >
+        <Header>
           <TableRows>
             <TableRow>
-              <Height>22.3pt</Height>
+              <Height>14.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox26">
+                    <Textbox Name="Textbox29">
                       <Value>Отгрузил:</Value>
-                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>={?date}</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextDecoration >Underline</TextDecoration>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>____________________</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>____________________</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>14.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /><FontWeight>Bold</FontWeight><FontSize>12pt</FontSize></Style>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>Дата</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextDecoration>None</TextDecoration>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>ФИО</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>Подпись</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>Водитель: </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>____________________</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>____________________</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>____________________</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>34.6pt</Left>
+        <Top>271.1pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>Дата</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>ФИО</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>Подпись</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>Принял:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>____________________</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>____________________</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>____________________</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>Дата</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value></Value>
-                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /></Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>24.7pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>ФИО:</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /><FontSize>11pt</FontSize><TextAlign>Right</TextAlign></Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox30">
-                      <Value>___________________</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                      <TextDecoration>None</TextDecoration><VerticalAlign>Top</VerticalAlign><TextAlign>Left</TextAlign></Style>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <Value>ФИО</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>Подпись</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
-          </TableRows>
-        </Details>
-        <Left >33.6pt</Left>
-        <Top >266.6pt</Top>
-        <Footer >
-          <TableRows>
-            <TableRow>
-              <Height>22.4pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox32">
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /><FontSize>11pt</FontSize><TextAlign>Right</TextAlign></Style>
-                      <Value>Подпись:</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox33">
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /></Style>
-                      <Value>___________________</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                
-              </TableCells>
-            </TableRow><TableRow><Height>25.7pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox35"><Value>Водитель:</Value><Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /><FontWeight>Bold</FontWeight><FontSize>12pt</FontSize></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox36"><Value></Value><Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>22.4pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox2"><Value>ФИО:</Value><Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /><FontSize>11pt</FontSize><TextAlign>Right</TextAlign></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox3"><Value>___________________</Value><Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>.2in</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox9"><Value>Подпись:</Value><Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /><FontSize>11pt</FontSize><TextAlign>Right</TextAlign></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox23"><Value>___________________</Value><Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>26.8pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox39"><Value>Принял:</Value><Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /><FontWeight>Bold</FontWeight><FontSize>12pt</FontSize></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox40"><Value></Value><Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>29.1pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox42"><Value>ФИО:</Value><Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /><TextAlign>Right</TextAlign></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox43"><Value>___________________</Value><Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>31.4pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox45"><Value>Подпись:</Value><Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /><FontSize>11pt</FontSize><TextAlign>Right</TextAlign></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox46"><Value>___________________</Value><Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        <Left>None</Left><Right>None</Right><Top>None</Top><Bottom>None</Bottom></BorderStyle>
-                      <BorderColor /><BorderWidth /></Style></Textbox></ReportItems></TableCell></TableCells></TableRow>
           </TableRows>
         </Footer>
       </fyi:Grid>
-                </ReportItems>
+    </ReportItems>
   </Body>
   <PageFooter>
     <Height>0.0pt</Height>
@@ -687,7 +1113,7 @@ GROUP BY store_movement_document_items.id</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="documentId">
       <DataType>Integer</DataType>
       <DefaultValue>
