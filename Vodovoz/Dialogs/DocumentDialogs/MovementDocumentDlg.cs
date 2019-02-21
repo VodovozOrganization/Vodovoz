@@ -175,10 +175,16 @@ namespace Vodovoz
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
+			if(UoW.HasChanges) {
+				if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
+					UoWGeneric.Save();
+				} else {
+					return;
+				}
+			}
 			var doc = new MovementDocumentRdl(Entity);
-			if(doc is IPrintableRDLDocument) 
-			{ 
-				TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc as IPrintableRDLDocument), this, false); 
+			if(doc is IPrintableRDLDocument) {
+				TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc as IPrintableRDLDocument), this, false);
 			}
 		}
 	}
