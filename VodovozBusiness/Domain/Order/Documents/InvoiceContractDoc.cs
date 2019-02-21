@@ -34,7 +34,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override PrinterType PrintType => PrinterType.RDL;
 
-		int copiesToPrint = 1;
+		int copiesToPrint = 2;
 		public override int CopiesToPrint {
 			get => copiesToPrint;
 			set => copiesToPrint = value;
