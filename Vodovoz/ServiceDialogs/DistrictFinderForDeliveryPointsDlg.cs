@@ -15,7 +15,8 @@ namespace Vodovoz.ServiceDialogs
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 		List<DeliveryPoint> DeliveryPointsList = new List<DeliveryPoint>();
-		List<string> errors = new List<string>();
+		List<DeliveryPoint> DeliveryPointsToSave = new List<DeliveryPoint>();
+		List<KeyValuePair<int, string>> errors = new List<KeyValuePair<int, string>>();
 
 		public DistrictFinderForDeliveryPointsDlg()
 		{
@@ -36,7 +37,7 @@ namespace Vodovoz.ServiceDialogs
 
 		int totalDP;
 		public int TotalDP {
-			get { return totalDP; }
+			get => totalDP;
 			set {
 				totalDP = value;
 				labelDPTotalValue.LabelProp = totalDP.ToString();
@@ -46,7 +47,7 @@ namespace Vodovoz.ServiceDialogs
 
 		int skipedDP;
 		public int SkipedDP {
-			get { return skipedDP; }
+			get => skipedDP;
 			set {
 				skipedDP = value;
 				labelDPFailsValue.LabelProp = skipedDP.ToString();
@@ -56,7 +57,7 @@ namespace Vodovoz.ServiceDialogs
 
 		int errorsDP;
 		public int ErrorsDP {
-			get { return errorsDP; }
+			get => errorsDP;
 			set {
 				errorsDP = value;
 				labelDPErrorsValue.LabelProp = errorsDP.ToString();
@@ -66,7 +67,7 @@ namespace Vodovoz.ServiceDialogs
 
 		int successDP;
 		public int SuccessDP {
-			get { return successDP; }
+			get => successDP;
 			set {
 				successDP = value;
 				labelDPSuccessValue.LabelProp = successDP.ToString();
@@ -98,12 +99,13 @@ namespace Vodovoz.ServiceDialogs
 
 			foreach(var dp in DeliveryPointsList) {
 				if(!dp.CoordinatesExist) {
-					errors.Add(string.Format("{0} - Нет координат\n------\n", dp.Id));
+					errors.Add(new KeyValuePair<int, string>(dp.Id, "Нет координат"));
 					SkipedDP++;
 				} else if(dp.FindAndAssociateDistrict(UoW, districtSource)) {
+					DeliveryPointsToSave.Add(dp);
 					SuccessDP++;
 				} else {
-					errors.Add(string.Format("{0} - Нет района доставки\n------\n", dp.Id));
+					errors.Add(new KeyValuePair<int, string>(dp.Id, "Нет района доставки"));
 					SkipedDP++;
 				}
 
@@ -136,11 +138,11 @@ namespace Vodovoz.ServiceDialogs
 			int batchCounter = 0;
 			progressbar.Adjustment.Value = 0;
 			UoW.Session.SetBatchSize(500);
-			foreach(var item in DeliveryPointsList) {
+			foreach(var item in DeliveryPointsToSave) {
 				try {
 					UoW.Save<DeliveryPoint>(item);
 				} catch(Exception ex) {
-					errors.Add(string.Format("{0}\n{1}\n------\n", item.Id, ex.Message));
+					errors.Add(new KeyValuePair<int, string>(item.Id, ex.Message));
 					ErrorsDP++;
 				}
 				if(batchCounter == 500) {
@@ -157,10 +159,10 @@ namespace Vodovoz.ServiceDialogs
 
 			string fileName = String.Format("ErrorsDeliveryPoints_{0}.txt", DateTime.Now.ToString("yyyyMMddhhmmss"));
 			if(errors.Any())
-				File.WriteAllLines(fileName, errors);
+				File.WriteAllLines(fileName, errors.OrderBy(e => e.Value).Select(e => string.Format("{0}\t{1}", e.Key, e.Value)));
 
 			progressbar.Adjustment.Value = counter;
-			progressbar.Text = String.Format("Сохранено {0} точек доставки. Детали в {1}.", counter, fileName);
+			progressbar.Text = String.Format("Сохранено {0} точек доставки из {1}. Детали в {2}.", counter, TotalDP, fileName);
 		}
 
 		protected void OnButtonLoadClicked(object sender, EventArgs e)

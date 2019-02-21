@@ -13,6 +13,7 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
+using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Sale;
@@ -153,14 +154,15 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnButtonDeleteDistrictClicked(object sender, EventArgs e)
 		{
-			if(currentDistrict.Id != 0)
+			if(currentDistrict.Id != 0 && QSMain.User.Admin)
 				OrmMain.DeleteObject(typeof(ScheduleRestrictedDistrict), currentDistrict.Id);
-
-			var mapPolygon = bordersOverlay.Polygons.FirstOrDefault(p => (p.Tag as ScheduleRestrictedDistrict) == currentDistrict);
-			if(mapPolygon != null)
-				mapPolygon.IsVisible = false;
-			observableRestrictedDistricts.Remove(currentDistrict);
-			UpdateCurrentDistrict();
+			else if(currentDistrict.Id == 0) {
+				var mapPolygon = bordersOverlay.Polygons.FirstOrDefault(p => (p.Tag as ScheduleRestrictedDistrict) == currentDistrict);
+				if(mapPolygon != null)
+					mapPolygon.IsVisible = false;
+				observableRestrictedDistricts.Remove(currentDistrict);
+				UpdateCurrentDistrict();
+			}
 		}
 
 		protected void OnButtonAddScheduleClicked(object sender, EventArgs e)
@@ -219,7 +221,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		void ControlsAccessibility()
 		{
-			buttonDeleteDistrict.Sensitive = buttonCreateBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1;
+			buttonDeleteDistrict.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1 && (currentDistrict.Id == 0 || QSMain.User.Admin);
+			buttonCreateBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1;
 			buttonRemoveBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1 && currentDistrict != null && currentDistrict.DistrictBorder != null;
 			btnEditDistrict.Sensitive = buttonAddSchedule.Sensitive = currentDistrict != null;
 			vboxGeographicGroups.Visible = vboxSchedules.Visible = currentDistrict != null;
