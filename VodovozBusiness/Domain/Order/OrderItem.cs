@@ -327,9 +327,8 @@ namespace Vodovoz.Domain.Orders
 			   || (Order == null || !NHibernate.NHibernateUtil.IsInitialized(Order.OrderItems))) {
 				return;
 			}
-			if(DiscountMoney > 0) {
-				CalculateAndSetDiscount(DiscountForPreview);
-			}
+
+			CalculateAndSetDiscount(DiscountForPreview);
 		}
 
 		private void CalculateAndSetDiscount(decimal value) 
