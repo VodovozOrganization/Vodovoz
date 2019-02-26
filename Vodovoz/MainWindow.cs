@@ -14,6 +14,7 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz;
 using Vodovoz.Core;
+using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain;
@@ -1129,6 +1130,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ChequesReport>(),
 			() => new QSReport.ReportViewDlg(new ChequesReport())
+		);
+	}
+
+	protected void OnActionCertificatesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<Certificate>(),
+			() => new OrmReference(typeof(Certificate))
 		);
 	}
 }

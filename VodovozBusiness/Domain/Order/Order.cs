@@ -127,9 +127,12 @@ namespace Vodovoz.Domain.Orders
 					OnChangeDeliveryPoint();
 				}
 
-				SetField(ref deliveryPoint, value, () => DeliveryPoint);
-				if(value != null && DeliverySchedule == null) {
-					DeliverySchedule = value.DeliverySchedule;
+				if(SetField(ref deliveryPoint, value, () => DeliveryPoint) && value != null) {
+					if(DeliverySchedule == null)
+						DeliverySchedule = value.DeliverySchedule;
+
+					if(Id == 0)
+						AddCertificates = DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null;
 				}
 			}
 		}
@@ -582,6 +585,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual ChequeResponse? NeedCheque {
 			get => needCheque;
 			set => SetField(ref needCheque, value, () => NeedCheque);
+		}
+
+		bool addCertificates;
+		[Display(Name = "Добавить сертификаты продукции")]
+		public virtual bool AddCertificates{
+			get => addCertificates;
+			set => SetField(ref addCertificates, value, () => AddCertificates);
 		}
 
 		#endregion
@@ -1983,6 +1993,19 @@ namespace Vodovoz.Domain.Orders
 							});
 						}
 						break;
+					case OrderDocumentType.ProductCertificate:
+						if(item is NomenclatureCertificateDocument cert &&
+							!ObservableOrderDocuments.OfType<NomenclatureCertificateDocument>().Any(x => x.Order == item.Order)) {
+							ObservableOrderDocuments.Add(
+								new NomenclatureCertificateDocument {
+									Id = item.Id,
+									Order = item.Order,
+									AttachedToOrder = this,
+									Certificate = cert.Certificate
+								}
+							);
+						}
+						break;
 					default:
 						break;
 				}
@@ -2877,140 +2900,57 @@ namespace Vodovoz.Domain.Orders
 			CheckAndCreateDocuments(GetRequirementDocTypes());
 		}
 
-		[Obsolete("Метод устарел после внедрения функционала в рамках задачи I-1173", true)]
-		private void AddDepositDocuments(List<OrderDocumentType> list)
+		public virtual void UpdateCertificates(out List<Nomenclature> nomenclaturesNeedUpdate)
 		{
-			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Bottles)) {
-				list.Add(OrderDocumentType.RefundBottleDeposit);
-			}
+			nomenclaturesNeedUpdate = new List<Nomenclature>();
+			if(AddCertificates && DeliveryDate.HasValue) {
+				IList<Certificate> newList = new List<Certificate>();
+				foreach(var item in NomenclatureRepository.GetDictionaryWithCertificatesForNomenclatures(UoW, OrderItems.Select(i => i.Nomenclature).ToArray())) {
+					if(item.Value.All(c => c.IsArchive || c.ExpirationDate.HasValue && c.ExpirationDate.Value < DeliveryDate))
+						nomenclaturesNeedUpdate.Add(item.Key);
+					else
+						newList.Add(item.Value.FirstOrDefault(c => c.ExpirationDate == item.Value.Max(cert => cert.ExpirationDate)));
+				}
 
-			if(ObservableOrderDepositItems.Any(x => x.DepositType == DepositType.Equipment)) {
-				list.Add(OrderDocumentType.RefundEquipmentDeposit);
-			}
-		}
+				newList = newList.Distinct().ToList();
+				var oldList = new List<Certificate>();
 
-		[Obsolete("Метод устарел после внедрения функционала в рамках задачи I-1173", true)]
-		private void AddEquipmentDocuments(List<OrderDocumentType> list)
-		{
-			//Доставка оборудования в собственности клиента после обслуживания
-			if(ObservableOrderEquipments
-			   .Any(x => x.OrderItem == null
-					&& x.Direction == Direction.Deliver
-					&& x.OwnType == OwnTypes.Client)
-			  ) {
-				list.Add(OrderDocumentType.DoneWorkReport);
-			}
+				foreach(var cer in OrderDocuments.Where(d => d.Type == OrderDocumentType.ProductCertificate)
+												 .Cast<NomenclatureCertificateDocument>()
+												 .Select(c => c.Certificate))
+					oldList.Add(cer);
 
-			bool equipmentTransfer =
-			//Дежурное оборудование
-			ObservableOrderEquipments.Any(x => x.OwnType == OwnTypes.Duty)
-			//Забор оборудования клиента
-			|| ObservableOrderEquipments.Any(x => x.Direction == Direction.PickUp && x.OwnType == OwnTypes.Client)
-			//Оборудование в аренду, если оно добавлено вручную а не через доп соглашение
-			|| ObservableOrderEquipments.Any(x => x.OrderItem == null && x.OwnType == OwnTypes.Rent);
+				foreach(var cer in oldList) {
+					if(!newList.Any(c => c == cer)) {
+						var removingDoc = OrderDocuments.Where(d => d.Type == OrderDocumentType.ProductCertificate)
+														.Cast<NomenclatureCertificateDocument>()
+														.FirstOrDefault(d => d.Certificate == cer);
+						ObservableOrderDocuments.Remove(removingDoc);
+					}
+				}
 
-			if(equipmentTransfer) {
-				list.Add(OrderDocumentType.EquipmentTransfer);
+				foreach(var cer in newList) {
+					if(!oldList.Any(c => c == cer))
+						ObservableOrderDocuments.Add(
+							new NomenclatureCertificateDocument {
+								Order = this,
+								AttachedToOrder = this,
+								Certificate = cer
+							}
+						);
+				}
 			}
 		}
 
 		public virtual void CreateOrderAgreementDocument(AdditionalAgreement agreement)
 		{
-			if(ObservableOrderDocuments.OfType<OrderAgreement>().Any(x => x.AdditionalAgreement.Id == agreement.Id)) {
-				return;
-			}
-			ObservableOrderDocuments.Add(new OrderAgreement {
-				Order = this,
-				AttachedToOrder = this,
-				AdditionalAgreement = agreement
-			});
-		}
-
-		/// <summary>
-		/// Создает необходимые гарантийные талоны
-		/// </summary>
-		protected virtual void CreateWarrantyDocuments()
-		{
-			// Кулера
-			var orderItemsWithCoolerWarranty = ObservableOrderItems
-				.Where(orderItem => orderItem.Nomenclature?.Type?.WarrantyCardType == WarrantyCardType.CoolerWarranty);
-
-			// Кулера для продажи
-			var orderItemsCoolerWarrantyForSale = orderItemsWithCoolerWarranty.Where(x => x.AdditionalAgreement == null);
-			if(orderItemsCoolerWarrantyForSale.Any() && OrderStatus == OrderStatus.Accepted) {
-				AddWarrantyDocumentIfNotExist(new CoolerWarrantyDocument {
-					WarrantyNumber = CoolerWarrantyDocument.GetNumber(this),
+			if(!ObservableOrderDocuments.OfType<OrderAgreement>().Any(x => x.AdditionalAgreement.Id == agreement.Id)) {
+				ObservableOrderDocuments.Add(new OrderAgreement {
 					Order = this,
 					AttachedToOrder = this,
-					Contract = this.Contract,
-					AdditionalAgreement = null
+					AdditionalAgreement = agreement
 				});
 			}
-
-			// Кулера в аренду
-			var orderItemsCoolerWarrantyForRent = orderItemsWithCoolerWarranty.Where(x => x.AdditionalAgreement != null);
-			if(orderItemsCoolerWarrantyForRent.Any() && OrderStatus == OrderStatus.Accepted) {
-				var orderItemsDistinctAgreements = orderItemsWithCoolerWarranty.Select(x => x.AdditionalAgreement).Distinct().ToList();
-				foreach(var oItem in orderItemsDistinctAgreements) {
-					AddWarrantyDocumentIfNotExist(new CoolerWarrantyDocument {
-						WarrantyNumber = CoolerWarrantyDocument.GetNumber(this, oItem),
-						Order = this,
-						AttachedToOrder = this,
-						Contract = this.Contract,
-						AdditionalAgreement = oItem
-					});
-				}
-			}
-
-			// Помпы
-			var orderItemsWithPumpWarranty = ObservableOrderItems
-				.Where(orderItem => orderItem.Nomenclature?.Type?.WarrantyCardType == WarrantyCardType.PumpWarranty);
-
-			// Помпы для продажи
-			var orderItemsPumpWarrantyForSale = orderItemsWithPumpWarranty.Where(x => x.AdditionalAgreement == null);
-			if(orderItemsPumpWarrantyForSale.Any() && OrderStatus == OrderStatus.Accepted) {
-				AddWarrantyDocumentIfNotExist(new PumpWarrantyDocument {
-					WarrantyNumber = PumpWarrantyDocument.GetNumber(this),
-					Order = this,
-					AttachedToOrder = this,
-					Contract = this.Contract,
-					AdditionalAgreement = null
-				});
-			}
-
-			// Помпы в аренду
-			var orderItemsPumpWarrantyForRent = orderItemsWithPumpWarranty.Where(x => x.AdditionalAgreement != null);
-			if(orderItemsPumpWarrantyForRent.Any() && OrderStatus == OrderStatus.Accepted) {
-				var orderItemsDistinctAgreements = orderItemsWithPumpWarranty.Select(x => x.AdditionalAgreement).Distinct().ToList();
-				foreach(var oItem in orderItemsDistinctAgreements) {
-					AddWarrantyDocumentIfNotExist(new PumpWarrantyDocument {
-						WarrantyNumber = PumpWarrantyDocument.GetNumber(this, oItem),
-						Order = this,
-						AttachedToOrder = this,
-						Contract = this.Contract,
-						AdditionalAgreement = oItem
-					});
-				}
-			}
-		}
-
-		protected virtual void AddWarrantyDocumentIfNotExist(OrderDocument document)
-		{
-			bool haveDocuments = true;
-			if(document is CoolerWarrantyDocument) {
-				haveDocuments = ObservableOrderDocuments
-					.Where(doc => doc.Order.Id == Id)
-					.OfType<CoolerWarrantyDocument>()
-					.Any(x => x.AdditionalAgreement == (document as CoolerWarrantyDocument).AdditionalAgreement);
-			}
-			if(document is PumpWarrantyDocument) {
-				haveDocuments = ObservableOrderDocuments
-					.Where(doc => doc.Order.Id == Id)
-					.OfType<PumpWarrantyDocument>()
-					.Any(x => x.AdditionalAgreement == (document as PumpWarrantyDocument).AdditionalAgreement);
-			}
-			if(!haveDocuments)
-				ObservableOrderDocuments.Add(document);
 		}
 
 		private void CheckAndCreateDocuments(params OrderDocumentType[] needed)
@@ -3093,7 +3033,6 @@ namespace Vodovoz.Domain.Orders
 				case OrderDocumentType.EquipmentReturn:
 					newDoc = new EquipmentReturnDocument();
 					break;
-
 				default:
 					throw new NotImplementedException();
 			}

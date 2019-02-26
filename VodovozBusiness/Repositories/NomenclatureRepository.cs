@@ -4,6 +4,7 @@ using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QSSupportLib;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Repository
@@ -52,7 +53,7 @@ namespace Vodovoz.Repository
 		public static QueryOver<Nomenclature> NomenclatureOfGoodsWithoutEmptyBottlesQuery()
 		{
 			return QueryOver.Of<Nomenclature>()
-				            .Where(n => n.Category.IsIn(Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles()))
+							.Where(n => n.Category.IsIn(Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles()))
 							.Where(n => !n.IsArchive);
 		}
 
@@ -131,12 +132,11 @@ namespace Vodovoz.Repository
 			var lastCode1c = uow.Query<Nomenclature>()
 								.Where(n => n.Code1c.IsLike(Nomenclature.PrefixOfCode1c, MatchMode.Start))
 								.OrderBy(n => n.Code1c).Desc
-			                    .Select(n => n.Code1c)
-			                    .Take(1)
-			                    .SingleOrDefault<string>();
+								.Select(n => n.Code1c)
+								.Take(1)
+								.SingleOrDefault<string>();
 			int id = 0;
-			if(!String.IsNullOrEmpty(lastCode1c))
-			{
+			if(!String.IsNullOrEmpty(lastCode1c)) {
 				id = int.Parse(lastCode1c.Replace(Nomenclature.PrefixOfCode1c, ""));//Тут специально падаем в эксепшен если не смогли распарсить, подума 5 раз, пережде чем заменить на TryParse
 			}
 			id++;
@@ -147,7 +147,7 @@ namespace Vodovoz.Repository
 		public static QueryOver<Nomenclature> NomenclatureInGroupsQuery(int[] groupsIds)
 		{
 			return QueryOver.Of<Nomenclature>()
-				            .Where(n => n.ProductGroup.Id.IsIn(groupsIds));
+							.Where(n => n.ProductGroup.Id.IsIn(groupsIds));
 		}
 
 		public static Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow)
@@ -177,8 +177,37 @@ namespace Vodovoz.Repository
 		public static IList<Nomenclature> GetNomenclatureWithPriceForMobileApp(IUnitOfWork uow, params MobileCatalog[] catalogs)
 		{
 			return uow.Session.QueryOver<Nomenclature>()
-			   		  .Where(n => n.MobileCatalog.IsIn(catalogs))
-			   		  .List();
+						 .Where(n => n.MobileCatalog.IsIn(catalogs))
+						 .List();
+		}
+
+		/// <summary>
+		/// Возврат словаря сертификатов для передаваемых номенклатур
+		/// </summary>
+		/// <returns>Словарь сертификатов</returns>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="nomenclatures">Список номенклатур</param>
+		public static Dictionary<Nomenclature, IList<Certificate>> GetDictionaryWithCertificatesForNomenclatures(IUnitOfWork uow, Nomenclature[] nomenclatures)
+		{
+			Dictionary<Nomenclature, IList<Certificate>> dict = new Dictionary<Nomenclature, IList<Certificate>>();
+			foreach(var n in nomenclatures) {
+				Nomenclature nomenclatureAlias = null;
+				var certificates = uow.Session.QueryOver<Certificate>()
+									   .Left.JoinAlias(c => c.Nomenclatures, () => nomenclatureAlias)
+									   .Where(() => nomenclatureAlias.Id == n.Id)
+									   .List()
+									   ;
+				if(certificates.Any()) {
+					if(!dict.ContainsKey(n))
+						dict.Add(n, certificates);
+					else {
+						foreach(Certificate certificate in certificates)
+							dict[n].Add(certificate);
+					}
+				}
+			}
+
+			return dict;
 		}
 
 		/// <summary>

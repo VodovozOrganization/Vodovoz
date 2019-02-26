@@ -491,6 +491,13 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref district, value, () => District);
 		}
 
+		bool addCertificatesAlways;
+		[Display(Name = "Всегда добавлять сертификаты")]
+		public virtual bool AddCertificatesAlways {
+			get => addCertificatesAlways;
+			set => SetField(ref addCertificatesAlways, value, () => AddCertificatesAlways);
+		}
+
 		#endregion
 
 

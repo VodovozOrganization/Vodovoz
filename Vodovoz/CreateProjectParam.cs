@@ -42,6 +42,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Repositories;
 using QS.Permissions;
 using QS.Widgets.Gtk;
+using QS.Print;
 
 namespace Vodovoz
 {
@@ -265,6 +266,16 @@ namespace Vodovoz
 				   .Column("< 6л б.", x => x.Water6LCount)
 				   .Column("< 0,6л б.", x => x.Water600mlCount)
 				   .SearchColumn("Описание правила", x => x.ToString())
+				   .End();
+			OrmMain.AddObjectDescription<Certificate>().Dialog<CertificateDlg>().DefaultTableView()
+				   .SearchColumn("Имя", x => x.Name)
+				   .Column("Тип", x => x.TypeOfCertificate.GetEnumTitle())
+				   .SearchColumn("Номер", x => x.Id.ToString())
+				   .SearchColumn("Начало срока", x => x.StartDate.HasValue ? x.StartDate.Value.ToString("dd.MM.yyyy") : "Ошибка!")
+				   .SearchColumn("Окончание срока", x => x.ExpirationDate.HasValue ? x.ExpirationDate.Value.ToString("dd.MM.yyyy") : "Бессрочно")
+				   .Column("Архивный?", x => x.IsArchive ? "Да" : String.Empty)
+				   .OrderAsc(x => x.IsArchive)
+				   .OrderAsc(x => x.Id)
 				   .End();
 			#endregion
 

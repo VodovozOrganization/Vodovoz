@@ -204,4 +204,13 @@ namespace Vodovoz.HibernateMapping
 			DiscriminatorValue("BottleTransfer");
 		}
 	}
+
+	public class NomenclatureCertificateDocumentMap : SubclassMap<NomenclatureCertificateDocument>
+	{
+		public NomenclatureCertificateDocumentMap()
+		{
+			DiscriminatorValue("ProductCertificate");
+			References(x => x.Certificate).Column("certificate_id");
+		}
+	}
 }

@@ -1051,6 +1051,12 @@
         <property name="ShortLabel" translatable="yes">Отчёт по чекам</property>
         <signal name="Activated" handler="OnChequesReportActivated" />
       </action>
+      <action id="ActionCertificates">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Сертификаты продукции</property>
+        <property name="ShortLabel" translatable="yes">Сертификаты продукции</property>
+        <signal name="Activated" handler="OnActionCertificatesActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -1114,6 +1120,7 @@
                       <node type="Menuitem" action="ActionColors" />
                       <node type="Separator" />
                       <node type="Menuitem" action="ActionProductSpecification" />
+                      <node type="Menuitem" action="ActionCertificates" />
                       <node type="Menuitem" action="ActionRegrandingOfGoodsTempalte" />
                       <node type="Menuitem" action="ActionCullingCategory" />
                       <node type="Menuitem" action="ActionTransportationWagon" />
@@ -1339,6 +1346,7 @@
                 <child>
                   <widget class="Gtk.Label" id="labelUser">
                     <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -1350,6 +1358,7 @@
                 <child>
                   <widget class="Gtk.Label" id="labelStatus">
                     <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="PackType">End</property>
@@ -1460,7 +1469,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2640,6 +2648,7 @@
                             <child>
                               <widget class="Gtk.Label" id="labelCustomWageCalcEmpty">
                                 <property name="MemberName" />
+                                <property name="LabelProp" translatable="yes" />
                               </widget>
                               <packing>
                                 <property name="Position">3</property>
@@ -5265,6 +5274,7 @@
                   <widget class="Gtk.Label" id="textDriverInfo">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="TopAttach">13</property>
@@ -11686,7 +11696,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.DeliveryPointDlg" design-size="822 574">
+  <widget class="Gtk.Bin" id="Vodovoz.DeliveryPointDlg" design-size="967 691">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -11954,6 +11964,7 @@
                                     <property name="MemberName" />
                                     <property name="Visible">False</property>
                                     <property name="Xalign">1</property>
+                                    <property name="LabelProp" translatable="yes" />
                                     <property name="Justify">Right</property>
                                     <property name="Selectable">True</property>
                                   </widget>
@@ -12048,6 +12059,62 @@
                               </packing>
                             </child>
                             <child>
+                              <widget class="Gtk.HBox" id="hbox4">
+                                <property name="MemberName" />
+                                <property name="Spacing">6</property>
+                                <child>
+                                  <widget class="Gamma.GtkWidgets.yCheckButton" id="ychkAlwaysFreeDelivery">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Label" translatable="yes">Всегда бесплатная доставка</property>
+                                    <property name="DrawIndicator">True</property>
+                                    <property name="HasLabel">True</property>
+                                    <property name="UseUnderline">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">0</property>
+                                    <property name="AutoSize">True</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gamma.GtkWidgets.yCheckButton" id="chkAddCertificatesAlways">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Label" translatable="yes">Добавлять сертификаты продукции в заказ всегда</property>
+                                    <property name="DrawIndicator">True</property>
+                                    <property name="HasLabel">True</property>
+                                    <property name="UseUnderline">True</property>
+                                    <property name="FocusOnClick">False</property>
+                                    <property name="Xalign">0</property>
+                                    <property name="Yalign">0</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">1</property>
+                                    <property name="AutoSize">True</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="TopAttach">13</property>
+                                <property name="BottomAttach">14</property>
+                                <property name="LeftAttach">1</property>
+                                <property name="RightAttach">2</property>
+                                <property name="AutoSize">True</property>
+                                <property name="XOptions">Fill</property>
+                                <property name="YOptions">Fill</property>
+                                <property name="XExpand">False</property>
+                                <property name="XFill">True</property>
+                                <property name="XShrink">False</property>
+                                <property name="YExpand">False</property>
+                                <property name="YFill">True</property>
+                                <property name="YShrink">False</property>
+                              </packing>
+                            </child>
+                            <child>
                               <widget class="Gtk.HBox" id="hbox6">
                                 <property name="MemberName" />
                                 <property name="Spacing">6</property>
@@ -12055,6 +12122,7 @@
                                   <widget class="Gamma.GtkWidgets.yLabel" id="labelCompiledAddress">
                                     <property name="MemberName" />
                                     <property name="Xalign">0</property>
+                                    <property name="LabelProp" translatable="yes" />
                                     <property name="Wrap">True</property>
                                     <property name="Selectable">True</property>
                                   </widget>
@@ -12633,6 +12701,7 @@
                               <widget class="Gamma.GtkWidgets.yLabel" id="lblCounterparty">
                                 <property name="MemberName" />
                                 <property name="Xalign">0</property>
+                                <property name="LabelProp" translatable="yes" />
                                 <property name="Wrap">True</property>
                                 <property name="Selectable">True</property>
                               </widget>
@@ -12717,31 +12786,6 @@
                                 <property name="AutoSize">False</property>
                                 <property name="YOptions">Fill</property>
                                 <property name="XExpand">True</property>
-                                <property name="XFill">True</property>
-                                <property name="XShrink">False</property>
-                                <property name="YExpand">False</property>
-                                <property name="YFill">True</property>
-                                <property name="YShrink">False</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="Gamma.GtkWidgets.yCheckButton" id="ychkAlwaysFreeDelivery">
-                                <property name="MemberName" />
-                                <property name="CanFocus">True</property>
-                                <property name="Label" translatable="yes">Всегда бесплатная доставка</property>
-                                <property name="DrawIndicator">True</property>
-                                <property name="HasLabel">True</property>
-                                <property name="UseUnderline">True</property>
-                              </widget>
-                              <packing>
-                                <property name="TopAttach">13</property>
-                                <property name="BottomAttach">14</property>
-                                <property name="LeftAttach">1</property>
-                                <property name="RightAttach">2</property>
-                                <property name="AutoSize">True</property>
-                                <property name="XOptions">Fill</property>
-                                <property name="YOptions">Fill</property>
-                                <property name="XExpand">False</property>
                                 <property name="XFill">True</property>
                                 <property name="XShrink">False</property>
                                 <property name="YExpand">False</property>
@@ -16988,6 +17032,7 @@
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -17947,6 +17992,7 @@
               <widget class="Gamma.GtkWidgets.yLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -18220,6 +18266,7 @@
               <widget class="Gamma.GtkWidgets.yLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -18588,6 +18635,7 @@
               <widget class="Gamma.GtkWidgets.yLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -19356,6 +19404,7 @@
               <widget class="Gamma.GtkWidgets.yLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -19573,6 +19622,7 @@
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -19681,6 +19731,7 @@
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -19694,6 +19745,7 @@
               <widget class="Gtk.Label" id="lblWeight">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
@@ -19859,6 +19911,7 @@
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -21897,6 +21950,7 @@
                 <child>
                   <widget class="Gamma.GtkWidgets.yLabel" id="ylabelRecalculatedMileage">
                     <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="TopAttach">4</property>
@@ -22389,6 +22443,7 @@
               <widget class="Gtk.Label" id="labelSum1">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -22510,6 +22565,7 @@
             <child>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelUnclosedAdvancesMoney">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
@@ -24586,6 +24642,7 @@
                   <widget class="Gamma.GtkWidgets.yLabel" id="dataNumber">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="LeftAttach">1</property>
@@ -27287,6 +27344,7 @@
                 <child>
                   <widget class="Gtk.Label" id="labelCurrentDebt">
                     <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -28010,6 +28068,7 @@
             <child>
               <widget class="Gtk.Label" id="labelCurrentDebt">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -28021,6 +28080,7 @@
             <child>
               <widget class="Gtk.Label" id="labelRecived">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -28033,6 +28093,7 @@
             <child>
               <widget class="Gtk.Label" id="labelClosed">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -28807,6 +28868,7 @@
             <child>
               <widget class="Gtk.Label" id="labelDescription1">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
@@ -29419,7 +29481,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">6</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vboxInfo">
                 <property name="MemberName" />
@@ -29437,7 +29499,7 @@
                           <widget class="Gtk.Table" id="table1">
                             <property name="MemberName" />
                             <property name="ShowScrollbars">True</property>
-                            <property name="NRows">17</property>
+                            <property name="NRows">16</property>
                             <property name="NColumns">4</property>
                             <property name="RowSpacing">6</property>
                             <property name="ColumnSpacing">6</property>
@@ -29466,23 +29528,46 @@
                               <placeholder />
                             </child>
                             <child>
-                              <placeholder />
-                            </child>
-                            <child>
-                              <placeholder />
-                            </child>
-                            <child>
-                              <widget class="Gtk.Button" id="buttonCreateDeliveryPoint">
+                              <widget class="Gamma.GtkWidgets.yCheckButton" id="checkDelivered">
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
-                                <property name="Type">TextOnly</property>
-                                <property name="Label" translatable="yes">Создать точку доставки</property>
+                                <property name="Label" translatable="yes">Отгружен по платежке</property>
+                                <property name="DrawIndicator">True</property>
+                                <property name="HasLabel">True</property>
                                 <property name="UseUnderline">True</property>
-                                <signal name="Clicked" handler="OnButtonCreateDeliveryPointClicked" />
                               </widget>
                               <packing>
-                                <property name="TopAttach">4</property>
-                                <property name="BottomAttach">5</property>
+                                <property name="TopAttach">10</property>
+                                <property name="BottomAttach">11</property>
+                                <property name="LeftAttach">3</property>
+                                <property name="RightAttach">4</property>
+                                <property name="AutoSize">True</property>
+                                <property name="XOptions">Fill</property>
+                                <property name="YOptions">Fill</property>
+                                <property name="XExpand">False</property>
+                                <property name="XFill">True</property>
+                                <property name="XShrink">False</property>
+                                <property name="YExpand">False</property>
+                                <property name="YFill">True</property>
+                                <property name="YShrink">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gamma.GtkWidgets.yCheckButton" id="chkAddCertificates">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Label" translatable="yes">Добавить сертификаты</property>
+                                <property name="DrawIndicator">True</property>
+                                <property name="HasLabel">True</property>
+                                <property name="UseUnderline">True</property>
+                                <property name="FocusOnClick">False</property>
+                                <property name="Xalign">0</property>
+                                <property name="Yalign">0</property>
+                                <signal name="Toggled" handler="OnCheckSelfDeliveryToggled" />
+                              </widget>
+                              <packing>
+                                <property name="TopAttach">6</property>
+                                <property name="BottomAttach">7</property>
                                 <property name="LeftAttach">3</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
@@ -29506,8 +29591,8 @@
                                 <property name="UseUnderline">True</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">13</property>
-                                <property name="BottomAttach">14</property>
+                                <property name="TopAttach">12</property>
+                                <property name="BottomAttach">13</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">2</property>
                                 <property name="AutoSize">True</property>
@@ -29535,8 +29620,8 @@
                                 <signal name="Toggled" handler="OnChkContractCloserToggled" />
                               </widget>
                               <packing>
-                                <property name="TopAttach">10</property>
-                                <property name="BottomAttach">11</property>
+                                <property name="TopAttach">7</property>
+                                <property name="BottomAttach">8</property>
                                 <property name="LeftAttach">3</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
@@ -29614,8 +29699,8 @@
                                 <signal name="Changed" handler="OnEnumSignatureTypeChanged" />
                               </widget>
                               <packing>
-                                <property name="TopAttach">14</property>
-                                <property name="BottomAttach">15</property>
+                                <property name="TopAttach">13</property>
+                                <property name="BottomAttach">14</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">2</property>
                                 <property name="AutoSize">True</property>
@@ -29643,8 +29728,8 @@
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">16</property>
-                                <property name="BottomAttach">17</property>
+                                <property name="TopAttach">15</property>
+                                <property name="BottomAttach">16</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">False</property>
@@ -29749,8 +29834,8 @@
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">6</property>
-                                <property name="BottomAttach">7</property>
+                                <property name="TopAttach">7</property>
+                                <property name="BottomAttach">8</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">2</property>
                                 <property name="AutoSize">True</property>
@@ -29792,48 +29877,8 @@
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">6</property>
-                                <property name="BottomAttach">7</property>
-                                <property name="AutoSize">True</property>
-                                <property name="XOptions">Fill</property>
-                                <property name="YOptions">Fill</property>
-                                <property name="XExpand">False</property>
-                                <property name="XFill">True</property>
-                                <property name="XShrink">False</property>
-                                <property name="YExpand">False</property>
-                                <property name="YFill">True</property>
-                                <property name="YShrink">False</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="Gtk.HBox" id="hbox7">
-                                <property name="MemberName" />
-                                <property name="Spacing">6</property>
-                                <child>
-                                  <widget class="Gamma.GtkWidgets.yCheckButton" id="checkDelivered">
-                                    <property name="MemberName" />
-                                    <property name="CanFocus">True</property>
-                                    <property name="Label" translatable="yes">Отгружен по платежке</property>
-                                    <property name="DrawIndicator">True</property>
-                                    <property name="HasLabel">True</property>
-                                    <property name="UseUnderline">True</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="Position">0</property>
-                                    <property name="AutoSize">True</property>
-                                    <property name="Expand">False</property>
-                                    <property name="Fill">False</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <placeholder />
-                                </child>
-                              </widget>
-                              <packing>
-                                <property name="TopAttach">10</property>
-                                <property name="BottomAttach">11</property>
-                                <property name="LeftAttach">1</property>
-                                <property name="RightAttach">2</property>
+                                <property name="TopAttach">7</property>
+                                <property name="BottomAttach">8</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -29914,11 +29959,11 @@
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">11</property>
-                                <property name="BottomAttach">12</property>
+                                <property name="TopAttach">4</property>
+                                <property name="BottomAttach">5</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">4</property>
-                                <property name="AutoSize">False</property>
+                                <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
                                 <property name="XExpand">False</property>
@@ -29934,8 +29979,8 @@
                                 <property name="MemberName" />
                               </widget>
                               <packing>
-                                <property name="TopAttach">7</property>
-                                <property name="BottomAttach">8</property>
+                                <property name="TopAttach">8</property>
+                                <property name="BottomAttach">9</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
@@ -29954,8 +29999,8 @@
                                 <property name="MemberName" />
                               </widget>
                               <packing>
-                                <property name="TopAttach">12</property>
-                                <property name="BottomAttach">13</property>
+                                <property name="TopAttach">11</property>
+                                <property name="BottomAttach">12</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
@@ -30019,8 +30064,6 @@
                               <packing>
                                 <property name="TopAttach">6</property>
                                 <property name="BottomAttach">7</property>
-                                <property name="LeftAttach">2</property>
-                                <property name="RightAttach">3</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -30113,34 +30156,14 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gtk.Label" id="labelAddress1c">
-                                <property name="MemberName" />
-                                <property name="Xalign">1</property>
-                                <property name="LabelProp" translatable="yes">Адрес из 1С</property>
-                              </widget>
-                              <packing>
-                                <property name="TopAttach">4</property>
-                                <property name="BottomAttach">5</property>
-                                <property name="AutoSize">True</property>
-                                <property name="XOptions">Fill</property>
-                                <property name="YOptions">Fill</property>
-                                <property name="XExpand">False</property>
-                                <property name="XFill">True</property>
-                                <property name="XShrink">False</property>
-                                <property name="YExpand">False</property>
-                                <property name="YFill">True</property>
-                                <property name="YShrink">False</property>
-                              </packing>
-                            </child>
-                            <child>
                               <widget class="Gtk.Label" id="labelBillDate">
                                 <property name="MemberName" />
                                 <property name="Xalign">1</property>
                                 <property name="LabelProp" translatable="yes">Дата счета:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">9</property>
-                                <property name="BottomAttach">10</property>
+                                <property name="TopAttach">10</property>
+                                <property name="BottomAttach">11</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -30161,8 +30184,8 @@
 к заказу:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">15</property>
-                                <property name="BottomAttach">16</property>
+                                <property name="TopAttach">14</property>
+                                <property name="BottomAttach">15</property>
                                 <property name="AutoSize">False</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -30181,8 +30204,8 @@
                                 <property name="LabelProp" translatable="yes">Дата доставки:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">8</property>
-                                <property name="BottomAttach">9</property>
+                                <property name="TopAttach">9</property>
+                                <property name="BottomAttach">10</property>
                                 <property name="AutoSize">False</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -30201,8 +30224,8 @@
                                 <property name="LabelProp" translatable="yes">Время доставки:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">8</property>
-                                <property name="BottomAttach">9</property>
+                                <property name="TopAttach">9</property>
+                                <property name="BottomAttach">10</property>
                                 <property name="LeftAttach">2</property>
                                 <property name="RightAttach">3</property>
                                 <property name="AutoSize">True</property>
@@ -30267,8 +30290,8 @@
                                 <property name="Justify">Fill</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">14</property>
-                                <property name="BottomAttach">15</property>
+                                <property name="TopAttach">13</property>
+                                <property name="BottomAttach">14</property>
                                 <property name="LeftAttach">2</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
@@ -30290,8 +30313,8 @@
  документов:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">14</property>
-                                <property name="BottomAttach">15</property>
+                                <property name="TopAttach">13</property>
+                                <property name="BottomAttach">14</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -30314,8 +30337,8 @@
                                 <signal name="DateChanged" handler="OnPickerDeliveryDateDateChanged" />
                               </widget>
                               <packing>
-                                <property name="TopAttach">9</property>
-                                <property name="BottomAttach">10</property>
+                                <property name="TopAttach">10</property>
+                                <property name="BottomAttach">11</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">2</property>
                                 <property name="AutoSize">True</property>
@@ -30341,8 +30364,8 @@
                                 <signal name="DateChangedByUser" handler="OnPickerDeliveryDateDateChangedByUser" />
                               </widget>
                               <packing>
-                                <property name="TopAttach">8</property>
-                                <property name="BottomAttach">9</property>
+                                <property name="TopAttach">9</property>
+                                <property name="BottomAttach">10</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">2</property>
                                 <property name="AutoSize">False</property>
@@ -30410,8 +30433,8 @@
                               <packing>
                                 <property name="TopAttach">6</property>
                                 <property name="BottomAttach">7</property>
-                                <property name="LeftAttach">3</property>
-                                <property name="RightAttach">4</property>
+                                <property name="LeftAttach">1</property>
+                                <property name="RightAttach">3</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -30452,8 +30475,8 @@
                                 <property name="Events">ButtonPressMask</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">8</property>
-                                <property name="BottomAttach">9</property>
+                                <property name="TopAttach">9</property>
+                                <property name="BottomAttach">10</property>
                                 <property name="LeftAttach">3</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
@@ -30507,8 +30530,8 @@
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">15</property>
-                                <property name="BottomAttach">16</property>
+                                <property name="TopAttach">14</property>
+                                <property name="BottomAttach">15</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">False</property>
@@ -30522,29 +30545,6 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gamma.GtkWidgets.yEntry" id="yentryAddress1cDeliveryPoint">
-                                <property name="MemberName" />
-                                <property name="CanFocus">True</property>
-                                <property name="IsEditable">False</property>
-                                <property name="InvisibleChar">●</property>
-                              </widget>
-                              <packing>
-                                <property name="TopAttach">4</property>
-                                <property name="BottomAttach">5</property>
-                                <property name="LeftAttach">1</property>
-                                <property name="RightAttach">3</property>
-                                <property name="AutoSize">True</property>
-                                <property name="XOptions">Fill</property>
-                                <property name="YOptions">Fill</property>
-                                <property name="XExpand">False</property>
-                                <property name="XFill">True</property>
-                                <property name="XShrink">False</property>
-                                <property name="YExpand">False</property>
-                                <property name="YFill">True</property>
-                                <property name="YShrink">False</property>
-                              </packing>
-                            </child>
-                            <child>
                               <widget class="Gamma.GtkWidgets.yLabel" id="ylabel1">
                                 <property name="MemberName" />
                                 <property name="Xalign">1</property>
@@ -30553,8 +30553,8 @@
 для логиста:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">16</property>
-                                <property name="BottomAttach">17</property>
+                                <property name="TopAttach">15</property>
+                                <property name="BottomAttach">16</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -34152,6 +34152,7 @@
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
                 <property name="Yalign">0</property>
+                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
                 <property name="Selectable">True</property>
               </widget>
@@ -35512,6 +35513,7 @@
               <widget class="Gtk.Label" id="labelLatestOrderDate">
                 <property name="MemberName" />
                 <property name="Visible">False</property>
+                <property name="LabelProp" translatable="yes" />
                 <property name="Selectable">True</property>
               </widget>
               <packing>
@@ -37233,6 +37235,7 @@ not tooltip</property>
                 <child>
                   <widget class="Gtk.Label" id="labelFileChanged">
                     <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes" />
                     <property name="UseMarkup">True</property>
                   </widget>
                   <packing>
@@ -38851,6 +38854,7 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelTotal">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -41543,6 +41547,7 @@ not tooltip</property>
               <widget class="Gtk.Label" id="labelUnreadedMessages">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
             </child>
@@ -42134,6 +42139,7 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelCurrentBootle">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -44290,6 +44296,7 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelNomType">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44357,6 +44364,7 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelNomen">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44424,6 +44432,7 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelClient">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44491,6 +44500,7 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelOrg">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44558,6 +44568,7 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelDiscountReason">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44625,6 +44636,7 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="yLblSubdivision">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44692,6 +44704,7 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="yLblOrderAuthor">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44759,6 +44772,7 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="lblGeoGroups">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44820,6 +44834,7 @@ not tooltip</property>
           <widget class="Gtk.Label" id="labelTableTitle">
             <property name="MemberName" />
             <property name="Xalign">0</property>
+            <property name="LabelProp" translatable="yes" />
           </widget>
           <packing>
             <property name="Position">11</property>
@@ -47773,6 +47788,7 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="Visible">False</property>
                     <property name="Sensitive">False</property>
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="Position">1</property>
@@ -47845,6 +47861,7 @@ not tooltip</property>
             <child>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelPoint">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">2</property>
@@ -55283,6 +55300,7 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelTotalLinks">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -55795,6 +55813,7 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelMinBottles">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -57073,6 +57092,7 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelTotal">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -57906,6 +57926,7 @@ not tooltip</property>
                   <widget class="Gamma.GtkWidgets.yLabel" id="ylabelNumber">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="RightAttach">2</property>
@@ -58479,6 +58500,7 @@ not tooltip</property>
                   <widget class="Gamma.GtkWidgets.yLabel" id="ylabelNumber">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="RightAttach">2</property>
@@ -60824,6 +60846,7 @@ not tooltip</property>
               <widget class="Gtk.Label" id="lblValOfField">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">2</property>
@@ -62760,6 +62783,7 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="HeightRequest">60</property>
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
                 <property name="Wrap">True</property>
                 <property name="Selectable">True</property>
               </widget>
@@ -64252,6 +64276,7 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelUser">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -64263,6 +64288,7 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelStatus">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -65422,6 +65448,7 @@ not tooltip</property>
                   <widget class="Gamma.GtkWidgets.yLabel" id="ylabel600mlBottles">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="TopAttach">2</property>
@@ -65443,6 +65470,7 @@ not tooltip</property>
                   <widget class="Gamma.GtkWidgets.yLabel" id="ylabel6LWater">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="TopAttach">1</property>
@@ -65642,6 +65670,7 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="lblDescription">
                 <property name="MemberName" />
+                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
@@ -69465,6 +69494,434 @@ not tooltip</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.CertificateDlg" design-size="630 253">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox2">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hbox1">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Button" id="buttonSave">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-floppy Menu</property>
+                <property name="Label" translatable="yes">Сохранить</property>
+                <property name="UseUnderline">True</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="buttonCancel">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-revert-to-saved Menu</property>
+                <property name="Label" translatable="yes">Отменить</property>
+                <property name="UseUnderline">True</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.VSeparator" id="vseparator1">
+                <property name="MemberName" />
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder />
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Notebook" id="notebook1">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="CurrentPage">0</property>
+            <child>
+              <widget class="Gtk.HBox" id="hbox2">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.Table" id="table2">
+                    <property name="MemberName" />
+                    <property name="NRows">6</property>
+                    <property name="NColumns">2</property>
+                    <property name="RowSpacing">6</property>
+                    <property name="ColumnSpacing">6</property>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="lblExpirationDate">
+                        <property name="MemberName" />
+                        <property name="Xalign">1</property>
+                        <property name="LabelProp" translatable="yes">Окончание срока действия:</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">3</property>
+                        <property name="BottomAttach">4</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="lblName">
+                        <property name="MemberName" />
+                        <property name="Xalign">1</property>
+                        <property name="LabelProp" translatable="yes">Название сертификата:</property>
+                      </widget>
+                      <packing>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="lblStartDate">
+                        <property name="MemberName" />
+                        <property name="Xalign">1</property>
+                        <property name="LabelProp" translatable="yes">Начало срока действия (либо дата выдачи):</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">2</property>
+                        <property name="BottomAttach">3</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="lblType">
+                        <property name="MemberName" />
+                        <property name="Xalign">1</property>
+                        <property name="LabelProp" translatable="yes">Тип сертификата:</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">1</property>
+                        <property name="BottomAttach">2</property>
+                        <property name="AutoSize">False</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.yCheckButton" id="yChkIsArchive">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Label" translatable="yes">Архивный</property>
+                        <property name="DrawIndicator">True</property>
+                        <property name="HasLabel">True</property>
+                        <property name="UseUnderline">True</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">4</property>
+                        <property name="BottomAttach">5</property>
+                        <property name="LeftAttach">1</property>
+                        <property name="RightAttach">2</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.Widgets.yDatePicker" id="yDateOfExpiration">
+                        <property name="MemberName" />
+                        <property name="Events">ButtonPressMask</property>
+                        <property name="WithTime">False</property>
+                        <property name="Date">631139040000000000</property>
+                        <property name="IsEditable">True</property>
+                        <property name="AutoSeparation">True</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">3</property>
+                        <property name="BottomAttach">4</property>
+                        <property name="LeftAttach">1</property>
+                        <property name="RightAttach">2</property>
+                        <property name="AutoSize">False</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">True</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.yEntry" id="yEntryName">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="IsEditable">True</property>
+                        <property name="InvisibleChar">•</property>
+                      </widget>
+                      <packing>
+                        <property name="LeftAttach">1</property>
+                        <property name="RightAttach">2</property>
+                        <property name="AutoSize">False</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">True</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.Widgets.yEnumComboBox" id="yEnumCmbType">
+                        <property name="MemberName" />
+                        <property name="IsTextCombo">False</property>
+                        <property name="Items" translatable="yes" />
+                        <property name="ShowSpecialStateAll">False</property>
+                        <property name="ShowSpecialStateNot">True</property>
+                        <property name="UseShortTitle">False</property>
+                        <property name="DefaultFirst">False</property>
+                        <signal name="ChangedByUser" handler="OnYEnumCmbTypeChangedByUser" />
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">1</property>
+                        <property name="BottomAttach">2</property>
+                        <property name="LeftAttach">1</property>
+                        <property name="RightAttach">2</property>
+                        <property name="AutoSize">False</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">True</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.Widgets.yDatePicker" id="yStartDate">
+                        <property name="MemberName" />
+                        <property name="Events">ButtonPressMask</property>
+                        <property name="WithTime">False</property>
+                        <property name="Date">631139040000000000</property>
+                        <property name="IsEditable">True</property>
+                        <property name="AutoSeparation">True</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">2</property>
+                        <property name="BottomAttach">3</property>
+                        <property name="LeftAttach">1</property>
+                        <property name="RightAttach">2</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.Frame" id="frame2">
+                    <property name="MemberName" />
+                    <property name="ShadowType">None</property>
+                    <child>
+                      <widget class="Gtk.Alignment" id="GtkAlignment4">
+                        <property name="MemberName" />
+                        <property name="Xalign">0</property>
+                        <property name="Yalign">0</property>
+                        <property name="LeftPadding">12</property>
+                        <child>
+                          <widget class="QSOrmProject.PhotoView" id="photoViewCertificate">
+                            <property name="MemberName" />
+                            <property name="Events">ButtonPressMask</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="lblImage">
+                        <property name="MemberName" />
+                        <property name="LabelProp" translatable="yes">&lt;b&gt;Изображение сертификата&lt;/b&gt;</property>
+                        <property name="UseMarkup">True</property>
+                      </widget>
+                      <packing>
+                        <property name="type">label_item</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">False</property>
+                  </packing>
+                </child>
+              </widget>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label1">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">&lt;span foreground='black'&gt;&lt;b&gt;Общее&lt;/b&gt;&lt;/span&gt;</property>
+                <property name="UseMarkup">True</property>
+              </widget>
+              <packing>
+                <property name="type">tab</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.VBox" id="vbxNomenclatures">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+                    <property name="MemberName" />
+                    <property name="ShadowType">In</property>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.yTreeView" id="yTreeNomenclatures">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="ShowScrollbars">True</property>
+                      </widget>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.HButtonBox" id="hbuttonbox2">
+                    <property name="MemberName" />
+                    <property name="Size">2</property>
+                    <property name="LayoutStyle">Start</property>
+                    <child>
+                      <widget class="Gtk.Button" id="btnAddNomenclature">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextOnly</property>
+                        <property name="Label" translatable="yes">Добавить</property>
+                        <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnBtnAddNomenclatureClicked" />
+                      </widget>
+                      <packing>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Button" id="btnDelete">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextOnly</property>
+                        <property name="Label" translatable="yes">Удалить</property>
+                        <property name="UseUnderline">True</property>
+                        <signal name="Activated" handler="OnBtnDeleteActivated" />
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">False</property>
+                    <property name="Expand">False</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="lblNomenclatures">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">&lt;span foreground='black'&gt;&lt;b&gt;Номенклатуры&lt;/b&gt;&lt;/span&gt;</property>
+                <property name="UseMarkup">True</property>
+              </widget>
+              <packing>
+                <property name="type">tab</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
           </packing>
         </child>
       </widget>

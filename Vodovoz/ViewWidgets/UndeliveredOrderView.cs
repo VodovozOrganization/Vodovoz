@@ -23,26 +23,15 @@ namespace Vodovoz.ViewWidgets
 	{
 		Order newOrder = null;
 		Order oldOrder = null;
-		IUnitOfWork uow;
 		bool routeListDoesNotExist = false;
 		string InitialProcDepartmentName = String.Empty;
 		IList<GuiltyInUndelivery> initialGuiltyList = new List<GuiltyInUndelivery>();
 
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				uow = value;
-			}
-		}
+		public IUnitOfWork UoW { get; set; }
 
 		UndeliveredOrder undelivery;
 
-		public UndeliveredOrderView()
-		{
-			this.Build();
-		}
+		public UndeliveredOrderView() => this.Build();
 
 		public void OnTabAdded()
 		{
