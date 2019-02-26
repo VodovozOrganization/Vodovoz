@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Print;
+using QS.Report;
+using QSReport;
 using QSValidation;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core;
@@ -18,12 +22,12 @@ namespace Vodovoz
 {
 	public partial class MovementDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<MovementDocument>
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger ();
+		static Logger logger = LogManager.GetCurrentClassLogger();
 
-		public MovementDocumentDlg ()
+		public MovementDocumentDlg()
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<MovementDocument> ();
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<MovementDocument>();
 
 			Entity.Author = Entity.ResponsiblePerson = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
@@ -34,22 +38,22 @@ namespace Vodovoz
 
 			Entity.FromWarehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.MovementEdit);
 			Entity.ToWarehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.MovementEdit);
-			
-			ConfigureDlg ();
+
+			ConfigureDlg();
 		}
 
-		public MovementDocumentDlg (int id)
+		public MovementDocumentDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<MovementDocument> (id);
-			ConfigureDlg ();
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<MovementDocument>(id);
+			ConfigureDlg();
 		}
 
-		public MovementDocumentDlg (MovementDocument sub) : this (sub.Id)
+		public MovementDocumentDlg(MovementDocument sub) : this(sub.Id)
 		{
 		}
 
-		void ConfigureDlg ()
+		void ConfigureDlg()
 		{
 			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.MovementEdit, Entity.FromWarehouse, Entity.ToWarehouse)) {
 				FailInitialize = true;
@@ -99,36 +103,35 @@ namespace Vodovoz
 				Entity.Category = MovementDocumentCategory.Transportation;
 			}
 
-			buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged 
+			buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged
 				&& CurrentPermissions.Warehouse[WarehousePermissions.MovementEdit, Entity.ToWarehouse];
 
 			movementdocumentitemsview1.DocumentUoW = UoWGeneric;
 		}
 
-		public override bool Save ()
+		public override bool Save()
 		{
-			var valid = new QSValidator<MovementDocument> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var valid = new QSValidator<MovementDocument>(UoWGeneric.Root);
+			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditor == null)
-			{
-				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+			if(Entity.LastEditor == null) {
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
-			logger.Info ("Сохраняем документ перемещения...");
-			UoWGeneric.Save ();
-			logger.Info ("Ok.");
+			logger.Info("Сохраняем документ перемещения...");
+			UoWGeneric.Save();
+			logger.Info("Ok.");
 			return true;
 		}
 
-		protected void OnEnumMovementTypeChanged (object sender, EventArgs e)
+		protected void OnEnumMovementTypeChanged(object sender, EventArgs e)
 		{
 			var selected = Entity.Category;
-			referenceWarehouseTo.Visible = referenceWarehouseFrom.Visible = labelStockFrom.Visible = labelStockTo.Visible 
+			referenceWarehouseTo.Visible = referenceWarehouseFrom.Visible = labelStockFrom.Visible = labelStockTo.Visible
 				= (selected == MovementDocumentCategory.warehouse || selected == MovementDocumentCategory.Transportation);
 
 			referenceCounterpartyTo.Visible = referenceCounterpartyFrom.Visible = labelClientFrom.Visible = labelClientTo.Visible
@@ -142,23 +145,23 @@ namespace Vodovoz
 				= selected == MovementDocumentCategory.Transportation;
 		}
 
-		protected void OnReferenceCounterpartyFromChanged (object sender, EventArgs e)
+		protected void OnReferenceCounterpartyFromChanged(object sender, EventArgs e)
 		{
 			referenceDeliveryPointFrom.Sensitive = referenceCounterpartyFrom.Subject != null;
-			if (referenceCounterpartyFrom.Subject != null) {
-				var points = ((Counterparty)referenceCounterpartyFrom.Subject).DeliveryPoints.Select (o => o.Id).ToList ();
-				referenceDeliveryPointFrom.ItemsCriteria = UoWGeneric.Session.CreateCriteria<DeliveryPoint> ()
-					.Add (Restrictions.In ("Id", points));
+			if(referenceCounterpartyFrom.Subject != null) {
+				var points = ((Counterparty)referenceCounterpartyFrom.Subject).DeliveryPoints.Select(o => o.Id).ToList();
+				referenceDeliveryPointFrom.ItemsCriteria = UoWGeneric.Session.CreateCriteria<DeliveryPoint>()
+					.Add(Restrictions.In("Id", points));
 			}
 		}
 
-		protected void OnReferenceCounterpartyToChanged (object sender, EventArgs e)
+		protected void OnReferenceCounterpartyToChanged(object sender, EventArgs e)
 		{
 			referenceDeliveryPointTo.Sensitive = referenceCounterpartyTo.Subject != null;
-			if (referenceCounterpartyTo.Subject != null) {
-				var points = ((Counterparty)referenceCounterpartyTo.Subject).DeliveryPoints.Select (o => o.Id).ToList ();
-				referenceDeliveryPointTo.ItemsCriteria = UoWGeneric.Session.CreateCriteria<DeliveryPoint> ()
-					.Add (Restrictions.In ("Id", points));
+			if(referenceCounterpartyTo.Subject != null) {
+				var points = ((Counterparty)referenceCounterpartyTo.Subject).DeliveryPoints.Select(o => o.Id).ToList();
+				referenceDeliveryPointTo.ItemsCriteria = UoWGeneric.Session.CreateCriteria<DeliveryPoint>()
+					.Add(Restrictions.In("Id", points));
 			}
 		}
 
@@ -166,6 +169,59 @@ namespace Vodovoz
 		{
 			buttonDelivered.Sensitive = false;
 			Entity.TransportationCompleted();
+		}
+
+
+
+		protected void OnButtonPrintClicked(object sender, EventArgs e)
+		{
+			if(UoW.HasChanges) {
+				if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
+					UoWGeneric.Save();
+				} else {
+					return;
+				}
+			}
+			var doc = new MovementDocumentRdl(Entity);
+			if(doc is IPrintableRDLDocument) {
+				TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc as IPrintableRDLDocument), this, false);
+			}
+		}
+	}
+
+	public class MovementDocumentRdl : IPrintableRDLDocument
+	{
+		public string Title { get; set; } = "Документ перемещения"; 
+
+		public MovementDocument Document { get; set; }
+
+		public Dictionary<object, object> Parameters { get; set; } 
+
+		public PrinterType PrintType { get; set; } = PrinterType.RDL;
+
+		public DocumentOrientation Orientation { get; set; } = DocumentOrientation.Portrait;
+
+		public int CopiesToPrint { get; set; } = 1;
+
+		public string Name { get; set; } = "Документ перемещения";
+
+		public ReportInfo GetReportInfo()
+		{
+			return new ReportInfo {
+				Identifier = "Documents.MovementOperationDocucment",
+				Parameters = new Dictionary<string, object>
+				{
+					{ "documentId" , Document.Id} ,
+					{ "date" , Document.TimeStamp.ToString("dd/MM/yyyy")} ,
+					{ "WarehouseFrom" , Document.FromWarehouse.Name} ,
+					{ "WarehouseTo" , Document.ToWarehouse.Name} ,
+					{ "Wagon" , Document.MovementWagon.Name} ,
+				}
+			};
+		}
+		public MovementDocumentRdl(MovementDocument document)
+		{
+				Document = document;
 		}
 	}
 }

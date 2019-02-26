@@ -563,13 +563,6 @@ namespace Vodovoz
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountMoney : 0m;
 				return orderItem.DiscountMoney;
 			}
-			set {
-				if(IsEquipment) {
-					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.DiscountMoney = value;
-				} else
-					orderItem.DiscountMoney = value;
-			}
 		}
 
 		public DiscountReason DiscountReason{

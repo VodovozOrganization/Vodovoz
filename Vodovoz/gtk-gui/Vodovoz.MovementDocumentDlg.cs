@@ -86,6 +86,10 @@ namespace Vodovoz
 
 		private global::Vodovoz.MovementDocumentItemsView movementdocumentitemsview1;
 
+		private global::Gtk.HBox hbox2;
+
+		private global::Gtk.Button buttonPrint;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -508,6 +512,30 @@ namespace Vodovoz
 			this.vbox3.Add(this.movementdocumentitemsview1);
 			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.movementdocumentitemsview1]));
 			w42.Position = 3;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.buttonPrint = new global::Gtk.Button();
+			this.buttonPrint.CanFocus = true;
+			this.buttonPrint.Name = "buttonPrint";
+			this.buttonPrint.UseUnderline = true;
+			this.buttonPrint.Label = global::Mono.Unix.Catalog.GetString("Печать документа перемещения");
+			global::Gtk.Image w43 = new global::Gtk.Image();
+			w43.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-print", global::Gtk.IconSize.Menu);
+			this.buttonPrint.Image = w43;
+			this.hbox2.Add(this.buttonPrint);
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonPrint]));
+			w44.Position = 2;
+			w44.Expand = false;
+			w44.Fill = false;
+			this.vbox3.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox2]));
+			w45.PackType = ((global::Gtk.PackType)(1));
+			w45.Position = 4;
+			w45.Expand = false;
+			w45.Fill = false;
 			this.Add(this.vbox3);
 			if ((this.Child != null))
 			{
@@ -518,6 +546,7 @@ namespace Vodovoz
 			this.enumMovementType.Changed += new global::System.EventHandler(this.OnEnumMovementTypeChanged);
 			this.referenceCounterpartyFrom.Changed += new global::System.EventHandler(this.OnReferenceCounterpartyFromChanged);
 			this.referenceCounterpartyTo.Changed += new global::System.EventHandler(this.OnReferenceCounterpartyToChanged);
+			this.buttonPrint.Clicked += new global::System.EventHandler(this.OnButtonPrintClicked);
 		}
 	}
 }

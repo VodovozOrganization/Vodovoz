@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using System;
-using System.Linq;
 
 namespace Vodovoz.Tools.Orders
 {
@@ -47,14 +47,14 @@ namespace Vodovoz.Tools.Orders
 				)
 			);
 			//ContractDocumentationInvoice
-			/*rules.Add(
+			rules.Add(
 				new Rule(
 					key => GetConditionForContractDocumentationInvoice(key),
 					new[] {
 						OrderDocumentType.InvoiceContractDoc
 					}
 				)
-			);*/
+			);
 			//EquipmentTransfer
 			rules.Add(
 				new Rule(
@@ -205,9 +205,6 @@ namespace Vodovoz.Tools.Orders
 		(
 			GetConditionForBill(key)
 			&& (key.OrderStatus >= OrderStatus.Accepted || (key.OrderStatus == OrderStatus.WaitForPayment && key.IsSelfDelivery && key.PayAfterShipment))
-			||
-			key.PaymentType == PaymentType.ContractDoc
-			&& key.OrderStatus >= OrderStatus.Accepted
 		);
 
 		static bool GetConditionForSpecialUPD(OrderStateKey key) =>

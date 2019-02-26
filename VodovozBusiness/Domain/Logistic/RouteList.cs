@@ -1165,19 +1165,12 @@ namespace Vodovoz.Domain.Logistic
 			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6)) {
 				return;
 			}
-			decimal distance = 0m;
-			//Необходимо для того, чтобы расход топлива не пересчитывался после подтверждения логистами
-			if(Status == RouteListStatus.Closed && MileageCheck) {
-				distance = ConfirmedDistance;
-			} else {
-				distance = ActualDistance;
-			}
 
 			foreach(var item in FuelDocuments) {
 				item.UpdateDocument(UoW);
 			}
 
-			if(distance == 0) {
+			if(ConfirmedDistance == 0) {
 				if(FuelOutlayedOperation != null) {
 					UoW.Delete(FuelOutlayedOperation);
 					FuelOutlayedOperation = null;
@@ -1186,7 +1179,7 @@ namespace Vodovoz.Domain.Logistic
 				if(FuelOutlayedOperation == null) {
 					FuelOutlayedOperation = new FuelOperation();
 				}
-				decimal litresOutlayed = (decimal)Car.FuelConsumption / 100 * distance;
+				decimal litresOutlayed = (decimal)Car.FuelConsumption / 100 * ConfirmedDistance;
 
 				Car car = Car;
 				Employee driver = Driver;
