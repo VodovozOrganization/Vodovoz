@@ -38,12 +38,13 @@ namespace Vodovoz.Dialogs
 			yEntryName.Binding.AddBinding(Entity, s => s.Name, w => w.Text).InitializeFromSource();
 			yEnumCmbType.ItemsEnum = typeof(CertificateType);
 			yEnumCmbType.Binding.AddBinding(Entity, s => s.TypeOfCertificate, w => w.SelectedItemOrNull).InitializeFromSource();
+			yEnumCmbType.EnumItemSelected += YEnumCmbType_EnumItemSelected;
 			photoViewCertificate.Binding.AddBinding(Entity, e => e.ImageFile, w => w.ImageFile).InitializeFromSource();
 			photoViewCertificate.GetSaveFileName = () => Entity.Name;
 			yStartDate.Binding.AddBinding(Entity, s => s.StartDate, w => w.DateOrNull).InitializeFromSource();
 			yDateOfExpiration.Binding.AddBinding(Entity, s => s.ExpirationDate, w => w.DateOrNull).InitializeFromSource();
 			yChkIsArchive.Binding.AddBinding(Entity, s => s.IsArchive, w => w.Active).InitializeFromSource();
-			OnYEnumCmbTypeChangedByUser(this, new System.EventArgs());
+			YEnumCmbType_EnumItemSelected(this, new Gamma.Widgets.ItemSelectedEventArgs(yEnumCmbType.SelectedItem));
 			ObservableList = Entity.ObservableNomenclatures;
 			yTreeNomenclatures.Selection.Changed += (sender, e) => {
 				selectedNomenclature = yTreeNomenclatures.GetSelectedObject<Nomenclature>();
@@ -102,10 +103,11 @@ namespace Vodovoz.Dialogs
 			btnDelete.Sensitive = selectedNomenclature != null;
 		}
 
-		protected void OnYEnumCmbTypeChangedByUser(object sender, System.EventArgs e)
+		void YEnumCmbType_EnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			bool isCertificateForNomenclatures = Entity.TypeOfCertificate.HasValue && Entity.TypeOfCertificate.Value == CertificateType.Nomenclature;
-			Entity.ObservableNomenclatures.Clear();
+			if(!isCertificateForNomenclatures)
+				Entity.ObservableNomenclatures.Clear();
 			lblNomenclatures.Markup = string.Format("<span foreground='{0}'><b>Номенклатуры</b></span>", isCertificateForNomenclatures ? "black" : "grey");
 			vbxNomenclatures.Sensitive = isCertificateForNomenclatures;
 		}
