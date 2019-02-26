@@ -561,6 +561,9 @@
     <Compile Include="Repositories\Orders\OrderRepository.cs" />
     <Compile Include="Repositories\Store\CarUnloadRepository.cs" />
     <Compile Include="Repositories\Store\CarLoadRepository.cs" />
+    <Compile Include="Domain\Certificate.cs" />
+    <Compile Include="HibernateMapping\CertificateMap.cs" />
+    <Compile Include="Domain\Order\Documents\NomenclatureCertificateDocument.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

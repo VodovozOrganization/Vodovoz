@@ -179,6 +179,8 @@ namespace Vodovoz
 				.AddBinding(entity => entity.Building, widget => widget.House)
 				.InitializeFromSource();
 
+			chkAddCertificatesAlways.Binding.AddBinding(Entity, e => e.AddCertificatesAlways, w => w.Active).InitializeFromSource();
+
 			cityBeforeChange = entryCity.City;
 			streetBeforeChange = entryStreet.Street;
 			buildingBeforeChange = entryBuilding.House;

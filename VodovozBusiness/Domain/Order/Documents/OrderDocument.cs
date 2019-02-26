@@ -129,7 +129,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		RefundEquipmentDeposit,
 		[DocumentOfOrder]
 		[Display(Name = "Акт передачи-возврата бутылей")]
-		BottleTransfer
+		BottleTransfer,
+		[Display(Name = "Сертификат продукции")]
+		ProductCertificate
 	}
 
 	public interface ITemplateOdtDocument

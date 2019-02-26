@@ -90,7 +90,8 @@ namespace Vodovoz.Dialogs.Logistic
 				OrderDocumentType.ShetFactura,
 				OrderDocumentType.RefundBottleDeposit,
 				OrderDocumentType.RefundEquipmentDeposit,
-				OrderDocumentType.BottleTransfer
+				OrderDocumentType.BottleTransfer,
+				OrderDocumentType.ProductCertificate
 			};
 
 			foreach(OrderDocumentType t in Enum.GetValues(typeof(OrderDocumentType)))
