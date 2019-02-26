@@ -222,10 +222,7 @@ namespace Vodovoz.ViewModel
 			Menu popupMenu = new Gtk.Menu();
 			Gtk.MenuItem menuItemRouteList = new MenuItem("Перейти в маршрутный лист");
 			menuItemRouteList.Activated += MenuItemRouteList_Activated;
-			menuItemRouteList.Sensitive = selected.Any(x => {
-				var availableStatuses = new OrderStatus[] { OrderStatus.OnTheWay, OrderStatus.DeliveryCanceled, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.NotDelivered };
-				return availableStatuses.Contains(((OrdersVMNode)x.VMNode).StatusEnum);
-			});
+			menuItemRouteList.Sensitive = selected.Any(x => ((OrdersVMNode)x.VMNode).StatusEnum != OrderStatus.Accepted && ((OrdersVMNode)x.VMNode).StatusEnum != OrderStatus.NewOrder);
 			popupMenu.Add(menuItemRouteList);
 
 			Gtk.MenuItem menuItemUndelivery = new MenuItem("Перейти в недовоз");
