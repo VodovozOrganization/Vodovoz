@@ -10,6 +10,7 @@ using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repository.Cash;
 
 namespace Vodovoz
 {
@@ -132,6 +133,26 @@ namespace Vodovoz
 				.AddColumn ("Основание").AddTextRenderer (a => a.Value.Description)
 				.Finish ();
 			UpdateSubdivision();
+		}
+
+		public void FillForRoutelist(int routelistId)
+		{
+			var cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(cashier == null) {
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
+				return;
+			}
+
+			var rl = UoW.GetById<RouteList>(routelistId);
+
+			Entity.IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW);
+			Entity.TypeOperation = IncomeType.DriverReport;
+			Entity.Date = DateTime.Now;
+			Entity.Casher = cashier;
+			Entity.Employee = rl.Driver;
+			Entity.Description = $"Закрытие МЛ №{rl.Id} от {rl.Date:d}";
+			Entity.RouteListClosing = rl;
+			Entity.RelatedToSubdivision = rl.ClosingSubdivision;
 		}
 
 		void OnIncomeCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)

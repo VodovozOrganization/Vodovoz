@@ -42,7 +42,7 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.Alignment GtkAlignment4;
 
-		private global::QSOrmProject.PhotoView photoViewCertificate;
+		private global::QS.Widgets.GtkUI.PhotoView photoViewCertificate;
 
 		private global::Gtk.Label lblImage;
 
@@ -258,9 +258,10 @@ namespace Vodovoz.Dialogs
 			this.GtkAlignment4.Name = "GtkAlignment4";
 			this.GtkAlignment4.LeftPadding = ((uint)(12));
 			// Container child GtkAlignment4.Gtk.Container+ContainerChild
-			this.photoViewCertificate = new global::QSOrmProject.PhotoView();
+			this.photoViewCertificate = new global::QS.Widgets.GtkUI.PhotoView();
 			this.photoViewCertificate.Events = ((global::Gdk.EventMask)(256));
 			this.photoViewCertificate.Name = "photoViewCertificate";
+			this.photoViewCertificate.CanPrint = false;
 			this.GtkAlignment4.Add(this.photoViewCertificate);
 			this.frame2.Add(this.GtkAlignment4);
 			this.lblImage = new global::Gtk.Label();

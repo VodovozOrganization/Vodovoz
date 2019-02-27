@@ -107,9 +107,6 @@ namespace Vodovoz
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
 			speccomboShift.Sensitive = logisticanEditing;
 
-			yspinActualDistance.Binding.AddBinding(Entity, rl => rl.ActualDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
-			yspinActualDistance.Sensitive = logisticanEditing;
-
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
 			datePickerDate.Sensitive = logisticanEditing;
 

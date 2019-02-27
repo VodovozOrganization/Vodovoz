@@ -128,20 +128,14 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void UpdateOperation()
 		{
 			decimal litersByMoney = 0;
-			if(Fuel.Cost > 0 && PayedForFuel.HasValue)
+			if(Fuel.Cost > 0 && PayedForFuel.HasValue) {
 				litersByMoney = PayedForFuel.Value / Fuel.Cost;
-			if(Operation == null)
+			}
+			if(Operation == null) {
 				Operation = new FuelOperation();
-
-			Car car = Car;
-			Employee driver = Driver;
-			if(car.IsCompanyHavings)
-				driver = null;
-			else
-				car = null;
-
-			Operation.Driver = driver;
-			Operation.Car = car;
+			}
+			Operation.Driver = Car.IsCompanyHavings ? null : Driver;
+			Operation.Car = Car.IsCompanyHavings ? Car : null;
 			Operation.Fuel = Fuel;
 			Operation.LitersGived = fuelCoupons + litersByMoney;
 			Operation.LitersOutlayed = 0;

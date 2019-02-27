@@ -286,6 +286,7 @@ namespace Vodovoz
 
 			HistoryMain.Enable();
 			TemplatePrinter.InitPrinter();
+			ImagePrinter.InitPrinter();
 
 			//Настройка ParentReference
 			ParentReferenceConfig.AddActions(new ParentReferenceActions<Organization, QSBanks.Account> {

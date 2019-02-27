@@ -15,8 +15,8 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.IndexInRoute)			.Column("order_in_route");
 			Map (x => x.BottlesReturned)		.Column("bottles_returned");
 			Map (x => x.DriverBottlesReturned)	.Column("driver_bottles_returned");
-			Map (x => x.DepositsCollected)		.Column("deposits_collected");
-			Map (x => x.EquipmentDepositsCollected).Column("equipment_deposits_collected");
+			Map (x => x.OldBottleDepositsCollected)		.Column("deposits_collected");
+			Map (x => x.OldEquipmentDepositsCollected).Column("equipment_deposits_collected");
 			Map (x => x.ExtraCash)				.Column("extra_cash");
 			Map (x => x.TotalCash)				.Column("total_cash");
 			Map (x => x.DriverWage)				.Column("driver_wage");

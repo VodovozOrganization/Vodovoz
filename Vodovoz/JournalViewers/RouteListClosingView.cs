@@ -4,6 +4,8 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repositories.Permissions;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz
 {
@@ -63,7 +65,12 @@ namespace Vodovoz
 					break;
 				case RouteListStatus.OnClosing:
 				case RouteListStatus.Closed:
-					TabParent.OpenTab(RouteListClosingDlg.GenerateHashName(node.Id), () => new RouteListClosingDlg(node.Id));
+					if(PermissionRepository.HasAccessToClosingRoutelist(uow)) {
+						TabParent.OpenTab(RouteListClosingDlg.GenerateHashName(node.Id), () => new RouteListClosingDlg(node.Id));
+					} else {
+						MessageDialogHelper.RunWarningDialog("Доступ запрещен");
+					}
+
 					break;
 				default: throw new NotSupportedException("Тип документа не поддерживается.");
 			}

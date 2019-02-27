@@ -23,7 +23,6 @@ namespace Vodovoz
 		#region Поля
 
 		private bool editing = true;
-		private bool editingAdmin = true;
 
 		List<RouteListKeepingItemNode> items;
 
@@ -33,7 +32,6 @@ namespace Vodovoz
 		{
 			this.Build();
 			editing = QSMain.User.Permissions["logistican"];
-			editingAdmin = QSMain.User.Permissions["logistic_admin"];
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = String.Format("Контроль за километражом маршрутного листа №{0}", Entity.Id);
 			ConfigureDlg();
@@ -46,33 +44,22 @@ namespace Vodovoz
 			referenceCar.SubjectType = typeof(Car);
 			referenceCar.ItemsQuery = CarRepository.ActiveCarsQuery();
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
-			referenceCar.Sensitive = false;
 
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
-			referenceDriver.Sensitive = false;
 
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
-			referenceForwarder.Sensitive = false;
 
 			var filterLogistican = new EmployeeFilter(UoW);
 			filterLogistican.ShowFired = false;
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
-			referenceLogistican.Sensitive = editing;
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoWGeneric);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
-			speccomboShift.Sensitive = editing;
-
-			yspinActualDistance.Binding.AddBinding(Entity, rl => rl.ActualDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
-			yspinActualDistance.Sensitive = false;
 
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
-			datePickerDate.Sensitive = editing;
 
 			yspinConfirmedDistance.Binding.AddBinding(Entity, rl => rl.ConfirmedDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
-			yspinConfirmedDistance.Sensitive = editing && Entity.Status != RouteListStatus.Closed;
-			buttonConfirm.Sensitive = editing && Entity.Status != RouteListStatus.Closed;
 
 			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
 				.AddColumn("Заказ")
@@ -105,13 +92,33 @@ namespace Vodovoz
 			entryMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Text).InitializeFromSource();
 
 
+		}
+
+		private void UpdateSensitivity()
+		{
+			if(Entity.Status != RouteListStatus.MileageCheck) {
+				vboxRouteList.Sensitive = false;
+				buttonSave.Sensitive = false;
+
+				HasChanges = false;
+
+				return;
+			}
+
+			referenceCar.Sensitive = false;
+			referenceDriver.Sensitive = false;
+			referenceForwarder.Sensitive = false;
+			speccomboShift.Sensitive = false;
+
+			referenceLogistican.Sensitive = editing;
+			datePickerDate.Sensitive = editing;
+			yspinConfirmedDistance.Sensitive = editing && Entity.Status != RouteListStatus.Closed;
 
 			if(Entity.Status == RouteListStatus.MileageCheck) {
-				buttonCloseRouteList.Sensitive = editing;
-			} else if(editingAdmin) {
-				buttonCloseRouteList.Sensitive = true;
-			} else
-				buttonCloseRouteList.Sensitive = false;
+				buttonAccept.Sensitive = editing;
+			} else {
+				buttonAccept.Sensitive = false;
+			}
 		}
 
 		#endregion
@@ -136,45 +143,39 @@ namespace Vodovoz
 		#endregion
 
 		#region Обработка нажатий кнопок
-		protected void OnButtonConfirmClicked(object sender, EventArgs e)
-		{
-			Entity.ConfirmedDistance = Entity.ActualDistance;
-		}
 
-		protected void OnButtonCloseRouteListClicked(object sender, EventArgs e)
+		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			var valid = new QSValidator<RouteList>(Entity,
-							 new Dictionary<object, object>
-				{
-					{ "NewStatus", RouteListStatus.Closed }
-				});
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+			var validationContext = new Dictionary<object, object> {
+				{ "NewStatus", RouteListStatus.Closed }
+			};
+			var valid = new QSValidator<RouteList>(Entity, validationContext);
+			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
 				return;
-
-			if(Entity.ConfirmedDistance < Entity.ActualDistance && !Entity.Car.IsCompanyHavings) {
-				decimal excessKM = Entity.ActualDistance - Entity.ConfirmedDistance;
-				decimal redundantPayForFuel = Entity.GetLitersOutlayed(excessKM) * Entity.Car.FuelType.Cost;
-				string fineReason = "Перевыплата топлива";
-				var fine = new Fine();
-				fine.Fill(redundantPayForFuel, Entity, fineReason, DateTime.Today, Entity.Driver);
-				fine.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-				fine.UpdateWageOperations(UoWGeneric);
-				UoWGeneric.Save(fine);
-			} else {
-				Entity.RecalculateFuelOutlay();
 			}
 
-			yspinConfirmedDistance.Sensitive = false;
-			buttonConfirm.Sensitive = false;
-			buttonCloseRouteList.Sensitive = false;
+			Entity.AcceptMileage();
 
-			Entity.ConfirmMileage(UoWGeneric);
+			UpdateStates();
+
+			SaveAndClose();
+		}
+
+		private void UpdateStates()
+		{
+			buttonAccept.Sensitive = Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck;
 		}
 
 		protected void OnButtonOpenMapClicked(object sender, EventArgs e)
 		{
 			var trackWnd = new TrackOnMapWnd(UoWGeneric);
 			trackWnd.Show();
+		}
+
+		protected void OnButtonFromTrackClicked(object sender, EventArgs e)
+		{
+			var track = TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
+			Entity.ConfirmedDistance = (decimal)track.TotalDistance.Value;
 		}
 
 		#endregion
