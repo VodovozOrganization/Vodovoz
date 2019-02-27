@@ -344,7 +344,6 @@ namespace Vodovoz.Dialogs
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.yEnumCmbType.ChangedByUser += new global::System.EventHandler(this.OnYEnumCmbTypeChangedByUser);
 			this.btnAddNomenclature.Clicked += new global::System.EventHandler(this.OnBtnAddNomenclatureClicked);
 			this.btnDelete.Activated += new global::System.EventHandler(this.OnBtnDeleteActivated);
 		}

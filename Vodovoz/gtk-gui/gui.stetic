@@ -69695,7 +69695,6 @@ not tooltip</property>
                         <property name="ShowSpecialStateNot">True</property>
                         <property name="UseShortTitle">False</property>
                         <property name="DefaultFirst">False</property>
-                        <signal name="ChangedByUser" handler="OnYEnumCmbTypeChangedByUser" />
                       </widget>
                       <packing>
                         <property name="TopAttach">1</property>
