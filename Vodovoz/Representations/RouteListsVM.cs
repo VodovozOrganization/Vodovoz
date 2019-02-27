@@ -123,8 +123,8 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Смена").SetDataProperty(node => node.ShiftName)
 			.AddColumn("Статус").SetDataProperty(node => node.StatusEnum.GetEnumTitle())
 			.AddColumn("Водитель и машина").SetDataProperty(node => node.DriverAndCar)
-			.AddColumn("Комментарий по закрытию").SetDataProperty(node => node.ClosinComments)
 			.AddColumn("Сдается в кассу").SetDataProperty(node => node.ClosingSubdivision)
+			.AddColumn("Комментарий по закрытию").SetDataProperty(node => node.ClosinComments)
 			.Finish();
 
 		#endregion
