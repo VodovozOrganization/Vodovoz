@@ -108,7 +108,7 @@ namespace Vodovoz
 
 		private global::QSContacts.PhonesView phonesView;
 
-		private global::QSOrmProject.PhotoView photoviewEmployee;
+		private global::QS.Widgets.GtkUI.PhotoView photoviewEmployee;
 
 		private global::Gamma.Widgets.yEntryReference referenceCitizenship;
 
@@ -785,6 +785,7 @@ namespace Vodovoz
 			this.phonesView = new global::QSContacts.PhonesView();
 			this.phonesView.Events = ((global::Gdk.EventMask)(256));
 			this.phonesView.Name = "phonesView";
+			this.phonesView.IsReadOnly = false;
 			this.datatableMain.Add(this.phonesView);
 			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.phonesView]));
 			w51.TopAttach = ((uint)(12));
@@ -794,9 +795,10 @@ namespace Vodovoz
 			w51.XOptions = ((global::Gtk.AttachOptions)(4));
 			w51.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.photoviewEmployee = new global::QSOrmProject.PhotoView();
+			this.photoviewEmployee = new global::QS.Widgets.GtkUI.PhotoView();
 			this.photoviewEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.photoviewEmployee.Name = "photoviewEmployee";
+			this.photoviewEmployee.CanPrint = false;
 			this.datatableMain.Add(this.photoviewEmployee);
 			global::Gtk.Table.TableChild w52 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.photoviewEmployee]));
 			w52.BottomAttach = ((uint)(8));
@@ -898,7 +900,6 @@ namespace Vodovoz
 			this.vboxPageLogistic.Spacing = 6;
 			// Container child vboxPageLogistic.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(4)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild

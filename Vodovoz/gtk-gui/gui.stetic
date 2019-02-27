@@ -1346,7 +1346,6 @@
                 <child>
                   <widget class="Gtk.Label" id="labelUser">
                     <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -1358,7 +1357,6 @@
                 <child>
                   <widget class="Gtk.Label" id="labelStatus">
                     <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="PackType">End</property>
@@ -1469,6 +1467,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2144,7 +2143,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.EmployeeDlg" design-size="859 572">
+  <widget class="Gtk.Bin" id="Vodovoz.EmployeeDlg" design-size="931 572">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -2648,7 +2647,6 @@
                             <child>
                               <widget class="Gtk.Label" id="labelCustomWageCalcEmpty">
                                 <property name="MemberName" />
-                                <property name="LabelProp" translatable="yes" />
                               </widget>
                               <packing>
                                 <property name="Position">3</property>
@@ -3076,9 +3074,10 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="QSOrmProject.PhotoView" id="photoviewEmployee">
+                          <widget class="QS.Widgets.GtkUI.PhotoView" id="photoviewEmployee">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
+                            <property name="CanPrint">False</property>
                           </widget>
                           <packing>
                             <property name="BottomAttach">8</property>
@@ -3988,7 +3987,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="776 548">
+  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="1068 556">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -4105,7 +4104,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.Table" id="tableCarData">
                 <property name="MemberName" />
@@ -5231,15 +5230,16 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="QSOrmProject.PhotoView" id="photoviewCar">
+                  <widget class="QS.Widgets.GtkUI.PhotoView" id="photoviewCar">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <property name="CanPrint">False</property>
                   </widget>
                   <packing>
                     <property name="BottomAttach">7</property>
                     <property name="LeftAttach">4</property>
                     <property name="RightAttach">5</property>
-                    <property name="AutoSize">False</property>
+                    <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
                     <property name="XExpand">False</property>
@@ -5274,7 +5274,6 @@
                   <widget class="Gtk.Label" id="textDriverInfo">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="TopAttach">13</property>
@@ -11964,7 +11963,6 @@
                                     <property name="MemberName" />
                                     <property name="Visible">False</property>
                                     <property name="Xalign">1</property>
-                                    <property name="LabelProp" translatable="yes" />
                                     <property name="Justify">Right</property>
                                     <property name="Selectable">True</property>
                                   </widget>
@@ -12122,7 +12120,6 @@
                                   <widget class="Gamma.GtkWidgets.yLabel" id="labelCompiledAddress">
                                     <property name="MemberName" />
                                     <property name="Xalign">0</property>
-                                    <property name="LabelProp" translatable="yes" />
                                     <property name="Wrap">True</property>
                                     <property name="Selectable">True</property>
                                   </widget>
@@ -12701,7 +12698,6 @@
                               <widget class="Gamma.GtkWidgets.yLabel" id="lblCounterparty">
                                 <property name="MemberName" />
                                 <property name="Xalign">0</property>
-                                <property name="LabelProp" translatable="yes" />
                                 <property name="Wrap">True</property>
                                 <property name="Selectable">True</property>
                               </widget>
@@ -17032,7 +17028,6 @@
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -17992,7 +17987,6 @@
               <widget class="Gamma.GtkWidgets.yLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -18266,7 +18260,6 @@
               <widget class="Gamma.GtkWidgets.yLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -18635,7 +18628,6 @@
               <widget class="Gamma.GtkWidgets.yLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -19404,7 +19396,6 @@
               <widget class="Gamma.GtkWidgets.yLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -19622,7 +19613,6 @@
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -19731,7 +19721,6 @@
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -19745,7 +19734,6 @@
               <widget class="Gtk.Label" id="lblWeight">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
@@ -19911,7 +19899,6 @@
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -21950,7 +21937,6 @@
                 <child>
                   <widget class="Gamma.GtkWidgets.yLabel" id="ylabelRecalculatedMileage">
                     <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="TopAttach">4</property>
@@ -22443,7 +22429,6 @@
               <widget class="Gtk.Label" id="labelSum1">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -22565,7 +22550,6 @@
             <child>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelUnclosedAdvancesMoney">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
@@ -24642,7 +24626,6 @@
                   <widget class="Gamma.GtkWidgets.yLabel" id="dataNumber">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="LeftAttach">1</property>
@@ -27344,7 +27327,6 @@
                 <child>
                   <widget class="Gtk.Label" id="labelCurrentDebt">
                     <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -28068,7 +28050,6 @@
             <child>
               <widget class="Gtk.Label" id="labelCurrentDebt">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -28080,7 +28061,6 @@
             <child>
               <widget class="Gtk.Label" id="labelRecived">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -28093,7 +28073,6 @@
             <child>
               <widget class="Gtk.Label" id="labelClosed">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -28868,7 +28847,6 @@
             <child>
               <widget class="Gtk.Label" id="labelDescription1">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
@@ -34152,7 +34130,6 @@
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
                 <property name="Yalign">0</property>
-                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
                 <property name="Selectable">True</property>
               </widget>
@@ -35513,7 +35490,6 @@
               <widget class="Gtk.Label" id="labelLatestOrderDate">
                 <property name="MemberName" />
                 <property name="Visible">False</property>
-                <property name="LabelProp" translatable="yes" />
                 <property name="Selectable">True</property>
               </widget>
               <packing>
@@ -37235,7 +37211,6 @@ not tooltip</property>
                 <child>
                   <widget class="Gtk.Label" id="labelFileChanged">
                     <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes" />
                     <property name="UseMarkup">True</property>
                   </widget>
                   <packing>
@@ -38854,7 +38829,6 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelTotal">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -41547,7 +41521,6 @@ not tooltip</property>
               <widget class="Gtk.Label" id="labelUnreadedMessages">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
             </child>
@@ -42139,7 +42112,6 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelCurrentBootle">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -44296,7 +44268,6 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelNomType">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44364,7 +44335,6 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelNomen">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44432,7 +44402,6 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelClient">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44500,7 +44469,6 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelOrg">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44568,7 +44536,6 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelDiscountReason">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44636,7 +44603,6 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="yLblSubdivision">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44704,7 +44670,6 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="yLblOrderAuthor">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44772,7 +44737,6 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="lblGeoGroups">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -44834,7 +44798,6 @@ not tooltip</property>
           <widget class="Gtk.Label" id="labelTableTitle">
             <property name="MemberName" />
             <property name="Xalign">0</property>
-            <property name="LabelProp" translatable="yes" />
           </widget>
           <packing>
             <property name="Position">11</property>
@@ -47788,7 +47751,6 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="Visible">False</property>
                     <property name="Sensitive">False</property>
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="Position">1</property>
@@ -47861,7 +47823,6 @@ not tooltip</property>
             <child>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelPoint">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">2</property>
@@ -55300,7 +55261,6 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelTotalLinks">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -55813,7 +55773,6 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelMinBottles">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -57092,7 +57051,6 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelTotal">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -57926,7 +57884,6 @@ not tooltip</property>
                   <widget class="Gamma.GtkWidgets.yLabel" id="ylabelNumber">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="RightAttach">2</property>
@@ -58500,7 +58457,6 @@ not tooltip</property>
                   <widget class="Gamma.GtkWidgets.yLabel" id="ylabelNumber">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="RightAttach">2</property>
@@ -60846,7 +60802,6 @@ not tooltip</property>
               <widget class="Gtk.Label" id="lblValOfField">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">2</property>
@@ -62783,7 +62738,6 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="HeightRequest">60</property>
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
                 <property name="Wrap">True</property>
                 <property name="Selectable">True</property>
               </widget>
@@ -64276,7 +64230,6 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelUser">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -64288,7 +64241,6 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelStatus">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -64503,7 +64455,7 @@ not tooltip</property>
           <widget class="Gtk.Notebook" id="notebookMain">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">3</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />
@@ -64841,9 +64793,10 @@ not tooltip</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="QSOrmProject.PhotoView" id="photoviewEmployee">
+                          <widget class="QS.Widgets.GtkUI.PhotoView" id="photoviewEmployee">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
+                            <property name="CanPrint">False</property>
                           </widget>
                           <packing>
                             <property name="BottomAttach">4</property>
@@ -65448,7 +65401,6 @@ not tooltip</property>
                   <widget class="Gamma.GtkWidgets.yLabel" id="ylabel600mlBottles">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="TopAttach">2</property>
@@ -65470,7 +65422,6 @@ not tooltip</property>
                   <widget class="Gamma.GtkWidgets.yLabel" id="ylabel6LWater">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="TopAttach">1</property>
@@ -65670,7 +65621,6 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="lblDescription">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
@@ -69499,7 +69449,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.CertificateDlg" design-size="630 253">
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.CertificateDlg" design-size="774 502">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -69806,9 +69756,10 @@ not tooltip</property>
                         <property name="Yalign">0</property>
                         <property name="LeftPadding">12</property>
                         <child>
-                          <widget class="QSOrmProject.PhotoView" id="photoViewCertificate">
+                          <widget class="QS.Widgets.GtkUI.PhotoView" id="photoViewCertificate">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
+                            <property name="CanPrint">False</property>
                           </widget>
                         </child>
                       </widget>

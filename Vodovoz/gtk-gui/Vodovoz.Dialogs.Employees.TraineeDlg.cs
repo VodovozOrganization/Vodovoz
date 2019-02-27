@@ -58,7 +58,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::QSContacts.PhonesView phonesView;
 
-		private global::QSOrmProject.PhotoView photoviewEmployee;
+		private global::QS.Widgets.GtkUI.PhotoView photoviewEmployee;
 
 		private global::Gamma.Widgets.yEntryReference referenceNationality;
 
@@ -200,7 +200,7 @@ namespace Vodovoz.Dialogs.Employees
 			this.notebookMain = new global::Gtk.Notebook();
 			this.notebookMain.CanFocus = true;
 			this.notebookMain.Name = "notebookMain";
-			this.notebookMain.CurrentPage = 3;
+			this.notebookMain.CurrentPage = 0;
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -389,6 +389,7 @@ namespace Vodovoz.Dialogs.Employees
 			this.phonesView = new global::QSContacts.PhonesView();
 			this.phonesView.Events = ((global::Gdk.EventMask)(256));
 			this.phonesView.Name = "phonesView";
+			this.phonesView.IsReadOnly = false;
 			this.datatableMain.Add(this.phonesView);
 			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.phonesView]));
 			w26.TopAttach = ((uint)(4));
@@ -398,9 +399,10 @@ namespace Vodovoz.Dialogs.Employees
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.photoviewEmployee = new global::QSOrmProject.PhotoView();
+			this.photoviewEmployee = new global::QS.Widgets.GtkUI.PhotoView();
 			this.photoviewEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.photoviewEmployee.Name = "photoviewEmployee";
+			this.photoviewEmployee.CanPrint = false;
 			this.datatableMain.Add(this.photoviewEmployee);
 			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.photoviewEmployee]));
 			w27.BottomAttach = ((uint)(4));

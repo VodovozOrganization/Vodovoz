@@ -146,7 +146,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.ySpinButton maxWeightSpin;
 
-		private global::QSOrmProject.PhotoView photoviewCar;
+		private global::QS.Widgets.GtkUI.PhotoView photoviewCar;
 
 		private global::Gtk.Label rangesLabel;
 
@@ -962,9 +962,10 @@ namespace Vodovoz
 			w70.XOptions = ((global::Gtk.AttachOptions)(4));
 			w70.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
-			this.photoviewCar = new global::QSOrmProject.PhotoView();
+			this.photoviewCar = new global::QS.Widgets.GtkUI.PhotoView();
 			this.photoviewCar.Events = ((global::Gdk.EventMask)(256));
 			this.photoviewCar.Name = "photoviewCar";
+			this.photoviewCar.CanPrint = false;
 			this.tableCarData.Add(this.photoviewCar);
 			global::Gtk.Table.TableChild w71 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.photoviewCar]));
 			w71.BottomAttach = ((uint)(7));

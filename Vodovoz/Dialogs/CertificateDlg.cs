@@ -40,6 +40,7 @@ namespace Vodovoz.Dialogs
 			yEnumCmbType.Binding.AddBinding(Entity, s => s.TypeOfCertificate, w => w.SelectedItemOrNull).InitializeFromSource();
 			photoViewCertificate.Binding.AddBinding(Entity, e => e.ImageFile, w => w.ImageFile).InitializeFromSource();
 			photoViewCertificate.GetSaveFileName = () => Entity.Name;
+			photoViewCertificate.CanPrint = true;
 			yStartDate.Binding.AddBinding(Entity, s => s.StartDate, w => w.DateOrNull).InitializeFromSource();
 			yDateOfExpiration.Binding.AddBinding(Entity, s => s.ExpirationDate, w => w.DateOrNull).InitializeFromSource();
 			yChkIsArchive.Binding.AddBinding(Entity, s => s.IsArchive, w => w.Active).InitializeFromSource();
