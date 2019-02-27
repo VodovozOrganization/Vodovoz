@@ -20,7 +20,9 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repository.Cash;
 using Vodovoz.Tools.Logistic;
+using Vodovoz.Repositories.Permissions;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -121,17 +123,6 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref date, value, () => Date); }
 		}
 
-		Decimal actualDistance;
-
-		/// <summary>
-		/// Расстояние в километрах
-		/// </summary>
-		[Display(Name = "Расстояние по кассе")]
-		public virtual Decimal ActualDistance {
-			get { return actualDistance; }
-			set { SetField(ref actualDistance, value, () => ActualDistance); }
-		}
-
 		Decimal confirmedDistance;
 
 		/// <summary>
@@ -185,14 +176,6 @@ namespace Vodovoz.Domain.Logistic
 			set {
 				SetField(ref closingDate, value, () => ClosingDate);
 			}
-		}
-
-		bool closedByCashBox;
-
-		[Display(Name = "МЛ закрыт по кассе")]
-		public virtual bool ClosedByCashBox {
-			get { return closedByCashBox; }
-			set { SetField(ref closedByCashBox, value, () => ClosedByCashBox); }
 		}
 
 		string closingComment;
@@ -459,6 +442,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual bool NeedMileageCheck => Car.TypeOfUse != CarTypeOfUse.Truck && !Driver.VisitingMaster;
+
 		public virtual decimal PhoneSum {
 			get {
 				if(Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || Driver.WageCalcType == WageCalculationType.withoutPayment)
@@ -470,15 +455,15 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal Total {
 			get {
-				return Addresses.Sum(address => address.TotalCash + address.DepositsCollected + address.EquipmentDepositsCollected) - PhoneSum;
+				return Addresses.Sum(x => x.TotalCash) - PhoneSum;
 			}
 		}
 
 		public virtual decimal MoneyToReturn {
 			get {
-				decimal AllPayedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue).Select(x => x.PayedForFuel.Value).Sum();
+				decimal payedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue).Sum(x => x.PayedForFuel.Value);
 
-				return Total - AllPayedForFuel;
+				return Total - payedForFuel;
 			}
 		}
 
@@ -556,23 +541,6 @@ namespace Vodovoz.Domain.Logistic
 			ObservableAddresses.Remove(address);
 		}
 
-		//TODO Убрать в будущем когда будет понятно что такая сортировка не нужна.
-		public virtual void ReorderAddressesByTime()
-		{
-			throw new InvalidOperationException("Вызван метод, который может нарушить последовательность адресов. Убирая этот эксепшен убедитесь что вы хорошо подумали.");
-			var orderedList = Addresses
-				.OrderBy(x => x.Order.DeliverySchedule.From)
-				.ThenBy(x => x.Order.DeliverySchedule.To)
-				.ToList();
-			for(int i = 0; i < ObservableAddresses.Count; i++) {
-				if(orderedList[i] == ObservableAddresses[i])
-					continue;
-
-				ObservableAddresses.Remove(orderedList[i]);
-				ObservableAddresses.Insert(i, orderedList[i]);
-			}
-		}
-
 		public virtual void CheckAddressOrder()
 		{
 			for(int i = 0; i < Addresses.Count; i++) {
@@ -641,63 +609,127 @@ namespace Vodovoz.Domain.Logistic
 			return closed;
 		}
 
-		public virtual void ConfirmMileage(IUnitOfWork uow)
-		{
-			if(!ClosedByCashBox && Status != RouteListStatus.Closed) {
-				ChangeStatus(RouteListStatus.OnClosing);
-				return;
-			} else {
-				Status = RouteListStatus.Closed;
-				ClosingDate = DateTime.Now;
-				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(uow);
-			}
-			if(Cashier == null)
-				Cashier = ClosedBy;
-		}
-
 		public virtual void ChangeStatus(RouteListStatus newStatus)
 		{
-			if(newStatus == Status)
+			if(newStatus == Status) {
 				return;
+			}
 
-			if(newStatus == RouteListStatus.EnRoute) {
-				if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed) {
-					Status = RouteListStatus.EnRoute;
-					foreach(var item in Addresses) {
-						item.Order.OrderStatus = OrderStatus.OnTheWay;
-					}
-				} else
-					throw new NotImplementedException();
-			} else if(newStatus == RouteListStatus.Confirmed) {
-				if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading) {
-					Status = RouteListStatus.Confirmed;
-					foreach(var address in Addresses) {
-						if(address.Order.OrderStatus < OrderStatus.OnLoading)
-							address.Order.ChangeStatus(OrderStatus.OnLoading);
-					}
+			string exceptionMessage = $"Некорректная операция. Не предусмотрена смена статуса с {newStatus} на {Status}";
 
-				} else {
-					throw new NotImplementedException();
+			switch(newStatus) {
+				case RouteListStatus.New:
+					if(Status == RouteListStatus.Confirmed || Status == RouteListStatus.InLoading) {
+						Status = RouteListStatus.New;
+					} else {
+						throw new InvalidOperationException(exceptionMessage);
+					}
+					break;
+				case RouteListStatus.Confirmed:
+					if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading) {
+						Status = RouteListStatus.Confirmed;
+						foreach(var address in Addresses) {
+							if(address.Order.OrderStatus < OrderStatus.OnLoading)
+								address.Order.ChangeStatus(OrderStatus.OnLoading);
+						}
+					} else {
+						throw new InvalidOperationException(exceptionMessage);
+					}
+					break;
+				case RouteListStatus.InLoading:
+					if(Status == RouteListStatus.EnRoute) {
+						Status = RouteListStatus.InLoading;
+						foreach(var item in Addresses) {
+							if(item.Order.OrderStatus != OrderStatus.OnLoading) {
+								item.Order.ChangeStatus(OrderStatus.OnLoading);
+							}
+						}
+					} else if(Status == RouteListStatus.Confirmed) {
+						Status = RouteListStatus.InLoading;
+					} else {
+						throw new InvalidOperationException(exceptionMessage);
+					}
+					break;
+				case RouteListStatus.EnRoute:
+					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed) {
+						Status = RouteListStatus.EnRoute;
+						foreach(var item in Addresses) {
+							item.Order.OrderStatus = OrderStatus.OnTheWay;
+						}
+					} else {
+						throw new InvalidOperationException(exceptionMessage);
+					}
+					break;
+				case RouteListStatus.OnClosing:
+					if(
+					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster)) 
+					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.Truck))
+					|| Status == RouteListStatus.MileageCheck 
+					|| Status == RouteListStatus.Closed) {
+						Status = newStatus;
+						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
+							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock);
+						}
+					} else {
+						throw new InvalidOperationException(exceptionMessage);
+					}
+					break;
+				case RouteListStatus.MileageCheck:
+					if(Status == RouteListStatus.EnRoute || Status == RouteListStatus.OnClosing) {
+						Status = newStatus;
+						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
+							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock);
+						}
+					} else {
+						throw new InvalidOperationException(exceptionMessage);
+					}
+					break;
+				case RouteListStatus.Closed:
+					if(Status == RouteListStatus.OnClosing || Status == RouteListStatus.MileageCheck) {
+						Status = newStatus;
+						CloseAddresses();
+					} else {
+						throw new InvalidOperationException(exceptionMessage);
+					}
+					break;
+				default:
+					throw new NotImplementedException($"Не реализовано изменение статуса для {newStatus}");
+			}
+
+			UpdateClosedInformation();
+		}
+
+		private void UpdateClosedInformation()
+		{
+			if(Status == RouteListStatus.Closed) {
+				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				ClosingDate = DateTime.Now;
+			} else {
+				ClosedBy = null;
+				ClosingDate = null;
+			}
+		}
+
+		private void CloseAddresses()
+		{
+			if(Status != RouteListStatus.Closed) {
+				return;
+			}
+
+			foreach(var address in Addresses) {
+				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute) {
+					if(address.Status == RouteListItemStatus.EnRoute) {
+						address.UpdateStatus(UoW, RouteListItemStatus.Completed);
+					}
+					address.Order.ChangeStatus(OrderStatus.Closed);
 				}
-			} else if(newStatus == RouteListStatus.InLoading) {
-				if(Status == RouteListStatus.EnRoute) {
-					Status = RouteListStatus.InLoading;
-					foreach(var item in Addresses) {
-						if(item.Order.OrderStatus != OrderStatus.OnLoading)
-							item.Order.ChangeStatus(OrderStatus.OnLoading);
-					}
-				} else if(Status == RouteListStatus.Confirmed)
-					Status = RouteListStatus.InLoading;
-				else
-					throw new NotImplementedException();
-			} else if(newStatus == RouteListStatus.New) {
-				if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed)
-					Status = RouteListStatus.New;
-				else
-					throw new NotImplementedException();
-			} else if(newStatus == RouteListStatus.OnClosing) {
-				if(Status == RouteListStatus.Closed || Status == RouteListStatus.MileageCheck) {
-					Status = newStatus;
+
+				if(address.Status == RouteListItemStatus.Canceled) {
+					address.Order.ChangeStatus(OrderStatus.DeliveryCanceled);
+				}
+
+				if(address.Status == RouteListItemStatus.Overdue) {
+					address.Order.ChangeStatus(OrderStatus.NotDelivered);
 				}
 			}
 		}
@@ -722,9 +754,6 @@ namespace Vodovoz.Domain.Logistic
 				if(newStatus == RouteListStatus.InLoading) {
 				}
 				if(newStatus == RouteListStatus.Closed) {
-					if(ConfirmedDistance <= 0)
-						yield return new ValidationResult("Подтвержденное расстояние не может быть меньше 0",
-							new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.ConfirmedDistance) });
 				}
 				if(newStatus == RouteListStatus.MileageCheck) {
 					foreach(var address in Addresses) {
@@ -759,10 +788,12 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void CompleteRoute()
 		{
-			Status = RouteListStatus.MileageCheck;
-			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
-				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
+			if(Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster) {
+				ChangeStatus(RouteListStatus.OnClosing);
+			} else {
+				ChangeStatus(RouteListStatus.MileageCheck);
 			}
+
 			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
 			if(track != null) {
 				track.CalculateDistance();
@@ -897,9 +928,6 @@ namespace Vodovoz.Domain.Logistic
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
 			foreach(var routeListItem in addresesDelivered) {
 				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
-				//				var nomenclatures = routeListItem.Order.OrderItems
-				//					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				//					.Where(item => !item.Nomenclature.IsSerial).ToList();
 
 				logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
 				routeListItem.FirstFillClosing(UoW);
@@ -954,10 +982,6 @@ namespace Vodovoz.Domain.Logistic
 					result.Add(operation);
 			}
 
-			////FIXME Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
-			//if(addresesDelivered.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
-			//throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
-
 			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments)
 					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				   ) {
@@ -975,8 +999,8 @@ namespace Vodovoz.Domain.Logistic
 			foreach(RouteListItem item in addresesDelivered) {
 
 				//Возврат залогов
-				var bottleRefundDeposit = Math.Abs(item.GetDepositsCollected);
-				var equipmentRefundDeposit = Math.Abs(item.GetEquipmentDepositsCollected);
+				var bottleRefundDeposit = Math.Abs(item.BottleDepositsCollected);
+				var equipmentRefundDeposit = Math.Abs(item.EquipmentDepositsCollected);
 
 				var operations = item.Order.UpdateDepositOperations(UoW, equipmentRefundDeposit, bottleRefundDeposit);
 
@@ -991,10 +1015,11 @@ namespace Vodovoz.Domain.Logistic
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
 			foreach(var address in addresesDelivered) {
 				var order = address.Order;
-				var depositsTotal = order.OrderDepositItems.Sum(dep => dep.Count * dep.Deposit);
+				var depositsTotal = order.OrderDepositItems.Sum(dep => dep.ActualCount * dep.Deposit);
 				Decimal? money = null;
-				if(order.PaymentType == PaymentType.cash || order.PaymentType == PaymentType.BeveragesWorld)
+				if(address.TotalCash != 0) {
 					money = address.TotalCash;
+				}
 				MoneyMovementOperation moneyMovementOperation = order.MoneyMovementOperation;
 				if(moneyMovementOperation == null) {
 					moneyMovementOperation = new MoneyMovementOperation() {
@@ -1018,53 +1043,15 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
-		public virtual string[] UpdateCashOperations(ref Income cashIncome, ref Expense cashExpense)
-		{
-			var messages = new List<string>();
-			var currentRouteListCash = Repository.Cash.CashRepository.CurrentRouteListCash(UoW, this.Id);
-			var different = Total - currentRouteListCash;
-			if(different == 0M) {
-				return messages.ToArray();
-			}
-			if(different > 0) {
-				cashIncome = new Income {
-					IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(UoW),
-					TypeOperation = IncomeType.DriverReport,
-					Date = DateTime.Now,
-					Casher = cashier,
-					Employee = Driver,
-					Description = $"Закрытие МЛ №{Id} от {Date:d}",
-					Money = Math.Round(different, 0, MidpointRounding.AwayFromZero),
-					RouteListClosing = this,
-					RelatedToSubdivision = ClosingSubdivision
-				};
-				messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
-			} else {
-				cashExpense = new Expense {
-					ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(UoW),
-					TypeOperation = ExpenseType.Expense,
-					Date = DateTime.Now,
-					Casher = cashier,
-					Employee = Driver,
-					Description = $"Закрытие МЛ #{Id} от {Date:d}",
-					Money = Math.Round(-different, 0, MidpointRounding.AwayFromZero),
-					RouteListClosing = this,
-					RelatedToSubdivision = ClosingSubdivision
-				};
-				messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
-			}
-			return messages.ToArray();
-		}
-
 		public virtual string[] ManualCashOperations(ref Income cashIncome, ref Expense cashExpense, decimal casheInput)
 		{
 			var messages = new List<string>();
 			if(casheInput > 0) {
 				cashIncome = new Income {
-					IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(UoW),
+					IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW),
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
-					Casher = cashier,
+					Casher = this.Cashier,
 					Employee = Driver,
 					Description = $"Дополнение к МЛ №{this.Id} от {Date:d}",
 					Money = Math.Round(casheInput, 0, MidpointRounding.AwayFromZero),
@@ -1072,63 +1059,51 @@ namespace Vodovoz.Domain.Logistic
 					RelatedToSubdivision = ClosingSubdivision
 				};
 
-				messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
+				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money:C0}");
 
 			} else {
 				cashExpense = new Expense {
-					ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(UoW),
+					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
-					Casher = cashier,
+					Casher = this.Cashier,
 					Employee = Driver,
 					Description = $"Дополнение к МЛ #{this.Id} от {Date:d}",
 					Money = Math.Round(-casheInput, 0, MidpointRounding.AwayFromZero),
 					RouteListClosing = this,
 					RelatedToSubdivision = ClosingSubdivision
 				};
-				messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
+				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money:C0}");
 			}
 			IsManualAccounting = true;
 			return messages.ToArray();
 		}
 
-		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput)  // Метод для создания расходника выдачи аванса из МЛ. @Дима
+		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput)
 		{
 			string message;
 
 			cashExpense = new Expense {
-				ExpenseCategory = Repository.Cash.CategoryRepository.EmployeeSalaryExpenseCategory(UoW),
+				ExpenseCategory = CategoryRepository.EmployeeSalaryExpenseCategory(UoW),
 				TypeOperation = ExpenseType.EmployeeAdvance,
 				Date = DateTime.Now,
-				Casher = cashier,
+				Casher = this.Cashier,
 				Employee = Driver,
-				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}", // Уточнить дескрипшен.
+				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}",
 				Money = Math.Round(cashInput, 0, MidpointRounding.AwayFromZero),
 				RouteListClosing = this,
 				RelatedToSubdivision = ClosingSubdivision
 			};
 
-			message = String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money);
+			message = $"Создан расходный ордер на сумму {cashExpense.Money:C0}";
 			return (message);
 		}
 
-		public virtual void Confirm(bool sendForMileageCheck)
+		private void ConfirmAndClose()
 		{
-			if(Status != RouteListStatus.OnClosing && Status != RouteListStatus.MileageCheck)
+			if(Status != RouteListStatus.OnClosing && Status != RouteListStatus.MileageCheck) {
 				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0} или  {1}", RouteListStatus.OnClosing, RouteListStatus.MileageCheck));
-
-			//FIXME исправить на нормальную проверку права этого подразделения менять статус МЛ
-			if(!MainSupport.BaseParameters.All.ContainsKey("accept_route_list_subdivision_restrict")) {
-				throw new InvalidOperationException(String.Format("В базе не настроен параметр: accept_route_list_subdivision_restrict"));
 			}
-			int restrictSubdivision = int.Parse(MainSupport.BaseParameters.All["accept_route_list_subdivision_restrict"]);
-			if(cashier == null) {
-				throw new InvalidOperationException(String.Format("Должен быть заполнен кассир"));
-			}
-			if(cashier.Subdivision.Id == restrictSubdivision) {
-				return;
-			}
-
 
 			if(Driver != null && Driver.FirstWorkDay == null) {
 				Driver.FirstWorkDay = date;
@@ -1140,28 +1115,84 @@ namespace Vodovoz.Domain.Logistic
 				UoW.Save(Forwarder);
 			}
 
+			switch(Status) {
+				case RouteListStatus.OnClosing:
+					CloseFromOnClosing();
+					break;
+				case RouteListStatus.MileageCheck:
+					CloseFromOnMileageCheck();
+					break;
+			}
+		}
 
-			Status = sendForMileageCheck ? RouteListStatus.MileageCheck : RouteListStatus.Closed;
-			foreach(var address in Addresses) {
-				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute) {
-					address.Order.ChangeStatus(OrderStatus.Closed);
-					address.UpdateStatus(UoW, RouteListItemStatus.Completed);
-				}
-				if(address.Status == RouteListItemStatus.Canceled)
-					address.Order.ChangeStatus(OrderStatus.DeliveryCanceled);
-				if(address.Status == RouteListItemStatus.Overdue)
-					address.Order.ChangeStatus(OrderStatus.NotDelivered);
+		/// <summary>
+		/// Закрывает МЛ, либо переводит в сдается, при необходимых условиях, из статуса "Проверка километража" 
+		/// </summary>
+		private void CloseFromOnMileageCheck()
+		{
+			if(Status != RouteListStatus.MileageCheck) {
+				return;
 			}
 
-			if(Status == RouteListStatus.Closed) {
-				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-				ClosingDate = DateTime.Now;
+			decimal cash = CashRepository.CurrentRouteListCash(UoW, this.Id);
+			if(NeedMileageCheck && ConfirmedDistance > 0 && cash == Total) {
+				ChangeStatus(RouteListStatus.Closed);
+			} else {
+				ChangeStatus(RouteListStatus.OnClosing);
+
 			}
+		}
+
+		/// <summary>
+		/// Закрывает МЛ, либо переводит в проверку км, при необходимых условиях, из статуса "Сдается" 
+		/// </summary>
+		private void CloseFromOnClosing()
+		{
+			if(Status != RouteListStatus.OnClosing) {
+				return;
+			}
+
+			if(!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) {
+				ChangeStatus(RouteListStatus.Closed);
+				return;
+			}
+
+			if(NeedMileageCheck && ConfirmedDistance <= 0) {
+				ChangeStatus(RouteListStatus.MileageCheck);
+				return;
+			}
+		}
+
+		public virtual void AcceptCash()
+		{
+			if(Status != RouteListStatus.OnClosing) {
+				return;
+			}
+
+			if(cashier == null) {
+				throw new InvalidOperationException(String.Format("Должен быть заполнен кассир"));
+			}
+
+			if(!PermissionRepository.HasAccessToClosingRoutelist(UoW)) {
+				return;
+			}
+
+			ConfirmAndClose();
+		}
+
+		public virtual void AcceptMileage()
+		{
+			if(Status != RouteListStatus.MileageCheck) {
+				return;
+			}
+
+			RecalculateFuelOutlay();
+			ConfirmAndClose();
 		}
 
 		public virtual void UpdateFuelOperation()
 		{
-			//Необхомо для того что бы случайно не пересчитать операцию расхода топлива. После массовой смены расхода.
+			//Необходимо для того что бы случайно не пересчитать операцию расхода топлива. После массовой смены расхода.
 			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6)) {
 				return;
 			}
@@ -1181,16 +1212,8 @@ namespace Vodovoz.Domain.Logistic
 				}
 				decimal litresOutlayed = (decimal)Car.FuelConsumption / 100 * ConfirmedDistance;
 
-				Car car = Car;
-				Employee driver = Driver;
-
-				if(car.IsCompanyHavings)
-					driver = null;
-				else
-					car = null;
-
-				FuelOutlayedOperation.Driver = driver;
-				FuelOutlayedOperation.Car = car;
+				FuelOutlayedOperation.Driver = Car.IsCompanyHavings ? null : Driver; ;
+				FuelOutlayedOperation.Car = Car.IsCompanyHavings ? Car : null;
 				FuelOutlayedOperation.Fuel = Car.FuelType;
 				FuelOutlayedOperation.OperationTime = Date;
 				FuelOutlayedOperation.LitersOutlayed = litresOutlayed;
@@ -1269,7 +1292,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public RouteList()
 		{
-			Date = DateTime.Today;
+			date = DateTime.Today;
 		}
 
 		public virtual ReportInfo OrderOfAddressesRep(int id)
@@ -1282,15 +1305,64 @@ namespace Vodovoz.Domain.Logistic
 				}
 			};
 
-			//	var report = new QSReport.ReportViewDlg(reportInfo);
-
 			return reportInfo;
 		}
 
-		public virtual List<string> UpdateMovementOperations()
+		public virtual IEnumerable<string> UpdateCashOperations()
 		{
 			var messages = new List<string>();
+			//Закрываем наличку.
+			Income cashIncome = null;
+			Expense cashExpense = null;
 
+			var currentRouteListCash = CashRepository.CurrentRouteListCash(UoW, this.Id);
+			var different = Total - currentRouteListCash;
+			if(different == 0M) {
+				return messages.ToArray();
+			}
+			if(different > 0) {
+				cashIncome = new Income {
+					IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW),
+					TypeOperation = IncomeType.DriverReport,
+					Date = DateTime.Now,
+					Casher = this.Cashier,
+					Employee = Driver,
+					Description = $"Закрытие МЛ №{Id} от {Date:d}",
+					Money = Math.Round(different, 0, MidpointRounding.AwayFromZero),
+					RouteListClosing = this,
+					RelatedToSubdivision = ClosingSubdivision
+				};
+				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money:C0}");
+			} else {
+				cashExpense = new Expense {
+					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
+					TypeOperation = ExpenseType.Expense,
+					Date = DateTime.Now,
+					Casher = this.Cashier,
+					Employee = Driver,
+					Description = $"Закрытие МЛ #{Id} от {Date:d}",
+					Money = Math.Round(-different, 0, MidpointRounding.AwayFromZero),
+					RouteListClosing = this,
+					RelatedToSubdivision = ClosingSubdivision
+				};
+				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money:C0}");
+			}
+
+			if(cashIncome != null) UoW.Save(cashIncome);
+			if(cashExpense != null) UoW.Save(cashExpense);
+
+			return messages;
+		}
+
+		public virtual IEnumerable<string> UpdateMovementOperations()
+		{
+			var result = UpdateCashOperations();
+			UpdateOperations();
+			return result;
+		}
+
+		public virtual void UpdateOperations()
+		{
 			this.UpdateFuelOperation();
 
 			var counterpartyMovementOperations = this.UpdateCounterpartyMovementOperations();
@@ -1304,16 +1376,6 @@ namespace Vodovoz.Domain.Logistic
 			moneyMovementOperations.ForEach(op => UoW.Save(op));
 
 			this.UpdateWageOperation();
-
-			//Закрываем наличку.
-			Income cashIncome = null;
-			Expense cashExpense = null;
-			messages.AddRange(this.UpdateCashOperations(ref cashIncome, ref cashExpense));
-
-			if(cashIncome != null) UoW.Save(cashIncome);
-			if(cashExpense != null) UoW.Save(cashExpense);
-
-			return messages;
 		}
 
 		#region Для логистических расчетов

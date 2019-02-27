@@ -21,6 +21,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using QSSupportLib;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repositories.Permissions;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.ViewModel
 {
@@ -41,6 +43,7 @@ namespace Vodovoz.ViewModel
 
 			Car carAlias = null;
 			Employee driverAlias = null;
+			Subdivision subdivisionAlias = null;
 			GeographicGroup geographicGroupsAlias = null;
 
 			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
@@ -92,6 +95,7 @@ namespace Vodovoz.ViewModel
 				.JoinAlias(o => o.Shift, () => shiftAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(o => o.Car, () => carAlias)
 				.JoinAlias(o => o.Driver, () => driverAlias)
+				.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
 				.SelectList(list => list
 				   .SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
@@ -103,6 +107,7 @@ namespace Vodovoz.ViewModel
 				   .Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 				   .Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
 				   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
+				   .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListsVMNode>())
 				.List<RouteListsVMNode>();
@@ -119,6 +124,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Статус").SetDataProperty(node => node.StatusEnum.GetEnumTitle())
 			.AddColumn("Водитель и машина").SetDataProperty(node => node.DriverAndCar)
 			.AddColumn("Комментарий по закрытию").SetDataProperty(node => node.ClosinComments)
+			.AddColumn("Сдается в кассу").SetDataProperty(node => node.ClosingSubdivision)
 			.Finish();
 
 		#endregion
@@ -171,6 +177,12 @@ namespace Vodovoz.ViewModel
 				RouteListStatus.InLoading
 			};
 
+		private List<RouteListStatus> TakingMoneyStatuses = new List<RouteListStatus>()
+			{
+				RouteListStatus.OnClosing,
+				RouteListStatus.MileageCheck
+			};
+
 		private List<RouteListStatus> ClosingDlgStatuses = new List<RouteListStatus>()
 			{
 				RouteListStatus.OnClosing,
@@ -197,7 +209,9 @@ namespace Vodovoz.ViewModel
 				RouteListStatus.New,
 				RouteListStatus.Confirmed,
 				RouteListStatus.InLoading,
-				RouteListStatus.EnRoute
+				RouteListStatus.EnRoute,
+				RouteListStatus.OnClosing,
+				RouteListStatus.MileageCheck
 			};
 
 		public override Gtk.Menu GetPopupMenu(RepresentationSelectResult[] selected)
@@ -262,32 +276,26 @@ namespace Vodovoz.ViewModel
 				KeepingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemRouteListKeepingDlg);
 
-			//FIXME исправить на нормальную проверку права этого подразделения
-			if(!MainSupport.BaseParameters.All.ContainsKey("accept_route_list_subdivision_restrict")) {
-				throw new InvalidOperationException(String.Format("В базе не настроен параметр: accept_route_list_subdivision_restrict"));
+			if(!PermissionRepository.HasAccessToClosingRoutelist(UoW)) {
+				Gtk.MenuItem menuItemTakeMoney = new Gtk.MenuItem("Принять ДС по МЛ");
+				menuItemTakeMoney.Activated += MenuItemTakeMoney_Activated;
+				menuItemTakeMoney.Sensitive = selected.Any(x =>
+					TakingMoneyStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
+				popupMenu.Add(menuItemTakeMoney);
+			} else {
+				Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem("Открыть диалог закрытия");
+				menuItemRouteListClosingDlg.Activated += MenuItemRouteListClosingDlg_Activated;
+				menuItemRouteListClosingDlg.Sensitive = selected.Any(x =>
+					ClosingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
+				popupMenu.Add(menuItemRouteListClosingDlg);
 			}
-			int restrictSubdivision = int.Parse(MainSupport.BaseParameters.All["accept_route_list_subdivision_restrict"]);
-			var userSubdivision = EmployeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision;
-			string closingDlgName = "Открыть диалог закрытия";
-			if(userSubdivision != null && userSubdivision.Id == restrictSubdivision) {
-				closingDlgName = "Принять ДС по МЛ";
-			}
-			Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem(closingDlgName);
-			menuItemRouteListClosingDlg.Activated += MenuItemRouteListClosingDlg_Activated;
-			menuItemRouteListClosingDlg.Sensitive = selected.Any(x =>
-				ClosingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
-			popupMenu.Add(menuItemRouteListClosingDlg);
+
 
 			Gtk.MenuItem menuItemRouteListMileageCheckDlg = new Gtk.MenuItem("Открыть диалог проверки километража");
 			menuItemRouteListMileageCheckDlg.Activated += MenuItemRouteListMileageCheckDlg_Activated;
 			menuItemRouteListMileageCheckDlg.Sensitive = selected.Any(x =>
 				MileageCheckDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemRouteListMileageCheckDlg);
-
-			Gtk.MenuItem menuItemOrderOfAddressesRep = new Gtk.MenuItem("Открыть отчёт по порядку адресов в МЛ");
-			menuItemOrderOfAddressesRep.Activated += MenuItemOrderOfAddressesRep_Activated;
-			menuItemOrderOfAddressesRep.Sensitive = false; // NYI @Дима
-			popupMenu.Add(menuItemOrderOfAddressesRep);
 
 			popupMenu.Add(new SeparatorMenuItem());
 
@@ -300,7 +308,7 @@ namespace Vodovoz.ViewModel
 			Gtk.MenuItem menuItemRouteListFuelIssuingDlg = new Gtk.MenuItem("Выдать топливо");
 			menuItemRouteListFuelIssuingDlg.Activated += MenuItemRouteListFuelIssuing_Activated;
 			menuItemRouteListFuelIssuingDlg.Sensitive = selected.Any(x =>
-			FuelIssuingStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
+				FuelIssuingStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemRouteListFuelIssuingDlg);
 
 			return popupMenu;
@@ -329,6 +337,19 @@ namespace Vodovoz.ViewModel
 					() => new RouteListMileageCheckDlg(rl.Id)
 				);
 			}
+		}
+
+		void MenuItemTakeMoney_Activated(object sender, EventArgs e)
+		{
+			//открыть приходный ордер на выбранный МЛ
+			if(lastMenuSelected.Count() == 1) {
+				var cashIncomeDlg = new CashIncomeDlg();
+				cashIncomeDlg.FillForRoutelist(lastMenuSelected.First().EntityId);
+				MainClass.MainWin.TdiMain.OpenTab(
+					DialogHelper.GenerateDialogHashName<Income>(0),
+					() => cashIncomeDlg
+				);
+			}		
 		}
 
 		void MenuItemRouteListClosingDlg_Activated(object sender, EventArgs e)
@@ -392,19 +413,6 @@ namespace Vodovoz.ViewModel
 			}
 		}
 
-		void MenuItemOrderOfAddressesRep_Activated(object sender, EventArgs e) // TODO: Сделать вывод порядка адресов в МЛ через контекстное меню в журнале МЛ. @Дима
-		{
-			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-
-			foreach(var routeId in routeListIds) {
-				//MainClass.MainWin.TdiMain.OpenTab(
-				//	OrmMain.GenerateDialogHashName<RouteList>(routeId)// ,
-				//	() => new OrderOrderOfAddressesRep (
-				//);
-
-			}
-		}
-
 		void MenuItemRouteListDelete_Activated(object sender, EventArgs e)
 		{
 			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
@@ -453,5 +461,6 @@ namespace Vodovoz.ViewModel
 			}
 		}
 		public string ClosinComments { get; set; }
+		public string ClosingSubdivision { get; set; }
 	}
 }

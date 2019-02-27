@@ -180,60 +180,72 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		decimal depositsCollected;
-		[Display(Name = "Возвращено залогов")]
-		public virtual decimal DepositsCollected {
-			get { return depositsCollected; }
-			set { SetField(ref depositsCollected, value, () => DepositsCollected); }
+		decimal oldBottleDepositsCollected;
+		/// <summary>
+		/// Устаревший залог за бутыли. Который раньше вводился пользователем вручную при закрытии МЛ
+		/// </summary>
+		[Display(Name = "Старый залог за бутыли")]
+		public virtual decimal OldBottleDepositsCollected {
+			get { return oldBottleDepositsCollected; }
+			set { SetField(ref oldBottleDepositsCollected, value, () => OldBottleDepositsCollected); }
 		}
 
-		public virtual decimal GetDepositsCollected {
+		public virtual decimal BottleDepositsCollected {
 			get {
 				if(Order.PaymentType != Client.PaymentType.cash && Order.PaymentType != Client.PaymentType.BeveragesWorld) {
 					return 0;
 				}
 
-				if(depositsCollected != 0m) {
-					return depositsCollected;
+				if(oldBottleDepositsCollected != 0m) {
+					return oldBottleDepositsCollected;
 				}
 
-				return 0 - Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Bottles).Sum(x => x.Total);
+				return 0 - Order.BottleDepositSum;
 			}
 		}
 
-		decimal equipmentDepositsCollected;
-		[Display(Name = "Залог за оборудование возвращено")]
-		public virtual decimal EquipmentDepositsCollected {
-			get { return equipmentDepositsCollected; }
-			set { SetField(ref equipmentDepositsCollected, value, () => EquipmentDepositsCollected); }
+		decimal oldEquipmentDepositsCollected;
+
+		/// <summary>
+		/// Устаревший залог за оборудование. Который раньше вводился пользователем вручную при закрытии МЛ
+		/// </summary>
+		[Display(Name = "Старый залог за оборудование")]
+		public virtual decimal OldEquipmentDepositsCollected {
+			get { return oldEquipmentDepositsCollected; }
+			set { SetField(ref oldEquipmentDepositsCollected, value, () => OldEquipmentDepositsCollected); }
 		}
 
-		public virtual decimal GetEquipmentDepositsCollected {
+		public virtual decimal EquipmentDepositsCollected {
 			get {
 				if(Order.PaymentType != Client.PaymentType.cash && Order.PaymentType != Client.PaymentType.BeveragesWorld) {
 					return 0;
 				}
 
-				if(equipmentDepositsCollected != 0m) {
-					return equipmentDepositsCollected;
+				if(oldEquipmentDepositsCollected != 0m) {
+					return oldEquipmentDepositsCollected;
 				}
 
-				return 0 - Order.ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);
+				return 0 - Order.EquipmentDepositSum;
+			}
+		}
+
+		public virtual decimal AddressCashSum {
+			get {
+				if(!IsDelivered()) {
+					return 0;
+				}
+				if(Order.PaymentType != Client.PaymentType.cash && Order.PaymentType != Client.PaymentType.BeveragesWorld) {
+					return 0;
+				}
+				return Order.OrderCashSum + OldBottleDepositsCollected + OldEquipmentDepositsCollected + ExtraCash;
 			}
 		}
 
 		decimal totalCash;
 		[Display(Name = "Всего наличных")]
 		public virtual decimal TotalCash {
-			get {
-				return totalCash;
-			}
-			set {
-				if(defaultTotalCash == -1)
-					defaultTotalCash = value;
-
-				SetField(ref totalCash, value, () => TotalCash);
-			}
+			get => totalCash;
+			set => SetField(ref totalCash, value, () => TotalCash);
 		}
 
 		decimal extraCash;
@@ -270,8 +282,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual decimal DriverWageTotal => DriverWage + DriverWageSurcharge;
-
-		decimal defaultTotalCash = -1;
 
 		decimal forwarderWage;
 		[Display(Name = "ЗП экспедитора")]
@@ -331,11 +341,6 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Расчетные
 
-		public virtual bool HasUserSpecifiedTotalCash()
-		{
-			return TotalCash != defaultTotalCash;
-		}
-
 		public virtual string Title => String.Format("Адрес в МЛ №{0} - {1}", RouteList.Id, Order.DeliveryPoint.CompiledAddress);
 
 		//FIXME запуск оборудования - временный фикс
@@ -345,7 +350,6 @@ namespace Vodovoz.Domain.Logistic
 					.Where(item => item.Confirmed)
 							.Count(item => item.Equipment != null ? item.Equipment.Nomenclature.Category == NomenclatureCategory.equipment
 								   : (item.Nomenclature.Category == NomenclatureCategory.equipment));
-				//.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
 			}
 		}
 
@@ -385,13 +389,13 @@ namespace Vodovoz.Domain.Logistic
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.WithoutCard);
 			}
 		}
+
 		//FIXME запуск оборудования - временный фикс
 		public virtual int CoolersFromClient {
 			get {
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
 					.Where(item => item.Confirmed).Where(item => item.Equipment != null)
 							.Count(item => item.Equipment.Nomenclature.Category == NomenclatureCategory.equipment);
-				//.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
 			}
 		}
 
@@ -501,10 +505,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RecalculateTotalCash()
 		{
-			if(!HasUserSpecifiedTotalCash()) {
-				TotalCash = CalculateTotalCash();
-				defaultTotalCash = TotalCash;
-			}
+			TotalCash = CalculateTotalCash();
 		}
 
 		public virtual decimal CalculateDriverWage()
@@ -567,7 +568,6 @@ namespace Vodovoz.Domain.Logistic
 							.Sum(item => item.ActualCount);
 
 			var smallBottleCount = Order.OrderItems
-										//    .Where(item => item.Nomenclature.Category == NomenclatureCategory.disposableBottleWater)
 										.Where(item => Regex.Match(item.Nomenclature.Name, @".*(0[\.,]6).*").Length > 0)
 										.Sum(item => item.ActualCount);
 
@@ -622,16 +622,9 @@ namespace Vodovoz.Domain.Logistic
 			if(!IsDelivered())
 				return 0;
 
-			return Order.OrderItems
-				        .Where(item => item.Order.PaymentType == Client.PaymentType.cash || item.Order.PaymentType == Client.PaymentType.BeveragesWorld)
-				        .Sum(item => item.ActualCount * item.Price - item.DiscountMoney)
-						+ ExtraCash + GetDepositsCollected + GetEquipmentDepositsCollected;
+			return AddressCashSum;
 		}
 
-		/// <summary>
-		/// Ises the delivered.
-		/// </summary>
-		/// <returns><c>true</c>, if delivered was ised, <c>false</c> otherwise.</returns>
 		public virtual bool IsDelivered()
 		{
 			var routeListUnloaded = (RouteList.Status >= RouteListStatus.OnClosing);
@@ -658,9 +651,9 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void FirstFillClosing(IUnitOfWork uow)
 		{
 			//В этом месте изменяем статус для подстраховки.
-			if(Status == RouteListItemStatus.EnRoute)
+			if(Status == RouteListItemStatus.EnRoute) {
 				Status = RouteListItemStatus.Completed;
-
+			}
 			foreach(var item in Order.OrderItems) {
 				item.ActualCount = IsDelivered() ? item.Count : 0;
 			}
@@ -672,7 +665,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 			PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
 			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
-			TotalCash = IsDelivered() ? Order.SumToReceive : 0;
+			RecalculateTotalCash();
 			var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(uow).GetPrice(Order.BottlesReturn);
 			PerformanceHelper.AddTimePoint("Получили прайс");
 			RecalculateWages();
@@ -725,7 +718,6 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-
 		public virtual void RemovedFromRoute()
 		{
 			Order.OrderStatus = OrderStatus.Accepted;
@@ -736,7 +728,8 @@ namespace Vodovoz.Domain.Logistic
 			Status = status;
 		}
 
-		public virtual string GetTransferText(RouteListItem item) // Скопировано из RouteListClosingItemsView, отображает передавшего и принявшего адрес.
+		// Скопировано из RouteListClosingItemsView, отображает передавшего и принявшего адрес.
+		public virtual string GetTransferText(RouteListItem item) 
 		{
 			if(item.Status == RouteListItemStatus.Transfered) {
 				if(item.TransferedTo != null)

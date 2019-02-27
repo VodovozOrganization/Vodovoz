@@ -42,7 +42,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList> ();
-			UoWGeneric.Root.Logistican = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Logistican = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if (Entity.Logistican == null) {
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				FailInitialize = true;
@@ -53,7 +53,7 @@ namespace Vodovoz
 				return;
 			}
 
-			UoWGeneric.Root.Date = DateTime.Now;
+			Entity.Date = DateTime.Now;
 			ConfigureDlg ();
 		}
 
@@ -133,7 +133,7 @@ namespace Vodovoz
 			labelStatus.Binding.AddFuncBinding(Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
 
 			referenceDriver.Sensitive = false;
-			enumPrint.Sensitive = UoWGeneric.Root.Status != RouteListStatus.New;
+			enumPrint.Sensitive = Entity.Status != RouteListStatus.New;
 
 			if(Entity.Id > 0)
 			{
@@ -147,8 +147,8 @@ namespace Vodovoz
 
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
 
-			buttonAccept.Visible = (UoWGeneric.Root.Status == RouteListStatus.New || UoWGeneric.Root.Status == RouteListStatus.InLoading || UoWGeneric.Root.Status == RouteListStatus.Confirmed);
-			if (UoWGeneric.Root.Status == RouteListStatus.InLoading || UoWGeneric.Root.Status == RouteListStatus.Confirmed) {
+			buttonAccept.Visible = (Entity.Status == RouteListStatus.New || Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed);
+			if (Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
 				var icon = new Image {
 					Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
 				};
@@ -156,7 +156,7 @@ namespace Vodovoz
 				buttonAccept.Label = "Редактировать";
 			}
 
-			IsEditable = UoWGeneric.Root.Status == RouteListStatus.New && QSMain.User.Permissions ["logistican"];
+			IsEditable = Entity.Status == RouteListStatus.New && QSMain.User.Permissions ["logistican"];
 
 			ggToStringWidget.UoW = UoW;
 			ggToStringWidget.Label = "Район города:";
@@ -213,7 +213,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var valid = new QSValidator<RouteList> (UoWGeneric.Root);
+			var valid = new QSValidator<RouteList> (Entity);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
@@ -225,6 +225,8 @@ namespace Vodovoz
 
 		private void UpdateButtonStatus()
 		{
+			buttonAccept.Visible = true;
+
 			switch(Entity.Status) {
 				case RouteListStatus.New: {
 						IsEditable = (true);
@@ -256,6 +258,9 @@ namespace Vodovoz
 						buttonAccept.Label = "Редактировать";
 						break;
 					}
+				default:
+					buttonAccept.Visible = false;
+					break;
 			}
 		}
 
@@ -285,15 +290,15 @@ namespace Vodovoz
 				}
 			}
 
-			if (UoWGeneric.Root.Status == RouteListStatus.New) {
-				var valid = new QSValidator<RouteList>(UoWGeneric.Root,
+			if (Entity.Status == RouteListStatus.New) {
+				var valid = new QSValidator<RouteList>(Entity,
 								new Dictionary<object, object> {
 						{ "NewStatus", RouteListStatus.Confirmed }
 					});
 				if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 					return;
 
-				UoWGeneric.Root.ChangeStatus(RouteListStatus.Confirmed);
+				Entity.ChangeStatus(RouteListStatus.Confirmed);
 				//Строим маршрут для МЛ.
 				if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 					RouteOptimizer optimizer = new RouteOptimizer();
@@ -314,14 +319,10 @@ namespace Vodovoz
 
 				Save();
 
-				if(UoWGeneric.Root.Car.TypeOfUse == CarTypeOfUse.Truck)
+				if(Entity.Car.TypeOfUse == CarTypeOfUse.Truck)
 				{
 					if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle()))
 					{
-						Entity.ChangeStatus(RouteListStatus.OnClosing);
-						foreach(var item in UoWGeneric.Root.Addresses) {
-							item.Order.OrderStatus = Domain.Orders.OrderStatus.OnTheWay;
-						}
 						Entity.CompleteRoute();
 					}
 				}
@@ -332,7 +333,7 @@ namespace Vodovoz
 					if(!forShipment.Any()) {
 						if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
 							valid = new QSValidator<RouteList>(
-								UoWGeneric.Root,
+								Entity,
 								new Dictionary<object, object> {
 									{ "NewStatus", RouteListStatus.EnRoute }
 								}
@@ -348,11 +349,11 @@ namespace Vodovoz
 				UpdateButtonStatus();
 				return;
 			}
-			if (UoWGeneric.Root.Status == RouteListStatus.InLoading || UoWGeneric.Root.Status == RouteListStatus.Confirmed) {
+			if (Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
 				if(RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any()) {
 					MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
 				}else {
-					UoWGeneric.Root.ChangeStatus(RouteListStatus.New);
+					Entity.ChangeStatus(RouteListStatus.New);
 				}
 				UpdateButtonStatus();
 				return;

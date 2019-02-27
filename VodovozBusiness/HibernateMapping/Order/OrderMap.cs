@@ -24,7 +24,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.PayAfterShipment)			.Column("pay_after_shipment");
 			Map(x => x.BottlesReturn)				.Column("bottles_return");
 			Map(x => x.ExtraMoney)					.Column("extra_money");
-			Map(x => x.SumToReceive)				.Column("sum_to_receive");
+			Map(x => x.OrderCashSum)				.Column("sum_to_receive");
 			Map(x => x.Shipped)						.Column("shipped");
 			Map(x => x.SumDifferenceReason)			.Column("sum_difference_reason");
 			Map(x => x.CollectBottles)				.Column("collect_bottles");

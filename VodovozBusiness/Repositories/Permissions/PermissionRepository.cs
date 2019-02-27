@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QSSupportLib;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Repositories.Permissions
 {
@@ -69,6 +71,21 @@ namespace Vodovoz.Repositories.Permissions
 			return uow.Session.QueryOver<EntitySubdivisionForUserPermission>()
 				.Where(x => x.User.Id == userId)
 				.List();
+		}
+
+		public static bool HasAccessToClosingRoutelist(IUnitOfWork uow)
+		{
+			//FIXME исправить на нормальную проверку права этого подразделения
+			//необходимо правильно хранить подразделения которым запрещен доступ к опредленным функциям системы
+			if(!MainSupport.BaseParameters.All.ContainsKey("accept_route_list_subdivision_restrict")) {
+				throw new InvalidOperationException(String.Format("В базе не настроен параметр: accept_route_list_subdivision_restrict"));
+			}
+			int restrictSubdivision = int.Parse(MainSupport.BaseParameters.All["accept_route_list_subdivision_restrict"]);
+			var userSubdivision = EmployeeRepository.GetEmployeeForCurrentUser(uow).Subdivision;
+			if(userSubdivision == null) {
+				return false;
+			}
+			return userSubdivision.Id != restrictSubdivision;
 		}
 	}
 }

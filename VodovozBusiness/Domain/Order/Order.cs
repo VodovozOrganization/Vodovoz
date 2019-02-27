@@ -271,7 +271,7 @@ namespace Vodovoz.Domain.Orders
 		private Decimal extraMoney;
 
 		[Display(Name = "Доплата\\Переплата")]
-		[PropertyChangedAlso(nameof(SumToReceive))]
+		[PropertyChangedAlso(nameof(OrderCashSum))]
 		public virtual Decimal ExtraMoney {
 			get { return extraMoney; }
 			set { SetField(ref extraMoney, value, () => ExtraMoney); }
@@ -964,7 +964,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual string RowColor => PreviousOrder == null ? "black" : "red";
 
 		[Display(Name = "Наличных к получению")]
-		public virtual Decimal SumToReceive {
+		public virtual Decimal OrderCashSum {
 			get {
 				if(PaymentType != PaymentType.cash && PaymentType != PaymentType.BeveragesWorld) {
 					return 0;
@@ -974,10 +974,10 @@ namespace Vodovoz.Domain.Orders
 			protected set {; }
 		}
 
-		[PropertyChangedAlso(nameof(SumToReceive))]
+		[PropertyChangedAlso(nameof(OrderCashSum))]
 		public virtual decimal OrderTotalSum => OrderSumTotal - OrderSumReturnTotal;
 
-		[PropertyChangedAlso(nameof(SumToReceive))]
+		[PropertyChangedAlso(nameof(OrderCashSum))]
 		public virtual decimal TotalSum => OrderSum - OrderSumReturn;
 
 		public virtual decimal OrderSum {
@@ -1019,6 +1019,9 @@ namespace Vodovoz.Domain.Orders
 				return result;
 			}
 		}
+
+		public virtual decimal BottleDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.Total);
+		public virtual decimal EquipmentDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.Total);
 
 		public virtual decimal ActualTotalSum {
 			get {
@@ -2114,7 +2117,7 @@ namespace Vodovoz.Domain.Orders
 					}
 
 					OnPropertyChanged(nameof(TotalSum));
-					OnPropertyChanged(nameof(SumToReceive));
+					OnPropertyChanged(nameof(OrderCashSum));
 				}
 			} else if(a.Type == AgreementType.FreeRent) {
 				FreeRentAgreement agreement = a.Self as FreeRentAgreement;
@@ -2545,7 +2548,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			bool isFullyPaid = (incomeCash - expenseCash) == SumToReceive;
+			bool isFullyPaid = (incomeCash - expenseCash) == OrderCashSum;
 
 			if(!isFullyPaid) {
 				return;
@@ -2574,7 +2577,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			decimal totalCash = GetSelfDeliveryTotalPayedCash();
 
-			return SumToReceive == totalCash;
+			return OrderCashSum == totalCash;
 		}
 
 		/// <summary>
