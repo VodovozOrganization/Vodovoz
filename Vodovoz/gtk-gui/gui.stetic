@@ -22241,7 +22241,7 @@
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Type">TextOnly</property>
-                    <property name="Label" translatable="yes">Расчитать автоматически</property>
+                    <property name="Label" translatable="yes">Рассчитать автоматически</property>
                     <property name="UseUnderline">True</property>
                     <signal name="Clicked" handler="OnButtonCalculateCashClicked" />
                   </widget>
