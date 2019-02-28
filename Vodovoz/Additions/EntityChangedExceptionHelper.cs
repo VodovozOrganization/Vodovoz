@@ -17,7 +17,7 @@ namespace Vodovoz.Additions
 				return;
 			}
 
-			var type = OrmConfig.FindMappingByShortClassName(staleObjectStateException.EntityName).EntityPersisterClass;
+			var type = OrmConfig.FindMappingByFullClassName(staleObjectStateException.EntityName).MappedClass;
 			var objectName = DomainHelper.GetSubjectNames(type);
 
 			string message;
