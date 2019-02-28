@@ -89,7 +89,7 @@ namespace Vodovoz.ServiceDialogs
 												 .Where(d => d.District == null)
 												 .Future<DeliveryPoint>();
 
-			var districtSource = ScheduleRestrictionRepository.AreaWithGeometry(UoW);
+			var districtSource = ScheduleRestrictionRepository.AreasWithGeometry(UoW);
 
 			DeliveryPointsList = deliveryPointsQuery.ToList();
 
@@ -101,7 +101,7 @@ namespace Vodovoz.ServiceDialogs
 				if(!dp.CoordinatesExist) {
 					errors.Add(new KeyValuePair<int, string>(dp.Id, "Нет координат"));
 					SkipedDP++;
-				} else if(dp.FindAndAssociateDistrict(UoW, districtSource)) {
+				} else if(dp.FindAndAssociateDistrict(districtSource)) {
 					DeliveryPointsToSave.Add(dp);
 					SuccessDP++;
 				} else {
@@ -127,10 +127,7 @@ namespace Vodovoz.ServiceDialogs
 			SuccessDP = 0;
 		}
 
-		protected void OnButtonSaveClicked(object sender, EventArgs e)
-		{
-			Save();
-		}
+		protected void OnButtonSaveClicked(object sender, EventArgs e) => Save();
 
 		void Save()
 		{
@@ -165,9 +162,6 @@ namespace Vodovoz.ServiceDialogs
 			progressbar.Text = String.Format("Сохранено {0} точек доставки из {1}. Детали в {2}.", counter, TotalDP, fileName);
 		}
 
-		protected void OnButtonLoadClicked(object sender, EventArgs e)
-		{
-			Load();
-		}
+		protected void OnButtonLoadClicked(object sender, EventArgs e) => Load();
 	}
 }
