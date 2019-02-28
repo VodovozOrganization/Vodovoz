@@ -132,7 +132,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 							   .ToList();
 
 			/// Стыкуем уже созданные маршрутные листы с возможными поездками, на основании водителя и смены.
-			/// Если уже созданный маршрут не найдет в поездках создаем поездку для него.
+			/// Если уже созданный маршрут не найден в поездках, то создаем поездку для него.
 			foreach(var existRoute in Routes) {
 				var trip = trips.FirstOrDefault(x => x.Driver == existRoute.Driver && x.Shift == existRoute.Shift);
 				if(trip != null)
@@ -161,7 +161,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			/// Перебираем все заказы, исключаем те которые без координат, определяем для каждого заказа район
 			/// на основании координат. И создавая экземпляр <c>CalculatedOrder</c>, происходит подсчет сумарной
-			/// информации о заказа. Всего бутылей, вес и прочее.
+			/// информации о заказе. Всего бутылей, вес и прочее.
 			foreach(var order in Orders) {
 				if(order.DeliveryPoint.Longitude == null || order.DeliveryPoint.Latitude == null)
 					continue;

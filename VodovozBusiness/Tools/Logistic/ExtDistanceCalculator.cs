@@ -58,10 +58,10 @@ namespace Vodovoz.Tools.Logistic
 
 		int unsavedItems = 0;
 
-		#if DEBUG
+#if DEBUG
 		CachedDistance[,] matrix;
 		public int[,] matrixcount;
-		#endif
+#endif
 		public DistanceProvider Provider;
 		public bool MultiThreadLoad = true;
 
@@ -80,33 +80,32 @@ namespace Vodovoz.Tools.Logistic
 			statisticBuffer = buffer;
 			MultiThreadLoad = multiThreadLoad;
 			hashes = points.Select(x => CachedDistance.GetHash(x))
-			                   .Concat(new[] {CachedDistance.BaseHash})
-			                   .Distinct().ToArray();
+						   .Concat(new[] { CachedDistance.BaseHash })
+						   .Distinct()
+						   .ToArray();
 			totalPoints = hashes.Length;
 			ProposeNeedCached = (hashes.Length * hashes.Length) - hashes.Length;
 
 			hashPos = hashes.Select((hash, index) => new { hash, index }).ToDictionary(x => x.hash, x => x.index);
-			#if DEBUG
+#if DEBUG
 			matrix = new CachedDistance[hashes.Length, hashes.Length];
 			matrixcount = new int[hashes.Length, hashes.Length];
-			#endif
+#endif
 			var fromDB = Repository.Logistics.CachedDistanceRepository.GetCache(UoW, hashes);
 			startCached = fromDB.Count;
-			foreach(var distance in fromDB)
-			{
-				#if DEBUG
+			foreach(var distance in fromDB) {
+#if DEBUG
 				matrix[hashPos[distance.FromGeoHash], hashPos[distance.ToGeoHash]] = distance;
-				#endif
+#endif
 				AddNewCacheDistance(distance);
 			}
 			UpdateText();
-			#if DEBUG
+#if DEBUG
 			StringBuilder matrixText = new StringBuilder(" ");
 			for(int x = 0; x < matrix.GetLength(1); x++)
 				matrixText.Append(x % 10);
 
-			for(int y = 0; y < matrix.GetLength(0); y++)
-			{
+			for(int y = 0; y < matrix.GetLength(0); y++) {
 				matrixText.Append("\n" + y % 10);
 				for(int x = 0; x < matrix.GetLength(1); x++)
 					matrixText.Append(matrix[y, x] != null ? 1 : 0);
@@ -129,8 +128,7 @@ namespace Vodovoz.Tools.Logistic
 		{
 			startLoadTime = DateTime.Now;
 			Threads = new Thread[ThreadCount];
-			foreach(var ix in Enumerable.Range(0, ThreadCount))
-			{
+			foreach(var ix in Enumerable.Range(0, ThreadCount)) {
 				Threads[ix] = new Thread(DoBackground);
 				Threads[ix].Start();
 			}
@@ -147,8 +145,7 @@ namespace Vodovoz.Tools.Logistic
 		/// </remarks>
 		private void DoBackground()
 		{
-			while(true)
-			{
+			while(true) {
 				long fromHash, toHash;
 
 				lock(NextTheadsPos) {
@@ -160,9 +157,7 @@ namespace Vodovoz.Tools.Logistic
 						toHash = waitDistance.Value.ToHash;
 						waitDistance = null;
 						logger.Debug("Обрабатываем вне очереди [{0},{1}] очередь на [{2},{3}]", hashPos[fromHash], hashPos[toHash], NextTheadsPos.FromIx, NextTheadsPos.ToIx);
-					}
-					else
-					{
+					} else {
 						fromHash = hashes[NextTheadsPos.FromIx];
 						toHash = hashes[NextTheadsPos.ToIx];
 						if(NextTheadsPos.ToIx >= hashes.Length - 1) {
@@ -178,8 +173,7 @@ namespace Vodovoz.Tools.Logistic
 				if(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash))
 					LoadDistanceFromService(fromHash, toHash);
 
-				lock(NextTheadsPos)
-				{
+				lock(NextTheadsPos) {
 					inWorkWays.RemoveAll(x => x.FromHash == fromHash && x.ToHash == toHash);
 				}
 			}
@@ -306,8 +300,7 @@ namespace Vodovoz.Tools.Logistic
 			}
 			if(MultiThreadLoad && Threads.Any(x => x != null && x.IsAlive)) {
 				waitDistance = new WayHash(fromHash, toHash);
-				while(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash))
-				{
+				while(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash)) {
 					//Внутри вызывается QSMain.WaitRedraw();
 					UpdateText();
 					//Если по какой то причине, не получили расстояние. Не висим. Пробуем еще раз через сервис.
@@ -316,8 +309,7 @@ namespace Vodovoz.Tools.Logistic
 				}
 
 				return cache[fromHash][toHash];
-			} else
-			{
+			} else {
 				var result = LoadDistanceFromService(fromHash, toHash);
 				UpdateText();
 				return result;
@@ -343,10 +335,10 @@ namespace Vodovoz.Tools.Logistic
 						ToGeoHash = toHash
 					};
 				}
-			} else{
+			} else {
 				var result = SputnikMain.GetRoute(points, false, false);
 				ok = result.Status == 0;
-				if(ok){
+				if(ok) {
 					cachedValue = new CachedDistance {
 						Created = DateTime.Now,
 						DistanceMeters = result.RouteSummary.TotalDistance,
@@ -356,8 +348,7 @@ namespace Vodovoz.Tools.Logistic
 					};
 				}
 			};
-			if(ok)
-			{
+			if(ok) {
 				lock(UoW) {
 					UoW.TrySave(cachedValue, false);
 					unsavedItems++;
@@ -398,8 +389,8 @@ namespace Vodovoz.Tools.Logistic
 			statisticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nОсталось времени: {9:hh\\:mm\\:ss}\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
 											  totalPoints, startCached, totalCached, addedCached, totalErrors, (double)totalMeters / totalSec,
 											  (double)totalCached / ProposeNeedCached, ProposeNeedCached, unsavedItems,
-			                                     TimeSpan.FromTicks((long)remainTime)
-			                                 );
+												 TimeSpan.FromTicks((long)remainTime)
+											 );
 			QSMain.WaitRedraw(100);
 		}
 

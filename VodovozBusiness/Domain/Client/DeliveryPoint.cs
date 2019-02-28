@@ -505,7 +505,7 @@ namespace Vodovoz.Domain.Client
 
 		#region Расчетные
 
-		public virtual string СoordinatesText {
+		public virtual string CoordinatesText {
 			get {
 				if(Latitude == null || Longitude == null)
 					return String.Empty;

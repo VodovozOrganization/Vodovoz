@@ -10,6 +10,7 @@ using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using Gtk;
+using NHibernate;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -132,38 +133,55 @@ namespace Vodovoz
 
 
 			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<object>.Create()
-					.AddColumn("Маркер").AddPixbufRenderer(x => GetRowMarker(x))
-					.AddColumn("МЛ/Адрес").AddTextRenderer(x => GetRowTitle(x))
-					.AddColumn("Адр./Время").AddTextRenderer(x => GetRowTime(x), useMarkup: true)
-					.AddColumn("План").AddTextRenderer(x => GetRowPlanTime(x), useMarkup: true)
-					.AddColumn("Бутылей").AddTextRenderer(x => GetRowBottles(x), useMarkup: true)
-					.AddColumn("Бут. 6л").AddTextRenderer(x => GetRowBottlesSix(x))
-					.AddColumn("Бут. менее 6л").AddTextRenderer(x => GetRowBottlesSmall(x))
-					.AddColumn("Вес").AddTextRenderer(x => GetRowWeight(x), useMarkup: true)
-					.AddColumn("Погрузка").Tag(RouteColumnTag.OnloadTime).AddTextRenderer(x => GetRowOnloadTime(x), useMarkup: true).AddSetter((c, n) => c.Editable = n is RouteList).EditedEvent(OnLoadTimeEdited)
-					.AddColumn("Километраж").AddTextRenderer(x => GetRowDistance(x))
-					.AddColumn("К клиенту").AddTextRenderer(x => GetRowEquipmentToClient(x))
-					.AddColumn("От клиента").AddTextRenderer(x => GetRowEquipmentFromClient(x))
-					.Finish();
+																   .AddColumn("Маркер")
+																		.AddPixbufRenderer(x => GetRowMarker(x))
+																   .AddColumn("МЛ/Адрес")
+																   		.AddTextRenderer(x => GetRowTitle(x))
+																   .AddColumn("Адр./Время")
+																   		.AddTextRenderer(x => GetRowTime(x), useMarkup: true)
+																   .AddColumn("План")
+																   		.AddTextRenderer(x => GetRowPlanTime(x), useMarkup: true)
+																   .AddColumn("Бутылей")
+																   		.AddTextRenderer(x => GetRowBottles(x), useMarkup: true)
+																   .AddColumn("Бут. 6л")
+																   		.AddTextRenderer(x => GetRowBottlesSix(x))
+																   .AddColumn("Бут. менее 6л")
+																   		.AddTextRenderer(x => GetRowBottlesSmall(x))
+																   .AddColumn("Вес")
+																   		.AddTextRenderer(x => GetRowWeight(x), useMarkup: true)
+																   .AddColumn("Погрузка")
+																   		.Tag(RouteColumnTag.OnloadTime)
+																   		.AddTextRenderer(x => GetRowOnloadTime(x), useMarkup: true)
+																   			.AddSetter((c, n) => c.Editable = n is RouteList)
+																   			.EditedEvent(OnLoadTimeEdited)
+																   .AddColumn("Километраж")
+																   		.AddTextRenderer(x => GetRowDistance(x))
+																   .AddColumn("К клиенту")
+																   		.AddTextRenderer(x => GetRowEquipmentToClient(x))
+																   .AddColumn("От клиента")
+																   		.AddTextRenderer(x => GetRowEquipmentFromClient(x))
+																   .Finish();
 
 			ytreeRoutes.HasTooltip = true;
 			ytreeRoutes.QueryTooltip += YtreeRoutes_QueryTooltip;
 			ytreeRoutes.Selection.Changed += YtreeRoutes_Selection_Changed;
 
 			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
-				.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
-				.AddColumn("Автомобиль")
-					.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
-					.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
-				.AddColumn("")
-				.Finish();
+																				   .AddColumn("Водитель")
+																				   		.AddTextRenderer(x => x.Employee.ShortName)
+																				   .AddColumn("Автомобиль")
+																						.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
+																						.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
+																				   .AddColumn("")
+																				   .Finish();
 			ytreeviewOnDayDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 
 			ytreeviewOnDayDrivers.Selection.Changed += YtreeviewDrivers_Selection_Changed;
 
 			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()
-				.AddColumn("Экспедитор").AddTextRenderer(x => x.Employee.ShortName)
-				.Finish();
+																						 .AddColumn("Экспедитор")
+																						 	.AddTextRenderer(x => x.Employee.ShortName)
+																						 .Finish();
 			ytreeviewOnDayForwarders.Selection.Mode = Gtk.SelectionMode.Multiple;
 
 			ytreeviewOnDayForwarders.Selection.Changed += ytreeviewForwarders_Selection_Changed;
@@ -213,23 +231,18 @@ namespace Vodovoz
 
 			if(ytreeRoutes.GetPathAtPos(binX, binY, out TreePath path, out TreeViewColumn col) && ytreeRoutes.Model.GetIter(out TreeIter iter, path)) {
 				var loadtimeCol = ytreeRoutes.ColumnsConfig.GetColumnsByTag(RouteColumnTag.OnloadTime).Where(x => x == col).ToArray();
-				if(loadtimeCol.Length > 0) {
-					if(ytreeRoutes.YTreeModel.NodeFromIter(iter) is RouteList node) {
-						var firstDP = node.Addresses.FirstOrDefault()?.Order.DeliveryPoint;
-						args.RetVal = true;
-						args.Tooltip.Text = String.Format("Первый адрес: {0:t}\n" +
-											 "Путь со склада: {1:N1} км. ({2} мин.)\n" +
-											 "Выезд со склада: {3:t}\n" +
-											 "Погрузка на складе: {4} минут",
-														  node.FirstAddressTime,
-														  firstDP != null ? distanceCalculator.DistanceFromBaseMeter(firstDP) * 0.001 : 0,
-														  firstDP != null ? distanceCalculator.TimeFromBase(firstDP) / 60 : 0,
-														  node.OnLoadTimeEnd,
-														  node.TimeOnLoadMinuts
-											);
-					}
+				if(loadtimeCol.Any() && ytreeRoutes.YTreeModel.NodeFromIter(iter) is RouteList node) {
+					var firstDP = node.Addresses.FirstOrDefault()?.Order.DeliveryPoint;
+					args.RetVal = true;
+					args.Tooltip.Text = String.Format(
+											"Первый адрес: {0:t}\nПуть со склада: {1:N1} км. ({2} мин.)\nВыезд со склада: {3:t}\nПогрузка на складе: {4} минут",
+											node.FirstAddressTime,
+											firstDP != null ? distanceCalculator.DistanceFromBaseMeter(firstDP) * 0.001 : 0,
+											firstDP != null ? distanceCalculator.TimeFromBase(firstDP) / 60 : 0,
+											node.OnLoadTimeEnd,
+											node.TimeOnLoadMinuts
+										);
 				}
-
 			}
 		}
 
@@ -591,12 +604,12 @@ namespace Vodovoz
 
 			var ordersQuery = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session)
-				.Fetch(x => x.DeliveryPoint).Eager
+				.Fetch(SelectMode.Fetch, x => x.DeliveryPoint)
 				.Future();
 
 			OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session)
-				.Fetch(x => x.OrderItems).Eager
+				.Fetch(SelectMode.Fetch, x => x.OrderItems)
 				.Future();
 
 			var withoutTime = ordersQuery.Where(x => x.DeliverySchedule == null).ToList();
@@ -631,7 +644,7 @@ namespace Vodovoz
 			if(!checkShowCompleted.Active)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
 			var routesQuery = routesQuery1
-				.Fetch(x => x.Addresses).Default
+				.Fetch(SelectMode.Fetch, x => x.Addresses)
 				.Future();
 
 			var routesQuery2 = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
@@ -640,15 +653,14 @@ namespace Vodovoz
 				routesQuery2.Where(x => x.Status == RouteListStatus.New);
 			routesQuery2
 				.Where(x => x.Status == RouteListStatus.New)
-				.Fetch(x => x.Driver).Eager
-				.Fetch(x => x.Car).Eager
+				.Fetch(SelectMode.Fetch, x => x.Driver)
+				.Fetch(SelectMode.Fetch, x => x.Car)
 				.Future();
 
 			routesAtDay = routesQuery.ToList();
 			routesAtDay.ToList().ForEach(rl => rl.UoW = UoW);
 			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
 			routesAtDay.ToList().ForEach(rl => rl.CheckAddressOrder());
-
 
 			UpdateRoutesPixBuf();
 			UpdateRoutesButton();
