@@ -29,7 +29,7 @@ SELECT
 	nomenclature.id AS ID,
 	ROUND(ShippingNomenclature.NomenclatureItemSum) as NomenclatureSumForShipping,
 	RL.NomenclatureItemSum as AtDriverNomenclatureCount ,
-	GROUP_CONCAT(DISTINCT RL.RouteListId SEPARATOR ' ') AS RouteLists ,
+	RL.RouteListId  AS RouteLists ,
 	ToAnotherWarehouse.WarehouseDirection ,
 	ROUND(ToAnotherWarehouse.nomenclatureCount) AS MovementItemCount ,
 	ROUND(SUM(StockBalance.quantity)) as Amount 
@@ -61,7 +61,7 @@ FROM
 			SELECT
 				order_items.nomenclature_id as NomenclatureId,
 				SUM(order_items.count)  AS NomenclatureItemSum , 
-				route_lists.id AS RouteListId 
+				GROUP_CONCAT(DISTINCT route_lists.id SEPARATOR ' ') AS RouteListId 
 			FROM
 				order_items
 				LEFT JOIN orders ON orders.id = order_items.order_id
@@ -139,9 +139,10 @@ FROM
 			GROUP BY nomenclature.id 
 		) AS ToAnotherWarehouse ON ToAnotherWarehouse.NomenclatureId = nomenclature.id
 
-WHERE nomenclature.category IN ('equipment',  'additional' , 'water')
+WHERE nomenclature.category IN ('equipment' , 'additional' )
 AND nomenclature.is_archive = false
 AND ShippingNomenclature.NomenclatureItemSum IS NOT NULL
+#AND @hideS = FALSE
 
 GROUP BY (nomenclature.id)
 ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
@@ -154,6 +155,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
           </QueryParameter>
           <QueryParameter Name="subdivision">
             <Value>22</Value>
+          </QueryParameter>
+          <QueryParameter Name="hideS">
+            <Value>=Convert.ToBoolean({?hideSouth})</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -198,7 +202,7 @@ SELECT
 	nomenclature.id AS ID,
 	ROUND(ShippingNomenclature.NomenclatureItemSum) as NomenclatureSumForShipping,
 	RL.NomenclatureItemSum as AtDriverNomenclatureCount ,
-	GROUP_CONCAT(DISTINCT RL.RouteListId SEPARATOR ' ') AS RouteLists ,
+	RL.RouteListId  AS RouteLists ,
 	ToAnotherWarehouse.WarehouseDirection ,
 	ROUND(ToAnotherWarehouse.nomenclatureCount) AS MovementItemCount ,
 	ROUND(SUM(StockBalance.quantity)) as Amount 
@@ -230,7 +234,7 @@ FROM
 			SELECT
 				order_items.nomenclature_id as NomenclatureId,
 				SUM(order_items.count)  AS NomenclatureItemSum , 
-				route_lists.id AS RouteListId 
+				GROUP_CONCAT(DISTINCT route_lists.id SEPARATOR ' ') AS RouteListId 
 			FROM
 				order_items
 				LEFT JOIN orders ON orders.id = order_items.order_id
@@ -308,9 +312,10 @@ FROM
 			GROUP BY nomenclature.id 
 		) AS ToAnotherWarehouse ON ToAnotherWarehouse.NomenclatureId = nomenclature.id
 
-WHERE nomenclature.category IN ('equipment',  'additional' , 'water')
+WHERE nomenclature.category IN ('equipment' , 'additional' )
 AND nomenclature.is_archive = false
 AND ShippingNomenclature.NomenclatureItemSum IS NOT NULL
+#AND @hideS = FALSE
 
 GROUP BY (nomenclature.id)
 ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
@@ -323,6 +328,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
           </QueryParameter>
           <QueryParameter Name="subdivision">
             <Value>23</Value>
+          </QueryParameter>
+          <QueryParameter Name="hideN">
+            <Value>=Convert.ToBoolean({?hideNorth})</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -368,7 +376,8 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Data1</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>
+        </NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -417,6 +426,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -433,6 +445,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -449,6 +464,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -465,6 +483,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -481,6 +502,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -497,6 +521,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -513,6 +540,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -540,6 +570,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -557,6 +590,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -574,6 +610,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -591,6 +630,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -608,6 +650,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -625,6 +670,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -642,22 +690,29 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hideSouth}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
               </TableCells>
+              <Visibility >
+                <Hidden>={?hideSouth}</Hidden>
+              </Visibility>
             </TableRow>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>56.0pt</Top>
+        <Top>56.8pt</Top>
         <Visibility>
           <Hidden>={?hideSouth}</Hidden>
         </Visibility>
       </Table>
       <Table Name="Table2">
         <DataSetName>Data2</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>
+        </NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
