@@ -119,7 +119,10 @@ namespace Vodovoz.Domain.Logistic
 				.OrderByDescending(x => x.StatusLastUpdate)
 				.FirstOrDefault();
 
-			if(lastAddress == null)
+            var startBase = RouteList.GeographicGroups
+                .Select(x => x.Name).FirstOrDefault()?.Trim();
+
+            if (lastAddress == null)
 			{
 				DistanceToBase = null;
 				return null;
@@ -128,10 +131,13 @@ namespace Vodovoz.Domain.Logistic
 			var points = new List<PointOnEarth> ();
 			var lastPoint = lastAddress.Order.DeliveryPoint;
 			points.Add (new PointOnEarth (lastPoint.Latitude.Value, lastPoint.Longitude.Value));
-			//Координаты базы
-			points.Add (new PointOnEarth ( Constants.BaseLatitude, Constants.BaseLongitude));
+            //Координаты базы
+            if (startBase == "Юг")
+                points.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
+		    if (startBase == "Север")
+                points.Add(new PointOnEarth(Constants.NorthStorageLatitude, Constants.NorthStorageLongitude));
 
-			var response = SputnikMain.GetRoute (points, false, true);
+            var response = SputnikMain.GetRoute (points, false, true);
 			if (response.Status == 0)
 			{
 				DistanceToBase = (double)response.RouteSummary.TotalDistanceKm;
