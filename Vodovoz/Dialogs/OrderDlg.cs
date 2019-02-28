@@ -2283,7 +2283,8 @@ namespace Vodovoz
 		{
 			bool val = Entity.CanEditOrder;
 			enumPaymentType.Sensitive = Entity.Client != null && val && !chkContractCloser.Active;
-			enumNeedOfCheque.Visible = lblNeedCheque.Visible = Entity.Client != null && val && CounterpartyRepository.IsCashPayment(Entity.PaymentType);
+			enumNeedOfCheque.Sensitive = val;
+			enumNeedOfCheque.Visible = lblNeedCheque.Visible = Entity.Client != null && CounterpartyRepository.IsCashPayment(Entity.PaymentType);
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable =
 				referenceClient.IsEditable = val;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =

@@ -1140,4 +1140,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new OrmReference(typeof(Certificate))
 		);
 	}
+
+	protected void OnForShipmentReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<NomenclatureForShipment>(),
+			() => new QSReport.ReportViewDlg(new NomenclatureForShipment())
+		);
+	}
 }

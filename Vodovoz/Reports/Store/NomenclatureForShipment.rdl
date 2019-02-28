@@ -1,0 +1,1039 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>11in</PageHeight>
+  <PageWidth>8.5in</PageWidth>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <DataSets>
+    <DataSet Name="Data1">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText># FIXME : Исправить фильтрацию складов по районам (сейчас привязана к подразделению )
+SELECT
+	nomenclature.name AS NomenclatureName,
+	nomenclature.id AS ID,
+	ROUND(ShippingNomenclature.NomenclatureItemSum) as NomenclatureSumForShipping,
+	RL.NomenclatureItemSum as AtDriverNomenclatureCount ,
+	GROUP_CONCAT(DISTINCT RL.RouteListId SEPARATOR ' ') AS RouteLists ,
+	ToAnotherWarehouse.WarehouseDirection ,
+	ROUND(ToAnotherWarehouse.nomenclatureCount) AS MovementItemCount ,
+	ROUND(SUM(StockBalance.quantity)) as Amount 
+FROM
+	nomenclature 
+
+	LEFT JOIN #На отгрузку
+		(
+			SELECT
+				order_items.nomenclature_id  as NomenclatureId,
+				SUM(order_items.count)  AS NomenclatureItemSum
+			FROM
+				order_items
+			LEFT JOIN orders ON orders.id = order_items.order_id
+			LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+			LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+			LEFT JOIN schedule_restricted_districts ON schedule_restricted_districts.id = delivery_points.schedule_restricted_district_id
+			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
+
+			WHERE 
+				orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
+				AND orders.delivery_date = DATE(@date)
+				AND geographic_groups_to_entities.geographic_group_id = @district
+			GROUP BY (nomenclature.id) 
+		) as ShippingNomenclature ON ShippingNomenclature.NomenclatureId = nomenclature.id
+
+	LEFT JOIN #У Водителя
+		(
+			SELECT
+				order_items.nomenclature_id as NomenclatureId,
+				SUM(order_items.count)  AS NomenclatureItemSum , 
+				route_lists.id AS RouteListId 
+			FROM
+				order_items
+				LEFT JOIN orders ON orders.id = order_items.order_id
+				LEFT JOIN route_list_addresses On route_list_addresses.order_id = orders.id
+				LEFT JOIN route_lists ON route_lists.id = route_list_addresses.route_list_id
+				LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+				LEFT JOIN cars ON cars.id = route_lists.car_id
+				LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.car_id = cars.id
+			WHERE
+				orders.order_status IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
+				AND route_list_addresses.transfered_to_id IS NULL
+				AND route_lists.date &gt;  ADDDATE(CURTIME() , -14)
+				AND geographic_groups_to_entities.geographic_group_id = @district
+				AND NOT EXISTS 
+				(
+					SELECT 
+						*
+					FROM
+						store_car_unload_documents
+					WHERE
+						store_car_unload_documents.route_list_id = route_lists.id
+				)
+			GROUP BY (nomenclature.id)
+		) AS RL ON RL.NomenclatureId = nomenclature.id
+
+	LEFT JOIN #Складские остатки
+		(
+			SELECT
+				nomenclature_id AS nom_id,
+				writeoff_warehouse_id AS wh,
+				-SUM(amount) AS quantity
+				FROM warehouse_movement_operations
+				LEFT JOIN warehouses ON warehouses.id = warehouse_movement_operations.writeoff_warehouse_id
+				LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
+			WHERE
+				writeoff_warehouse_id IS NOT NULL
+				AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision
+			GROUP BY nomenclature_id 
+
+			UNION ALL
+
+			SELECT
+				nomenclature_id AS nom_id,
+				incoming_warehouse_id AS wh,
+				SUM(amount) AS quantity
+				FROM warehouse_movement_operations
+				LEFT JOIN warehouses ON warehouses.id = warehouse_movement_operations.incoming_warehouse_id
+				LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
+			WHERE
+				incoming_warehouse_id IS NOT NULL 
+				AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision
+			GROUP BY nomenclature_id 
+		) AS StockBalance ON StockBalance.nom_id = nomenclature.id
+	
+	LEFT JOIN #Отправлено на другой склад
+		(
+			SELECT
+				store_movement_document_items.nomenclature_id AS NomenclatureId,
+				SUM(store_movement_document_items.amount) AS nomenclatureCount ,
+				GROUP_CONCAT(DISTINCT CONCAT(WareFrom.Name , ' --&gt; ' , WareTo.Name) SEPARATOR ' ') as WarehouseDirection
+			FROM
+				store_movement_document_items
+			RIGHT JOIN store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
+			RIGHT JOIN warehouses AS WareFrom ON WareFrom.id = store_movement_document.warehouse_from_id 
+			RIGHT JOIN warehouses AS WareTo ON WareTo.id = store_movement_document.warehouse_to_id 
+			RIGHT JOIN nomenclature ON nomenclature.id = store_movement_document_items.nomenclature_id
+
+			RIGHT JOIN subdivisions On subdivisions.id = WareTo.owning_subdivision
+
+			WHERE
+				store_movement_document.transportation_status = 'Submerged'
+				AND ( subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision )
+				AND store_movement_document.time_stamp &gt;  ADDDATE(CURTIME() ,INTERVAL -14 DAY)
+
+			GROUP BY nomenclature.id 
+		) AS ToAnotherWarehouse ON ToAnotherWarehouse.NomenclatureId = nomenclature.id
+
+WHERE nomenclature.category IN ('equipment',  'additional' , 'water')
+AND nomenclature.is_archive = false
+AND ShippingNomenclature.NomenclatureItemSum IS NOT NULL
+
+GROUP BY (nomenclature.id)
+ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="date">
+            <Value>={?date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="district">
+            <Value>1</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision">
+            <Value>22</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="NomenclatureName">
+          <DataField>NomenclatureName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="NomenclatureSumForShipping">
+          <DataField>NomenclatureSumForShipping</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="AtDriverNomenclatureCount">
+          <DataField>AtDriverNomenclatureCount</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="RouteLists">
+          <DataField>RouteLists</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="WarehouseDirection">
+          <DataField>WarehouseDirection</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="MovementItemCount">
+          <DataField>MovementItemCount</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Amount">
+          <DataField>Amount</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Data2">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>3</Timeout>
+        <CommandText># FIXME : Исправить фильтрацию складов по районам (сейчас привязана к подразделению )
+SELECT
+	nomenclature.name AS NomenclatureName,
+	nomenclature.id AS ID,
+	ROUND(ShippingNomenclature.NomenclatureItemSum) as NomenclatureSumForShipping,
+	RL.NomenclatureItemSum as AtDriverNomenclatureCount ,
+	GROUP_CONCAT(DISTINCT RL.RouteListId SEPARATOR ' ') AS RouteLists ,
+	ToAnotherWarehouse.WarehouseDirection ,
+	ROUND(ToAnotherWarehouse.nomenclatureCount) AS MovementItemCount ,
+	ROUND(SUM(StockBalance.quantity)) as Amount 
+FROM
+	nomenclature 
+
+	LEFT JOIN #На отгрузку
+		(
+			SELECT
+				order_items.nomenclature_id  as NomenclatureId,
+				SUM(order_items.count)  AS NomenclatureItemSum
+			FROM
+				order_items
+			LEFT JOIN orders ON orders.id = order_items.order_id
+			LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+			LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+			LEFT JOIN schedule_restricted_districts ON schedule_restricted_districts.id = delivery_points.schedule_restricted_district_id
+			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
+
+			WHERE 
+				orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
+				AND orders.delivery_date = DATE(@date)
+				AND geographic_groups_to_entities.geographic_group_id = @district
+			GROUP BY (nomenclature.id) 
+		) as ShippingNomenclature ON ShippingNomenclature.NomenclatureId = nomenclature.id
+
+	LEFT JOIN #У Водителя
+		(
+			SELECT
+				order_items.nomenclature_id as NomenclatureId,
+				SUM(order_items.count)  AS NomenclatureItemSum , 
+				route_lists.id AS RouteListId 
+			FROM
+				order_items
+				LEFT JOIN orders ON orders.id = order_items.order_id
+				LEFT JOIN route_list_addresses On route_list_addresses.order_id = orders.id
+				LEFT JOIN route_lists ON route_lists.id = route_list_addresses.route_list_id
+				LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+				LEFT JOIN cars ON cars.id = route_lists.car_id
+				LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.car_id = cars.id
+			WHERE
+				orders.order_status IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
+				AND route_list_addresses.transfered_to_id IS NULL
+				AND route_lists.date &gt;  ADDDATE(CURTIME() , -14)
+				AND geographic_groups_to_entities.geographic_group_id = @district
+				AND NOT EXISTS 
+				(
+					SELECT 
+						*
+					FROM
+						store_car_unload_documents
+					WHERE
+						store_car_unload_documents.route_list_id = route_lists.id
+				)
+			GROUP BY (nomenclature.id)
+		) AS RL ON RL.NomenclatureId = nomenclature.id
+
+	LEFT JOIN #Складские остатки
+		(
+			SELECT
+				nomenclature_id AS nom_id,
+				writeoff_warehouse_id AS wh,
+				-SUM(amount) AS quantity
+				FROM warehouse_movement_operations
+				LEFT JOIN warehouses ON warehouses.id = warehouse_movement_operations.writeoff_warehouse_id
+				LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
+			WHERE
+				writeoff_warehouse_id IS NOT NULL
+				AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision
+			GROUP BY nomenclature_id 
+
+			UNION ALL
+
+			SELECT
+				nomenclature_id AS nom_id,
+				incoming_warehouse_id AS wh,
+				SUM(amount) AS quantity
+				FROM warehouse_movement_operations
+				LEFT JOIN warehouses ON warehouses.id = warehouse_movement_operations.incoming_warehouse_id
+				LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
+			WHERE
+				incoming_warehouse_id IS NOT NULL 
+				AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision
+			GROUP BY nomenclature_id 
+		) AS StockBalance ON StockBalance.nom_id = nomenclature.id
+	
+	LEFT JOIN #Отправлено на другой склад
+		(
+			SELECT
+				store_movement_document_items.nomenclature_id AS NomenclatureId,
+				SUM(store_movement_document_items.amount) AS nomenclatureCount ,
+				GROUP_CONCAT(DISTINCT CONCAT(WareFrom.Name , ' --&gt; ' , WareTo.Name) SEPARATOR ' ') as WarehouseDirection
+			FROM
+				store_movement_document_items
+			RIGHT JOIN store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
+			RIGHT JOIN warehouses AS WareFrom ON WareFrom.id = store_movement_document.warehouse_from_id 
+			RIGHT JOIN warehouses AS WareTo ON WareTo.id = store_movement_document.warehouse_to_id 
+			RIGHT JOIN nomenclature ON nomenclature.id = store_movement_document_items.nomenclature_id
+
+			RIGHT JOIN subdivisions On subdivisions.id = WareTo.owning_subdivision
+
+			WHERE
+				store_movement_document.transportation_status = 'Submerged'
+				AND ( subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision )
+				AND store_movement_document.time_stamp &gt;  ADDDATE(CURTIME() ,INTERVAL -14 DAY)
+
+			GROUP BY nomenclature.id 
+		) AS ToAnotherWarehouse ON ToAnotherWarehouse.NomenclatureId = nomenclature.id
+
+WHERE nomenclature.category IN ('equipment',  'additional' , 'water')
+AND nomenclature.is_archive = false
+AND ShippingNomenclature.NomenclatureItemSum IS NOT NULL
+
+GROUP BY (nomenclature.id)
+ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="date">
+            <Value>={?date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="district">
+            <Value>2</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision">
+            <Value>23</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="NomenclatureName">
+          <DataField>NomenclatureName</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="NomenclatureSumForShipping">
+          <DataField>NomenclatureSumForShipping</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="AtDriverNomenclatureCount">
+          <DataField>AtDriverNomenclatureCount</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="RouteLists">
+          <DataField>RouteLists</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="WarehouseDirection">
+          <DataField>WarehouseDirection</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="MovementItemCount">
+          <DataField>MovementItemCount</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="Amount">
+          <DataField>Amount</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>390.8pt</Height>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>Data1</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>96.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>64.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>66.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>53.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>74.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>80.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>125.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>79.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Value>Наименование товара</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Кол-во , необходимое для отгрузки, шт</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Кол-во , которое есть на складе ,  шт</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>У водителя , шт</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>№ Мл, по которому числится оборудование или товары</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Отправлено на другой склад , но еще не доставлено , шт</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>С какого на какой склад отправили </Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>50.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>={NomenclatureName}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>={NomenclatureSumForShipping}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>={Amount}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>={AtDriverNomenclatureCount}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>={RouteLists}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>={MovementItemCount}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>={WarehouseDirection}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>56.0pt</Top>
+        <Visibility>
+          <Hidden>={?hideSouth}</Hidden>
+        </Visibility>
+      </Table>
+      <Table Name="Table2">
+        <DataSetName>Data2</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>96.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>64.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>66.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>53.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>74.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>80.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>125.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>79.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Наименование товара</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>Кол-во , необходимое для отгрузки, шт</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>Кол-во , которое есть на складе ,  шт</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>У водителя , шт</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>№ Мл, по которому числится оборудование или товары</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>Отправлено на другой склад , но еще не доставлено , шт</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>С какого на какой склад отправили </Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>60.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>={NomenclatureName}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>={NomenclatureSumForShipping}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>={Amount}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>={AtDriverNomenclatureCount}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>={RouteLists}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>={MovementItemCount}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>={WarehouseDirection}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>226.9pt</Top>
+        <Visibility>
+          <Hidden>={?hideNorth}</Hidden>
+        </Visibility>
+      </Table>
+      <Textbox Name="Textbox29">
+        <Height>18.02pt</Height>
+        <Width>93.30pt</Width>
+        <Value>СЕВЕР:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>206.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+        </Style>
+        <Visibility>
+          <Hidden>={?hideNorth}</Hidden>
+        </Visibility>
+      </Textbox>
+      <Textbox Name="Textbox30">
+        <Height>18.02pt</Height>
+        <Width>93.30pt</Width>
+        <Value>ЮГ:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>31.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+        </Style>
+        <Visibility>
+          <Hidden>={?hideSouth}</Hidden>
+        </Visibility>
+      </Textbox>
+      <Textbox Name="Textbox31">
+        <Height>21.04pt</Height>
+        <Width>463.01pt</Width>
+        <Value>="Отчет по необходимым товарам для отгрузки на " +  Format(Convert.ToDateTime({?date}), "dd.MM.yyyy")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>49.6pt</Left>
+        <Top>6.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
+    <ReportParameter Name="date">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>28/02/2019</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="hideSouth">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="hideNorth">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>
