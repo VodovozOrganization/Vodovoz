@@ -1842,7 +1842,6 @@ namespace Vodovoz.Domain.Orders
 										   && x.Order == m2.Order)
 						   == null) {
 							ObservableOrderDocuments.Add(new OrderM2Proxy {
-								Id = item.Id,
 								Order = item.Order,
 								AttachedToOrder = this,
 								M2Proxy = m2.M2Proxy
@@ -2001,7 +2000,6 @@ namespace Vodovoz.Domain.Orders
 							!ObservableOrderDocuments.OfType<NomenclatureCertificateDocument>().Any(x => x.Order == item.Order)) {
 							ObservableOrderDocuments.Add(
 								new NomenclatureCertificateDocument {
-									Id = item.Id,
 									Order = item.Order,
 									AttachedToOrder = this,
 									Certificate = cert.Certificate
