@@ -839,7 +839,7 @@ namespace Vodovoz
 			this.buttonCalculateCash.CanFocus = true;
 			this.buttonCalculateCash.Name = "buttonCalculateCash";
 			this.buttonCalculateCash.UseUnderline = true;
-			this.buttonCalculateCash.Label = global::Mono.Unix.Catalog.GetString("Расчитать автоматически");
+			this.buttonCalculateCash.Label = global::Mono.Unix.Catalog.GetString("Рассчитать автоматически");
 			this.hbox10.Add(this.buttonCalculateCash);
 			global::Gtk.Box.BoxChild w70 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.buttonCalculateCash]));
 			w70.PackType = ((global::Gtk.PackType)(1));

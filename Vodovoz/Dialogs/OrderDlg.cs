@@ -570,7 +570,7 @@ namespace Vodovoz
 
 			logger.Info("Сохраняем заказ...");
 
-			if(EmailServiceSetting.CanSendEmail && Entity.NeedSendBill()) {
+			if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill()) {
 				var emailAddressForBill = Entity.GetEmailAddressForBill();
 				if(emailAddressForBill == null) {
 					if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
@@ -2458,7 +2458,7 @@ namespace Vodovoz
 
 		private void SendBillByEmail(QSContacts.Email emailAddressForBill)
 		{
-			if(!EmailServiceSetting.CanSendEmail || EmailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
+			if(!EmailServiceSetting.SendingAllowed || EmailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
 				return;
 			}
 

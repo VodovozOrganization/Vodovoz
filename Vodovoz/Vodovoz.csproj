@@ -1092,6 +1092,8 @@
     <Compile Include="gtk-gui\Vodovoz.Core.Permissions.AccessFilteredSubdivisionSelectorWidget.cs" />
     <Compile Include="Dialogs\CertificateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CertificateDlg.cs" />
+    <Compile Include="ReportsParameters\Store\NomenclatureForShipment.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NomenclatureForShipment.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1646,6 +1648,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\MovementOperationDocucment.rdl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\NomenclatureForShipment.rdl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

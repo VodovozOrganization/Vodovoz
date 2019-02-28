@@ -8,6 +8,7 @@ using Vodovoz.Additions;
 using Vodovoz.DriverTerminal;
 using QS.Permissions;
 using QS.DomainModel.Entity.EntityPermissions;
+using EmailService;
 
 namespace Vodovoz
 {
@@ -106,14 +107,14 @@ namespace Vodovoz
 			}else{
 				//Настрока удаления
 				Configure.ConfigureDeletion();
-				QSProjectsLib.PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
+				PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
 
 				VodovozService.Chats.ChatMain.ChatServer = "vod-srv.qsolution.ru:9000";
 
-				if(MainSupport.BaseParameters.All.ContainsKey("email_service_address")) {
-					EmailService.EmailServiceSetting.EmailServiceURL = MainSupport.BaseParameters.All["email_service_address"];
-				} else {
-					EmailService.EmailServiceSetting.EmailServiceURL = null;
+				if(MainSupport.BaseParameters.All.ContainsKey("email_send_enabled_database") && MainSupport.BaseParameters.All.ContainsKey("email_service_address")) {
+					if(MainSupport.BaseParameters.All["email_send_enabled_database"] == LoginDialog.BaseName) {
+						EmailServiceSetting.Init(MainSupport.BaseParameters.All["email_service_address"]);
+					}
 				}
 
 				//Запускаем программу

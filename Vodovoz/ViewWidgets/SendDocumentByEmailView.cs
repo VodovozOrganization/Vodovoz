@@ -37,7 +37,7 @@ namespace Vodovoz.ViewWidgets
 				.RowCells()
 				.Finish();
 
-			this.Sensitive = EmailServiceSetting.CanSendEmail;
+			this.Sensitive = EmailServiceSetting.SendingAllowed;
 		}
 
 		public void Update(OrderDocument document, string email)
