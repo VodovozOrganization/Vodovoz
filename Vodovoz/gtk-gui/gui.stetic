@@ -27,7 +27,7 @@
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
     <widget-library name="../../../VodovozService/EmailService/bin/Debug/Email.dll" />
     <widget-library name="../../../QSProjects/QS.Project.Gtk/bin/Debug/QS.Project.Gtk.dll" />
-    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -30024,6 +30024,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -43760,11 +43761,11 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1171 363">
+  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="997 462">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
-      <widget class="Gtk.VBox" id="vbox1">
+      <widget class="Gtk.VBox" id="vbox5">
         <property name="MemberName" />
         <property name="Spacing">6</property>
         <child>
@@ -43775,29 +43776,7 @@ not tooltip</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <child>
-              <widget class="Gtk.Button" id="buttonAutoCreate">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Type">TextOnly</property>
-                <property name="Label" translatable="yes">Создать маршруты</property>
-                <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonAutoCreateClicked" />
-              </widget>
-              <packing>
-                <property name="TopAttach">1</property>
-                <property name="BottomAttach">2</property>
-                <property name="LeftAttach">4</property>
-                <property name="RightAttach">5</property>
-                <property name="AutoSize">True</property>
-                <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
-                <property name="XExpand">False</property>
-                <property name="XFill">True</property>
-                <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
-                <property name="YFill">True</property>
-                <property name="YShrink">False</property>
-              </packing>
+              <placeholder />
             </child>
             <child>
               <widget class="Gtk.CheckButton" id="checkShowCompleted">
@@ -43810,16 +43789,18 @@ not tooltip</property>
                 <signal name="Toggled" handler="OnCheckShowCompletedToggled" />
               </widget>
               <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
                 <property name="LeftAttach">2</property>
                 <property name="RightAttach">3</property>
-                <property name="AutoSize">True</property>
-                <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
+                <property name="AutoSize">False</property>
+                <property name="XOptions">0</property>
+                <property name="YOptions">0</property>
                 <property name="XExpand">False</property>
-                <property name="XFill">True</property>
+                <property name="XFill">False</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
-                <property name="YFill">True</property>
+                <property name="YFill">False</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
@@ -43876,59 +43857,27 @@ not tooltip</property>
                     <property name="Fill">False</property>
                   </packing>
                 </child>
-                <child>
-                  <widget class="Gtk.VSeparator" id="vseparator1">
-                    <property name="MemberName" />
-                  </widget>
-                  <packing>
-                    <property name="Position">3</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.HBox" id="hboxCash">
-                    <property name="MemberName" />
-                    <property name="Spacing">6</property>
-                    <child>
-                      <widget class="Gtk.Label" id="label7">
-                        <property name="MemberName" />
-                        <property name="LabelProp" translatable="yes">Сдается в кассу:</property>
-                      </widget>
-                      <packing>
-                        <property name="Position">0</property>
-                        <property name="AutoSize">True</property>
-                        <property name="Expand">False</property>
-                        <property name="Fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="Gamma.Widgets.ySpecComboBox" id="yspeccomboboxCashSubdivision">
-                        <property name="MemberName" />
-                        <property name="IsTextCombo">False</property>
-                        <property name="Items" translatable="yes" />
-                        <property name="AddIfNotExist">False</property>
-                        <property name="DefaultFirst">False</property>
-                        <property name="ShowSpecialStateAll">False</property>
-                        <property name="ShowSpecialStateNot">False</property>
-                      </widget>
-                      <packing>
-                        <property name="Position">1</property>
-                        <property name="AutoSize">True</property>
-                        <property name="Expand">False</property>
-                        <property name="Fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder />
-                    </child>
-                  </widget>
-                  <packing>
-                    <property name="Position">4</property>
-                    <property name="AutoSize">True</property>
-                  </packing>
-                </child>
+              </widget>
+              <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
+                <property name="LeftAttach">3</property>
+                <property name="RightAttach">4</property>
+                <property name="AutoSize">False</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">0</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">False</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.HBox" id="hbox9">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
                 <child>
                   <widget class="Gtk.Button" id="buttonSaveChanges">
                     <property name="MemberName" />
@@ -43940,10 +43889,8 @@ not tooltip</property>
                     <signal name="Clicked" handler="OnButtonSaveChangesClicked" />
                   </widget>
                   <packing>
-                    <property name="Position">5</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">False</property>
                   </packing>
                 </child>
                 <child>
@@ -43957,7 +43904,16 @@ not tooltip</property>
                     <signal name="Clicked" handler="OnButtonCancelChangesClicked" />
                   </widget>
                   <packing>
-                    <property name="Position">6</property>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.VSeparator" id="vseparator1">
+                    <property name="MemberName" />
+                  </widget>
+                  <packing>
+                    <property name="Position">2</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -43965,66 +43921,60 @@ not tooltip</property>
                 </child>
               </widget>
               <packing>
-                <property name="LeftAttach">3</property>
-                <property name="RightAttach">4</property>
-                <property name="AutoSize">True</property>
-                <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
-                <property name="XExpand">False</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">Expand</property>
+                <property name="XExpand">True</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
-                <property name="YFill">True</property>
+                <property name="YExpand">True</property>
+                <property name="YFill">False</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.HBox" id="hbox8">
+              <widget class="Gtk.HBox" id="hboxCash">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.ProgressBar" id="progressOrders">
+                  <widget class="Gtk.Label" id="label7">
                     <property name="MemberName" />
-                    <property name="Ellipsize">Start</property>
+                    <property name="LabelProp" translatable="yes">Сдается в кассу:</property>
                   </widget>
                   <packing>
                     <property name="Position">0</property>
-                    <property name="AutoSize">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Button" id="buttonWarnings">
-                    <property name="MemberName" />
-                    <property name="Visible">False</property>
-                    <property name="Tooltip" translatable="yes">Имеются перудупреждения. Нажмите что бы посмотреть.</property>
-                    <property name="CanFocus">True</property>
-                    <property name="Type">TextAndIcon</property>
-                    <property name="Icon">stock:gtk-dialog-warning Menu</property>
-                    <property name="Label" translatable="yes" />
-                    <property name="UseUnderline">True</property>
-                    <property name="Relief">None</property>
-                    <signal name="Clicked" handler="OnButtonWarningsClicked" />
-                  </widget>
-                  <packing>
-                    <property name="Position">1</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
                   </packing>
                 </child>
+                <child>
+                  <widget class="Gamma.Widgets.ySpecComboBox" id="yspeccomboboxCashSubdivision">
+                    <property name="MemberName" />
+                    <property name="IsTextCombo">False</property>
+                    <property name="Items" translatable="yes" />
+                    <property name="AddIfNotExist">False</property>
+                    <property name="DefaultFirst">False</property>
+                    <property name="ShowSpecialStateAll">False</property>
+                    <property name="ShowSpecialStateNot">False</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">False</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
-                <property name="TopAttach">1</property>
-                <property name="BottomAttach">2</property>
-                <property name="RightAttach">4</property>
+                <property name="LeftAttach">2</property>
+                <property name="RightAttach">3</property>
                 <property name="AutoSize">False</property>
-                <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
+                <property name="XOptions">0</property>
+                <property name="YOptions">0</property>
                 <property name="XExpand">False</property>
-                <property name="XFill">True</property>
+                <property name="XFill">False</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
-                <property name="YFill">True</property>
+                <property name="YFill">False</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
@@ -44035,14 +43985,16 @@ not tooltip</property>
                 <property name="LabelProp" translatable="yes">Дата:</property>
               </widget>
               <packing>
-                <property name="AutoSize">True</property>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
+                <property name="AutoSize">False</property>
                 <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
+                <property name="YOptions">0</property>
                 <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
-                <property name="YFill">True</property>
+                <property name="YFill">False</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
@@ -44057,16 +44009,17 @@ not tooltip</property>
                 <signal name="WidgetEvent" handler="OnLabel2WidgetEvent" />
               </widget>
               <packing>
+                <property name="BottomAttach">2</property>
                 <property name="LeftAttach">4</property>
                 <property name="RightAttach">5</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
+                <property name="YOptions">0</property>
                 <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
-                <property name="YFill">True</property>
+                <property name="YFill">False</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
@@ -44081,13 +44034,13 @@ not tooltip</property>
                 <property name="BottomAttach">2</property>
                 <property name="LeftAttach">5</property>
                 <property name="RightAttach">6</property>
-                <property name="AutoSize">True</property>
-                <property name="YOptions">Fill</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">0</property>
                 <property name="XExpand">True</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
-                <property name="YFill">True</property>
+                <property name="YFill">False</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
@@ -44102,16 +44055,17 @@ not tooltip</property>
                 <signal name="DateChanged" handler="OnYdateForRoutesDateChanged" />
               </widget>
               <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
-                <property name="AutoSize">True</property>
-                <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
-                <property name="XExpand">False</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">0</property>
+                <property name="XExpand">True</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
-                <property name="YFill">True</property>
+                <property name="YFill">False</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
@@ -44126,13 +44080,13 @@ not tooltip</property>
                 <property name="BottomAttach">2</property>
                 <property name="LeftAttach">6</property>
                 <property name="RightAttach">7</property>
-                <property name="AutoSize">True</property>
-                <property name="YOptions">Fill</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">0</property>
                 <property name="XExpand">True</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
-                <property name="YFill">True</property>
+                <property name="YFill">False</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
@@ -44145,30 +44099,22 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.HBox" id="hbox2">
+          <widget class="Gtk.HPaned" id="hpaned3">
             <property name="MemberName" />
-            <property name="Spacing">6</property>
+            <property name="CanFocus">True</property>
+            <property name="Position">475</property>
             <child>
-              <widget class="Gtk.Notebook" id="notebook1">
+              <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="CurrentPage">2</property>
-                <property name="TabPos">Left</property>
+                <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.VBox" id="vboxDrivers">
+                  <widget class="Gtk.HBox" id="hbox8">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
-                      <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
+                      <widget class="Gtk.ProgressBar" id="progressOrders">
                         <property name="MemberName" />
-                        <property name="ShadowType">In</property>
-                        <child>
-                          <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewOnDayDrivers">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="ShowScrollbars">True</property>
-                          </widget>
-                        </child>
+                        <property name="Ellipsize">Start</property>
                       </widget>
                       <packing>
                         <property name="Position">0</property>
@@ -44176,60 +44122,17 @@ not tooltip</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.HBox" id="hbox7">
+                      <widget class="Gtk.Button" id="buttonWarnings">
                         <property name="MemberName" />
-                        <property name="Spacing">6</property>
-                        <child>
-                          <widget class="Gtk.Button" id="buttonAddDriver">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="Type">TextAndIcon</property>
-                            <property name="Icon">stock:gtk-add Menu</property>
-                            <property name="Label" translatable="yes">Добавить водителя</property>
-                            <property name="UseUnderline">True</property>
-                            <signal name="Clicked" handler="OnButtonAddDriverClicked" />
-                          </widget>
-                          <packing>
-                            <property name="Position">0</property>
-                            <property name="AutoSize">True</property>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="Gtk.Button" id="buttonRemoveDriver">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="Type">TextAndIcon</property>
-                            <property name="Icon">stock:gtk-remove Menu</property>
-                            <property name="Label" translatable="yes">Снять водителя</property>
-                            <property name="UseUnderline">True</property>
-                            <signal name="Clicked" handler="OnButtonRemoveDriverClicked" />
-                          </widget>
-                          <packing>
-                            <property name="Position">1</property>
-                            <property name="AutoSize">True</property>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="Gtk.Button" id="buttonDriverSelectAuto">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="Type">TextAndIcon</property>
-                            <property name="Icon">resource:Vodovoz.icons.buttons.car.png</property>
-                            <property name="Label" translatable="yes">Выбрать авто</property>
-                            <property name="UseUnderline">True</property>
-                            <signal name="Clicked" handler="OnButtonDriverSelectAutoClicked" />
-                          </widget>
-                          <packing>
-                            <property name="Position">2</property>
-                            <property name="AutoSize">True</property>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
-                          </packing>
-                        </child>
+                        <property name="Visible">False</property>
+                        <property name="Tooltip" translatable="yes">Имеются перудупреждения. Нажмите что бы посмотреть.</property>
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextAndIcon</property>
+                        <property name="Icon">stock:gtk-dialog-warning Menu</property>
+                        <property name="Label" translatable="yes" />
+                        <property name="UseUnderline">True</property>
+                        <property name="Relief">None</property>
+                        <signal name="Clicked" handler="OnButtonWarningsClicked" />
                       </widget>
                       <packing>
                         <property name="Position">1</property>
@@ -44238,69 +44141,112 @@ not tooltip</property>
                         <property name="Fill">False</property>
                       </packing>
                     </child>
-                  </widget>
-                </child>
-                <child>
-                  <widget class="Gtk.Label" id="label4">
-                    <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes">Водители</property>
-                    <property name="Angle">270</property>
+                    <child>
+                      <widget class="Gtk.Button" id="buttonAutoCreate">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextOnly</property>
+                        <property name="Label" translatable="yes">Создать маршруты</property>
+                        <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnButtonAutoCreateClicked" />
+                      </widget>
+                      <packing>
+                        <property name="Position">2</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
                   </widget>
                   <packing>
-                    <property name="type">tab</property>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.VBox" id="vbox3">
+                  <widget class="Gtk.Notebook" id="notebook1">
                     <property name="MemberName" />
-                    <property name="Spacing">6</property>
+                    <property name="CanFocus">True</property>
+                    <property name="CurrentPage">0</property>
+                    <property name="TabPos">Left</property>
                     <child>
-                      <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow2">
-                        <property name="MemberName" />
-                        <property name="ShadowType">In</property>
-                        <child>
-                          <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewOnDayForwarders">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="ShowScrollbars">True</property>
-                          </widget>
-                        </child>
-                      </widget>
-                      <packing>
-                        <property name="Position">0</property>
-                        <property name="AutoSize">True</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="Gtk.HBox" id="hbox6">
+                      <widget class="Gtk.VBox" id="vboxDrivers">
                         <property name="MemberName" />
                         <property name="Spacing">6</property>
                         <child>
-                          <widget class="Gtk.Button" id="buttonAddForwarder">
+                          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
                             <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="Type">TextAndIcon</property>
-                            <property name="Icon">stock:gtk-add Menu</property>
-                            <property name="Label" translatable="yes">Добавить экспедитора</property>
-                            <property name="UseUnderline">True</property>
-                            <signal name="Clicked" handler="OnButtonAddForwarderClicked" />
+                            <property name="ShadowType">In</property>
+                            <child>
+                              <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewOnDayDrivers">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="ShowScrollbars">True</property>
+                              </widget>
+                            </child>
                           </widget>
                           <packing>
                             <property name="Position">0</property>
                             <property name="AutoSize">True</property>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.Button" id="buttonRemoveForwarder">
+                          <widget class="Gtk.HBox" id="hbox7">
                             <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="Type">TextAndIcon</property>
-                            <property name="Icon">stock:gtk-remove Menu</property>
-                            <property name="Label" translatable="yes">Снять экспедитора</property>
-                            <property name="UseUnderline">True</property>
-                            <signal name="Clicked" handler="OnButtonRemoveForwarderClicked" />
+                            <property name="Spacing">6</property>
+                            <child>
+                              <widget class="Gtk.Button" id="buttonAddDriver">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextAndIcon</property>
+                                <property name="Icon">stock:gtk-add Menu</property>
+                                <property name="Label" translatable="yes">Добавить водителя</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonAddDriverClicked" />
+                              </widget>
+                              <packing>
+                                <property name="Position">0</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gtk.Button" id="buttonRemoveDriver">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextAndIcon</property>
+                                <property name="Icon">stock:gtk-remove Menu</property>
+                                <property name="Label" translatable="yes">Снять водителя</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonRemoveDriverClicked" />
+                              </widget>
+                              <packing>
+                                <property name="Position">1</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gtk.Button" id="buttonDriverSelectAuto">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextAndIcon</property>
+                                <property name="Icon">resource:Vodovoz.icons.buttons.car.png</property>
+                                <property name="Label" translatable="yes">Выбрать авто</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonDriverSelectAutoClicked" />
+                              </widget>
+                              <packing>
+                                <property name="Position">2</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
                           </widget>
                           <packing>
                             <property name="Position">1</property>
@@ -44309,134 +44255,210 @@ not tooltip</property>
                             <property name="Fill">False</property>
                           </packing>
                         </child>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="label4">
+                        <property name="MemberName" />
+                        <property name="LabelProp" translatable="yes">Водители</property>
+                        <property name="Angle">270</property>
+                      </widget>
+                      <packing>
+                        <property name="type">tab</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.VBox" id="vbox4">
+                        <property name="MemberName" />
+                        <property name="Spacing">6</property>
                         <child>
-                          <placeholder />
+                          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow2">
+                            <property name="MemberName" />
+                            <property name="ShadowType">In</property>
+                            <child>
+                              <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewOnDayForwarders">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="ShowScrollbars">True</property>
+                              </widget>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="Position">0</property>
+                            <property name="AutoSize">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gtk.HBox" id="hbox6">
+                            <property name="MemberName" />
+                            <property name="Spacing">6</property>
+                            <child>
+                              <widget class="Gtk.Button" id="buttonAddForwarder">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextAndIcon</property>
+                                <property name="Icon">stock:gtk-add Menu</property>
+                                <property name="Label" translatable="yes">Добавить экспедитора</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonAddForwarderClicked" />
+                              </widget>
+                              <packing>
+                                <property name="Position">0</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gtk.Button" id="buttonRemoveForwarder">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextAndIcon</property>
+                                <property name="Icon">stock:gtk-remove Menu</property>
+                                <property name="Label" translatable="yes">Снять экспедитора</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonRemoveForwarderClicked" />
+                              </widget>
+                              <packing>
+                                <property name="Position">1</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder />
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="Position">1</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
                         </child>
                       </widget>
                       <packing>
                         <property name="Position">1</property>
-                        <property name="AutoSize">True</property>
-                        <property name="Expand">False</property>
-                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="label5">
+                        <property name="MemberName" />
+                        <property name="LabelProp" translatable="yes">Экспедиторы</property>
+                        <property name="Angle">270</property>
+                      </widget>
+                      <packing>
+                        <property name="type">tab</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.VBox" id="vboxRouteLists">
+                        <property name="MemberName" />
+                        <property name="Spacing">6</property>
+                        <child>
+                          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+                            <property name="MemberName" />
+                            <property name="ShadowType">In</property>
+                            <child>
+                              <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeRoutes">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="ShowScrollbars">True</property>
+                              </widget>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="Position">0</property>
+                            <property name="AutoSize">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gtk.HBox" id="hbox5">
+                            <property name="MemberName" />
+                            <property name="Spacing">6</property>
+                            <child>
+                              <widget class="Gtk.Button" id="buttonOpen">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextOnly</property>
+                                <property name="Label" translatable="yes">Открыть</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonOpenClicked" />
+                              </widget>
+                              <packing>
+                                <property name="Position">0</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gtk.Button" id="buttonRebuildRoute">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextAndIcon</property>
+                                <property name="Icon">resource:Vodovoz.icons.buttons.sort-ascending.png</property>
+                                <property name="Label" translatable="yes">Перестроить маршрут</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonRebuildRouteClicked" />
+                              </widget>
+                              <packing>
+                                <property name="Position">1</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gtk.Button" id="buttonRemoveAddress">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextAndIcon</property>
+                                <property name="Icon">stock:gtk-remove Menu</property>
+                                <property name="Label" translatable="yes">Убрать адрес</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonRemoveAddressClicked" />
+                              </widget>
+                              <packing>
+                                <property name="Position">2</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="Position">1</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="Position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="label6">
+                        <property name="MemberName" />
+                        <property name="LabelProp" translatable="yes">Маршруты</property>
+                        <property name="Angle">270</property>
+                      </widget>
+                      <packing>
+                        <property name="type">tab</property>
                       </packing>
                     </child>
                   </widget>
                   <packing>
                     <property name="Position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Label" id="label5">
-                    <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes">Экспедиторы</property>
-                    <property name="Angle">270</property>
-                  </widget>
-                  <packing>
-                    <property name="type">tab</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.VBox" id="vboxRouteLists">
-                    <property name="MemberName" />
-                    <property name="Spacing">6</property>
-                    <child>
-                      <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
-                        <property name="MemberName" />
-                        <property name="ShadowType">In</property>
-                        <child>
-                          <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeRoutes">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="ShowScrollbars">True</property>
-                          </widget>
-                        </child>
-                      </widget>
-                      <packing>
-                        <property name="Position">0</property>
-                        <property name="AutoSize">True</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="Gtk.HBox" id="hbox5">
-                        <property name="MemberName" />
-                        <property name="Spacing">6</property>
-                        <child>
-                          <widget class="Gtk.Button" id="buttonOpen">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="Type">TextOnly</property>
-                            <property name="Label" translatable="yes">Открыть</property>
-                            <property name="UseUnderline">True</property>
-                            <signal name="Clicked" handler="OnButtonOpenClicked" />
-                          </widget>
-                          <packing>
-                            <property name="Position">0</property>
-                            <property name="AutoSize">True</property>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="Gtk.Button" id="buttonRebuildRoute">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="Type">TextAndIcon</property>
-                            <property name="Icon">resource:Vodovoz.icons.buttons.sort-ascending.png</property>
-                            <property name="Label" translatable="yes">Перестроить маршрут</property>
-                            <property name="UseUnderline">True</property>
-                            <signal name="Clicked" handler="OnButtonRebuildRouteClicked" />
-                          </widget>
-                          <packing>
-                            <property name="Position">1</property>
-                            <property name="AutoSize">True</property>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="Gtk.Button" id="buttonRemoveAddress">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="Type">TextAndIcon</property>
-                            <property name="Icon">stock:gtk-remove Menu</property>
-                            <property name="Label" translatable="yes">Убрать адрес</property>
-                            <property name="UseUnderline">True</property>
-                            <signal name="Clicked" handler="OnButtonRemoveAddressClicked" />
-                          </widget>
-                          <packing>
-                            <property name="Position">2</property>
-                            <property name="AutoSize">True</property>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
-                          </packing>
-                        </child>
-                      </widget>
-                      <packing>
-                        <property name="Position">1</property>
-                        <property name="AutoSize">True</property>
-                        <property name="Expand">False</property>
-                        <property name="Fill">False</property>
-                      </packing>
-                    </child>
-                  </widget>
-                  <packing>
-                    <property name="Position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Label" id="label6">
-                    <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes">Маршруты</property>
-                    <property name="Angle">270</property>
-                  </widget>
-                  <packing>
-                    <property name="type">tab</property>
+                    <property name="AutoSize">True</property>
                   </packing>
                 </child>
               </widget>
               <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
+                <property name="Resize">False</property>
               </packing>
             </child>
             <child>
@@ -44507,7 +44529,8 @@ not tooltip</property>
                       </widget>
                       <packing>
                         <property name="Position">3</property>
-                        <property name="AutoSize">True</property>
+                        <property name="AutoSize">False</property>
+                        <property name="Expand">False</property>
                       </packing>
                     </child>
                     <child>
@@ -44533,21 +44556,12 @@ not tooltip</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Button" id="buttonMapHelp">
+                      <widget class="Gtk.VSeparator" id="vseparator2">
                         <property name="MemberName" />
-                        <property name="Tooltip" translatable="yes">Справка по работе с картой.</property>
-                        <property name="CanFocus">True</property>
-                        <property name="Type">TextAndIcon</property>
-                        <property name="Icon">stock:gtk-help Menu</property>
-                        <property name="Label" translatable="yes" />
-                        <property name="UseUnderline">True</property>
-                        <property name="Relief">Half</property>
-                        <signal name="Clicked" handler="OnButtonMapHelpClicked" />
                       </widget>
                       <packing>
-                        <property name="PackType">End</property>
                         <property name="Position">5</property>
-                        <property name="AutoSize">True</property>
+                        <property name="AutoSize">False</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>
                       </packing>
@@ -44564,11 +44578,28 @@ not tooltip</property>
                         <signal name="ChangedByUser" handler="OnYenumcomboMapTypeChangedByUser" />
                       </widget>
                       <packing>
-                        <property name="PackType">End</property>
                         <property name="Position">6</property>
                         <property name="AutoSize">True</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Button" id="buttonMapHelp">
+                        <property name="MemberName" />
+                        <property name="Tooltip" translatable="yes">Справка по работе с картой.</property>
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextAndIcon</property>
+                        <property name="Icon">stock:gtk-help Menu</property>
+                        <property name="Label" translatable="yes" />
+                        <property name="UseUnderline">True</property>
+                        <property name="Relief">Half</property>
+                        <signal name="Clicked" handler="OnButtonMapHelpClicked" />
+                      </widget>
+                      <packing>
+                        <property name="Position">7</property>
+                        <property name="AutoSize">False</property>
+                        <property name="Expand">False</property>
                       </packing>
                     </child>
                   </widget>
@@ -44602,15 +44633,11 @@ not tooltip</property>
                   </packing>
                 </child>
               </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">False</property>
-              </packing>
             </child>
           </widget>
           <packing>
             <property name="Position">1</property>
-            <property name="AutoSize">False</property>
+            <property name="AutoSize">True</property>
           </packing>
         </child>
       </widget>

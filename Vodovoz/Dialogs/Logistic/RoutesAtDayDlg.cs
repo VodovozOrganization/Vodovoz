@@ -41,7 +41,7 @@ namespace Vodovoz
 		private readonly GMapOverlay routeOverlay = new GMapOverlay("route");
 		private GMapPolygon brokenSelection;
 		private List<GMapMarker> selectedMarkers = new List<GMapMarker>();
-		IList<Domain.Orders.Order> ordersAtDay;
+		IList<Order> ordersAtDay;
 		IList<RouteList> routesAtDay;
 		IList<AtWorkDriver> driversAtDay;
 		IList<AtWorkForwarder> forwardersAtDay;
@@ -92,12 +92,8 @@ namespace Vodovoz
 		#endregion
 
 		public override string TabName {
-			get {
-				return String.Format("Формирование МЛ на {0:d}", ydateForRoutes.Date);
-			}
-			protected set {
-				throw new InvalidOperationException("Установка протеворечит логике работы.");
-			}
+			get => String.Format("Формирование МЛ на {0:d}", ydateForRoutes.Date);
+			protected set => throw new InvalidOperationException("Установка протеворечит логике работы.");
 		}
 
 		public enum RouteColumnTag
@@ -112,7 +108,7 @@ namespace Vodovoz
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			if(progressOrders.Adjustment == null)
-				progressOrders.Adjustment = new Gtk.Adjustment(0, 0, 0, 1, 1, 0);
+				progressOrders.Adjustment = new Adjustment(0, 0, 0, 1, 1, 0);
 
 			//Configure map
 			districtsOverlay.IsVisibile = false;
@@ -146,8 +142,8 @@ namespace Vodovoz
 					.AddColumn("Вес").AddTextRenderer(x => GetRowWeight(x), useMarkup: true)
 					.AddColumn("Погрузка").Tag(RouteColumnTag.OnloadTime).AddTextRenderer(x => GetRowOnloadTime(x), useMarkup: true).AddSetter((c, n) => c.Editable = n is RouteList).EditedEvent(OnLoadTimeEdited)
 					.AddColumn("Километраж").AddTextRenderer(x => GetRowDistance(x))
-					.AddColumn("К клиенту").AddTextRenderer(x => GetRowEquipmentToClien(x))
-					.AddColumn("От клиента").AddTextRenderer(x => GetRowEquipmentFromClien(x))
+					.AddColumn("К клиенту").AddTextRenderer(x => GetRowEquipmentToClient(x))
+					.AddColumn("От клиента").AddTextRenderer(x => GetRowEquipmentFromClient(x))
 					.Finish();
 
 			ytreeRoutes.HasTooltip = true;
@@ -193,7 +189,7 @@ namespace Vodovoz
 
 		private Subdivision ClosingSubdivision => yspeccomboboxCashSubdivision.SelectedItem as Subdivision;
 
-		void GmapWidget_ButtonReleaseEvent(object o, Gtk.ButtonReleaseEventArgs args)
+		void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
 		{
 			if(dragSelectionPointId != -1) {
 				gmapWidget.DisableAltForSelection = true;
@@ -202,7 +198,7 @@ namespace Vodovoz
 			}
 		}
 
-		void GmapWidget_MotionNotifyEvent(object o, Gtk.MotionNotifyEventArgs args)
+		void GmapWidget_MotionNotifyEvent(object o, MotionNotifyEventArgs args)
 		{
 			if(dragSelectionPointId > -1) {
 				brokenSelection.Points[dragSelectionPointId] = gmapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
@@ -211,7 +207,7 @@ namespace Vodovoz
 			}
 		}
 
-		void YtreeRoutes_QueryTooltip(object o, Gtk.QueryTooltipArgs args)
+		void YtreeRoutes_QueryTooltip(object o, QueryTooltipArgs args)
 		{
 			ytreeRoutes.ConvertWidgetToBinWindowCoords(args.X, args.Y, out int binX, out int binY);
 
@@ -240,7 +236,7 @@ namespace Vodovoz
 		bool poligonSelection;
 		int dragSelectionPointId = -1;
 
-		void GmapWidget_ButtonPressEvent(object o, Gtk.ButtonPressEventArgs args)
+		void GmapWidget_ButtonPressEvent(object o, ButtonPressEventArgs args)
 		{
 			if(args.Event.Button == 1) {
 				bool markerIsSelect = false;
@@ -316,7 +312,7 @@ namespace Vodovoz
 		{
 			List<RouteList> routeLists = e.UpdatedSubjects
 											.Where(rl => rl.Date.Date == ydateForRoutes.Date.Date)
-											.ToList<RouteList>();
+											.ToList();
 
 			bool foundRL = routeLists != null && routeLists.Any();
 
@@ -508,7 +504,7 @@ namespace Vodovoz
 			return null;
 		}
 
-		string GetRowEquipmentFromClien(object row)
+		string GetRowEquipmentFromClient(object row)
 		{
 			if(row is RouteListItem rli) {
 				return rli.Order.FromClientText;
@@ -516,7 +512,7 @@ namespace Vodovoz
 			return null;
 		}
 
-		string GetRowEquipmentToClien(object row)
+		string GetRowEquipmentToClient(object row)
 		{
 			string nomenclatureName = null;
 			if(row is RouteListItem rli) {
@@ -866,7 +862,7 @@ namespace Vodovoz
 
 		void UpdateRoutesButton()
 		{
-			var menu = new Gtk.Menu();
+			var menu = new Menu();
 			foreach(var route in routesAtDay) {
 				var name = String.Format("МЛ №{0} - {1}", route.Id, route.Driver.ShortName);
 				var item = new MenuItemId<RouteList>(name) {
@@ -1035,9 +1031,9 @@ namespace Vodovoz
 			var row = ytreeRoutes.GetSelectedObject();
 			//Открываем заказ
 			if(row is RouteListItem) {
-				Domain.Orders.Order order = (row as RouteListItem).Order;
+				Order order = (row as RouteListItem).Order;
 				TabParent.OpenTab(
-					DialogHelper.GenerateDialogHashName<Domain.Orders.Order>(order.Id),
+					DialogHelper.GenerateDialogHashName<Order>(order.Id),
 					() => new OrderDlg(order)
 				);
 			}
@@ -1263,9 +1259,9 @@ namespace Vodovoz
 			driver.Car = car;
 		}
 
-		void OnLoadTimeEdited(object o, Gtk.EditedArgs args)
+		void OnLoadTimeEdited(object o, EditedArgs args)
 		{
-			var routeList = (RouteList)ytreeRoutes.YTreeModel.NodeAtPath(new Gtk.TreePath(args.Path));
+			var routeList = (RouteList)ytreeRoutes.YTreeModel.NodeAtPath(new TreePath(args.Path));
 			bool NeedRecalculate = false;
 
 			if(String.IsNullOrWhiteSpace(args.NewText)) {
