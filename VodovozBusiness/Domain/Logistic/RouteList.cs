@@ -1173,7 +1173,7 @@ namespace Vodovoz.Domain.Logistic
 				throw new InvalidOperationException(String.Format("Должен быть заполнен кассир"));
 			}
 
-			if(!PermissionRepository.HasAccessToClosingRoutelist(UoW)) {
+			if(!PermissionRepository.HasAccessToClosingRoutelist()) {
 				return;
 			}
 
@@ -1328,11 +1328,11 @@ namespace Vodovoz.Domain.Logistic
 					Casher = this.Cashier,
 					Employee = Driver,
 					Description = $"Закрытие МЛ №{Id} от {Date:d}",
-					Money = Math.Round(different, 0, MidpointRounding.AwayFromZero),
+					Money = Math.Round(different, 2, MidpointRounding.AwayFromZero),
 					RouteListClosing = this,
 					RelatedToSubdivision = ClosingSubdivision
 				};
-				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money:C0}");
+				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money}");
 			} else {
 				cashExpense = new Expense {
 					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
@@ -1341,11 +1341,11 @@ namespace Vodovoz.Domain.Logistic
 					Casher = this.Cashier,
 					Employee = Driver,
 					Description = $"Закрытие МЛ #{Id} от {Date:d}",
-					Money = Math.Round(-different, 0, MidpointRounding.AwayFromZero),
+					Money = Math.Round(-different, 2, MidpointRounding.AwayFromZero),
 					RouteListClosing = this,
 					RelatedToSubdivision = ClosingSubdivision
 				};
-				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money:C0}");
+				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money}");
 			}
 
 			if(cashIncome != null) UoW.Save(cashIncome);

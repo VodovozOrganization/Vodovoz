@@ -65,7 +65,7 @@ namespace Vodovoz
 					break;
 				case RouteListStatus.OnClosing:
 				case RouteListStatus.Closed:
-					if(PermissionRepository.HasAccessToClosingRoutelist(uow)) {
+					if(PermissionRepository.HasAccessToClosingRoutelist()) {
 						TabParent.OpenTab(RouteListClosingDlg.GenerateHashName(node.Id), () => new RouteListClosingDlg(node.Id));
 					} else {
 						MessageDialogHelper.RunWarningDialog("Доступ запрещен");

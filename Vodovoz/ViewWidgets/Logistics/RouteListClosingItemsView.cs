@@ -288,17 +288,18 @@ namespace Vodovoz
 		private void EmptyBottleCellSetter(Gamma.GtkWidgets.Cells.NodeCellRendererSpin<RouteListItem> cell, RouteListItem node)
 		{
 			if(!ytreeviewItems.Sensitive) {
-				cell.Weight = 700; 
+				cell.Weight = 700;
+				return;
 			}
-			if(node.DriverBottlesReturned.HasValue)
-			{
-				if(node.BottlesReturned == node.DriverBottlesReturned)
+			if(node.DriverBottlesReturned.HasValue) {
+				if(node.BottlesReturned == node.DriverBottlesReturned) {
 					cell.Foreground = "Green";
-				else
+				} else {
 					cell.Foreground = "Blue";
-			}
-			else
+				}
+			} else {
 				cell.Foreground = "Black";
+			}
 		}
 			
 		public string WaterToClientString(RouteListItem item, int id)

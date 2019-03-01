@@ -24,6 +24,7 @@ using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
+using Vodovoz.Repositories.Permissions;
 
 namespace Vodovoz
 {
@@ -36,6 +37,7 @@ namespace Vodovoz
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
 		private bool editing = QSMain.User.Permissions["money_manage_cash"];
+		private bool canCloseRoutelist = false;
 		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;
 
@@ -91,6 +93,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			canCloseRoutelist = PermissionRepository.HasAccessToClosingRoutelist();
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 			referenceCar.SubjectType = typeof(Car);
@@ -237,7 +240,7 @@ namespace Vodovoz
 			if(Entity.Status != RouteListStatus.OnClosing && Entity.Status != RouteListStatus.MileageCheck) {
 				vboxRouteList.Sensitive = false;
 				buttonSave.Sensitive = false;
-				hboxRouteListActions.Sensitive = false;
+				enummenuRLActions.Sensitive = false;
 
 				HasChanges = false;
 
@@ -455,7 +458,10 @@ namespace Vodovoz
 
 		void UpdateButtonState()
 		{
-			buttonAccept.Sensitive =( Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck ) && isConsistentWithUnloadDocument();
+			buttonAccept.Sensitive = 
+				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck) 
+				&& isConsistentWithUnloadDocument()
+				&& canCloseRoutelist;
 		}
 
 		private bool buttonFineEditState;
@@ -628,7 +634,7 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			if(!isConsistentWithUnloadDocument()) {
+			if(!isConsistentWithUnloadDocument() || !canCloseRoutelist) {
 				return;
 			}
 

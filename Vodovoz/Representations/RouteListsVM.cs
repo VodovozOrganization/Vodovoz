@@ -276,20 +276,11 @@ namespace Vodovoz.ViewModel
 				KeepingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemRouteListKeepingDlg);
 
-			if(!PermissionRepository.HasAccessToClosingRoutelist(UoW)) {
-				Gtk.MenuItem menuItemTakeMoney = new Gtk.MenuItem("Принять ДС по МЛ");
-				menuItemTakeMoney.Activated += MenuItemTakeMoney_Activated;
-				menuItemTakeMoney.Sensitive = selected.Any(x =>
-					TakingMoneyStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
-				popupMenu.Add(menuItemTakeMoney);
-			} else {
-				Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem("Открыть диалог закрытия");
-				menuItemRouteListClosingDlg.Activated += MenuItemRouteListClosingDlg_Activated;
-				menuItemRouteListClosingDlg.Sensitive = selected.Any(x =>
-					ClosingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
-				popupMenu.Add(menuItemRouteListClosingDlg);
-			}
-
+			Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem("Открыть диалог закрытия");
+			menuItemRouteListClosingDlg.Activated += MenuItemRouteListClosingDlg_Activated;
+			menuItemRouteListClosingDlg.Sensitive = selected.Any(x =>
+				ClosingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
+			popupMenu.Add(menuItemRouteListClosingDlg);
 
 			Gtk.MenuItem menuItemRouteListMileageCheckDlg = new Gtk.MenuItem("Открыть диалог проверки километража");
 			menuItemRouteListMileageCheckDlg.Activated += MenuItemRouteListMileageCheckDlg_Activated;
@@ -337,19 +328,6 @@ namespace Vodovoz.ViewModel
 					() => new RouteListMileageCheckDlg(rl.Id)
 				);
 			}
-		}
-
-		void MenuItemTakeMoney_Activated(object sender, EventArgs e)
-		{
-			//открыть приходный ордер на выбранный МЛ
-			if(lastMenuSelected.Count() == 1) {
-				var cashIncomeDlg = new CashIncomeDlg();
-				cashIncomeDlg.FillForRoutelist(lastMenuSelected.First().EntityId);
-				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<Income>(0),
-					() => cashIncomeDlg
-				);
-			}		
 		}
 
 		void MenuItemRouteListClosingDlg_Activated(object sender, EventArgs e)
