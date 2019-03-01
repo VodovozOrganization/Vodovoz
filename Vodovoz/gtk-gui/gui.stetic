@@ -45606,7 +45606,7 @@ not tooltip</property>
     <child>
       <widget class="Gtk.Table" id="table1">
         <property name="MemberName" />
-        <property name="NRows">5</property>
+        <property name="NRows">6</property>
         <property name="NColumns">3</property>
         <property name="RowSpacing">6</property>
         <property name="ColumnSpacing">6</property>
@@ -45644,7 +45644,7 @@ not tooltip</property>
           </widget>
           <packing>
             <property name="TopAttach">1</property>
-            <property name="BottomAttach">4</property>
+            <property name="BottomAttach">5</property>
             <property name="LeftAttach">2</property>
             <property name="RightAttach">3</property>
             <property name="AutoSize">False</property>
@@ -45665,82 +45665,24 @@ not tooltip</property>
               <widget class="Gtk.Notebook" id="notebook1">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="CurrentPage">3</property>
+                <property name="CurrentPage">0</property>
                 <child>
-                  <widget class="Gtk.VBox" id="vbox2">
+                  <widget class="Vodovoz.Core.Permissions.SubdivisionEntityPermissionWidget" id="subdivisionentitypermissionwidget">
                     <property name="MemberName" />
-                    <property name="Spacing">6</property>
-                    <child>
-                      <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
-                        <property name="MemberName" />
-                        <property name="ShadowType">In</property>
-                        <child>
-                          <widget class="QSOrmProject.RepresentationTreeView" id="repTreeDistricts">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="ShowScrollbars">True</property>
-                          </widget>
-                        </child>
-                      </widget>
-                      <packing>
-                        <property name="Position">0</property>
-                        <property name="AutoSize">True</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="Gtk.HButtonBox" id="hbuttonbox2">
-                        <property name="MemberName" />
-                        <property name="Size">2</property>
-                        <child>
-                          <widget class="Gtk.Button" id="btnAddDistrict">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="Type">TextOnly</property>
-                            <property name="Label" translatable="yes">Добавить район</property>
-                            <property name="UseUnderline">True</property>
-                            <signal name="Clicked" handler="OnBtnAddDistrictClicked" />
-                          </widget>
-                          <packing>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="Gtk.Button" id="btnRemoveDistrict">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="Type">TextOnly</property>
-                            <property name="Label" translatable="yes">Удалить район</property>
-                            <property name="UseUnderline">True</property>
-                            <signal name="Clicked" handler="OnBtnRemoveDistrictClicked" />
-                          </widget>
-                          <packing>
-                            <property name="Position">1</property>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
-                          </packing>
-                        </child>
-                      </widget>
-                      <packing>
-                        <property name="Position">1</property>
-                        <property name="AutoSize">False</property>
-                        <property name="Expand">False</property>
-                        <property name="Fill">False</property>
-                      </packing>
-                    </child>
+                    <property name="Events">ButtonPressMask</property>
                   </widget>
                 </child>
                 <child>
-                  <widget class="Gtk.Label" id="labelDistricts">
+                  <widget class="Gtk.Label" id="labelPermissions">
                     <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes">Обслуживаемые районы</property>
+                    <property name="LabelProp" translatable="yes">Права доступа</property>
                   </widget>
                   <packing>
                     <property name="type">tab</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow2">
                     <property name="MemberName" />
                     <property name="ShadowType">In</property>
                     <child>
@@ -45759,24 +45701,6 @@ not tooltip</property>
                   <widget class="Gtk.Label" id="labelChildSubdivizions">
                     <property name="MemberName" />
                     <property name="LabelProp" translatable="yes">Дочерние подразделения</property>
-                  </widget>
-                  <packing>
-                    <property name="type">tab</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Vodovoz.Core.Permissions.SubdivisionEntityPermissionWidget" id="subdivisionentitypermissionwidget">
-                    <property name="MemberName" />
-                    <property name="Events">ButtonPressMask</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Label" id="labelPermissions">
-                    <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes">Права доступа</property>
                   </widget>
                   <packing>
                     <property name="type">tab</property>
@@ -45852,7 +45776,7 @@ not tooltip</property>
                     </child>
                   </widget>
                   <packing>
-                    <property name="Position">3</property>
+                    <property name="Position">2</property>
                   </packing>
                 </child>
                 <child>
@@ -45872,8 +45796,8 @@ not tooltip</property>
             </child>
           </widget>
           <packing>
-            <property name="TopAttach">4</property>
-            <property name="BottomAttach">5</property>
+            <property name="TopAttach">5</property>
+            <property name="BottomAttach">6</property>
             <property name="RightAttach">3</property>
             <property name="AutoSize">False</property>
             <property name="XExpand">True</property>
@@ -45972,6 +45896,26 @@ not tooltip</property>
           </packing>
         </child>
         <child>
+          <widget class="Gtk.Label" id="lblGeographicGroup">
+            <property name="MemberName" />
+            <property name="Xalign">1</property>
+            <property name="LabelProp" translatable="yes">Местоположение подразделения:</property>
+          </widget>
+          <packing>
+            <property name="TopAttach">4</property>
+            <property name="BottomAttach">5</property>
+            <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
           <widget class="Gtk.Label" id="lblParent">
             <property name="MemberName" />
             <property name="Xalign">1</property>
@@ -46045,6 +45989,32 @@ not tooltip</property>
             <property name="AutoSize">False</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">True</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gamma.Widgets.ySpecComboBox" id="ySpecCmbGeographicGroup">
+            <property name="MemberName" />
+            <property name="IsTextCombo">False</property>
+            <property name="Items" translatable="yes" />
+            <property name="AddIfNotExist">False</property>
+            <property name="DefaultFirst">False</property>
+            <property name="ShowSpecialStateAll">False</property>
+            <property name="ShowSpecialStateNot">True</property>
+          </widget>
+          <packing>
+            <property name="TopAttach">4</property>
+            <property name="BottomAttach">5</property>
+            <property name="LeftAttach">1</property>
+            <property name="RightAttach">2</property>
+            <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -54264,6 +54234,7 @@ not tooltip</property>
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
                                     <property name="Label" translatable="yes">ПН</property>
+                                    <property name="Active">True</property>
                                     <property name="DrawIndicator">False</property>
                                     <property name="HasLabel">True</property>
                                     <property name="Group">group1</property>

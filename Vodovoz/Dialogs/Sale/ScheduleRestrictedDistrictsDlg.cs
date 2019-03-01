@@ -226,6 +226,7 @@ namespace Vodovoz.Dialogs.Logistic
 			buttonRemoveBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1 && currentDistrict != null && currentDistrict.DistrictBorder != null;
 			btnEditDistrict.Sensitive = buttonAddSchedule.Sensitive = currentDistrict != null;
 			vboxGeographicGroups.Visible = vboxSchedules.Visible = currentDistrict != null;
+			btnAddGeographicGroup.Sensitive = currentDistrict != null && !currentDistrict.GeographicGroups.Any();
 		}
 
 		IList<ScheduleRestrictedDistrict> GetAllDistricts()

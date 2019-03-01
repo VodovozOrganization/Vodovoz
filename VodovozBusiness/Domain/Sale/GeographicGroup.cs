@@ -18,40 +18,39 @@ namespace Vodovoz.Domain.Sale
 		string name;
 
 		[Display(Name = "Название")]
-		[Required(ErrorMessage = "Название района города должно быть заполнено")]
+		[Required(ErrorMessage = "Название части города должно быть заполнено")]
 		public virtual string Name {
 			get => name;
 			set => SetField(ref name, value, () => Name);
 		}
 
-		decimal? latitude;
-		[Display(Name = "Широта")]
+		decimal? baseLatitude;
+		[Display(Name = "Широта координат базы")]
 		[PropertyChangedAlso("СoordinatesText")]
-		public virtual decimal? Latitude {
-			get { return latitude; }
-			protected set { SetField(ref latitude, value, () => Latitude); }
+		public virtual decimal? BaseLatitude {
+			get { return baseLatitude; }
+			protected set { SetField(ref baseLatitude, value, () => BaseLatitude); }
 		}
 
-		decimal? longitude;
-		[Display(Name = "Долгота")]
+		decimal? baseLongitude;
+		[Display(Name = "Долгота координат базы")]
 		[PropertyChangedAlso("СoordinatesText")]
-		public virtual decimal? Longitude {
-			get { return longitude; }
-			protected set { SetField(ref longitude, value, () => Longitude); }
+		public virtual decimal? BaseLongitude {
+			get { return baseLongitude; }
+			protected set { SetField(ref baseLongitude, value, () => BaseLongitude); }
 		}
-
 
 		#region calculated properties
-		public virtual bool HasCoordinates => Latitude.HasValue && Longitude.HasValue;
+		public virtual bool HasCoordinates => BaseLatitude.HasValue && BaseLongitude.HasValue;
 
-		public virtual string CoordinatesText => HasCoordinates ? string.Format("(ш. {0:F5}, д. {1:F5})", Latitude, Longitude) : string.Empty;
+		public virtual string CoordinatesText => HasCoordinates ? string.Format("(ш. {0:F5}, д. {1:F5})", BaseLatitude, BaseLongitude) : string.Empty;
 		#endregion
 
 		public virtual void SetСoordinates(decimal? latitude, decimal? longitude)
 		{
-			if(!EqualCoords(Latitude, latitude) || !EqualCoords(Longitude, longitude)) {
-				Latitude = latitude;
-				Longitude = longitude;
+			if(!EqualCoords(BaseLatitude, latitude) || !EqualCoords(BaseLongitude, longitude)) {
+				BaseLatitude = latitude;
+				BaseLongitude = longitude;
 			}
 		}
 
@@ -73,10 +72,10 @@ namespace Vodovoz.Domain.Sale
 		{
 			if(!HasCoordinates)
 				yield return new ValidationResult(
-					"Укажите координаты базы, обслуживающей этот район города",
+					"Укажите координаты базы, обслуживающей эту часть города",
 					new[] {
-						this.GetPropertyName(o => o.Latitude),
-						this.GetPropertyName(o => o.Longitude)
+						this.GetPropertyName(o => o.BaseLatitude),
+						this.GetPropertyName(o => o.BaseLongitude)
 					}
 				);
 		}

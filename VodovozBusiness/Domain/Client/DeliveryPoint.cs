@@ -647,9 +647,9 @@ namespace Vodovoz.Domain.Client
 
 			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
 				return true;
-
+			var gg = District.GeographicGroups.FirstOrDefault();
 			var route = new List<PointOnEarth>(2) {
-				new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude),
+				new PointOnEarth((double)gg.BaseLatitude.Value, (double)gg.BaseLongitude.Value),
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
 

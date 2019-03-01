@@ -90,10 +90,9 @@ namespace Vodovoz.Tools.Logistic
 				var point = new Point((double)latitude, (double)longitude);
 				var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
 				result.DistrictName = district?.DistrictName ?? String.Empty;
-				result.WarehousesList = String.Join(
+				result.GeographicGroups = string.Join(
 					", ",
-					ScheduleRestrictionRepository.GetShippingWarehouseForDistrict(uow, district)
-												 .Select(w => w.Name)
+					district.GeographicGroups.Select(g => g.Name)
 				);
 				result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
 				result.WithPrice = (
@@ -136,7 +135,7 @@ namespace Vodovoz.Tools.Logistic
 		public bool ByDistance { get; set; }
 		public bool WithPrice { get; set; }
 		public string DistrictName { get; set; }
-		public string WarehousesList { get; set; }
+		public string GeographicGroups { get; set; }
 
 		string errorMessage;
 		public string ErrorMessage {
@@ -162,7 +161,7 @@ namespace Vodovoz.Tools.Logistic
 			MinBottles = String.Empty;
 			Schedule = String.Empty;
 			DistrictName = String.Empty;
-			WarehousesList = String.Empty;
+			GeographicGroups = String.Empty;
 			Prices = new List<DeliveryPriceRow>();
 		}
 	}

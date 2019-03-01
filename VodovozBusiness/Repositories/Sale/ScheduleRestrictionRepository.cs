@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
@@ -26,20 +27,17 @@ namespace Vodovoz.Repositories.Sale
 		/// <returns>Список складо</returns>
 		/// <param name="uow">Uow.</param>
 		/// <param name="district">Район</param>
-		public static IList<Warehouse> GetShippingWarehouseForDistrict(IUnitOfWork uow, ScheduleRestrictedDistrict district)
+		public static IList<Warehouse> GetShippingWarehousesForDistrict(IUnitOfWork uow, ScheduleRestrictedDistrict district)
 		{
-			if(district == null)
+			var ggId = district.GeographicGroups?.FirstOrDefault().Id;
+			if(ggId == null)
 				return new List<Warehouse>();
-			Subdivision subdivisionAlias = null;
-			ScheduleRestrictedDistrict districtAlias = null;
 			var subquery = QueryOver.Of<Subdivision>()
-									.JoinAlias(x => x.ServicingDistricts, () => districtAlias)
-									.Where(() => districtAlias.Id == district.Id)
+									.Where(s => s.GeographicGroup.Id == ggId)
 									.Select(s => s.Id)
 									;
 
 			var whs = uow.Session.QueryOver<Warehouse>()
-						.Left.JoinAlias(w => w.OwningSubdivision, () => subdivisionAlias)
 						.WithSubquery
 						.WhereProperty(w => w.OwningSubdivision.Id).In(subquery)
 						.List()
