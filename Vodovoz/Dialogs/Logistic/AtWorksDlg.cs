@@ -93,7 +93,7 @@ namespace Vodovoz.Dialogs.Logistic
 					.FillItems(uow.GetAll<DeliveryDaySchedule>().ToList()).Editing()
 				.AddColumn("Оконч. работы").AddTextRenderer(x => x.EndOfDayText).Editable()
 				.AddColumn("Экспедитор").AddComboRenderer(x => x.WithForwarder)
-				.SetDisplayFunc(x => x.Employee.ShortName).Editing().Tag(Columns.Forwarder)
+					.SetDisplayFunc(x => x.Employee.ShortName).Editing().Tag(Columns.Forwarder)
 				.AddColumn("Автомобиль")
 					.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
 					.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")

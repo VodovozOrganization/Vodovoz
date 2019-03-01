@@ -29,6 +29,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools.Logistic;
+using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz
 {
@@ -166,15 +167,29 @@ namespace Vodovoz
 			ytreeRoutes.QueryTooltip += YtreeRoutes_QueryTooltip;
 			ytreeRoutes.Selection.Changed += YtreeRoutes_Selection_Changed;
 
+			var colorWhite = new Color(0xff, 0xff, 0xff);
+			var colorLightRed = new Color(0xff, 0x66, 0x66);
 			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
 																				   .AddColumn("Водитель")
 																				   		.AddTextRenderer(x => x.Employee.ShortName)
 																				   .AddColumn("Автомобиль")
 																						.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
 																						.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
+																					.AddColumn("База")
+																						.AddComboRenderer(x => x.GeographicGroup)
+																						.SetDisplayFunc(x => x.Name)
+																						.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
+																						.AddSetter(
+																							(c, n) => {
+																								c.Editable = true;
+																								c.BackgroundGdk = n.GeographicGroup == null
+																									? colorLightRed
+																									: colorWhite;
+																							}
+																						)
 																				   .AddColumn("")
 																				   .Finish();
-			ytreeviewOnDayDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
+			ytreeviewOnDayDrivers.Selection.Mode = SelectionMode.Multiple;
 
 			ytreeviewOnDayDrivers.Selection.Changed += YtreeviewDrivers_Selection_Changed;
 
@@ -182,7 +197,7 @@ namespace Vodovoz
 																						 .AddColumn("Экспедитор")
 																						 	.AddTextRenderer(x => x.Employee.ShortName)
 																						 .Finish();
-			ytreeviewOnDayForwarders.Selection.Mode = Gtk.SelectionMode.Multiple;
+			ytreeviewOnDayForwarders.Selection.Mode = SelectionMode.Multiple;
 
 			ytreeviewOnDayForwarders.Selection.Changed += ytreeviewForwarders_Selection_Changed;
 
@@ -639,7 +654,7 @@ namespace Vodovoz
 			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
 			MainClass.progressBarWin.ProgressAdd();
 
-			var routesQuery1 = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
+			var routesQuery1 = RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
 				.GetExecutableQueryOver(UoW.Session);
 			if(!checkShowCompleted.Active)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
@@ -647,7 +662,7 @@ namespace Vodovoz
 				.Fetch(SelectMode.Fetch, x => x.Addresses)
 				.Future();
 
-			var routesQuery2 = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
+			var routesQuery2 = RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
 				.GetExecutableQueryOver(UoW.Session);
 			if(!checkShowCompleted.Active)
 				routesQuery2.Where(x => x.Status == RouteListStatus.New);
@@ -667,11 +682,11 @@ namespace Vodovoz
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем водителей на {0:d}...", ydateForRoutes.Date);
-			DriversAtDay = Repository.Logistics.AtWorkRepository.GetDriversAtDay(UoW, ydateForRoutes.Date);
+			DriversAtDay = AtWorkRepository.GetDriversAtDay(UoW, ydateForRoutes.Date);
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем экспедиторов на {0:d}...", ydateForRoutes.Date);
-			ForwardersAtDay = Repository.Logistics.AtWorkRepository.GetForwardersAtDay(UoW, ydateForRoutes.Date);
+			ForwardersAtDay = AtWorkRepository.GetForwardersAtDay(UoW, ydateForRoutes.Date);
 
 			MainClass.progressBarWin.ProgressAdd();
 			UpdateAddressesOnMap();
@@ -1126,9 +1141,13 @@ namespace Vodovoz
 			MainClass.progressBarWin.ProgressAdd();
 
 			foreach(var driver in addDrivers) {
-				driversAtDay.Add(new AtWorkDriver(driver, CurDate,
-												  allCars.FirstOrDefault(x => x.Driver.Id == driver.Id)
-												 ));
+				driversAtDay.Add(
+					new AtWorkDriver(
+						driver,
+						CurDate,
+						allCars.FirstOrDefault(x => x.Driver.Id == driver.Id)
+					)
+				);
 			}
 			MainClass.progressBarWin.ProgressAdd();
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
@@ -1254,7 +1273,7 @@ namespace Vodovoz
 		{
 			var SelectDriverCar = new OrmReference(
 				UoW,
-				Repository.Logistics.CarRepository.ActiveCompanyCarsQuery()
+				CarRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
 			SelectDriverCar.Tag = driver;
@@ -1267,8 +1286,18 @@ namespace Vodovoz
 		{
 			var driver = e.Tag as AtWorkDriver;
 			var car = e.Subject as Car;
-			driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
-			driver.Car = car;
+			var driverNames = string.Join("\", \"", driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).Select(x => x.Employee.ShortName));
+			if(
+				string.IsNullOrEmpty(driverNames) || MessageDialogHelper.RunQuestionDialog(
+						"Автомобиль \"{0}\" уже назначен \"{1}\". Переназначить его водителю \"{2}\"?",
+						car.RegistrationNumber,
+						driverNames,
+						driver.Employee.ShortName
+				)
+			) {
+				driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
+				driver.Car = car;
+			}
 		}
 
 		void OnLoadTimeEdited(object o, EditedArgs args)

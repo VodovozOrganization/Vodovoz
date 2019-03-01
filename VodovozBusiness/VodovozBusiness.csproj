@@ -564,6 +564,7 @@
     <Compile Include="Domain\Certificate.cs" />
     <Compile Include="HibernateMapping\CertificateMap.cs" />
     <Compile Include="Domain\Order\Documents\NomenclatureCertificateDocument.cs" />
+    <Compile Include="Repositories\Sale\GeographicGroupRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

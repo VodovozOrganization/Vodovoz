@@ -649,7 +649,7 @@ namespace Vodovoz.Domain.Client
 				return true;
 			var gg = District.GeographicGroups.FirstOrDefault();
 			var route = new List<PointOnEarth>(2) {
-				new PointOnEarth((double)gg.BaseLatitude.Value, (double)gg.BaseLongitude.Value),
+				new PointOnEarth(gg.BaseLatitude.Value, gg.BaseLongitude.Value),
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
 

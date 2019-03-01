@@ -25,45 +25,22 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// </summary>
 		public RouteList OldRoute;
 
-		public Employee Driver{
-			get{
-				return OldRoute?.Driver ?? atWorkDriver.Employee;
-			}
-		}
+		public Employee Driver => OldRoute?.Driver ?? atWorkDriver.Employee;
 
-		public Employee Forwarder {
-			get {
-				if(OldRoute != null)
-					return OldRoute.Forwarder;
-				else
-					return atWorkDriver.WithForwarder?.Employee;
-			}
-		}
+		public Employee Forwarder => OldRoute != null ? OldRoute.Forwarder : atWorkDriver.WithForwarder?.Employee;
 
-		public Car Car{
-			get{
-				return OldRoute != null ? OldRoute.Car : atWorkDriver.Car;
-			}
-		}
+		public Car Car => OldRoute != null ? OldRoute.Car : atWorkDriver.Car;
 
 		/// <summary>
 		/// Если маршрут добавлен в ручную, то используем максимальный приоритет, чтобы этому водителю с большей вероятностью достались адреса.
 		/// </summary>
-		public int DriverPriority{
-			get{ 
-				return OldRoute != null ? 1 : atWorkDriver.PriorityAtDay;
-			}
-		}
+		public int DriverPriority => OldRoute != null ? 1 : atWorkDriver.PriorityAtDay;
 
 		/// <summary>
 		/// Время раннего завершения работы водителя. Это нужно для случая когда водитель говорит логисту я сегодня хочу
 		/// поехать домой пораньше. И работать допустим не до 18 а до 17. Это позволяет не создавать для частных случает укороченных смен.
 		/// </summary>
-		public TimeSpan? EarlyEnd{
-			get{
-				return atWorkDriver?.EndOfDay;
-			}
-		}
+		public TimeSpan? EarlyEnd => atWorkDriver?.EndOfDay;
 
 		/// <summary>
 		/// Приоритетные районы для этой ходки.

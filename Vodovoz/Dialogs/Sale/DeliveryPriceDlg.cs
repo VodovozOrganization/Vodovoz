@@ -4,8 +4,8 @@ using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
+using QS.Dialog.GtkUI;
 using QSOsm.DTO;
-using QSProjectsLib;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Dialogs.Sale
@@ -50,7 +50,7 @@ namespace Vodovoz.Dialogs.Sale
 			MapWidget.Overlays.Add(addressOverlay);
 
 			deliverypriceview.OnError += (sender, e) => {
-				MessageDialogWorks.RunErrorDialog(e);
+				MessageDialogHelper.RunErrorDialog(e);
 			};
 		}
 
@@ -83,7 +83,7 @@ namespace Vodovoz.Dialogs.Sale
 				}
 			}
 			if(error)
-				MessageDialogWorks.RunErrorDialog(
+				MessageDialogHelper.RunErrorDialog(
 					"Буфер обмена не содержит координат или содержит неправильные координаты");
 		}
 

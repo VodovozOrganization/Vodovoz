@@ -41,9 +41,9 @@ namespace Vodovoz.Domain.Sale
 		}
 
 		#region calculated properties
-		public virtual bool HasCoordinates => BaseLatitude.HasValue && BaseLongitude.HasValue;
+		public virtual bool BaseCoordinatesExist => BaseLatitude.HasValue && BaseLongitude.HasValue;
 
-		public virtual string CoordinatesText => HasCoordinates ? string.Format("(ш. {0:F5}, д. {1:F5})", BaseLatitude, BaseLongitude) : string.Empty;
+		public virtual string CoordinatesText => BaseCoordinatesExist ? string.Format("(ш. {0:F5}, д. {1:F5})", BaseLatitude, BaseLongitude) : string.Empty;
 		#endregion
 
 		public virtual void SetСoordinates(decimal? latitude, decimal? longitude)
@@ -70,7 +70,7 @@ namespace Vodovoz.Domain.Sale
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!HasCoordinates)
+			if(!BaseCoordinatesExist)
 				yield return new ValidationResult(
 					"Укажите координаты базы, обслуживающей эту часть города",
 					new[] {

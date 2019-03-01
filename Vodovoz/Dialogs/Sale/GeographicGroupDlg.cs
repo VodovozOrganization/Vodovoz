@@ -46,7 +46,7 @@ namespace Vodovoz.Dialogs.Sale
 			).InitializeFromSource();
 
 			gMapWidget.MapProvider = GMapProviders.YandexMap;
-			gMapWidget.Position = Entity.HasCoordinates ? new PointLatLng((double)Entity.BaseLatitude.Value, (double)Entity.BaseLongitude.Value) : new PointLatLng(59.93900, 30.31646);
+			gMapWidget.Position = Entity.BaseCoordinatesExist ? new PointLatLng((double)Entity.BaseLatitude.Value, (double)Entity.BaseLongitude.Value) : new PointLatLng(59.93900, 30.31646);
 			gMapWidget.MinZoom = 0;
 			gMapWidget.MaxZoom = 24;
 			gMapWidget.Zoom = 9;
@@ -104,7 +104,7 @@ namespace Vodovoz.Dialogs.Sale
 
 		void UpdateMapPosition()
 		{
-			if(Entity.HasCoordinates) {
+			if(Entity.BaseCoordinatesExist) {
 				var position = new PointLatLng((double)Entity.BaseLatitude.Value, (double)Entity.BaseLongitude.Value);
 				if(!gMapWidget.ViewArea.Contains(position)) {
 					gMapWidget.Position = position;
@@ -123,7 +123,7 @@ namespace Vodovoz.Dialogs.Sale
 				addressMarker = null;
 			}
 
-			if(Entity.HasCoordinates) {
+			if(Entity.BaseCoordinatesExist) {
 				addressMarker = new GMarkerGoogle(
 									new PointLatLng(
 										(double)Entity.BaseLatitude.Value,
