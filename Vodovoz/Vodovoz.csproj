@@ -1094,6 +1094,8 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CertificateDlg.cs" />
     <Compile Include="ReportsParameters\Store\NomenclatureForShipment.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NomenclatureForShipment.cs" />
+    <Compile Include="Dialogs\ImageLoaderDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.ImageLoaderDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
