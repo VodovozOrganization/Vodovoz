@@ -26,7 +26,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public double Volume { get; set; }
 
 		public LogisticsArea District { get; set; }
-		public GeographicGroup CityArea => Order?.DeliveryPoint.District?.GeographicGroups.FirstOrDefault();
+
+		GeographicGroup shippingBase;
+		public GeographicGroup ShippingBase {
+			get => shippingBase ?? Order?.DeliveryPoint.District?.GeographicGroups.FirstOrDefault();
+			set => shippingBase = value;
+		}
 
 		public CalculatedOrder(Order order, LogisticsArea district, bool notCalculate = false, RouteList existRoute = null)
 		{

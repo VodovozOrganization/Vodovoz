@@ -199,7 +199,7 @@ namespace Vodovoz
 																						 .Finish();
 			ytreeviewOnDayForwarders.Selection.Mode = SelectionMode.Multiple;
 
-			ytreeviewOnDayForwarders.Selection.Changed += ytreeviewForwarders_Selection_Changed;
+			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
 
 			ytimeToDelivery.Time = TimeSpan.Parse("23:59:00");
 			ydateForRoutes.Date = DateTime.Today;
@@ -382,7 +382,7 @@ namespace Vodovoz
 			buttonRemoveDriver.Sensitive = buttonDriverSelectAuto.Sensitive = ytreeviewOnDayDrivers.Selection.CountSelectedRows() > 0;
 		}
 
-		void ytreeviewForwarders_Selection_Changed(object sender, EventArgs e)
+		void YtreeviewForwarders_Selection_Changed(object sender, EventArgs e)
 		{
 			buttonRemoveForwarder.Sensitive = ytreeviewOnDayForwarders.Selection.CountSelectedRows() > 0;
 		}
