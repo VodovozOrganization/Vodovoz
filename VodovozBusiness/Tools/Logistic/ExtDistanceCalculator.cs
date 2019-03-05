@@ -10,6 +10,8 @@ using QSOsm.Spuntik;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -41,7 +43,7 @@ namespace Vodovoz.Tools.Logistic
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
 
 		Gtk.TextBuffer statisticBuffer;
-		int ProposeNeedCached = 0;
+		int proposeNeedCached = 0;
 		DateTime? startLoadTime;
 		int startCached, totalCached, addedCached, totalPoints, totalErrors;
 		long totalMeters, totalSec;
@@ -79,12 +81,13 @@ namespace Vodovoz.Tools.Logistic
 			Provider = provider;
 			statisticBuffer = buffer;
 			MultiThreadLoad = multiThreadLoad;
-			hashes = points.Select(x => CachedDistance.GetHash(x))
-						   .Concat(new[] { CachedDistance.BaseHash })
+			var basesHashes = GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW).Select(CachedDistance.GetHash);
+			hashes = points.Select(CachedDistance.GetHash)
+						   .Concat(basesHashes)
 						   .Distinct()
 						   .ToArray();
 			totalPoints = hashes.Length;
-			ProposeNeedCached = (hashes.Length * hashes.Length) - hashes.Length;
+			proposeNeedCached = (hashes.Length * hashes.Length) - hashes.Length;
 
 			hashPos = hashes.Select((hash, index) => new { hash, index }).ToDictionary(x => x.hash, x => x.index);
 #if DEBUG
@@ -115,7 +118,7 @@ namespace Vodovoz.Tools.Logistic
 			logger.Debug(String.Join(";", hashes.Select(point => CachedDistance.GetTextLonLat(point))));
 #endif
 
-			if(MultiThreadLoad && fromDB.Count < ProposeNeedCached)
+			if(MultiThreadLoad && fromDB.Count < proposeNeedCached)
 				RunPreCalculation();
 			else
 				MultiThreadLoad = false;
@@ -218,19 +221,21 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Расстояние в метрах от базы до точки.
 		/// </summary>
-		public int DistanceFromBaseMeter(DeliveryPoint toDP)
+		public int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
-			return DistanceMeter(CachedDistance.BaseHash, toHash);
+			var fromBaseHash = CachedDistance.GetHash(fromBase);
+			return DistanceMeter(fromBaseHash, toHash);
 		}
 
 		/// <summary>
 		/// Расстояние в метрах от точки до базы.
 		/// </summary>
-		public int DistanceToBaseMeter(DeliveryPoint fromDP)
+		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
-			return DistanceMeter(fromHash, CachedDistance.BaseHash);
+			var toBaseHash = CachedDistance.GetHash(toBase);
+			return DistanceMeter(fromHash, toBaseHash);
 		}
 
 		/// <summary>
@@ -246,19 +251,21 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Время пути в секундах от базы до точки
 		/// </summary>
-		public int TimeFromBaseSec(DeliveryPoint toDP)
+		public int TimeFromBaseSec(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
-			return TimeSec(CachedDistance.BaseHash, toHash);
+			var fromBaseHash = CachedDistance.GetHash(fromBase);
+			return TimeSec(fromBaseHash, toHash);
 		}
 
 		/// <summary>
 		/// Время пути в секундах от точки до базы.
 		/// </summary>
-		public int TimeToBaseSec(DeliveryPoint fromDP)
+		public int TimeToBaseSec(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
-			return TimeSec(fromHash, CachedDistance.BaseHash);
+			var toBaseHash = CachedDistance.GetHash(toBase);
+			return TimeSec(fromHash, toBaseHash);
 		}
 
 		private int DistanceMeter(long fromHash, long toHash)
@@ -385,10 +392,10 @@ namespace Vodovoz.Tools.Logistic
 
 			double remainTime = 0;
 			if(startLoadTime.HasValue)
-				remainTime = (DateTime.Now - startLoadTime.Value).Ticks * ((double)(ProposeNeedCached - totalCached) / addedCached);
+				remainTime = (DateTime.Now - startLoadTime.Value).Ticks * ((double)(proposeNeedCached - totalCached) / addedCached);
 			statisticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nОсталось времени: {9:hh\\:mm\\:ss}\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
 											  totalPoints, startCached, totalCached, addedCached, totalErrors, (double)totalMeters / totalSec,
-											  (double)totalCached / ProposeNeedCached, ProposeNeedCached, unsavedItems,
+											  (double)totalCached / proposeNeedCached, proposeNeedCached, unsavedItems,
 												 TimeSpan.FromTicks((long)remainTime)
 											 );
 			QSMain.WaitRedraw(100);

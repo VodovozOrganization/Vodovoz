@@ -10,6 +10,7 @@ using QSOsm.Spuntik;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -73,37 +74,41 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Расстояние в метрах от базы до точки.
 		/// </summary>
-		public int DistanceFromBaseMeter(DeliveryPoint toDP)
+		public int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
+			var fromBaseHash = CachedDistance.GetHash(fromBase);
 			var toHash = CachedDistance.GetHash(toDP);
-			return DistanceMeter(CachedDistance.BaseHash, toHash);
+			return DistanceMeter(fromBaseHash, toHash);
 		}
 
 		/// <summary>
 		/// Возвращаем время от базы в секундах
 		/// </summary>
-		public int TimeFromBase(DeliveryPoint toDP)
+		public int TimeFromBase(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
+			var fromBaseHash = CachedDistance.GetHash(fromBase);
 			var toHash = CachedDistance.GetHash(toDP);
-			return TimeSec(CachedDistance.BaseHash, toHash);
+			return TimeSec(fromBaseHash, toHash);
 		}
 
 		/// <summary>
 		/// Возвращаем время до базы в секундах
 		/// </summary>
-		public int TimeToBase(DeliveryPoint fromDP)
+		public int TimeToBase(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
-			return TimeSec(fromHash, CachedDistance.BaseHash);
+			var toBaseHash = CachedDistance.GetHash(toBase);
+			return TimeSec(fromHash, toBaseHash);
 		}
 
 		/// <summary>
 		/// Расстояние в метрах от точки до базы.
 		/// </summary>
-		public int DistanceToBaseMeter(DeliveryPoint fromDP)
+		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
-			return DistanceMeter(fromHash, CachedDistance.BaseHash);
+			var toBaseHash = CachedDistance.GetHash(toBase);
+			return DistanceMeter(fromHash, toBaseHash);
 		}
 
 		private int DistanceMeter(long fromHash, long toHash)

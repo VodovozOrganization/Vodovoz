@@ -27,9 +27,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
+using Vodovoz.Repositories.Sale;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools.Logistic;
-using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz
 {
@@ -94,7 +94,7 @@ namespace Vodovoz
 		#endregion
 
 		public override string TabName {
-			get => String.Format("Формирование МЛ на {0:d}", ydateForRoutes.Date);
+			get => string.Format("Формирование МЛ на {0:d}", ydateForRoutes.Date);
 			protected set => throw new InvalidOperationException("Установка протеворечит логике работы.");
 		}
 
@@ -249,11 +249,11 @@ namespace Vodovoz
 				if(loadtimeCol.Any() && ytreeRoutes.YTreeModel.NodeFromIter(iter) is RouteList node) {
 					var firstDP = node.Addresses.FirstOrDefault()?.Order.DeliveryPoint;
 					args.RetVal = true;
-					args.Tooltip.Text = String.Format(
+					args.Tooltip.Text = string.Format(
 											"Первый адрес: {0:t}\nПуть со склада: {1:N1} км. ({2} мин.)\nВыезд со склада: {3:t}\nПогрузка на складе: {4} минут",
 											node.FirstAddressTime,
-											firstDP != null ? distanceCalculator.DistanceFromBaseMeter(firstDP) * 0.001 : 0,
-											firstDP != null ? distanceCalculator.TimeFromBase(firstDP) / 60 : 0,
+											firstDP != null ? distanceCalculator.DistanceFromBaseMeter(node.GeographicGroups.FirstOrDefault(), firstDP) * 0.001 : 0,
+											firstDP != null ? distanceCalculator.TimeFromBase(node.GeographicGroups.FirstOrDefault(), firstDP) / 60 : 0,
 											node.OnLoadTimeEnd,
 											node.TimeOnLoadMinuts
 										);
@@ -398,7 +398,7 @@ namespace Vodovoz
 		void UpdateSelectedInfo(List<GMapMarker> selected)
 		{
 			var selectedBottle = selected.Select(x => x.Tag).Cast<Order>().Sum(o => o.TotalDeliveredBottles);
-			labelSelected.LabelProp = String.Format("Выбрано адресов: {0}\nБутылей: {1}", selected.Count, selectedBottle);
+			labelSelected.LabelProp = string.Format("Выбрано адресов: {0}\nБутылей: {1}", selected.Count, selectedBottle);
 			menuAddToRL.Sensitive = selected.Any() && routesAtDay.Any() && !checkShowCompleted.Active;
 		}
 
@@ -407,7 +407,7 @@ namespace Vodovoz
 		string GetRowTitle(object row)
 		{
 			if(row is RouteList rl) {
-				return String.Format("МЛ №{0} - {1}({2})",
+				return string.Format("МЛ №{0} - {1}({2})",
 					rl.Id,
 					rl.Driver.ShortName,
 					rl.Car.RegistrationNumber
@@ -429,7 +429,7 @@ namespace Vodovoz
 		{
 			if(row is RouteList rl && rl.OnLoadTimeStart.HasValue) {
 				if(rl.OnloadTimeFixed)
-					return String.Format("<span foreground=\"Turquoise\">{0:hh\\:mm}</span>", rl.OnLoadTimeStart.Value);
+					return string.Format("<span foreground=\"Turquoise\">{0:hh\\:mm}</span>", rl.OnLoadTimeStart.Value);
 				else
 					return rl.OnLoadTimeStart.Value.ToString("hh\\:mm");
 			}
@@ -439,7 +439,7 @@ namespace Vodovoz
 		string GetRowPlanTime(object row)
 		{
 			if(row is RouteList rl)
-				return String.Format("{0:hh\\:mm}-{1:hh\\:mm}",
+				return string.Format("{0:hh\\:mm}-{1:hh\\:mm}",
 									 rl.Addresses.FirstOrDefault()?.PlanTimeStart,
 									 rl.Addresses.LastOrDefault()?.PlanTimeStart);
 
@@ -458,7 +458,7 @@ namespace Vodovoz
 				else
 					color = "dark green";
 
-				return String.Format("<span foreground=\"{2}\">{0:hh\\:mm}-{1:hh\\:mm}</span> ({3} мин.)",
+				return string.Format("<span foreground=\"{2}\">{0:hh\\:mm}-{1:hh\\:mm}</span> ({3} мин.)",
 									 rli.PlanTimeStart, rli.PlanTimeEnd, color, rli.TimeOnPoint / 60);
 			}
 
@@ -514,20 +514,20 @@ namespace Vodovoz
 			if(row is RouteList rl) {
 				var proposed = optimizer.ProposedRoutes.FirstOrDefault(x => x.RealRoute == rl);
 				if(rl.PlanedDistance == null)
-					return String.Empty;
+					return string.Empty;
 				if(proposed == null)
-					return String.Format("{0:N1}км", rl.PlanedDistance);
+					return string.Format("{0:N1}км", rl.PlanedDistance);
 				else
-					return String.Format("{0:N1}км ({1:N})",
+					return string.Format("{0:N1}км ({1:N})",
 										 rl.PlanedDistance,
 										 (double)proposed.RouteCost / 1000);
 			}
 
 			if(row is RouteListItem rli) {
 				if(rli.IndexInRoute == 0)
-					return String.Format("{0:N1}км", (double)distanceCalculator.DistanceFromBaseMeter(rli.Order.DeliveryPoint) / 1000);
+					return string.Format("{0:N1}км", (double)distanceCalculator.DistanceFromBaseMeter(rli.RouteList.GeographicGroups.FirstOrDefault(), rli.Order.DeliveryPoint) / 1000);
 
-				return String.Format("{0:N1}км", (double)distanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint) / 1000);
+				return string.Format("{0:N1}км", (double)distanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint) / 1000);
 			}
 			return null;
 		}
@@ -564,11 +564,11 @@ namespace Vodovoz
 				color = "green";
 
 			if(min.HasValue && max.HasValue)
-				return String.Format("<span foreground=\"{0}\">{1}</span>({2}-{3})", color, val, min, max);
+				return string.Format("<span foreground=\"{0}\">{1}</span>({2}-{3})", color, val, min, max);
 			else if(max.HasValue)
-				return String.Format("<span foreground=\"{0}\">{1}</span>({2})", color, val, max);
+				return string.Format("<span foreground=\"{0}\">{1}</span>({2})", color, val, max);
 			else
-				return String.Format("<span foreground=\"{0}\">{1}</span>(min {2})", color, val, min);
+				return string.Format("<span foreground=\"{0}\">{1}</span>(min {2})", color, val, min);
 		}
 
 		Pixbuf GetRowMarker(object row)
@@ -608,7 +608,7 @@ namespace Vodovoz
 				NumberToTextRus.FormatCase(totalBottles, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей")
 			};
 
-			ytextFullOrdersInfo.Buffer.Text = String.Join("\n", text);
+			ytextFullOrdersInfo.Buffer.Text = string.Join("\n", text);
 		}
 
 		void FillDialogAtDay()
@@ -631,8 +631,8 @@ namespace Vodovoz
 			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.CoordinatesExist).ToList();
 			if(withoutTime.Any() || withoutLocation.Any())
 				MessageDialogHelper.RunWarningDialog("Не все заказы были загружены!" +
-													(withoutTime.Any() ? ("\n* У заказов отсутсвует время доставки: " + String.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +
-													(withoutLocation.Any() ? ("\n* У заказов отсутствуют координаты: " + String.Join(", ", withoutLocation.Select(x => x.Id.ToString()))) : "")
+													(withoutTime.Any() ? ("\n* У заказов отсутсвует время доставки: " + string.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +
+													(withoutLocation.Any() ? ("\n* У заказов отсутствуют координаты: " + string.Join(", ", withoutLocation.Select(x => x.Id.ToString()))) : "")
 												   );
 
 			ordersAtDay = ordersQuery.Where(x => x.DeliverySchedule != null)
@@ -649,7 +649,7 @@ namespace Vodovoz
 				.ToList();
 			if(outLogisticAreas.Any())
 				MessageDialogHelper.RunWarningDialog("Обратите внимание, координаты точек доставки для следущих заказов не попадают ни в один логистический район: "
-													+ String.Join(", ", outLogisticAreas.Select(x => x.Id.ToString())));
+													+ string.Join(", ", outLogisticAreas.Select(x => x.Id.ToString())));
 
 			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
 			MainClass.progressBarWin.ProgressAdd();
@@ -748,13 +748,13 @@ namespace Vodovoz
 
 					string ttText = order.DeliveryPoint.ShortAddress;
 					if(order.TotalDeliveredBottles > 0)
-						ttText += String.Format("\nБутылей 19л: {0}", order.TotalDeliveredBottles);
+						ttText += string.Format("\nБутылей 19л: {0}", order.TotalDeliveredBottles);
 					if(order.TotalDeliveredBottlesSix > 0)
-						ttText += String.Format("\nБутылей 6л: {0}", order.TotalDeliveredBottlesSix);
+						ttText += string.Format("\nБутылей 6л: {0}", order.TotalDeliveredBottlesSix);
 					if(order.TotalDeliveredBottlesSmall > 0)
-						ttText += String.Format("\nБутылей 0,6л: {0}", order.TotalDeliveredBottlesSmall);
+						ttText += string.Format("\nБутылей 0,6л: {0}", order.TotalDeliveredBottlesSmall);
 
-					ttText += String.Format("\nВремя доставки: {0}\nРайон: {1}",
+					ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
 						order.DeliverySchedule?.Name ?? "Не назначено",
 						logisticanDistricts?.FirstOrDefault(x => x.Geometry.Contains(order.DeliveryPoint.NetTopologyPoint))?.Name);
 
@@ -767,7 +767,7 @@ namespace Vodovoz
 					}
 
 					if(route != null)
-						addressMarker.ToolTipText += String.Format(" Везёт: {0}", route.Driver.ShortName);
+						addressMarker.ToolTipText += string.Format(" Везёт: {0}", route.Driver.ShortName);
 
 					addressesOverlay.Markers.Add(addressMarker);
 
@@ -796,9 +796,9 @@ namespace Vodovoz
 				NumberToTextRus.FormatCase(ordersAtDay.Count, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов.")
 			};
 			if(addressesWithoutCoordinats > 0)
-				text.Add(String.Format("Из них {0} без координат.", addressesWithoutCoordinats));
+				text.Add(string.Format("Из них {0} без координат.", addressesWithoutCoordinats));
 			if(addressesWithoutRoutes > 0)
-				text.Add(String.Format("Из них {0} без маршрутных листов.", addressesWithoutRoutes));
+				text.Add(string.Format("Из них {0} без маршрутных листов.", addressesWithoutRoutes));
 			if(totalBottlesCountAtDay > 0)
 				text.Add(NumberToTextRus.FormatCase(totalBottlesCountAtDay, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей"));
 			if(bottlesWithoutRL > 0)
@@ -806,14 +806,14 @@ namespace Vodovoz
 
 			text.Add(NumberToTextRus.FormatCase(routesAtDay.Count, "Всего {0} маршрутный лист.", "Всего {0} маршрутных листа.", "Всего {0} маршрутных листов."));
 
-			textOrdersInfo.Buffer.Text = String.Join("\n", text);
+			textOrdersInfo.Buffer.Text = string.Join("\n", text);
 
 			if(progressOrders.Adjustment != null) {
 				progressOrders.Adjustment.Upper = ordersAtDay.Count;
 				progressOrders.Adjustment.Value = ordersAtDay.Count - addressesWithoutRoutes;
 			}
 			if(ordersAtDay.Count == 0)
-				progressOrders.Text = String.Empty;
+				progressOrders.Text = string.Empty;
 			else if(addressesWithoutRoutes == 0)
 				progressOrders.Text = "Готово.";
 			else
@@ -891,7 +891,7 @@ namespace Vodovoz
 		{
 			var menu = new Menu();
 			foreach(var route in routesAtDay) {
-				var name = String.Format("МЛ №{0} - {1}", route.Id, route.Driver.ShortName);
+				var name = string.Format("МЛ №{0} - {1}", route.Id, route.Driver.ShortName);
 				var item = new MenuItemId<RouteList>(name) {
 					ID = route
 				};
@@ -913,7 +913,7 @@ namespace Vodovoz
 				if(order.OrderStatus == OrderStatus.InTravelList) {
 					var alreadyIn = routesAtDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
 					if(alreadyIn == null)
-						throw new InvalidProgramException(String.Format("Маршрутный лист, в котором добавлен заказ {0} не найден.", order.Id));
+						throw new InvalidProgramException(string.Format("Маршрутный лист, в котором добавлен заказ {0} не найден.", order.Id));
 					if(alreadyIn.Id == route.Id) // Уже в нужном маршрутном листе.
 						continue;
 					var toRemoveAddress = alreadyIn.Addresses.First(x => x.Order.Id == order.Id);
@@ -937,7 +937,7 @@ namespace Vodovoz
 
 			if(route.HasOverweight()) {
 				MessageDialogHelper.RunWarningDialog(
-					String.Format("Автомобиль '{0}' в МЛ №{1} перегружен на {2} кг.", route.Car.Title, route.Id, route.Overweight())
+					string.Format("Автомобиль '{0}' в МЛ №{1} перегружен на {2} кг.", route.Car.Title, route.Id, route.Overweight())
 				);
 			}
 		}
@@ -1050,7 +1050,7 @@ namespace Vodovoz
 				}
 			}
 			if(warnings.Any())
-				MessageDialogHelper.RunWarningDialog(String.Join("\n", warnings));
+				MessageDialogHelper.RunWarningDialog(string.Join("\n", warnings));
 		}
 
 		protected void OnButtonOpenClicked(object sender, EventArgs e)
@@ -1305,7 +1305,7 @@ namespace Vodovoz
 			var routeList = (RouteList)ytreeRoutes.YTreeModel.NodeAtPath(new TreePath(args.Path));
 			bool NeedRecalculate = false;
 
-			if(String.IsNullOrWhiteSpace(args.NewText)) {
+			if(string.IsNullOrWhiteSpace(args.NewText)) {
 				NeedRecalculate = routeList.OnloadTimeFixed;
 				routeList.OnloadTimeFixed = false;
 			} else if(TimeSpan.TryParse(args.NewText, out TimeSpan fixedTime)) {
@@ -1337,7 +1337,7 @@ namespace Vodovoz
 		protected void OnButtonWarningsClicked(object sender, EventArgs e)
 		{
 			MessageDialogHelper.RunWarningDialog(
-				String.Join("\n", optimizer.WarningMessages.Select(x => "⚠ " + x))
+				string.Join("\n", optimizer.WarningMessages.Select(x => "⚠ " + x))
 			);
 		}
 

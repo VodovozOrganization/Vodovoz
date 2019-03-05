@@ -28,16 +28,16 @@ namespace Vodovoz.Domain.Sale
 		[Display(Name = "Широта координат базы")]
 		[PropertyChangedAlso("СoordinatesText")]
 		public virtual decimal? BaseLatitude {
-			get { return baseLatitude; }
-			protected set { SetField(ref baseLatitude, value, () => BaseLatitude); }
+			get => baseLatitude;
+			protected set => SetField(ref baseLatitude, value, () => BaseLatitude);
 		}
 
 		decimal? baseLongitude;
 		[Display(Name = "Долгота координат базы")]
 		[PropertyChangedAlso("СoordinatesText")]
 		public virtual decimal? BaseLongitude {
-			get { return baseLongitude; }
-			protected set { SetField(ref baseLongitude, value, () => BaseLongitude); }
+			get => baseLongitude;
+			protected set => SetField(ref baseLongitude, value, () => BaseLongitude);
 		}
 
 		#region calculated properties

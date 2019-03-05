@@ -3,6 +3,7 @@ using System.Globalization;
 using GMap.NET;
 using QSOsm;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -26,6 +27,8 @@ namespace Vodovoz.Domain.Logistic
 		#region Static
 
 		public static long GetHash(DeliveryPoint point) => GetHash((double)point.Latitude.Value, (double)point.Longitude.Value);
+
+		public static long GetHash(GeographicGroup point) => GetHash((double)point.BaseLatitude.Value, (double)point.BaseLongitude.Value);
 
 		public static long GetHash(double latitude, double longitude)
 		{
@@ -63,7 +66,7 @@ namespace Vodovoz.Domain.Logistic
 			return String.Format(CultureInfo.InvariantCulture, "{0},{1}", longitude, latitude);
 		}
 
-		public static long BaseHash => GetHash(Constants.BaseLatitude, Constants.BaseLongitude);
+		//public static long BaseHash => GetHash(Constants.BaseLatitude, Constants.BaseLongitude);
 
 		#endregion
 
