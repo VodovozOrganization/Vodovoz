@@ -191,7 +191,7 @@ namespace Vodovoz
 									 Entity.User.Name,
 									 String.Join(", ", associatedEmployees.Select(e => e.ShortName))
 								 );
-					if(MessageDialogWorks.RunQuestionDialog(mes)) {
+					if(MessageDialogHelper.RunQuestionDialog(mes)) {
 						foreach(var ae in associatedEmployees.Where(e => e.Id != Entity.Id)) {
 							ae.User = null;
 							UoWGeneric.Save(ae);

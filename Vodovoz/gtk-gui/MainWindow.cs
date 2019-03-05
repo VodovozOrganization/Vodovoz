@@ -299,7 +299,7 @@ public partial class MainWindow
 
 	private global::Gtk.Action Action58;
 
-	private global::Gtk.Action ActionGeographicGroups;
+	private global::Gtk.Action Action66;
 
 	private global::Gtk.Action ActionSetDistrictsToDeliveryPoints;
 
@@ -308,6 +308,8 @@ public partial class MainWindow
 	private global::Gtk.Action ActionCertificates;
 
 	private global::Gtk.Action ForShipmentReport;
+
+	private global::Gtk.Action ActionImages;
 
 	private global::Gtk.HBox hbox1;
 
@@ -365,27 +367,27 @@ public partial class MainWindow
 		this.ActionServices.ShortLabel = global::Mono.Unix.Catalog.GetString("Сервис");
 		w1.Add(this.ActionServices, null);
 		this.ActionLogistics = new global::Gtk.RadioAction("ActionLogistics", global::Mono.Unix.Catalog.GetString("Логистика"), null, "logistic", 0);
-		this.ActionLogistics.Group = this.ActionOrders.Group;
+		this.ActionLogistics.Group = this.ActionServices.Group;
 		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString("Логистика");
 		w1.Add(this.ActionLogistics, null);
 		this.ActionStock = new global::Gtk.RadioAction("ActionStock", global::Mono.Unix.Catalog.GetString("Склад"), null, "stock", 0);
-		this.ActionStock.Group = this.ActionLogistics.Group;
+		this.ActionStock.Group = this.ActionServices.Group;
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString("Склад");
 		w1.Add(this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction("ActionCash", global::Mono.Unix.Catalog.GetString("Касса"), null, "cash", 0);
-		this.ActionCash.Group = this.ActionLogistics.Group;
+		this.ActionCash.Group = this.ActionServices.Group;
 		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString("Касса");
 		w1.Add(this.ActionCash, null);
 		this.ActionAccounting = new global::Gtk.RadioAction("ActionAccounting", global::Mono.Unix.Catalog.GetString("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionLogistics.Group;
+		this.ActionAccounting.Group = this.ActionServices.Group;
 		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString("Бухгалтерия");
 		w1.Add(this.ActionAccounting, null);
 		this.ActionReports = new global::Gtk.RadioAction("ActionReports", global::Mono.Unix.Catalog.GetString("Отчеты"), null, "report", 0);
-		this.ActionReports.Group = this.ActionLogistics.Group;
+		this.ActionReports.Group = this.ActionServices.Group;
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчеты");
 		w1.Add(this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction("ActionArchive", global::Mono.Unix.Catalog.GetString("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionLogistics.Group;
+		this.ActionArchive.Group = this.ActionServices.Group;
 		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString("Архив");
 		w1.Add(this.ActionArchive, null);
 		this.ActionOrg = new global::Gtk.Action("ActionOrg", global::Mono.Unix.Catalog.GetString("Организации"), null, null);
@@ -534,11 +536,11 @@ public partial class MainWindow
 		this.ActionIconsSmall.ShortLabel = global::Mono.Unix.Catalog.GetString("Маленькие иконки");
 		w1.Add(this.ActionIconsSmall, null);
 		this.ActionIconsMiddle = new global::Gtk.RadioAction("ActionIconsMiddle", global::Mono.Unix.Catalog.GetString("Средние иконки"), null, null, 0);
-		this.ActionIconsMiddle.Group = this.ActionIconsExtraSmall.Group;
+		this.ActionIconsMiddle.Group = this.ActionIconsSmall.Group;
 		this.ActionIconsMiddle.ShortLabel = global::Mono.Unix.Catalog.GetString("Средние иконки");
 		w1.Add(this.ActionIconsMiddle, null);
 		this.ActionIconsLarge = new global::Gtk.RadioAction("ActionIconsLarge", global::Mono.Unix.Catalog.GetString("Большие иконки"), null, null, 0);
-		this.ActionIconsLarge.Group = this.ActionIconsExtraSmall.Group;
+		this.ActionIconsLarge.Group = this.ActionIconsMiddle.Group;
 		this.ActionIconsLarge.ShortLabel = global::Mono.Unix.Catalog.GetString("Большие иконки");
 		w1.Add(this.ActionIconsLarge, null);
 		this.ActionDeliveryPoints = new global::Gtk.Action("ActionDeliveryPoints", global::Mono.Unix.Catalog.GetString("Точки доставки"), null, null);
@@ -602,7 +604,7 @@ public partial class MainWindow
 		this.ActionForwarderWageReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Зарплаты экспедиторов");
 		w1.Add(this.ActionForwarderWageReport, null);
 		this.ActionStaff = new global::Gtk.RadioAction("ActionStaff", global::Mono.Unix.Catalog.GetString("Кадры"), null, "employees", 0);
-		this.ActionStaff.Group = this.ActionLogistics.Group;
+		this.ActionStaff.Group = this.ActionServices.Group;
 		this.ActionStaff.ShortLabel = global::Mono.Unix.Catalog.GetString("Кадры");
 		w1.Add(this.ActionStaff, null);
 		this.ActionDriversWageBalance = new global::Gtk.Action("ActionDriversWageBalance", global::Mono.Unix.Catalog.GetString("Баланс водителей"), null, null);
@@ -800,9 +802,9 @@ public partial class MainWindow
 		this.Action58 = new global::Gtk.Action("Action58", global::Mono.Unix.Catalog.GetString("Отчет по дате создания заказа"), null, null);
 		this.Action58.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по дате создания заказа");
 		w1.Add(this.Action58, null);
-		this.ActionGeographicGroups = new global::Gtk.Action("ActionGeographicGroups", global::Mono.Unix.Catalog.GetString("Географические группы"), null, null);
-		this.ActionGeographicGroups.ShortLabel = global::Mono.Unix.Catalog.GetString("Географические группы");
-		w1.Add(this.ActionGeographicGroups, null);
+		this.Action66 = new global::Gtk.Action("Action66", global::Mono.Unix.Catalog.GetString("Географические группы"), null, null);
+		this.Action66.ShortLabel = global::Mono.Unix.Catalog.GetString("Географические группы");
+		w1.Add(this.Action66, null);
 		this.ActionSetDistrictsToDeliveryPoints = new global::Gtk.Action("ActionSetDistrictsToDeliveryPoints", global::Mono.Unix.Catalog.GetString("Присвоение точкам доставки районов доставки"), null, null);
 		this.ActionSetDistrictsToDeliveryPoints.ShortLabel = global::Mono.Unix.Catalog.GetString("Присвоение точкам доставки районов доставки");
 		w1.Add(this.ActionSetDistrictsToDeliveryPoints, null);
@@ -815,6 +817,9 @@ public partial class MainWindow
 		this.ForShipmentReport = new global::Gtk.Action("ForShipmentReport", global::Mono.Unix.Catalog.GetString("Товары для отгрузки"), null, null);
 		this.ForShipmentReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Товары для отгрузки");
 		w1.Add(this.ForShipmentReport, null);
+		this.ActionImages = new global::Gtk.Action("ActionImages", global::Mono.Unix.Catalog.GetString("Изображения"), null, null);
+		this.ActionImages.ShortLabel = global::Mono.Unix.Catalog.GetString("Изображения");
+		w1.Add(this.ActionImages, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -942,10 +947,10 @@ public partial class MainWindow
 				"ActionLoad1cCounterpartyAndDeliveryPoints\'/><menuitem name=\'ActionToOnlineStore\'" +
 				" action=\'ActionToOnlineStore\'/><menuitem name=\'ActionSetDistrictsToDeliveryPoint" +
 				"s\' action=\'ActionSetDistrictsToDeliveryPoints\'/></menu><separator/><menuitem nam" +
-				"e=\'ActionDocTemplates\' action=\'ActionDocTemplates\'/><menuitem name=\'ActionGeogra" +
-				"phicGroups\' action=\'ActionGeographicGroups\'/></menu><menu name=\'ActionAbout\' act" +
-				"ion=\'ActionAbout\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></menu></me" +
-				"nubar></ui>");
+				"e=\'ActionDocTemplates\' action=\'ActionDocTemplates\'/><menuitem name=\'Action66\' ac" +
+				"tion=\'Action66\'/><menuitem name=\'ActionImages\' action=\'ActionImages\'/></menu><me" +
+				"nu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem name=\'aboutAction\' action=\'" +
+				"aboutAction\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1177,11 +1182,12 @@ public partial class MainWindow
 		this.ActionUsers.Activated += new global::System.EventHandler(this.OnActionUsersActivated);
 		this.ActionParameters.Activated += new global::System.EventHandler(this.OnActionParametersActivated);
 		this.Action58.Activated += new global::System.EventHandler(this.OnActionOrdersByCreationDate);
-		this.ActionGeographicGroups.Activated += new global::System.EventHandler(this.OnActionGeographicGroupsActivated);
+		this.Action66.Activated += new global::System.EventHandler(this.OnActionGeographicGroupsActivated);
 		this.ActionSetDistrictsToDeliveryPoints.Activated += new global::System.EventHandler(this.OnActionSetDistrictsToDeliveryPointsActivated);
 		this.ChequesReport.Activated += new global::System.EventHandler(this.OnChequesReportActivated);
 		this.ActionCertificates.Activated += new global::System.EventHandler(this.OnActionCertificatesActivated);
 		this.ForShipmentReport.Activated += new global::System.EventHandler(this.OnForShipmentReportActivated);
+		this.ActionImages.Activated += new global::System.EventHandler(this.OnImageListOpenActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
