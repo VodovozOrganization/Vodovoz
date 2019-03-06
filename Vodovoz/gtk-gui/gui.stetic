@@ -35046,7 +35046,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextOnly</property>
-                <property name="Label" translatable="yes">Установить в статус "Выпонено"</property>
+                <property name="Label" translatable="yes">Установить в статус "Выполнено"</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonSetStatusCompleteClicked" />
               </widget>
