@@ -123,6 +123,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				}
 			}
 
+			bool isAddressFromForeignGeographicGroup = Nodes[second_index - 1].ShippingBase.Id != Trip.GeographicGroup.Id;
+			if(isAddressFromForeignGeographicGroup)
+				distance += RouteOptimizer.AddressFromForeignGeographicGroupPenalty;
+
 			//Возвращаем расстояние в метрах либо от базы до первого адреса, либо между адресами.
 			if(first_index == 0)
 				distance += distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint);

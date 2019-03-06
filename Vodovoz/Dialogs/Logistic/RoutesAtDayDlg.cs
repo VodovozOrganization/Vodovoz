@@ -134,34 +134,34 @@ namespace Vodovoz
 
 
 			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<object>.Create()
-																   .AddColumn("Маркер")
-																		.AddPixbufRenderer(x => GetRowMarker(x))
-																   .AddColumn("МЛ/Адрес")
-																   		.AddTextRenderer(x => GetRowTitle(x))
-																   .AddColumn("Адр./Время")
-																   		.AddTextRenderer(x => GetRowTime(x), useMarkup: true)
-																   .AddColumn("План")
-																   		.AddTextRenderer(x => GetRowPlanTime(x), useMarkup: true)
-																   .AddColumn("Бутылей")
-																   		.AddTextRenderer(x => GetRowBottles(x), useMarkup: true)
-																   .AddColumn("Бут. 6л")
-																   		.AddTextRenderer(x => GetRowBottlesSix(x))
-																   .AddColumn("Бут. менее 6л")
-																   		.AddTextRenderer(x => GetRowBottlesSmall(x))
-																   .AddColumn("Вес")
-																   		.AddTextRenderer(x => GetRowWeight(x), useMarkup: true)
-																   .AddColumn("Погрузка")
-																   		.Tag(RouteColumnTag.OnloadTime)
-																   		.AddTextRenderer(x => GetRowOnloadTime(x), useMarkup: true)
-																   			.AddSetter((c, n) => c.Editable = n is RouteList)
-																   			.EditedEvent(OnLoadTimeEdited)
-																   .AddColumn("Километраж")
-																   		.AddTextRenderer(x => GetRowDistance(x))
-																   .AddColumn("К клиенту")
-																   		.AddTextRenderer(x => GetRowEquipmentToClient(x))
-																   .AddColumn("От клиента")
-																   		.AddTextRenderer(x => GetRowEquipmentFromClient(x))
-																   .Finish();
+															.AddColumn("Маркер")
+																.AddPixbufRenderer(x => GetRowMarker(x))
+															.AddColumn("МЛ/Адрес")
+																.AddTextRenderer(x => GetRowTitle(x))
+															.AddColumn("Адр./Время")
+																.AddTextRenderer(x => GetRowTime(x), useMarkup: true)
+															.AddColumn("План")
+																.AddTextRenderer(x => GetRowPlanTime(x), useMarkup: true)
+															.AddColumn("Бутылей")
+																.AddTextRenderer(x => GetRowBottles(x), useMarkup: true)
+															.AddColumn("Бут. 6л")
+																.AddTextRenderer(x => GetRowBottlesSix(x))
+															.AddColumn("Бут. менее 6л")
+																.AddTextRenderer(x => GetRowBottlesSmall(x))
+															.AddColumn("Вес")
+																.AddTextRenderer(x => GetRowWeight(x), useMarkup: true)
+															.AddColumn("Погрузка")
+																.Tag(RouteColumnTag.OnloadTime)
+																.AddTextRenderer(x => GetRowOnloadTime(x), useMarkup: true)
+																	.AddSetter((c, n) => c.Editable = n is RouteList)
+																	.EditedEvent(OnLoadTimeEdited)
+															.AddColumn("Километраж")
+																.AddTextRenderer(x => GetRowDistance(x))
+															.AddColumn("К клиенту")
+																.AddTextRenderer(x => GetRowEquipmentToClient(x))
+															.AddColumn("От клиента")
+																.AddTextRenderer(x => GetRowEquipmentFromClient(x))
+															.Finish();
 
 			ytreeRoutes.HasTooltip = true;
 			ytreeRoutes.QueryTooltip += YtreeRoutes_QueryTooltip;
@@ -170,33 +170,33 @@ namespace Vodovoz
 			var colorWhite = new Color(0xff, 0xff, 0xff);
 			var colorLightRed = new Color(0xff, 0x66, 0x66);
 			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
-																				   .AddColumn("Водитель")
-																				   		.AddTextRenderer(x => x.Employee.ShortName)
-																				   .AddColumn("Автомобиль")
-																						.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
-																						.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
-																					.AddColumn("База")
-																						.AddComboRenderer(x => x.GeographicGroup)
-																						.SetDisplayFunc(x => x.Name)
-																						.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
-																						.AddSetter(
-																							(c, n) => {
-																								c.Editable = n.Car != null;
-																								c.BackgroundGdk = n.GeographicGroup == null && n.Car != null
-																									? colorLightRed
-																									: colorWhite;
-																							}
-																						)
-																				   .AddColumn("")
-																				   .Finish();
+																		  .AddColumn("Водитель")
+																		 	.AddTextRenderer(x => x.Employee.ShortName)
+																		  .AddColumn("Автомобиль")
+																			.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
+																			.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
+																		  .AddColumn("База")
+																			.AddComboRenderer(x => x.GeographicGroup)
+																			.SetDisplayFunc(x => x.Name)
+																			.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
+																			.AddSetter(
+																				(c, n) => {
+																					c.Editable = n.Car != null;
+																					c.BackgroundGdk = n.GeographicGroup == null && n.Car != null
+																						? colorLightRed
+																						: colorWhite;
+																				}
+																			)
+																		  .AddColumn("")
+																		  .Finish();
 			ytreeviewOnDayDrivers.Selection.Mode = SelectionMode.Multiple;
 
 			ytreeviewOnDayDrivers.Selection.Changed += YtreeviewDrivers_Selection_Changed;
 
 			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()
-																						 .AddColumn("Экспедитор")
-																						 	.AddTextRenderer(x => x.Employee.ShortName)
-																						 .Finish();
+																			    .AddColumn("Экспедитор")
+																			 	    .AddTextRenderer(x => x.Employee.ShortName)
+																			    .Finish();
 			ytreeviewOnDayForwarders.Selection.Mode = SelectionMode.Multiple;
 
 			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
@@ -397,8 +397,9 @@ namespace Vodovoz
 
 		void UpdateSelectedInfo(List<GMapMarker> selected)
 		{
-			var selectedBottle = selected.Select(x => x.Tag).Cast<Order>().Sum(o => o.TotalDeliveredBottles);
-			labelSelected.LabelProp = string.Format("Выбрано адресов: {0}\nБутылей: {1}", selected.Count, selectedBottle);
+			var orders = selected.Select(x => x.Tag).OfType<Order>();
+			var selectedBottle = orders.Sum(o => o.TotalDeliveredBottles);
+			labelSelected.LabelProp = string.Format("Выбрано адресов: {0}\nБутылей: {1}", orders.Count(), selectedBottle);
 			menuAddToRL.Sensitive = selected.Any() && routesAtDay.Any() && !checkShowCompleted.Active;
 		}
 
@@ -706,6 +707,22 @@ namespace Vodovoz
 			totalBottlesCountAtDay = 0;
 			bottlesWithoutRL = 0;
 			addressesOverlay.Clear();
+			//добавляем маркеры складов
+			foreach(var b in GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW)) {
+				var addressMarker = new PointMarker(
+					new PointLatLng(
+						(double)b.BaseLatitude,
+						(double)b.BaseLongitude
+					),
+					PointMarkerType.vodonos,
+					PointMarkerShape.custom
+				) {
+					Tag = b
+				};
+				addressesOverlay.Markers.Add(addressMarker);
+			}
+
+			//добавляем маркеры адресов заказов
 			foreach(var order in ordersAtDay.Select(x => x).Where(x => !x.IsService)) {
 				totalBottlesCountAtDay += order.TotalDeliveredBottles;
 				var route = routesAtDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
@@ -774,6 +791,7 @@ namespace Vodovoz
 				} else
 					addressesWithoutCoordinats++;
 			}
+
 			UpdateOrdersInfo();
 			logger.Info("Ок.");
 		}
@@ -1250,6 +1268,9 @@ namespace Vodovoz
 					rl.Shift = propose.Trip.Shift;
 					rl.Date = CurDate;
 					rl.Logistican = logistican;
+
+					rl.GeographicGroups.Clear();
+					rl.GeographicGroups.Add(propose.Trip.GeographicGroup);
 
 					foreach(var order in propose.Orders) {
 						var address = rl.AddAddressFromOrder(order.Order);

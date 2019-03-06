@@ -2,12 +2,12 @@
 using System.Data.Bindings.Utilities;
 using GMap.NET;
 using GMap.NET.GtkSharp;
-using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.SidePanel.InfoProviders;
 
@@ -83,7 +83,14 @@ namespace Vodovoz.Dialogs.Sale
 			if(args.Event.Button == 1) {
 				var newPoint = gMapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
 				if(addressMarker == null) {
-					addressMarker = new GMarkerGoogle(newPoint, GMarkerGoogleType.arrow) {
+					addressMarker = new PointMarker(
+						new PointLatLng(
+							newPoint.Lat,
+							newPoint.Lng
+						),
+						PointMarkerType.vodonos,
+						PointMarkerShape.custom
+					) {
 						ToolTipText = Entity.CoordinatesText
 					};
 					addressOverlay.Markers.Add(addressMarker);
@@ -124,15 +131,17 @@ namespace Vodovoz.Dialogs.Sale
 			}
 
 			if(Entity.BaseCoordinatesExist) {
-				addressMarker = new GMarkerGoogle(
-									new PointLatLng(
-										(double)Entity.BaseLatitude.Value,
-										(double)Entity.BaseLongitude.Value
-									),
-									GMarkerGoogleType.arrow
-								) {
+				addressMarker = new PointMarker(
+					new PointLatLng(
+						(double)Entity.BaseLatitude.Value,
+						(double)Entity.BaseLongitude.Value
+					),
+					PointMarkerType.vodonos,
+					PointMarkerShape.custom
+				) {
 					ToolTipText = Entity.CoordinatesText
 				};
+
 				addressOverlay.Markers.Add(addressMarker);
 			}
 		}

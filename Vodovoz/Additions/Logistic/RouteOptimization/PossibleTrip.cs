@@ -2,6 +2,7 @@
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
@@ -30,6 +31,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public Employee Forwarder => OldRoute != null ? OldRoute.Forwarder : atWorkDriver.WithForwarder?.Employee;
 
 		public Car Car => OldRoute != null ? OldRoute.Car : atWorkDriver.Car;
+
+		public GeographicGroup GeographicGroup => atWorkDriver.GeographicGroup;
 
 		/// <summary>
 		/// Если маршрут добавлен в ручную, то используем максимальный приоритет, чтобы этому водителю с большей вероятностью достались адреса.
