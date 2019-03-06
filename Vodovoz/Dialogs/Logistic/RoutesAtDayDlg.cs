@@ -181,8 +181,8 @@ namespace Vodovoz
 																						.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
 																						.AddSetter(
 																							(c, n) => {
-																								c.Editable = true;
-																								c.BackgroundGdk = n.GeographicGroup == null
+																								c.Editable = n.Car != null;
+																								c.BackgroundGdk = n.GeographicGroup == null && n.Car != null
 																									? colorLightRed
 																									: colorWhite;
 																							}
@@ -1210,6 +1210,11 @@ namespace Vodovoz
 				return;
 			}
 
+			if(DriversAtDay.Any(d => d.Car != null && d.GeographicGroup == null)) {
+				MessageDialogHelper.RunWarningDialog("Не всем автомобилям назначена \"База\" для погрузки-разгрузки. Пожалуйста укажите.");
+				return;
+			}
+
 			UpdateWarningButton();
 
 			if(creatingInProgress) {
@@ -1295,7 +1300,7 @@ namespace Vodovoz
 						driver.Employee.ShortName
 				)
 			) {
-				driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
+				driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => { x.Car = null; x.GeographicGroup = null; });
 				driver.Car = car;
 			}
 		}
@@ -1371,6 +1376,11 @@ namespace Vodovoz
 
 				TabParent.AddSlaveTab(this, new OptimizingParametersDlg());
 			}
+		}
+
+		protected void OnYtreeviewOnDayDriversRowActivated(object o, RowActivatedArgs args)
+		{
+			OnButtonDriverSelectAutoClicked(o, args);
 		}
 	}
 }
