@@ -169,7 +169,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.labelLatestOrderDate = new global::Gtk.Label();
 			this.labelLatestOrderDate.Name = "labelLatestOrderDate";
-			this.labelLatestOrderDate.LabelProp = global::Mono.Unix.Catalog.GetString("label2");
 			this.labelLatestOrderDate.Selectable = true;
 			this.hbox2.Add(this.labelLatestOrderDate);
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.labelLatestOrderDate]));
@@ -197,6 +196,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			w15.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild

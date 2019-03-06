@@ -54,6 +54,16 @@ namespace Vodovoz
 
 		public CounterpartyDlg(Counterparty sub) : this(sub.Id) { }
 
+		public CounterpartyDlg(IUnitOfWork baseUoW, int id)
+		{
+			this.Build();
+			var rootObject = baseUoW.GetById<Counterparty>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForChildRoot<Counterparty>(rootObject, baseUoW);
+			ConfigureDlg();
+		}
+
+		public CounterpartyDlg(IUnitOfWork baseUoW, Counterparty sub) : this(baseUoW, sub.Id) { }
+
 		private void ConfigureDlg()
 		{
 			notebook1.CurrentPage = 0;

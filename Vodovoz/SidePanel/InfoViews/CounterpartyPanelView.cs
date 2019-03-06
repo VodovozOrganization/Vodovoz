@@ -121,7 +121,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
-			var dlg = new CounterpartyDlg(Counterparty.Id);
+			var dlg = new CounterpartyDlg(InfoProvider.UoW, Counterparty.Id);
 			dlg.ActivateContactsTab();
 			TDIMain.MainNotebook.OpenTab(
 				DialogHelper.GenerateDialogHashName<Counterparty>(Counterparty.Id),
