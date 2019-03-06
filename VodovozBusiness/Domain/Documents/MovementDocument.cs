@@ -309,15 +309,13 @@ namespace Vodovoz.Domain.Documents
 					AmountOnSource = inStock,
 					Document = this
 			};
-			if (Category == MovementDocumentCategory.counterparty)
-				item.CreateOperation(FromClient, FromDeliveryPoint, ToClient, ToDeliveryPoint, TimeStamp);
-			else if (Category == MovementDocumentCategory.warehouse)
-				item.CreateOperation(FromWarehouse, ToWarehouse, TimeStamp, TransportationStatus);
+			if (Category == MovementDocumentCategory.warehouse)
+				item.UpdateOperation(FromWarehouse, ToWarehouse, TimeStamp, TransportationStatus);
 			else
 			{
 				if (TransportationStatus == TransportationStatus.WithoutTransportation)
 					TransportationStatus = TransportationStatus.Submerged;
-				item.CreateOperation(FromWarehouse, ToWarehouse, TimeStamp, TransportationStatus);
+				item.UpdateOperation(FromWarehouse, ToWarehouse, TimeStamp, TransportationStatus);
 			}
 			
 			ObservableItems.Add (item);
@@ -332,7 +330,7 @@ namespace Vodovoz.Domain.Documents
 
 			foreach(var item in Items)
 			{
-				item.CreateOperation(ToWarehouse, DeliveredTime.Value);
+				item.UpdateDeliveryOperation(ToWarehouse, DeliveredTime.Value);
 			}
 		}
 
