@@ -5,7 +5,6 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Tdi.Gtk;
-using QSProjectsLib;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -13,6 +12,7 @@ using Vodovoz.JournalFilters;
 using Vodovoz.Representations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using QS.Project.Repositories;
 
 namespace Vodovoz.JournalViewers
 {
@@ -114,7 +114,7 @@ namespace Vodovoz.JournalViewers
 
 			MenuItem menuItemCloseUndelivery = new MenuItem("Закрыть недовоз");
 			menuItemCloseUndelivery.Activated += MenuItemCloseUndelivery_Activated;
-			menuItemCloseUndelivery.Sensitive = QSMain.User.Permissions["can_close_undeliveries"] && selected.UndeliveryStatus != UndeliveryStatus.Closed;
+			menuItemCloseUndelivery.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_close_undeliveries"] && selected.UndeliveryStatus != UndeliveryStatus.Closed;
 			popupMenu.Add(menuItemCloseUndelivery);
 
 			return popupMenu;

@@ -51,6 +51,7 @@ using Vodovoz.Repository.Logistics;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using QS.Project.Repositories;
 
 namespace Vodovoz
 {
@@ -265,7 +266,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPoint.Sensitive = (Entity.Client != null);
 			referenceDeliveryPoint.CanEditReference = true;
-			chkContractCloser.Sensitive = QSMain.User.Permissions["can_set_contract_closer"];
+			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"];
 
 			buttonViewDocument.Sensitive = false;
 			buttonDelete1.Sensitive = false;
@@ -682,7 +683,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonCloseOrderClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"]) {
+			if(Entity.OrderStatus == OrderStatus.Accepted && UserPermissionRepository.CurrentUserPresetPermissions["can_close_orders"]) {
 				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?")) {
 					return;
 				}
@@ -1677,7 +1678,7 @@ namespace Vodovoz
 
 		void PickerDeliveryDate_DateChanged(object sender, EventArgs e)
 		{
-			if(pickerDeliveryDate.Date < DateTime.Today && !QSMain.User.Permissions["can_can_create_order_in_advance"])
+			if(pickerDeliveryDate.Date < DateTime.Today && !UserPermissionRepository.CurrentUserPresetPermissions["can_can_create_order_in_advance"])
 				pickerDeliveryDate.ModifyBase(StateType.Normal, new Gdk.Color(255, 0, 0));
 			else
 				pickerDeliveryDate.ModifyBase(StateType.Normal, new Gdk.Color(255, 255, 255));
@@ -2353,13 +2354,13 @@ namespace Vodovoz
 
 			menuItemSelfDeliveryToLoading.Sensitive = Entity.SelfDelivery
 				&& Entity.OrderStatus == OrderStatus.Accepted
-				&& QSMain.User.Permissions["allow_load_selfdelivery"];
+				&& UserPermissionRepository.CurrentUserPresetPermissions["allow_load_selfdelivery"];
 			menuItemSelfDeliveryPaid.Sensitive = Entity.SelfDelivery
 				&& (Entity.PaymentType == PaymentType.cashless || Entity.PaymentType == PaymentType.ByCard)
 				&& Entity.OrderStatus == OrderStatus.WaitForPayment
-				&& QSMain.User.Permissions["accept_cashless_paid_selfdelivery"];
+				&& UserPermissionRepository.CurrentUserPresetPermissions["accept_cashless_paid_selfdelivery"];
 
-			menuItemCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["can_close_orders"] && !Entity.SelfDelivery;
+			menuItemCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && UserPermissionRepository.CurrentUserPresetPermissions["can_close_orders"] && !Entity.SelfDelivery;
 			menuItemReturnToAccepted.Sensitive = Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted;
 		}
 

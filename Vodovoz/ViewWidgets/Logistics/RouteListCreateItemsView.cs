@@ -11,13 +11,12 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QSOrmProject;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Repository;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -57,7 +56,7 @@ namespace Vodovoz
 			}
 		}
 
-		private bool CanEditRows => QSMain.User.Permissions["logistican"]
+		private bool CanEditRows => UserPermissionRepository.CurrentUserPresetPermissions["logistican"]
 										&& RouteListUoW.Root.Status != RouteListStatus.Closed
 										&& RouteListUoW.Root.Status != RouteListStatus.MileageCheck;
 

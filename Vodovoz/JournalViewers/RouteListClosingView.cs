@@ -1,8 +1,7 @@
 ﻿using System;
 using Gtk;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.Permissions;
 using QS.Dialog.GtkUI;
@@ -65,7 +64,7 @@ namespace Vodovoz
 					break;
 				case RouteListStatus.OnClosing:
 				case RouteListStatus.Closed:
-					if(PermissionRepository.HasAccessToClosingRoutelist(uow)) {
+					if(PermissionRepository.HasAccessToClosingRoutelist()) {
 						TabParent.OpenTab(RouteListClosingDlg.GenerateHashName(node.Id), () => new RouteListClosingDlg(node.Id));
 					} else {
 						MessageDialogHelper.RunWarningDialog("Доступ запрещен");
@@ -97,7 +96,7 @@ namespace Vodovoz
 			Gtk.MenuItem menuItemRouteList = new MenuItem("Вернуть в статус \"Сдается\"");
 			menuItemRouteList.Activated += MenuItemRouteList_Activated;
 			menuItemRouteList.Sensitive = node.StatusEnum == Vodovoz.Domain.Logistic.RouteListStatus.Closed
-														  && QSMain.User.Permissions["routelist_unclosing"];
+														  && UserPermissionRepository.CurrentUserPresetPermissions["routelist_unclosing"];
 			popupMenu.Add(menuItemRouteList);
 
 			return popupMenu;
@@ -105,7 +104,7 @@ namespace Vodovoz
 
 		private void MenuItemRouteList_Activated(object sender, EventArgs e)
 		{
-			if(QSMain.User.Permissions["routelist_unclosing"]) {
+			if(UserPermissionRepository.CurrentUserPresetPermissions["routelist_unclosing"]) {
 				RouteList rl = UoW.GetById<RouteList>(selectedNode.Id);
 				if(rl == null) {
 					return;

@@ -13,6 +13,7 @@ using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repositories.Client;
+using QS.Project.Repositories;
 
 namespace Vodovoz
 {
@@ -84,7 +85,7 @@ namespace Vodovoz
 					.AddPricesTable(WaterPricesRepository.GetCompleteWaterPriceTable(UoW));
 			}
 
-			templatewidget1.CanRevertCommon = QSProjectsLib.QSMain.User.Permissions["can_set_common_additionalagreement"];
+			templatewidget1.CanRevertCommon = UserPermissionRepository.CurrentUserPresetPermissions["can_set_common_additionalagreement"];
 			templatewidget1.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 

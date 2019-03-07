@@ -8,11 +8,11 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QSBusinessCommon.Domain;
-using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
+using QS.Project.Repositories;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -579,7 +579,7 @@ namespace Vodovoz.Domain.Goods
 		{
 			if(Id == 0 && !CreateDate.HasValue) {
 				CreateDate = DateTime.Now;
-				CreatedBy = UserRepository.GetCurrentUser(UoW);
+				CreatedBy = Vodovoz.Repositories.HumanResources.UserRepository.GetCurrentUser(UoW);
 			}
 		}
 		
@@ -736,11 +736,11 @@ namespace Vodovoz.Domain.Goods
 				}
 			);
 
-			if(QSMain.User.Permissions["can_add_spares_to_order"])
+			if(UserPermissionRepository.CurrentUserPresetPermissions["can_add_spares_to_order"])
 				forSale.Add(NomenclatureCategory.spare_parts);
-			if(QSMain.User.Permissions["can_add_bottles_to_order"])
+			if(UserPermissionRepository.CurrentUserPresetPermissions["can_add_bottles_to_order"])
 				forSale.Add(NomenclatureCategory.bottle);
-			if(QSMain.User.Permissions["can_add_materials_to_order"])
+			if(UserPermissionRepository.CurrentUserPresetPermissions["can_add_materials_to_order"])
 				forSale.Add(NomenclatureCategory.material);
 
 			return forSale.ToArray();

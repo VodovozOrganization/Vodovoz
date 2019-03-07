@@ -8,7 +8,7 @@ using QS.Helpers;
 using QS.Project.Dialogs;
 using QSBusinessCommon.Domain;
 using QSOrmProject;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using QSValidation;
 using QSWidgetLib;
 using Vodovoz.Additions.Store;
@@ -121,7 +121,7 @@ namespace Vodovoz
 			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text, new NullToEmptyStringConverter()).InitializeFromSource();
 			yentryShortName.MaxLength = 220;
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			checkIsArchive.Sensitive = QSMain.User.Permissions["can_create_and_arc_nomenclatures"];
+			checkIsArchive.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_create_and_arc_nomenclatures"];
 
 			#region Вкладка "Склады отгрузки"
 
@@ -154,7 +154,7 @@ namespace Vodovoz
 			ConfigureInputs(Entity.Category);
 
 			pricesView.UoWGeneric = UoWGeneric;
-			pricesView.Sensitive = QSMain.User.Permissions["can_create_and_arc_nomenclatures"];
+			pricesView.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_create_and_arc_nomenclatures"];
 
 			Imageslist.ImageButtonPressEvent += Imageslist_ImageButtonPressEvent;
 

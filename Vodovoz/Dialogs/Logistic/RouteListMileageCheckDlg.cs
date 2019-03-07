@@ -5,14 +5,9 @@ using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QSProjectsLib;
 using QSValidation;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository;
-using Vodovoz.Repository.Cash;
+using QS.Project.Repositories;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 
@@ -31,7 +26,7 @@ namespace Vodovoz
 		public RouteListMileageCheckDlg(int id)
 		{
 			this.Build();
-			editing = QSMain.User.Permissions["logistican"];
+			editing = UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = String.Format("Контроль за километражом маршрутного листа №{0}", Entity.Id);
 			ConfigureDlg();

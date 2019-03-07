@@ -8,7 +8,7 @@ using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using QSValidation;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
@@ -156,7 +156,7 @@ namespace Vodovoz
 				buttonAccept.Label = "Редактировать";
 			}
 
-			IsEditable = Entity.Status == RouteListStatus.New && QSMain.User.Permissions ["logistican"];
+			IsEditable = Entity.Status == RouteListStatus.New && UserPermissionRepository.CurrentUserPresetPermissions ["logistican"];
 
 			ggToStringWidget.UoW = UoW;
 			ggToStringWidget.Label = "Район города:";
@@ -267,7 +267,7 @@ namespace Vodovoz
 		protected void OnButtonAcceptClicked (object sender, EventArgs e)
 		{
 			if(buttonAccept.Label == "Подтвердить" && Entity.HasOverweight()) {
-				if(QSMain.User.Permissions["can_confirm_routelist_with_overweight"]) {
+				if(UserPermissionRepository.CurrentUserPresetPermissions["can_confirm_routelist_with_overweight"]) {
 					if(
 						!MessageDialogHelper.RunQuestionDialog(
 							String.Format(

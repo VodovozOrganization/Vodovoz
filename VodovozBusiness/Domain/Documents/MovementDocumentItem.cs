@@ -119,50 +119,42 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual bool CanEditAmount => Nomenclature != null && !Nomenclature.IsSerial;
 
-		public virtual void CreateOperation(Warehouse warehouseSrc, Warehouse warehouseDst, DateTime time, TransportationStatus status)
+		public virtual void UpdateOperation(Warehouse warehouseSrc, Warehouse warehouseDst, DateTime time, TransportationStatus status)
 		{
 			CounterpartyMovementOperation = null;
-			WarehouseMovementOperation = new WarehouseMovementOperation {
-				WriteoffWarehouse = warehouseSrc,
-				IncomingWarehouse = status == TransportationStatus.WithoutTransportation ? warehouseDst : null,
-				Amount = Amount,
-				OperationTime = time,
-				Nomenclature = Nomenclature,
-				Equipment = Equipment
-			};
+
+			if(WarehouseMovementOperation == null) {
+				WarehouseMovementOperation = new WarehouseMovementOperation();
+			}
+
+			WarehouseMovementOperation.WriteoffWarehouse = warehouseSrc;
+			WarehouseMovementOperation.IncomingWarehouse = status == TransportationStatus.WithoutTransportation ? warehouseDst : null;
+			WarehouseMovementOperation.Amount = Amount;
+			WarehouseMovementOperation.OperationTime = time;
+			WarehouseMovementOperation.Nomenclature = Nomenclature;
+			WarehouseMovementOperation.Equipment = Equipment;
+			
 			if(status == TransportationStatus.Delivered)
-				CreateOperation(warehouseDst, Document.DeliveredTime.Value);
+				UpdateDeliveryOperation(warehouseDst, Document.DeliveredTime.Value);
 		}
 
 		/// <summary>
 		/// Создание операции доставки при транспортировке
 		/// </summary>
-		public virtual void CreateOperation(Warehouse warehouseDst, DateTime deliveredTime)
+		public virtual void UpdateDeliveryOperation(Warehouse warehouseDst, DateTime deliveredTime)
 		{
-			DeliveryMovementOperation = new WarehouseMovementOperation {
-				IncomingWarehouse = warehouseDst,
-				Amount = Amount,
-				OperationTime = deliveredTime,
-				Nomenclature = Nomenclature,
-				Equipment = Equipment
-			};
-			WarehouseMovementOperation.IncomingWarehouse = null;
-		}
 
-		public virtual void CreateOperation(Counterparty counterpartySrc, DeliveryPoint pointSrc, Counterparty counterpartyDst, DeliveryPoint pointDst, DateTime time)
-		{
-			throw new InvalidOperationException("Некорректная операция. Невозможно создать перемещение \"Именное списание\"");
-			WarehouseMovementOperation = null;
-			CounterpartyMovementOperation = new CounterpartyMovementOperation {
-				IncomingCounterparty = counterpartyDst,
-				IncomingDeliveryPoint = pointDst,
-				WriteoffCounterparty = counterpartySrc,
-				WriteoffDeliveryPoint = pointSrc,
-				Amount = Amount,
-				OperationTime = time,
-				Nomenclature = Nomenclature,
-				Equipment = Equipment
-			};
+			if(DeliveryMovementOperation == null) {
+				DeliveryMovementOperation = new WarehouseMovementOperation();
+			}
+
+			DeliveryMovementOperation.IncomingWarehouse = warehouseDst;
+			DeliveryMovementOperation.Amount = Amount;
+			DeliveryMovementOperation.OperationTime = deliveredTime;
+			DeliveryMovementOperation.Nomenclature = Nomenclature;
+			DeliveryMovementOperation.Equipment = Equipment;
+
+			WarehouseMovementOperation.IncomingWarehouse = null;
 		}
 
 		#endregion

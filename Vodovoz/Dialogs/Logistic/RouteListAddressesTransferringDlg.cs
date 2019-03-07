@@ -12,6 +12,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
+using QS.Project.Repositories;
 
 namespace Vodovoz
 {
@@ -62,7 +63,7 @@ namespace Vodovoz
 			GC.KeepAlive(vmFrom);
 			vmFrom.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
 			yentryreferenceRLFrom.RepresentationModel = vmFrom;
-			yentryreferenceRLFrom.CanEditReference = QSMain.User.Permissions["can_delete"];
+			yentryreferenceRLFrom.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
 			var vmTo = new RouteListsVM ();
 			vmTo.Filter.OnlyStatuses = new [] {
@@ -73,7 +74,7 @@ namespace Vodovoz
 			};
 			vmTo.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
 			yentryreferenceRLTo.RepresentationModel = vmTo;
-			yentryreferenceRLTo.CanEditReference = QSMain.User.Permissions["can_delete"];
+			yentryreferenceRLTo.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
 			yentryreferenceRLFrom.Changed += YentryreferenceRLFrom_Changed;
 			yentryreferenceRLTo	 .Changed += YentryreferenceRLTo_Changed;
