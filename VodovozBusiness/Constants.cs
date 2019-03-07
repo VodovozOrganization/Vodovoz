@@ -11,5 +11,8 @@ namespace Vodovoz
 		//Координаты центра города
 		public static double CenterOfCityLatitude = 59.9390;
 		public static double CenterOfCityLongitude = 30.3157;
-	}
+	    //Координаты базы
+	    public static double NorthStorageLatitude = 60.072291;
+        public static double NorthStorageLongitude = 30.362203;
+    }
 }

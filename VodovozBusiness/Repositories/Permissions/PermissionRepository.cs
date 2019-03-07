@@ -73,7 +73,7 @@ namespace Vodovoz.Repositories.Permissions
 				.List();
 		}
 
-		public static bool HasAccessToClosingRoutelist(IUnitOfWork uow)
+		public static bool HasAccessToClosingRoutelist()
 		{
 			//FIXME исправить на нормальную проверку права этого подразделения
 			//необходимо правильно хранить подразделения которым запрещен доступ к опредленным функциям системы
@@ -81,11 +81,13 @@ namespace Vodovoz.Repositories.Permissions
 				throw new InvalidOperationException(String.Format("В базе не настроен параметр: accept_route_list_subdivision_restrict"));
 			}
 			int restrictSubdivision = int.Parse(MainSupport.BaseParameters.All["accept_route_list_subdivision_restrict"]);
-			var userSubdivision = EmployeeRepository.GetEmployeeForCurrentUser(uow).Subdivision;
-			if(userSubdivision == null) {
-				return false;
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				var userSubdivision = EmployeeRepository.GetEmployeeForCurrentUser(uow).Subdivision;
+				if(userSubdivision == null) {
+					return false;
+				}
+				return userSubdivision.Id != restrictSubdivision;
 			}
-			return userSubdivision.Id != restrictSubdivision;
 		}
 	}
 }

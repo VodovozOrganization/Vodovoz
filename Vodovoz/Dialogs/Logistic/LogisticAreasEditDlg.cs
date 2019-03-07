@@ -12,7 +12,7 @@ using NetTopologySuite.Geometries;
 using NHibernate.Util;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 
@@ -36,7 +36,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public LogisticAreasEditDlg()
 		{
-			if(!QSMain.User.Permissions["can_edit_logistic_areas"]) {
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_edit_logistic_areas"]) {
 				MessageDialogHelper.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
 				FailInitialize = true;
 				return;

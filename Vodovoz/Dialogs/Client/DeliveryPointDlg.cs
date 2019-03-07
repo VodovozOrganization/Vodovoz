@@ -17,6 +17,7 @@ using QSOrmProject;
 using QSOsm.DTO;
 using QSProjectsLib;
 using QSValidation;
+using QS.Project.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -111,7 +112,7 @@ namespace Vodovoz
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			labelCompiledAddress.Binding.AddBinding(Entity, e => e.CompiledAddress, w => w.LabelProp).InitializeFromSource();
 			checkIsActive.Binding.AddBinding(Entity, e => e.IsActive, w => w.Active).InitializeFromSource();
-			checkIsActive.Sensitive = QSMain.User.Permissions["can_arc_counterparty_and_deliverypoint"];
+			checkIsActive.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_arc_counterparty_and_deliverypoint"];
 			entryRoom.Binding.AddBinding(Entity, e => e.Room, w => w.Text).InitializeFromSource();
 			entryFloor.Binding.AddBinding(Entity, e => e.Floor, w => w.Text).InitializeFromSource();
 			entryEntrance.Binding.AddBinding(Entity, e => e.Entrance, w => w.Text).InitializeFromSource();
@@ -133,7 +134,7 @@ namespace Vodovoz
 			#endregion
 			spinBottlesReserv.Binding.AddBinding(Entity, e => e.BottleReserv, w => w.ValueAsInt).InitializeFromSource();
 			ychkAlwaysFreeDelivery.Binding.AddBinding(Entity, e => e.AlwaysFreeDelivery, w => w.Active).InitializeFromSource();
-			ychkAlwaysFreeDelivery.Visible = QSMain.User.Permissions["can_set_free_delivery"];
+			ychkAlwaysFreeDelivery.Visible = UserPermissionRepository.CurrentUserPresetPermissions["can_set_free_delivery"];
 			lblCounterparty.LabelProp = Entity.Counterparty.FullName;
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding(Entity,

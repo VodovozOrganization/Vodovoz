@@ -443,7 +443,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 7;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -453,6 +453,7 @@ namespace Vodovoz
 			w20.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(11)), ((uint)(4)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			this.table1.BorderWidth = ((uint)(6));
@@ -1057,6 +1058,7 @@ namespace Vodovoz
 			this.phonesView = new global::QSContacts.PhonesView();
 			this.phonesView.Events = ((global::Gdk.EventMask)(256));
 			this.phonesView.Name = "phonesView";
+			this.phonesView.IsReadOnly = false;
 			this.datatable2.Add(this.phonesView);
 			global::Gtk.Table.TableChild w75 = ((global::Gtk.Table.TableChild)(this.datatable2[this.phonesView]));
 			w75.LeftAttach = ((uint)(1));

@@ -5,7 +5,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QSOrmProject;
-using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -14,6 +13,7 @@ using Vodovoz.JournalViewers;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
+using QS.Project.Repositories;
 
 namespace Vodovoz
 {
@@ -88,7 +88,7 @@ namespace Vodovoz
 			filterRouteList.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRouteList);
 			yentryreferenceRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
-			yentryreferenceRouteList.CanEditReference = QSMain.User.Permissions["can_delete"];
+			yentryreferenceRouteList.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
 			Entity.ObservableItems.ListChanged += ObservableItems_ListChanged;
 			var filterAuthor = new EmployeeFilter(UoW);

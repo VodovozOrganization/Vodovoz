@@ -11,6 +11,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Chats;
 using VodovozService.Chats;
+using QS.Project.Repositories;
 
 namespace Vodovoz
 {
@@ -39,7 +40,7 @@ namespace Vodovoz
 				this.Sensitive = false;
 				return;
 			}
-			accessToLogisticChat = QSMain.User.Permissions["logistican"];
+			accessToLogisticChat = UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
 
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Получили сотрудника.");
 

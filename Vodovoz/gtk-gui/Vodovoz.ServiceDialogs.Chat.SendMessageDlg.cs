@@ -118,7 +118,8 @@ namespace Vodovoz.ServiceDialogs.Chat
 			w11.Position = 1;
 			w11.Expand = false;
 			w11.Fill = false;
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.DefaultWidth = 452;

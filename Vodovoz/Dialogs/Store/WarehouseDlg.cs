@@ -4,7 +4,7 @@ using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QSOrmProject;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repositories.HumanResources;
@@ -48,7 +48,7 @@ namespace Vodovoz
 			ycheckbuttonArchive.Binding
 				.AddBinding(UoWGeneric.Root, (warehouse) => warehouse.IsArchive, (widget) => widget.Active)
 				.InitializeFromSource();
-			ycheckbuttonArchive.Sensitive = QSMain.User.Permissions["can_archive_warehouse"];
+			ycheckbuttonArchive.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_archive_warehouse"];
 
 			comboTypeOfUse.ItemsEnum = typeof(WarehouseUsing);
 			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItem).InitializeFromSource();

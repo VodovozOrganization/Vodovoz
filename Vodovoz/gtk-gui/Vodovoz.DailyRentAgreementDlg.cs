@@ -110,7 +110,6 @@ namespace Vodovoz
 			w6.BottomAttach = ((uint)(5));
 			w6.RightAttach = ((uint)(5));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.dateEnd = new global::Gamma.Widgets.yDatePicker();
 			this.dateEnd.Events = ((global::Gdk.EventMask)(256));
@@ -288,7 +287,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.datatable1]));
 			w22.Position = 1;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

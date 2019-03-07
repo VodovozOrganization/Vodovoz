@@ -4,7 +4,7 @@ using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
@@ -81,7 +81,7 @@ namespace Vodovoz
 			filter.SetAndRefilterAtOnce(x => x.RestrictStatus = RouteListStatus.InLoading);
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
-			yentryrefRouteList.CanEditReference = QSMain.User.Permissions["can_delete"];
+			yentryrefRouteList.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
 			enumPrint.ItemsEnum = typeof(CarLoadPrintableDocuments);
 

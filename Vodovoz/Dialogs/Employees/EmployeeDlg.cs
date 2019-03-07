@@ -4,7 +4,6 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NLog;
-using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -18,6 +17,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
+using QS.Project.Repositories;
 
 namespace Vodovoz
 {
@@ -60,7 +60,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = uow;
-			if(!QSMain.User.Permissions["can_change_trainee_to_driver"]) {
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_change_trainee_to_driver"]) {
 				hiddenCategory = new EmployeeCategory[] { EmployeeCategory.driver, EmployeeCategory.forwarder };
 			}
 			ConfigureDlg();
@@ -406,7 +406,7 @@ namespace Vodovoz
 				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver
 				   || (EmployeeCategory)e.SelectedItem == EmployeeCategory.forwarder);
 
-			hboxCustomWageCalc.Sensitive = QSMain.User.Permissions["can_edit_wage"];
+			hboxCustomWageCalc.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_wage"];
 		}
 
 

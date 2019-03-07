@@ -7,8 +7,11 @@ using QSSupportLib;
 using Vodovoz.Additions;
 using Vodovoz.DriverTerminal;
 using QS.Permissions;
-using QS.DomainModel.Entity.EntityPermissions;
+using QS.Project.Repositories;
 using EmailService;
+using QS.Project.Dialogs.GtkUI;
+using QS.Tools;
+using QS.Project.Dialogs.GtkUI.ServiceDlg;
 
 namespace Vodovoz
 {
@@ -26,6 +29,10 @@ namespace Vodovoz
 			QSMain.SubscribeToUnhadledExceptions();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			MainSupport.SendErrorRequestEmail = false;
+
+			StaticTools.NotificationViewAgent = new UserNotificationViewAgent();
+			//FIXME Удалить после того как будет удалена зависимость от библиотеки QSProjectLib
+			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
 
 			TrayIcon = new StatusIcon(Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png"));
 			TrayIcon.Visible = true;
@@ -55,9 +62,6 @@ namespace Vodovoz
 			//Настройка базы
 			CreateBaseConfig ();
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
-
-			//Загрузка предустановленных прав пользователя
-			QSMain.User.LoadUserPermissions();
 
 			PermissionsSettings.ConfigureEntityPermissionFinder(new Vodovoz.Domain.Permissions.EntitiesWithPermissionFinder());
 			PermissionsSettings.EntityPermissionValidator = new Vodovoz.Domain.Permissions.EntityPermissionValidator();
@@ -93,12 +97,12 @@ namespace Vodovoz
 									   Message);
 				md.Run();
 				md.Destroy();
-				Users WinUser = new Users();
-				WinUser.Show();
-				WinUser.Run();
-				WinUser.Destroy();
+				UsersDialog usersDlg = new UsersDialog();
+				usersDlg.Show();
+				usersDlg.Run();
+				usersDlg.Destroy();
 				return;
-			}else if(QSMain.User.Permissions["driver_terminal"]){
+			}else if(UserPermissionRepository.CurrentUserPresetPermissions["driver_terminal"]){
 				DriverTerminalWindow driverTerminal = new DriverTerminalWindow();
 				progressBarWin = driverTerminal;
 				driverTerminal.Title = "Печать документов МЛ";

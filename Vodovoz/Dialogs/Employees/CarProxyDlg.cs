@@ -3,9 +3,8 @@ using System.Linq;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QSProjectsLib;
 using QSValidation;
+using QS.Project.Repositories;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -62,7 +61,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			RefreshParserRootObject();
 
-			templatewidget.CanRevertCommon = QSMain.User.Permissions["can_set_common_additionalagreement"];
+			templatewidget.CanRevertCommon = UserPermissionRepository.CurrentUserPresetPermissions["can_set_common_additionalagreement"];
 			templatewidget.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 			templatewidget.BeforeOpen += Templatewidget_BeforeOpen;

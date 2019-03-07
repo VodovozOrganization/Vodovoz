@@ -5,7 +5,7 @@ using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using QS.Dialog;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using QS.Tdi;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
@@ -97,7 +97,7 @@ namespace Vodovoz
 			filterFrom.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteListFrom.RepresentationModel = new ViewModel.RouteListsVM(filterFrom);
 			yentryreferenceRouteListFrom.Changed += YentryreferenceRouteListFrom_Changed;
-			yentryreferenceRouteListFrom.CanEditReference = QSMain.User.Permissions["can_delete"];
+			yentryreferenceRouteListFrom.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
 			ylistcomboReceptionTicketFrom.SetRenderTextFunc<CarUnloadDocument>(d => $"Талон разгрузки №{d.Id}. {d.Warehouse.Name}");
 			ylistcomboReceptionTicketFrom.ItemSelected += YlistcomboReceptionTicketFrom_ItemSelected;
@@ -109,7 +109,7 @@ namespace Vodovoz
 			filterTo.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteListTo.RepresentationModel = new ViewModel.RouteListsVM(filterTo);
 			yentryreferenceRouteListTo.Changed += YentryreferenceRouteListTo_Changed;
-			yentryreferenceRouteListTo.CanEditReference = QSMain.User.Permissions["can_delete"];
+			yentryreferenceRouteListTo.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
 			ylistcomboReceptionTicketTo.SetRenderTextFunc<CarUnloadDocument>(d => $"Талон разгрузки №{d.Id}. {d.Warehouse.Name}");
 			ylistcomboReceptionTicketTo.ItemSelected += YlistcomboReceptionTicketTo_ItemSelected;

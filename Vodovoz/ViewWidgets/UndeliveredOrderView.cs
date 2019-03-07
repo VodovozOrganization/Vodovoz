@@ -15,6 +15,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 using Vodovoz.ViewModel;
+using QS.Project.Repositories;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -86,7 +87,7 @@ namespace Vodovoz.ViewWidgets
 			};
 			yEForUndeliveredOrder.RepresentationModel = new OrdersVM(filterOrders);
 			yEForUndeliveredOrder.Binding.AddBinding(undelivery, x => x.OldOrder, x => x.Subject).InitializeFromSource();
-			yEForUndeliveredOrder.CanEditReference = QSMain.User.Permissions["can_delete"];
+			yEForUndeliveredOrder.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
 			yDateDriverCallTime.Binding.AddBinding(undelivery, t => t.DriverCallTime, w => w.DateOrNull).InitializeFromSource();
 			if(undelivery.Id <= 0)
@@ -174,7 +175,7 @@ namespace Vodovoz.ViewWidgets
 		void RemoveItemsFromEnums()
 		{
 			//удаляем статус "закрыт" из списка, если недовоз не закрыт и нет прав на их закрытие
-			if(!QSMain.User.Permissions["can_close_undeliveries"] && undelivery.UndeliveryStatus != UndeliveryStatus.Closed) {
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_undeliveries"] && undelivery.UndeliveryStatus != UndeliveryStatus.Closed) {
 				yEnumCMBStatus.AddEnumToHideList(new Enum[] { UndeliveryStatus.Closed });
 				yEnumCMBStatus.SelectedItem = (UndeliveryStatus)undelivery.UndeliveryStatus;
 			}
@@ -190,7 +191,7 @@ namespace Vodovoz.ViewWidgets
 
 		void SetSensitivities()
 		{
-			bool hasPermissionOrNew = QSMain.User.Permissions["can_edit_undeliveries"] || undelivery.Id == 0;
+			bool hasPermissionOrNew = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_undeliveries"] || undelivery.Id == 0;
 
 			//основные поля доступны если есть разрешение или это новый недовоз,
 			//выбран старый заказ и статус недовоза не "Закрыт"
@@ -210,7 +211,7 @@ namespace Vodovoz.ViewWidgets
 			//можем менять статус, если есть права или нет прав и статус не "закрыт"
 			hbxStatus.Sensitive = (
 				(
-					QSMain.User.Permissions["can_close_undeliveries"]
+					UserPermissionRepository.CurrentUserPresetPermissions["can_close_undeliveries"]
 					|| undelivery.UndeliveryStatus != UndeliveryStatus.Closed
 				)
 				&& undelivery.OldOrder != null
@@ -304,7 +305,7 @@ namespace Vodovoz.ViewWidgets
 			);
 			ReferenceRepresentation dlg = new ReferenceRepresentation(new OrdersVM(filter));
 			dlg.Mode = OrmReferenceMode.Select;
-			dlg.Buttons(QSMain.User.Permissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit));
+			dlg.Buttons(UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit));
 
 			MyTab.TabParent.AddTab(dlg, MyTab, false);
 

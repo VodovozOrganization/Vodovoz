@@ -163,10 +163,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual Employee GetActualCashier(IUnitOfWork uow)
 		{
-			if(RouteList.Cashier == null) {
-				return EmployeeRepository.GetEmployeeForCurrentUser(uow);
-			}
-			return uow.GetById<Employee>(RouteList.Cashier.Id);
+			return EmployeeRepository.GetEmployeeForCurrentUser(uow);
 		}
 
 		public virtual void UpdateDocument(IUnitOfWork uow)

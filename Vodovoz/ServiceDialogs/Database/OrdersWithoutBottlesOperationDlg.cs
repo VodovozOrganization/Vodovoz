@@ -4,7 +4,7 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -20,7 +20,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		public OrdersWithoutBottlesOperationDlg()
 		{
-			if(!QSMain.User.Permissions["database_maintenance"]) {
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["database_maintenance"]) {
 				MessageDialogHelper.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
 				FailInitialize = true;
 				return;

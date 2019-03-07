@@ -426,7 +426,7 @@ namespace Vodovoz
 			this.buttonSetStatusComplete.CanFocus = true;
 			this.buttonSetStatusComplete.Name = "buttonSetStatusComplete";
 			this.buttonSetStatusComplete.UseUnderline = true;
-			this.buttonSetStatusComplete.Label = global::Mono.Unix.Catalog.GetString("Установить в статус \"Выпонено\"");
+			this.buttonSetStatusComplete.Label = global::Mono.Unix.Catalog.GetString("Установить в статус \"Выполнено\"");
 			this.hbox8.Add(this.buttonSetStatusComplete);
 			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonSetStatusComplete]));
 			w33.Position = 1;
