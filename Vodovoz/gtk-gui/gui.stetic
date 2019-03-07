@@ -5247,7 +5247,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="QSOrmProject.PhotoView" id="photoviewCar">
+                  <widget class="QS.Widgets.GtkUI.PhotoView" id="photoviewCar">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -65452,7 +65452,7 @@ not tooltip</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="QSOrmProject.PhotoView" id="photoviewEmployee">
+                          <widget class="QS.Widgets.GtkUI.PhotoView" id="photoviewEmployee">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -70414,7 +70414,7 @@ not tooltip</property>
                         <property name="Yalign">0</property>
                         <property name="LeftPadding">12</property>
                         <child>
-                          <widget class="QSOrmProject.PhotoView" id="photoViewCertificate">
+                          <widget class="QS.Widgets.GtkUI.PhotoView" id="photoViewCertificate">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -70535,7 +70535,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Store.NomenclatureForShipment" design-size="300 300">
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Store.NomenclatureForShipment" design-size="304 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
