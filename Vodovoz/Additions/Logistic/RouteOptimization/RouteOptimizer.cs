@@ -80,7 +80,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// <summary>
 		/// Штраф за адрес из других частей города <see cref="RouteList.GeographicGroups"/>.
 		/// </summary>
-		public static long AddressFromForeignGeographicGroupPenalty = 300000;
+		public static long AddressFromForeignGeographicGroupPenalty = 500000;
 		#endregion
 
 		public IList<RouteList> Routes;
@@ -259,7 +259,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					AddWarning("Время разгрузки на {2}, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To, Nodes[ix].Order.DeliveryPoint.ShortAddress);
 					endWindow = startWindow;
 				}
-				time_dimension.CumulVar(ix).SetRange((long)startWindow, (long)endWindow);
+				time_dimension.CumulVar(ix + 1).SetRange((long)startWindow, (long)endWindow);
 				/// Добавляем абсолютно все заказы в дизюкцию. Если бы заказы небыли вдобавлены в отдельные дизьюкции
 				/// то при не возможность доставить хоть один заказ. Все решение бы считаль не верным. Добавление каждого заказа
 				/// в отдельную дизьюкцию, позволяет механизму не вести какой то и заказов, и все таки формировать решение с недовезенными
