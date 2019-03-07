@@ -15,7 +15,6 @@ using QSContacts;
 using QSDocTemplates;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
-using QSOrmProject.Permissions;
 using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Core.Permissions;
@@ -39,7 +38,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repositories;
 using QS.Permissions;
 using QS.Widgets.Gtk;
 using QS.Print;
@@ -291,7 +289,7 @@ namespace Vodovoz
 
 			HistoryMain.Enable();
 			TemplatePrinter.InitPrinter();
-			//ImagePrinter.InitPrinter();
+			ImagePrinter.InitPrinter();
 
 			//Настройка ParentReference
 			ParentReferenceConfig.AddActions(new ParentReferenceActions<Organization, QSBanks.Account> {
