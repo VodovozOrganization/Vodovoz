@@ -25,6 +25,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.StoredResources;
 using Vodovoz.JournalViewers;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bottles;
@@ -1147,6 +1148,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<NomenclatureForShipment>(),
 			() => new QSReport.ReportViewDlg(new NomenclatureForShipment())
+		);
+	}
+
+	protected void OnImageListOpenActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<StoredImageResource>(),
+			() => new OrmReference(typeof(StoredImageResource))
 		);
 	}
 }

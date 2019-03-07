@@ -43,6 +43,7 @@ using Vodovoz.Repositories;
 using QS.Permissions;
 using QS.Widgets.Gtk;
 using QS.Print;
+using Vodovoz.Domain.StoredResources;
 
 namespace Vodovoz
 {
@@ -276,6 +277,10 @@ namespace Vodovoz
 				   .Column("Архивный?", x => x.IsArchive ? "Да" : String.Empty)
 				   .OrderAsc(x => x.IsArchive)
 				   .OrderAsc(x => x.Id)
+				   .End();
+			OrmMain.AddObjectDescription<StoredImageResource>().Dialog<ImageLoaderDlg>().DefaultTableView()
+				   .SearchColumn("Номер", x => x.Id.ToString())
+				   .SearchColumn("Название", x => x.Name)
 				   .End();
 			#endregion
 

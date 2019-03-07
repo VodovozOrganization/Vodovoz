@@ -564,6 +564,9 @@
     <Compile Include="Domain\Certificate.cs" />
     <Compile Include="HibernateMapping\CertificateMap.cs" />
     <Compile Include="Domain\Order\Documents\NomenclatureCertificateDocument.cs" />
+    <Compile Include="Domain\StoredResources\StoredResource.cs" />
+    <Compile Include="HibernateMapping\StoredResourceMap.cs" />
+    <Compile Include="Domain\StoredResources\StoredImageResource.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -596,6 +599,7 @@
     <Folder Include="HibernateMapping\Permissions\" />
     <Folder Include="Repositories\Permissions\" />
     <Folder Include="Repositories\Orders\" />
+    <Folder Include="Domain\StoredResources\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

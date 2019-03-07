@@ -343,7 +343,7 @@ namespace Vodovoz
 			this.notebookMain = new global::Gtk.Notebook();
 			this.notebookMain.CanFocus = true;
 			this.notebookMain.Name = "notebookMain";
-			this.notebookMain.CurrentPage = 0;
+			this.notebookMain.CurrentPage = 4;
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -796,12 +796,13 @@ namespace Vodovoz
 			w51.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.photoviewEmployee = new global::QS.Widgets.GtkUI.PhotoView();
+			this.photoviewEmployee.HeightRequest = 250;
 			this.photoviewEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.photoviewEmployee.Name = "photoviewEmployee";
 			this.photoviewEmployee.CanPrint = false;
 			this.datatableMain.Add(this.photoviewEmployee);
 			global::Gtk.Table.TableChild w52 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.photoviewEmployee]));
-			w52.BottomAttach = ((uint)(8));
+			w52.BottomAttach = ((uint)(7));
 			w52.LeftAttach = ((uint)(2));
 			w52.RightAttach = ((uint)(3));
 			w52.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -900,6 +901,7 @@ namespace Vodovoz
 			this.vboxPageLogistic.Spacing = 6;
 			// Container child vboxPageLogistic.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(4)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
