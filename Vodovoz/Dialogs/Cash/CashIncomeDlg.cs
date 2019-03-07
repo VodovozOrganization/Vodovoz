@@ -6,6 +6,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
+using QS.Project.Repositories;
 using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
@@ -99,7 +100,7 @@ namespace Vodovoz
 			filterRL.OnlyStatuses = new RouteListStatus[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing };
 			yEntryRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRL);
 			yEntryRouteList.Binding.AddBinding(Entity, s => s.RouteListClosing, w => w.Subject).InitializeFromSource();
-			yEntryRouteList.CanEditReference = QSMain.User.Permissions["can_delete"];
+			yEntryRouteList.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
 			yEntryRouteList.Hidden += YEntryRouteList_ValueOrVisibilityChanged;
 			yEntryRouteList.Shown += YEntryRouteList_ValueOrVisibilityChanged;

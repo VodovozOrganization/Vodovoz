@@ -5,6 +5,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
+using QS.Project.Repositories;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
@@ -19,7 +20,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		public CalculateDistanceToPointsDlg()
 		{
-			if(!QSMain.User.Permissions["database_maintenance"]) {
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["database_maintenance"]) {
 				MessageDialogHelper.RunWarningDialog(
 					"Доступ запрещён!",
 					"У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.",

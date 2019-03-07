@@ -10,6 +10,7 @@ using QSBanks;
 using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
+using QS.Project.Repositories;
 using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -110,7 +111,7 @@ namespace Vodovoz
 			chkNeedNewBottles.Binding.AddBinding(Entity, e => e.NewBottlesNeeded, w => w.Active).InitializeFromSource();
 
 			ycheckIsArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			ycheckIsArchived.Sensitive = QSMain.User.Permissions["can_arc_counterparty_and_deliverypoint"];
+			ycheckIsArchived.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_arc_counterparty_and_deliverypoint"];
 
 			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
 
@@ -157,7 +158,7 @@ namespace Vodovoz
 			//Setting Contacts
 			contactsview1.CounterpartyUoW = UoWGeneric;
 			//Setting permissions
-			spinMaxCredit.Sensitive = QSMain.User.Permissions["max_loan_amount"];
+			spinMaxCredit.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["max_loan_amount"];
 			datalegalname1.Binding.AddSource(Entity)
 				.AddBinding(s => s.Name, t => t.OwnName)
 				.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
@@ -222,7 +223,7 @@ namespace Vodovoz
 			ReferenceRepresentation OrdersDialog = new ReferenceRepresentation(new OrdersVM(filter)) {
 				Mode = OrmReferenceMode.Normal
 			};
-			OrdersDialog.Buttons(QSMain.User.Permissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit));
+			OrdersDialog.Buttons(UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit));
 
 			TabParent.AddTab(OrdersDialog, this, false);
 		}

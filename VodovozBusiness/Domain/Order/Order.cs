@@ -9,7 +9,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using QSSupportLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -835,7 +835,7 @@ namespace Vodovoz.Domain.Orders
 						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
 						if(!hasMaster
-						   && !QSMain.User.Permissions["can_create_several_orders_for_date_and_deliv_point"]
+						   && !UserPermissionRepository.CurrentUserPresetPermissions["can_create_several_orders_for_date_and_deliv_point"]
 						   && ordersForDeliveryPoints.Any()
 						   && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) {
 							yield return new ValidationResult(
@@ -870,7 +870,7 @@ namespace Vodovoz.Domain.Orders
 
 				if(IsService && PaymentType == PaymentType.cashless
 				   && newStatus == OrderStatus.Accepted
-				   && !QSMain.User.Permissions["can_accept_cashles_service_orders"]) {
+				   && !UserPermissionRepository.CurrentUserPresetPermissions["can_accept_cashles_service_orders"]) {
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.OrderStatus) }
@@ -925,7 +925,7 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе выбрана точка доставки для которой нет актуального дополнительного соглашения по доставке воды");
 			}
 
-			if(!QSMain.User.Permissions["can_can_create_order_in_advance"]
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_can_create_order_in_advance"]
 			   && DeliveryDate.HasValue && DeliveryDate.Value < DateTime.Today
 			   && OrderStatus <= OrderStatus.Accepted) {
 				yield return new ValidationResult(
@@ -1047,7 +1047,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual int TotalWaterBottles => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 
 		public virtual bool CanBeMovedFromClosedToAcepted => RouteListItemRepository.WasOrderInAnyRouteList(UoW, this)
-																 && QSMain.User.Permissions["can_move_order_from_closed_to_acepted"];
+																 && UserPermissionRepository.CurrentUserPresetPermissions["can_move_order_from_closed_to_acepted"];
 
 		#endregion
 
@@ -2475,7 +2475,7 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery) {
 				return;
 			}
-			if(OrderStatus == OrderStatus.Accepted && QSMain.User.Permissions["allow_load_selfdelivery"]) {
+			if(OrderStatus == OrderStatus.Accepted && UserPermissionRepository.CurrentUserPresetPermissions["allow_load_selfdelivery"]) {
 				ChangeStatus(OrderStatus.OnLoading);
 				LoadAllowedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			}
@@ -2493,7 +2493,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			if(OrderStatus == OrderStatus.WaitForPayment && QSMain.User.Permissions["accept_cashless_paid_selfdelivery"]) {
+			if(OrderStatus == OrderStatus.WaitForPayment && UserPermissionRepository.CurrentUserPresetPermissions["accept_cashless_paid_selfdelivery"]) {
 				if(PayAfterShipment) {
 					ChangeStatus(OrderStatus.Closed);
 				} else {

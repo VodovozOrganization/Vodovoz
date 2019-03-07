@@ -7,7 +7,7 @@ using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
@@ -77,7 +77,7 @@ namespace Vodovoz
 			);
 			yentryrefOrder.RepresentationModel = new ViewModel.OrdersVM(filter);
 			yentryrefOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
-			yentryrefOrder.CanEditReference = QSMain.User.Permissions["can_delete"];
+			yentryrefOrder.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 			              
 			UpdateOrderInfo();
 			Entity.UpdateStockAmount(UoW);

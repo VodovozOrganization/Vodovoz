@@ -14,7 +14,6 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz;
 using Vodovoz.Core;
-using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain;
@@ -37,6 +36,8 @@ using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
+using QS.Project.Dialogs.GtkUI;
+using QS.Project.Repositories;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -66,16 +67,16 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
-		ActionCash.Sensitive = QSMain.User.Permissions["money_manage_cash"];
-		ActionAccounting.Sensitive = QSMain.User.Permissions["money_manage_bookkeeping"];
+		ActionCash.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["money_manage_cash"];
+		ActionAccounting.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["money_manage_bookkeeping"];
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
-			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions["logistican"];
+			ActionRouteListAddressesTransferring.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
 		ActionStock.Sensitive = CurrentPermissions.Warehouse.Allowed().Any();
 
-		bool hasAccessToSalaries = QSMain.User.Permissions["access_to_salaries"];
-		bool hasAccessToWagesAndBonuses = QSMain.User.Permissions["access_to_fines_bonuses"];
+		bool hasAccessToSalaries = UserPermissionRepository.CurrentUserPresetPermissions["access_to_salaries"];
+		bool hasAccessToWagesAndBonuses = UserPermissionRepository.CurrentUserPresetPermissions["access_to_fines_bonuses"];
 		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
 		ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses;
 		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
@@ -83,11 +84,11 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ActionWagesOperations.Sensitive = hasAccessToSalaries;
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries;
 
-		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = QSMain.User.Permissions["access_to_fines_bonuses"];
+		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = UserPermissionRepository.CurrentUserPresetPermissions["access_to_fines_bonuses"];
 		ActionReports.Sensitive = false;
 		ActionServices.Visible = false;
 		ActionDocTemplates.Visible = QSMain.User.Admin;
-		ActionService.Sensitive = QSMain.User.Permissions["database_maintenance"];
+		ActionService.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["database_maintenance"];
 
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
@@ -338,8 +339,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		OrmReference refWin = new OrmReference(typeof(Nomenclature));
 		refWin.ButtonMode = ReferenceButtonMode.CanEdit;
-		refWin.ButtonMode |= QSMain.User.Permissions["can_create_and_arc_nomenclatures"] ? ReferenceButtonMode.CanAdd : ReferenceButtonMode.None;
-		refWin.ButtonMode |= QSMain.User.Permissions["can_delete_nomenclatures"] ? ReferenceButtonMode.CanDelete : ReferenceButtonMode.None;
+		refWin.ButtonMode |= UserPermissionRepository.CurrentUserPresetPermissions["can_create_and_arc_nomenclatures"] ? ReferenceButtonMode.CanAdd : ReferenceButtonMode.None;
+		refWin.ButtonMode |= UserPermissionRepository.CurrentUserPresetPermissions["can_delete_nomenclatures"] ? ReferenceButtonMode.CanDelete : ReferenceButtonMode.None;
 		tdiMain.AddTab(refWin);
 	}
 
@@ -352,7 +353,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
 		var refWin = new ReferenceRepresentation(new CounterpartyVM());
-		refWin.ButtonMode = QSMain.User.Permissions["can_delete_counterparty_and_deliverypoint"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit);
+		refWin.ButtonMode = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit);
 		tdiMain.AddTab(refWin);
 	}
 
@@ -575,7 +576,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
 		ReferenceButtonMode mode = ReferenceButtonMode.CanEdit;
-		if(QSMain.User.Permissions["can_delete_counterparty_and_deliverypoint"])
+		if(UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"])
 			mode |= ReferenceButtonMode.CanDelete;
 
 		tdiMain.OpenTab(
@@ -1059,7 +1060,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionDeliveryPriceRulesActivated(object sender, EventArgs e)
 	{
-		bool right = QSMain.User.Permissions["can_edit_delivery_price_rules"];
+		bool right = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_delivery_price_rules"];
 		tdiMain.OpenTab(
 			OrmReference.GenerateHashName<DeliveryPriceRule>(),
 			() => {
@@ -1106,10 +1107,10 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionUsersActivated(object sender, EventArgs e)
 	{
-		Users winUsers = new Users();
-		winUsers.Show();
-		winUsers.Run();
-		winUsers.Destroy();
+		UsersDialog usersDlg = new UsersDialog();
+		usersDlg.Show();
+		usersDlg.Run();
+		usersDlg.Destroy();
 	}
 
 	protected void OnActionGeographicGroupsActivated(object sender, EventArgs e)

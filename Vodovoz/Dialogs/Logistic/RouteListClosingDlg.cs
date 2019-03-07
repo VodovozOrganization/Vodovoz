@@ -22,7 +22,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Logistics;
-using Vodovoz.Tools.Logistic;
+using QS.Project.Repositories;
 using Vodovoz.ViewModel;
 using Vodovoz.Repositories.Permissions;
 
@@ -36,7 +36,7 @@ namespace Vodovoz
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
-		private bool editing = QSMain.User.Permissions["money_manage_cash"];
+		private bool editing = UserPermissionRepository.CurrentUserPresetPermissions["money_manage_cash"];
 		private bool canCloseRoutelist = false;
 		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;
@@ -256,7 +256,7 @@ namespace Vodovoz
 			datePickerDate.Sensitive = editing;
 			ycheckConfirmDifferences.Sensitive = editing && Entity.Status == RouteListStatus.OnClosing;
 			ytextClosingComment.Sensitive = editing;
-			ycheckNormalWage.Sensitive = editing && QSMain.User.Permissions["change_driver_wage"];
+			ycheckNormalWage.Sensitive = editing && UserPermissionRepository.CurrentUserPresetPermissions["change_driver_wage"];
 			routeListAddressesView.IsEditing = editing;
 			ycheckHideCells.Sensitive = editing;
 			routelistdiscrepancyview.Sensitive = editing;

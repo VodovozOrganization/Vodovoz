@@ -258,13 +258,13 @@ namespace Vodovoz
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
-			this.spinDelay = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
+			this.spinDelay = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.spinDelay.CanFocus = true;
 			this.spinDelay.Name = "spinDelay";
-			this.spinDelay.Adjustment.PageIncrement = 10;
-			this.spinDelay.ClimbRate = 1;
+			this.spinDelay.Adjustment.PageIncrement = 10D;
+			this.spinDelay.ClimbRate = 1D;
 			this.spinDelay.Numeric = true;
-			this.spinDelay.Value = 3;
+			this.spinDelay.Value = 3D;
 			this.spinDelay.ValueAsDecimal = 0m;
 			this.spinDelay.ValueAsInt = 0;
 			this.datatable5.Add(this.spinDelay);

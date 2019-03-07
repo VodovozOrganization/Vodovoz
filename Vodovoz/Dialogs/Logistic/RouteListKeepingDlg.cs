@@ -12,7 +12,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using QSOrmProject;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -40,7 +40,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = String.Format("Ведение МЛ №{0}",Entity.Id);
 			allEditing = Entity.Status != RouteListStatus.Closed && Entity.Status != RouteListStatus.OnClosing;
-			isUserLogist = QSMain.User.Permissions["logistican"];
+			isUserLogist = UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
 			logisticanEditing = isUserLogist && allEditing;
 
 			ConfigureDlg ();
@@ -281,7 +281,7 @@ namespace Vodovoz
 
 		public void OnSelectionChanged(object sender, EventArgs args){
 			buttonSetStatusComplete.Sensitive = ytreeviewAddresses.GetSelectedObjects().Any();
-			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1 && QSMain.User.Permissions["logistic_changedeliverytime"];
+			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1 && UserPermissionRepository.CurrentUserPresetPermissions["logistic_changedeliverytime"];
 		}
 
 		void ReferenceForwarder_Changed (object sender, EventArgs e)
@@ -371,7 +371,7 @@ namespace Vodovoz
 
 		protected void OnButtonChangeDeliveryTimeClicked (object sender, EventArgs e)
 		{
-			if(!QSMain.User.Permissions["logistic_changedeliverytime"]) {
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["logistic_changedeliverytime"]) {
 				return;
 			}
 			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();

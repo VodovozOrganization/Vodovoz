@@ -1093,7 +1093,6 @@
     <Compile Include="Dialogs\CertificateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CertificateDlg.cs" />
     <Compile Include="ReportsParameters\Store\NomenclatureForShipment.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NomenclatureForShipment.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

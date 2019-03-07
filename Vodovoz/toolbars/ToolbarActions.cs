@@ -5,7 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using Vodovoz;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
@@ -347,7 +347,7 @@ public partial class MainWindow : Window
 				vm.Filter.SetAndRefilterAtOnce(f => f.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
 				return new ReferenceRepresentation(vm).CustomTabName("Журнал штрафов")
 													  .Buttons(
-						                                  QSMain.User.Permissions["can_delete_fines"]
+						                                  UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"]
 						                                  ? ReferenceButtonMode.CanAll
 						                                  : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
 						                                 );
@@ -360,7 +360,7 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<PremiumVM>(),
 			() => new ReferenceRepresentation(new PremiumVM()).CustomTabName("Журнал премий")
-			.Buttons(QSMain.User.Permissions["can_delete_fines"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
+			.Buttons(UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
 		);
 	}
 
@@ -428,7 +428,7 @@ public partial class MainWindow : Window
 				var vm = new RouteListsVM();
 				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
 				return new ReferenceRepresentation(vm).Buttons(
-					QSMain.User.Permissions["can_delete"] 
+					UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] 
 					? ReferenceButtonMode.CanAll 
 					: (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
 				);
@@ -540,7 +540,7 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<OrdersVM>(),
 			() => new ReferenceRepresentation(new OrdersVM()).CustomTabName("Журнал заказов")
-			.Buttons(QSMain.User.Permissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
+			.Buttons(UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
 		);
 	}
 
@@ -550,7 +550,7 @@ public partial class MainWindow : Window
 			TdiTabBase.GenerateHashName<UndeliveriesView>(),
 			() => { 
 				var view = new UndeliveriesView();
-				view.ButtonMode = QSMain.User.Permissions["can_edit_undeliveries"] ? ReferenceButtonMode.CanAll : ReferenceButtonMode.CanAdd;
+				view.ButtonMode = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_undeliveries"] ? ReferenceButtonMode.CanAll : ReferenceButtonMode.CanAdd;
 				return view;
 			}
 		);

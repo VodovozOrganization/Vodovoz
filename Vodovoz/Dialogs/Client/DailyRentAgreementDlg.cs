@@ -3,7 +3,7 @@ using System.Linq;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Dialog;
-using QSOrmProject;
+using QS.Project.Repositories;
 using QSValidation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
@@ -106,7 +106,7 @@ namespace Vodovoz
 				}
 			};
 
-			templatewidget3.CanRevertCommon = QSProjectsLib.QSMain.User.Permissions["can_set_common_additionalagreement"];
+			templatewidget3.CanRevertCommon = UserPermissionRepository.CurrentUserPresetPermissions["can_set_common_additionalagreement"];
 			templatewidget3.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget3.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 		}
