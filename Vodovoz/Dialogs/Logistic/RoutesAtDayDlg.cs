@@ -573,7 +573,7 @@ namespace Vodovoz
 		}
 
 		Pixbuf GetRowMarker(object row)
-		{
+		{//FIXME для адресов правильную форму маркеров подбирать. сейчас берётся форма маркера самого МЛ
 			var rl = row as RouteList;
 			if(rl == null) {
 				if(row is RouteListItem rli)
@@ -1062,7 +1062,7 @@ namespace Vodovoz
 					route.RecalculatePlanedDistance(distanceCalculator);
 					var noPlan = route.Addresses.Count(x => !x.PlanTimeStart.HasValue);
 					if(noPlan > 0)
-						warnings.Add($"Для маршрута {route.Id} незапланировано {noPlan} адресов.");
+						warnings.Add($"Для маршрута №{route.Id} - {route.Driver?.ShortName}({route.Car?.RegistrationNumber}) незапланировано {noPlan} адресов.");
 				} else {
 					warnings.Add($"Маршрут {route.Id} не был перестроен.");
 				}
