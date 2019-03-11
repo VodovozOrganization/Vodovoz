@@ -351,7 +351,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>={sum_cash}</Value>
+                      <Value>={sum_cash} + {all_deposits}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -567,7 +567,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
-                      <Value>=SUM({sum_cash})</Value>
+                      <Value>=SUM({sum_cash} + {all_deposits})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -743,13 +743,14 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	T.order_id,
 	T.order_author,
 	T.client,
 	SUM(T.sum_cash) AS sum_cash,
+	IFNULL(T.deposit, 0) AS all_deposits,
 	SUM(T.water_count) AS water_count,
 	T.tare_to_collect,
 	T.status,
@@ -762,6 +763,16 @@ FROM(
 		CONCAT(IFNULL(SUBSTR(author.name,1,1),''),'.',IFNULL(author.last_name,'')) AS order_author,
 		counterparty.full_name AS client,
 		TRUNCATE(order_items.count * order_items.price - order_items.discount_money, 2) AS sum_cash,
+		(
+			SELECT TRUNCATE(
+				SUM(
+					order_deposit_items.deposit_sum * order_deposit_items.count * IF(order_deposit_items.payment_type = 'FromClient',1,-1)
+				),
+				2
+			)
+			FROM order_deposit_items
+			WHERE order_deposit_items.order_id = orders.id
+		) AS deposit,
 		IF(
 			nomenclature.tare_volume = 'Vol19L',
 			order_items.count,
@@ -825,7 +836,7 @@ HAVING SUM(T.sum_cash) &gt; 0
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -840,6 +851,10 @@ HAVING SUM(T.sum_cash) &gt; 0
         </Field>
         <Field Name="sum_cash">
           <DataField>sum_cash</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="all_deposits">
+          <DataField>all_deposits</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="water_count">
@@ -885,7 +900,7 @@ HAVING SUM(T.sum_cash) &gt; 0
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-09-24</Value>
+          <Value>2019-03-05</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
