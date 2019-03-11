@@ -18,6 +18,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "документы разгрузки автомобилей",
 		Nominative = "документ разгрузки автомобиля")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class CarUnloadDocument : Document, IValidatableObject
 	{
 		public CarUnloadDocument() { }

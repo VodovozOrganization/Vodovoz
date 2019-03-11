@@ -18,6 +18,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "документы погрузки автомобилей",
 		Nominative = "документ погрузки автомобиля")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class CarLoadDocument : Document, IValidatableObject
 	{
 		DateTime version;

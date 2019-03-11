@@ -18,6 +18,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "инвентаризация",
 		Prepositional = "инвентаризации")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class InventoryDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
