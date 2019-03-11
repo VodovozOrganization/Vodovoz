@@ -1,9 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QSOrmProject;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -11,6 +10,7 @@ namespace Vodovoz.Domain.Cash
 		NominativePlural = "статьи расхода",
 		Nominative = "статья расхода")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class ExpenseCategory : DomainTreeNodeBase<ExpenseCategory>, IDomainObject
 	{
 		#region Свойства

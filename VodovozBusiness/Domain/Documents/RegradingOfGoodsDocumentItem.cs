@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки пересортицы",
 		Nominative = "строка пересортицы")]
-	//[HistoryTrace]
+	[HistoryTrace]
 	public class RegradingOfGoodsDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

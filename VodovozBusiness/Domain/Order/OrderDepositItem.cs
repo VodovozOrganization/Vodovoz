@@ -22,64 +22,64 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Заказ")]
 		public virtual Order Order {
-			get { return order; }
-			set { SetField (ref order, value, () => Order); }
+			get => order;
+			set => SetField(ref order, value, () => Order);
 		}
 
 		int count;
 
 		[Display(Name = "Количество")]
 		public virtual int Count {
-			get { return count; }
-			set { SetField (ref count, value, () => Count); }
+			get => count;
+			set => SetField(ref count, value, () => Count);
 		}
 
 		int actualCount;
 
 		[Display(Name = "Фактическое количество")]
 		public virtual int ActualCount {
-			get { return actualCount; }
-			set { SetField(ref actualCount, value, () => ActualCount); }
+			get => actualCount;
+			set => SetField(ref actualCount, value, () => ActualCount);
 		}
 
 		DepositOperation depositOperation;
 
 		[Display(Name = "Операция залога")]
 		public virtual DepositOperation DepositOperation {
-			get { return depositOperation; }
-			set { SetField (ref depositOperation, value, () => DepositOperation); }
+			get => depositOperation;
+			set => SetField(ref depositOperation, value, () => DepositOperation);
 		}
 
 		PaidRentEquipment paidRentItem;
 
 		[Display(Name = "Залог за оплачиваемое оборудование")]
 		public virtual PaidRentEquipment PaidRentItem {
-			get { return paidRentItem; }
-			set { SetField (ref paidRentItem, value, () => PaidRentItem); }
+			get => paidRentItem;
+			set => SetField(ref paidRentItem, value, () => PaidRentItem);
 		}
 
 		FreeRentEquipment freeRentItem;
 
 		[Display(Name = "Залог за бесплатное оборудование")]
 		public virtual FreeRentEquipment FreeRentItem {
-			get { return freeRentItem; }
-			set { SetField (ref freeRentItem, value, () => FreeRentItem); }
+			get => freeRentItem;
+			set => SetField(ref freeRentItem, value, () => FreeRentItem);
 		}
 
 		Nomenclature equipmentNomenclature;
 
 		[Display(Name = "Номенклатура оборудования")]
 		public virtual Nomenclature EquipmentNomenclature {
-			get { return equipmentNomenclature; }
-			set { SetField (ref equipmentNomenclature, value, () => EquipmentNomenclature); }
+			get => equipmentNomenclature;
+			set => SetField(ref equipmentNomenclature, value, () => EquipmentNomenclature);
 		}
 
 		DepositType depositType;
 
 		[Display(Name = "Тип залога")]
 		public virtual DepositType DepositType {
-			get { return depositType; }
-			set { SetField (ref depositType, value, () => DepositType); }
+			get => depositType;
+			set => SetField(ref depositType, value, () => DepositType);
 		}
 
 		public virtual string DepositTypeString {
@@ -88,7 +88,7 @@ namespace Vodovoz.Domain.Orders
 					case DepositType.Bottles:
 						return "Возврат залога за бутыли";
 					case DepositType.Equipment:
-						return "Возврат залога за оборудования";
+						return "Возврат залога за оборудование";
 					default:
 						return "Не определено";
 				}
@@ -99,30 +99,18 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Залог")]
 		public virtual Decimal Deposit {
-			get { return deposit; }
-			set { SetField (ref deposit, value, () => Deposit); }
+			get => deposit;
+			set => SetField(ref deposit, value, () => Deposit);
 		}
 
 		/// <summary>
 		/// Свойство возвращает подходяшее значение Count или ActualCount в зависимости от статуса заказа.
 		/// </summary>
-		public int CurrentCount {
-			get {
-				if(OrderRepository.GetStatusesForActualCount(Order).Contains(Order.OrderStatus)) {
-					return ActualCount;
-				} else {
-					return Count;
-				}
-			}
-		}
+		public int CurrentCount => OrderRepository.GetStatusesForActualCount(Order).Contains(Order.OrderStatus) ? ActualCount : Count;
 
-		public virtual Decimal Total { get { return Deposit * CurrentCount; } }
+		public virtual Decimal Total => Deposit * CurrentCount;
 
-		public string Title {
-			get{
-				return String.Format("{0} на сумму {1}", DepositTypeString, CurrencyWorks.GetShortCurrencyString(Total));
-			}
-		}
+		public string Title => string.Format("{0} на сумму {1}", DepositTypeString, CurrencyWorks.GetShortCurrencyString(Total));
 	}
 }
 
