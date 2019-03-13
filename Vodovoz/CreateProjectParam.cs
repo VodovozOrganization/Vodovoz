@@ -194,8 +194,8 @@ namespace Vodovoz
 				//Сервис
 				OrmObjectMapping<ServiceClaim>.Create().Dialog<ServiceClaimDlg>().DefaultTableView().Column("Номер", x => x.Id.ToString()).Column("Тип", x => x.ServiceClaimType.GetEnumTitle()).Column("Оборудование", x => x.Equipment.Title).Column("Подмена", x => x.ReplacementEquipment != null ? "Да" : "Нет").Column("Точка доставки", x => x.DeliveryPoint.Title).End(),
 				//Касса
-				OrmObjectMapping<IncomeCategory>.Create ().Dialog<CashIncomeCategoryDlg>().EditPermision ("money_manage_cash").DefaultTableView ().Column("Код", x => x.Id.ToString()).Column ("Название", e => e.Name).Column ("Тип документа", e => e.IncomeDocumentType.GetEnumTitle()).End (),
-				OrmObjectMapping<ExpenseCategory>.Create ().Dialog<CashExpenseCategoryDlg>().EditPermision ("money_manage_cash").DefaultTableView ().Column("Код", x => x.Id.ToString()).SearchColumn ("Название", e => e.Name).Column ("Тип документа", e => e.ExpenseDocumentType.GetEnumTitle()).TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End (),
+				OrmObjectMapping<IncomeCategory>.Create ().Dialog<CashIncomeCategoryDlg>().DefaultTableView ().Column("Код", x => x.Id.ToString()).Column ("Название", e => e.Name).Column ("Тип документа", e => e.IncomeDocumentType.GetEnumTitle()).End (),
+				OrmObjectMapping<ExpenseCategory>.Create ().Dialog<CashExpenseCategoryDlg>().DefaultTableView ().Column("Код", x => x.Id.ToString()).SearchColumn ("Название", e => e.Name).Column ("Тип документа", e => e.ExpenseDocumentType.GetEnumTitle()).TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End (),
 				OrmObjectMapping<Income>.Create ().Dialog<CashIncomeDlg> (),
 				OrmObjectMapping<Expense>.Create ().Dialog<CashExpenseDlg> (),
 				OrmObjectMapping<AdvanceReport>.Create ().Dialog<AdvanceReportDlg> (),

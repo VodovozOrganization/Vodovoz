@@ -39,6 +39,8 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
+using QS.RepresentationModel.GtkUI;
+using Gamma.Utilities;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -469,14 +471,22 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnAction14Activated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(IncomeCategory));
-		tdiMain.AddTab(refWin);
+		var vm = new EntityCommonRepresentationModelConstructor<IncomeCategory>()
+			.AddSearchColumn("Имя", x => x.Name)
+			.AddSearchColumn("Тип", x => x.IncomeDocumentType.GetEnumTitle())
+			.OrderBy(x => x.Name)
+			.Finish();
+		tdiMain.AddTab(new PermissionControlledRepresentationJournal(vm));
 	}
 
 	protected void OnAction15Activated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(ExpenseCategory));
-		tdiMain.AddTab(refWin);
+		var vm = new EntityCommonRepresentationModelConstructor<ExpenseCategory>()
+			.AddSearchColumn("Имя", x => x.Name)
+			.AddSearchColumn("Тип", x => x.ExpenseDocumentType.GetEnumTitle())
+			.OrderBy(x => x.Name)
+			.Finish();
+		tdiMain.AddTab(new PermissionControlledRepresentationJournal(vm));
 	}
 
 	protected void OnActionCashToggled(object sender, EventArgs e)
