@@ -15,45 +15,45 @@ using Vodovoz.Repository;
 namespace Vodovoz.ExportTo1c
 {
 	public class ExportData : IXmlConvertable
-	{		
-		public string Version{ get; set;}
-		public DateTime ExportDate{ get; set;} 
-		public DateTime StartPeriodDate{get;set;}
-		public DateTime EndPeriodDate{get;set;}
-		public string SourceName{ get; set;}
-		public string DestinationName{get;set;}
-		public string ConversionRulesId{get;set;}
-		public string Comment{ get; set;}
+	{
+		public string Version { get; set; }
+		public DateTime ExportDate { get; set; }
+		public DateTime StartPeriodDate { get; set; }
+		public DateTime EndPeriodDate { get; set; }
+		public string SourceName { get; set; }
+		public string DestinationName { get; set; }
+		public string ConversionRulesId { get; set; }
+		public string Comment { get; set; }
 		public List<string> Errors = new List<string>();
 
 		public decimal OrdersTotalSum;
 		public decimal ExportedTotalSum;
-			
-		public List<ObjectNode> Objects{ get; private set; }
-		public RulesNode ExchangeRules{ get; set; }
+
+		public List<ObjectNode> Objects { get; private set; }
+		public RulesNode ExchangeRules { get; set; }
 
 		public int objectCounter;
 
 		public readonly IUnitOfWork UoW;
 
-		public AccountCatalog AccountCatalog { get; private set;}
-		public BankCatalog BankCatalog { get; private set;}
-		public ContractCatalog ContractCatalog { get; private set;}
-		public CounterpartyCatalog CounterpartyCatalog { get; private set;}
-		public CurrencyCatalog CurrencyCatalog { get; private set;}
-		public MeasurementUnitsCatalog MeasurementUnitCatalog { get; private set;}
-		public NomenclatureCatalog NomenclatureCatalog { get; private set;}
+		public AccountCatalog AccountCatalog { get; private set; }
+		public BankCatalog BankCatalog { get; private set; }
+		public ContractCatalog ContractCatalog { get; private set; }
+		public CounterpartyCatalog CounterpartyCatalog { get; private set; }
+		public CurrencyCatalog CurrencyCatalog { get; private set; }
+		public MeasurementUnitsCatalog MeasurementUnitCatalog { get; private set; }
+		public NomenclatureCatalog NomenclatureCatalog { get; private set; }
 		public NomenclatureGroupCatalog NomenclatureGroupCatalog { get; private set; }
-		public OrganizationCatalog OrganizationCatalog { get; private set;}
-		public WarehouseCatalog WarehouseCatalog { get; private set;}
+		public OrganizationCatalog OrganizationCatalog { get; private set; }
+		public WarehouseCatalog WarehouseCatalog { get; private set; }
 
-		public Organization CashlessOrganization { get; private set;}
+		public Organization CashlessOrganization { get; private set; }
 		public Organization TinkoffOrganization { get; private set; }
 
 		public Export1cMode ExportMode { get; private set; }
 
 		public ExportData(IUnitOfWork uow, Export1cMode mode, DateTime dateStart, DateTime dateEnd)
-		{			
+		{
 			this.Objects = new List<ObjectNode>();
 			this.UoW = uow;
 			this.ExportMode = mode;
@@ -84,10 +84,11 @@ namespace Vodovoz.ExportTo1c
 
 		public void AddOrder(Order order)
 		{
-			OrdersTotalSum += order.OrderStatus == OrderStatus.Closed ? order.ActualTotalSum : order.TotalSum;
+			OrdersTotalSum += order.TotalSum;
 			var exportSalesDocument = CreateSalesDocument(order);
-			var exportInvoiceDocument = new InvoiceDocumentNode();
-			exportInvoiceDocument.Id = ++objectCounter;
+			var exportInvoiceDocument = new InvoiceDocumentNode {
+				Id = ++objectCounter
+			};
 			exportInvoiceDocument.Reference = new ReferenceNode(exportInvoiceDocument.Id,
 				new PropertyNode("Номер", Common1cTypes.String, ExportMode == Export1cMode.IPForTinkoff ? order.OnlineOrder.Value : order.Id),
 				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s"))
@@ -109,7 +110,7 @@ namespace Vodovoz.ExportTo1c
 			exportInvoiceDocument.Properties.Add(
 				new PropertyNode("ДоговорКонтрагента",
 					Common1cTypes.ReferenceContract,
-				                 ContractCatalog.CreateReferenceToContract(order)
+								 ContractCatalog.CreateReferenceToContract(order)
 				)
 			);
 
@@ -181,30 +182,28 @@ namespace Vodovoz.ExportTo1c
 
 		public SalesDocumentNode CreateSalesDocument(Order order)
 		{
-			var exportSaleDocument = new SalesDocumentNode();
-			exportSaleDocument.Id = ++objectCounter;
+			var exportSaleDocument = new SalesDocumentNode {
+				Id = ++objectCounter
+			};
 			exportSaleDocument.Reference = new ReferenceNode(exportSaleDocument.Id,
 				new PropertyNode("Номер", Common1cTypes.String, ExportMode == Export1cMode.IPForTinkoff ? order.OnlineOrder.Value : order.Id),
 				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s"))
 			);
 
-			var exportGoodsTable = new TableNode{
-				Name="Товары",
+			var exportGoodsTable = new TableNode {
+				Name = "Товары",
 			};
 
 			var exportServicesTable = new TableNode {
 				Name = "Услуги",
 			};
 
-			foreach (var orderItem in order.OrderItems)
-			{
+			foreach(var orderItem in order.OrderItems) {
 				var record = CreateRecord(orderItem);
-				if(Nomenclature.GetCategoriesForGoods().Contains(orderItem.Nomenclature.Category))
-				{
+				if(Nomenclature.GetCategoriesForGoods().Contains(orderItem.Nomenclature.Category)) {
 					exportGoodsTable.Records.Add(record);
 					exportSaleDocument.Comission.Comissions.Add(0);
-				}
-				else
+				} else
 					exportServicesTable.Records.Add(record);
 			}
 
@@ -280,9 +279,9 @@ namespace Vodovoz.ExportTo1c
 			);
 
 			exportSaleDocument.Tables.Add(exportGoodsTable);
-			exportSaleDocument.Tables.Add(exportServicesTable);		
+			exportSaleDocument.Tables.Add(exportServicesTable);
 			return exportSaleDocument;
-		}			
+		}
 
 		public TableRecordNode CreateRecord(OrderItem orderItem)
 		{
@@ -299,18 +298,17 @@ namespace Vodovoz.ExportTo1c
 				record.Properties.Add(
 					new PropertyNode("Содержание",
 						Common1cTypes.String,
-					                 orderItem.Nomenclature.OfficialName
+									 orderItem.Nomenclature.OfficialName
 					)
 				);
 			record.Properties.Add(
-				new PropertyNode("Количество",
+				new PropertyNode(
+					"Количество",
 					Common1cTypes.Numeric,
-				                 //FIXME Не правильно, нужно переделывать ActualCount на нулабле
-				                 orderItem.Order.OrderStatus == OrderStatus.Closed ? orderItem.ActualCount : orderItem.Count
+					orderItem.CurrentCount
 				)
 			);
-			if(!isService)
-			{
+			if(!isService) {
 				record.Properties.Add(
 					new PropertyNode("Коэффициент",
 						Common1cTypes.Numeric,
@@ -324,15 +322,13 @@ namespace Vodovoz.ExportTo1c
 					Common1cTypes.Numeric,
 					orderItem.Price));
 
-			//FIXME Не правильно, нужно переделывать ActualCount на нулабле
-			//ВНИМАНИЕ при исправлении того какая сумма берется аналогично нужно исправлять расчет OrdersTotalSum
-			var sum = orderItem.Order.OrderStatus == OrderStatus.Closed ? orderItem.ActualSum : orderItem.Sum;
-			ExportedTotalSum += sum;
+			ExportedTotalSum += orderItem.ActualSum;
 
 			record.Properties.Add(
-				new PropertyNode("Сумма",
+				new PropertyNode(
+					"Сумма",
 					Common1cTypes.Numeric,
-				                 sum
+					orderItem.ActualSum
 				)
 			);
 
@@ -344,17 +340,15 @@ namespace Vodovoz.ExportTo1c
 				)
 			);
 
-			if(orderItem.Nomenclature.VAT != VAT.No)
-			{
+			if(orderItem.Nomenclature.VAT != VAT.No) {
 				record.Properties.Add(
-					new PropertyNode("СуммаНДС",
+					new PropertyNode(
+						"СуммаНДС",
 						Common1cTypes.Numeric,
-					                 orderItem.IncludeNDS //FIXME Нужно будет сделать что бы всегда соответствало количетству.
+						orderItem.IncludeNDS //FIXME Нужно будет сделать что бы всегда соответствало количетству.
 					)
 				);
-			}
-			else
-			{
+			} else {
 				record.Properties.Add(
 					new PropertyNode("СуммаНДС",
 						Common1cTypes.Numeric
@@ -362,8 +356,7 @@ namespace Vodovoz.ExportTo1c
 				);
 			}
 
-			if(!isService)
-			{
+			if(!isService) {
 				record.Properties.Add(
 					new PropertyNode("НомерГТД",
 						"СправочникСсылка.НомераГТД"
@@ -378,19 +371,19 @@ namespace Vodovoz.ExportTo1c
 			return record;
 		}
 
-		public XElement ToXml()	
+		public XElement ToXml()
 		{
 			var xml = new XElement("ФайлОбмена",
-				          new XAttribute("ВерсияФормата", Version),
-				          new XAttribute("ДатаВыгрузки", ExportDate.ToString("s")),
-				          new XAttribute("НачалоПериодаВыгрузки", StartPeriodDate.ToString("s")),
-				          new XAttribute("ОкончаниеПериодаВыгрузки", EndPeriodDate.ToString("s")),
-				          new XAttribute("ИмяКонфигурацииИсточника", SourceName),
-				          new XAttribute("ИдПравилКонвертации", ConversionRulesId),
-				          new XAttribute("Комментарий", Comment)
-			          );
+						  new XAttribute("ВерсияФормата", Version),
+						  new XAttribute("ДатаВыгрузки", ExportDate.ToString("s")),
+						  new XAttribute("НачалоПериодаВыгрузки", StartPeriodDate.ToString("s")),
+						  new XAttribute("ОкончаниеПериодаВыгрузки", EndPeriodDate.ToString("s")),
+						  new XAttribute("ИмяКонфигурацииИсточника", SourceName),
+						  new XAttribute("ИдПравилКонвертации", ConversionRulesId),
+						  new XAttribute("Комментарий", Comment)
+					  );
 			xml.Add(ExchangeRules.ToXml());
-			Objects.ForEach(obj=>xml.Add(obj.ToXml()));
+			Objects.ForEach(obj => xml.Add(obj.ToXml()));
 			return xml;
 		}
 	}

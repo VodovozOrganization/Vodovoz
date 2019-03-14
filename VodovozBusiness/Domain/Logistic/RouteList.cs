@@ -431,16 +431,12 @@ namespace Vodovoz.Domain.Logistic
 
 		#region readonly Свойства
 
-		public virtual string Title { get { return String.Format("МЛ №{0}", Id); } }
+		public virtual string Title => string.Format("МЛ №{0}", Id);
 
-		public virtual decimal UniqueAddressCount {
-			get {
-				return Addresses
-						.Where(item => item.IsDelivered())
-						.Select(item => item.Order.DeliveryPoint.Id)
-						.Distinct().Count();
-			}
-		}
+		public virtual decimal UniqueAddressCount => Addresses.Where(item => item.IsDelivered())
+															  .Select(item => item.Order.DeliveryPoint.Id)
+															  .Distinct()
+															  .Count();
 
 		public virtual bool NeedMileageCheck => Car.TypeOfUse != CarTypeOfUse.Truck && !Driver.VisitingMaster;
 
@@ -453,11 +449,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual decimal Total {
-			get {
-				return Addresses.Sum(x => x.TotalCash) - PhoneSum;
-			}
-		}
+		public virtual decimal Total => Addresses.Sum(x => x.TotalCash) - PhoneSum;
 
 		public virtual decimal MoneyToReturn {
 			get {
@@ -662,9 +654,9 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListStatus.OnClosing:
 					if(
-					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster)) 
+					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster))
 					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.Truck))
-					|| Status == RouteListStatus.MileageCheck 
+					|| Status == RouteListStatus.MileageCheck
 					|| Status == RouteListStatus.Closed) {
 						Status = newStatus;
 						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
@@ -800,7 +792,7 @@ namespace Vodovoz.Domain.Logistic
 				track.CalculateDistanceToBase();
 				UoW.Save(track);
 			}
-			FirstFillClosing();
+			//FirstFillClosing();
 			UoW.Save(this);
 		}
 
@@ -945,8 +937,8 @@ namespace Vodovoz.Domain.Logistic
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
 			foreach(RouteListItem address in addresesDelivered) {
 				int amountDelivered = address.Order.OrderItems
-					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
-					.Sum(item => item.ActualCount);
+												   .Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
+												   .Sum(item => item.ActualCount ?? 0);
 				var bottlesMovementOperation = address.Order.BottlesMovementOperation;
 				if(amountDelivered != 0 || address.BottlesReturned != 0) {
 					if(bottlesMovementOperation == null) {
@@ -1015,14 +1007,13 @@ namespace Vodovoz.Domain.Logistic
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
 			foreach(var address in addresesDelivered) {
 				var order = address.Order;
-				var depositsTotal = order.OrderDepositItems.Sum(dep => dep.ActualCount * dep.Deposit);
-				Decimal? money = null;
-				if(address.TotalCash != 0) {
+				var depositsTotal = order.OrderDepositItems.Sum(dep => dep.ActualCount ?? 0 * dep.Deposit);
+				decimal? money = null;
+				if(address.TotalCash != 0)
 					money = address.TotalCash;
-				}
 				MoneyMovementOperation moneyMovementOperation = order.MoneyMovementOperation;
 				if(moneyMovementOperation == null) {
-					moneyMovementOperation = new MoneyMovementOperation() {
+					moneyMovementOperation = new MoneyMovementOperation {
 						OperationTime = order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 						Order = order,
 						Counterparty = order.Client,

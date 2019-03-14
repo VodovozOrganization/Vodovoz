@@ -8,21 +8,16 @@ using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
-using QS.Utilities.Text;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Tdi.Gtk;
+using QS.Utilities.Text;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using QSSupportLib;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repositories.Permissions;
-using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.ViewModel
 {
@@ -46,7 +41,7 @@ namespace Vodovoz.ViewModel
 			Subdivision subdivisionAlias = null;
 			GeographicGroup geographicGroupsAlias = null;
 
-			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
+			var query = UoW.Session.QueryOver(() => routeListAlias);
 
 			if(Filter.RestrictStatus != null) {
 				query.Where(o => o.Status == Filter.RestrictStatus);
@@ -128,18 +123,13 @@ namespace Vodovoz.ViewModel
 			.Finish();
 
 		#endregion
-		public override IColumnsConfig ColumnsConfig {
-			get { return columnsConfig; }
-		}
+		public override IColumnsConfig ColumnsConfig => columnsConfig;
 
 		#endregion
 
 		#region implemented abstract members of RepresentationModelBase
 
-		protected override bool NeedUpdateFunc(RouteList updatedSubject)
-		{
-			return true;
-		}
+		protected override bool NeedUpdateFunc(RouteList updatedSubject) => true;
 
 		#endregion
 
@@ -163,6 +153,7 @@ namespace Vodovoz.ViewModel
 		public override bool PopupMenuExist => true;
 
 		private RepresentationSelectResult[] lastMenuSelected;
+		RouteList selectedRouteList;
 
 		private List<RouteListStatus> KeepingDlgStatuses = new List<RouteListStatus>()
 			{
@@ -214,29 +205,42 @@ namespace Vodovoz.ViewModel
 				RouteListStatus.MileageCheck
 			};
 
-		public override Gtk.Menu GetPopupMenu(RepresentationSelectResult[] selected)
+		public override Menu GetPopupMenu(RepresentationSelectResult[] selected)
 		{
 			lastMenuSelected = selected;
-			Gtk.Menu popupMenu = new Gtk.Menu();
 
-			Gtk.MenuItem menuItemRouteListOpenTrack = new Gtk.MenuItem("Открыть трек");
+			#region получение и обновление выделенного МЛ
+			var routeListId = lastMenuSelected.Select(x => x.EntityId)
+											  .FirstOrDefault();
+
+			selectedRouteList = UoW.Session.QueryOver<RouteList>()
+										   .Where(x => x.Id == routeListId)
+										   .List()
+										   .FirstOrDefault();
+			UoW.Session.Refresh(selectedRouteList);
+			#endregion
+
+			Menu popupMenu = new Menu();
+
+			MenuItem menuItemRouteListOpenTrack = new MenuItem("Открыть трек");
 			menuItemRouteListOpenTrack.Activated += MenuItemRouteListOpenTrack_Activated;
 			popupMenu.Add(menuItemRouteListOpenTrack);
 
 			popupMenu.Add(new SeparatorMenuItem());
 
-			Gtk.MenuItem menuItemRouteListCreateDlg = new Gtk.MenuItem("Открыть диалог создания");
+			MenuItem menuItemRouteListCreateDlg = new MenuItem("Открыть диалог создания");
 			menuItemRouteListCreateDlg.Activated += MenuItemRouteListCreateDlg_Activated;
 			popupMenu.Add(menuItemRouteListCreateDlg);
 
-			Gtk.MenuItem menuItemRouteListControlDlg = new Gtk.MenuItem("Отгрузка со склада");
+			MenuItem menuItemRouteListControlDlg = new MenuItem("Отгрузка со склада");
 			menuItemRouteListControlDlg.Activated += MenuItemRouteListControlDlg_Activated;
 			menuItemRouteListControlDlg.Sensitive = selected.Any(x =>
 				ControlDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemRouteListControlDlg);
 
-			Gtk.MenuItem menuItemRouteListSendToLoading = new Gtk.MenuItem("Отправить Мл на погрузку");
-			menuItemRouteListSendToLoading.Sensitive = selected.Any((x) => (x.VMNode as RouteListsVMNode).StatusEnum == RouteListStatus.Confirmed);
+			MenuItem menuItemRouteListSendToLoading = new MenuItem("Отправить МЛ на погрузку") {
+				Sensitive = selected.Any((x) => (x.VMNode as RouteListsVMNode).StatusEnum == RouteListStatus.Confirmed)
+			};
 			menuItemRouteListSendToLoading.Activated += (sender, e) => {
 				bool isSlaveTabActive = false;
 				var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
@@ -270,19 +274,19 @@ namespace Vodovoz.ViewModel
 			};
 			popupMenu.Add(menuItemRouteListSendToLoading);
 
-			Gtk.MenuItem menuItemRouteListKeepingDlg = new Gtk.MenuItem("Открыть диалог ведения");
+			MenuItem menuItemRouteListKeepingDlg = new MenuItem("Открыть диалог ведения");
 			menuItemRouteListKeepingDlg.Activated += MenuItemRouteListKeepingDlg_Activated;
 			menuItemRouteListKeepingDlg.Sensitive = selected.Any(x =>
 				KeepingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemRouteListKeepingDlg);
 
-			Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem("Открыть диалог закрытия");
+			MenuItem menuItemRouteListClosingDlg = new MenuItem("Открыть диалог закрытия");
 			menuItemRouteListClosingDlg.Activated += MenuItemRouteListClosingDlg_Activated;
 			menuItemRouteListClosingDlg.Sensitive = selected.Any(x =>
 				ClosingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemRouteListClosingDlg);
 
-			Gtk.MenuItem menuItemRouteListMileageCheckDlg = new Gtk.MenuItem("Открыть диалог проверки километража");
+			MenuItem menuItemRouteListMileageCheckDlg = new MenuItem("Открыть диалог проверки километража");
 			menuItemRouteListMileageCheckDlg.Activated += MenuItemRouteListMileageCheckDlg_Activated;
 			menuItemRouteListMileageCheckDlg.Sensitive = selected.Any(x =>
 				MileageCheckDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
@@ -290,13 +294,13 @@ namespace Vodovoz.ViewModel
 
 			popupMenu.Add(new SeparatorMenuItem());
 
-			Gtk.MenuItem menuItemDeleteRouteList = new Gtk.MenuItem("Удалить МЛ");
+			MenuItem menuItemDeleteRouteList = new MenuItem("Удалить МЛ");
 			menuItemDeleteRouteList.Activated += MenuItemRouteListDelete_Activated;
 			menuItemDeleteRouteList.Sensitive = selected.Any(x =>
 				CanDeletedStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemDeleteRouteList);
 
-			Gtk.MenuItem menuItemRouteListFuelIssuingDlg = new Gtk.MenuItem("Выдать топливо");
+			MenuItem menuItemRouteListFuelIssuingDlg = new MenuItem("Выдать топливо");
 			menuItemRouteListFuelIssuingDlg.Activated += MenuItemRouteListFuelIssuing_Activated;
 			menuItemRouteListFuelIssuingDlg.Sensitive = selected.Any(x =>
 				FuelIssuingStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
@@ -307,107 +311,75 @@ namespace Vodovoz.ViewModel
 
 		void MenuItemRouteListOpenTrack_Activated(object sender, EventArgs e)
 		{
-			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-			foreach(var id in routeListIds) {
-				TrackOnMapWnd track = new TrackOnMapWnd(id);
+			if(selectedRouteList != null) {
+				TrackOnMapWnd track = new TrackOnMapWnd(selectedRouteList.Id);
 				track.Show();
 			}
 		}
 
 		void MenuItemRouteListMileageCheckDlg_Activated(object sender, EventArgs e)
 		{
-			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-
-			var routeLists = UoW.Session.QueryOver<RouteList>()
-				.Where(x => x.Id.IsIn(routeListIds))
-				.List();
-
-			foreach(var rl in routeLists.Where(x => MileageCheckDlgStatuses.Contains(x.Status))) {
+			if(selectedRouteList != null && MileageCheckDlgStatuses.Contains(selectedRouteList.Status))
 				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
-					() => new RouteListMileageCheckDlg(rl.Id)
+					DialogHelper.GenerateDialogHashName<RouteList>(selectedRouteList.Id),
+					() => new RouteListMileageCheckDlg(selectedRouteList.Id)
 				);
-			}
 		}
 
 		void MenuItemRouteListClosingDlg_Activated(object sender, EventArgs e)
 		{
-			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-
-			var routeLists = UoW.Session.QueryOver<RouteList>()
-				.Where(x => x.Id.IsIn(routeListIds))
-				.List();
-
-			foreach(var rl in routeLists.Where(x => ClosingDlgStatuses.Contains(x.Status))) {
+			if(selectedRouteList != null && ClosingDlgStatuses.Contains(selectedRouteList.Status))
 				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
-					() => new RouteListClosingDlg(rl.Id)
+					DialogHelper.GenerateDialogHashName<RouteList>(selectedRouteList.Id),
+					() => new RouteListClosingDlg(selectedRouteList.Id)
 				);
-			}
 		}
 
 		void MenuItemRouteListControlDlg_Activated(object sender, EventArgs e)
 		{
-			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-
-			var routeLists = UoW.Session.QueryOver<RouteList>()
-				.Where(x => x.Id.IsIn(routeListIds))
-				.List();
-
-			foreach(var rl in routeLists.Where(x => ControlDlgStatuses.Contains(x.Status))) {
+			if(selectedRouteList != null && ControlDlgStatuses.Contains(selectedRouteList.Status))
 				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
-					() => new RouteListControlDlg(rl.Id)
+					DialogHelper.GenerateDialogHashName<RouteList>(selectedRouteList.Id),
+					() => new RouteListControlDlg(selectedRouteList.Id)
 				);
-			}
 		}
 
 
 		void MenuItemRouteListKeepingDlg_Activated(object sender, EventArgs e)
 		{
-			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-
-			var routeLists = UoW.Session.QueryOver<RouteList>()
-				.Where(x => x.Id.IsIn(routeListIds))
-				.List();
-
-			foreach(var rl in routeLists.Where(x => KeepingDlgStatuses.Contains(x.Status))) {
+			if(selectedRouteList != null && KeepingDlgStatuses.Contains(selectedRouteList.Status)) 
 				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(rl.Id),
-					() => new RouteListKeepingDlg(rl.Id)
+					DialogHelper.GenerateDialogHashName<RouteList>(selectedRouteList.Id),
+					() => new RouteListKeepingDlg(selectedRouteList.Id)
 				);
-			}
 		}
 
 		void MenuItemRouteListCreateDlg_Activated(object sender, EventArgs e)
 		{
-			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-
-			foreach(var routeId in routeListIds) {
+			if(selectedRouteList != null)
 				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(routeId),
-					() => new RouteListCreateDlg(routeId)
+					DialogHelper.GenerateDialogHashName<RouteList>(selectedRouteList.Id),
+					() => new RouteListCreateDlg(selectedRouteList.Id)
 				);
-			}
 		}
 
 		void MenuItemRouteListDelete_Activated(object sender, EventArgs e)
 		{
-			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-
 			var objectType = typeof(RouteList);
-			if(OrmMain.DeleteObject(objectType, routeListIds[0]))
+			if(selectedRouteList != null && OrmMain.DeleteObject(objectType, selectedRouteList.Id))
 				this.UpdateNodes();
 		}
 
 		void MenuItemRouteListFuelIssuing_Activated(object sender, EventArgs e)
 		{
-			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-			var RouteList = UoW.GetById<RouteList>(routeListIds[0]);
-			MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(routeListIds[0]),
-					() => new FuelDocumentDlg(RouteList)
-				);
+			if(selectedRouteList != null) {
+				var routeListId = selectedRouteList.Id;
+				var RouteList = UoW.GetById<RouteList>(routeListId);
+				MainClass.MainWin.TdiMain.OpenTab(
+						DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
+						() => new FuelDocumentDlg(RouteList)
+					);
+			}
 		}
 	}
 
@@ -433,11 +405,7 @@ namespace Vodovoz.ViewModel
 		public string CarNumber { get; set; }
 
 		[UseForSearch]
-		public string DriverAndCar {
-			get {
-				return String.Format("{0} - {1} ({2})", Driver, CarModel, CarNumber);
-			}
-		}
+		public string DriverAndCar => string.Format("{0} - {1} ({2})", Driver, CarModel, CarNumber);
 		public string ClosinComments { get; set; }
 		public string ClosingSubdivision { get; set; }
 	}

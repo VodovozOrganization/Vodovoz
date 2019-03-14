@@ -9,60 +9,60 @@ using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки оборудования в заказе",
 		Nominative = "строка оборудования в заказе")]
 	[HistoryTrace]
-	public class OrderEquipment: PropertyChangedBase, IDomainObject, IValidatableObject
+	public class OrderEquipment : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
 		Order order;
 
-		[Display (Name = "Заказ")]
+		[Display(Name = "Заказ")]
 		public virtual Order Order {
-			get { return order; }
-			set { SetField (ref order, value, () => Order); }
+			get => order;
+			set => SetField(ref order, value, () => Order);
 		}
 
 		Direction direction;
 
-		[Display (Name = "Направление")]
+		[Display(Name = "Направление")]
 		public virtual Direction Direction {
-			get { return direction; }
-			set { SetField (ref direction, value, () => Direction); }
+			get => direction;
+			set => SetField(ref direction, value, () => Direction);
 		}
 
 		DirectionReason directionReason;
 
 		[Display(Name = "Причина забор-доставки")]
 		public virtual DirectionReason DirectionReason {
-			get { return directionReason; }
-			set { SetField(ref directionReason, value, () => DirectionReason); }
+			get => directionReason;
+			set => SetField(ref directionReason, value, () => DirectionReason);
 		}
 
 		OrderItem orderItem;
 
 		[Display(Name = "Связанная строка")]
 		public virtual OrderItem OrderItem {
-			get { return orderItem; }
-			set { SetField(ref orderItem, value, () => OrderItem); }
+			get => orderItem;
+			set => SetField(ref orderItem, value, () => OrderItem);
 		}
 
 		Equipment equipment;
 
 		[Display(Name = "Оборудование")]
 		public virtual Equipment Equipment {
-			get { return equipment; }
-			set { SetField(ref equipment, value, () => Equipment); }
+			get => equipment;
+			set => SetField(ref equipment, value, () => Equipment);
 		}
 
 		OwnTypes ownType;
 
 		[Display(Name = "Принадлежность")]
 		public virtual OwnTypes OwnType {
-			get { return ownType; }
-			set { SetField(ref ownType, value, () => OwnType); }
+			get => ownType;
+			set => SetField(ref ownType, value, () => OwnType);
 		}
 
 
@@ -70,45 +70,37 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Номенклатура оборудования")]
 		public virtual Nomenclature Nomenclature {
-			get { return Equipment?.Nomenclature ?? nomenclature; }
-			set { SetField(ref nomenclature, value, () => Nomenclature); }
+			get => Equipment?.Nomenclature ?? nomenclature;
+			set => SetField(ref nomenclature, value, () => Nomenclature);
 		}
 
 		Reason reason = Reason.Unknown;
 
 		[Display(Name = "Причина")]
 		public virtual Reason Reason {
-			get { return reason; }
-			set { SetField(ref reason, value, () => Reason); }
+			get => reason;
+			set => SetField(ref reason, value, () => Reason);
 		}
 
 		bool confirmed;
 		public virtual bool Confirmed {
-			get {
-				return confirmed;
-			}
-			set {
-				SetField(ref confirmed, value, () => Confirmed);
-			}
+			get => confirmed;
+			set => SetField(ref confirmed, value, () => Confirmed);
 		}
 
 		CounterpartyMovementOperation counterpartyMovementOperation;
 
 		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
-			get { return counterpartyMovementOperation; }
-			set { SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
+			get => counterpartyMovementOperation;
+			set => SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation);
 		}
 
 		string confirmedComment;
 		[Display(Name = "Комментарий по забору")]
 		[StringLength(200)]
 		public virtual string ConfirmedComment {
-			get {
-				return confirmedComment;
-			}
-			set {
-				SetField(ref confirmedComment, value, () => ConfirmedComment);
-			}
+			get => confirmedComment;
+			set => SetField(ref confirmedComment, value, () => ConfirmedComment);
 		}
 
 		public virtual string NameString {
@@ -117,7 +109,6 @@ namespace Vodovoz.Domain.Orders
 					return Equipment.Title;
 				if(Nomenclature != null)
 					return Nomenclature.ShortOrFullName;
-
 				return "Неизвестное оборудование";
 			}
 		}
@@ -126,19 +117,17 @@ namespace Vodovoz.Domain.Orders
 			get {
 				if(Equipment != null)
 					return Equipment.Title;
-				else if(Nomenclature != null)
+				if(Nomenclature != null)
 					return Nomenclature.OfficialName;
-				else
-					return "Неизвестное оборудование";
+				return "Неизвестное оборудование";
 			}
 		}
 
 		private ServiceClaim serviceClaim;
-
 		[Display(Name = "Номер заявки на обслуживание")]
 		public virtual ServiceClaim ServiceClaim {
-			get { return serviceClaim; }
-			set { SetField(ref serviceClaim, value, () => ServiceClaim); }
+			get => serviceClaim;
+			set => SetField(ref serviceClaim, value, () => ServiceClaim);
 		}
 
 		//TODO Номер заявки на обслуживание
@@ -149,37 +138,27 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		[Display(Name = "Количество")]
 		public virtual int Count {
-			get { return count; }
-			set { SetField(ref count, value, () => Count); }
+			get => count;
+			set => SetField(ref count, value, () => Count);
 		}
 
-		int actualCount;
+		int? actualCount;
 		/// <summary>
 		/// Количество оборудования, которое фактически привез/забрал водитель
 		/// </summary>
-		public virtual int ActualCount {
-			get { return actualCount; }
-			set { SetField(ref actualCount, value, () => ActualCount); }
+		public virtual int? ActualCount {
+			get => actualCount;
+			set => SetField(ref actualCount, value, () => ActualCount);
 		}
 
 		#region Вычисляемые
 
-		/// <summary>
-		/// Свойство возвращает подходяшее значение Count или ActualCount в зависимости от статуса заказа.
-		/// </summary>
-		public virtual int CurrentCount {
-			get {
-				if(Order != null && OrderRepository.GetStatusesForActualCount(Order).Contains(Order.OrderStatus))
-					return ActualCount;
-				else
-					return Count;
-			}
-		}
+		public virtual int CurrentCount => ActualCount ?? Count;
 
-		public virtual int ReturnedCount => Count - ActualCount;
-		public virtual bool IsFullyDelivered => Count - ActualCount == 0;
+		public virtual int ReturnedCount => Count - ActualCount ?? 0;
+		public virtual bool IsFullyDelivered => ReturnedCount == 0;
 
-		public virtual string DirectionString => Direction.GetEnumTitle(); 
+		public virtual string DirectionString => Direction.GetEnumTitle();
 		public virtual string DirectionReasonString => DirectionReason.GetEnumTitle();
 		public virtual string ReasonString => Reason.GetEnumTitle();
 
@@ -189,19 +168,18 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual CounterpartyMovementOperation UpdateCounterpartyOperation()
 		{
-			if(ActualCount == 0) {
+			if(!ActualCount.HasValue || ActualCount.Value == 0) {
 				CounterpartyMovementOperation = null;
 				return null;
 			}
 
-			if(CounterpartyMovementOperation == null) {
+			if(CounterpartyMovementOperation == null)
 				CounterpartyMovementOperation = new CounterpartyMovementOperation();
-			}
 
 			CounterpartyMovementOperation.OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-			CounterpartyMovementOperation.Amount = ActualCount;
+			CounterpartyMovementOperation.Amount = ActualCount.Value;
 			CounterpartyMovementOperation.Nomenclature = nomenclature;
-			CounterpartyMovementOperation.ForRent = (Reason != Reason.Sale);
+			CounterpartyMovementOperation.ForRent = Reason != Reason.Sale;
 			if(Direction == Direction.Deliver) {
 				CounterpartyMovementOperation.IncomingCounterparty = Order.Client;
 				CounterpartyMovementOperation.IncomingDeliveryPoint = Order.DeliveryPoint;
@@ -221,7 +199,7 @@ namespace Vodovoz.Domain.Orders
 
 		#region IValidatableObject implementation
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			return null;
 		}
@@ -231,47 +209,41 @@ namespace Vodovoz.Domain.Orders
 
 	public enum Direction
 	{
-		[Display (Name = "Доставить")]Deliver,
-		[Display (Name = "Забрать")]PickUp
+		[Display(Name = "Доставить")] Deliver,
+		[Display(Name = "Забрать")] PickUp
 	}
 
 	public class DirectionStringType : NHibernate.Type.EnumStringType
 	{
-		public DirectionStringType () : base (typeof(Direction))
-		{
-		}
+		public DirectionStringType() : base(typeof(Direction)) { }
 	}
 
 	public enum DirectionReason
 	{
 		[Display(Name = "")] None
-		,[Display(Name = "Аренда")] Rent
-		,[Display(Name = "Ремонт")] Repair
-		,[Display(Name = "Санобработка")] Cleaning
-		,[Display(Name = "Ремонт и санобработка")] RepairAndCleaning
+		, [Display(Name = "Аренда")] Rent
+		, [Display(Name = "Ремонт")] Repair
+		, [Display(Name = "Санобработка")] Cleaning
+		, [Display(Name = "Ремонт и санобработка")] RepairAndCleaning
 	}
 
 	public class DirectionReasonStringType : NHibernate.Type.EnumStringType
 	{
-		public DirectionReasonStringType() : base(typeof(DirectionReason))
-		{
-		}
+		public DirectionReasonStringType() : base(typeof(DirectionReason)) { }
 	}
 
 	public enum Reason
 	{
 		[Display(Name = "Неизвестна")] Unknown,
-		[Display (Name= "Сервис")]Service,
-		[Display (Name= "Аренда")]Rent,
-		[Display (Name= "Расторжение")]Cancellation,
-		[Display (Name= "Продажа")]Sale
+		[Display(Name = "Сервис")] Service,
+		[Display(Name = "Аренда")] Rent,
+		[Display(Name = "Расторжение")] Cancellation,
+		[Display(Name = "Продажа")] Sale
 	}
 
 	public class ReasonStringType : NHibernate.Type.EnumStringType
 	{
-		public ReasonStringType () : base (typeof(Reason))
-		{
-		}
+		public ReasonStringType() : base(typeof(Reason)) { }
 	}
 
 	public enum OwnTypes
@@ -284,9 +256,7 @@ namespace Vodovoz.Domain.Orders
 
 	public class OwnTypesStringType : NHibernate.Type.EnumStringType
 	{
-		public OwnTypesStringType() : base(typeof(OwnTypes))
-		{
-		}
+		public OwnTypesStringType() : base(typeof(OwnTypes)) { }
 	}
 }
 

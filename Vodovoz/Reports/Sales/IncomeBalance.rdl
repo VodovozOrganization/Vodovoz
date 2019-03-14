@@ -1551,7 +1551,7 @@ FROM
     GROUP BY orders.id) AS Orders ON Orders.order_id = route_list_addresses.order_id
     LEFT JOIN (SELECT 
         route_list_addresses.route_list_id,
-            0 - SUM(order_items.price * (order_items.count - order_items.actual_count)) AS nedovoz_sum
+            0 - SUM(order_items.price * (order_items.count - IFNULL(order_items.actual_count, 0))) AS nedovoz_sum
     FROM
         route_list_addresses
     LEFT JOIN orders ON orders.id = route_list_addresses.order_id
@@ -1566,7 +1566,7 @@ FROM
             OR (route_list_addresses.status = 'Completed'
             AND ((nomenclature.category IN ('water' , 'equipment', 'additional', 'bottle')
             AND nomenclature.serial = FALSE
-            AND order_items.count != order_items.actual_count)
+            AND order_items.count != IFNULL(order_items.actual_count, 0))
             OR order_equipment.confirmed = FALSE)))
     GROUP BY route_list_addresses.route_list_id) AS nedovoz ON nedovoz.route_list_id = route_lists.id
     LEFT JOIN (SELECT 

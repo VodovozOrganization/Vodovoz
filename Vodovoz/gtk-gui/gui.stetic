@@ -1480,6 +1480,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2215,7 +2216,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5250,6 +5250,7 @@
                   <widget class="QS.Widgets.GtkUI.PhotoView" id="photoviewCar">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <property name="CanPrint">False</property>
                   </widget>
                   <packing>
                     <property name="BottomAttach">7</property>
@@ -7628,7 +7629,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -35112,7 +35112,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListMileageCheckDlg" design-size="584 442">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListMileageCheckDlg" design-size="479 316">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -35636,7 +35636,7 @@
                     <property name="CanFocus">True</property>
                     <property name="Type">TextAndIcon</property>
                     <property name="Icon">stock:gtk-apply Menu</property>
-                    <property name="Label" translatable="yes">Закрыть маршрутный лист</property>
+                    <property name="Label" translatable="yes">Подтвердить километраж</property>
                     <property name="UseUnderline">True</property>
                     <signal name="Clicked" handler="OnButtonAcceptClicked" />
                   </widget>
@@ -65455,6 +65455,7 @@ not tooltip</property>
                           <widget class="QS.Widgets.GtkUI.PhotoView" id="photoviewEmployee">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
+                            <property name="CanPrint">False</property>
                           </widget>
                           <packing>
                             <property name="BottomAttach">4</property>
@@ -70417,6 +70418,7 @@ not tooltip</property>
                           <widget class="QS.Widgets.GtkUI.PhotoView" id="photoViewCertificate">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
+                            <property name="CanPrint">False</property>
                           </widget>
                         </child>
                       </widget>

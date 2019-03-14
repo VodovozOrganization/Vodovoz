@@ -94,7 +94,7 @@ namespace Vodovoz.Repositories.Orders
 										   Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
 																   NHibernateUtil.Decimal,
 				                                                   Projections.Conditional(
-					                                                   Restrictions.Eq(Projections.Property(() => orderAlias.OrderStatus), OrderStatus.Closed),
+					                                                   Restrictions.IsNotNull(Projections.Property<OrderItem>(x => x.ActualCount)),
 					                                                   Projections.Property<OrderItem>(x => x.ActualCount),
 					                                                   Projections.Property<OrderItem>(x => x.Count)
 					                                                  ),

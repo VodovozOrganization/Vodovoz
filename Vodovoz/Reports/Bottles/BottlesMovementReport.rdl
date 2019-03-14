@@ -1794,7 +1794,7 @@ left join
 		(select
 			order_items.order_id,
 			sum(order_items.count) as count,
-			sum(order_items.actual_count) as actual_count
+			sum(IFNULL(order_items.actual_count, 0)) as actual_count
 		from
 			order_items
 		left join
@@ -1931,7 +1931,7 @@ left join
 		(select
 			order_items.order_id,
 			sum(order_items.count) as count,
-			sum(order_items.actual_count) as actual_count
+			sum(IFNULL(order_items.actual_count, 0)) as actual_count
 		from
 			order_items
 		left join
@@ -2065,7 +2065,7 @@ left join
 		(select
 			order_items.order_id,
 			sum(order_items.count) as count,
-			sum(order_items.actual_count) as actual_count
+			sum(IFNULL(order_items.actual_count, 0)) as actual_count
 		from
 			order_items
 		left join
