@@ -156,7 +156,8 @@ namespace Vodovoz.Dialogs.Logistic
 			} else if(!fullyLoaded && !UserPermissionRepository.CurrentUserPresetPermissions["can_send_not_loaded_route_lists_en_route"]) {
 				MessageDialogHelper.RunWarningDialog(
 					"Недостаточно прав",
-					string.Format("У вас нет прав для перевода не полностью погруженных МЛ в статус \"{0}\"", RouteListStatus.EnRoute.GetEnumTitle())
+					string.Format("У вас нет прав для перевода не полностью погруженных МЛ в статус \"{0}\"", RouteListStatus.EnRoute.GetEnumTitle()),
+					Gtk.ButtonsType.Ok
 				);
 			}
 		}
