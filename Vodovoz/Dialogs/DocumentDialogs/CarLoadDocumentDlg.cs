@@ -137,12 +137,12 @@ namespace Vodovoz
 		void UpdateRouteListInfo()
 		{
 			if(Entity.RouteList == null) {
-				ytextviewRouteListInfo.Buffer.Text = String.Empty;
+				ytextviewRouteListInfo.Buffer.Text = string.Empty;
 				return;
 			}
 
 			ytextviewRouteListInfo.Buffer.Text =
-				String.Format("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
+				string.Format("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
 					Entity.RouteList.Id,
 					Entity.RouteList.Date,
 					Entity.RouteList.Driver.FullName,

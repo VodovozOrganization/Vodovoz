@@ -12,6 +12,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.Button buttonCancel;
 
+		private global::Gtk.Button btnSendEnRoute;
+
 		private global::Gtk.Label label2;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
@@ -66,21 +68,36 @@ namespace Vodovoz.Dialogs.Logistic
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.btnSendEnRoute = new global::Gtk.Button();
+			this.btnSendEnRoute.CanFocus = true;
+			this.btnSendEnRoute.Name = "btnSendEnRoute";
+			this.btnSendEnRoute.UseUnderline = true;
+			this.btnSendEnRoute.Label = global::Mono.Unix.Catalog.GetString("Отправить в путь");
+			global::Gtk.Image w5 = new global::Gtk.Image();
+			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-go-forward", global::Gtk.IconSize.Menu);
+			this.btnSendEnRoute.Image = w5;
+			this.hbox7.Add(this.btnSendEnRoute);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.btnSendEnRoute]));
+			w6.PackType = ((global::Gtk.PackType)(1));
+			w6.Position = 3;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.vbox1.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 0F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Не отгруженные номенклатуры:");
 			this.vbox1.Add(this.label2);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.label2]));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.label2]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -91,18 +108,18 @@ namespace Vodovoz.Dialogs.Logistic
 			this.ytreeviewNotLoaded.Name = "ytreeviewNotLoaded";
 			this.GtkScrolledWindow.Add(this.ytreeviewNotLoaded);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w8.Position = 2;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w10.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 0F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Номенклатуры не привязанные к складу:");
 			this.vbox1.Add(this.label1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.label1]));
-			w9.Position = 3;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.label1]));
+			w11.Position = 3;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -113,13 +130,15 @@ namespace Vodovoz.Dialogs.Logistic
 			this.ytreeviewNotAttached.Name = "ytreeviewNotAttached";
 			this.GtkScrolledWindow1.Add(this.ytreeviewNotAttached);
 			this.vbox1.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
-			w11.Position = 4;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
+			w13.Position = 4;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.btnSendEnRoute.Clicked += new global::System.EventHandler(this.OnBtnSendEnRouteClicked);
 		}
 	}
 }

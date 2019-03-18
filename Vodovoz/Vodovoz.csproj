@@ -1098,6 +1098,8 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.ImageLoaderDlg.cs" />
     <Compile Include="ReportsParameters\Sales\OrderCreationDateReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.OrderCreationDateReport.cs" />
+    <Compile Include="ReportsParameters\Store\NotFullyLoadedRouteListsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NotFullyLoadedRouteListsReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1655,6 +1657,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Sales\OrderCreationDateReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\NotFullyLoadedRouteLists.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

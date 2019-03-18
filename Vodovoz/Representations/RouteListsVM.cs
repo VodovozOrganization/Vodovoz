@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModel
 
 			if(Filter.RestrictGeographicGroup != null) {
 				query.Left.JoinAlias(o => o.GeographicGroups, () => geographicGroupsAlias)
-				     .Where(() => geographicGroupsAlias.Id == Filter.RestrictGeographicGroup.Id);
+					 .Where(() => geographicGroupsAlias.Id == Filter.RestrictGeographicGroup.Id);
 			}
 
 			//логика фильтра ТС
@@ -103,6 +103,7 @@ namespace Vodovoz.ViewModel
 				   .Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
 				   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
 				   .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
+				   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => resultAlias.NotFullyLoaded)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListsVMNode>())
 				.List<RouteListsVMNode>();
@@ -113,13 +114,22 @@ namespace Vodovoz.ViewModel
 
 		#region для ускорения работы редактора
 		IColumnsConfig columnsConfig = FluentColumnsConfig<RouteListsVMNode>.Create()
-			.AddColumn("Номер").SetDataProperty(node => node.Id.ToString())
-			.AddColumn("Дата").SetDataProperty(node => node.Date.ToString("d"))
-			.AddColumn("Смена").SetDataProperty(node => node.ShiftName)
-			.AddColumn("Статус").SetDataProperty(node => node.StatusEnum.GetEnumTitle())
-			.AddColumn("Водитель и машина").SetDataProperty(node => node.DriverAndCar)
-			.AddColumn("Сдается в кассу").SetDataProperty(node => node.ClosingSubdivision)
-			.AddColumn("Комментарий по закрытию").SetDataProperty(node => node.ClosinComments)
+			.AddColumn("Номер")
+				.AddTextRenderer(node => node.Id.ToString())
+			.AddColumn("Дата")
+				.AddTextRenderer(node => node.Date.ToString("d"))
+			.AddColumn("Смена")
+				.AddTextRenderer(node => node.ShiftName)
+			.AddColumn("Статус")
+				.AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
+			.AddColumn("Водитель и машина")
+				.AddTextRenderer(node => node.DriverAndCar)
+			.AddColumn("Сдается в кассу")
+				.AddTextRenderer(node => node.ClosingSubdivision)
+			.AddColumn("Комментарий по закрытию")
+				.AddTextRenderer(node => node.ClosinComments)
+			.RowCells()
+				.AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
 			.Finish();
 
 		#endregion
@@ -266,7 +276,7 @@ namespace Vodovoz.ViewModel
 					return;
 
 				foreach(var rlNode in lastMenuSelected) {
-					var node =(rlNode.VMNode as RouteListsVMNode);
+					var node = (rlNode.VMNode as RouteListsVMNode);
 					if(node != null)
 						node.StatusEnum = RouteListStatus.InLoading;
 				}
@@ -347,7 +357,7 @@ namespace Vodovoz.ViewModel
 
 		void MenuItemRouteListKeepingDlg_Activated(object sender, EventArgs e)
 		{
-			if(selectedRouteList != null && KeepingDlgStatuses.Contains(selectedRouteList.Status)) 
+			if(selectedRouteList != null && KeepingDlgStatuses.Contains(selectedRouteList.Status))
 				MainClass.MainWin.TdiMain.OpenTab(
 					DialogHelper.GenerateDialogHashName<RouteList>(selectedRouteList.Id),
 					() => new RouteListKeepingDlg(selectedRouteList.Id)
@@ -408,5 +418,6 @@ namespace Vodovoz.ViewModel
 		public string DriverAndCar => string.Format("{0} - {1} ({2})", Driver, CarModel, CarNumber);
 		public string ClosinComments { get; set; }
 		public string ClosingSubdivision { get; set; }
+		public bool NotFullyLoaded { get; set; }
 	}
 }

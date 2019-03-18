@@ -1176,4 +1176,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Sales.OrderCreationDateReport())
 		);
 	}
+
+	protected void OnActionNotFullyLoadedRouteListsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
+			() => new QSReport.ReportViewDlg(new NotFullyLoadedRouteListsReport())
+		);
+	}
 }
