@@ -567,6 +567,7 @@
     <Compile Include="Domain\StoredResources\StoredResource.cs" />
     <Compile Include="HibernateMapping\StoredResourceMap.cs" />
     <Compile Include="Domain\StoredResources\StoredImageResource.cs" />
+    <Compile Include="Repositories\Sale\GeographicGroupRepository.cs" />
     <Compile Include="Tools\NullValueToZeroConverter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

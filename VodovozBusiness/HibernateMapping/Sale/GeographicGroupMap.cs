@@ -11,6 +11,8 @@ namespace Vodovoz.HibernateMapping.Sale
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Name).Column("name");
+			Map(x => x.BaseLatitude).Column("latitude");
+			Map(x => x.BaseLongitude).Column("longitude");
 		}
 	}
 }

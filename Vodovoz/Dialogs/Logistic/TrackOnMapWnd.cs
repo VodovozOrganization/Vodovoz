@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using Polylines;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOsm;
 using QSOsm.Osrm;
 using QSOsm.Spuntik;
-using QSProjectsLib;
 using Vodovoz;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
@@ -72,7 +72,7 @@ namespace Dialogs.Logistic
 			track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
 			if(track == null){
 				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = buttonCutTrack.Sensitive = buttonLastAddress.Sensitive = false;
-				MessageDialogWorks.RunInfoDialog($"Маршрутный лист №{routeList.Id}\nТрек не обнаружен");
+				MessageDialogHelper.RunInfoDialog($"Маршрутный лист №{routeList.Id}\nТрек не обнаружен");
 			}else if(routeList.Status < RouteListStatus.OnClosing)
 				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = buttonCutTrack.Sensitive = buttonLastAddress.Sensitive = false;
 
@@ -132,19 +132,17 @@ namespace Dialogs.Logistic
 			var points = new List<PointLatLng>();
 
 			if(pointsRecalculateMileage == null)
-			{
 				points = track.TrackPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
-			} else
-			{
+			 else
 				points = pointsRecalculateMileage.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
-			}
 
-			trackRoute = new GMapRoute(points, routeList.Id.ToString());
-
-			trackRoute.Stroke = new System.Drawing.Pen(System.Drawing.Color.Red);
-			trackRoute.Stroke.Width = 4;
-			trackRoute.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-			trackRoute.IsHitTestVisible = true;
+			trackRoute = new GMapRoute(points, routeList.Id.ToString()) {
+				Stroke = new Pen(Color.Red) {
+					Width = 4,
+					DashStyle = System.Drawing.Drawing2D.DashStyle.Solid
+				},
+				IsHitTestVisible = true
+			};
 
 			tracksDistance.Add(MakeDistanceLayout(trackRoute));
 			tracksOverlay.Routes.Add(trackRoute);
@@ -220,7 +218,7 @@ namespace Dialogs.Logistic
 					var pointShift = 4;
 					if(identicalPoint > 0)
 					{
-						addressMarker.Offset = new System.Drawing.Point(addressMarker.Offset.X + (int)(Math.Pow(-1, (identicalPoint - 1) / 2)) * ((identicalPoint - 1) / 4 + 1) * pointShift, addressMarker.Offset.Y + (int)(Math.Pow(-1, identicalPoint/ 2)) * ((identicalPoint - 1) / 4 + 1) * pointShift);
+						addressMarker.Offset = new Point(addressMarker.Offset.X + (int)(Math.Pow(-1, (identicalPoint - 1) / 2)) * ((identicalPoint - 1) / 4 + 1) * pointShift, addressMarker.Offset.Y + (int)(Math.Pow(-1, identicalPoint/ 2)) * ((identicalPoint - 1) / 4 + 1) * pointShift);
 					}
 
 
@@ -235,10 +233,11 @@ namespace Dialogs.Logistic
 
 		private DistanceTextInfo MakeDistanceLayout(params GMapRoute[] route)
 		{
-			var layout = new Pango.Layout(this.PangoContext);
-			layout.Alignment = Pango.Alignment.Right;
-			var colTXT = System.Drawing.ColorTranslator.ToHtml(route[0].Stroke.Color);
-			layout.SetMarkup(String.Format("<span foreground=\"{1}\"><span font=\"Segoe UI Symbol\">⛽</span> {0:N1} км.</span>", route.Sum(x =>x.Distance), colTXT));
+			var layout = new Pango.Layout(this.PangoContext) {
+				Alignment = Pango.Alignment.Right
+			};
+			var colTXT = ColorTranslator.ToHtml(route[0].Stroke.Color);
+			layout.SetMarkup(string.Format("<span foreground=\"{1}\"><span font=\"Segoe UI Symbol\">⛽</span> {0:N1} км.</span>", route.Sum(x =>x.Distance), colTXT));
 
 			return new DistanceTextInfo{
 				PangoLayout = layout
@@ -251,12 +250,12 @@ namespace Dialogs.Logistic
 				return;
 			var g = args.Event.Window;
 			var area = args.Event.Area;
-			int layoutWidth, layoutHeight, voffset = 0;
+			int voffset = 0;
 			var gc = gmapWidget.Style.TextGC(Gtk.StateType.Normal);
 
 			foreach(var distance in tracksDistance)
 			{
-				distance.PangoLayout.GetPixelSize(out layoutWidth, out layoutHeight);
+				distance.PangoLayout.GetPixelSize(out int layoutWidth, out int layoutHeight);
 				g.DrawLayout(gc, area.Right - 6 - layoutWidth, area.Top + 6 + voffset, distance.PangoLayout);
 				voffset += 3 + layoutHeight;
 			}
@@ -286,17 +285,19 @@ namespace Dialogs.Logistic
 			var decodedPoints = Polyline.DecodePolyline(response.RouteGeometry);
 			var points = decodedPoints.Select(p => new PointLatLng(p.Latitude * 0.1, p.Longitude * 0.1)).ToList();
 
-			var route = new GMapRoute(points, "RouteToBase");
-			route.Stroke = new System.Drawing.Pen(System.Drawing.Color.Blue);
-			route.Stroke.Width = 4;
-			route.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+			var route = new GMapRoute(points, "RouteToBase") {
+				Stroke = new Pen(Color.Blue) {
+					Width = 4,
+					DashStyle = System.Drawing.Drawing2D.DashStyle.Solid
+				}
+			};
 
 			tracksDistance.Add(MakeDistanceLayout(route));
 			trackToBaseOverlay.Routes.Add(route);
 
 			buttonRecalculateToBase.Sensitive = false;
 
-			MessageDialogWorks.RunInfoDialog(String.Format("Расстояние от {0} до склада {1} км. Время в пути {2}.",
+			MessageDialogHelper.RunInfoDialog(string.Format("Расстояние от {0} до склада {1} км. Время в пути {2}.",
 				response.RouteSummary.StartPoint,
 				response.RouteSummary.TotalDistanceKm,
 				response.RouteSummary.TotalTime
@@ -326,7 +327,7 @@ namespace Dialogs.Logistic
 				if(distance > 0.5)
 				{
 					logger.Info ("Найден разрыв в треке расстоянием в {0}", distance);
-					message += String.Format ("\n* разрыв c {1:t} по {2:t} — {0:N1} км.",
+					message += string.Format ("\n* разрыв c {1:t} по {2:t} — {0:N1} км.",
 					                          distance,
 					                          lastPoint.TimeStamp,
 					                          point.TimeStamp
@@ -343,10 +344,11 @@ namespace Dialogs.Logistic
 
 					var beforeIndex = addressBeforeGap == null ? -1 : addressesByCompletion.IndexOf (addressBeforeGap);
 					var afterIndex = addressAfterGap == null ? addressesByCompletion.Count : addressesByCompletion.IndexOf (addressAfterGap);
-					var routePoints = new List<PointOnEarth>();
-					routePoints.Add (new PointOnEarth (lastPoint.Latitude, lastPoint.Longitude));
+					var routePoints = new List<PointOnEarth> {
+						new PointOnEarth(lastPoint.Latitude, lastPoint.Longitude)
+					};
 
-					if (afterIndex - beforeIndex > 1)
+					if(afterIndex - beforeIndex > 1)
 					{
 						var throughAddress = addressesByCompletion.GetRange (beforeIndex + 1, afterIndex - beforeIndex - 1);
 						logger.Info ("В разрыве найдены выполенные адреса порядковый(е) номер(а) {0}", String.Join (", ", throughAddress.Select (x => x.IndexInRoute)));
@@ -361,22 +363,24 @@ namespace Dialogs.Logistic
 					var missedTrack = SputnikMain.GetRoute (routePoints, false, true);
 					if (missedTrack == null)
 					{
-						MessageDialogWorks.RunErrorDialog ("Не удалось получить ответ от сервиса \"Спутник\"");
+						MessageDialogHelper.RunErrorDialog ("Не удалось получить ответ от сервиса \"Спутник\"");
 						return;
 					}
 					if(missedTrack.Status != 0)
 					{
-						MessageDialogWorks.RunErrorDialog ("Cервис \"Спутник\" сообщил об ошибке {0}: {1}", missedTrack.Status, missedTrack.StatusMessageRus);
+						MessageDialogHelper.RunErrorDialog ("Cервис \"Спутник\" сообщил об ошибке {0}: {1}", missedTrack.Status, missedTrack.StatusMessageRus);
 						return;
 					}
 
 					var decodedPoints = Polyline.DecodePolyline (missedTrack.RouteGeometry);
 					var points = decodedPoints.Select (p => new PointLatLng (p.Latitude * 0.1, p.Longitude * 0.1)).ToList ();
 
-					var route = new GMapRoute (points, "MissedRoute");
-					route.Stroke = new System.Drawing.Pen (System.Drawing.Color.DarkMagenta);
-					route.Stroke.Width = 4;
-					route.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
+					var route = new GMapRoute(points, "MissedRoute") {
+						Stroke = new Pen(Color.DarkMagenta) {
+							Width = 4,
+							DashStyle = System.Drawing.Drawing2D.DashStyle.Dot
+						}
+					};
 
 					trackOnGapOverlay.Routes.Add (route);
 				}
@@ -398,7 +402,7 @@ namespace Dialogs.Logistic
 					$"\n Новая длинна трека: {newDistance:N1} км.(+{diffDistance:N1})" +
 					"\n Сохранить изменения длинны трека?";
 
-				if(MessageDialogWorks.RunQuestionDialog(message))
+				if(MessageDialogHelper.RunQuestionDialog(message))
 				{
 					track.Distance = newDistance;
 					track.DistanceEdited = true;
@@ -409,7 +413,7 @@ namespace Dialogs.Logistic
 			}
 			else
 			{
-				MessageDialogWorks.RunInfoDialog ("Разрывов в треке не найдено.");
+				MessageDialogHelper.RunInfoDialog ("Разрывов в треке не найдено.");
 			}
 		}
 
@@ -459,11 +463,13 @@ namespace Dialogs.Logistic
 
 				midlPoints = track.TrackPoints.Where(x => x.TimeStamp >= startDateTime && x.TimeStamp < endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
 
-				trackRoute = new GMapRoute(startPoints, routeList.Id.ToString());
-				trackRoute.Stroke = new System.Drawing.Pen(System.Drawing.Color.Gray);
-				trackRoute.Stroke.Width = 4;
-				trackRoute.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.DashDot;
-				trackRoute.IsHitTestVisible = true;
+				trackRoute = new GMapRoute(startPoints, routeList.Id.ToString()) {
+					Stroke = new Pen(Color.Gray) {
+						Width = 4,
+						DashStyle = System.Drawing.Drawing2D.DashStyle.DashDot
+					},
+					IsHitTestVisible = true
+				};
 				tracksOverlay.Routes.Add(trackRoute);
  
 			} else
@@ -471,21 +477,25 @@ namespace Dialogs.Logistic
 				midlPoints = track.TrackPoints.Where(x => x.TimeStamp < endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
 			}
 
-			trackRoute = new GMapRoute(midlPoints, routeList.Id.ToString());
-			trackRoute.Stroke = new System.Drawing.Pen(System.Drawing.Color.Red);
-			trackRoute.Stroke.Width = 4;
-			trackRoute.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-			trackRoute.IsHitTestVisible = true;
-			 
+			trackRoute = new GMapRoute(midlPoints, routeList.Id.ToString()) {
+				Stroke = new Pen(Color.Red) {
+					Width = 4,
+					DashStyle = System.Drawing.Drawing2D.DashStyle.Solid
+				},
+				IsHitTestVisible = true
+			};
+
 			labelCutTrack.Text = String.Format("Обработанный\nтрек: {0:N1} км.", Math.Round(trackRoute.Distance, 2)) ;
 			 
 			tracksOverlay.Routes.Add(trackRoute);
 
-			trackRoute = new GMapRoute(endPoints, routeList.Id.ToString());
-			trackRoute.Stroke = new System.Drawing.Pen(System.Drawing.Color.Gray);
-			trackRoute.Stroke.Width = 4;
-			trackRoute.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.DashDotDot;
-			trackRoute.IsHitTestVisible = true;
+			trackRoute = new GMapRoute(endPoints, routeList.Id.ToString()) {
+				Stroke = new Pen(Color.Gray) {
+					Width = 4,
+					DashStyle = System.Drawing.Drawing2D.DashStyle.DashDotDot
+				},
+				IsHitTestVisible = true
+			};
 
 			tracksOverlay.Routes.Add(trackRoute);
 		
@@ -504,13 +514,15 @@ namespace Dialogs.Logistic
 		{
 			var pointsToRecalculate = new List<PointOnEarth>();
 			var pointsToBase = new List<PointOnEarth>();
+			var baseLat = (double)routeList.GeographicGroups.FirstOrDefault().BaseLatitude.Value;
+			var baseLon = (double)routeList.GeographicGroups.FirstOrDefault().BaseLongitude.Value;
 
 			decimal totalDistanceTrack = 0;
 
 			tracksOverlay.Clear();
 			trackToBaseOverlay.Clear();
 
-			if(routeList.Addresses.Where(x => x.Status == RouteListItemStatus.Completed).Count() > 1)
+			if(routeList.Addresses.Count(x => x.Status == RouteListItemStatus.Completed) > 1)
 			{
 				foreach(RouteListItem address in routeList.Addresses.OrderBy(x => x.StatusLastUpdate)) {
 					if(address.Status == RouteListItemStatus.Completed) {
@@ -523,22 +535,24 @@ namespace Dialogs.Logistic
 				var decodedPoints = Polyline.DecodePolyline(recalculatedTrack.RouteGeometry);
 				var pointsRecalculated = decodedPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
 
-				var routeRecalculated = new GMapRoute(pointsRecalculated, "RecalculatedRoute");
-				routeRecalculated.Stroke = new System.Drawing.Pen(System.Drawing.Color.Red);
-				routeRecalculated.Stroke.Width = 4;
-				routeRecalculated.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+				var routeRecalculated = new GMapRoute(pointsRecalculated, "RecalculatedRoute") {
+					Stroke = new Pen(Color.Red) {
+						Width = 4,
+						DashStyle = System.Drawing.Drawing2D.DashStyle.Solid
+					}
+				};
 
 				tracksOverlay.Routes.Add(routeRecalculated);
 
 				totalDistanceTrack = recalculatedTrack.TotalDistanceKm;
 			} else
 			{
-				var point = routeList.Addresses.Where(x => x.Status == RouteListItemStatus.Completed).First().Order.DeliveryPoint;
+				var point = routeList.Addresses.First(x => x.Status == RouteListItemStatus.Completed).Order.DeliveryPoint;
 				pointsToRecalculate.Add(new PointOnEarth((double)point.Latitude, (double)point.Longitude));
 			}
 
 			pointsToBase.Add(pointsToRecalculate.Last());
-			pointsToBase.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
+			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
 			pointsToBase.Add(pointsToRecalculate.First());
 
 			var recalculatedToBaseResponse = OsrmMain.GetRoute(pointsToBase, false, GeometryOverview.Full);
@@ -546,19 +560,22 @@ namespace Dialogs.Logistic
 			var decodedToBase = Polyline.DecodePolyline(recalculatedToBase.RouteGeometry);
 			var pointsRecalculatedToBase = decodedToBase.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
 
-			var routeRecalculatedToBase = new GMapRoute(pointsRecalculatedToBase, "RecalculatedToBase");
-			routeRecalculatedToBase.Stroke = new System.Drawing.Pen(System.Drawing.Color.Blue);
-			routeRecalculatedToBase.Stroke.Width = 4;
-			routeRecalculatedToBase.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+			var routeRecalculatedToBase = new GMapRoute(pointsRecalculatedToBase, "RecalculatedToBase") {
+				Stroke = new Pen(Color.Blue) {
+					Width = 4,
+					DashStyle = System.Drawing.Drawing2D.DashStyle.Solid
+				}
+			};
 
 			trackToBaseOverlay.Routes.Add(routeRecalculatedToBase);
 
-			var text = new List<string>();
-			text.Add(String.Format("Дистанция трека: {0:N1} км.", totalDistanceTrack));
-			text.Add(String.Format("Дистанция до базы: {0:N1} км.", recalculatedToBase.TotalDistanceKm));
-			text.Add(String.Format("Общее расстояние: {0:N1} км.", totalDistanceTrack + recalculatedToBase.TotalDistanceKm));
+			var text = new List<string> {
+				string.Format("Дистанция трека: {0:N1} км.", totalDistanceTrack),
+				string.Format("Дистанция до базы: {0:N1} км.", recalculatedToBase.TotalDistanceKm),
+				string.Format("Общее расстояние: {0:N1} км.", totalDistanceTrack + recalculatedToBase.TotalDistanceKm)
+			};
 
-			labelDistance.LabelProp = String.Join("\n", text);
+			labelDistance.LabelProp = string.Join("\n", text);
 
 			routeList.RecalculatedDistance = totalDistanceTrack + recalculatedToBase.TotalDistanceKm;
 			UoW.Save(routeList);

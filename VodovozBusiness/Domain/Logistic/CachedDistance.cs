@@ -1,8 +1,9 @@
-﻿﻿using System;
+﻿using System;
 using System.Globalization;
 using GMap.NET;
 using QSOsm;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -21,17 +22,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual DateTime Created { get; set; }
 
-		public CachedDistance()
-		{
-		}
+		public CachedDistance() { }
 
-#region Static
+		#region Static
 
-		public static long GetHash(DeliveryPoint point)
-		{
-			// A - Latitude; O - Longitude; hash = AA.AAAAOO.OOOO -> (long)AAAAAAOOOOOO
-			return (long)(point.Latitude.Value * 10000) * 1000000 + (long)(point.Longitude.Value * 10000);
-		}
+		public static long GetHash(DeliveryPoint point) => GetHash((double)point.Latitude.Value, (double)point.Longitude.Value);
+
+		public static long GetHash(GeographicGroup point) => GetHash((double)point.BaseLatitude.Value, (double)point.BaseLongitude.Value);
 
 		public static long GetHash(double latitude, double longitude)
 		{
@@ -47,35 +44,31 @@ namespace Vodovoz.Domain.Logistic
 
 		public static PointLatLng GetPointLatLng(long hash)
 		{
-			double lat, lon;
-			GetLatLon(hash, out lat, out lon);
+			GetLatLon(hash, out double lat, out double lon);
 			return new PointLatLng(lat, lon);
 		}
 
 		public static PointOnEarth GetPointOnEarth(long hash)
 		{
-			double lat, lon;
-			GetLatLon(hash, out lat, out lon);
+			GetLatLon(hash, out double lat, out double lon);
 			return new PointOnEarth(lat, lon);
 		}
 
 		public static string GetText(long hash)
 		{
-			double latitude, longitude;
-			GetLatLon(hash, out latitude, out longitude);
+			GetLatLon(hash, out double latitude, out double longitude);
 			return String.Format(CultureInfo.InvariantCulture, "{0},{1}", latitude, longitude);
 		}
 
 		public static string GetTextLonLat(long hash)
 		{
-			double latitude, longitude;
-			GetLatLon(hash, out latitude, out longitude);
+			GetLatLon(hash, out double latitude, out double longitude);
 			return String.Format(CultureInfo.InvariantCulture, "{0},{1}", longitude, latitude);
 		}
 
-		public static long BaseHash = GetHash(Constants.BaseLatitude, Constants.BaseLongitude);
+		//public static long BaseHash => GetHash(Constants.BaseLatitude, Constants.BaseLongitude);
 
-#endregion
+		#endregion
 
 		public override bool Equals(object obj)
 		{
@@ -85,7 +78,7 @@ namespace Vodovoz.Domain.Logistic
 			if(ReferenceEquals(this, other)) return true;
 
 			return this.FromGeoHash == other.FromGeoHash &&
-				       this.ToGeoHash == other.ToGeoHash;
+					   this.ToGeoHash == other.ToGeoHash;
 		}
 
 		public override int GetHashCode()

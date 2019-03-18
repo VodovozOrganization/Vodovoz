@@ -5,12 +5,12 @@ using System.Text;
 using Google.OrTools.ConstraintSolver;
 using Gtk;
 using NetTopologySuite.Geometries;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Tools.Logistic;
-using QS.Dialog.GtkUI;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
@@ -55,7 +55,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// <summary>
 		/// Штраф за неотвезенный заказ. Или максимальное расстояние на которое имеет смысл ехать.
 		/// </summary>
-		public static long MaxDistanceAddressPenalty = 300000;//15000
+		public static long MaxDistanceAddressPenalty = 300000;
 		/// <summary>
 		/// Максимальное количество бутелей в заказе для ларгусов.
 		/// </summary>
@@ -70,13 +70,17 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// </summary>
 		public static long SmallOrderNotLargusPenalty = 25000;
 		/// <summary>
-		/// Штраф за каждый адрес в маршруте меньше минимального позволенного в настройках машины <c>Car.MinRouteAddresses</c>.
+		/// Штраф за каждый адрес в маршруте меньше минимального позволенного в настройках машины <see cref="Car.MinRouteAddresses"/>.
 		/// </summary>
 		public static long MinAddressesInRoutePenalty = 50000;
 		/// <summary>
-		/// Штраф за каждую бутыль в маршруте меньше минимального позволенного в настройках машины <c>Car.MinRouteAddresses</c>.
+		/// Штраф за каждую бутыль в маршруте меньше минимального позволенного в настройках машины <see cref="Car.MinRouteAddresses"/>.
 		/// </summary>
 		public static long MinBottlesInRoutePenalty = 10000;
+		/// <summary>
+		/// Штраф за адрес из других частей города <see cref="RouteList.GeographicGroups"/>.
+		/// </summary>
+		public static long AddressFromForeignGeographicGroupPenalty = 500000;
 		#endregion
 
 		public IList<RouteList> Routes;
@@ -88,7 +92,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		private ExtDistanceCalculator distanceCalculator;
 
 		public ProgressBar OrdersProgress;
-		public Gtk.TextBuffer DebugBuffer;
+		public TextBuffer DebugBuffer;
 		public List<string> WarningMessages = new List<string>();
 
 		public bool Cancel = false;
@@ -104,9 +108,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public List<ProposedRoute> ProposedRoutes = new List<ProposedRoute>();
 		#endregion
 
-		public RouteOptimizer()
-		{
-		}
+		public RouteOptimizer() { }
 
 		/// <summary>
 		/// Метод создаем маршруты на день основываясь на данных всесенных в поля <c>Routes</c>, <c>Orders</c>,
@@ -125,14 +127,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			/// и создаем поездки для них, в зависимости от выбранного режима работы.
 			var trips = Drivers.Where(x => x.Car != null)
 							   .OrderBy(x => x.PriorityAtDay)
-									.SelectMany(x => x.DaySchedule != null
-												? x.DaySchedule.Shifts.Select(s => new PossibleTrip(x, s))
-												: new[] { new PossibleTrip(x, null) }
+									.SelectMany(drv => drv.DaySchedule != null
+												? drv.DaySchedule.Shifts.Select(shift => new PossibleTrip(drv, shift))
+												: new[] { new PossibleTrip(drv, null) }
 											   )
 							   .ToList();
 
 			/// Стыкуем уже созданные маршрутные листы с возможными поездками, на основании водителя и смены.
-			/// Если уже созданный маршрут не найдет в поездках создаем поездку для него.
+			/// Если уже созданный маршрут не найден в поездках, то создаем поездку для него.
 			foreach(var existRoute in Routes) {
 				var trip = trips.FirstOrDefault(x => x.Driver == existRoute.Driver && x.Shift == existRoute.Shift);
 				if(trip != null)
@@ -161,7 +163,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			/// Перебираем все заказы, исключаем те которые без координат, определяем для каждого заказа район
 			/// на основании координат. И создавая экземпляр <c>CalculatedOrder</c>, происходит подсчет сумарной
-			/// информации о заказа. Всего бутылей, вес и прочее.
+			/// информации о заказе. Всего бутылей, вес и прочее.
 			foreach(var order in Orders) {
 				if(order.DeliveryPoint.Longitude == null || order.DeliveryPoint.Latitude == null)
 					continue;
@@ -171,15 +173,17 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					var oldRoute = Routes.FirstOrDefault(r => r.Addresses.Any(a => a.Order.Id == order.Id));
 					if(oldRoute != null)
 						calculatedOrders.Add(new CalculatedOrder(order, area, false, oldRoute));
-					else if(possibleRoutes.SelectMany(x => x.Districts).Any(x => x.District.Id == area.Id))
-						calculatedOrders.Add(new CalculatedOrder(order, area));
-					else if(!unusedDistricts.Contains(area))
+					else if(possibleRoutes.SelectMany(x => x.Districts).Any(x => x.District.Id == area.Id)) {
+						var cOrder = new CalculatedOrder(order, area);
+						//if(possibleRoutes.Any(r => r.GeographicGroup.Id == cOrder.ShippingBase.Id))//убрать, если в автоформировании должны учавствовать заказы из всех частей города вне зависимости от того какие части города выбраны в диалоге
+							calculatedOrders.Add(cOrder);
+					} else if(!unusedDistricts.Contains(area))
 						unusedDistricts.Add(area);
 				}
 			}
 			Nodes = calculatedOrders.ToArray();
 			if(unusedDistricts.Any()) {
-				AddWarning("Районы без водителей: {0}", String.Join(", ", unusedDistricts.Select(x => x.Name)));
+				AddWarning("Районы без водителей: {0}", string.Join(", ", unusedDistricts.Select(x => x.Name)));
 			}
 
 			/// Создаем калькулятор расчета расстояний. Он сразу запрашивает уже имеющиеся расстояния из кеша
@@ -229,7 +233,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				var cumulTimeOnEnd = routing.CumulVar(routing.End(ix), "Time");
 				var cumulTimeOnBegin = routing.CumulVar(routing.Start(ix), "Time");
 
-				/// Устанавливаем минимальные(мягкие) границы для измерений. При значениях меньше менемальных, маршрут все таки принимается,
+				/// Устанавливаем минимальные(мягкие) границы для измерений. При значениях меньше минимальных, маршрут все таки принимается,
 				/// но вносятся некоторые штрафные очки на последнюю точку маршрута.
 				bottlesDimension.SetEndCumulVarSoftLowerBound(ix, possibleRoutes[ix].Car.MinBottles, MinBottlesInRoutePenalty);
 				addressDimension.SetEndCumulVarSoftLowerBound(ix, possibleRoutes[ix].Car.MinRouteAddresses, MinAddressesInRoutePenalty);
@@ -255,7 +259,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					AddWarning("Время разгрузки на {2}, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To, Nodes[ix].Order.DeliveryPoint.ShortAddress);
 					endWindow = startWindow;
 				}
-				time_dimension.CumulVar(ix).SetRange((long)startWindow, (long)endWindow);
+				time_dimension.CumulVar(ix + 1).SetRange((long)startWindow, (long)endWindow);
 				/// Добавляем абсолютно все заказы в дизюкцию. Если бы заказы небыли вдобавлены в отдельные дизьюкции
 				/// то при не возможность доставить хоть один заказ. Все решение бы считаль не верным. Добавление каждого заказа
 				/// в отдельную дизьюкцию, позволяет механизму не вести какой то и заказов, и все таки формировать решение с недовезенными
@@ -268,16 +272,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Debug("routing.Nodes() = {0}", routing.Nodes());
 			logger.Debug("GetNumberOfDisjunctions = {0}", routing.GetNumberOfDisjunctions());
 
-			RoutingSearchParameters search_parameters =
-					RoutingModel.DefaultSearchParameters();
+			RoutingSearchParameters search_parameters = RoutingModel.DefaultSearchParameters();
 			// Setting first solution heuristic (cheapest addition).
 			/// Указывается стратегия первоначального заполнения. Опытным путем было вычислено, что именно при 
 			/// стратегиях вставки маршруты получаются с набором точек более близких к друг другу. То есть в большей
 			/// степени облачком. Что воспринималось человеком как более отпимальное. В отличии от большенства других
 			/// стратегий в которых маршруты, формируюся скорее по лентами ведущими через все обезжаемые раоны. То есть водители
 			/// чаще имели пересечения маршутов.
-			search_parameters.FirstSolutionStrategy =
-				                 FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
+			search_parameters.FirstSolutionStrategy = FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
 
 			search_parameters.TimeLimitMs = MaxTimeSeconds * 1000;
 			/// Отключаем внутреннего кеширования расчитанных значений. Опытным путем было проверено, что включение этого значения.
@@ -299,7 +301,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			if(WarningMessages.Any() &&
 				!MessageDialogHelper.RunQuestionDialog("При построении транспортной модели обнаружены следующие проблемы:\n{0}\nПродолжить?",
-													 String.Join("\n", WarningMessages.Select(x => "⚠ " + x))))
+													 string.Join("\n", WarningMessages.Select(x => "⚠ " + x))))
 				return;
 
 			logger.Info("Рассчет расстояний между точками...");
@@ -348,7 +350,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 							TimeSpan.FromSeconds(solution.Max(time_var)),
 							Nodes[second_node - 1].Order
 						);
-						rPoint.DebugMaxMin = String.Format("\n({0},{1})[{3}-{4}]-{2} Cost:{5}",
+						rPoint.DebugMaxMin = string.Format("\n({0},{1})[{3}-{4}]-{2} Cost:{5}",
 														   new DateTime().AddSeconds(solution.Min(time_var)).ToShortTimeString(),
 														   new DateTime().AddSeconds(solution.Max(time_var)).ToShortTimeString(),
 														   second_node,
@@ -367,7 +369,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 						ProposedRoutes.Add(route);
 						logger.Debug("Маршрут {0}: {1}",
 									 route.Trip.Driver.ShortName,
-									 String.Join(" -> ", route.Orders.Select(x => x.DebugMaxMin))
+									 string.Join(" -> ", route.Orders.Select(x => x.DebugMaxMin))
 									);
 					} else
 						logger.Debug("Маршрут {0}: пустой", route.Trip.Driver.ShortName);
@@ -375,10 +377,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 
 #if DEBUG
-			logger.Debug("SGoToBase:{0}",String.Join(", ", CallbackDistanceDistrict.SGoToBase.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
-			logger.Debug("SFromExistPenality:{0}", String.Join(", ", CallbackDistanceDistrict.SFromExistPenality.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
-			logger.Debug("SUnlikeDistrictPenality:{0}", String.Join(", ", CallbackDistanceDistrict.SUnlikeDistrictPenality.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
-			logger.Debug("SLargusPenality:{0}", String.Join(", ", CallbackDistanceDistrict.SLargusPenality.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
+			logger.Debug("SGoToBase:{0}", string.Join(", ", CallbackDistanceDistrict.SGoToBase.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
+			logger.Debug("SFromExistPenality:{0}", string.Join(", ", CallbackDistanceDistrict.SFromExistPenality.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
+			logger.Debug("SUnlikeDistrictPenality:{0}", string.Join(", ", CallbackDistanceDistrict.SUnlikeDistrictPenality.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
+			logger.Debug("SLargusPenality:{0}", string.Join(", ", CallbackDistanceDistrict.SLargusPenality.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
 #endif
 
 			MainClass.progressBarWin.ProgressAdd();
@@ -387,22 +389,21 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				logger.Info($"Предложено {ProposedRoutes.Count} маршрутов.");
 			PerformanceHelper.Main.PrintAllPoints(logger);
 
-			if(distanceCalculator.ErrorWays.Count > 0)
-			{
+			if(distanceCalculator.ErrorWays.Any()) {
 				logger.Debug("Ошибок получения расстояний {0}", distanceCalculator.ErrorWays.Count);
 				var uniqueFrom = distanceCalculator.ErrorWays.Select(x => x.FromHash).Distinct().ToList();
 				var uniqueTo = distanceCalculator.ErrorWays.Select(x => x.ToHash).Distinct().ToList();
 				logger.Debug("Уникальных точек: отправки = {0}, прибытия = {1}", uniqueFrom.Count, uniqueTo.Count);
 				logger.Debug("Проблемные точки отправки:\n{0}",
-				             String.Join("; ", distanceCalculator.ErrorWays
-				                         .GroupBy(x => x.FromHash)
-				                         .Where(x => x.Count() > (uniqueTo.Count / 2))
-				                         .Select(x => CachedDistance.GetText(x.Key)))
-				            );
+							 string.Join("; ", distanceCalculator.ErrorWays
+										 .GroupBy(x => x.FromHash)
+										 .Where(x => x.Count() > (uniqueTo.Count / 2))
+										 .Select(x => CachedDistance.GetText(x.Key)))
+							);
 				logger.Debug("Проблемные точки прибытия:\n{0}",
-			 			String.Join("; ", distanceCalculator.ErrorWays
-				                    .GroupBy(x => x.ToHash)
-				                    .Where(x => x.Count() > (uniqueFrom.Count / 2))
+			 			string.Join("; ", distanceCalculator.ErrorWays
+									.GroupBy(x => x.ToHash)
+									.Where(x => x.Count() > (uniqueFrom.Count / 2))
 						 			.Select(x => CachedDistance.GetText(x.Key)))
 			);
 
@@ -428,7 +429,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			foreach(var address in route.Addresses) {
 				if(address.Order.DeliveryPoint.Longitude == null || address.Order.DeliveryPoint.Latitude == null)
 					continue;
-				
+
 				calculatedOrders.Add(new CalculatedOrder(address.Order, null));
 			}
 			Nodes = calculatedOrders.ToArray();
@@ -468,10 +469,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				routing.AddDisjunction(new int[] { ix + 1 }, MaxDistanceAddressPenalty);
 			}
 
-			RoutingSearchParameters search_parameters =
-					RoutingModel.DefaultSearchParameters();
-			search_parameters.FirstSolutionStrategy =
-								 FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
+			RoutingSearchParameters search_parameters = RoutingModel.DefaultSearchParameters();
+			search_parameters.FirstSolutionStrategy = FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
 
 			search_parameters.TimeLimitMs = MaxTimeSeconds * 1000;
 			//search_parameters.FingerprintArcCostEvaluators = true;
@@ -506,7 +505,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				time_dimension = routing.GetDimensionOrDie("Time");
 
 				int route_number = 0;
-					
+
 				proposedRoute = new ProposedRoute(null);
 				long first_node = routing.Start(route_number);
 				long second_node = solution.Value(routing.NextVar(first_node)); // Пропускаем первый узел, так как это наша база.
@@ -519,7 +518,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 						TimeSpan.FromSeconds(solution.Max(time_var)),
 						Nodes[second_node - 1].Order
 					);
-					rPoint.DebugMaxMin = String.Format("\n({0},{1})[{3}-{4}]-{2}",
+					rPoint.DebugMaxMin = string.Format("\n({0},{1})[{3}-{4}]-{2}",
 													   new DateTime().AddSeconds(solution.Min(time_var)).ToShortTimeString(),
 													   new DateTime().AddSeconds(solution.Max(time_var)).ToShortTimeString(),
 													   second_node,
@@ -543,13 +542,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				var uniqueTo = distanceCalculator.ErrorWays.Select(x => x.ToHash).Distinct().ToList();
 				logger.Debug("Уникальных точек: отправки = {0}, прибытия = {1}", uniqueFrom.Count, uniqueTo.Count);
 				logger.Debug("Проблемные точки отправки:\n{0}",
-							 String.Join("; ", distanceCalculator.ErrorWays
+							 string.Join("; ", distanceCalculator.ErrorWays
 										 .GroupBy(x => x.FromHash)
 										 .Where(x => x.Count() > (uniqueTo.Count / 2))
 										 .Select(x => CachedDistance.GetText(x.Key)))
 							);
 				logger.Debug("Проблемные точки прибытия:\n{0}",
-			 			String.Join("; ", distanceCalculator.ErrorWays
+			 			string.Join("; ", distanceCalculator.ErrorWays
 									.GroupBy(x => x.ToHash)
 									.Where(x => x.Count() > (uniqueFrom.Count / 2))
 						 			.Select(x => CachedDistance.GetText(x.Key)))
@@ -581,7 +580,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		private void AddWarning(string text, params object[] args)
 		{
-			text = String.Format(text, args);
+			text = string.Format(text, args);
 			WarningMessages.Add(text);
 			logger.Warn(text);
 		}
@@ -594,22 +593,22 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			var addressProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxRouteAddresses < 1).ToList();
 			if(addressProblems.Count > 1)
 				AddWarning("Автомобилям {0} не будут назначены заказы, так как максимальное количество адресов у них меньше 1.",
-				           String.Join(", ", addressProblems.Select(x => x.RegistrationNumber)));
+						   string.Join(", ", addressProblems.Select(x => x.RegistrationNumber)));
 
 			var bottlesProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxBottles < 1).ToList();
 			if(bottlesProblems.Count > 1)
 				AddWarning("Автомобили {0} не смогут везти воду, так как максимальное количество бутылей у них меньше 1.",
-						   String.Join(", ", bottlesProblems.Select(x => x.RegistrationNumber)));
+						   string.Join(", ", bottlesProblems.Select(x => x.RegistrationNumber)));
 
 			var volumeProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxVolume < 1).ToList();
 			if(volumeProblems.Count > 1)
 				AddWarning("Автомобили {0} смогут погрузить только безьобемные товары, так как максимальный объем погрузки у них меньше 1.",
-						   String.Join(", ", volumeProblems.Select(x => x.RegistrationNumber)));
+						   string.Join(", ", volumeProblems.Select(x => x.RegistrationNumber)));
 
 			var weightProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxWeight < 1).ToList();
 			if(weightProblems.Count > 1)
 				AddWarning("Автомобили {0} не смогут вести грузы, так как грузоподьемность уних меньше 1 кг.",
-						   String.Join(", ", weightProblems.Select(x => x.RegistrationNumber)));
+						   string.Join(", ", weightProblems.Select(x => x.RegistrationNumber)));
 
 		}
 	}

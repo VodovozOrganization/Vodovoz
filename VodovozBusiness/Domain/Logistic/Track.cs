@@ -5,85 +5,84 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using GMap.NET;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 using QSOsm;
 using QSOsm.Spuntik;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[Appellative (Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 	NominativePlural = "треки",
 	Nominative = "трек")]
 	public class Track : PropertyChangedBase, IDomainObject
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		public virtual int Id { get; set; }
 
 		Employee driver;
 
-		[Display (Name = "Водитель")]
+		[Display(Name = "Водитель")]
 		public virtual Employee Driver {
 			get { return driver; }
-			set { SetField (ref driver, value, () => Driver); }
+			set { SetField(ref driver, value, () => Driver); }
 		}
 
 		RouteList routeList;
 
-		[Display (Name = "Маршрутный лист")]
+		[Display(Name = "Маршрутный лист")]
 		public virtual RouteList RouteList {
 			get { return routeList; }
-			set { SetField (ref routeList, value, () => RouteList); }
+			set { SetField(ref routeList, value, () => RouteList); }
 		}
 
 		DateTime startDate;
 
-		[Display (Name = "Дата и время начала")]
+		[Display(Name = "Дата и время начала")]
 		public virtual DateTime StartDate {
 			get { return startDate; }
-			set { SetField (ref startDate, value, () => StartDate); }
+			set { SetField(ref startDate, value, () => StartDate); }
 		}
 
-		IList<TrackPoint> trackPoints = new List<TrackPoint> ();
+		IList<TrackPoint> trackPoints = new List<TrackPoint>();
 
-		[Display (Name = "Точки трека")]
+		[Display(Name = "Точки трека")]
 		public virtual IList<TrackPoint> TrackPoints {
 			get { return trackPoints; }
-			set { 
-				SetField (ref trackPoints, value, () => TrackPoints); 
+			set {
+				SetField(ref trackPoints, value, () => TrackPoints);
 			}
 		}
 
 		private bool distanceEdited = false;
 
-		[Display (Name = "Расстояние изменялось")]
+		[Display(Name = "Расстояние изменялось")]
 		public virtual bool DistanceEdited {
 			get { return distanceEdited; }
-			set { SetField (ref distanceEdited, value, () => DistanceEdited); }
+			set { SetField(ref distanceEdited, value, () => DistanceEdited); }
 		}
 
 		double? distance;
 
-		[Display (Name = "Пройденное расстояние")]
+		[Display(Name = "Пройденное расстояние")]
 		public virtual double? Distance {
 			get { return distance; }
-			set { 
-				SetField (ref distance, value, () => distance); 
+			set {
+				SetField(ref distance, value, () => distance);
 			}
 		}
 
 		private double? distanceToBase;
 
-		[Display (Name = "Дистанция до базы")]
+		[Display(Name = "Дистанция до базы")]
 		public virtual double? DistanceToBase {
-		    get { return distanceToBase; }
-		    set { SetField (ref distanceToBase, value, () => DistanceToBase); }
+			get { return distanceToBase; }
+			set { SetField(ref distanceToBase, value, () => DistanceToBase); }
 		}
 
-		public virtual double? TotalDistance{
-			get{
-				if (Distance == null && DistanceToBase == null)
+		public virtual double? TotalDistance {
+			get {
+				if(Distance == null && DistanceToBase == null)
 					return null;
 				return (Distance ?? 0) + (DistanceToBase ?? 0);
 			}
@@ -93,16 +92,16 @@ namespace Vodovoz.Domain.Logistic
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<TrackPoint> ObservableTrackPoints {
 			get {
-				if (observableTrackPoints == null) {
-					observableTrackPoints = new GenericObservableList<TrackPoint> (TrackPoints);
+				if(observableTrackPoints == null) {
+					observableTrackPoints = new GenericObservableList<TrackPoint>(TrackPoints);
 				}
 				return observableTrackPoints;
 			}
 		}
 
-		public virtual void CalculateDistance() {
-			if (TrackPoints.Count == 0)
-			{
+		public virtual void CalculateDistance()
+		{
+			if(TrackPoints.Count == 0) {
 				Distance = null;
 				return;
 			}
@@ -119,30 +118,29 @@ namespace Vodovoz.Domain.Logistic
 				.OrderByDescending(x => x.StatusLastUpdate)
 				.FirstOrDefault();
 
-            var startBase = RouteList.GeographicGroups
-                .Select(x => x.Name).FirstOrDefault()?.Trim();
-
-            if (lastAddress == null)
-			{
+			if(lastAddress == null) {
 				DistanceToBase = null;
 				return null;
 			}
 
-			var points = new List<PointOnEarth> ();
+			var points = new List<PointOnEarth>();
 			var lastPoint = lastAddress.Order.DeliveryPoint;
-			points.Add (new PointOnEarth (lastPoint.Latitude.Value, lastPoint.Longitude.Value));
-            //Координаты базы
-            if (startBase == "Юг")
-                points.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
-		    if (startBase == "Север")
-                points.Add(new PointOnEarth(Constants.NorthStorageLatitude, Constants.NorthStorageLongitude));
-
-            var response = SputnikMain.GetRoute (points, false, true);
-			if (response.Status == 0)
-			{
-				DistanceToBase = (double)response.RouteSummary.TotalDistanceKm;
+			points.Add(new PointOnEarth(lastPoint.Latitude.Value, lastPoint.Longitude.Value));
+			//Координаты базы
+			if(lastPoint.District == null) {
+				logger.Warn("Для точки доставки не удалось подобрать часть города. Расчёт расстояния до центра СПб");
+				points.Add(new PointOnEarth(Constants.CenterOfCityLatitude, Constants.CenterOfCityLongitude));
+			} else if(lastPoint.District != null && lastPoint.District.GeographicGroups.Any(g => g.BaseCoordinatesExist)) {
+				var gg = lastPoint.District.GeographicGroups.FirstOrDefault(g => g.BaseCoordinatesExist);
+				points.Add(new PointOnEarth((double)gg.BaseLatitude.Value, (double)gg.BaseLongitude.Value));
+			} else {
+				logger.Error("В подобранной части города не указаны координаты базы");
+				return null;
 			}
-			else
+			var response = SputnikMain.GetRoute(points, false, true);
+			if(response.Status == 0) {
+				DistanceToBase = (double)response.RouteSummary.TotalDistanceKm;
+			} else
 				logger.Error("Ошибка при получении расстояния до базы {0}: {1}", response.Status, response.StatusMessage);
 			return response;
 		}
