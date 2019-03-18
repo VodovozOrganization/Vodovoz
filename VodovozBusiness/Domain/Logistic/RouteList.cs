@@ -604,7 +604,7 @@ namespace Vodovoz.Domain.Logistic
 			if(newStatus == Status)
 				return;
 
-			string exceptionMessage = $"Некорректная операция. Не предусмотрена смена статуса с {newStatus} на {Status}";
+			string exceptionMessage = $"Некорректная операция. Не предусмотрена смена статуса с {Status} на {newStatus}";
 
 			switch(newStatus) {
 				case RouteListStatus.New:
