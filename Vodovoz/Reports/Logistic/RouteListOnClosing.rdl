@@ -93,7 +93,7 @@ LEFT JOIN
 LEFT JOIN
 	cars ON cars.id = route_lists.car_id
 WHERE
-	route_lists.status = 'OnClosing'
+	route_lists.status = 'OnClosing, MileageCheck'
 	# скрыть сегодняшние МЛ
 	AND ((@todayRloff = 1 AND route_lists.date &lt; CURDATE()) OR @todayRloff = 0)
 	# скрыть МЛ с фурами

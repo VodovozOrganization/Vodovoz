@@ -10,6 +10,7 @@ using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.Orders;
+using Vodovoz.Tools;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -18,9 +19,7 @@ namespace Vodovoz.Dialogs.Cash
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 
-		public SelfDeliveryOrderEditDlg(Order sub) : this(sub.Id)
-		{
-		}
+		public SelfDeliveryOrderEditDlg(Order sub) : this(sub.Id) { }
 
 		public SelfDeliveryOrderEditDlg(int id)
 		{
@@ -48,18 +47,18 @@ namespace Vodovoz.Dialogs.Cash
 					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 					.Editing(false)
 					.WidthChars(10)
-					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Кол-во по факту")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.ActualCount)
+					.AddNumericRenderer(node => node.ActualCount, new NullValueToZeroConverter())
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 					.AddSetter((c, node) => c.Editable = node.CanEditAmount)
 					.WidthChars(10)
-					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Аренда")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(node => node.IsRentCategory ? node.RentString : "")
+					.AddTextRenderer(node => node.IsRentCategory ? node.RentString : string.Empty)
 				.AddColumn("Цена")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
@@ -113,9 +112,9 @@ namespace Vodovoz.Dialogs.Cash
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.Editing(false)
 				.AddColumn("Кол-во по факту")
-					.AddNumericRenderer(node => node.ActualCount, false).Editing(true)
-					.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
-					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+					.AddNumericRenderer(node => node.ActualCount, new NullValueToZeroConverter(), false).Editing(true)
+					.Adjustment(new Adjustment(0, 0, 9999, 1, 1, 0))
+					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
 					.Editing(false)
 				.AddColumn("Причина").AddEnumRenderer(node => node.DirectionReason, true)
@@ -162,12 +161,24 @@ namespace Vodovoz.Dialogs.Cash
 			ytreeviewEquipments.ItemsDataSource = Entity.ObservableOrderEquipments;
 
 			ytreeviewDepositReturns.ColumnsConfig = ColumnsConfigFactory.Create<OrderDepositItem>()
-				.AddColumn("Тип").SetDataProperty(node => node.DepositTypeString)
-				.AddColumn("Название").AddTextRenderer(node => node.EquipmentNomenclature != null ? node.EquipmentNomenclature.Name : "")
-				.AddColumn("Кол-во").AddNumericRenderer(node => node.Count).Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1)).Editing(false)
-				.AddColumn("Кол-во по факту").AddNumericRenderer(node => node.ActualCount).Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1)).Editing(true)
-				.AddColumn("Цена").AddNumericRenderer(node => node.Deposit).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
-				.AddColumn("Сумма").AddNumericRenderer(node => node.Total)
+				.AddColumn("Тип")
+					.AddTextRenderer(node => node.DepositTypeString)
+				.AddColumn("Название")
+					.AddTextRenderer(node => node.EquipmentNomenclature != null ? node.EquipmentNomenclature.Name : string.Empty)
+				.AddColumn("Кол-во")
+					.AddNumericRenderer(node => node.Count)
+						.Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1))
+						.Editing(false)
+				.AddColumn("Кол-во по факту")
+					.AddNumericRenderer(node => node.ActualCount, new NullValueToZeroConverter())
+						.Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1))
+						.Editing(true)
+				.AddColumn("Цена")
+					.AddNumericRenderer(node => node.Deposit)
+						.Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1))
+						.Editing(true)
+				.AddColumn("Сумма")
+					.AddNumericRenderer(node => node.Total)
 				.RowCells()
 				.Finish();
 			ytreeviewDepositReturns.ItemsDataSource = Entity.ObservableOrderDepositItems;

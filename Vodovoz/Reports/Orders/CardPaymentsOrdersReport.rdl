@@ -441,7 +441,7 @@
 	counterparty.full_name AS client,
 	delivery_points.compiled_address AS address,
 	orders.online_order,
-	IF(SUM(actual_count * price - discount_money)&gt;0, SUM(actual_count * price - discount_money), 0) AS actual_sum,
+	IF(SUM(IFNULL(actual_count, 0) * price - discount_money)&gt;0, SUM(IFNULL(actual_count, 0) * price - discount_money), 0) AS actual_sum,
 	IF(SUM(count * price - discount_money)&gt;0, SUM(count * price - discount_money), 0) AS sum,
 	CASE
 		WHEN orders.order_status = 'NewOrder' THEN 'Новый'

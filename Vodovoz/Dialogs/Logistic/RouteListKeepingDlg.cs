@@ -10,9 +10,9 @@ using NHibernate;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Repositories;
 using QS.Tdi;
 using QSOrmProject;
-using QS.Project.Repositories;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -36,35 +36,32 @@ namespace Vodovoz
 
 		public RouteListKeepingDlg(int id)
 		{
-			this.Build ();
+			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
-			TabName = String.Format("Ведение МЛ №{0}",Entity.Id);
+			TabName = string.Format("Ведение МЛ №{0}", Entity.Id);
 			allEditing = Entity.Status != RouteListStatus.Closed && Entity.Status != RouteListStatus.OnClosing;
 			isUserLogist = UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
 			logisticanEditing = isUserLogist && allEditing;
 
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
-		public RouteListKeepingDlg(RouteList sub) : this(sub.Id){ }
+		public RouteListKeepingDlg(RouteList sub) : this(sub.Id) { }
 
-		public RouteListKeepingDlg (int routeId, int[] selectOrderId) : this(routeId)
+		public RouteListKeepingDlg(int routeId, int[] selectOrderId) : this(routeId)
 		{
-			var selectedItems = items.Where (x => selectOrderId.Contains(x.RouteListItem.Order.Id)).ToArray();
-			if (selectedItems.Length > 0)
-			{
-				ytreeviewAddresses.SelectObject (selectedItems);
-				var iter = ytreeviewAddresses.YTreeModel.IterFromNode (selectedItems [0]);
-				var path = ytreeviewAddresses.YTreeModel.GetPath (iter);
-				ytreeviewAddresses.ScrollToCell (path, ytreeviewAddresses.Columns [0], true, 0.5f, 0.5f);
+			var selectedItems = items.Where(x => selectOrderId.Contains(x.RouteListItem.Order.Id)).ToArray();
+			if(selectedItems.Any()) {
+				ytreeviewAddresses.SelectObject(selectedItems);
+				var iter = ytreeviewAddresses.YTreeModel.IterFromNode(selectedItems[0]);
+				var path = ytreeviewAddresses.YTreeModel.GetPath(iter);
+				ytreeviewAddresses.ScrollToCell(path, ytreeviewAddresses.Columns[0], true, 0.5f, 0.5f);
 			}
 		}
 
-		public override bool HasChanges
-		{
-			get
-			{
-				if (items.All(x => x.Status != RouteListItemStatus.EnRoute))
+		public override bool HasChanges {
+			get {
+				if(items.All(x => x.Status != RouteListItemStatus.EnRoute))
 					return true; //Хак, чтобы вылезало уведомление о закрытии маршрутного листа, даже если ничего не меняли.
 				return base.HasChanges;
 			}
@@ -75,12 +72,13 @@ namespace Vodovoz
 		List<RouteListKeepingItemNode> items;
 		RouteListKeepingItemNode selectedItem;
 
-		public void ConfigureDlg(){
+		public void ConfigureDlg()
+		{
 			Entity.ObservableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
 			Entity.ObservableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
-			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;;
+			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged; ;
 
-			referenceCar.SubjectType = typeof (Car);
+			referenceCar.SubjectType = typeof(Car);
 			referenceCar.ItemsQuery = CarRepository.ActiveCarsQuery();
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = logisticanEditing;
@@ -96,7 +94,7 @@ namespace Vodovoz
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.Sensitive = logisticanEditing;
 			referenceForwarder.Changed += ReferenceForwarder_Changed;
-				                   
+
 			var filterLogistican = new EmployeeFilter(UoW);
 			filterLogistican.SetAndRefilterAtOnce(x => x.ShowFired = false);
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
@@ -110,7 +108,7 @@ namespace Vodovoz
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
 			datePickerDate.Sensitive = logisticanEditing;
 
-			ylabelLastTimeCall.Binding.AddFuncBinding (Entity, e => GetLastCallTime(e.LastCallTime), w => w.LabelProp).InitializeFromSource ();
+			ylabelLastTimeCall.Binding.AddFuncBinding(Entity, e => GetLastCallTime(e.LastCallTime), w => w.LabelProp).InitializeFromSource();
 
 			buttonMadeCall.Sensitive = allEditing;
 
@@ -127,14 +125,14 @@ namespace Vodovoz
 			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
 				.AddColumn("№ п/п").AddNumericRenderer(x => x.RouteListItem.IndexInRoute + 1)
 				.AddColumn("Заказ")
-					.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())					
+					.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())
 				.AddColumn("Адрес")
-					.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint == null ? "Требуется точка доставки" : node.RouteListItem.Order.DeliveryPoint.ShortAddress)					
+					.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint == null ? "Требуется точка доставки" : node.RouteListItem.Order.DeliveryPoint.ShortAddress)
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => statusIcons[x.Status])
-					.AddEnumRenderer(node => node.Status, excludeItems: new Enum [] { RouteListItemStatus.Transfered })
+					.AddEnumRenderer(node => node.Status, excludeItems: new Enum[] { RouteListItemStatus.Transfered })
 					.AddSetter((c, n) => c.Editable = allEditing && n.Status != RouteListItemStatus.Transfered)
 				.AddColumn("Отгрузка")
 					.AddNumericRenderer(node => node.RouteListItem.Order.OrderItems
@@ -151,8 +149,8 @@ namespace Vodovoz
 					.Editable(allEditing)
 				.AddColumn("Переносы")
 					.AddTextRenderer(node => node.Transferred)
-				.RowCells ()
-					.AddSetter<CellRenderer> ((cell, node) => cell.CellBackgroundGdk = node.RowColor)
+				.RowCells()
+					.AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.RowColor)
 				.Finish();
 			ytreeviewAddresses.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewAddresses.Selection.Changed += OnSelectionChanged;
@@ -161,26 +159,25 @@ namespace Vodovoz
 
 			//Заполняем телефоны
 			string phones = null;
-			if (Entity.Driver != null && Entity.Driver.Phones.Count > 0) {
-				phones = String.Format ("<b>Водитель {0}:</b>\n{1}",
-				                        Entity.Driver.FullName,
-				                        String.Join ("\n", Entity.Driver.Phones));
+			if(Entity.Driver != null && Entity.Driver.Phones.Count > 0) {
+				phones = string.Format("<b>Водитель {0}:</b>\n{1}",
+										Entity.Driver.FullName,
+										string.Join("\n", Entity.Driver.Phones));
 			}
-			if (Entity.Forwarder != null && Entity.Forwarder.Phones.Count > 0) {
-				if (!string.IsNullOrWhiteSpace (phones))
+			if(Entity.Forwarder != null && Entity.Forwarder.Phones.Count > 0) {
+				if(!string.IsNullOrWhiteSpace(phones))
 					phones += "\n";
-				phones += String.Format ("<b>Экспедитор {0}:</b>\n{1}",
-				                         Entity.Forwarder.FullName,
-				                         String.Join ("\n", Entity.Forwarder.Phones));
+				phones += string.Format("<b>Экспедитор {0}:</b>\n{1}",
+										 Entity.Forwarder.FullName,
+										 string.Join("\n", Entity.Forwarder.Phones));
 			}
 
-			if (string.IsNullOrWhiteSpace(phones))
+			if(string.IsNullOrWhiteSpace(phones))
 				phones = "Нет телефонов";
 			labelPhonesInfo.Markup = phones;
 
 			//Заполняем информацию о бутылях
 			UpdateBottlesSummaryInfo();
-
 
 			UpdateNodes();
 		}
@@ -207,10 +204,10 @@ namespace Vodovoz
 					|| x.Status == RouteListItemStatus.Transfered
 				).Sum(x => x.Order.TotalWaterBottles);
 			int enrouteBottles = Entity.Addresses.Where(x => x.Status == RouteListItemStatus.EnRoute).Sum(x => x.Order.TotalWaterBottles);
-			bottles = String.Format("<b>Всего 19л. бутылей в МЛ:</b>\n");
-			bottles += String.Format("Выполнено: <b>{0}</b>\n", completedBottles);
-			bottles += String.Format(" Отменено: <b>{0}</b>\n", canceledBottles);
-			bottles += String.Format(" Осталось: <b>{0}</b>\n", enrouteBottles);
+			bottles = string.Format("<b>Всего 19л. бутылей в МЛ:</b>\n");
+			bottles += string.Format("Выполнено: <b>{0}</b>\n", completedBottles);
+			bottles += string.Format(" Отменено: <b>{0}</b>\n", canceledBottles);
+			bottles += string.Format(" Осталось: <b>{0}</b>\n", enrouteBottles);
 			labelBottleInfo.Markup = bottles;
 		}
 
@@ -231,28 +228,26 @@ namespace Vodovoz
 
 		public string GetLastCallTime(DateTime? lastCall)
 		{
-			if (lastCall == null)
+			if(lastCall == null)
 				return "Водителю еще не звонили.";
-			if (lastCall.Value.Date == Entity.Date)
-				return String.Format ("Последний звонок был в {0:t}", lastCall);
-			else
-				return String.Format ("Последний звонок был {0:g}", lastCall);
+			if(lastCall.Value.Date == Entity.Date)
+				return string.Format("Последний звонок был в {0:t}", lastCall);
+			return string.Format("Последний звонок был {0:g}", lastCall);
 		}
 
-		public void UpdateNodes(){
+		public void UpdateNodes()
+		{
 			List<string> emptyDP = new List<string>();
 			items = new List<RouteListKeepingItemNode>();
-			foreach (var item in Entity.Addresses)
-			{
-				items.Add(new RouteListKeepingItemNode{ RouteListItem = item });
-				if (item.Order.DeliveryPoint == null)
-				{
+			foreach(var item in Entity.Addresses) {
+				items.Add(new RouteListKeepingItemNode { RouteListItem = item });
+				if(item.Order.DeliveryPoint == null) {
 					emptyDP.Add(string.Format(
 						"Для заказа {0} не определена точка доставки.",
 						item.Order.Id));
 				}
 			}
-			if(emptyDP.Count > 0){
+			if(emptyDP.Any()) {
 				string message = string.Join(Environment.NewLine, emptyDP);
 				message += Environment.NewLine + "Необходимо добавить точки доставки или сохранить вышеуказанные заказы снова.";
 				MessageDialogHelper.RunErrorDialog(message);
@@ -266,25 +261,25 @@ namespace Vodovoz
 
 		void RLI_StatusChanged(object sender, StatusChangedEventArgs e)
 		{
-			var rli = sender as RouteListKeepingItemNode;
 			var newStatus = e.NewStatus;
-			if(rli == null)
-				return;
-			if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue) {
-				UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW);
-				TabParent.AddSlaveTab(this, dlg);
-				dlg.DlgSaved += (s, ea) => rli.UpdateStatus(newStatus);
-				return;
+			if(sender is RouteListKeepingItemNode rli) {
+				if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue) {
+					UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW);
+					TabParent.AddSlaveTab(this, dlg);
+					dlg.DlgSaved += (s, ea) => rli.UpdateStatus(newStatus);
+					return;
+				}
+				rli.UpdateStatus(newStatus);
 			}
-			rli.UpdateStatus(newStatus);
 		}
 
-		public void OnSelectionChanged(object sender, EventArgs args){
+		public void OnSelectionChanged(object sender, EventArgs args)
+		{
 			buttonSetStatusComplete.Sensitive = ytreeviewAddresses.GetSelectedObjects().Any();
 			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1 && UserPermissionRepository.CurrentUserPresetPermissions["logistic_changedeliverytime"];
 		}
 
-		void ReferenceForwarder_Changed (object sender, EventArgs e)
+		void ReferenceForwarder_Changed(object sender, EventArgs e)
 		{
 			var newForwarder = Entity.Forwarder;
 
@@ -300,11 +295,8 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			
-			if (Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute))
-			{
-				if(MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?"))
-				{
+			if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute)) {
+				if(MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?")) {
 					Entity.CompleteRoute();
 				}
 			}
@@ -312,111 +304,107 @@ namespace Vodovoz
 			UoWGeneric.Save();
 
 			var changedList = items.Where(item => item.ChangedDeliverySchedule || item.HasChanged).ToList();
-			if (changedList.Count == 0)
+			if(changedList.Count == 0)
 				return true;
 
 			var currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
-			if (currentEmployee == null)
-			{
+			if(currentEmployee == null) {
 				MessageDialogHelper.RunInfoDialog("Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
 				return true;
 			}
-				
-			foreach (var item in changedList)
-			{
+
+			foreach(var item in changedList) {
 				if(item.HasChanged)
-					getChatService()
+					GetChatService()
 						.SendOrderStatusNotificationToDriver(
 							currentEmployee.Id,
 							item.RouteListItem.Id
 						);
-				if (item.ChangedDeliverySchedule)
-					getChatService().SendDeliveryScheduleNotificationToDriver(
-						currentEmployee.Id,
-					item.RouteListItem.Id
-					);
+				if(item.ChangedDeliverySchedule)
+					GetChatService()
+						.SendDeliveryScheduleNotificationToDriver(
+							currentEmployee.Id,
+							item.RouteListItem.Id
+						);
 			}
 			return true;
 		}
 		#endregion
 
-		public void OnNewRouteListCreated(object sender, EntitySavedEventArgs args){
+		public void OnNewRouteListCreated(object sender, EntitySavedEventArgs args)
+		{
 			var newRouteList = args.Entity as RouteList;
-			foreach (var address in newRouteList.Addresses)
-			{
+			foreach(var address in newRouteList.Addresses) {
 				var transferedAddress = Entity.ObservableAddresses.FirstOrDefault(item => item.Order.Id == address.Order.Id);
-				if (transferedAddress != null)
+				if(transferedAddress != null)
 					Entity.RemoveAddress(transferedAddress);
 			}
 			UpdateNodes();
 			Save();
 		}
 
-		static IChatService getChatService()
+		static IChatService GetChatService()
 		{
 			return new ChannelFactory<IChatService>(
-				new BasicHttpBinding(), 
-				"http://vod-srv.qsolution.ru:9000/ChatService").CreateChannel();
+				new BasicHttpBinding(),
+				"http://vod-srv.qsolution.ru:9000/ChatService"
+			).CreateChannel();
 		}
 
-		protected void OnButtonRefreshClicked (object sender, EventArgs e)
+		protected void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
-			bool hasChanges = items.Count(item => item.HasChanged) > 0;
-			if (!hasChanges || MessageDialogHelper.RunQuestionDialog("Вы действительно хотите обновить список заказов? Внесенные изменения будут утрачены."))
-			{
+			bool hasChanges = items.Any(item => item.HasChanged);
+			if(!hasChanges || MessageDialogHelper.RunQuestionDialog("Вы действительно хотите обновить список заказов? Внесенные изменения будут утрачены.")) {
 				UoWGeneric.Session.Refresh(Entity);
 				UpdateNodes();
 			}
 		}
 
-		protected void OnButtonChangeDeliveryTimeClicked (object sender, EventArgs e)
+		protected void OnButtonChangeDeliveryTimeClicked(object sender, EventArgs e)
 		{
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["logistic_changedeliverytime"]) {
-				return;
+			if(UserPermissionRepository.CurrentUserPresetPermissions["logistic_changedeliverytime"]) {
+				var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
+				if(selectedObjects.Count() != 1)
+					return;
+				var selectedAddress = selectedObjects
+					.Cast<RouteListKeepingItemNode>()
+					.FirstOrDefault();
+
+				OrmReference SelectDialog;
+
+				ICriteria ItemsCriteria = UoWGeneric.Session.CreateCriteria(typeof(DeliverySchedule));
+				SelectDialog = new OrmReference(typeof(DeliverySchedule), UoWGeneric, ItemsCriteria) {
+					Mode = OrmReferenceMode.Select
+				};
+				SelectDialog.ObjectSelected += (selectSender, selectE) => {
+					if(selectedAddress.RouteListItem.Order.DeliverySchedule != (DeliverySchedule)selectE.Subject) {
+						selectedAddress.RouteListItem.Order.DeliverySchedule = (DeliverySchedule)selectE.Subject;
+						selectedAddress.ChangedDeliverySchedule = true;
+					}
+				};
+				TabParent.AddSlaveTab(this, SelectDialog);
 			}
-			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
-			if (selectedObjects.Count() != 1)
-				return;
-			var selectedAddress = selectedObjects
-				.Cast<RouteListKeepingItemNode>()
-				.FirstOrDefault();
-
-
-			OrmReference SelectDialog;
-
-			ICriteria ItemsCriteria = UoWGeneric.Session.CreateCriteria (typeof(DeliverySchedule));
-			SelectDialog = new OrmReference (typeof(DeliverySchedule), UoWGeneric, ItemsCriteria);
-
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ObjectSelected += (selectSender, selectE) => {
-				if (selectedAddress.RouteListItem.Order.DeliverySchedule != (DeliverySchedule)selectE.Subject) 
-				{
-					selectedAddress.RouteListItem.Order.DeliverySchedule = (DeliverySchedule)selectE.Subject;
-					selectedAddress.ChangedDeliverySchedule = true;
-				}
-			};
-			TabParent.AddSlaveTab (this, SelectDialog);
 		}
 
-		protected void OnButtonSetStatusCompleteClicked (object sender, EventArgs e)
+		protected void OnButtonSetStatusCompleteClicked(object sender, EventArgs e)
 		{
 			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
-			foreach (RouteListKeepingItemNode item in selectedObjects)
-			{
-				if (item.Status == RouteListItemStatus.Transfered)
+			foreach(RouteListKeepingItemNode item in selectedObjects) {
+				if(item.Status == RouteListItemStatus.Transfered)
 					continue;
 				item.RouteListItem.UpdateStatus(UoW, RouteListItemStatus.Completed);
 			}
 		}
 
-		protected void OnButtonNewFineClicked (object sender, EventArgs e)
+		protected void OnButtonNewFineClicked(object sender, EventArgs e)
 		{
 			this.TabParent.AddSlaveTab(
-				this, new FineDlg (default(decimal), Entity)
+				this,
+				new FineDlg(default(decimal), Entity)
 			);
 		}
 
-		protected void OnButtonMadeCallClicked (object sender, EventArgs e)
+		protected void OnButtonMadeCallClicked(object sender, EventArgs e)
 		{
 			Entity.LastCallTime = DateTime.Now;
 		}
@@ -425,7 +413,7 @@ namespace Vodovoz
 		{
 			Entity.RollBackEnRouteStatus();
 		}
-	}	
+	}
 
 	public class RouteListKeepingItemNode : PropertyChangedBase
 	{
@@ -433,79 +421,66 @@ namespace Vodovoz
 		public bool ChangedDeliverySchedule = false;
 		public event EventHandler<StatusChangedEventArgs> StatusChanged;
 
-		public Gdk.Color RowColor{
-			get{
-				switch (RouteListItem.Status){						
-					case RouteListItemStatus.Overdue:							
-						return new Gdk.Color(0xee,0x66,0x66);
+		public Gdk.Color RowColor {
+			get {
+				switch(RouteListItem.Status) {
+					case RouteListItemStatus.Overdue:
+						return new Gdk.Color(0xee, 0x66, 0x66);
 					case RouteListItemStatus.Completed:
-						return new Gdk.Color(0x66,0xee,0x66);
+						return new Gdk.Color(0x66, 0xee, 0x66);
 					case RouteListItemStatus.Canceled:
-						return new Gdk.Color(0xaf,0xaf,0xaf);
+						return new Gdk.Color(0xaf, 0xaf, 0xaf);
 					default:
-						return new Gdk.Color(0xff,0xff,0xff);
+						return new Gdk.Color(0xff, 0xff, 0xff);
 				}
 			}
 		}
 
 		RouteListItemStatus status;
-		public RouteListItemStatus Status{
+		public RouteListItemStatus Status {
 			get => RouteListItem.Status;
 			set {
 				status = value;
-				if(StatusChanged != null)
-					StatusChanged(this, new StatusChangedEventArgs(value));
+				StatusChanged?.Invoke(this, new StatusChangedEventArgs(value));
 			}
 		}
 
-		public string Comment{
-			get { return RouteListItem.Comment; }
-			set{
+		public string Comment {
+			get => RouteListItem.Comment;
+			set {
 				RouteListItem.Comment = value;
 				OnPropertyChanged<string>(() => Comment);
 			}
 		}
 
 		public string LastUpdate {
-			get{
+			get {
 				var maybeLastUpdate = RouteListItem.StatusLastUpdate;
-				if (maybeLastUpdate.HasValue)
-				{
-					if (maybeLastUpdate.Value.Date == DateTime.Today)
-					{
+				if(maybeLastUpdate.HasValue) {
+					if(maybeLastUpdate.Value.Date == DateTime.Today) {
 						return maybeLastUpdate.Value.ToShortTimeString();
-					}
-					else
+					} else
 						return maybeLastUpdate.Value.ToString();
 				}
-				else
-				{
-					return String.Empty;
-				}
+				return string.Empty;
 			}
 		}
 
-		public string Transferred {
-			get{
-				return RouteListItem.GetTransferText(RouteListItem);
-			}
-		}
+		public string Transferred => RouteListItem.GetTransferText(RouteListItem);
 
 		RouteListItem routeListItem;
 
 		public RouteListItem RouteListItem {
-			get {
-				return routeListItem;
-			}
-
+			get => routeListItem;
 			set {
 				routeListItem = value;
 				if(RouteListItem != null)
-					RouteListItem.PropertyChanged += (sender, e) => OnPropertyChanged (() => RouteListItem);
+					RouteListItem.PropertyChanged += (sender, e) => OnPropertyChanged(() => RouteListItem);
 			}
 		}
 
-		public void UpdateStatus(RouteListItemStatus value){
+		public void UpdateStatus(RouteListItemStatus value)
+		{
 			var uow = RouteListItem.RouteList.UoW;
 			RouteListItem.UpdateStatus(uow, value);
 			HasChanged = true;
@@ -516,11 +491,7 @@ namespace Vodovoz
 	public class StatusChangedEventArgs : EventArgs
 	{
 		public RouteListItemStatus NewStatus { get; private set; }
-
-		public StatusChangedEventArgs(RouteListItemStatus newStatus)
-		{
-			NewStatus = newStatus;
-		}
+		public StatusChangedEventArgs(RouteListItemStatus newStatus) => NewStatus = newStatus;
 	}
 }
 

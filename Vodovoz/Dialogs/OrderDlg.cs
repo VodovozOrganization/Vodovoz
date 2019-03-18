@@ -21,6 +21,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Dialogs;
+using QS.Project.Repositories;
 using QS.Report;
 using QS.Tdi;
 using QS.Tdi.Gtk;
@@ -51,11 +52,10 @@ using Vodovoz.Repository.Logistics;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
-using QS.Project.Repositories;
 
 namespace Vodovoz
 {
-	public partial class OrderDlg : QS.Dialog.Gtk.EntityDialogBase<Order>,
+	public partial class OrderDlg : EntityDialogBase<Order>,
 		ICounterpartyInfoProvider,
 		IDeliveryPointInfoProvider,
 		IContractInfoProvider,
@@ -370,12 +370,12 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 					.AddSetter((c, node) => c.Editable = node.CanEditAmount).WidthChars(10)
-				.AddTextRenderer(node => OrderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? String.Format("[{0}]", node.ActualCount) : "")
-				.AddTextRenderer(node => (node.CanShowReturnedCount) ? String.Format("({0})", node.ReturnedCount) : "")
-					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+				.AddTextRenderer(node => node.ActualCount.HasValue ? string.Format("[{0}]", node.ActualCount) : string.Empty)
+				.AddTextRenderer(node => node.CanShowReturnedCount ? string.Format("({0})", node.ReturnedCount) : string.Empty)
+					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Аренда")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(node => node.IsRentCategory ? node.RentString : "")
+					.AddTextRenderer(node => node.IsRentCategory ? node.RentString : string.Empty)
 				.AddColumn("Цена")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
@@ -1392,13 +1392,13 @@ namespace Vodovoz
 			//чтобы пользователь не смог вернуть товары связанные с не существующем доп соглашением, 
 			//отменив сохранение заказа
 			if(Entity.Id != 0) {
-				UoW.Delete<AdditionalAgreement>(agreement);
+				UoW.Delete(agreement);
 				UoW.Save();
 				UoW.Commit();
 			} else {
 				using(var deletionUoW = UnitOfWorkFactory.CreateWithoutRoot()) {
 					var deletedAgreement = deletionUoW.GetById<AdditionalAgreement>(agreement.Id);
-					deletionUoW.Delete<AdditionalAgreement>(deletedAgreement);
+					deletionUoW.Delete(deletedAgreement);
 					deletionUoW.Commit();
 				}
 			}
@@ -1452,7 +1452,7 @@ namespace Vodovoz
 			OnReferenceDeliveryPointChanged(sender, e);
 		}
 
-		protected void OnYcomboboxReasonItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		protected void OnYcomboboxReasonItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			SetDiscountUnitEditable();
 		}

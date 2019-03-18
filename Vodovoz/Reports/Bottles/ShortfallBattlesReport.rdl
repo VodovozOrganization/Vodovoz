@@ -1408,7 +1408,7 @@
 	orders.comment AS comment,
 	(
 		SELECT 
-			SUM(order_items.actual_count)
+			SUM(IFNULL(order_items.actual_count, 0))
 		FROM
 			orders
 		LEFT JOIN

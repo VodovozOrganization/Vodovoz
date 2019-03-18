@@ -1297,11 +1297,11 @@ RIGHT JOIN
 				counterparty.name AS entry_name,
 				delivery_points.compiled_address_short AS entry_address,
 				order_items.price AS entry_price,
-				order_items.actual_count AS entry_count,
+				IFNULL(order_items.actual_count, 0) AS entry_count,
 				orders.payment_type AS entry_payment_type,
-				order_items.price * order_items.actual_count AS entry_sum,
-				order_items.price * order_items.actual_count * nomenclature.percent_for_master * 0.01 AS entry_wage,
-				order_items.price * order_items.actual_count * (1 - nomenclature.percent_for_master * 0.01) AS entry_profit,
+				order_items.price * IFNULL(order_items.actual_count, 0) AS entry_sum,
+				order_items.price * IFNULL(order_items.actual_count, 0) * nomenclature.percent_for_master * 0.01 AS entry_wage,
+				order_items.price * IFNULL(order_items.actual_count, 0) * (1 - nomenclature.percent_for_master * 0.01) AS entry_profit,
 				IFNULL(nomenclature.short_name, nomenclature.name) AS entry_nomenclatures
 			FROM
 				route_list_addresses
@@ -1327,7 +1327,7 @@ RIGHT JOIN
 					(
 						nomenclature.category in ('master', 'service')
 						AND nomenclature.serial = false				 
-						AND order_items.count != order_items.actual_count
+						AND order_items.count != IFNULL(order_items.actual_count, 0)
 					)
 					OR order_equipment.confirmed = false	
 				)

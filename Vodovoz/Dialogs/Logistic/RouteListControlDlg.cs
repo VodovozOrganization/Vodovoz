@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using NLog;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Repositories;
 using QSValidation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -47,17 +50,23 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void ConfigureDlg()
 		{
+			btnSendEnRoute.Visible = Entity.Status == RouteListStatus.InLoading;
 			ytreeviewNotLoaded.ColumnsConfig = ColumnsConfigFactory.Create<RouteListControlNotLoadedNode>()
-				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.OfficialName)
-				.AddColumn("Склад")
-					//.AddTextRenderer(x => x.Nomenclature.Warehouse == null ? "Не привязан к складу" : x.Nomenclature.Warehouse.Name)
-					.AddTextRenderer(x => "Теперь много складов. Чинить потом.")
-				.AddColumn("Количество").AddNumericRenderer(x => x.Count)
+				.AddColumn("Номенклатура")
+					.AddTextRenderer(x => x.Nomenclature.Name)
+				.AddColumn("Возможные склады")
+					.AddTextRenderer(x => string.Join(", ", x.Nomenclature.Warehouses.Select(w => w.Name)))
+				.AddColumn("Погружено")
+					.AddTextRenderer(x => x.CountLoadedString, useMarkup: true)
+				.AddColumn("Всего")
+					.AddNumericRenderer(x => x.CountTotal)
+				.AddColumn("Осталось погрузить")
+					.AddNumericRenderer(x => x.CountNotLoaded)
 				.RowCells()
 				.Finish();
 
 			ytreeviewNotAttached.ColumnsConfig = ColumnsConfigFactory.Create<Nomenclature>()
-				.AddColumn("Номенклатура").AddTextRenderer(x => x.OfficialName)
+				.AddColumn("Номенклатура").AddTextRenderer(x => x.Name)
 				.RowCells()
 				.Finish();
 
@@ -79,9 +88,10 @@ namespace Vodovoz.Dialogs.Logistic
 					loadedAmount = loaded.Amount;
 				}
 				if(loadedAmount < good.Amount) {
-					notLoadedNomenclatures.Add(new RouteListControlNotLoadedNode() {
+					notLoadedNomenclatures.Add(new RouteListControlNotLoadedNode {
 						NomenclatureId = good.NomenclatureId,
-						Count = (int)(good.Amount - loadedAmount)
+						CountTotal = good.Amount,
+						CountNotLoaded = (int)(good.Amount - loadedAmount)
 					});
 				}
 			}
@@ -114,20 +124,51 @@ namespace Vodovoz.Dialogs.Logistic
 
 		void YtreeviewNotAttached_RowActivated(object o, Gtk.RowActivatedArgs args)
 		{
-			var notAttachedNomenclature = ytreeviewNotAttached.GetSelectedObject() as Nomenclature;
-			if(notAttachedNomenclature == null) {
-				return;
-			}
-
-			var dlg = new NomenclatureDlg(notAttachedNomenclature);
-			TabParent.AddTab(dlg, this);
+			if(ytreeviewNotAttached.GetSelectedObject() is Nomenclature notAttachedNomenclature)
+				TabParent.AddTab(new NomenclatureDlg(notAttachedNomenclature), this);
 		}
-	}
 
-	public class RouteListControlNotLoadedNode
-	{
-		public int NomenclatureId { get; set; }
-		public Nomenclature Nomenclature { get; set; }
-		public int Count { get; set; }
+		protected void OnBtnSendEnRouteClicked(object sender, EventArgs e)
+		{
+			#region костыль
+			//FIXME пока не можем найти причину бага с несменой статуса на в пути при полной отгрузке, позволяем логистам отправлять МЛ в путь из этого диалога
+			bool fullyLoaded = false;
+			if(Entity.ShipIfCan(UoW)) {
+				fullyLoaded = true;
+				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
+			}
+			#endregion
+
+			if(
+				!fullyLoaded &&
+				UserPermissionRepository.CurrentUserPresetPermissions["can_send_not_loaded_route_lists_en_route"] &&
+				MessageDialogHelper.RunQuestionWithTitleDialog(
+					"Оптправить в путь?",
+					string.Format(
+						"{0} погружен <span foreground=\"Red\">НЕ ПОЛНОСТЬЮ</span> и будет переведён в статус \"{1}\". После сохранения изменений откат этого действия будет невозможен.\nВы уверены что хотите отправить МЛ в путь?",
+						Entity.Title,
+						RouteListStatus.EnRoute.GetEnumTitle()
+					)
+				)
+			) {
+				Entity.ChangeStatus(RouteListStatus.EnRoute);
+				Entity.NotFullyLoaded = true;
+			} else if(!fullyLoaded && !UserPermissionRepository.CurrentUserPresetPermissions["can_send_not_loaded_route_lists_en_route"]) {
+				MessageDialogHelper.RunWarningDialog(
+					"Недостаточно прав",
+					string.Format("У вас нет прав для перевода не полностью погруженных МЛ в статус \"{0}\"", RouteListStatus.EnRoute.GetEnumTitle())
+				);
+			}
+		}
+
+		public class RouteListControlNotLoadedNode
+		{
+			public int NomenclatureId { get; set; }
+			public Nomenclature Nomenclature { get; set; }
+			public int CountNotLoaded { get; set; }
+			public int CountTotal { get; set; }
+			public int CountLoaded => CountTotal - CountNotLoaded;
+			public string CountLoadedString => string.Format("<span foreground=\"{0}\">{1}</span>", CountLoaded > 0 ? "Orange" : "Red", CountLoaded);
+		}
 	}
 }

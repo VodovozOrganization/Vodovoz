@@ -377,7 +377,7 @@ namespace Vodovoz
 			this.buttonAccept.CanFocus = true;
 			this.buttonAccept.Name = "buttonAccept";
 			this.buttonAccept.UseUnderline = true;
-			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString("Закрыть маршрутный лист");
+			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString("Подтвердить километраж");
 			global::Gtk.Image w28 = new global::Gtk.Image();
 			w28.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
 			this.buttonAccept.Image = w28;

@@ -1069,6 +1069,18 @@
         <property name="ShortLabel" translatable="yes">Изображения</property>
         <signal name="Activated" handler="OnImageListOpenActivated" />
       </action>
+      <action id="ActionOrderCreationDateReport">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчет по дате создания заказа</property>
+        <property name="ShortLabel" translatable="yes">Отчет по дате создания заказа</property>
+        <signal name="Activated" handler="OnActionOrderCreationDateReportActivated" />
+      </action>
+      <action id="ActionNotFullyLoadedRouteLists">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Недопогруженные МЛ</property>
+        <property name="ShortLabel" translatable="yes">Недопогруженные МЛ</property>
+        <signal name="Activated" handler="OnActionNotFullyLoadedRouteListsActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -1200,12 +1212,14 @@
                     <node type="Menu" action="ActionReportsSales">
                       <node type="Menuitem" action="ActionSalesReport" />
                       <node type="Menuitem" action="Action59" />
+                      <node type="Menuitem" action="ActionOrderCreationDateReport" />
                     </node>
                     <node type="Separator" />
                     <node type="Menu" action="ActionReportsStock">
                       <node type="Menuitem" action="ActionStockMovements" />
                       <node type="Menuitem" action="Action50" />
                       <node type="Menuitem" action="ActionDefectiveItemsReport" />
+                      <node type="Menuitem" action="ActionNotFullyLoadedRouteLists" />
                     </node>
                     <node type="Menu" action="ActionReportsBottles">
                       <node type="Menuitem" action="ActionBottlesMovementSummaryReport" />
@@ -5250,6 +5264,7 @@
                   <widget class="QS.Widgets.GtkUI.PhotoView" id="photoviewCar">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <property name="CanPrint">False</property>
                   </widget>
                   <packing>
                     <property name="BottomAttach">7</property>
@@ -7628,7 +7643,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -35112,7 +35126,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListMileageCheckDlg" design-size="584 442">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListMileageCheckDlg" design-size="479 316">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -35636,7 +35650,7 @@
                     <property name="CanFocus">True</property>
                     <property name="Type">TextAndIcon</property>
                     <property name="Icon">stock:gtk-apply Menu</property>
-                    <property name="Label" translatable="yes">Закрыть маршрутный лист</property>
+                    <property name="Label" translatable="yes">Подтвердить километраж</property>
                     <property name="UseUnderline">True</property>
                     <signal name="Clicked" handler="OnButtonAcceptClicked" />
                   </widget>
@@ -57245,6 +57259,27 @@ not tooltip</property>
                 <property name="Fill">False</property>
               </packing>
             </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="btnSendEnRoute">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-go-forward Menu</property>
+                <property name="Label" translatable="yes">Отправить в путь</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnBtnSendEnRouteClicked" />
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">3</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="Position">0</property>
@@ -65437,6 +65472,7 @@ not tooltip</property>
                           <widget class="QS.Widgets.GtkUI.PhotoView" id="photoviewEmployee">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
+                            <property name="CanPrint">False</property>
                           </widget>
                           <packing>
                             <property name="BottomAttach">4</property>
@@ -70399,6 +70435,7 @@ not tooltip</property>
                           <widget class="QS.Widgets.GtkUI.PhotoView" id="photoViewCertificate">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
+                            <property name="CanPrint">False</property>
                           </widget>
                         </child>
                       </widget>
@@ -70916,6 +70953,246 @@ not tooltip</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Sales.OrderCreationDateReport" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vboxMainMastersReport">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hboxPeriod">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="labelPeriod">
+                <property name="MemberName" />
+                <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes">Период:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="QSWidgetLib.DatePeriodPicker" id="datePeriodPicker">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="StartDate">0</property>
+                <property name="EndDate">0</property>
+                <signal name="PeriodChanged" handler="OnChangeReportParameters" />
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.HBox" id="hboxDriver">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="lblEmployee">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Сотрудник:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yEntRefEmployee">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <signal name="Changed" handler="OnChangeReportParameters" />
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">False</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonCreateReport">
+            <property name="MemberName" />
+            <property name="Sensitive">False</property>
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Сформировать отчет</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonCreateReportClicked" />
+          </widget>
+          <packing>
+            <property name="Position">3</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Store.NotFullyLoadedRouteListsReport" design-size="317 261">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.Table" id="table1">
+        <property name="MemberName" />
+        <property name="NRows">6</property>
+        <property name="NColumns">2</property>
+        <property name="RowSpacing">6</property>
+        <property name="ColumnSpacing">6</property>
+        <property name="BorderWidth">6</property>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonRun">
+            <property name="MemberName" />
+            <property name="Sensitive">False</property>
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Сформировать отчет</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonRunClicked" />
+          </widget>
+          <packing>
+            <property name="TopAttach">5</property>
+            <property name="BottomAttach">6</property>
+            <property name="RightAttach">2</property>
+            <property name="AutoSize">False</property>
+            <property name="XOptions">0</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">False</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="QSWidgetLib.DatePeriodPicker" id="datePeriodPicker">
+            <property name="MemberName" />
+            <property name="Events">ButtonPressMask</property>
+            <property name="StartDate">0</property>
+            <property name="EndDate">0</property>
+            <signal name="PeriodChanged" handler="OnDatePeriodPickerPeriodChanged" />
+          </widget>
+          <packing>
+            <property name="LeftAttach">1</property>
+            <property name="RightAttach">2</property>
+            <property name="AutoSize">False</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">True</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Label" id="label1">
+            <property name="MemberName" />
+            <property name="Xalign">1</property>
+            <property name="LabelProp" translatable="yes">Период:</property>
+          </widget>
+          <packing>
+            <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Label" id="label2">
+            <property name="MemberName" />
+            <property name="Xalign">1</property>
+            <property name="LabelProp" translatable="yes">Склад:</property>
+          </widget>
+          <packing>
+            <property name="TopAttach">1</property>
+            <property name="BottomAttach">2</property>
+            <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gamma.Widgets.yEntryReference" id="yEntRefWarehouse">
+            <property name="MemberName" />
+            <property name="Events">ButtonPressMask</property>
+          </widget>
+          <packing>
+            <property name="TopAttach">1</property>
+            <property name="BottomAttach">2</property>
+            <property name="LeftAttach">1</property>
+            <property name="RightAttach">2</property>
+            <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
           </packing>
         </child>
       </widget>

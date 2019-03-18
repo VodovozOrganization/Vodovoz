@@ -8,6 +8,7 @@ using Gtk;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Repositories;
 using QSOrmProject;
 using QSProjectsLib;
 using QSSupportLib;
@@ -19,12 +20,11 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Logistics;
-using QS.Project.Repositories;
 using Vodovoz.ViewModel;
-using Vodovoz.Repositories.Permissions;
 
 namespace Vodovoz
 {
@@ -86,7 +86,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
 			this.HasChanges = true;
 
-			TabName = String.Format("Закрытие маршрутного листа №{0}", Entity.Id);
+			TabName = string.Format("Закрытие маршрутного листа №{0}", Entity.Id);
 			PerformanceHelper.AddTimePoint("Создан UoW");
 			ConfigureDlg();
 		}
@@ -132,7 +132,7 @@ namespace Vodovoz
 
 			decimal unclosedAdvanceMoney = AccountableDebtsRepository.EmloyeeDebt(UoW, Entity.Driver);
 			ylabelUnclosedAdvancesMoney.LabelProp =
-				String.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Долг: {0}</b></span>" : "", unclosedAdvanceMoney);
+				string.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Долг: {0}</b></span>" : "", unclosedAdvanceMoney);
 
 			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
 			labelOrderEarly.Text = "Сдано ранее:" + GetCashOrder().ToString();
@@ -169,11 +169,10 @@ namespace Vodovoz
 			routeListAddressesView.ColumsVisibility = !ycheckHideCells.Active;
 			PerformanceHelper.AddTimePoint("заполнили список адресов");
 			ReloadReturnedToWarehouse();
-			var returnableOrderItems = routeListAddressesView.Items
-				.Where(address => address.IsDelivered())
-				.SelectMany(address => address.Order.OrderItems)
-				.Where(orderItem => !orderItem.Nomenclature.IsSerial)
-				.Where(orderItem => Nomenclature.GetCategoriesForShipment().Any(nom => nom == orderItem.Nomenclature.Category));
+			var returnableOrderItems = routeListAddressesView.Items.Where(address => address.IsDelivered())
+																   .SelectMany(address => address.Order.OrderItems)
+																   .Where(orderItem => !orderItem.Nomenclature.IsSerial)
+																   .Where(orderItem => Nomenclature.GetCategoriesForShipment().Any(nom => nom == orderItem.Nomenclature.Category));
 			foreach(var item in returnableOrderItems) {
 				if(allReturnsToWarehouse.All(r => r.NomenclatureId != item.Nomenclature.Id))
 					allReturnsToWarehouse.Add(new RouteListRepository.ReturnsNode {
@@ -282,14 +281,14 @@ namespace Vodovoz
 			string recalcWageMessage = "Найдены расхождения после пересчета зарплаты:";
 			bool haveDiscrepancy = false;
 			if(driverRecalcWage != driverCurrentWage) {
-				recalcWageMessage += String.Format("\nВодителя: до {0}, после {1}", driverCurrentWage, driverRecalcWage);
+				recalcWageMessage += string.Format("\nВодителя: до {0}, после {1}", driverCurrentWage, driverRecalcWage);
 				haveDiscrepancy = true;
 			}
 			if(forwarderRecalcWage != forwarderCurrentWage) {
-				recalcWageMessage += String.Format("\nЭкспедитора: до {0}, после {1}", forwarderCurrentWage, forwarderRecalcWage);
+				recalcWageMessage += string.Format("\nЭкспедитора: до {0}, после {1}", forwarderCurrentWage, forwarderRecalcWage);
 				haveDiscrepancy = true;
 			}
-			recalcWageMessage += String.Format("\nПересчитано.");
+			recalcWageMessage += string.Format("\nПересчитано.");
 
 			if(haveDiscrepancy && Entity.Status == RouteListStatus.Closed) {
 				MessageDialogHelper.RunInfoDialog(recalcWageMessage);
@@ -417,9 +416,9 @@ namespace Vodovoz
 			item.RecalculateWages();
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered())
-				foreach(var itm in item.Order.OrderItems) {
-					itm.ActualCount = 0;
-				}
+				foreach(var itm in item.Order.OrderItems)
+					itm.ActualCount = null;
+
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();
 		}
@@ -460,7 +459,7 @@ namespace Vodovoz
 		{
 			buttonAccept.Sensitive = 
 				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck) 
-				&& isConsistentWithUnloadDocument()
+				&& IsConsistentWithUnloadDocument()
 				&& canCloseRoutelist;
 		}
 
@@ -485,56 +484,56 @@ namespace Vodovoz
 			var items = routeListAddressesView.Items.Where(item => item.IsDelivered());
 			bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
 			int fullBottlesTotal = items.SelectMany(item => item.Order.OrderItems)
-				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
-				.Sum(item => item.ActualCount);
+										.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
+										.Sum(item => item.ActualCount ?? 0);
 			decimal depositsCollectedTotal = items.Sum(item => item.BottleDepositsCollected);
 			decimal equipmentDepositsCollectedTotal = items.Sum(item => item.EquipmentDepositsCollected);
 			decimal totalCollected = items.Sum(item => item.TotalCash);
 			Entity.CalculateWages();
 			decimal driverWage = Entity.GetDriversTotalWage();
 			decimal forwarderWage = Entity.GetForwardersTotalWage();
-			labelAddressCount.Text = String.Format("Адр.: {0}", Entity.UniqueAddressCount);
-			labelPhone.Text = String.Format(
+			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
+			labelPhone.Text = string.Format(
 				"Сот. связь: {0} {1}",
 				Entity.PhoneSum,
 				CurrencyWorks.CurrencyShortName
 			);
-			labelFullBottles.Text = String.Format("Полных бут.: {0}", fullBottlesTotal);
-			labelEmptyBottles.Text = String.Format("Пустых бут.: {0}", bottlesReturnedTotal);
-			labelDeposits.Text = String.Format(
+			labelFullBottles.Text = string.Format("Полных бут.: {0}", fullBottlesTotal);
+			labelEmptyBottles.Text = string.Format("Пустых бут.: {0}", bottlesReturnedTotal);
+			labelDeposits.Text = string.Format(
 				"Залогов: {0} {1}",
 				depositsCollectedTotal + equipmentDepositsCollectedTotal,
 				CurrencyWorks.CurrencyShortName
 			);
-			labelCash.Text = String.Format(
+			labelCash.Text = string.Format(
 				"Сдано по накладным: {0} {1}",
 				totalCollected,
 				CurrencyWorks.CurrencyShortName
 			);
-			labelTotalCollected.Text = String.Format(
+			labelTotalCollected.Text = string.Format(
 				"Итоговая сумма: {0} {1}",
 				totalCollected - Entity.PhoneSum,
 				CurrencyWorks.CurrencyShortName
 			);
-			labelTotal.Markup = String.Format(
+			labelTotal.Markup = string.Format(
 				"Итого сдано: <b>{0:F2}</b> {1}",
 				Entity.MoneyToReturn - GetCashOrder() - (decimal)advanceSpinbutton.Value,
 				CurrencyWorks.CurrencyShortName
 			);
-			labelWage1.Markup = String.Format(
+			labelWage1.Markup = string.Format(
 				"ЗП вод.: <b>{0}</b> {2}" + "  " + "ЗП эксп.: <b>{1}</b> {2}",
 				driverWage,
 				forwarderWage,
 				CurrencyWorks.CurrencyShortName
 			);
-			labelEmptyBottlesFommula.Markup = String.Format("Тара: <b>{0}</b><sub>(выгружено на склад)</sub> - <b>{1}</b><sub>(по документам)</sub> =",
+			labelEmptyBottlesFommula.Markup = string.Format("Тара: <b>{0}</b><sub>(выгружено на склад)</sub> - <b>{1}</b><sub>(по документам)</sub> =",
 				bottlesReturnedToWarehouse,
 				bottlesReturnedTotal
 			);
 
 			if(defectiveBottlesReturnedToWarehouse > 0) {
 				lblQtyOfDefectiveGoods.Visible = true;
-				lblQtyOfDefectiveGoods.Markup = String.Format(
+				lblQtyOfDefectiveGoods.Markup = string.Format(
 					"Единиц брака: <b>{0}</b> шт.",
 						defectiveBottlesReturnedToWarehouse);
 			} else {
@@ -546,9 +545,9 @@ namespace Vodovoz
 			var bottleDifferenceFormat = "<span {1}><b>{0}</b><sub>(осталось)</sub></span>";
 			checkUseBottleFine.Visible = bottleDifference < 0;
 			if(bottleDifference != 0) {
-				checkUseBottleFine.Label = String.Format("({0:C})", DefaultBottle.SumOfDamage * (-bottleDifference));
+				checkUseBottleFine.Label = string.Format("({0:C})", DefaultBottle.SumOfDamage * (-bottleDifference));
 			}
-			labelBottleDifference.Markup = String.Format(bottleDifferenceFormat, bottleDifference, differenceAttributes);
+			labelBottleDifference.Markup = string.Format(bottleDifferenceFormat, bottleDifference, differenceAttributes);
 
 			//Штрафы
 			decimal totalSumOfDamage = 0;
@@ -558,10 +557,10 @@ namespace Vodovoz
 
 			StringBuilder fineText = new StringBuilder();
 			if(totalSumOfDamage != 0) {
-				fineText.AppendLine(String.Format("Выб. ущерб: {0:C}", totalSumOfDamage));
+				fineText.AppendLine(string.Format("Выб. ущерб: {0:C}", totalSumOfDamage));
 			}
 			if(Entity.BottleFine != null) {
-				fineText.AppendLine(String.Format("Штраф: {0:C}", Entity.BottleFine.TotalMoney));
+				fineText.AppendLine(string.Format("Штраф: {0:C}", Entity.BottleFine.TotalMoney));
 			}
 			labelBottleFine.LabelProp = fineText.ToString().TrimEnd('\n');
 			buttonBottleAddEditFine.Sensitive = totalSumOfDamage != 0;
@@ -574,7 +573,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected bool isConsistentWithUnloadDocument()
+		protected bool IsConsistentWithUnloadDocument()
 		{
 			var hasItemsDiscrepancies = routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0);
 			bool hasFine = Entity.BottleFine != null;
@@ -634,7 +633,7 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			if(!isConsistentWithUnloadDocument() || !canCloseRoutelist) {
+			if(!IsConsistentWithUnloadDocument() || !canCloseRoutelist) {
 				return;
 			}
 
@@ -808,7 +807,7 @@ namespace Vodovoz
 			bool hasTrack = track?.Distance.HasValue ?? false;
 
 			if(Entity.PlanedDistance != null && Entity.PlanedDistance != 0) {
-				text.Add(String.Format("Планируемое расстояние: {0:F1} км", Entity.PlanedDistance));
+				text.Add(string.Format("Планируемое расстояние: {0:F1} км", Entity.PlanedDistance));
 			}
 			if(hasTrack) {
 				text.Add(string.Format("Расстояние по треку: {0:F1} км.", track.TotalDistance));
@@ -837,7 +836,7 @@ namespace Vodovoz
 					+ Entity.FuelDocuments.Select(x => x.Operation.LitersGived).Sum() - spentFuel));
 			}
 
-			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
+			ytextviewFuelInfo.Buffer.Text = string.Join("\n", text);
 		}
 
 		void LoadDataFromFine()
@@ -899,7 +898,7 @@ namespace Vodovoz
 		private void ReloadReturnedToWarehouse()
 		{
 			allReturnsToWarehouse = RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
-			var returnedBottlesNom = Int32.Parse(MainSupport.BaseParameters.All["returned_bottle_nomenclature_id"]);
+			var returnedBottlesNom = int.Parse(MainSupport.BaseParameters.All["returned_bottle_nomenclature_id"]);
 			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(
 				UoW,
 				Entity.Id,
@@ -939,7 +938,7 @@ namespace Vodovoz
 
 
 			if(messages.Count > 0)
-				MessageDialogHelper.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
+				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
 		}
 
 		private void EmployeeAdvanceOrder(decimal cashInput)
@@ -961,7 +960,7 @@ namespace Vodovoz
 			cashExpense.UpdateWagesOperations(UoW);
 			UoW.Save();
 
-			MessageDialogHelper.RunInfoDialog(String.Format("{0}\n\n{1}: {2:C0}", message, ifAdvanceIsBigger, Math.Abs(cashToReturn)));
+			MessageDialogHelper.RunInfoDialog(string.Format("{0}\n\n{1}: {2:C0}", message, ifAdvanceIsBigger, Math.Abs(cashToReturn)));
 		}
 
 		private bool TrySetCashier()
@@ -1019,7 +1018,7 @@ namespace Vodovoz
 			messages.AddRange(operationsResultMessage);
 
 			if(messages.Any()) {
-				MessageDialogHelper.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
+				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
 			} else {
 				MessageDialogHelper.RunInfoDialog("Сумма по кассе соответствует сумме МЛ.");
 			}

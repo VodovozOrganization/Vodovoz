@@ -13,16 +13,15 @@ using QSProjectsLib;
 using QSSupportLib;
 using QSValidation;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Tools.Logistic;
-using Vodovoz.Repositories.Permissions;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -42,15 +41,15 @@ namespace Vodovoz.Domain.Logistic
 		DateTime version;
 		[Display(Name = "Версия")]
 		public virtual DateTime Version {
-			get { return version; }
-			set { SetField(ref version, value, () => Version); }
+			get => version;
+			set => SetField(ref version, value, () => Version);
 		}
 
 		Employee driver;
 
 		[Display(Name = "Водитель")]
 		public virtual Employee Driver {
-			get { return driver; }
+			get => driver;
 			set {
 				Employee oldDriver = driver;
 				if(SetField(ref driver, value, () => Driver)) {
@@ -63,7 +62,7 @@ namespace Vodovoz.Domain.Logistic
 
 		[Display(Name = "Экспедитор")]
 		public virtual Employee Forwarder {
-			get { return forwarder; }
+			get => forwarder;
 			set {
 				if(NHibernate.NHibernateUtil.IsInitialized(Addresses) && (forwarder == null || value == null)) {
 					foreach(var address in Addresses)
@@ -77,8 +76,8 @@ namespace Vodovoz.Domain.Logistic
 
 		[Display(Name = "Логист")]
 		public virtual Employee Logistican {
-			get { return logistican; }
-			set { SetField(ref logistican, value, () => Logistican); }
+			get => logistican;
+			set => SetField(ref logistican, value, () => Logistican);
 		}
 
 		Car car;
@@ -108,10 +107,8 @@ namespace Vodovoz.Domain.Logistic
 
 		[Display(Name = "Смена доставки")]
 		public virtual DeliveryShift Shift {
-			get { return shift; }
-			set {
-				SetField(ref shift, value, () => Shift);
-			}
+			get => shift;
+			set => SetField(ref shift, value, () => Shift);
 		}
 
 		DateTime date;
@@ -119,8 +116,8 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Дата")]
 		[HistoryDateOnly]
 		public virtual DateTime Date {
-			get { return date; }
-			set { SetField(ref date, value, () => Date); }
+			get => date;
+			set => SetField(ref date, value, () => Date);
 		}
 
 		Decimal confirmedDistance;
@@ -130,10 +127,8 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		[Display(Name = "Подтверждённое расстояние")]
 		public virtual Decimal ConfirmedDistance {
-			get { return confirmedDistance; }
-			set {
-				SetField(ref confirmedDistance, value, () => ConfirmedDistance);
-			}
+			get => confirmedDistance;
+			set => SetField(ref confirmedDistance, value, () => ConfirmedDistance);
 		}
 
 		private decimal? planedDistance;
@@ -143,8 +138,8 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		[Display(Name = "Планируемое расстояние")]
 		public virtual decimal? PlanedDistance {
-			get { return planedDistance; }
-			protected set { SetField(ref planedDistance, value, () => PlanedDistance); }
+			get => planedDistance;
+			protected set => SetField(ref planedDistance, value, () => PlanedDistance);
 		}
 
 		decimal? recalculatedDistance;
@@ -154,47 +149,39 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		[Display(Name = "Пересчитанное расстояние")]
 		public virtual decimal? RecalculatedDistance {
-			get { return recalculatedDistance; }
-			set { SetField(ref recalculatedDistance, value, () => RecalculatedDistance); }
+			get => recalculatedDistance;
+			set => SetField(ref recalculatedDistance, value, () => RecalculatedDistance);
 		}
 
 		RouteListStatus status;
 
 		[Display(Name = "Статус")]
 		public virtual RouteListStatus Status {
-			get { return status; }
-			protected set { SetField(ref status, value, () => Status); }
+			get => status;
+			protected set => SetField(ref status, value, () => Status);
 		}
 
 		DateTime? closingDate;
 		[Display(Name = "Дата закрытия")]
 		[HistoryDateOnly]
 		public virtual DateTime? ClosingDate {
-			get {
-				return closingDate;
-			}
-			set {
-				SetField(ref closingDate, value, () => ClosingDate);
-			}
+			get => closingDate;
+			set => SetField(ref closingDate, value, () => ClosingDate);
 		}
 
 		string closingComment;
 
 		[Display(Name = "Комментарий")]
 		public virtual string ClosingComment {
-			get { return closingComment; }
-			set { SetField(ref closingComment, value, () => ClosingComment); }
+			get => closingComment;
+			set => SetField(ref closingComment, value, () => ClosingComment);
 		}
 
 		Employee cashier;
 		[IgnoreHistoryTrace]
 		public virtual Employee Cashier {
-			get {
-				return cashier;
-			}
-			set {
-				SetField(ref cashier, value, () => Cashier);
-			}
+			get => cashier;
+			set => SetField(ref cashier, value, () => Cashier);
 		}
 
 		decimal fixedDriverWage;
@@ -202,8 +189,8 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Фиксированная заработанная плата водителя")]
 		[IgnoreHistoryTrace]
 		public virtual decimal FixedDriverWage {
-			get { return fixedDriverWage; }
-			set { SetField(ref fixedDriverWage, value, () => FixedDriverWage); }
+			get => fixedDriverWage;
+			set => SetField(ref fixedDriverWage, value, () => FixedDriverWage);
 		}
 
 		decimal fixedForwarderWage;
@@ -211,16 +198,16 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Фиксированная заработанная плата экспедитора")]
 		[IgnoreHistoryTrace]
 		public virtual decimal FixedForwarderWage {
-			get { return fixedForwarderWage; }
-			set { SetField(ref fixedForwarderWage, value, () => FixedForwarderWage); }
+			get => fixedForwarderWage;
+			set => SetField(ref fixedForwarderWage, value, () => FixedForwarderWage);
 		}
 
 		Fine bottleFine;
 
 		[Display(Name = "Штраф за бутыли")]
 		public virtual Fine BottleFine {
-			get { return bottleFine; }
-			set { SetField(ref bottleFine, value, () => BottleFine); }
+			get => bottleFine;
+			set => SetField(ref bottleFine, value, () => BottleFine);
 		}
 
 		private FuelOperation fuelOutlayedOperation;
@@ -228,24 +215,24 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Операции расхода топлива")]
 		[IgnoreHistoryTrace]
 		public virtual FuelOperation FuelOutlayedOperation {
-			get { return fuelOutlayedOperation; }
-			set { SetField(ref fuelOutlayedOperation, value, () => FuelOutlayedOperation); }
+			get => fuelOutlayedOperation;
+			set => SetField(ref fuelOutlayedOperation, value, () => FuelOutlayedOperation);
 		}
 
 		private bool differencesConfirmed;
 
 		[Display(Name = "Расхождения подтверждены")]
 		public virtual bool DifferencesConfirmed {
-			get { return differencesConfirmed; }
-			set { SetField(ref differencesConfirmed, value, () => DifferencesConfirmed); }
+			get => differencesConfirmed;
+			set => SetField(ref differencesConfirmed, value, () => DifferencesConfirmed);
 		}
 
 		private DateTime? lastCallTime;
 
 		[Display(Name = "Время последнего созвона")]
 		public virtual DateTime? LastCallTime {
-			get { return lastCallTime; }
-			set { SetField(ref lastCallTime, value, () => LastCallTime); }
+			get => lastCallTime;
+			set => SetField(ref lastCallTime, value, () => LastCallTime);
 		}
 
 		private bool closingFilled;
@@ -256,15 +243,15 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		[IgnoreHistoryTrace]
 		public virtual bool ClosingFilled {
-			get { return closingFilled; }
-			set { SetField(ref closingFilled, value, () => ClosingFilled); }
+			get => closingFilled;
+			set => SetField(ref closingFilled, value, () => ClosingFilled);
 		}
 
 		IList<RouteListItem> addresses = new List<RouteListItem>();
 
 		[Display(Name = "Адреса в маршрутном листе")]
 		public virtual IList<RouteListItem> Addresses {
-			get { return addresses; }
+			get => addresses;
 			set {
 				SetField(ref addresses, value, () => Addresses);
 				SetNullToObservableAddresses();
@@ -288,8 +275,8 @@ namespace Vodovoz.Domain.Logistic
 
 		[Display(Name = "Документы выдачи топлива")]
 		public virtual IList<FuelDocument> FuelDocuments {
-			get { return fuelDocuments; }
-			set { SetField(ref fuelDocuments, value, () => FuelDocuments); }
+			get => fuelDocuments;
+			set => SetField(ref fuelDocuments, value, () => FuelDocuments);
 		}
 
 		GenericObservableList<FuelDocument> observableFuelDocuments;
@@ -309,8 +296,8 @@ namespace Vodovoz.Domain.Logistic
 		/// Расчет ЗП по нормальной ставке, вне зависимости от того какой тип ЗП стоит у водителя.
 		/// </summary>
 		public virtual bool NormalWage {
-			get { return normalWage; }
-			set { SetField(ref normalWage, value, () => NormalWage); }
+			get => normalWage;
+			set => SetField(ref normalWage, value, () => NormalWage);
 		}
 
 		private WagesMovementOperations driverWageOperation;
@@ -318,8 +305,8 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Операция начисления зарплаты водителю")]
 		[IgnoreHistoryTrace]
 		public virtual WagesMovementOperations DriverWageOperation {
-			get { return driverWageOperation; }
-			set { SetField(ref driverWageOperation, value, () => DriverWageOperation); }
+			get => driverWageOperation;
+			set => SetField(ref driverWageOperation, value, () => DriverWageOperation);
 		}
 
 		private WagesMovementOperations forwarderWageOperation;
@@ -327,72 +314,71 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Операция начисления зарплаты экспедитору")]
 		[IgnoreHistoryTrace]
 		public virtual WagesMovementOperations ForwarderWageOperation {
-			get { return forwarderWageOperation; }
-			set { SetField(ref forwarderWageOperation, value, () => ForwarderWageOperation); }
+			get => forwarderWageOperation;
+			set => SetField(ref forwarderWageOperation, value, () => ForwarderWageOperation);
 		}
 
 		private bool isManualAccounting;
 		[Display(Name = "Расчёт наличных вручную?")]
 		public virtual bool IsManualAccounting {
-			get { return isManualAccounting; }
-			set { SetField(ref isManualAccounting, value, () => IsManualAccounting); }
+			get => isManualAccounting;
+			set => SetField(ref isManualAccounting, value, () => IsManualAccounting);
 		}
 
 		private TimeSpan? onLoadTimeStart;
 
 		[Display(Name = "На погрузку в")]
 		public virtual TimeSpan? OnLoadTimeStart {
-			get { return onLoadTimeStart; }
-			set { SetField(ref onLoadTimeStart, value, () => OnLoadTimeStart); }
+			get => onLoadTimeStart;
+			set => SetField(ref onLoadTimeStart, value, () => OnLoadTimeStart);
 		}
 
 		private TimeSpan? onLoadTimeEnd;
 
 		[Display(Name = "Закончить погрузку в")]
 		public virtual TimeSpan? OnLoadTimeEnd {
-			get { return onLoadTimeEnd; }
-			set { SetField(ref onLoadTimeEnd, value, () => OnLoadTimeEnd); }
+			get => onLoadTimeEnd;
+			set => SetField(ref onLoadTimeEnd, value, () => OnLoadTimeEnd);
 		}
 
 		private int? onLoadGate;
 
 		[Display(Name = "Ворота на погрузку")]
 		public virtual int? OnLoadGate {
-			get { return onLoadGate; }
-			set { SetField(ref onLoadGate, value, () => OnLoadGate); }
+			get => onLoadGate;
+			set => SetField(ref onLoadGate, value, () => OnLoadGate);
 		}
 
 		private bool onLoadTimeFixed;
 
 		[Display(Name = "Время погрузки установлено в ручную")]
 		public virtual bool OnloadTimeFixed {
-			get { return onLoadTimeFixed; }
-			set { SetField(ref onLoadTimeFixed, value, () => OnloadTimeFixed); }
+			get => onLoadTimeFixed;
+			set => SetField(ref onLoadTimeFixed, value, () => OnloadTimeFixed);
 		}
 
 		private bool printed;
 
-		[Display(Name = "МЛ уже напечатан")]
-		[IgnoreHistoryTrace]
+		[Display(Name = "МЛ напечатан")]
 		public virtual bool Printed {
-			get { return printed; }
-			set { SetField(ref printed, value, () => Printed); }
+			get => printed;
+			set => SetField(ref printed, value, () => Printed);
 		}
 
 		string mileageComment;
 
 		[Display(Name = "Комментарий к километражу")]
 		public virtual string MileageComment {
-			get { return mileageComment; }
-			set { SetField(ref mileageComment, value, () => MileageComment); }
+			get => mileageComment;
+			set => SetField(ref mileageComment, value, () => MileageComment);
 		}
 
 		bool mileageCheck;
 
 		[Display(Name = "Проверка километража")]
 		public virtual bool MileageCheck {
-			get { return mileageCheck; }
-			set { SetField(ref mileageCheck, value, () => MileageCheck); }
+			get => mileageCheck;
+			set => SetField(ref mileageCheck, value, () => MileageCheck);
 		}
 
 		Employee closedBy;
@@ -427,20 +413,24 @@ namespace Vodovoz.Domain.Logistic
 				return observableGeographicGroups;
 			}
 		}
+
+		bool? notFullyLoaded;
+		[Display(Name = "МЛ погружен не полностью")]
+		public virtual bool? NotFullyLoaded {
+			get => notFullyLoaded;
+			set => SetField(ref notFullyLoaded, value, () => NotFullyLoaded);
+		}
+
 		#endregion
 
 		#region readonly Свойства
 
-		public virtual string Title { get { return String.Format("МЛ №{0}", Id); } }
+		public virtual string Title => string.Format("МЛ №{0}", Id);
 
-		public virtual decimal UniqueAddressCount {
-			get {
-				return Addresses
-						.Where(item => item.IsDelivered())
-						.Select(item => item.Order.DeliveryPoint.Id)
-						.Distinct().Count();
-			}
-		}
+		public virtual decimal UniqueAddressCount => Addresses.Where(item => item.IsDelivered())
+															  .Select(item => item.Order.DeliveryPoint.Id)
+															  .Distinct()
+															  .Count();
 
 		public virtual bool NeedMileageCheck => Car.TypeOfUse != CarTypeOfUse.Truck && !Driver.VisitingMaster;
 
@@ -453,11 +443,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual decimal Total {
-			get {
-				return Addresses.Sum(x => x.TotalCash) - PhoneSum;
-			}
-		}
+		public virtual decimal Total => Addresses.Sum(x => x.TotalCash) - PhoneSum;
 
 		public virtual decimal MoneyToReturn {
 			get {
@@ -603,19 +589,22 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
-			if(closed)
-				ChangeStatus(RouteListStatus.EnRoute);
+			if(closed) {
+				if(NotFullyLoaded.HasValue)
+					NotFullyLoaded = false;
+				if(new[] { RouteListStatus.Confirmed, RouteListStatus.InLoading }.Contains(Status))
+					ChangeStatus(RouteListStatus.EnRoute);
+			}
 
 			return closed;
 		}
 
 		public virtual void ChangeStatus(RouteListStatus newStatus)
 		{
-			if(newStatus == Status) {
+			if(newStatus == Status)
 				return;
-			}
 
-			string exceptionMessage = $"Некорректная операция. Не предусмотрена смена статуса с {newStatus} на {Status}";
+			string exceptionMessage = $"Некорректная операция. Не предусмотрена смена статуса с {Status} на {newStatus}";
 
 			switch(newStatus) {
 				case RouteListStatus.New:
@@ -662,9 +651,9 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListStatus.OnClosing:
 					if(
-					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster)) 
+					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster))
 					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.Truck))
-					|| Status == RouteListStatus.MileageCheck 
+					|| Status == RouteListStatus.MileageCheck
 					|| Status == RouteListStatus.Closed) {
 						Status = newStatus;
 						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
@@ -800,7 +789,7 @@ namespace Vodovoz.Domain.Logistic
 				track.CalculateDistanceToBase();
 				UoW.Save(track);
 			}
-			FirstFillClosing();
+			//FirstFillClosing();
 			UoW.Save(this);
 		}
 
@@ -945,8 +934,8 @@ namespace Vodovoz.Domain.Logistic
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
 			foreach(RouteListItem address in addresesDelivered) {
 				int amountDelivered = address.Order.OrderItems
-					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
-					.Sum(item => item.ActualCount);
+												   .Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
+												   .Sum(item => item.ActualCount ?? 0);
 				var bottlesMovementOperation = address.Order.BottlesMovementOperation;
 				if(amountDelivered != 0 || address.BottlesReturned != 0) {
 					if(bottlesMovementOperation == null) {
@@ -1015,14 +1004,13 @@ namespace Vodovoz.Domain.Logistic
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
 			foreach(var address in addresesDelivered) {
 				var order = address.Order;
-				var depositsTotal = order.OrderDepositItems.Sum(dep => dep.ActualCount * dep.Deposit);
-				Decimal? money = null;
-				if(address.TotalCash != 0) {
+				var depositsTotal = order.OrderDepositItems.Sum(dep => dep.ActualCount ?? 0 * dep.Deposit);
+				decimal? money = null;
+				if(address.TotalCash != 0)
 					money = address.TotalCash;
-				}
 				MoneyMovementOperation moneyMovementOperation = order.MoneyMovementOperation;
 				if(moneyMovementOperation == null) {
-					moneyMovementOperation = new MoneyMovementOperation() {
+					moneyMovementOperation = new MoneyMovementOperation {
 						OperationTime = order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 						Order = order,
 						Counterparty = order.Client,

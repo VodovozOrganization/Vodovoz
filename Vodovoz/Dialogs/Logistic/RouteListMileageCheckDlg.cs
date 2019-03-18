@@ -85,8 +85,6 @@ namespace Vodovoz
 
 			ytreeviewAddresses.ItemsDataSource = items;
 			entryMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Text).InitializeFromSource();
-
-
 		}
 
 		private void UpdateSensitivity()

@@ -13,6 +13,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz
 {
@@ -349,9 +350,11 @@ namespace Vodovoz
 					NomenclatureCategory.equipment,
 					NomenclatureCategory.spare_parts
 					}.Contains(orderItem.Nomenclature.Category)) {
-					stringParts.Add(orderItem.IsDelivered
-									? string.Format("{0}:<b>{1}</b>", orderItem.Nomenclature.Name, orderItem.ActualCount)
-									: string.Format("{0}:{1}({2:-0})", orderItem.Nomenclature.Name, orderItem.ActualCount, orderItem.Count - orderItem.ActualCount));
+					stringParts.Add(
+						orderItem.IsDelivered
+						? string.Format("{0}:<b>{1}</b>", orderItem.Nomenclature.Name, orderItem.ActualCount ?? 0)
+						: string.Format("{0}:{1}({2:-0})", orderItem.Nomenclature.Name, orderItem.ActualCount ?? 0, orderItem.Count - orderItem.ActualCount ?? 0)
+					);
 				}
 
 			}
@@ -362,8 +365,8 @@ namespace Vodovoz
 			               x.Direction == Domain.Orders.Direction.Deliver);
 			foreach(OrderEquipment orderEquip in equipList) {
 				stringParts.Add(orderEquip.IsFullyDelivered
-									? string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount)
-				                	: string.Format("{0}:{1}({2:-0})", orderEquip.NameString, orderEquip.ActualCount, orderEquip.Count - orderEquip.ActualCount)
+									? string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount ?? 0)
+				                	: string.Format("{0}:{1}({2:-0})", orderEquip.NameString, orderEquip.ActualCount ?? 0, orderEquip.Count - orderEquip.ActualCount ?? 0)
 				                );
 			}
 
@@ -407,8 +410,8 @@ namespace Vodovoz
 			                           && x.Direction == Domain.Orders.Direction.PickUp);
 			foreach(var orderEquip in equipList) {
 				stringParts.Add(orderEquip.IsFullyDelivered
-									? string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount)
-									: string.Format("{0}:{1}({2:-0})", orderEquip.NameString, orderEquip.ActualCount, orderEquip.Count - orderEquip.ActualCount)
+									? string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount ?? 0)
+									: string.Format("{0}:{1}({2:-0})", orderEquip.NameString, orderEquip.ActualCount ?? 0, orderEquip.Count - orderEquip.ActualCount ?? 0)
 								);
 			}
 
@@ -432,20 +435,16 @@ namespace Vodovoz
 			menu = new Menu();
 
 			var openReturns = new MenuItem("Открыть недовозы");
-			openReturns.Activated += (s, args) =>
-				{
-					OnClosingItemActivated(this,null);
-				};
+			openReturns.Activated += (s, args) => OnClosingItemActivated(this,null);
 			menu.Append(openReturns);
 			openReturns.Show();
 
 			var openOrder = new MenuItem("Открыть заказ");
-			openOrder.Activated += (s, args) =>
-				{
-					var dlg = new OrderDlg(GetSelectedRouteListItem().Order);
-					dlg.Show();
-					MyTab.TabParent.AddTab(dlg, MyTab);
-				};
+			openOrder.Activated += (s, args) => {
+				var dlg = new OrderDlg(GetSelectedRouteListItem().Order);
+				dlg.Show();
+				MyTab.TabParent.AddTab(dlg, MyTab);
+			};
 			menu.Append(openOrder);
 			openOrder.Show();
 		}
@@ -457,7 +456,7 @@ namespace Vodovoz
 				|| GetSelectedRouteListItem ().WasTransfered
 			))
 			{
-				MessageDialogWorks.RunInfoDialog (GetTransferText (GetSelectedRouteListItem ()));
+				MessageDialogHelper.RunInfoDialog (GetTransferText (GetSelectedRouteListItem ()));
 				return;
 			}
 			OnClosingItemActivated(sender, args);

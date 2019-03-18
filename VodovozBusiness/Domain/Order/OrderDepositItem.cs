@@ -34,10 +34,10 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref count, value, () => Count);
 		}
 
-		int actualCount;
+		int? actualCount;
 
 		[Display(Name = "Фактическое количество")]
-		public virtual int ActualCount {
+		public virtual int? ActualCount {
 			get => actualCount;
 			set => SetField(ref actualCount, value, () => ActualCount);
 		}
@@ -106,9 +106,9 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Свойство возвращает подходяшее значение Count или ActualCount в зависимости от статуса заказа.
 		/// </summary>
-		public int CurrentCount => OrderRepository.GetStatusesForActualCount(Order).Contains(Order.OrderStatus) ? ActualCount : Count;
+		public int CurrentCount => ActualCount ?? Count;
 
-		public virtual Decimal Total => Deposit * CurrentCount;
+		public virtual decimal Total => Deposit * CurrentCount;
 
 		public string Title => string.Format("{0} на сумму {1}", DepositTypeString, CurrencyWorks.GetShortCurrencyString(Total));
 	}
