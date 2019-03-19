@@ -650,7 +650,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	T.counterparty,
@@ -689,8 +689,8 @@ FROM
 			)
 		) AS ord_details,
 		nomenclature.official_name AS name,
-		order_items.count AS total_count,
-		truncate(order_items.count * order_items.price - order_items.discount_money, 2) AS total_sum,
+		IFNULL(order_items.actual_count, order_items.count) AS total_count,
+		truncate(IFNULL(order_items.actual_count, order_items.count) * order_items.price - order_items.discount_money, 2) AS total_sum,
 		nomenclature.category,
 		nomenclature.is_disposable_tare,
 		nomenclature.id as nomenclature_id
@@ -831,7 +831,7 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>

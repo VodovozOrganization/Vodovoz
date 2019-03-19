@@ -497,7 +497,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Nomenclatures">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	o.create_date AS order_create_date,
@@ -528,8 +528,8 @@
 		)
 	) AS author,
 	n.name AS name,
-	IFNULL(i.count, i.actual_count) AS count,
-	i.price * IFNULL(i.count, i.actual_count) - discount_money AS sum
+	IFNULL(i.actual_count, i.count) AS count,
+	i.price * IFNULL(i.actual_count, i.count) - discount_money AS sum
 FROM order_items i
 LEFT JOIN orders o ON i.order_id = o.id
 LEFT JOIN nomenclature n ON i.nomenclature_id = n.id
@@ -563,7 +563,7 @@ WHERE o.order_status IN(
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_create_date">
           <DataField>order_create_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -646,7 +646,7 @@ WHERE o.order_status IN(
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
