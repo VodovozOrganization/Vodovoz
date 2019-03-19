@@ -12,6 +12,7 @@ using NHibernate.Type;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Utilities.Text;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
@@ -283,7 +284,7 @@ namespace Vodovoz.Representations
 
 		[UseForSearch]
 		[SearchHighlight]
-		public string Author { get { return StringWorks.PersonNameWithInitials(AuthorLastName, AuthorName, AuthorPatronymic); } }
+		public string Author { get { return PersonHelper.PersonNameWithInitials(AuthorLastName, AuthorName, AuthorPatronymic); } }
 
 		public string RowColor {
 			get {

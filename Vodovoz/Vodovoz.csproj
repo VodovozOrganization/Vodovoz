@@ -444,6 +444,8 @@
     <EmbeddedResource Include="icons\map\points\triangle\grey_stripes.png" />
     <EmbeddedResource Include="icons\map\points\custom\vodonos.png" />
     <EmbeddedResource Include="icons\map\points\custom\marker_shadow.png" />
+    <EmbeddedResource Include="toolbars\CRM.xml" />
+    <EmbeddedResource Include="icons\menu\CRMLogo.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -1104,6 +1106,17 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.OrderCreationDateReport.cs" />
     <Compile Include="ReportsParameters\Store\NotFullyLoadedRouteListsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NotFullyLoadedRouteListsReport.cs" />
+    <Compile Include="Dialogs\CallTaskDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.CallTaskDlg.cs" />
+    <Compile Include="JournalViewers\TasksView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.TasksView.cs" />
+    <Compile Include="Representations\BottleDebtorsVM.cs" />
+    <Compile Include="JournalViewers\DebtorsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.DebtorsView.cs" />
+    <Compile Include="JournalFilters\BottleDebtorsFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.BottleDebtorsFilter.cs" />
+    <Compile Include="JournalFilters\TaskFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.TaskFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Gamma.ColumnConfig;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Utilities.Text;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
@@ -132,13 +133,13 @@ namespace Vodovoz.ViewModel
 		public string AuthorName { get; set; }
 		public string AuthorPatronymic { get; set; }
 
-		public string Author {get{return StringWorks.PersonNameWithInitials(AuthorSurname, AuthorName, AuthorPatronymic);}}
+		public string Author {get{return PersonHelper.PersonNameWithInitials(AuthorSurname, AuthorName, AuthorPatronymic);}}
 
 		public string LastEditorSurname { get; set; }
 		public string LastEditorName { get; set; }
 		public string LastEditorPatronymic { get; set; }
 
-		public string LastEditor {get{return StringWorks.PersonNameWithInitials(LastEditorSurname, LastEditorName, LastEditorPatronymic);}}
+		public string LastEditor {get{return PersonHelper.PersonNameWithInitials(LastEditorSurname, LastEditorName, LastEditorPatronymic);}}
 
 		public string DeliveryPoint { get; set; }
 	}

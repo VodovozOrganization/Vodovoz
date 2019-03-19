@@ -12,6 +12,7 @@ using EmailService;
 using QS.Project.Dialogs.GtkUI;
 using QS.Tools;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
+using QS.Utilities.Text;
 
 namespace Vodovoz
 {
@@ -71,8 +72,8 @@ namespace Vodovoz
 			//Настройка карты
 			GMap.NET.MapProviders.GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
 				QSSupportLib.MainSupport.ProjectVerion.Product,
-				StringWorks.VersionToShortString(QSSupportLib.MainSupport.ProjectVerion.Version),
-				StringWorks.VersionToShortString(System.Reflection.Assembly.GetAssembly(typeof(GMap.NET.MapProviders.GMapProvider)).GetName().Version),
+				VersionHelper.VersionToShortString(QSSupportLib.MainSupport.ProjectVerion.Version),
+				VersionHelper.VersionToShortString(System.Reflection.Assembly.GetAssembly(typeof(GMap.NET.MapProviders.GMapProvider)).GetName().Version),
 				Environment.OSVersion.VersionString
 			);
 			GMap.NET.MapProviders.GMapProvider.Language = GMap.NET.LanguageType.Russian;
