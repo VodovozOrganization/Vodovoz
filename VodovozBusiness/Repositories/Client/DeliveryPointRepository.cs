@@ -11,10 +11,10 @@ namespace Vodovoz.Repository.Client
 {
 	public static class DeliveryPointRepository
 	{
-		public static QueryOver<DeliveryPoint> DeliveryPointsForCounterpartyQuery (Counterparty counterparty)
+		public static QueryOver<DeliveryPoint> DeliveryPointsForCounterpartyQuery(Counterparty counterparty)
 		{
-			return QueryOver.Of<DeliveryPoint> ()
-				.Where (dp => dp.Counterparty.Id == counterparty.Id);
+			return QueryOver.Of<DeliveryPoint>()
+				.Where(dp => dp.Counterparty.Id == counterparty.Id);
 		}
 
 		/// <summary>
@@ -22,14 +22,14 @@ namespace Vodovoz.Repository.Client
 		/// </summary>
 		public static DeliveryPoint GetByAddress1c(IUnitOfWork uow, Counterparty counterparty, string address1cCode, string address1c)
 		{
-			if (String.IsNullOrWhiteSpace (address1c) || counterparty != null)
+			if(String.IsNullOrWhiteSpace(address1c) || counterparty != null)
 				return null;
 
-			return uow.Session.QueryOver<DeliveryPoint> ()
-				      .Where(x => x.Counterparty.Id == counterparty.Id)
-				      .Where (dp => (dp.Code1c != null && dp.Code1c == address1cCode) || dp.Address1c == address1c)
-					  .Take (1)
-					  .SingleOrDefault ();
+			return uow.Session.QueryOver<DeliveryPoint>()
+					  .Where(x => x.Counterparty.Id == counterparty.Id)
+					  .Where(dp => (dp.Code1c != null && dp.Code1c == address1cCode) || dp.Address1c == address1c)
+					  .Take(1)
+					  .SingleOrDefault();
 		}
 
 		public static int GetBottlesOrderedForPeriod(IUnitOfWork uow, DeliveryPoint deliveryPoint, DateTime start, DateTime end)
@@ -39,24 +39,25 @@ namespace Vodovoz.Repository.Client
 			Nomenclature nomenclatureAlias = null;
 
 			var notConfirmedQueryResult = uow.Session.QueryOver<Order>(() => orderAlias)
-				.Where(()=>orderAlias.DeliveryPoint.Id==deliveryPoint.Id)
+				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
 				.Where(() => start < orderAlias.DeliveryDate && orderAlias.DeliveryDate < end)
 				.Where(() => orderAlias.OrderStatus != OrderStatus.Canceled)
-				.JoinAlias(()=>orderAlias.OrderItems,()=>orderItemAlias)
-				.JoinAlias(()=>orderItemAlias.Nomenclature,()=>nomenclatureAlias)
-				.Where(()=>nomenclatureAlias.Category==NomenclatureCategory.water && !nomenclatureAlias.IsDisposableTare)
-				.Select(Projections.Sum(()=>orderItemAlias.Count)).List<int?>();
-			
+				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && !nomenclatureAlias.IsDisposableTare)
+				.Select(Projections.Sum(() => orderItemAlias.Count)).List<int?>();
+
 			var confirmedQueryResult = uow.Session.QueryOver<Order>(() => orderAlias)
-				.Where(()=>orderAlias.DeliveryPoint.Id==deliveryPoint.Id)
+				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
 				.Where(() => start < orderAlias.DeliveryDate && orderAlias.DeliveryDate < end)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
-				.JoinAlias(()=>orderAlias.OrderItems,()=>orderItemAlias)
-				.JoinAlias(()=>orderItemAlias.Nomenclature,()=>nomenclatureAlias)
-				.Where(()=>nomenclatureAlias.Category==NomenclatureCategory.water && !nomenclatureAlias.IsDisposableTare)
-				.Select(Projections.Sum(()=>orderItemAlias.ActualCount)).List<int?>();
-			
-			var bottlesOrdered = notConfirmedQueryResult.FirstOrDefault().GetValueOrDefault() 
+				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && !nomenclatureAlias.IsDisposableTare)
+				.Where(() => orderItemAlias.ActualCount != null)
+				.Select(Projections.Sum(() => orderItemAlias.ActualCount)).List<int?>();
+
+			var bottlesOrdered = notConfirmedQueryResult.FirstOrDefault().GetValueOrDefault()
 				+ confirmedQueryResult.FirstOrDefault().GetValueOrDefault();
 			return bottlesOrdered;
 		}
@@ -74,13 +75,13 @@ namespace Vodovoz.Repository.Client
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && !nomenclatureAlias.IsDisposableTare)
 				.OrderByAlias(() => orderAlias.DeliveryDate).Desc;
-			if (countLastOrders.HasValue)
+			if(countLastOrders.HasValue)
 				confirmedQueryResult.Take(countLastOrders.Value);
-			
-			var list = confirmedQueryResult.Select(Projections.Group<Order>(x => x.Id),
-				Projections.Sum(()=>orderItemAlias.Count)).List<object[]>();
 
-			return list.Count > 0 ? list.Average (x => (int)x[1]) : 0;
+			var list = confirmedQueryResult.Select(Projections.Group<Order>(x => x.Id),
+				Projections.Sum(() => orderItemAlias.Count)).List<object[]>();
+
+			return list.Count > 0 ? list.Average(x => (int)x[1]) : 0;
 		}
 	}
 }

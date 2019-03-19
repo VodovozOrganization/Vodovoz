@@ -18,23 +18,24 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "документы погрузки автомобилей",
 		Nominative = "документ погрузки автомобиля")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class CarLoadDocument : Document, IValidatableObject
 	{
 		DateTime version;
 		[Display(Name = "Версия")]
 		public virtual DateTime Version {
-			get { return version; }
-			set { SetField(ref version, value, () => Version); }
+			get => version;
+			set => SetField(ref version, value, () => Version);
 		}
 
 		public override DateTime TimeStamp {
-			get { return base.TimeStamp; }
+			get => base.TimeStamp;
 			set {
 				base.TimeStamp = value;
-				if (!NHibernate.NHibernateUtil.IsInitialized(Items))
+				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
 					return;
-				foreach (var item in Items) {
-					if (item.MovementOperation != null && item.MovementOperation.OperationTime != TimeStamp)
+				foreach(var item in Items) {
+					if(item.MovementOperation != null && item.MovementOperation.OperationTime != TimeStamp)
 						item.MovementOperation.OperationTime = TimeStamp;
 				}
 			}
@@ -43,15 +44,15 @@ namespace Vodovoz.Domain.Documents
 		RouteList routeList;
 
 		public virtual RouteList RouteList {
-			get { return routeList; }
-			set { SetField(ref routeList, value, () => RouteList); }
+			get => routeList;
+			set => SetField(ref routeList, value, () => RouteList);
 		}
 
 		Warehouse warehouse;
 
 		public virtual Warehouse Warehouse {
-			get { return warehouse; }
-			set { SetField(ref warehouse, value, () => Warehouse); }
+			get => warehouse;
+			set => SetField(ref warehouse, value, () => Warehouse);
 		}
 
 
@@ -59,7 +60,7 @@ namespace Vodovoz.Domain.Documents
 
 		[Display(Name = "Строки")]
 		public virtual IList<CarLoadDocumentItem> Items {
-			get { return items; }
+			get => items;
 			set {
 				SetField(ref items, value, () => Items);
 				observableItems = null;
@@ -80,15 +81,15 @@ namespace Vodovoz.Domain.Documents
 
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
-			get { return comment; }
-			set { SetField(ref comment, value, () => Comment); }
+			get => comment;
+			set => SetField(ref comment, value, () => Comment);
 		}
 
-		public virtual string Title => String.Format("Талон погрузки №{0} от {1:d}", Id, TimeStamp);
+		public virtual string Title => string.Format("Талон погрузки №{0} от {1:d}", Id, TimeStamp);
 
 		#region IValidatableObject implementation
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Author == null)
 				yield return new ValidationResult("Не указан кладовщик.",
@@ -97,21 +98,17 @@ namespace Vodovoz.Domain.Documents
 				yield return new ValidationResult("Не указан маршрутный лист, по которому осуществляется отгрузка.",
 					new[] { this.GetPropertyName(o => o.RouteList) });
 
-			if(Items.All(x => x.Amount == 0))
-				yield return new ValidationResult(String.Format("В документе нет позиций с количеством больше нуля."),
-					new[] { this.GetPropertyName(o => o.Items) });
-
 			foreach(var item in Items) {
 				if(item.Amount > item.AmountInStock)
-					yield return new ValidationResult(String.Format("На складе недостаточное количество <{0}>", item.Nomenclature.Name),
+					yield return new ValidationResult(string.Format("На складе недостаточное количество <{0}>", item.Nomenclature.Name),
 						new[] { this.GetPropertyName(o => o.Items) });
 				if(item.Equipment != null && !(item.Amount == 0 || item.Amount == 1)
 				   && item.Equipment.Nomenclature.IsSerial // I-407
 				  )
-					yield return new ValidationResult(String.Format("Оборудование <{0}> сн: {1} нельзя отгружать в количестве отличном от 0 или 1", item.Nomenclature.Name, item.Equipment.Serial),
+					yield return new ValidationResult(string.Format("Оборудование <{0}> сн: {1} нельзя отгружать в количестве отличном от 0 или 1", item.Nomenclature.Name, item.Equipment.Serial),
 						new[] { this.GetPropertyName(o => o.Items) });
 				if(item.Amount + item.AmountLoaded > item.AmountInRouteList)
-					yield return new ValidationResult(String.Format("Номенклатура <{0}> отгружается в большем количестве чем указано в маршрутном листе. Отгружается:{1}, По другим документам:{2}, Всего нужно отгрузить:{3}",
+					yield return new ValidationResult(string.Format("Номенклатура <{0}> отгружается в большем количестве чем указано в маршрутном листе. Отгружается:{1}, По другим документам:{2}, Всего нужно отгрузить:{3}",
 						item.Nomenclature.Name,
 						item.Amount,
 						item.AmountLoaded,
@@ -143,12 +140,14 @@ namespace Vodovoz.Domain.Documents
 			var nomenclatures = uow.GetById<Nomenclature>(goodsAndEquips.Select(x => x.NomenclatureId).ToArray());
 
 			foreach(var inRoute in goodsAndEquips) {
-				ObservableItems.Add(new CarLoadDocumentItem() {
-					Document = this,
-					Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
-					AmountInRouteList = inRoute.Amount,
-					Amount = inRoute.Amount
-				});
+				ObservableItems.Add(
+					new CarLoadDocumentItem {
+						Document = this,
+						Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
+						AmountInRouteList = inRoute.Amount,
+						Amount = inRoute.Amount
+					}
+				);
 			}
 		}
 

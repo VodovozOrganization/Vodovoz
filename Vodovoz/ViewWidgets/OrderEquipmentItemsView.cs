@@ -2,12 +2,13 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSProjectsLib;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
+using Vodovoz.Tools;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -75,7 +76,7 @@ namespace Vodovoz.ViewWidgets
 				.AddSetter((cell, node) => {
 					cell.Editable = !(node.OrderItem != null && node.OwnType == OwnTypes.Rent);
 				})
-				.AddTextRenderer(node => String.Format("({0})", node.ReturnedCount))
+				.AddTextRenderer(node => string.Format("({0})", node.ReturnedCount))
 				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
 				.AddSetter((c, n) => {
 					c.Editable = false;
@@ -163,17 +164,18 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Кол-во(недовоз)")
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(false)
-				.AddTextRenderer(node => String.Format("({0})", node.ReturnedCount))
+				.AddTextRenderer(node => string.Format("({0})", node.ReturnedCount))
 				.AddColumn("Кол-во по факту")
-					.AddNumericRenderer(node => node.ActualCount, false)
+					.AddNumericRenderer(node => node.ActualCount, new NullValueToZeroConverter(), false)
 					.AddSetter((cell, node) => {
 						cell.Editable = false;
 						foreach(var cat in Nomenclature.GetCategoriesForGoods()) {
-							if(cat == node.Nomenclature.Category) cell.Editable = true;
+							if(cat == node.Nomenclature.Category)
+								cell.Editable = true;
 						}
 					})
 					.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
-					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				//.AddColumn("Забрано у клиента")
 				//.AddToggleRenderer(node => node.IsDelivered).Editing(false)
 				.AddColumn("Причина незабора").AddTextRenderer(x => x.ConfirmedComment)
@@ -191,8 +193,8 @@ namespace Vodovoz.ViewWidgets
 					}
 				})
 				.AddColumn("Причина").AddEnumRenderer(
-					node => node.DirectionReason
-					, true
+					node => node.DirectionReason,
+					true
 				).AddSetter((c, n) => {
 					if(n.Direction == Domain.Orders.Direction.Deliver) {
 						switch(n.DirectionReason) {
@@ -298,10 +300,9 @@ namespace Vodovoz.ViewWidgets
 		private void EditGoodsCountCellOnAdd(yTreeView treeView)
 		{
 			int index = treeView.Model.IterNChildren() - 1;
-			Gtk.TreeIter iter;
 			Gtk.TreePath path;
 
-			treeView.Model.IterNthChild(out iter, index);
+			treeView.Model.IterNthChild(out TreeIter iter, index);
 			path = treeView.Model.GetPath(iter);
 
 			var column = treeView.Columns.First(x => x.Title == (MyTab is OrderReturnsView ? "Кол-во(недовоз)" : "Кол-во"));
@@ -314,20 +315,18 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnButtonDeleteEquipmentClicked(object sender, EventArgs e)
 		{
-			OrderEquipment deletedEquipment = treeEquipment.GetSelectedObject() as OrderEquipment;
-			if(deletedEquipment == null) {
-				return;
+			if(treeEquipment.GetSelectedObject() is OrderEquipment deletedEquipment) {
+				OnDeleteEquipment?.Invoke(this, deletedEquipment);
+				//при удалении номенклатуры выделение снимается и при последующем удалении exception
+				//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
+				buttonDeleteEquipment.Sensitive = treeEquipment.GetSelectedObject() != null;
 			}
-			OnDeleteEquipment?.Invoke(this, deletedEquipment);
-			//при удалении номенклатуры выделение снимается и при последующем удалении exception
-			//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
-			buttonDeleteEquipment.Sensitive = treeEquipment.GetSelectedObject() != null;
 		}
 
 		protected void OnButtonAddEquipmentToClientClicked(object sender, EventArgs e)
 		{
 			if(Order.Client == null) {
-				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
 				return;
 			}
 
@@ -337,11 +336,12 @@ namespace Vodovoz.ViewWidgets
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Оборудование к клиенту";
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = OrmReferenceMode.Select,
+				TabName = "Оборудование к клиенту",
+				ShowFilter = true
+			};
 			SelectDialog.ObjectSelected += NomenclatureToClient;
-			SelectDialog.ShowFilter = true;
 			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
 		}
 
@@ -358,7 +358,7 @@ namespace Vodovoz.ViewWidgets
 		protected void OnButtonAddEquipmentFromClientClicked(object sender, EventArgs e)
 		{
 			if(Order.Client == null) {
-				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
 				return;
 			}
 
@@ -368,11 +368,12 @@ namespace Vodovoz.ViewWidgets
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Оборудование от клиента";
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = OrmReferenceMode.Select,
+				TabName = "Оборудование от клиента",
+				ShowFilter = true
+			};
 			SelectDialog.ObjectSelected += NomenclatureFromClient;
-			SelectDialog.ShowFilter = true;
 			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
 		}
 

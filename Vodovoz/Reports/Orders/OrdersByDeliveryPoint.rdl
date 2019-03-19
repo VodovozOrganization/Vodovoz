@@ -291,7 +291,7 @@ FROM
 		LEFT JOIN
 	(SELECT
 		orders.delivery_point_id as delivery_point,
-		sum(order_items.actual_count) as forfeitCount
+		sum(IFNULL(order_items.actual_count, 0)) as forfeitCount
 	FROM
 		order_items
 		LEFT JOIN orders ON order_items.order_id = orders.id            

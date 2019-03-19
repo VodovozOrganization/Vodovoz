@@ -12,16 +12,19 @@ namespace Vodovoz.Additions.Logistic
 		public static GMapRoute DrawRoute(GMapOverlay overlay, RouteList routeList, RouteGeometryCalculator geometryCalc = null)
 		{
 			List<PointLatLng> points;
+			var baseLat = (double)routeList.GeographicGroups.FirstOrDefault().BaseLatitude.Value;
+			var baseLon = (double)routeList.GeographicGroups.FirstOrDefault().BaseLongitude.Value;
+
 			if(geometryCalc != null) {
-				var address = routeList.GenerateHashPiontsOfRoute();
+				var address = routeList.GenerateHashPointsOfRoute();
 				StartProgress(address.Length);
 				points = geometryCalc.GetGeometryOfRoute(address, UpdateProgress);
 				CloseProgress();
 			} else {
 				points = new List<PointLatLng>();
-				points.Add(DistanceCalculator.BasePoint);
+				points.Add(new PointLatLng(baseLat, baseLon));
 				points.AddRange(routeList.Addresses.Select(x => x.Order.DeliveryPoint.GmapPoint));
-				points.Add(DistanceCalculator.BasePoint);
+				points.Add(new PointLatLng(baseLat, baseLon));
 			}
 
 			var route = new GMapRoute(points, routeList.Id.ToString()) {
@@ -57,8 +60,14 @@ namespace Vodovoz.Additions.Logistic
 				if(point == null)
 					continue;
 				if(point.Latitude.HasValue && point.Longitude.HasValue) {
-					GMapMarker addressMarker = new NumericPointMarker(new PointLatLng((double)point.Latitude, (double)point.Longitude),
-																	  NumericPointMarkerType.white_large, orderItem.IndexInRoute + 1);
+					GMapMarker addressMarker = new NumericPointMarker(
+						new PointLatLng(
+							(double)point.Latitude,
+							(double)point.Longitude
+						),
+						NumericPointMarkerType.white_large,
+						orderItem.IndexInRoute + 1
+					);
 					var text = point.ShortAddress;
 					addressMarker.ToolTipText = text;
 					overlay.Markers.Add(addressMarker);

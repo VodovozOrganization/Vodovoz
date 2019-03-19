@@ -16,6 +16,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "пересортицы товаров",
 		Nominative = "пересортица товаров")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class RegradingOfGoodsDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {

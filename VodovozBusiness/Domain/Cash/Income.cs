@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -19,6 +20,7 @@ namespace Vodovoz.Domain.Cash
 		NominativePlural = "приходные одера",
 		Nominative = "приходный ордер")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class Income : PropertyChangedBase, IDomainObject, IValidatableObject, ISubdivisionEntity
 	{
 		#region Свойства

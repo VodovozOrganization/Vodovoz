@@ -5,17 +5,18 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents
 {
-
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "переносы",
 		Nominative = "перенос")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class TransferOperationDocument : Document, IValidatableObject, IDomainObject
 	{
 		[Display(Name = "Дата")]

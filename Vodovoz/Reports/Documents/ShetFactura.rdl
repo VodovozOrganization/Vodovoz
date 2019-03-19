@@ -21,11 +21,7 @@
 	nomenclature.official_name as name,
 	measurement_units.okei AS unit_code,
 	measurement_units.name AS mu_name,
-	IF(
-		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
-		actual_count,
-		count
-	) AS count,
+	IFNULL(actual_count, count) AS count,
 	order_items.price AS item_price,
 	order_items.include_nds,
 	order_items.discount AS item_discount,

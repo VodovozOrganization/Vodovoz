@@ -340,17 +340,9 @@ WHERE
 	nomenclature.name AS name,
 	'--' AS unit_code,
 	measurement_units.name AS mu_name,
-	IF(
-		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
-		actual_count,
-		count
-	) AS count,
+	IFNULL(actual_count, count) AS count,
 	order_items.price * (1 - order_items.discount/100) AS item_price,
-	order_items.price * IF(
-		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
-		actual_count,
-		count
-	) - order_items.discount_money AS total,
+	order_items.price * IFNULL(actual_count, count) - order_items.discount_money AS total,
 	order_items.include_nds AS include_nds
 FROM order_items
 LEFT JOIN 

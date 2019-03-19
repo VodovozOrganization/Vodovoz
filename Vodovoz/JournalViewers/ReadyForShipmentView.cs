@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Linq;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QS.Tdi;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -9,47 +10,61 @@ namespace Vodovoz
 	{
 		private IUnitOfWork uow;
 
-		ViewModel.ReadyForShipmentVM viewModel;
+		ReadyForShipmentVM viewModel;
 
 		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
+			get => uow;
 			set {
-				if (uow == value)
+				if(uow == value)
 					return;
 				uow = value;
-				viewModel = new ViewModel.ReadyForShipmentVM (value);
+				viewModel = new ReadyForShipmentVM(value);
 				readyforshipmentfilter1.UoW = value;
 				viewModel.Filter = readyforshipmentfilter1;
 				tableReadyForShipment.RepresentationModel = viewModel;
-				tableReadyForShipment.RepresentationModel.UpdateNodes ();
+				tableReadyForShipment.RepresentationModel.UpdateNodes();
 			}
 		}
 
-		public ReadyForShipmentView ()
+		public ReadyForShipmentView()
 		{
-			this.Build ();
+			this.Build();
 			this.TabName = "Готовые к отправке";
-			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			tableReadyForShipment.Selection.Changed += OnSelectionChanged;
+			tableReadyForShipment.ButtonReleaseEvent += TableReadyForShipment_ButtonReleaseEvent;
 		}
 
-		void OnSelectionChanged (object sender, EventArgs e)
+		RepresentationSelectResult[] lastMenuSelected;
+		void TableReadyForShipment_ButtonReleaseEvent(object o, Gtk.ButtonReleaseEventArgs args)
 		{
-			buttonOpen.Sensitive = tableReadyForShipment.Selection.CountSelectedRows () > 0;
+			if(lastMenuSelected.Any() && args.Event.Button == 3) {
+				var menu = viewModel.GetPopupMenu(lastMenuSelected);
+				if(menu != null) {
+					menu.ShowAll();
+					menu.Popup();
+				}
+			}
 		}
 
-		protected void OnButtonOpenClicked (object sender, EventArgs e)
+		void OnSelectionChanged(object sender, EventArgs e)
 		{
-			var node = tableReadyForShipment.GetSelectedNode () as ViewModel.ReadyForShipmentVMNode;
-			var dlg = new CarLoadDocumentDlg ( node.Id, viewModel.Filter.RestrictWarehouse?.Id);
-			TabParent.AddTab (dlg, this);
+			buttonOpen.Sensitive = tableReadyForShipment.Selection.CountSelectedRows() > 0;
+
+			if(tableReadyForShipment.GetSelectedObject() is ReadyForShipmentVMNode selectedNode)
+				lastMenuSelected = new[] { new RepresentationSelectResult(selectedNode.Id, selectedNode) };
 		}
 
-		protected void OnTableReadyForShipmentRowActivated (object o, Gtk.RowActivatedArgs args)
+		protected void OnButtonOpenClicked(object sender, EventArgs e)
 		{
-			buttonOpen.Click ();
+			var node = tableReadyForShipment.GetSelectedNode() as ReadyForShipmentVMNode;
+			var dlg = new CarLoadDocumentDlg(node.Id, viewModel.Filter.RestrictWarehouse?.Id);
+			TabParent.AddTab(dlg, this);
+		}
+
+		protected void OnTableReadyForShipmentRowActivated(object o, Gtk.RowActivatedArgs args)
+		{
+			buttonOpen.Click();
 		}
 
 		protected void OnSearchentity2TextChanged(object sender, EventArgs e)

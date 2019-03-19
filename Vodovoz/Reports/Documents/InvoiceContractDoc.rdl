@@ -188,10 +188,7 @@ WHERE
 				CONCAT(
 					nomenclature.name,
 					' - ',
-					IF(
-						orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
-						order_equipment.actual_count, 
-						order_equipment.count),
+                    IFNULL(order_equipment.actual_count, order_equipment.count),
 					'\n(',
 					(
 						CASE order_equipment.own_type
@@ -229,10 +226,7 @@ WHERE
 				CONCAT(
 					nomenclature.name,
 					' - ',
-					IF(
-						orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
-						order_equipment.actual_count, 
-						order_equipment.count),
+                    IFNULL(order_equipment.actual_count, order_equipment.count),
 					'\n(',
 					(
 						CASE order_equipment.own_type
@@ -291,23 +285,11 @@ WHERE
 	nomenclature.official_name AS name,
 	'--' AS unit_code,
 	measurement_units.name AS mu_name,
-	IF(
-		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
-		actual_count,
-		count
-	) AS count,
+	IFNULL(actual_count, count) AS count,
 	order_items.price AS item_price,
 	order_items.discount AS item_discount,
-	order_items.price * IF(
-		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
-		actual_count,
-		count
-	) AS total_wo_disc,
-	order_items.price * IF(
-		orders.order_status IN('Shipped','UnloadingOnStock','Closed','Canceled','NotDelivered','DeliveryCanceled'),
-		actual_count,
-		count
-	)  - order_items.discount_money AS total
+	order_items.price * IFNULL(actual_count, count) AS total_wo_disc,
+	order_items.price * IFNULL(actual_count, count) - order_items.discount_money AS total
 FROM
 	order_items
 LEFT JOIN

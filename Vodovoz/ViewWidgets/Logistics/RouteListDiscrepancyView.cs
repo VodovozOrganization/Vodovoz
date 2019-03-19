@@ -85,10 +85,11 @@ namespace Vodovoz
 				.Where(item => item.Nomenclature.Category != NomenclatureCategory.bottle)
 				.ToList();
 			foreach(var orderItem in orderClosingItems) {
-				var discrepancy = new Discrepancy();
-				discrepancy.Nomenclature = orderItem.Nomenclature;
-				discrepancy.ClientRejected = orderItem.ReturnedCount;
-				discrepancy.Name = orderItem.Nomenclature.Name;
+				var discrepancy = new Discrepancy {
+					Nomenclature = orderItem.Nomenclature,
+					ClientRejected = orderItem.ReturnedCount,
+					Name = orderItem.Nomenclature.Name
+				};
 				AddDiscrepancy(result, discrepancy);
 			}
 
@@ -99,14 +100,16 @@ namespace Vodovoz
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.ToList();
 			foreach(var orderEquip in orderEquipments) {
-				var discrepancy = new Discrepancy();
-				discrepancy.Nomenclature = orderEquip.Nomenclature;
-				if(orderEquip.Direction == Domain.Orders.Direction.Deliver){
-					discrepancy.ClientRejected = orderEquip.Count - orderEquip.ActualCount;
-				}else {
-					discrepancy.PickedUpFromClient = orderEquip.ActualCount;
-				}
-				discrepancy.Name = orderEquip.Nomenclature.Name;
+				var discrepancy = new Discrepancy {
+					Nomenclature = orderEquip.Nomenclature,
+					Name = orderEquip.Nomenclature.Name
+				};
+
+				if(orderEquip.Direction == Domain.Orders.Direction.Deliver)
+					discrepancy.ClientRejected = orderEquip.ReturnedCount;
+				else
+					discrepancy.PickedUpFromClient = orderEquip.ActualCount ?? 0;
+
 				AddDiscrepancy(result, discrepancy);
 			}
 
@@ -115,13 +118,13 @@ namespace Vodovoz
 				.Where(x => x.NomenclatureCategory != NomenclatureCategory.bottle)
 				.ToList();
 			foreach(var whItem in warehouseItems) {
-				var discrepancy = new Discrepancy();
-				discrepancy.Nomenclature = whItem.Nomenclature;
-				discrepancy.ToWarehouse = whItem.Amount;
-				discrepancy.Name = whItem.Name;
+				var discrepancy = new Discrepancy {
+					Nomenclature = whItem.Nomenclature,
+					ToWarehouse = whItem.Amount,
+					Name = whItem.Name
+				};
 				AddDiscrepancy(result, discrepancy);
 			}
-
 			return result;
 		}
 

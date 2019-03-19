@@ -442,6 +442,8 @@
     <EmbeddedResource Include="icons\map\points\triangle\red_stripes.png" />
     <EmbeddedResource Include="icons\map\points\triangle\green_stripes.png" />
     <EmbeddedResource Include="icons\map\points\triangle\grey_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\custom\vodonos.png" />
+    <EmbeddedResource Include="icons\map\points\custom\marker_shadow.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -1096,6 +1098,12 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NomenclatureForShipment.cs" />
     <Compile Include="Dialogs\ImageLoaderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.ImageLoaderDlg.cs" />
+    <Compile Include="Dialogs\Sale\GeographicGroupDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.GeographicGroupDlg.cs" />
+    <Compile Include="ReportsParameters\Sales\OrderCreationDateReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.OrderCreationDateReport.cs" />
+    <Compile Include="ReportsParameters\Store\NotFullyLoadedRouteListsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NotFullyLoadedRouteListsReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1536,7 +1544,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Sales\SalesReportDetail.rdl">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Sales\IncomeBalance.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1590,9 +1598,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Client\SummaryBottlesAndDepositsKungolovo.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Sales\SalesReportDetail.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\InvoiceContractDoc.rdl">
@@ -1654,6 +1659,12 @@
     </None>
     <None Include="Reports\Store\NomenclatureForShipment.rdl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\OrderCreationDateReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\NotFullyLoadedRouteLists.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ProjectExtensions>

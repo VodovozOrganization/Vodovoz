@@ -9,6 +9,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repository;
+using Vodovoz.Tools;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -28,20 +29,41 @@ namespace Vodovoz.ViewWidgets
 
 			if(MyTab is OrderReturnsView) {
 				treeDepositRefundItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderDepositItem>()
-				.AddColumn("Тип").SetDataProperty(node => node.DepositTypeString)
-				.AddColumn("Название").AddTextRenderer(node => node.EquipmentNomenclature != null ? node.EquipmentNomenclature.Name : string.Empty)
-				.AddColumn("Кол-во").AddNumericRenderer(node => node.Count).Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1)).Editing(false)
-				.AddColumn("Факт. кол-во").AddNumericRenderer(node => node.ActualCount).Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1)).Editing(true)
-				.AddColumn("Цена").AddNumericRenderer(node => node.Deposit).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
-				.AddColumn("Сумма").AddNumericRenderer(node => node.Total)
+				.AddColumn("Тип")
+					.AddTextRenderer(node => node.DepositTypeString)
+				.AddColumn("Название")
+					.AddTextRenderer(node => node.EquipmentNomenclature != null ? node.EquipmentNomenclature.Name : string.Empty)
+				.AddColumn("Кол-во")
+					.AddNumericRenderer(node => node.Count)
+						.Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1))
+						.Editing(false)
+				.AddColumn("Факт. кол-во")
+					.AddNumericRenderer(node => node.ActualCount, new NullValueToZeroConverter())
+						.Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1))
+						.Editing(true)
+				.AddColumn("Цена")
+					.AddNumericRenderer(node => node.Deposit)
+						.Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1))
+						.Editing(true)
+				.AddColumn("Сумма")
+					.AddNumericRenderer(node => node.Total)
 				.Finish();
 			} else {
 				treeDepositRefundItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderDepositItem>()
-				.AddColumn("Тип").SetDataProperty(node => node.DepositTypeString)
-				.AddColumn("Название").AddTextRenderer(node => node.EquipmentNomenclature != null ? node.EquipmentNomenclature.Name : string.Empty)
-				.AddColumn("Кол-во").AddNumericRenderer(node => node.Count).Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1)).Editing(true)
-				.AddColumn("Цена").AddNumericRenderer(node => node.Deposit).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
-				.AddColumn("Сумма").AddNumericRenderer(node => node.Total)
+				.AddColumn("Тип")
+					.AddTextRenderer(node => node.DepositTypeString)
+				.AddColumn("Название")
+					.AddTextRenderer(node => node.EquipmentNomenclature != null ? node.EquipmentNomenclature.Name : string.Empty)
+				.AddColumn("Кол-во")
+					.AddNumericRenderer(node => node.Count)
+						.Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1))
+						.Editing(true)
+				.AddColumn("Цена")
+					.AddNumericRenderer(node => node.Deposit)
+						.Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1))
+						.Editing(true)
+				.AddColumn("Сумма")
+					.AddNumericRenderer(node => node.Total)
 				.Finish();
 			}
 
@@ -55,7 +77,7 @@ namespace Vodovoz.ViewWidgets
 		{
 			OrderDepositItem newDepositItem = new OrderDepositItem {
 				Count = MyTab is OrderReturnsView ? 0 : 1,
-				ActualCount = 0,
+				ActualCount = null,
 				Order = Order,
 				DepositType = DepositType.Bottles
 			};
@@ -65,12 +87,12 @@ namespace Vodovoz.ViewWidgets
 		protected void OnButtonDeleteDepositClicked(object sender, EventArgs e)
 		{
 			if(treeDepositRefundItems.GetSelectedObject() is OrderDepositItem depositItem)
-				if(MyTab is OrderReturnsView)
+				if(MyTab is OrderReturnsView) {
 					//Удаление только новых залогов добавленных из закрытия МЛ
 					if(depositItem.Count == 0)
 						Order.ObservableOrderDepositItems.Remove(depositItem);
-					else
-						Order.ObservableOrderDepositItems.Remove(depositItem);
+				} else
+					Order.ObservableOrderDepositItems.Remove(depositItem);
 		}
 
 		protected void OnButtonNewEquipmentDepositClicked(object sender, EventArgs e)
@@ -96,7 +118,7 @@ namespace Vodovoz.ViewWidgets
 			var selectedNode = (Nomenclature)e.Subject;
 			OrderDepositItem newDepositItem = new OrderDepositItem {
 				Count = 0,
-				ActualCount = 0,
+				ActualCount = null,
 				Order = Order,
 				EquipmentNomenclature = selectedNode,
 				DepositType = DepositType.Equipment

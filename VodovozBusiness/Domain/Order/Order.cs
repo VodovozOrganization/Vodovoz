@@ -1023,22 +1023,22 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal ActualTotalSum {
 			get {
-				Decimal sum = 0;
-				foreach(OrderItem item in ObservableOrderItems) {
-					sum += item.Price * item.ActualCount - item.DiscountMoney;
-				}
-				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
+				decimal sum = 0;
+				foreach(OrderItem item in ObservableOrderItems)
+					sum += item.ActualSum;
+
+				foreach(OrderDepositItem dep in ObservableOrderDepositItems)
 					sum -= dep.Deposit * dep.Count;
-				}
+
 				return sum;
 			}
 		}
 
 		public virtual decimal MoneyForMaster =>
-			ObservableOrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.master)
-								.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount * i.Price);
+			ObservableOrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.master && i.ActualCount.HasValue)
+								.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount.Value * i.Price);
 
-		public virtual decimal ActualGoodsTotalSum =>
+		public virtual decimal? ActualGoodsTotalSum =>
 			OrderItems.Sum(item => item.Price * item.ActualCount - item.DiscountMoney);
 
 		/// <summary>
@@ -1148,12 +1148,13 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddContractDocument(CounterpartyContract contract)
 		{
-			var orderDocuments = ObservableOrderDocuments;
-			orderDocuments.Add(new OrderContract {
-				Order = this,
-				AttachedToOrder = this,
-				Contract = contract
-			});
+			ObservableOrderDocuments.Add(
+				new OrderContract {
+					Order = this,
+					AttachedToOrder = this,
+					Contract = contract
+				}
+			);
 		}
 
 		public virtual void ChangeOrderContract()
@@ -2861,8 +2862,8 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			int amountDelivered = OrderItems
-					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
-					.Sum(item => item.ActualCount);
+									.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
+									.Sum(item => item.ActualCount.Value);
 
 			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
 				if(BottlesMovementOperation == null) {

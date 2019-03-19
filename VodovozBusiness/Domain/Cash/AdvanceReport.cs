@@ -5,6 +5,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 
@@ -14,6 +15,7 @@ namespace Vodovoz.Domain.Cash
 		NominativePlural = "авансовые отчеты",
 		Nominative = "авансовый отчет")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class AdvanceReport : PropertyChangedBase, IDomainObject, IValidatableObject, ISubdivisionEntity
 	{
 		#region Свойства

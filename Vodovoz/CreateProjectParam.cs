@@ -94,6 +94,7 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("allow_load_selfdelivery", new PresetUserPermissionSource("allow_load_selfdelivery", "Разрешение отгрузки самовывоза", "Пользователь может переводить заказ с самовывозом в статус на погрузку"));
 			PermissionsSettings.PresetPermissions.Add("accept_cashless_paid_selfdelivery", new PresetUserPermissionSource("accept_cashless_paid_selfdelivery", "Разрешение отметки оплаты самовывоза", "Пользователь может отмечать заказ с самовывозом по безналу как оплаченный"));
 			PermissionsSettings.PresetPermissions.Add("can_edit_logistic_areas", new PresetUserPermissionSource("can_edit_logistic_areas", "Доступ к редактированию логистических районов", "Пользователь может редактировать логистические районы"));
+			PermissionsSettings.PresetPermissions.Add("can_send_not_loaded_route_lists_en_route", new PresetUserPermissionSource("can_send_not_loaded_route_lists_en_route", "Разрешение отправки недогруженых МЛ в путь", "Пользователь может отправлять недогруженные маршрутные листы в путь"));
 
 			UserDialog.UserPermissionViewsCreator = delegate {
 				return new List<IUserPermissionTab>() {
@@ -144,7 +145,6 @@ namespace Vodovoz
 				OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Стоимость", x => x.Cost.ToString()).End(),
 				OrmObjectMapping<MovementWagon>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//Остальные справочники
-				//OrmObjectMapping<CarProxyDocument>.Create().Dialog<ProxyDocumentDlg>().DefaultTableView().SearchColumn("Водитель", x => x.Driver != null ? x.Driver.Title : "").End(),
 				OrmObjectMapping<CarProxyDocument>.Create().Dialog<CarProxyDlg>(),
 				OrmObjectMapping<M2ProxyDocument>.Create().Dialog<M2ProxyDlg>(),
 				OrmObjectMapping<CommentTemplate>.Create().Dialog<CommentTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Comment).End(),
@@ -153,8 +153,6 @@ namespace Vodovoz
 				OrmObjectMapping<MeasurementUnits>.Create ().Dialog<MeasurementUnitsDlg>().DefaultTableView().SearchColumn("ОКЕИ", x => x.OKEI).SearchColumn("Название", x => x.Name).Column("Точность", x => x.Digits.ToString()).End(),
 				OrmObjectMapping<Contact>.Create().Dialog <ContactDlg>()
 					.DefaultTableView().SearchColumn("Фамилия", x => x.Surname).SearchColumn("Имя", x => x.Name).SearchColumn("Отчество", x => x.Patronymic).End(),
-				OrmObjectMapping<Car>.Create().Dialog<CarsDlg>()
-					.DefaultTableView().SearchColumn("Модель а/м", x => x.Model).SearchColumn("Гос. номер", x => x.RegistrationNumber).SearchColumn("Водитель", x => x.Driver != null ? x.Driver.FullName : String.Empty).End(),
 				OrmObjectMapping<Order>.Create().Dialog <OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
 				OrmObjectMapping<UndeliveredOrder>.Create().Dialog<UndeliveredOrderDlg>(),
 				OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
@@ -194,8 +192,8 @@ namespace Vodovoz
 				//Сервис
 				OrmObjectMapping<ServiceClaim>.Create().Dialog<ServiceClaimDlg>().DefaultTableView().Column("Номер", x => x.Id.ToString()).Column("Тип", x => x.ServiceClaimType.GetEnumTitle()).Column("Оборудование", x => x.Equipment.Title).Column("Подмена", x => x.ReplacementEquipment != null ? "Да" : "Нет").Column("Точка доставки", x => x.DeliveryPoint.Title).End(),
 				//Касса
-				OrmObjectMapping<IncomeCategory>.Create ().Dialog<CashIncomeCategoryDlg>().EditPermision ("money_manage_cash").DefaultTableView ().Column("Код", x => x.Id.ToString()).Column ("Название", e => e.Name).Column ("Тип документа", e => e.IncomeDocumentType.GetEnumTitle()).End (),
-				OrmObjectMapping<ExpenseCategory>.Create ().Dialog<CashExpenseCategoryDlg>().EditPermision ("money_manage_cash").DefaultTableView ().Column("Код", x => x.Id.ToString()).SearchColumn ("Название", e => e.Name).Column ("Тип документа", e => e.ExpenseDocumentType.GetEnumTitle()).TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End (),
+				OrmObjectMapping<IncomeCategory>.Create ().Dialog<CashIncomeCategoryDlg>().DefaultTableView ().Column("Код", x => x.Id.ToString()).Column ("Название", e => e.Name).Column ("Тип документа", e => e.IncomeDocumentType.GetEnumTitle()).End (),
+				OrmObjectMapping<ExpenseCategory>.Create ().Dialog<CashExpenseCategoryDlg>().DefaultTableView ().Column("Код", x => x.Id.ToString()).SearchColumn ("Название", e => e.Name).Column ("Тип документа", e => e.ExpenseDocumentType.GetEnumTitle()).TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End (),
 				OrmObjectMapping<Income>.Create ().Dialog<CashIncomeDlg> (),
 				OrmObjectMapping<Expense>.Create ().Dialog<CashExpenseDlg> (),
 				OrmObjectMapping<AdvanceReport>.Create ().Dialog<AdvanceReportDlg> (),
@@ -231,6 +229,7 @@ namespace Vodovoz
 			#region Простые справочники
 			OrmMain.AddObjectDescription<DiscountReason>().DefaultTableView().SearchColumn("Название", x => x.Name).End();
 			OrmMain.AddObjectDescription<GeographicGroup>()
+				   .Dialog<GeographicGroupDlg>()
 				   .DefaultTableView()
 				   .SearchColumn("Название", x => x.Name)
 				   .Column("Код", x => x.Id.ToString())
@@ -272,7 +271,7 @@ namespace Vodovoz
 				   .SearchColumn("Номер", x => x.Id.ToString())
 				   .SearchColumn("Начало срока", x => x.StartDate.HasValue ? x.StartDate.Value.ToString("dd.MM.yyyy") : "Ошибка!")
 				   .SearchColumn("Окончание срока", x => x.ExpirationDate.HasValue ? x.ExpirationDate.Value.ToString("dd.MM.yyyy") : "Бессрочно")
-				   .Column("Архивный?", x => x.IsArchive ? "Да" : String.Empty)
+				   .Column("Архивный?", x => x.IsArchive ? "Да" : string.Empty)
 				   .OrderAsc(x => x.IsArchive)
 				   .OrderAsc(x => x.Id)
 				   .End();
@@ -280,6 +279,13 @@ namespace Vodovoz
 				   .SearchColumn("Номер", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
+			OrmMain.AddObjectDescription<Car>().Dialog<CarsDlg>().DefaultTableView()
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .SearchColumn("Модель а/м", x => x.Model)
+				   .SearchColumn("Гос. номер", x => x.RegistrationNumber)
+				   .SearchColumn("Водитель", x => x.Driver != null ? x.Driver.FullName : string.Empty)
+				   .End();
+
 			#endregion
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());

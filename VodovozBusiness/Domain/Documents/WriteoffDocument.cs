@@ -19,6 +19,7 @@ namespace Vodovoz.Domain.Documents
 		Prepositional = "акте списания"
 	)]
 	[EntityPermission]
+	[HistoryTrace]
 	public class WriteoffDocument : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {

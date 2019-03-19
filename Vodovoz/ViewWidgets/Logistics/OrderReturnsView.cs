@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Tdi;
@@ -33,22 +34,14 @@ namespace Vodovoz
 
 			Counterparty client;
 			public Counterparty Client {
-				get {
-					return client;
-				}
-				set {
-					SetField(ref client, value, () => Client);
-				}
+				get => client;
+				set => SetField(ref client, value, () => Client);
 			}
 
 			DeliveryPoint deliveryPoint;
 			public DeliveryPoint DeliveryPoint {
-				get {
-					return deliveryPoint;
-				}
-				set {
-					SetField(ref deliveryPoint, value, () => DeliveryPoint);
-				}
+				get => deliveryPoint;
+				set => SetField(ref deliveryPoint, value, () => DeliveryPoint);
 			}
 
 			private Order BaseOrder { get; set; }
@@ -81,9 +74,7 @@ namespace Vodovoz
 		IUnitOfWork uow;
 
 		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
+			get => uow;
 			set {
 				uow = value;
 				depositrefunditemsview1.Configure(uow, routeListItem.Order, true);
@@ -129,7 +120,7 @@ namespace Vodovoz
 				itemsToClient.Add(new OrderItemReturnsNode(item));
 				item.PropertyChanged += OnOrderChanged;
 			}
-			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualGoodsTotalSum);
+			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualGoodsTotalSum ?? 0);
 
 			ytreeToClient.ItemsDataSource = itemsToClient;
 		}
@@ -142,11 +133,12 @@ namespace Vodovoz
 				x => x.DefaultSelectedCategory = NomenclatureCategory.deposit,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Номенклатура на продажу";
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = OrmReferenceMode.Select,
+				TabName = "Номенклатура на продажу",
+				ShowFilter = true
+			};
 			SelectDialog.ObjectSelected += NomenclatureSelected;
-			SelectDialog.ShowFilter = true;
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
@@ -161,20 +153,20 @@ namespace Vodovoz
 
 			if(routeListItem.Order.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
 			   && nomenclature.Category == NomenclatureCategory.master) {
-				MessageDialogWorks.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
+				MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
 				return;
 			}
 
 			if(routeListItem.Order.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
 			   && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
-				MessageDialogWorks.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
+				MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
 				return;
 			}
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.water:
 					wsa = contract.GetWaterSalesAgreement(routeListItem.Order.DeliveryPoint);
 					if(wsa == null) {
-						MessageDialogWorks.RunErrorDialog("Невозможно добавить воду, потому что нет дополнительного соглашения о продаже воды");
+						MessageDialogHelper.RunErrorDialog("Невозможно добавить воду, потому что нет дополнительного соглашения о продаже воды");
 					}
 					routeListItem.Order.AddWaterForSale(nomenclature, wsa, 0);
 					break;
@@ -190,7 +182,7 @@ namespace Vodovoz
 
 		public void OnOrderChanged(object sender, PropertyChangedEventArgs args)
 		{
-			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualGoodsTotalSum);
+			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualGoodsTotalSum ?? 0);
 		}
 
 		protected void Configure()
@@ -210,26 +202,19 @@ namespace Vodovoz
 				.AddColumn("Кол-во")
 					.AddNumericRenderer(node => node.Count)
 						.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
-					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Кол-во по факту")
 					.AddToggleRenderer(node => node.IsDelivered, false)
 						.AddSetter((cell, node) => cell.Visible = node.IsSerialEquipment)
 					.AddNumericRenderer(node => node.ActualCount, false)
-				.AddSetter((cell, node) => {
-					if(node.Nomenclature.Category == NomenclatureCategory.rent
-					   || node.Nomenclature.Category == NomenclatureCategory.deposit) {
-						cell.Editable = false;
-					} else {
-						cell.Editable = true;
-					}
-				})
-						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
-						.AddSetter((cell, node) => cell.Adjustment = new Gtk.Adjustment(0, 0, GetMaxCount(node), 1, 1, 0))
+						.AddSetter((cell, node) => cell.Editable = node.Nomenclature.Category != NomenclatureCategory.rent && node.Nomenclature.Category != NomenclatureCategory.deposit)
+						.Adjustment(new Adjustment(0, 0, 9999, 1, 1, 0))
+						.AddSetter((cell, node) => cell.Adjustment = new Adjustment(0, 0, GetMaxCount(node), 1, 1, 0))
 						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
-					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
-						.Adjustment(new Gtk.Adjustment(0, 0, 99999, 1, 100, 0))
+						.Adjustment(new Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Скидка")
@@ -279,8 +264,9 @@ namespace Vodovoz
 
 		private void ConfigureDeliveryPointRefference(Counterparty client = null)
 		{
-			var deliveryPointFilter = new DeliveryPointFilter(UoW);
-			deliveryPointFilter.Client = client;
+			var deliveryPointFilter = new DeliveryPointFilter(UoW) {
+				Client = client
+			};
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM(deliveryPointFilter);
 			referenceDeliveryPoint.Binding.AddBinding(orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPoint.CanEditReference = false;
@@ -370,12 +356,10 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteOrderItemClicked(object sender, EventArgs e)
 		{
-			OrderItemReturnsNode selectedItemNode = ytreeToClient.GetSelectedObject() as OrderItemReturnsNode;
-			if(selectedItemNode == null || selectedItemNode.OrderItem == null) {
-				return;
+			if(ytreeToClient.GetSelectedObject() is OrderItemReturnsNode selectedItemNode && selectedItemNode.OrderItem != null) {
+				routeListItem.Order.RemoveAloneItem(selectedItemNode.OrderItem);
+				UpdateItemsList();
 			}
-			routeListItem.Order.RemoveAloneItem(selectedItemNode.OrderItem);
-			UpdateItemsList();
 		}
 
 		void OrderEquipmentItemsView_OnDeleteEquipment(object sender, OrderEquipment e)
@@ -391,7 +375,7 @@ namespace Vodovoz
 		{
 			var orderValidator = new QSValidator<Order>(routeListItem.Order);
 			routeListItem.AddressIsValid = orderValidator.IsValid;
-			orderValidator.RunDlgIfNotValid((Gtk.Window)this.Toplevel);
+			orderValidator.RunDlgIfNotValid((Window)this.Toplevel);
 			routeListItem.Order.CheckAndSetOrderIsService();
 			orderEquipmentItemsView.UnsubscribeOnEquipmentAdd();
 			//Не блокируем закрытие вкладки
@@ -440,34 +424,31 @@ namespace Vodovoz
 		public bool IsDelivered {
 			get => ActualCount > 0;
 			set {
-				if(IsEquipment && IsSerialEquipment) {
+				if(IsEquipment && IsSerialEquipment)
 					ActualCount = value ? 1 : 0;
-				}
 			}
 		}
+
 		public int ActualCount {
 			get {
 				if(IsEquipment) {
-					if(IsSerialEquipment) {
+					if(IsSerialEquipment)
 						return orderEquipment.Confirmed ? 1 : 0;
-					}
-					return orderEquipment.ActualCount;
-				} else {
-					return orderItem.ActualCount;
+					return orderEquipment.ActualCount ?? 0;
 				}
+				return orderItem.ActualCount ?? 0;
 			}
 			set {
 				if(IsEquipment) {
-					if(IsSerialEquipment) {
+					if(IsSerialEquipment)
 						orderEquipment.ActualCount = value > 0 ? 1 : 0;
-					}
 					orderEquipment.ActualCount = value;
 				} else {
 					orderItem.ActualCount = value;
 				}
-
 			}
 		}
+
 		public Nomenclature Nomenclature {
 			get {
 				if(IsEquipment) {
@@ -475,11 +456,11 @@ namespace Vodovoz
 						return orderEquipment.Equipment.Nomenclature;
 					}
 					return orderEquipment.Nomenclature;
-				} else {
-					return orderItem.Nomenclature;
 				}
+				return orderItem.Nomenclature;
 			}
 		}
+
 		public int Count => IsEquipment ? 1 : orderItem.Count;
 
 		public string Name => IsEquipment ? orderEquipment.NameString : orderItem.NomenclatureString;
@@ -496,10 +477,9 @@ namespace Vodovoz
 
 		public decimal Price {
 			get {
-				if(IsEquipment) {
+				if(IsEquipment)
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.Price : 0;
-				} else
-					return orderItem.Price;
+				return orderItem.Price;
 			}
 			set {
 				if(IsEquipment) {
@@ -525,7 +505,7 @@ namespace Vodovoz
 			}
 		}
 
-		public Decimal DiscountForPrewiev{
+		public decimal DiscountForPrewiev{
 			get{
 				if(IsEquipment)
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountForPreview : 0;
@@ -541,7 +521,7 @@ namespace Vodovoz
 			}
 		}
 
-		public Decimal Discount {
+		public decimal Discount {
 			get { 
 				if(IsEquipment)
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.Discount : 0m;
@@ -556,7 +536,7 @@ namespace Vodovoz
 			}
 		}
 
-		public Decimal DiscountMoney {
+		public decimal DiscountMoney {
 			get {
 				if(IsEquipment)
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountMoney : 0m;
@@ -564,13 +544,8 @@ namespace Vodovoz
 			}
 		}
 
-		public DiscountReason DiscountReason{
-			get {
-				if(IsEquipment)
-					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountReason : null;
-				else
-					return orderItem.DiscountReason;
-			}
+		public DiscountReason DiscountReason {
+			get => IsEquipment ? orderEquipment.OrderItem?.DiscountReason : orderItem.DiscountReason;
 			set {
 				if(IsEquipment) {
 					if(orderEquipment.OrderItem != null)

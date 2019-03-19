@@ -46,7 +46,7 @@ namespace Vodovoz.Repositories.Orders
 				query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
 			else
 				query.Where(order => order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.NewOrder && order.OrderStatus != OrderStatus.WaitForPayment);
-			return query.Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery);
+			return query.Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery && !order.IsService);
 		}
 
 		public static IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, LogisticsArea area)
@@ -94,7 +94,7 @@ namespace Vodovoz.Repositories.Orders
 										   Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
 																   NHibernateUtil.Decimal,
 				                                                   Projections.Conditional(
-					                                                   Restrictions.Eq(Projections.Property(() => orderAlias.OrderStatus), OrderStatus.Closed),
+					                                                   Restrictions.IsNotNull(Projections.Property<OrderItem>(x => x.ActualCount)),
 					                                                   Projections.Property<OrderItem>(x => x.ActualCount),
 					                                                   Projections.Property<OrderItem>(x => x.Count)
 					                                                  ),
