@@ -21,6 +21,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository.Cash;
+using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
@@ -736,25 +737,25 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
-				if(newStatus == RouteListStatus.Confirmed) {
-					if(!GeographicGroups.Any())
-						yield return new ValidationResult("Необходимо указать район");
-				}
-				if(newStatus == RouteListStatus.InLoading) {
-				}
-				if(newStatus == RouteListStatus.Closed) {
-				}
-				if(newStatus == RouteListStatus.MileageCheck) {
-					foreach(var address in Addresses) {
-						var valid = new QSValidator<Order>(address.Order,
-							new Dictionary<object, object> {
+				switch(newStatus) {
+					case RouteListStatus.Confirmed:
+						if(!GeographicGroups.Any())
+							yield return new ValidationResult("Необходимо указать район");
+						break;
+					case RouteListStatus.InLoading: break;
+					case RouteListStatus.Closed: break;
+					case RouteListStatus.MileageCheck:
+						foreach(var address in Addresses) {
+							var valid = new QSValidator<Order>(address.Order,
+								new Dictionary<object, object> {
 							{ "NewStatus", OrderStatus.Closed }
-						});
+							});
 
-						foreach(var result in valid.Results) {
-							yield return result;
+							foreach(var result in valid.Results) {
+								yield return result;
+							}
 						}
-					}
+						break;
 				}
 			}
 
@@ -1516,6 +1517,39 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		/// <returns>Возрат значения перегруза в килограммах.</returns>
 		public virtual double Overweight() => HasOverweight() ? Math.Round(GetTotalWeight() - Car.MaxWeight, 2) : 0;
+
+		/// <summary>
+		/// Нода с номенклатурами и различными количествами после погрузки МЛ на складе
+		/// </summary>
+		public virtual List<RouteListControlNotLoadedNode> NotLoadedNomenclatures()
+		{
+			List<RouteListControlNotLoadedNode> notLoadedNomenclatures = new List<RouteListControlNotLoadedNode>();
+			if(Id > 0) {
+				var loadedNomenclatures = RouteListRepository.AllGoodsLoaded(UoW, this);
+				var nomenclaturesToLoad = RouteListRepository.GetGoodsAndEquipsInRL(UoW, this);
+				foreach(var n in nomenclaturesToLoad) {
+					var loaded = loadedNomenclatures.FirstOrDefault(x => x.NomenclatureId == n.NomenclatureId);
+					decimal loadedAmount = 0;
+					if(loaded != null)
+						loadedAmount = loaded.Amount;
+					if(loadedAmount < n.Amount) {
+						notLoadedNomenclatures.Add(new RouteListControlNotLoadedNode {
+							NomenclatureId = n.NomenclatureId,
+							CountTotal = n.Amount,
+							CountNotLoaded = (int)(n.Amount - loadedAmount)
+						});
+					}
+				}
+				DomainHelper.FillPropertyByEntity<RouteListControlNotLoadedNode, Nomenclature>(
+								UoW,
+								notLoadedNomenclatures,
+								x => x.NomenclatureId,
+								(node, obj) => node.Nomenclature = obj
+							);
+			}
+			return notLoadedNomenclatures;
+		}
+
 		#endregion
 	}
 
@@ -1539,9 +1573,17 @@ namespace Vodovoz.Domain.Logistic
 
 	public class RouteListStatusStringType : NHibernate.Type.EnumStringType
 	{
-		public RouteListStatusStringType() : base(typeof(RouteListStatus))
-		{
-		}
+		public RouteListStatusStringType() : base(typeof(RouteListStatus)) { }
+	}
+
+	public class RouteListControlNotLoadedNode
+	{
+		public int NomenclatureId { get; set; }
+		public Nomenclature Nomenclature { get; set; }
+		public int CountNotLoaded { get; set; }
+		public int CountTotal { get; set; }
+		public int CountLoaded => CountTotal - CountNotLoaded;
+		public string CountLoadedString => string.Format("<span foreground=\"{0}\">{1}</span>", CountLoaded > 0 ? "Orange" : "Red", CountLoaded);
 	}
 }
 

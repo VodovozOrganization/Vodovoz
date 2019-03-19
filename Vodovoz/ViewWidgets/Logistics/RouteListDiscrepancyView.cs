@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
-using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz
 {
@@ -22,15 +22,15 @@ namespace Vodovoz
 		}
 
 		List<Discrepancy> items;
-		public List<Discrepancy> Items{ 
-			get{
-				return items;
-			}
-			set{
+		public List<Discrepancy> Items {
+			get => items;
+			set {
 				items = value;
 				ytreeview2.ItemsDataSource = items;
 			}
 		}
+
+		public IList<RouteListControlNotLoadedNode> ItemsLoaded { get; set; }
 
 		protected void Configure()
 		{
@@ -39,34 +39,35 @@ namespace Vodovoz
 			ytreeview2.ColumnsConfig = ColumnsConfigFactory.Create<Discrepancy>()
 				.AddColumn("Название")
 					.AddTextRenderer(node => node.Name)
-				.AddColumn("Выг-\nрузка")
+				.AddColumn("Недопо-\nгрузка")
+					.AddNumericRenderer(node => node.FromWarehouse)
+				.AddColumn("Выгру-\nзка")
 					.AddNumericRenderer(node => node.ToWarehouse)
 				.AddColumn("Не-\nдовоз")
 					.AddTextRenderer(node => node.Returns)
 				.AddColumn("От \nклиента")
-					.AddNumericRenderer(node=>node.PickedUpFromClient)
+					.AddNumericRenderer(node => node.PickedUpFromClient)
 				.AddColumn("Расхо-\nждения")
-					.AddNumericRenderer(node=>node.Remainder)
+					.AddNumericRenderer(node => node.Remainder)
 						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
 				.AddColumn("Ущерб")
 					.AddTextRenderer(x => x.SumOfDamage.ToString("C"))
 				.AddColumn("Штраф")
 					.AddToggleRenderer(x => x.UseFine).ToggledEvent(UseFine_Toggled)
-				.RowCells()					
-					.AddSetter<CellRenderer>((cell,node) => cell.CellBackgroundGdk = node.Remainder==0 ? colorWhite : colorRed)
+				.RowCells()
+					.AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.Remainder == 0 ? colorWhite : colorRed)
 				.Finish();
 		}
 
 		public event EventHandler FineChanged;
 
-		void UseFine_Toggled (object o, ToggledArgs args)
+		void UseFine_Toggled(object o, ToggledArgs args)
 		{
 			//Вызываем через Application.Invoke что бы событие вызывалось уже после того как поле обновилось.
 			Application.Invoke(delegate {
-				if (FineChanged != null)
-					FineChanged(this, EventArgs.Empty);
+				FineChanged?.Invoke(this, EventArgs.Empty);
 			});
-		}	
+		}
 
 		public void FindDiscrepancies(IList<RouteListItem> items, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse)
 		{
@@ -78,12 +79,12 @@ namespace Vodovoz
 			List<Discrepancy> result = new List<Discrepancy>();
 
 			//ТОВАРЫ
-			var orderClosingItems = items
-				.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
-				.SelectMany(item => item.Order.OrderItems)
-				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				.Where(item => item.Nomenclature.Category != NomenclatureCategory.bottle)
-				.ToList();
+			var orderClosingItems = items.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
+										 .SelectMany(item => item.Order.OrderItems)
+										 .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+										 .Where(item => item.Nomenclature.Category != NomenclatureCategory.bottle)
+										 .ToList();
+
 			foreach(var orderItem in orderClosingItems) {
 				var discrepancy = new Discrepancy {
 					Nomenclature = orderItem.Nomenclature,
@@ -94,11 +95,10 @@ namespace Vodovoz
 			}
 
 			//ОБОРУДОВАНИЕ
-			var orderEquipments = items
-				.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
-				.SelectMany(item => item.Order.OrderEquipments)
-				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				.ToList();
+			var orderEquipments = items.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
+									   .SelectMany(item => item.Order.OrderEquipments)
+									   .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+									   .ToList();
 			foreach(var orderEquip in orderEquipments) {
 				var discrepancy = new Discrepancy {
 					Nomenclature = orderEquip.Nomenclature,
@@ -114,9 +114,8 @@ namespace Vodovoz
 			}
 
 			//ДОСТАВЛЕНО НА СКЛАД
-			var warehouseItems = allReturnsToWarehouse
-				.Where(x => x.NomenclatureCategory != NomenclatureCategory.bottle)
-				.ToList();
+			var warehouseItems = allReturnsToWarehouse.Where(x => x.NomenclatureCategory != NomenclatureCategory.bottle)
+													  .ToList();
 			foreach(var whItem in warehouseItems) {
 				var discrepancy = new Discrepancy {
 					Nomenclature = whItem.Nomenclature,
@@ -125,6 +124,20 @@ namespace Vodovoz
 				};
 				AddDiscrepancy(result, discrepancy);
 			}
+
+			if(ItemsLoaded != null && ItemsLoaded.Any()) {
+				var loadedItems = ItemsLoaded.Where(x => x.Nomenclature.Category != NomenclatureCategory.bottle);
+				foreach(var item in loadedItems) {
+					var discrepancy = new Discrepancy {
+						Nomenclature = item.Nomenclature,
+						FromWarehouse = item.CountNotLoaded,
+						Name = item.Nomenclature.Name
+					};
+
+					AddDiscrepancy(result, discrepancy);
+				}
+			}
+
 			return result;
 		}
 
@@ -134,25 +147,25 @@ namespace Vodovoz
 		/// </summary>
 		void AddDiscrepancy(List<Discrepancy> list, Discrepancy item)
 		{
-			var existsDiscrepancy = list.FirstOrDefault(x => x.Nomenclature == item.Nomenclature);
-			if(existsDiscrepancy == null) {
+			var existingDiscrepancy = list.FirstOrDefault(x => x.Nomenclature == item.Nomenclature);
+			if(existingDiscrepancy == null) {
 				list.Add(item);
-			}else {
-				existsDiscrepancy.ClientRejected += item.ClientRejected;
-				existsDiscrepancy.PickedUpFromClient += item.PickedUpFromClient;
-				existsDiscrepancy.ToWarehouse += item.ToWarehouse;
+			} else {
+				existingDiscrepancy.ClientRejected += item.ClientRejected;
+				existingDiscrepancy.PickedUpFromClient += item.PickedUpFromClient;
+				existingDiscrepancy.ToWarehouse += item.ToWarehouse;
+				existingDiscrepancy.FromWarehouse += item.FromWarehouse;
 			}
 		}
 	}
 
 	public class EquipmentTypeGroupingResult
 	{
-		public EquipmentType EquipmentType{get;set;}
-		public int Amount{get;set;}
+		public EquipmentType EquipmentType { get; set; }
+		public int Amount { get; set; }
 		public static EquipmentTypeGroupingResult Selector(EquipmentType type, IEnumerable<int> amounts)
 		{
-			return new EquipmentTypeGroupingResult
-			{
+			return new EquipmentTypeGroupingResult {
 				EquipmentType = type,
 				Amount = amounts.Sum()
 			};
@@ -162,30 +175,20 @@ namespace Vodovoz
 	public class Discrepancy
 	{
 		public int Id { get; set; }
-		public string Name{get;set;}
-
-		private Nomenclature nomenclature;
-		public Nomenclature Nomenclature {
-			get {
-				return nomenclature;
-			}
-
-			set {
-				nomenclature = value;
-			}
-		}
+		public string Name { get; set; }
+		public Nomenclature Nomenclature { get; set; }
 
 		/// <summary>
 		/// Количество которое необходимо забрать у клиента
 		/// </summary>
 		/// <value>The picked up from client.</value>
-		public decimal PickedUpFromClient{ get; set; }
+		public decimal PickedUpFromClient { get; set; }
 
 		/// <summary>
 		/// Недовезенное количество
 		/// </summary>
 		/// <value>The client rejected.</value>
-		public decimal ClientRejected{ get; set; }
+		public decimal ClientRejected { get; set; }
 
 		/// <summary>
 		/// Выгружено на склад
@@ -193,50 +196,38 @@ namespace Vodovoz
 		/// <value>To warehouse.</value>
 		public decimal ToWarehouse { get; set; }
 
+		/// <summary>
+		/// Погружено на складе
+		/// </summary>
+		public decimal FromWarehouse { get; set; }
+
 		public bool Trackable { get; set; }
 		public bool UseFine { get; set; }
 
 		/// <summary>
 		/// Остаток
 		/// </summary>
-		public decimal Remainder{
-			get{
-				return ToWarehouse - ClientRejected - PickedUpFromClient;
-			}
-		}
+		public decimal Remainder => FromWarehouse + ToWarehouse - ClientRejected - PickedUpFromClient;
 
 		/// <summary>
 		/// Недовоз
 		/// </summary>
-		public string Returns{
-			get{
-				return String.Format("{0}", ClientRejected);
-			}
-		}
+		public string Returns => string.Format("{0}", ClientRejected);
 
 		/// <summary>
 		/// Серийный номер
 		/// </summary>
-		public string Serial{ get { 
-				if (Trackable) {
-					return Id > 0 ? Id.ToString () : "(не определен)";
-				} else
-					return String.Empty;
+		public string Serial {
+			get {
+				if(Trackable)
+					return Id > 0 ? Id.ToString() : "(не определен)";
+				return string.Empty;
 			}
 		}
 
 		/// <summary>
 		/// Ущерб
 		/// </summary>
-		public decimal SumOfDamage{
-			get
-			{
-				if (Nomenclature == null)
-					return 0;
-				return Nomenclature.SumOfDamage * (-Remainder);
-			}
-		}
+		public decimal SumOfDamage => Nomenclature == null ? 0 : Nomenclature.SumOfDamage * (-Remainder);
 	}
-
 }
-
