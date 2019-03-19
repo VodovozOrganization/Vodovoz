@@ -24,12 +24,6 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckMainDoc;
 
-		private global::Gtk.HBox hbox8;
-
-		private global::Gtk.Label label7;
-
-		private global::Gamma.GtkWidgets.yEntry yentryDocName;
-
 		private global::Gtk.HBox hbox3;
 
 		private global::Gtk.Label label1;
@@ -45,6 +39,12 @@ namespace Vodovoz.Dialogs.Employees
 		private global::Gtk.Label label3;
 
 		private global::Gamma.Widgets.yDatePicker ydatePassportIssuedDate;
+
+		private global::Gtk.HBox hbox8;
+
+		private global::Gtk.Label label7;
+
+		private global::Gamma.GtkWidgets.yEntry yentryDocName;
 
 		private global::Gtk.HBox hbox6;
 
@@ -107,7 +107,7 @@ namespace Vodovoz.Dialogs.Employees
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.label5 = new global::Gtk.Label();
-			this.label5.WidthRequest = 83;
+			this.label5.WidthRequest = 90;
 			this.label5.Name = "label5";
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Вид документа:");
 			this.hbox2.Add(this.label5);
@@ -139,9 +139,8 @@ namespace Vodovoz.Dialogs.Employees
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.label6 = new global::Gtk.Label();
-			this.label6.WidthRequest = 130;
+			this.label6.WidthRequest = 90;
 			this.label6.Name = "label6";
-			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("Главный документ:");
 			this.hbox7.Add(this.label6);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.label6]));
 			w9.Position = 0;
@@ -151,7 +150,7 @@ namespace Vodovoz.Dialogs.Employees
 			this.ycheckMainDoc = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckMainDoc.CanFocus = true;
 			this.ycheckMainDoc.Name = "ycheckMainDoc";
-			this.ycheckMainDoc.Label = "";
+			this.ycheckMainDoc.Label = global::Mono.Unix.Catalog.GetString("Главный документ");
 			this.ycheckMainDoc.DrawIndicator = true;
 			this.ycheckMainDoc.UseUnderline = true;
 			this.ycheckMainDoc.FocusOnClick = false;
@@ -166,49 +165,19 @@ namespace Vodovoz.Dialogs.Employees
 			w11.Expand = false;
 			w11.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox8 = new global::Gtk.HBox();
-			this.hbox8.Name = "hbox8";
-			this.hbox8.Spacing = 6;
-			// Container child hbox8.Gtk.Box+BoxChild
-			this.label7 = new global::Gtk.Label();
-			this.label7.WidthRequest = 83;
-			this.label7.Name = "label7";
-			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
-			this.hbox8.Add(this.label7);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.label7]));
-			w12.Position = 0;
-			w12.Expand = false;
-			w12.Fill = false;
-			// Container child hbox8.Gtk.Box+BoxChild
-			this.yentryDocName = new global::Gamma.GtkWidgets.yEntry();
-			this.yentryDocName.CanFocus = true;
-			this.yentryDocName.Name = "yentryDocName";
-			this.yentryDocName.IsEditable = true;
-			this.yentryDocName.InvisibleChar = '•';
-			this.hbox8.Add(this.yentryDocName);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.yentryDocName]));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
-			this.vbox2.Add(this.hbox8);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox8]));
-			w14.Position = 3;
-			w14.Expand = false;
-			w14.Fill = false;
-			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.label1 = new global::Gtk.Label();
-			this.label1.WidthRequest = 83;
+			this.label1.WidthRequest = 90;
 			this.label1.Name = "label1";
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("серия:");
 			this.hbox3.Add(this.label1);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label1]));
-			w15.Position = 0;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label1]));
+			w12.Position = 0;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.yentryPasSeria = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryPasSeria.CanFocus = true;
@@ -216,19 +185,19 @@ namespace Vodovoz.Dialogs.Employees
 			this.yentryPasSeria.IsEditable = true;
 			this.yentryPasSeria.InvisibleChar = '•';
 			this.hbox3.Add(this.yentryPasSeria);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryPasSeria]));
-			w16.Position = 1;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryPasSeria]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("номер:");
 			this.hbox3.Add(this.label2);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label2]));
-			w17.Position = 2;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label2]));
+			w14.Position = 2;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.yentryPassportNumber = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryPassportNumber.CanFocus = true;
@@ -236,29 +205,29 @@ namespace Vodovoz.Dialogs.Employees
 			this.yentryPassportNumber.IsEditable = true;
 			this.yentryPassportNumber.InvisibleChar = '•';
 			this.hbox3.Add(this.yentryPassportNumber);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryPassportNumber]));
-			w18.Position = 3;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryPassportNumber]));
+			w15.Position = 3;
+			w15.Expand = false;
+			w15.Fill = false;
 			this.vbox2.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox3]));
-			w19.Position = 4;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox3]));
+			w16.Position = 3;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.label3 = new global::Gtk.Label();
-			this.label3.WidthRequest = 83;
+			this.label3.WidthRequest = 90;
 			this.label3.Name = "label3";
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Дата выдачи:");
 			this.hbox4.Add(this.label3);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.label3]));
-			w20.Position = 0;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.label3]));
+			w17.Position = 0;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.ydatePassportIssuedDate = new global::Gamma.Widgets.yDatePicker();
 			this.ydatePassportIssuedDate.Events = ((global::Gdk.EventMask)(256));
@@ -268,10 +237,40 @@ namespace Vodovoz.Dialogs.Employees
 			this.ydatePassportIssuedDate.IsEditable = true;
 			this.ydatePassportIssuedDate.AutoSeparation = false;
 			this.hbox4.Add(this.ydatePassportIssuedDate);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ydatePassportIssuedDate]));
-			w21.Position = 1;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ydatePassportIssuedDate]));
+			w18.Position = 1;
 			this.vbox2.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox4]));
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox4]));
+			w19.Position = 4;
+			w19.Expand = false;
+			w19.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbox8 = new global::Gtk.HBox();
+			this.hbox8.Name = "hbox8";
+			this.hbox8.Spacing = 6;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.label7 = new global::Gtk.Label();
+			this.label7.WidthRequest = 90;
+			this.label7.Name = "label7";
+			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString("Доп. название:");
+			this.hbox8.Add(this.label7);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.label7]));
+			w20.Position = 0;
+			w20.Expand = false;
+			w20.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.yentryDocName = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryDocName.CanFocus = true;
+			this.yentryDocName.Name = "yentryDocName";
+			this.yentryDocName.IsEditable = true;
+			this.yentryDocName.InvisibleChar = '•';
+			this.hbox8.Add(this.yentryDocName);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.yentryDocName]));
+			w21.Position = 1;
+			w21.Expand = false;
+			w21.Fill = false;
+			this.vbox2.Add(this.hbox8);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox8]));
 			w22.Position = 5;
 			w22.Expand = false;
 			w22.Fill = false;
@@ -281,7 +280,7 @@ namespace Vodovoz.Dialogs.Employees
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.label4 = new global::Gtk.Label();
-			this.label4.WidthRequest = 83;
+			this.label4.WidthRequest = 90;
 			this.label4.Name = "label4";
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Кем выдан:");
 			this.hbox6.Add(this.label4);

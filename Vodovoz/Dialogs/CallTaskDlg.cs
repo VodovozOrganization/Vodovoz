@@ -134,8 +134,6 @@ namespace Vodovoz.Dialogs
 			if(Entity.Address == null)
 				return;
 			OrderDlg orderDlg = new OrderDlg();
-			orderDlg.Entity.Client = Entity.Address.Counterparty;
-			orderDlg.Entity.DeliveryPoint = Entity.Address;
 			TabParent.AddSlaveTab(this, orderDlg);
 		}
 

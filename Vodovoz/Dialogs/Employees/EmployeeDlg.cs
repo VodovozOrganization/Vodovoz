@@ -154,7 +154,7 @@ namespace Vodovoz
 
 			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
-				.AddColumn("Название").AddTextRenderer(x=>x.Name)
+				.AddColumn("Доп. название").AddTextRenderer(x=>x.Name)
 				.Finish();
 			ytreeviewEmployeeDocument.SetItemsSource(Entity.ObservableDocuments);
 
