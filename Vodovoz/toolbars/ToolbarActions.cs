@@ -30,6 +30,11 @@ public partial class MainWindow : Window
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
 	Action ActionClientBalance;
+
+	//CRM
+	Action ActionCallTasks;
+	Action ActionBottleDebtors;
+
 	//Логистика
 	Action ActionRouteListTable;
 	Action ActionAtWorks;
@@ -75,6 +80,9 @@ public partial class MainWindow : Window
 		ActionLoadOrders = new Action("ActionLoadOrders", "Загрузить из 1С", null, "table");
 		ActionDeliveryPrice = new Action("ActionDeliveryPrice", "Стоимость доставки", null, null);
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
+		//CRM
+		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач" , null , "table");
+		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
 		//Склад
@@ -135,6 +143,9 @@ public partial class MainWindow : Window
 		w1.Add(ActionReadyForReception, null);
 		w1.Add(ActionWarehouseStock, null);
 		w1.Add(ActionClientBalance, null);
+		//CRM
+		w1.Add(ActionCallTasks, null);
+		w1.Add(ActionBottleDebtors, null);
 		//Логистика
 		w1.Add(ActionRouteListTable, null);
 		w1.Add(ActionAtWorks, null);
@@ -184,6 +195,11 @@ public partial class MainWindow : Window
 		ActionReadyForReception.Activated += ActionReadyForReceptionActivated;
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
+
+		//CRM
+		ActionCallTasks.Activated += ActionCallTasks_Activate;
+		ActionBottleDebtors.Activated += ActionBottleDebtors_Activate;
+
 		//Логистика
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
 		ActionAtWorks.Activated += ActionAtWorks_Activated;
@@ -227,6 +243,23 @@ public partial class MainWindow : Window
 			() => new PrintRouteDocumentsDlg()
 		);
 	}
+
+	void ActionCallTasks_Activate(object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			"CRM",
+			() => new TasksView(), null
+			);
+	}
+
+	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+		"CRM",
+		() => new DebtorsView(), null
+		);
+	}
+
 
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e)
 	{

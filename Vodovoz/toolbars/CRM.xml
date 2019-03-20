@@ -1,0 +1,6 @@
+﻿<ui>
+    <toolbar name='toolbarSub'>
+        <toolitem name='ActionCallTasks' action='ActionCallTasks'/>
+        <toolitem name='ActionBottleDebtors' action='ActionBottleDebtors'/>
+    </toolbar>
+</ui>

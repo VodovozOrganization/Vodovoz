@@ -281,6 +281,11 @@ namespace Vodovoz.Domain.Employees
 			foreach(var account in trainee.Accounts) {
 				employee.Accounts.Add(account);
 			}
+			foreach(var document in trainee.Documents) {
+				employee.Documents.Add(document);
+			}
+			employee.isRussianCitizen = trainee.IsRussianCitizen;
+			employee.Citizenship = trainee.Citizenship;
 			employee.Nationality = trainee.Nationality;
 			employee.Photo = trainee.Photo;
 			uow.Session.Evict(trainee);
@@ -301,7 +306,10 @@ namespace Vodovoz.Domain.Employees
 		string AddressCurrent { get; set; }
 		string INN { get; set; }
 		IList<QSContacts.Phone> Phones { get; set; }
+		IList<EmployeeDocument> Documents { get; set; }
 		Nationality Nationality { get; set; }
+		bool IsRussianCitizen { get; set; }
+		Citizenship Citizenship { get; set; }
 		byte[] Photo { get; set; }
 	}
 }

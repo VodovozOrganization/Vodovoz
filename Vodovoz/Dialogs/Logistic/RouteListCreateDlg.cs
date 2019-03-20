@@ -24,7 +24,7 @@ namespace Vodovoz
 {
 	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		bool isEditable;
 
@@ -38,37 +38,32 @@ namespace Vodovoz
 			}
 		}
 
-		public RouteListCreateDlg ()
+		public RouteListCreateDlg()
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList> ();
-			Entity.Logistican = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
-			if (Entity.Logistican == null) {
-				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList>();
+			Entity.Logistican = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(Entity.Logistican == null) {
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				FailInitialize = true;
 				return;
 			}
 
-			if(!ConfigSubdivisionCombo()) {
-				return;
+			if(ConfigSubdivisionCombo()) {
+				Entity.Date = DateTime.Now;
+				ConfigureDlg();
 			}
-
-			Entity.Date = DateTime.Now;
-			ConfigureDlg ();
 		}
 
-		public RouteListCreateDlg (RouteList sub) : this(sub.Id) {}
+		public RouteListCreateDlg(RouteList sub) : this(sub.Id) { }
 
-		public RouteListCreateDlg (int id)
+		public RouteListCreateDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList> (id);
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 
-			if(!ConfigSubdivisionCombo()) {
-				return;
-			}
-
-			ConfigureDlg();
+			if(ConfigSubdivisionCombo())
+				ConfigureDlg();
 		}
 
 		private bool ConfigSubdivisionCombo()
@@ -84,14 +79,13 @@ namespace Vodovoz
 			yspeccomboboxCashSubdivision.SelectedItem = SpecialComboState.Not;
 			yspeccomboboxCashSubdivision.ItemSelected += YspeccomboboxCashSubdivision_ItemSelected;
 
-			if(Entity.ClosingSubdivision != null && subdivisions.Any(x => x.Id == Entity.ClosingSubdivision.Id)) {
+			if(Entity.ClosingSubdivision != null && subdivisions.Any(x => x.Id == Entity.ClosingSubdivision.Id))
 				yspeccomboboxCashSubdivision.SelectedItem = Entity.ClosingSubdivision;
-			}
 
 			return true;
 		}
 
-		private void ConfigureDlg ()
+		private void ConfigureDlg()
 		{
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
@@ -117,8 +111,7 @@ namespace Vodovoz
 			filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
 			referenceForwarder.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			referenceForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject).InitializeFromSource();
-			referenceForwarder.Changed += (sender, args) =>
-			{
+			referenceForwarder.Changed += (sender, args) => {
 				createroutelistitemsview1.OnForwarderChanged();
 			};
 
@@ -127,7 +120,7 @@ namespace Vodovoz
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistican, w => w.Subject).InitializeFromSource();
 
-			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts (UoW);
+			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();
 
 			labelStatus.Binding.AddFuncBinding(Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
@@ -135,20 +128,19 @@ namespace Vodovoz
 			referenceDriver.Sensitive = false;
 			enumPrint.Sensitive = Entity.Status != RouteListStatus.New;
 
-			if(Entity.Id > 0)
-			{
+			if(Entity.Id > 0) {
 				//Нужно только для быстрой загрузки данных диалога. Проверено на МЛ из 200 заказов. Разница в скорости в несколько раз.
 				var orders = UoW.Session.QueryOver<RouteListItem>()
 								.Where(x => x.RouteList == Entity)
 								.Fetch(x => x.Order).Eager
-				                .Fetch(x => x.Order.OrderItems).Eager
-				                .List();
+								.Fetch(x => x.Order.OrderItems).Eager
+								.List();
 			}
 
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
 
-			buttonAccept.Visible = (Entity.Status == RouteListStatus.New || Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed);
-			if (Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
+			buttonAccept.Visible = Entity.Status == RouteListStatus.New || Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed;
+			if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
 				var icon = new Image {
 					Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
 				};
@@ -156,7 +148,7 @@ namespace Vodovoz
 				buttonAccept.Label = "Редактировать";
 			}
 
-			IsEditable = Entity.Status == RouteListStatus.New && UserPermissionRepository.CurrentUserPresetPermissions ["logistican"];
+			IsEditable = Entity.Status == RouteListStatus.New && UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
 
 			ggToStringWidget.UoW = UoW;
 			ggToStringWidget.Label = "Район города:";
@@ -170,8 +162,8 @@ namespace Vodovoz
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadSofiyskaya, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.OrderOfAddresses, false);
-			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, !(Entity.Status == RouteListStatus.Confirmed) );
-			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
+			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, !(Entity.Status == RouteListStatus.Confirmed));
+			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments)e.ItemEnum);
 			CheckCarLoadDocuments();
 		}
 
@@ -186,7 +178,7 @@ namespace Vodovoz
 				IsEditable = false;
 		}
 
-		void PrintSelectedDocument (RouteListPrintableDocuments choise)
+		void PrintSelectedDocument(RouteListPrintableDocuments choise)
 		{
 			TabParent.OpenTab(
 				QS.Dialog.Gtk.TdiTabBase.GenerateHashName<DocumentsPrinterDlg>(),
@@ -211,15 +203,15 @@ namespace Vodovoz
 			}
 		}
 
-		public override bool Save ()
+		public override bool Save()
 		{
-			var valid = new QSValidator<RouteList> (Entity);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var valid = new QSValidator<RouteList>(Entity);
+			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			logger.Info ("Сохраняем маршрутный лист...");
-			UoWGeneric.Save ();
-			logger.Info ("Ok");
+			logger.Info("Сохраняем маршрутный лист...");
+			UoWGeneric.Save();
+			logger.Info("Ok");
 			return true;
 		}
 
@@ -229,7 +221,7 @@ namespace Vodovoz
 
 			switch(Entity.Status) {
 				case RouteListStatus.New: {
-						IsEditable = (true);
+						IsEditable = true;
 						var icon = new Image {
 							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
 						};
@@ -239,7 +231,7 @@ namespace Vodovoz
 						break;
 					}
 				case RouteListStatus.Confirmed: {
-						IsEditable = (false);
+						IsEditable = false;
 						var icon = new Image {
 							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
 						};
@@ -248,8 +240,8 @@ namespace Vodovoz
 						buttonAccept.Label = "Редактировать";
 						break;
 					}
-				case RouteListStatus.InLoading : {
-						IsEditable = (false);
+				case RouteListStatus.InLoading: {
+						IsEditable = false;
 						var icon = new Image {
 							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
 						};
@@ -264,7 +256,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnButtonAcceptClicked (object sender, EventArgs e)
+		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
 			if(buttonAccept.Label == "Подтвердить" && Entity.HasOverweight()) {
 				if(UserPermissionRepository.CurrentUserPresetPermissions["can_confirm_routelist_with_overweight"]) {
@@ -290,7 +282,7 @@ namespace Vodovoz
 				}
 			}
 
-			if (Entity.Status == RouteListStatus.New) {
+			if(Entity.Status == RouteListStatus.New) {
 				var valid = new QSValidator<RouteList>(Entity,
 								new Dictionary<object, object> {
 						{ "NewStatus", RouteListStatus.Confirmed }
@@ -319,15 +311,11 @@ namespace Vodovoz
 
 				Save();
 
-				if(Entity.Car.TypeOfUse == CarTypeOfUse.Truck)
-				{
-					if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle()))
-					{
+				if(Entity.Car.TypeOfUse == CarTypeOfUse.Truck) {
+					if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle())) {
 						Entity.CompleteRoute();
 					}
-				}
-				else
-				{
+				} else {
 					//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
 					var forShipment = Repository.Store.WarehouseRepository.WarehouseForShipment(UoW, Entity.Id);
 					if(!forShipment.Any()) {
@@ -349,10 +337,10 @@ namespace Vodovoz
 				UpdateButtonStatus();
 				return;
 			}
-			if (Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
+			if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
 				if(RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any()) {
 					MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
-				}else {
+				} else {
 					Entity.ChangeStatus(RouteListStatus.New);
 				}
 				UpdateButtonStatus();
