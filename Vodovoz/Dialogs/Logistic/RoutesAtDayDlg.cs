@@ -194,9 +194,9 @@ namespace Vodovoz
 			ytreeviewOnDayDrivers.Selection.Changed += YtreeviewDrivers_Selection_Changed;
 
 			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()
-																			    .AddColumn("Экспедитор")
-																			 	    .AddTextRenderer(x => x.Employee.ShortName)
-																			    .Finish();
+																				.AddColumn("Экспедитор")
+																					 .AddTextRenderer(x => x.Employee.ShortName)
+																				.Finish();
 			ytreeviewOnDayForwarders.Selection.Mode = SelectionMode.Multiple;
 
 			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
@@ -518,16 +518,14 @@ namespace Vodovoz
 					return string.Empty;
 				if(proposed == null)
 					return string.Format("{0:N1}км", rl.PlanedDistance);
-				else
-					return string.Format("{0:N1}км ({1:N})",
-										 rl.PlanedDistance,
-										 (double)proposed.RouteCost / 1000);
+				return string.Format("{0:N1}км ({1:N})",
+									 rl.PlanedDistance,
+									 (double)proposed.RouteCost / 1000);
 			}
 
 			if(row is RouteListItem rli) {
 				if(rli.IndexInRoute == 0)
 					return string.Format("{0:N1}км", (double)distanceCalculator.DistanceFromBaseMeter(rli.RouteList.GeographicGroups.FirstOrDefault(), rli.Order.DeliveryPoint) / 1000);
-
 				return string.Format("{0:N1}км", (double)distanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint) / 1000);
 			}
 			return null;
@@ -660,7 +658,7 @@ namespace Vodovoz
 			if(!checkShowCompleted.Active)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
 			var routesQuery = routesQuery1
-				.Fetch(SelectMode.Fetch, x => x.Addresses)
+				.Fetch(SelectMode.Undefined, x => x.Addresses)
 				.Future();
 
 			var routesQuery2 = RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
@@ -669,8 +667,8 @@ namespace Vodovoz
 				routesQuery2.Where(x => x.Status == RouteListStatus.New);
 			routesQuery2
 				.Where(x => x.Status == RouteListStatus.New)
-				.Fetch(SelectMode.Fetch, x => x.Driver)
-				.Fetch(SelectMode.Fetch, x => x.Car)
+				.Fetch(SelectMode.Undefined, x => x.Driver)
+				.Fetch(SelectMode.Undefined, x => x.Car)
 				.Future();
 
 			routesAtDay = routesQuery.ToList();
@@ -909,7 +907,7 @@ namespace Vodovoz
 		{
 			var menu = new Menu();
 			foreach(var route in routesAtDay) {
-				var name = string.Format("МЛ №{0} - {1}", route.Id, route.Driver.ShortName);
+				var name = string.Format("МЛ №{0} - {1} ({2})", route.Id, route.Driver.ShortName, route.GeographicGroups.FirstOrDefault()?.Name);
 				var item = new MenuItemId<RouteList>(name) {
 					ID = route
 				};
