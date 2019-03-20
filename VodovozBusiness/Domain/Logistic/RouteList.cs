@@ -738,35 +738,42 @@ namespace Vodovoz.Domain.Logistic
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
 				switch(newStatus) {
+					case RouteListStatus.New:
 					case RouteListStatus.Confirmed:
-						if(!GeographicGroups.Any())
-							yield return new ValidationResult("Необходимо указать район");
-						break;
-					case RouteListStatus.InLoading: break;
+					case RouteListStatus.InLoading:
 					case RouteListStatus.Closed: break;
 					case RouteListStatus.MileageCheck:
 						foreach(var address in Addresses) {
-							var valid = new QSValidator<Order>(address.Order,
-								new Dictionary<object, object> {
-							{ "NewStatus", OrderStatus.Closed }
-							});
+							var valid = new QSValidator<Order>(
+									address.Order,
+									new Dictionary<object, object> {
+										{ "NewStatus", OrderStatus.Closed }
+									}
+								);
 
-							foreach(var result in valid.Results) {
+							foreach(var result in valid.Results)
 								yield return result;
-							}
 						}
 						break;
+					case RouteListStatus.EnRoute: break;
+					case RouteListStatus.OnClosing: break;
 				}
 			}
 
-			if(ClosingSubdivision == null) {
+			if(!GeographicGroups.Any())
+				yield return new ValidationResult(
+						"Необходимо указать район",
+						new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.GeographicGroups) }
+					);
+
+			if(ClosingSubdivision == null)
 				yield return new ValidationResult("Не выбрана касса в которую должен будет сдаваться водитель.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.ClosingSubdivision) });
-			}
 
 			if(Driver == null)
 				yield return new ValidationResult("Не заполнен водитель.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Driver) });
+
 			if(Car == null)
 				yield return new ValidationResult("На заполнен автомобиль.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car) });
@@ -1586,4 +1593,3 @@ namespace Vodovoz.Domain.Logistic
 		public string CountLoadedString => string.Format("<span foreground=\"{0}\">{1}</span>", CountLoaded > 0 ? "Orange" : "Red", CountLoaded);
 	}
 }
-

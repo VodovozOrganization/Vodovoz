@@ -9,8 +9,8 @@ using QSOsm.Osrm;
 using QSOsm.Spuntik;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -290,11 +290,11 @@ namespace Vodovoz.Tools.Logistic
 		{
 			if (ErrorWays.Any(x => x.FromHash == distance.FromGeoHash && x.ToHash == distance.ToGeoHash))
 			{
-				logger.Warn("Повторный запрос дистанции с ошибкой расчета. Пропускаем...");
+				//logger.Warn("Повторный запрос дистанции с ошибкой расчета. Пропускаем...");
 				return false;
 			}
 
-			logger.Info("Запрашиваем путь {0}->{1} у сервиса {0}.", distance.FromGeoHash, distance.ToGeoHash, Provider);
+			//logger.Info("Запрашиваем путь {0}->{1} у сервиса {0}.", distance.FromGeoHash, distance.ToGeoHash, Provider);
 			List<PointOnEarth> points = new List<PointOnEarth>();
 			double latitude, longitude;
 			CachedDistance.GetLatLon(distance.FromGeoHash, out latitude, out longitude);
