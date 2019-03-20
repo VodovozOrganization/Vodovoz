@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>209.804mm</PageHeight>
+  <PageWidth>296.926mm</PageWidth>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -21,12 +21,13 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data1">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText># FIXME : Исправить фильтрацию складов по районам (сейчас привязана к подразделению )
 SELECT
 	nomenclature.name AS NomenclatureName,
 	nomenclature.id AS ID,
+   	Equipment.ForClientCount,
 	ROUND(ShippingNomenclature.NomenclatureItemSum) as NomenclatureSumForShipping,
 	RL.NomenclatureItemSum as AtDriverNomenclatureCount ,
 	RL.RouteListId  AS RouteLists ,
@@ -48,13 +49,31 @@ FROM
 			LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
 			LEFT JOIN schedule_restricted_districts ON schedule_restricted_districts.id = delivery_points.schedule_restricted_district_id
 			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
-
 			WHERE 
 				orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
 				AND orders.delivery_date = DATE(@date)
-				AND geographic_groups_to_entities.geographic_group_id = @district
+				AND geographic_groups_to_entities.geographic_group_id = @district 
 			GROUP BY (nomenclature.id) 
 		) as ShippingNomenclature ON ShippingNomenclature.NomenclatureId = nomenclature.id
+
+	LEFT JOIN #Оборудование к клиенту
+		(
+			SELECT
+				SUM(order_equipment.count)  AS ForClientCount ,
+               				 nomenclature.id AS NomenclatureId
+            			FROM order_equipment
+         		   	LEFT JOIN orders ON orders.id = order_equipment.order_id
+            			LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+            			LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+			LEFT JOIN schedule_restricted_districts ON schedule_restricted_districts.id = delivery_points.schedule_restricted_district_id
+			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
+           			 WHERE
+				orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
+               				 AND order_equipment.direction = 'Deliver'
+              			  	AND geographic_groups_to_entities.geographic_group_id = @district
+				AND orders.delivery_date = DATE(@date)
+            			GROUP BY nomenclature.id    
+		) as Equipment On Equipment.NomenclatureId = nomenclature.id
 
 	LEFT JOIN #У Водителя
 		(
@@ -98,7 +117,8 @@ FROM
 				LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
 			WHERE
 				writeoff_warehouse_id IS NOT NULL
-				AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision
+				#AND geographic_groups_to_entities.geographic_group_id = @district После обновления раскоментить 
+                			AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
 			GROUP BY nomenclature_id 
 
 			UNION ALL
@@ -112,7 +132,8 @@ FROM
 				LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
 			WHERE
 				incoming_warehouse_id IS NOT NULL 
-				AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision
+				#AND geographic_groups_to_entities.geographic_group_id = @district После обновления раскоментить 
+                			AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
 			GROUP BY nomenclature_id 
 		) AS StockBalance ON StockBalance.nom_id = nomenclature.id
 	
@@ -133,7 +154,8 @@ FROM
 
 			WHERE
 				store_movement_document.transportation_status = 'Submerged'
-				AND ( subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision )
+				#AND geographic_groups_to_entities.geographic_group_id = @district После обновления раскоментить 
+               				 AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
 				AND store_movement_document.time_stamp &gt;  ADDDATE(CURTIME() ,INTERVAL -14 DAY)
 
 			GROUP BY nomenclature.id 
@@ -141,8 +163,7 @@ FROM
 
 WHERE nomenclature.category IN ('equipment' , 'additional' )
 AND nomenclature.is_archive = false
-AND ShippingNomenclature.NomenclatureItemSum IS NOT NULL
-#AND @hideS = FALSE
+AND (ShippingNomenclature.NomenclatureItemSum IS NOT NULL OR Equipment.ForClientCount IS NOT NULL)
 
 GROUP BY (nomenclature.id)
 ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
@@ -156,12 +177,9 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
           <QueryParameter Name="subdivision">
             <Value>22</Value>
           </QueryParameter>
-          <QueryParameter Name="hideS">
-            <Value>=Convert.ToBoolean({?hideSouth})</Value>
-          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="NomenclatureName">
           <DataField>NomenclatureName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -190,16 +208,21 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
           <DataField>Amount</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
+        <Field Name="ForClient">
+          <DataField>ForClientCount</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Data2">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>3</Timeout>
         <CommandText># FIXME : Исправить фильтрацию складов по районам (сейчас привязана к подразделению )
 SELECT
 	nomenclature.name AS NomenclatureName,
 	nomenclature.id AS ID,
+   	Equipment.ForClientCount,
 	ROUND(ShippingNomenclature.NomenclatureItemSum) as NomenclatureSumForShipping,
 	RL.NomenclatureItemSum as AtDriverNomenclatureCount ,
 	RL.RouteListId  AS RouteLists ,
@@ -221,13 +244,31 @@ FROM
 			LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
 			LEFT JOIN schedule_restricted_districts ON schedule_restricted_districts.id = delivery_points.schedule_restricted_district_id
 			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
-
 			WHERE 
 				orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
 				AND orders.delivery_date = DATE(@date)
-				AND geographic_groups_to_entities.geographic_group_id = @district
+				AND geographic_groups_to_entities.geographic_group_id = @district 
 			GROUP BY (nomenclature.id) 
 		) as ShippingNomenclature ON ShippingNomenclature.NomenclatureId = nomenclature.id
+
+	LEFT JOIN #Оборудование к клиенту
+		(
+			SELECT
+				SUM(order_equipment.count)  AS ForClientCount ,
+               				 nomenclature.id AS NomenclatureId
+            			FROM order_equipment
+         		   	LEFT JOIN orders ON orders.id = order_equipment.order_id
+            			LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+            			LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+			LEFT JOIN schedule_restricted_districts ON schedule_restricted_districts.id = delivery_points.schedule_restricted_district_id
+			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
+           			 WHERE
+				orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
+               				 AND order_equipment.direction = 'Deliver'
+              			  	AND geographic_groups_to_entities.geographic_group_id = @district
+				AND orders.delivery_date = DATE(@date)
+            			GROUP BY nomenclature.id    
+		) as Equipment On Equipment.NomenclatureId = nomenclature.id
 
 	LEFT JOIN #У Водителя
 		(
@@ -271,7 +312,8 @@ FROM
 				LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
 			WHERE
 				writeoff_warehouse_id IS NOT NULL
-				AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision
+				#AND geographic_groups_to_entities.geographic_group_id = @district После обновления раскоментить 
+                			AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
 			GROUP BY nomenclature_id 
 
 			UNION ALL
@@ -285,7 +327,8 @@ FROM
 				LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
 			WHERE
 				incoming_warehouse_id IS NOT NULL 
-				AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision
+				#AND geographic_groups_to_entities.geographic_group_id = @district После обновления раскоментить 
+                			AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
 			GROUP BY nomenclature_id 
 		) AS StockBalance ON StockBalance.nom_id = nomenclature.id
 	
@@ -306,7 +349,8 @@ FROM
 
 			WHERE
 				store_movement_document.transportation_status = 'Submerged'
-				AND ( subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision )
+				#AND geographic_groups_to_entities.geographic_group_id = @district После обновления раскоментить 
+               				 AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
 				AND store_movement_document.time_stamp &gt;  ADDDATE(CURTIME() ,INTERVAL -14 DAY)
 
 			GROUP BY nomenclature.id 
@@ -314,8 +358,7 @@ FROM
 
 WHERE nomenclature.category IN ('equipment' , 'additional' )
 AND nomenclature.is_archive = false
-AND ShippingNomenclature.NomenclatureItemSum IS NOT NULL
-#AND @hideS = FALSE
+AND (ShippingNomenclature.NomenclatureItemSum IS NOT NULL OR Equipment.ForClientCount IS NOT NULL)
 
 GROUP BY (nomenclature.id)
 ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
@@ -334,7 +377,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="NomenclatureName">
           <DataField>NomenclatureName</DataField>
           <TypeName>System.String</TypeName>
@@ -361,6 +404,10 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         </Field>
         <Field Name="Amount">
           <DataField>Amount</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="ForClient">
+          <DataField>ForClientCount</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
@@ -387,25 +434,28 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>96.0pt</Width>
+            <Width>93.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.7pt</Width>
+            <Width>75.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.1pt</Width>
+            <Width>80.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.4pt</Width>
+            <Width>63.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.6pt</Width>
+            <Width>54.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>91.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>80.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>125.0pt</Width>
+            <Width>256.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -426,7 +476,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
                     </Textbox>
@@ -445,9 +495,25 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>Оборудование к клиенту</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -464,7 +530,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
                     </Textbox>
@@ -483,7 +549,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
                     </Textbox>
@@ -502,7 +568,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
                     </Textbox>
@@ -521,7 +587,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
                     </Textbox>
@@ -540,7 +606,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
                     </Textbox>
@@ -554,7 +620,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>50.9pt</Height>
+              <Height>62.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -570,7 +636,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
                     </Textbox>
@@ -590,9 +656,25 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>={ForClient}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -610,7 +692,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
                     </Textbox>
@@ -630,7 +712,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
                     </Textbox>
@@ -650,7 +732,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
                     </Textbox>
@@ -670,7 +752,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
                     </Textbox>
@@ -690,20 +772,20 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>={?hideSouth}</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
               </TableCells>
-              <Visibility >
+              <Visibility>
                 <Hidden>={?hideSouth}</Hidden>
               </Visibility>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
+        <Left>7.2pt</Left>
         <Top>56.8pt</Top>
         <Visibility>
           <Hidden>={?hideSouth}</Hidden>
@@ -722,25 +804,28 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>96.0pt</Width>
+            <Width>95.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.7pt</Width>
+            <Width>76.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.1pt</Width>
+            <Width>84.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.4pt</Width>
+            <Width>62.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.6pt</Width>
+            <Width>54.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80.7pt</Width>
+            <Width>91.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>125.8pt</Width>
+            <Width>82.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>255.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -769,6 +854,22 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                     <Textbox Name="Textbox16">
                       <Value>Кол-во , необходимое для отгрузки, шт</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>Оборудование к клиенту</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -868,7 +969,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>60.2pt</Height>
+              <Height>68.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -893,6 +994,22 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
                       <Value>={NomenclatureSumForShipping}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>={ForClient}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -993,7 +1110,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
+        <Left>4.0pt</Left>
         <Top>226.9pt</Top>
         <Visibility>
           <Hidden>={?hideNorth}</Hidden>
@@ -1004,7 +1121,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         <Width>93.30pt</Width>
         <Value>СЕВЕР:</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
+        <Left>10.4pt</Left>
         <Top>206.1pt</Top>
         <Style>
           <BorderStyle />
@@ -1022,7 +1139,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         <Width>93.30pt</Width>
         <Value>ЮГ:</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
+        <Left>13.6pt</Left>
         <Top>31.8pt</Top>
         <Style>
           <BorderStyle />
@@ -1040,7 +1157,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         <Width>463.01pt</Width>
         <Value>="Отчет по необходимым товарам для отгрузки на " +  Format(Convert.ToDateTime({?date}), "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>49.6pt</Left>
+        <Left>108.0pt</Left>
         <Top>6.7pt</Top>
         <Style>
           <BorderStyle />

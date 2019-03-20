@@ -1,5 +1,5 @@
 ﻿using System;
-using QS.Helper;
+using QS.Utilities;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 

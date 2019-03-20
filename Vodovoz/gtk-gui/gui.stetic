@@ -1093,6 +1093,12 @@
         <property name="StockId">CRM</property>
         <signal name="Activated" handler="OnActionCRMActivated" />
       </action>
+      <action id="ActionForShipment">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Товары для отгрузки</property>
+        <property name="ShortLabel" translatable="yes">Товары для отгрузки</property>
+        <signal name="Activated" handler="OnForShipmentReportActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -1232,6 +1238,7 @@
                       <node type="Menuitem" action="Action50" />
                       <node type="Menuitem" action="ActionDefectiveItemsReport" />
                       <node type="Menuitem" action="ActionNotFullyLoadedRouteLists" />
+                      <node type="Menuitem" action="ActionForShipment" />
                     </node>
                     <node type="Menu" action="ActionReportsBottles">
                       <node type="Menuitem" action="ActionBottlesMovementSummaryReport" />

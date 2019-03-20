@@ -19,7 +19,6 @@ using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QSContacts;
-using QS.Helper;
 using Vodovoz.JournalFilters;
 
 namespace Vodovoz.JournalViewers
