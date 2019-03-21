@@ -108,15 +108,17 @@ namespace Vodovoz.Domain.Documents
 					yield return new ValidationResult(string.Format("Оборудование <{0}> сн: {1} нельзя отгружать в количестве отличном от 0 или 1", item.Nomenclature.Name, item.Equipment.Serial),
 						new[] { this.GetPropertyName(o => o.Items) });
 				if(item.Amount + item.AmountLoaded > item.AmountInRouteList)
-					yield return new ValidationResult(string.Format("Номенклатура <{0}> отгружается в большем количестве чем указано в маршрутном листе. Отгружается:{1}, По другим документам:{2}, Всего нужно отгрузить:{3}",
-						item.Nomenclature.Name,
-						item.Amount,
-						item.AmountLoaded,
-						item.AmountInRouteList
-					),
-						new[] { this.GetPropertyName(o => o.Items) });
+					yield return new ValidationResult(
+										string.Format(
+													"Номенклатура <{0}> отгружается в большем количестве чем указано в маршрутном листе. Отгружается:{1}, По другим документам:{2}, Всего нужно отгрузить:{3}",
+													item.Nomenclature.Name,
+													item.Amount,
+													item.AmountLoaded,
+													item.AmountInRouteList
+												),
+										new[] { this.GetPropertyName(o => o.Items) }
+									);
 			}
-
 		}
 
 		#endregion
@@ -168,20 +170,23 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void UpdateStockAmount(IUnitOfWork uow)
 		{
-			if(Items.Count == 0 || Warehouse == null)
+			if(!Items.Any() || Warehouse == null)
 				return;
 			var nomenclatureIds = Items.Select(x => x.Nomenclature.Id).ToArray();
-			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id,
-				nomenclatureIds, TimeStamp);
+			var inStock = Repository.StockRepository.NomenclatureInStock(
+														uow,
+														Warehouse.Id,
+														nomenclatureIds,
+														TimeStamp
+													);
 
-			foreach(var item in Items) {
+			foreach(var item in Items)
 				item.AmountInStock = inStock[item.Nomenclature.Id];
-			}
 		}
 
 		public virtual void UpdateAlreadyLoaded(IUnitOfWork uow)
 		{
-			if(Items.Count == 0 || RouteList == null)
+			if(!Items.Any() || Warehouse == null)
 				return;
 
 			var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(uow, RouteList, this);
