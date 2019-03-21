@@ -94,6 +94,10 @@ namespace Vodovoz
 			if(UoW.IsNew && Entity.Warehouse != null)
 				carloaddocumentview1.FillItemsByWarehouse();
 			ySpecCmbWarehouses.ItemSelected += OnYSpecCmbWarehousesItemSelected;
+
+			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
+			HasChanges = true;
+			UoW.CanCheckIfDirty = false;
 		}
 
 		public override bool Save()
