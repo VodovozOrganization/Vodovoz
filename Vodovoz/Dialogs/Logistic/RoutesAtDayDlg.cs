@@ -571,19 +571,22 @@ namespace Vodovoz
 		}
 
 		Pixbuf GetRowMarker(object row)
-		{//FIXME для адресов правильную форму маркеров подбирать. сейчас берётся форма маркера самого МЛ
-			var rl = row as RouteList;
-			if(rl == null) {
-				if(row is RouteListItem rli)
-					rl = rli.RouteList;
+		{
+			PointMarkerShape shape = PointMarkerShape.circle;
+			int index = 0;
+			if(row is RouteList rl) {
+				index = routesAtDay.IndexOf(rl);
+				shape = GetMarkerShape(rl.TotalFullBottlesToClient);
 			}
-			if(rl != null) {
-				var routeIndex = routesAtDay.IndexOf(rl);
-				if(routeIndex >= 0 && routeIndex < pixbufMarkers.Length)
-					return pixbufMarkers[routeIndex];
+			if(row is RouteListItem rli) {
+				index = routesAtDay.IndexOf(rli.RouteList);
+				shape = GetMarkerShape(rli.GetFullBottlesToDeliverCount());
 			}
 
-			return null;
+			if(index < 0 || index >= pixbufMarkers.Length)
+				index = 0;
+
+			return PointMarker.GetIconPixbuf(GetAddressMarker(index).ToString(), shape);
 		}
 
 		private void FillFullOrdersInfo()
