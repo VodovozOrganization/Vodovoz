@@ -38,6 +38,8 @@ namespace Stetic
 				w1.Add("employees", w13);
 				global::Gtk.IconSet w14 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.menu.logs.png"));
 				w1.Add("logs", w14);
+				global::Gtk.IconSet w15 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.menu.CRMLogo.png"));
+				w1.Add("CRM", w15);
 				w1.AddDefault();
 			}
 		}

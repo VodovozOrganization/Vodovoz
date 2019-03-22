@@ -4,6 +4,8 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NLog;
+using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSBanks;
@@ -40,6 +42,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		public void ConfigureDlg()
 		{
+			OnRussianCitizenToggled(null, EventArgs.Empty);
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 
@@ -60,9 +63,12 @@ namespace Vodovoz.Dialogs.Employees
 			dataentryDrivingNumber.Binding.AddBinding(Entity, e => e.DrivingNumber, w => w.Text).InitializeFromSource();
 			referenceNationality.SubjectType = typeof(Nationality);
 			referenceNationality.Binding.AddBinding(Entity, e => e.Nationality, w => w.Subject).InitializeFromSource();
+			referenceCitizenship.SubjectType = typeof(Citizenship);
+			referenceCitizenship.Binding.AddBinding(Entity, e => e.Citizenship, w => w.Subject).InitializeFromSource();
 			photoviewEmployee.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewEmployee.GetSaveFileName = () => Entity.FullName;
 			phonesView.UoW = UoWGeneric;
+			checkbuttonRussianCitizen.Binding.AddBinding(Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
 			if(Entity.Phones == null) {
 				Entity.Phones = new List<Phone>();
 			}
@@ -70,7 +76,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
-				.AddColumn("Название").AddTextRenderer(x => x.Name)
+				.AddColumn("Доп. название").AddTextRenderer(x => x.Name)
 				.Finish();
 			ytreeviewEmployeeDocument.SetItemsSource(Entity.ObservableDocuments);
 
@@ -141,7 +147,7 @@ namespace Vodovoz.Dialogs.Employees
 		protected void OnButtonChangeToEmployeeClicked(object sender, EventArgs e)
 		{
 			if(UoW.HasChanges || Entity.Id == 0) {
-				if(!MessageDialogWorks.RunQuestionDialog("Для продолжения необходимо сохранить изменения, сохранить и продолжить?")) {
+				if(!MessageDialogHelper.RunQuestionDialog("Для продолжения необходимо сохранить изменения, сохранить и продолжить?")) {
 					return;
 				}
 				if(Save()) {
@@ -152,9 +158,21 @@ namespace Vodovoz.Dialogs.Employees
 			}
 			var employeeUow = UnitOfWorkFactory.CreateWithNewRoot<Employee>();
 			Personnel.ChangeTraineeToEmployee(employeeUow, Entity);
-			TabParent.OpenTab(OrmMain.GenerateDialogHashName<Employee>(Entity.Id),
+			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),
 							  () => new EmployeeDlg(employeeUow));
 			this.OnCloseTab(false);
+		}
+
+		protected void OnRussianCitizenToggled(object sender, EventArgs e)
+		{
+			if(Entity.IsRussianCitizen == false) {
+				labelCitizenship.Visible = true;
+				referenceCitizenship.Visible = true;
+			} else {
+				labelCitizenship.Visible = false;
+				referenceCitizenship.Visible = false;
+				Entity.Citizenship = null;
+			}
 		}
 
 		#region Document

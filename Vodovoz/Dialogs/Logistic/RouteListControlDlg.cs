@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using NLog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Repositories;
 using QSValidation;
@@ -78,36 +76,15 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void UpdateLists()
 		{
-			var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(UoW, Entity);
 			var goods = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(UoW, Entity);
-			List<RouteListControlNotLoadedNode> notLoadedNomenclatures = new List<RouteListControlNotLoadedNode>();
-			foreach(var good in goods) {
-				var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);
-				decimal loadedAmount = 0;
-				if(loaded != null) {
-					loadedAmount = loaded.Amount;
-				}
-				if(loadedAmount < good.Amount) {
-					notLoadedNomenclatures.Add(new RouteListControlNotLoadedNode {
-						NomenclatureId = good.NomenclatureId,
-						CountTotal = good.Amount,
-						CountNotLoaded = (int)(good.Amount - loadedAmount)
-					});
-				}
-			}
-			DomainHelper.FillPropertyByEntity<RouteListControlNotLoadedNode, Nomenclature>
-					(UoW,
-					 notLoadedNomenclatures,
-					 x => x.NomenclatureId,
-					 (node, obj) => { node.Nomenclature = obj; });
+			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures();
 			ObservableNotLoadedList = new GenericObservableList<RouteListControlNotLoadedNode>(notLoadedNomenclatures);
 
-
 			var notAttachedNomenclatures = UoW.Session.QueryOver<Nomenclature>()
-			   .WhereRestrictionOn(x => x.Id).IsIn(goods.Select(x => x.NomenclatureId).ToList())
-			   .List()
-			   .Where(n => !n.Warehouses.Any())
-			   .ToList();
+											  .WhereRestrictionOn(x => x.Id).IsIn(goods.Select(x => x.NomenclatureId).ToList())
+											  .List()
+											  .Where(n => !n.Warehouses.Any())
+											  .ToList();
 			ObservableNotAttachedList = new GenericObservableList<Nomenclature>(notAttachedNomenclatures);
 			ytreeviewNotLoaded.ItemsDataSource = ObservableNotLoadedList;
 			ytreeviewNotAttached.ItemsDataSource = ObservableNotAttachedList;
@@ -156,19 +133,10 @@ namespace Vodovoz.Dialogs.Logistic
 			} else if(!fullyLoaded && !UserPermissionRepository.CurrentUserPresetPermissions["can_send_not_loaded_route_lists_en_route"]) {
 				MessageDialogHelper.RunWarningDialog(
 					"Недостаточно прав",
-					string.Format("У вас нет прав для перевода не полностью погруженных МЛ в статус \"{0}\"", RouteListStatus.EnRoute.GetEnumTitle())
+					string.Format("У вас нет прав для перевода не полностью погруженных МЛ в статус \"{0}\"", RouteListStatus.EnRoute.GetEnumTitle()),
+					Gtk.ButtonsType.Ok
 				);
 			}
-		}
-
-		public class RouteListControlNotLoadedNode
-		{
-			public int NomenclatureId { get; set; }
-			public Nomenclature Nomenclature { get; set; }
-			public int CountNotLoaded { get; set; }
-			public int CountTotal { get; set; }
-			public int CountLoaded => CountTotal - CountNotLoaded;
-			public string CountLoadedString => string.Format("<span foreground=\"{0}\">{1}</span>", CountLoaded > 0 ? "Orange" : "Red", CountLoaded);
 		}
 	}
 }

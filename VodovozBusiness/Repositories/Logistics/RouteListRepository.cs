@@ -134,8 +134,9 @@ namespace Vodovoz.Repository.Logistics
 		{
 			CarLoadDocument docAlias = null;
 			CarLoadDocumentItem docItemsAlias = null;
-
+			Nomenclature nomenclatureAlias = null;
 			GoodsLoadedListResult inCarLoads = null;
+
 			var loadedQuery = UoW.Session.QueryOver<CarLoadDocument>(() => docAlias)
 				.Where(d => d.RouteList.Id == routeList.Id);
 			if(excludeDoc != null)
@@ -143,8 +144,10 @@ namespace Vodovoz.Repository.Logistics
 
 			var loadedlist = loadedQuery
 				.JoinAlias(d => d.Items, () => docItemsAlias)
+				.JoinAlias(() => docItemsAlias.Nomenclature, () => nomenclatureAlias)
 				.SelectList(list => list
 				   .SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inCarLoads.NomenclatureId)
+				   .Select(() => nomenclatureAlias.Category).WithAlias(() => inCarLoads.NomenclatureCategory)
 				   .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
 				).TransformUsing(Transformers.AliasToBean<GoodsLoadedListResult>())
 				.List<GoodsLoadedListResult>();
@@ -290,19 +293,15 @@ namespace Vodovoz.Repository.Logistics
 			public EquipmentType EquipmentType { get; set; }
 			public string Serial {
 				get {
-					if(Trackable) {
+					if(Trackable) 
 						return Id > 0 ? Id.ToString() : "(не определен)";
-					} else
-						return String.Empty;
+					return string.Empty;
 				}
 			}
+
 			public bool Returned {
-				get {
-					return Amount > 0;
-				}
-				set {
-					Amount = value ? 1 : 0;
-				}
+				get => Amount > 0;
+				set => Amount = value ? 1 : 0;
 			}
 		}
 
@@ -315,10 +314,10 @@ namespace Vodovoz.Repository.Logistics
 		public class GoodsLoadedListResult
 		{
 			public int NomenclatureId { get; set; }
+			public NomenclatureCategory NomenclatureCategory { get; set; }
 			public decimal Amount { get; set; }
 		}
 
 		#endregion
 	}
 }
-

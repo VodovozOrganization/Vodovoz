@@ -24,13 +24,13 @@ namespace Vodovoz.Domain.Documents
 		public CarUnloadDocument() { }
 
 		public override DateTime TimeStamp {
-			get { return base.TimeStamp; }
+			get => base.TimeStamp;
 			set {
 				base.TimeStamp = value;
-				if (!NHibernate.NHibernateUtil.IsInitialized(Items))
+				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
 					return;
-				foreach (var item in Items) {
-					if (item.MovementOperation.OperationTime != TimeStamp)
+				foreach(var item in Items) {
+					if(item.MovementOperation.OperationTime != TimeStamp)
 						item.MovementOperation.OperationTime = TimeStamp;
 				}
 			}
@@ -39,24 +39,24 @@ namespace Vodovoz.Domain.Documents
 		RouteList routeList;
 
 		public virtual RouteList RouteList {
-			get { return routeList; }
-			set { SetField (ref routeList, value, () => RouteList); }
+			get => routeList;
+			set => SetField(ref routeList, value, () => RouteList);
 		}
 
 		Warehouse warehouse;
 
 		public virtual Warehouse Warehouse {
-			get { return warehouse; }
-			set { SetField (ref warehouse, value, () => Warehouse); }
+			get => warehouse;
+			set => SetField(ref warehouse, value, () => Warehouse);
 		}
 
 		IList<CarUnloadDocumentItem> items = new List<CarUnloadDocumentItem> ();
 
 		[Display (Name = "Строки")]
 		public virtual IList<CarUnloadDocumentItem> Items {
-			get { return items; }
+			get => items;
 			set {
-				SetField (ref items, value, () => Items);
+				SetField(ref items, value, () => Items);
 				observableItems = null;
 			}
 		}
@@ -75,8 +75,8 @@ namespace Vodovoz.Domain.Documents
 
 		[Display (Name = "Комментарий")]
 		public virtual string Comment {
-			get { return comment; }
-			set { SetField (ref comment, value, () => Comment); }
+			get => comment;
+			set => SetField(ref comment, value, () => Comment);
 		}
 
 		public virtual string Title => String.Format("Разгрузка автомобиля №{0} от {1:d}", Id, TimeStamp);
@@ -98,18 +98,15 @@ namespace Vodovoz.Domain.Documents
 			
 			foreach(var item in Items)
 			{
-				if (item.MovementOperation.Nomenclature.Category == NomenclatureCategory.bottle)
-				{
-					if (item.MovementOperation.Amount < 0)
-					{
-						yield return new ValidationResult (String.Format("Для оборудования {0}, нельзя указывать отрицательное значение.", item.MovementOperation.Nomenclature.Name),
-							new[] { this.GetPropertyName (o => o.Items)});
-					}
-				}
+				if(item.MovementOperation.Nomenclature.Category == NomenclatureCategory.bottle && item.MovementOperation.Amount < 0)
+					yield return new ValidationResult(
+						string.Format("Для оборудования {0}, нельзя указывать отрицательное значение.", item.MovementOperation.Nomenclature.Name),
+						new[] { this.GetPropertyName(o => o.Items) }
+					);
 
 				if(item.MovementOperation.Nomenclature.IsDefectiveBottle && item.TypeOfDefect == null)
 					yield return new ValidationResult(
-						String.Format("Для брака {0} необходимо указать его вид", item.MovementOperation.Nomenclature.Name),
+						string.Format("Для брака {0} необходимо указать его вид", item.MovementOperation.Nomenclature.Name),
 						new[] { this.GetPropertyName(o => o.Items) }
 					);
 			}
@@ -120,8 +117,10 @@ namespace Vodovoz.Domain.Documents
 				.Any(g => g.Count() > 1);
 
 			if(hasDublicateServiceClaims)
-				yield return new ValidationResult ("Имеются продублированные заявки на сервис.",
-					new[] { this.GetPropertyName (o => o.Items)});
+				yield return new ValidationResult (
+					"Имеются продублированные заявки на сервис.",
+					new[] { this.GetPropertyName (o => o.Items)}
+				);
 			
 		}
 
@@ -135,20 +134,23 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void AddItem(ReciveTypes reciveType, Nomenclature nomenclature, Equipment equipment, decimal amount, Service.ServiceClaim serviceClaim, string redhead = null, DefectSource source = DefectSource.None, CullingCategory typeOfDefect = null)
 		{
-			var operation = new WarehouseMovementOperation();
-			operation.Amount = amount;
-			operation.Nomenclature = nomenclature;
-			operation.IncomingWarehouse = Warehouse;
-			operation.Equipment = equipment;
-			operation.OperationTime = TimeStamp;
-			AddItem(new CarUnloadDocumentItem {
-				ReciveType = reciveType,
-				MovementOperation = operation,
-				ServiceClaim = serviceClaim,
-				Redhead = redhead,
-				Source = source,
-				TypeOfDefect = typeOfDefect
-			});
+			var operation = new WarehouseMovementOperation {
+				Amount = amount,
+				Nomenclature = nomenclature,
+				IncomingWarehouse = Warehouse,
+				Equipment = equipment,
+				OperationTime = TimeStamp
+			};
+			AddItem(
+				new CarUnloadDocumentItem {
+					ReciveType = reciveType,
+					MovementOperation = operation,
+					ServiceClaim = serviceClaim,
+					Redhead = redhead,
+					Source = source,
+					TypeOfDefect = typeOfDefect
+				}
+			);
 		}
 	}
 }

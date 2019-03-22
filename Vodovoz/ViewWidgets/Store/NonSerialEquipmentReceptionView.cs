@@ -65,18 +65,19 @@ namespace Vodovoz.ViewWidgets.Store
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature NomenclatureAlias = null;
-			var equipmentItems = MyOrmDialog.UoW.Session.QueryOver<RouteListItem>().Where(r => r.RouteList.Id == RouteList.Id)
-				.JoinAlias(rli => rli.Order, () => orderAlias)
-				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
-				.Where(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.PickUp)
-				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => NomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.SelectList(list => list
-				   .Select(() => NomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-				   .Select(() => NomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-				   .Select(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.NeedReceptionCount)
-				)
-				.TransformUsing(Transformers.AliasToBean<ReceptionNonSerialEquipmentItemNode>())
-				.List<ReceptionNonSerialEquipmentItemNode>();
+			var equipmentItems = MyOrmDialog.UoW.Session.QueryOver<RouteListItem>()
+														.Where(r => r.RouteList.Id == RouteList.Id)
+														.JoinAlias(rli => rli.Order, () => orderAlias)
+														.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+														.Where(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.PickUp)
+														.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => NomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+														.SelectList(list => list
+														   .SelectGroup(() => NomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+														   .Select(() => NomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+														   .SelectSum(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.NeedReceptionCount)
+														)
+														.TransformUsing(Transformers.AliasToBean<ReceptionNonSerialEquipmentItemNode>())
+														.List<ReceptionNonSerialEquipmentItemNode>();
 
 			foreach(var equipment in equipmentItems)
 				ReceptionNonSerialEquipmentList.Add(equipment);

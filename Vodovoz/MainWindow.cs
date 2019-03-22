@@ -262,6 +262,11 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			SwitchToUI("warehouse.xml");
 	}
 
+	protected void OnActionCRMActivated(object sender, EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.CRM.xml");
+	}
+
 	protected void OnActionOrganizationsActivated(object sender, EventArgs e)
 	{
 		OrmReference refWin = new OrmReference(typeof(Organization));

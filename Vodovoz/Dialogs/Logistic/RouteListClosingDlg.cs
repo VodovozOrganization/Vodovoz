@@ -179,6 +179,7 @@ namespace Vodovoz
 						Name = item.Nomenclature.Name,
 						Trackable = item.Nomenclature.IsSerial,
 						NomenclatureId = item.Nomenclature.Id,
+						Nomenclature = item.Nomenclature,
 						Amount = 0
 					});
 			}
@@ -195,6 +196,7 @@ namespace Vodovoz
 
 			expander1.Expanded = false;
 
+			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures();
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
 			PerformanceHelper.AddTimePoint("Заполнили расхождения");
@@ -231,7 +233,6 @@ namespace Vodovoz
 			UoW.CanCheckIfDirty = false;
 
 			UpdateSensitivity();
-
 		}
 
 		private void UpdateSensitivity()
