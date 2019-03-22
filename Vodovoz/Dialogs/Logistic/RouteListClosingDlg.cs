@@ -93,7 +93,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			canCloseRoutelist = PermissionRepository.HasAccessToClosingRoutelist();
+			routelistdiscrepancyview.RouteList = Entity;
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 			referenceCar.SubjectType = typeof(Car);
@@ -196,7 +196,6 @@ namespace Vodovoz
 
 			expander1.Expanded = false;
 
-			routelistdiscrepancyview.RouteList = Entity;
 			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures();
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
