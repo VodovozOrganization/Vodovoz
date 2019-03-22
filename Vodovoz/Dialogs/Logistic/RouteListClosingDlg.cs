@@ -37,7 +37,6 @@ namespace Vodovoz
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
 		private bool editing = UserPermissionRepository.CurrentUserPresetPermissions["money_manage_cash"];
-		private bool canCloseRoutelist = false;
 		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;
 
@@ -460,8 +459,7 @@ namespace Vodovoz
 		{
 			buttonAccept.Sensitive = 
 				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck) 
-				&& Entity.IsConsistentWithUnloadDocument()
-				&& canCloseRoutelist;
+				&& Entity.IsConsistentWithUnloadDocument();
 		}
 
 		private bool buttonFineEditState;
@@ -634,7 +632,7 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			if(!IsConsistentWithUnloadDocument() || !canCloseRoutelist) {
+			if(!IsConsistentWithUnloadDocument()) {
 				return;
 			}
 
