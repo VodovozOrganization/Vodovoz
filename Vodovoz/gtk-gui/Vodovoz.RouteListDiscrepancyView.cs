@@ -46,7 +46,8 @@ namespace Vodovoz
 			this.LabelDiscrepancy.UseMarkup = true;
 			this.frame1.LabelWidget = this.LabelDiscrepancy;
 			this.Add(this.frame1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
