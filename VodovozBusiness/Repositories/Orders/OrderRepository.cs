@@ -46,7 +46,7 @@ namespace Vodovoz.Repositories.Orders
 				query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
 			else
 				query.Where(order => order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.NewOrder && order.OrderStatus != OrderStatus.WaitForPayment);
-			return query.Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery && !order.IsService);
+			return query.Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery);
 		}
 
 		public static IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, LogisticsArea area)

@@ -1,5 +1,5 @@
-﻿using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Sale;
+﻿using System;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -7,8 +7,8 @@ namespace Vodovoz.Tools.Logistic
 	{
 		int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP);
 
-		int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP);
+		int DistanceFromBaseMeter(DeliveryPoint toDP);
 
-		int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase);
+		int DistanceToBaseMeter(DeliveryPoint fromDP);
 	}
 }

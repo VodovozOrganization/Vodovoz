@@ -13,8 +13,6 @@ namespace Vodovoz.ReportsParameters.Store
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NomenclatureForShipment : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
-		GenericObservableList<GeographicGroup> geographicGroups;
-
 		public NomenclatureForShipment()
 		{
 			this.Build();

@@ -153,19 +153,21 @@ namespace Vodovoz.ViewWidgets
 			w10.Position = 0;
 			w10.Expand = false;
 			w10.Fill = false;
-			// Container child hbox7.Gtk.Box+BoxChild
+			this.vbox2.Add(this.hbox7);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
+			w11.Position = 3;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.yTxtWarehouses = new global::Gamma.GtkWidgets.yTextView();
 			this.yTxtWarehouses.CanFocus = true;
 			this.yTxtWarehouses.Name = "yTxtWarehouses";
 			this.yTxtWarehouses.Editable = false;
 			this.yTxtWarehouses.AcceptsTab = false;
 			this.yTxtWarehouses.WrapMode = ((global::Gtk.WrapMode)(2));
-			this.hbox7.Add(this.yTxtWarehouses);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.yTxtWarehouses]));
-			w11.Position = 1;
-			this.vbox2.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
-			w12.Position = 3;
+			this.vbox2.Add(this.yTxtWarehouses);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.yTxtWarehouses]));
+			w12.Position = 4;
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
@@ -184,7 +186,7 @@ namespace Vodovoz.ViewWidgets
 			w13.Fill = false;
 			this.vbox2.Add(this.hbox6);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox6]));
-			w14.Position = 4;
+			w14.Position = 5;
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
@@ -196,7 +198,7 @@ namespace Vodovoz.ViewWidgets
 			this.ytextviewSchedule.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.vbox2.Add(this.ytextviewSchedule);
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ytextviewSchedule]));
-			w15.Position = 5;
+			w15.Position = 6;
 			w15.Expand = false;
 			w15.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
@@ -218,7 +220,7 @@ namespace Vodovoz.ViewWidgets
 			w17.Position = 0;
 			this.vbox2.Add(this.hboxTreeView);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxTreeView]));
-			w18.Position = 6;
+			w18.Position = 7;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

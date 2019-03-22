@@ -5,7 +5,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Repositories;
 using QSOrmProject;
-using QS.Project.Repositories;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain;
@@ -110,7 +109,7 @@ namespace Vodovoz
 		{
 			if(!UpdateReceivedItemsOnEntity())
 				return false;
-				
+
 			var valid = new QSValidation.QSValidator<CarUnloadDocument>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
@@ -136,12 +135,12 @@ namespace Vodovoz
 		void UpdateRouteListInfo()
 		{
 			if(Entity.RouteList == null) {
-				ytextviewRouteListInfo.Buffer.Text = String.Empty;
+				ytextviewRouteListInfo.Buffer.Text = string.Empty;
 				return;
 			}
 
 			ytextviewRouteListInfo.Buffer.Text =
-				String.Format("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
+				string.Format("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
 					Entity.RouteList.Id,
 					Entity.RouteList.Date,
 					Entity.RouteList.Driver.FullName,
@@ -157,7 +156,7 @@ namespace Vodovoz
 			returnsreceptionview1.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
 		}
 
-		void fillOtherReturnsTable()
+		void FillOtherReturnsTable()
 		{
 			if(Entity.RouteList == null || Entity.Warehouse == null)
 				return;
@@ -216,20 +215,42 @@ namespace Vodovoz
 					continue;
 				}
 
-				if(item.ReciveType == ReciveTypes.Equipment) {
-					var equipmentByNomenclature = nonserialequipmentreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
-					if(equipmentByNomenclature != null) {
-						equipmentByNomenclature.Amount = (int)item.MovementOperation.Amount;
+				switch(item.ReciveType) {
+					case ReciveTypes.Equipment:
+						var equipmentByNomenclature = nonserialequipmentreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+						if(equipmentByNomenclature != null) {
+							equipmentByNomenclature.Amount = (int)item.MovementOperation.Amount;
+							continue;
+						}
+						nonserialequipmentreceptionview1.Items.Add(
+							new ReceptionNonSerialEquipmentItemNode {
+								NomenclatureCategory = NomenclatureCategory.equipment,
+								NomenclatureId = item.MovementOperation.Nomenclature.Id,
+								Amount = (int)item.MovementOperation.Amount,
+								Name = item.MovementOperation.Nomenclature.Name
+							}
+						);
 						continue;
-					} else {
-						nonserialequipmentreceptionview1.Items.Add(new ReceptionNonSerialEquipmentItemNode {
-							NomenclatureCategory = NomenclatureCategory.equipment,
-							NomenclatureId = item.MovementOperation.Nomenclature.Id,
-							Amount = (int)item.MovementOperation.Amount,
-							Name = item.MovementOperation.Nomenclature.Name
-						});
+					case ReciveTypes.Bottle:
+					case ReciveTypes.Returnes:
+						break;
+					case ReciveTypes.Defective:
+						var defective = defectiveitemsreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+						if(defective != null) {
+							defective.Amount = (int)item.MovementOperation.Amount;
+							continue;
+						}
+						defectiveitemsreceptionview1.Items.Add(
+							new DefectiveItemNode {
+								NomenclatureCategory = item.MovementOperation.Nomenclature.Category,
+								NomenclatureId = item.MovementOperation.Nomenclature.Id,
+								Amount = (int)item.MovementOperation.Amount,
+								Name = item.MovementOperation.Nomenclature.Name,
+								Source = item.Source,
+								TypeOfDefect = item.TypeOfDefect
+							}
+						);
 						continue;
-					}
 				}
 
 				logger.Warn("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.MovementOperation.Nomenclature);
@@ -404,13 +425,13 @@ namespace Vodovoz
 		{
 			UpdateWidgetsVisible();
 			returnsreceptionview1.Warehouse = Entity.Warehouse;
-			fillOtherReturnsTable();
+			FillOtherReturnsTable();
 		}
 
 		protected void OnYentryrefRouteListChanged(object sender, EventArgs e)
 		{
 			SetupForNewRouteList();
-			fillOtherReturnsTable();
+			FillOtherReturnsTable();
 		}
 		#endregion
 

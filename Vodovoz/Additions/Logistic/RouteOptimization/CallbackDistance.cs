@@ -33,9 +33,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			long distance;
 
 			if(first_index == 0)
-				distance = distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint);
+				distance = distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].Order.DeliveryPoint);
 			else if(second_index == 0)
-				distance = distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].ShippingBase);
+				distance = distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint);
 			else
 				distance = distanceCalculator.DistanceMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
 

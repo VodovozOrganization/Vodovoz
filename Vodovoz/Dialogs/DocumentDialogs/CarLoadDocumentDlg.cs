@@ -102,14 +102,10 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			Entity.UpdateAlreadyLoaded(UoW);
 			var valid = new QSValidation.QSValidator<CarLoadDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-
-			if(!CarLoadRepository.IsUniqDocument(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
-				MessageDialogHelper.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
-				return false;
-			}
 
 			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;

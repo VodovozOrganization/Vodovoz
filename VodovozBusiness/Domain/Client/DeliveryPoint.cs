@@ -505,7 +505,7 @@ namespace Vodovoz.Domain.Client
 
 		#region Расчетные
 
-		public virtual string CoordinatesText {
+		public virtual string СoordinatesText {
 			get {
 				if(Latitude == null || Longitude == null)
 					return String.Empty;
@@ -528,31 +528,22 @@ namespace Vodovoz.Domain.Client
 		/// <summary>
 		/// Возврат районов доставки, в которые попадает точка доставки
 		/// </summary>
-		/// <param name="uow">UnitOfWork через который будет получены все районы доставки,
-		/// среди которых будет производится поиск подходящего района</param>
-		public virtual IList<ScheduleRestrictedDistrict> CalculateDistricts(IUnitOfWork uow)
-		{
-			return CalculateDistricts(ScheduleRestrictionRepository.AreasWithGeometry(uow));
-		}
-
-		/// <summary>
-		/// Возврат районов доставки, в которые попадает точка доставки
-		/// </summary>
 		/// <returns>Районы доставки</returns>
-		/// <param name="districtsSource">Районы доставки, среди которых будет производится поиск подходящего района</param>
-		public virtual IList<ScheduleRestrictedDistrict> CalculateDistricts(IList<ScheduleRestrictedDistrict> districtsSource)
+		/// <param name="uow">UnitOfWork</param>
+		public virtual IList<ScheduleRestrictedDistrict> CalculateDistricts(IUnitOfWork uow, IList<ScheduleRestrictedDistrict> districtsSource = null)
 		{
 			List<ScheduleRestrictedDistrict> districts = new List<ScheduleRestrictedDistrict>();
 			if(CoordinatesExist) {
-				districts = districtsSource.Where(x => x.DistrictBorder.Contains(NetTopologyPoint))
-										   .ToList();
+				var allDistricts = districtsSource ?? ScheduleRestrictionRepository.AreaWithGeometry(uow);
+				districts = allDistricts.Where(x => x.DistrictBorder.Contains(NetTopologyPoint))
+										.ToList();
 
 				if(districts.Any())
 					return districts;
 
 				foreach(var point in Get4PointsInRadiusOfXMetersFromBasePoint(NetTopologyPoint)) {
-					districts = districtsSource.Where(x => x.DistrictBorder.Contains(point))
-											   .ToList();
+					districts = allDistricts.Where(x => x.DistrictBorder.Contains(point))
+											.ToList();
 					if(districts.Any())
 						return districts;
 				}
@@ -560,20 +551,9 @@ namespace Vodovoz.Domain.Client
 			return districts;
 		}
 
-		/// <summary>
-		/// Поиск района города, в котором находится текущая точка доставки
-		/// </summary>
-		/// <returns><c>true</c>, если район города найден</returns>
-		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города</param>
-		public bool FindAndAssociateDistrict(IUnitOfWork uow)
+		public bool FindAndAssociateDistrict(IUnitOfWork uow, IList<ScheduleRestrictedDistrict> districtsSource = null)
 		{
-			District = CalculateDistricts(uow).FirstOrDefault();
-			return District != null;
-		}
-
-		public bool FindAndAssociateDistrict(IList<ScheduleRestrictedDistrict> districtsSource)
-		{
-			District = CalculateDistricts(districtsSource).FirstOrDefault();
+			District = CalculateDistricts(uow, districtsSource).FirstOrDefault();
 			return District != null;
 		}
 
@@ -635,21 +615,16 @@ namespace Vodovoz.Domain.Client
 		/// <summary>
 		/// Устанавливает правильно координты точки.
 		/// </summary>
-		/// <returns><c>true</c>, если координаты установлены</returns>
-		/// <param name="latitude">Широта</param>
-		/// <param name="longitude">Долгота</param>
-		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города
-		/// для определения расстояния до базы</param>
-		public virtual bool SetСoordinates(decimal? latitude, decimal? longitude, IUnitOfWork uow = null)
+		public virtual bool SetСoordinates(decimal? latitude, decimal? longitude)
 		{
 			Latitude = latitude;
 			Longitude = longitude;
 
-			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
+			if(Longitude == null || Latitude == null)
 				return true;
-			var gg = District.GeographicGroups.FirstOrDefault();
+
 			var route = new List<PointOnEarth>(2) {
-				new PointOnEarth(gg.BaseLatitude.Value, gg.BaseLongitude.Value),
+				new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude),
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
 

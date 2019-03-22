@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Store;
+using Vodovoz.Repositories.HumanResources;
+using QS.DomainModel.UoW;
+using System.Linq;
+using System.Text;
+using QS.Project.Domain;
 
 namespace Vodovoz
 {
@@ -84,11 +86,22 @@ namespace Vodovoz
 			}
 		}
 
-		GeographicGroup geographicGroup;
-		[Display(Name = "Обслуживаемая часть города")]
-		public virtual GeographicGroup GeographicGroup {
-			get => geographicGroup;
-			set => SetField(ref geographicGroup, value, () => GeographicGroup);
+		IList<ScheduleRestrictedDistrict> servicingDistricts = new List<ScheduleRestrictedDistrict>();
+
+		[Display(Name = "Обслуживаемые районы")]
+		public virtual IList<ScheduleRestrictedDistrict> ServicingDistricts {
+			get => servicingDistricts;
+			set => SetField(ref servicingDistricts, value, () => ServicingDistricts);
+		}
+
+		GenericObservableList<ScheduleRestrictedDistrict> observableServicingDistricts;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ScheduleRestrictedDistrict> ObservableServicingDistricts {
+			get {
+				if(observableServicingDistricts == null)
+					observableServicingDistricts = new GenericObservableList<ScheduleRestrictedDistrict>(ServicingDistricts);
+				return observableServicingDistricts;
+			}
 		}
 
 		#endregion
