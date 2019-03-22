@@ -196,6 +196,7 @@ namespace Vodovoz
 
 			expander1.Expanded = false;
 
+			routelistdiscrepancyview.RouteList = Entity;
 			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures();
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
@@ -460,7 +461,7 @@ namespace Vodovoz
 		{
 			buttonAccept.Sensitive = 
 				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck) 
-				&& IsConsistentWithUnloadDocument()
+				&& Entity.IsConsistentWithUnloadDocument()
 				&& canCloseRoutelist;
 		}
 

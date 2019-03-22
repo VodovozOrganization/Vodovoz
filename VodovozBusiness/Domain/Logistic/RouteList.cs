@@ -600,6 +600,112 @@ namespace Vodovoz.Domain.Logistic
 			return closed;
 		}
 
+
+		public virtual List<Discrepancy> GetDiscrepancies(IList<RouteListControlNotLoadedNode> itemsLoaded, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse)
+		{
+			List<Discrepancy> result = new List<Discrepancy>();
+
+			//ТОВАРЫ
+			var orderClosingItems = Addresses.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
+										 .SelectMany(item => item.Order.OrderItems)
+										 .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+										 .Where(item => item.Nomenclature.Category != NomenclatureCategory.bottle)
+										 .ToList();
+
+			foreach(var orderItem in orderClosingItems) {
+				var discrepancy = new Discrepancy {
+					Nomenclature = orderItem.Nomenclature,
+					ClientRejected = orderItem.ReturnedCount,
+					Name = orderItem.Nomenclature.Name
+				};
+				AddDiscrepancy(result, discrepancy);
+			}
+
+			//ОБОРУДОВАНИЕ
+			var orderEquipments = Addresses.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
+									   .SelectMany(item => item.Order.OrderEquipments)
+									   .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+									   .ToList();
+			foreach(var orderEquip in orderEquipments) {
+				var discrepancy = new Discrepancy {
+					Nomenclature = orderEquip.Nomenclature,
+					Name = orderEquip.Nomenclature.Name
+				};
+
+				if(orderEquip.Direction == Domain.Orders.Direction.Deliver)
+					discrepancy.ClientRejected = orderEquip.ReturnedCount;
+				else
+					discrepancy.PickedUpFromClient = orderEquip.ActualCount ?? 0;
+
+				AddDiscrepancy(result, discrepancy);
+			}
+
+			//ДОСТАВЛЕНО НА СКЛАД
+			var warehouseItems = allReturnsToWarehouse.Where(x => x.NomenclatureCategory != NomenclatureCategory.bottle)
+													  .ToList();
+			foreach(var whItem in warehouseItems) {
+				var discrepancy = new Discrepancy {
+					Nomenclature = whItem.Nomenclature,
+					ToWarehouse = whItem.Amount,
+					Name = whItem.Name
+				};
+				AddDiscrepancy(result, discrepancy);
+			}
+
+			if(itemsLoaded != null && itemsLoaded.Any()) {
+				var loadedItems = itemsLoaded.Where(x => x.Nomenclature.Category != NomenclatureCategory.bottle);
+				foreach(var item in loadedItems) {
+					var discrepancy = new Discrepancy {
+						Nomenclature = item.Nomenclature,
+						FromWarehouse = item.CountNotLoaded,
+						Name = item.Nomenclature.Name
+					};
+
+					AddDiscrepancy(result, discrepancy);
+				}
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Добавляет новое расхождение если такой номенклатуры нет в списке, 
+		/// иначе прибавляет все значения к найденной в списке номенклатуре
+		/// </summary>
+		void AddDiscrepancy(List<Discrepancy> list, Discrepancy item)
+		{
+			var existingDiscrepancy = list.FirstOrDefault(x => x.Nomenclature == item.Nomenclature);
+			if(existingDiscrepancy == null) {
+				list.Add(item);
+			} else {
+				existingDiscrepancy.ClientRejected += item.ClientRejected;
+				existingDiscrepancy.PickedUpFromClient += item.PickedUpFromClient;
+				existingDiscrepancy.ToWarehouse += item.ToWarehouse;
+				existingDiscrepancy.FromWarehouse += item.FromWarehouse;
+			}
+		}
+
+		public virtual bool IsConsistentWithUnloadDocument()
+		{
+			var returnedBottlesNom = int.Parse(MainSupport.BaseParameters.All["returned_bottle_nomenclature_id"]);
+			var bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(
+				UoW,
+				Id,
+				returnedBottlesNom)
+			.Sum(item => item.Amount);
+
+			var notloadedNomenclatures = NotLoadedNomenclatures();
+			var allReturnsToWarehouse = RouteListRepository.GetReturnsToWarehouse(UoW, Id, Nomenclature.GetCategoriesForShipment());
+			var discrepancies = GetDiscrepancies(notloadedNomenclatures, allReturnsToWarehouse);
+
+			var hasItemsDiscrepancies = discrepancies.Any(discrepancy => discrepancy.Remainder != 0);
+			bool hasFine = BottleFine != null;
+			var items = Addresses.Where(item => item.IsDelivered());
+			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
+			var hasTotalBottlesDiscrepancy = bottlesReturnedToWarehouse != bottlesReturnedTotal;
+			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies) || DifferencesConfirmed;
+		}
+
 		public virtual void ChangeStatus(RouteListStatus newStatus)
 		{
 			if(newStatus == Status)
@@ -1003,7 +1109,7 @@ namespace Vodovoz.Domain.Logistic
 
 				operations.ForEach(x => result.Add(x));
 			}
-			return result;
+			return result; 
 		}
 
 		public virtual List<MoneyMovementOperation> UpdateMoneyMovementOperations()
@@ -1131,7 +1237,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			decimal cash = CashRepository.CurrentRouteListCash(UoW, this.Id);
-			if(NeedMileageCheck && ConfirmedDistance > 0 && cash == Total) {
+			if(NeedMileageCheck && ConfirmedDistance > 0 && cash == Total && (!IsConsistentWithUnloadDocument() && !DifferencesConfirmed)) {
 				ChangeStatus(RouteListStatus.Closed);
 			} else {
 				ChangeStatus(RouteListStatus.OnClosing);
