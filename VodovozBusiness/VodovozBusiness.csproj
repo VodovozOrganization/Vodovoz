@@ -572,6 +572,7 @@
     <Compile Include="HibernateMapping\Counterparty\CallTaskMap.cs" />
     <Compile Include="Repositories\Client\CallTasksRepository.cs" />
     <Compile Include="Repositories\ResidueRepository.cs" />
+    <Compile Include="Domain\Logistic\Discrepancy.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
