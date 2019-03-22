@@ -1,25 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
-using QS.Dialog.Gtk;
-using Vodovoz.Domain.Client;
 using System.Linq;
-using QS.DomainModel.UoW;
 using Gamma.ColumnConfig;
-using System.Data.Bindings;
 using Gtk;
-using Vodovoz.ViewModel;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Dialogs;
-using Vodovoz.Repository.Operations;
-using Vodovoz.Domain.Operations;
-using NHibernate.Dialect.Function;
-using NHibernate.Criterion;
 using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
-using QSContacts;
+using QS.DomainModel.UoW;
+using Vodovoz.Dialogs;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Operations;
 using Vodovoz.JournalFilters;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.JournalViewers
 {

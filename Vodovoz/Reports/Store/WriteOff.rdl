@@ -97,12 +97,12 @@ GROUP BY store_writeoff_document_items.id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Doc">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     id, time_stamp
 FROM
-    writeoff_document
+    store_writeoff_document
 WHERE
     id = @writeoff_id;</CommandText>
         <QueryParameters>
@@ -111,7 +111,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -139,7 +139,7 @@ WHERE
           </BorderStyle>
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>26.7pt</Width>
           </TableColumn>
           <TableColumn>
@@ -157,10 +157,10 @@ WHERE
           <TableColumn>
             <Width>100.3pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>88.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>88.4pt</Width>
           </TableColumn>
         </TableColumns>
@@ -169,7 +169,7 @@ WHERE
             <TableRow>
               <Height>12pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
                       <Value>№</Value>
@@ -179,8 +179,8 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -195,8 +195,8 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -211,8 +211,8 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -227,8 +227,8 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -243,8 +243,8 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -259,13 +259,13 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
                       <Value>Сумма возмещ.</Value>
@@ -275,13 +275,13 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
                       <Value>Подпись</Value>
@@ -291,8 +291,8 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -307,7 +307,7 @@ WHERE
             <TableRow>
               <Height>12pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
                       <Value>=RowNumber()</Value>
@@ -316,9 +316,9 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -390,13 +390,13 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
                       <Value>={fine_money}</Value>
@@ -405,14 +405,14 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <Format >0.00</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
                       <Value>
@@ -435,7 +435,7 @@ WHERE
             <TableRow>
               <Height>12pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
                       <Value>
@@ -515,7 +515,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
                       <Value>
@@ -528,7 +528,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
                       <Value>
@@ -579,20 +579,21 @@ WHERE
         <Sizing>FitProportional</Sizing>
       </Image>
       <Textbox Name="Textbox12">
-        <Height>26.32pt</Height>
-        <Width>267.96pt</Width>
+        <Height>30.83pt</Height>
+        <Width>552.34pt</Width>
         <Value>ООО «Веселый Водовоз»</Value>
         <ZIndex>1</ZIndex>
-        <Left>284.6pt</Left>
-        <Top>72.8pt</Top>
+        <Left>167.10pt</Left>
+        <Top>72.80pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontStyle>Italic</FontStyle>
+          <FontStyle>Normal</FontStyle>
           <FontSize>22pt</FontSize>
           <FontFamily>Times New Roman</FontFamily>
           <FontWeight>Bold</FontWeight>
+          <TextAlign >Center</TextAlign>
         </Style>
       </Textbox>
       <Line Name="Line1">
@@ -621,7 +622,7 @@ WHERE
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox23" >
+      <Textbox Name="Textbox23">
         <Height>17.28pt</Height>
         <Width>365.96pt</Width>
         <Value>Руководитель склада ______________ (_______________________)</Value>
@@ -652,9 +653,9 @@ WHERE
         <Style>
           <FontSize>10pt</FontSize>
           <FontWeight>Normal</FontWeight>
-          <BorderStyle  />
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
