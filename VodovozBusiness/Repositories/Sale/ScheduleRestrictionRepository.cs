@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
@@ -14,7 +13,7 @@ namespace Vodovoz.Repositories.Sale
 			return QueryOver.Of<ScheduleRestrictedDistrict>().Where(x => x.DistrictBorder != null);
 		}
 
-		public static IList<ScheduleRestrictedDistrict> AreasWithGeometry(IUnitOfWork uow)
+		public static IList<ScheduleRestrictedDistrict> AreaWithGeometry(IUnitOfWork uow)
 		{
 			return AreaWithGeometryQuery()
 							.GetExecutableQueryOver(uow.Session)
@@ -27,17 +26,20 @@ namespace Vodovoz.Repositories.Sale
 		/// <returns>Список складо</returns>
 		/// <param name="uow">Uow.</param>
 		/// <param name="district">Район</param>
-		public static IList<Warehouse> GetShippingWarehousesForDistrict(IUnitOfWork uow, ScheduleRestrictedDistrict district)
+		public static IList<Warehouse> GetShippingWarehouseForDistrict(IUnitOfWork uow, ScheduleRestrictedDistrict district)
 		{
-			var ggId = district.GeographicGroups?.FirstOrDefault().Id;
-			if(ggId == null)
+			if(district == null)
 				return new List<Warehouse>();
+			Subdivision subdivisionAlias = null;
+			ScheduleRestrictedDistrict districtAlias = null;
 			var subquery = QueryOver.Of<Subdivision>()
-									.Where(s => s.GeographicGroup.Id == ggId)
+									.JoinAlias(x => x.ServicingDistricts, () => districtAlias)
+									.Where(() => districtAlias.Id == district.Id)
 									.Select(s => s.Id)
 									;
 
 			var whs = uow.Session.QueryOver<Warehouse>()
+						.Left.JoinAlias(w => w.OwningSubdivision, () => subdivisionAlias)
 						.WithSubquery
 						.WhereProperty(w => w.OwningSubdivision.Id).In(subquery)
 						.List()

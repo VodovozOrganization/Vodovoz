@@ -1208,7 +1208,7 @@ namespace Vodovoz.Domain.Logistic
 				}
 				decimal litresOutlayed = (decimal)Car.FuelConsumption / 100 * ConfirmedDistance;
 
-				FuelOutlayedOperation.Driver = Car.IsCompanyHavings ? null : Driver;
+				FuelOutlayedOperation.Driver = Car.IsCompanyHavings ? null : Driver; ;
 				FuelOutlayedOperation.Car = Car.IsCompanyHavings ? Car : null;
 				FuelOutlayedOperation.Fuel = Car.FuelType;
 				FuelOutlayedOperation.OperationTime = Date;
@@ -1384,14 +1384,14 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RecalculatePlanTime(RouteGeometryCalculator sputnikCache)
 		{
-			TimeSpan minTime = new TimeSpan();
+			TimeSpan minTime = new TimeSpan(); ;
 			//Расчет минимального времени к которому нужно\можно подъехать.
 			for(int ix = 0; ix < Addresses.Count; ix++) {
 
 				if(ix == 0) {
 					minTime = Addresses[ix].Order.DeliverySchedule.From;
 
-					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(GeographicGroups.FirstOrDefault(), Addresses[ix].Order.DeliveryPoint));
+					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(Addresses[ix].Order.DeliveryPoint));
 					var onBase = minTime - timeFromBase;
 					if(Shift != null && onBase < Shift.StartTime)
 						minTime = Shift.StartTime + timeFromBase;
@@ -1408,7 +1408,7 @@ namespace Vodovoz.Domain.Logistic
 
 				if(ix == Addresses.Count - 1) {
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
-					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint, GeographicGroups.FirstOrDefault()));
+					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint));
 					var onBase = maxTime + timeToBase;
 					if(Shift != null && onBase > Shift.EndTime)
 						maxTime = Shift.EndTime - timeToBase;
@@ -1440,18 +1440,16 @@ namespace Vodovoz.Domain.Logistic
 			if(Addresses.Count == 0)
 				PlanedDistance = 0;
 			else
-				PlanedDistance = distanceCalculator.GetRouteDistance(GenerateHashPointsOfRoute()) / 1000m;
+				PlanedDistance = distanceCalculator.GetRouteDistance(GenerateHashPiontsOfRoute()) / 1000m;
 		}
 
 		public static void RecalculateOnLoadTime(IList<RouteList> routelists, RouteGeometryCalculator sputnikCache)
 		{
 			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
-								   .Select(
-										x => new Tuple<TimeSpan, RouteList>(
-											x.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.GeographicGroups.FirstOrDefault(), x.Addresses.First().Order.DeliveryPoint)),
-											x
-										)
-									)
+								   .Select(x => new Tuple<TimeSpan, RouteList>(
+									   x.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.Addresses.First().Order.DeliveryPoint)),
+												 x
+									  ))
 								   .OrderByDescending(x => x.Item1);
 			var fixedTime = routelists.Where(x => x.Addresses.Any() && x.OnloadTimeFixed).ToList();
 			var paralellLoading = 4;
@@ -1498,12 +1496,12 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual long[] GenerateHashPointsOfRoute()
+		public virtual long[] GenerateHashPiontsOfRoute()
 		{
 			var result = new List<long>();
-			result.Add(CachedDistance.GetHash(GeographicGroups.FirstOrDefault()));
+			result.Add(CachedDistance.BaseHash);
 			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.CoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
-			result.Add(CachedDistance.GetHash(GeographicGroups.FirstOrDefault()));
+			result.Add(CachedDistance.BaseHash);
 			return result.ToArray();
 		}
 

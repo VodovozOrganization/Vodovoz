@@ -46,8 +46,7 @@ namespace Vodovoz.Additions.Logistic
 		red_stripes,
 		yellow_stripes,
 		green_stripes,
-		grey_stripes,
-		vodonos
+		grey_stripes
 	}
 
 	public enum PointMarkerShape
@@ -62,9 +61,7 @@ namespace Vodovoz.Additions.Logistic
 		// 20 - 40 бутылей
 		cross,
 		// > 40 бутылей
-		star,
-		//без формы
-		custom
+		star
 	}
 
 	[Serializable]
@@ -130,13 +127,13 @@ namespace Vodovoz.Additions.Logistic
 
 		void LoadBitmap()
 		{
-			string iconPath = string.Join(".", Shape.ToString(), Type.ToString());
+			string iconPath = String.Format("{0}.{1}", Shape.ToString(), Type.ToString());
 			Bitmap = GetIcon(iconPath);
-			Size = new Size(Bitmap.Width, Bitmap.Height);
+			Size = new System.Drawing.Size(Bitmap.Width, Bitmap.Height);
 
 			Offset = new Point(-Size.Width / 2, -Size.Height + 1);
 
-			string shadowPath = string.Join(".", Shape.ToString(), "marker_shadow");
+			string shadowPath = String.Format("{0}.marker_shadow", Shape.ToString());
 			BitmapShadow = GetIcon(shadowPath);
 		}
 

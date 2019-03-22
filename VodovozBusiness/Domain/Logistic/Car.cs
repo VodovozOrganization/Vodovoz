@@ -243,7 +243,6 @@ namespace Vodovoz.Domain.Logistic
 				return observableGeographicGroups;
 			}
 		}
-
 		#endregion
 
 		public virtual string Title => String.Format("{0} ({1})", Model, RegistrationNumber);

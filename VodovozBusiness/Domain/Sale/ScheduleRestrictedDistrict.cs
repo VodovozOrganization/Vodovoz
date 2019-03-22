@@ -143,7 +143,7 @@ namespace Vodovoz.Domain.Sale
 		}
 
 		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
-		[Display(Name = "Список районов города")]
+		[Display(Name = "Группа района")]
 		public virtual IList<GeographicGroup> GeographicGroups {
 			get => geographicGroups;
 			set => SetField(ref geographicGroups, value, () => GeographicGroups);
