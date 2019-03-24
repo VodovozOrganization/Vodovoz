@@ -20,6 +20,12 @@ namespace Vodovoz.Core.Journal
 			newEntityActionConfig = new ActionForCreateEntityConfig(entityType, createActionTitle, createDialogFunc);
 		}
 
+		public MultipleEntityModelDocumentConfig(Type entityType, Func<TNode, ITdiTab> openDialogFunc, Func<TNode, bool> nodeIdentifierFunc)
+		{
+			this.openDialogFunc = openDialogFunc;
+			this.nodeIdentifierFunc = nodeIdentifierFunc;
+		}
+
 		public bool IsIdentified(TNode node)
 		{
 			return nodeIdentifierFunc.Invoke(node);

@@ -26,6 +26,8 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.RouteListClosing).Column("route_list_id");
 			References(x => x.Order).Column("order_id");
 			References(x => x.RelatedToSubdivision).Column("related_to_subdivision_id");
+			References(x => x.TransferedBy).Column("income_transfered_item_id");
+			References(x => x.CashTransferDocument).Column("cash_transfer_document_id").Cascade.All();
 		}
 	}
 }

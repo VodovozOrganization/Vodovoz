@@ -11,6 +11,8 @@ using QS.RepresentationModel;
 using QS.Tdi;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using System.ComponentModel;
+using QS.DomainModel.Config;
 
 namespace Vodovoz.Core.Journal
 {
@@ -72,7 +74,9 @@ namespace Vodovoz.Core.Journal
 		//В данной модели возможно отображение множества сущностей разных типов, поэтому свойство всегда возвращает null
 		public Type EntityType => null;
 
-		public IEnumerable<ActionForCreateEntityConfig> NewEntityActionsConfigs => configList.Select(x => x.CreateEntityActionConfig);
+		public IEnumerable<ActionForCreateEntityConfig> NewEntityActionsConfigs => configList
+			.Where(x => x.CreateEntityActionConfig != null)
+			.Select(x => x.CreateEntityActionConfig);
 
 		private TNode CastToNode(object node)
 		{
@@ -161,7 +165,7 @@ namespace Vodovoz.Core.Journal
 		}
 
 		protected MultipleEntityModelConfiguration<TEntityType, TNode> RegisterEntity<TEntityType>()
-			where TEntityType : class, IDomainObject, new()
+			where TEntityType : class, INotifyPropertyChanged, IDomainObject, new()
 		{
 			//проверка прав на регистрируемую сущность
 			var permission  = GetPermissionForEntity<TEntityType>();
@@ -207,10 +211,27 @@ namespace Vodovoz.Core.Journal
 				map.ObjectUpdated += OnExternalUpdateCommon;
 			} else {
 				logger.Warn("Невозможно подписаться на обновления класа {0}. Не найден класс маппинга.", type);
-			}		
+			}
+
+			IEntityConfig entityConfig = DomainConfiguration.GetEntityConfig(type);
+			if(entityConfig != null) {
+				entityConfig.EntityUpdated += EntityConfig_EntityUpdated;;
+			} else {
+				logger.Warn("Невозможно подписаться на обновления класа {0}. Не найден класс маппинга.", type);
+			}
 		}
 
 		private void OnExternalUpdateCommon(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
+		{
+			OnEntitiesUpdated(e.UpdatedSubjects);
+		}
+
+		void EntityConfig_EntityUpdated(object sender, EntityUpdatedEventArgs e)
+		{
+			OnEntitiesUpdated(e.UpdatedSubjects);
+		}
+
+		private void OnEntitiesUpdated(object[] updatedEntities)
 		{
 			if(!UoW.IsAlive) {
 				logger.Warn("Получена нотификация о внешнем обновлении данные в {0}, в тот момент когда сессия уже закрыта. Возможно RepresentationModel, осталась в памяти при закрытой сессии.",
@@ -218,8 +239,8 @@ namespace Vodovoz.Core.Journal
 				return;
 			}
 
-			if(e.UpdatedSubjects.Any(NeedUpdateFunc)) { 
-				UpdateNodes(); 
+			if(updatedEntities.Any(NeedUpdateFunc)) {
+				UpdateNodes();
 			}
 		}
 
