@@ -592,7 +592,7 @@
     <Compile Include="ViewModelBased\EntityOpenOption.cs" />
     <Compile Include="Filters\IncomeFilter.cs" />
     <Compile Include="Filters\ExpenseFilter.cs" />
-    <Compile Include="Tools\Orders\OrderHelper.cs" />
+    <Compile Include="Tools\Orders\PaymentTypeHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
