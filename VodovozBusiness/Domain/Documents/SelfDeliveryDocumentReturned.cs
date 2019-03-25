@@ -56,9 +56,7 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Количество")]
 		public virtual decimal Amount {
 			get { return amount; }
-			set {
-				SetField (ref amount, value, () => Amount);
-			}
+			set { SetField (ref amount, value, () => Amount); }
 		}
 
 		WarehouseMovementOperation warehouseMovementOperation;

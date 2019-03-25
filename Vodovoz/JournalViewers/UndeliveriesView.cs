@@ -86,8 +86,7 @@ namespace Vodovoz.JournalViewers
 			yTreeViewUndeliveries.YTreeModel = new RecursiveTreeModel<UndeliveredOrdersVMNode>(vm.Result, x => x.Parent, x => x.Children);
 			yTreeViewUndeliveries.YTreeModel.EmitModelChanged();
 			yTreeViewUndeliveries.ExpandAll();
-			if(CurrentObjectChanged != null)
-				CurrentObjectChanged(this, new CurrentObjectChangedArgs(undeliveredOrdersFilter));
+			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(undeliveredOrdersFilter));
 		}
 
 		#region Popup Menu
