@@ -5,6 +5,7 @@ using QS.Dialog;
 using QS.Report;
 using QSProjectsLib;
 using QSReport;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
@@ -56,7 +57,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
 			if(dateperiodpicker.StartDateOrNull == null) {
-				MessageDialogWorks.RunErrorDialog("Необходимо выбрать период");
+				MessageDialogHelper.RunErrorDialog("Необходимо выбрать период");
 				return;
 			}
 			OnUpdate(true);
