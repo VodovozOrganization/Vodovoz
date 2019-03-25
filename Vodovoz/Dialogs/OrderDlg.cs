@@ -1692,14 +1692,14 @@ namespace Vodovoz
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 				referenceContract.RepresentationModel = new ViewModel.ContractsVM(UoW, Entity.Client);
 
-				PaymentType? previousEnum = enumPaymentType.SelectedItem is PaymentType ? ((PaymentType?)enumPaymentType.SelectedItem) : null;
-				var hideEnums = new Enum[] { PaymentType.cashless };
+				PaymentAdapterType? previousEnum = enumPaymentType.SelectedItem is PaymentAdapterType ? ((PaymentAdapterType?)enumPaymentType.SelectedItem) : null;
+				var hideEnums = new Enum[] { PaymentAdapterType.cashless };
 				if(Entity.Client.PersonType == PersonType.natural)
 					enumPaymentType.AddEnumToHideList(hideEnums);
 				else
 					enumPaymentType.ClearEnumHideList();
 				if(previousEnum.HasValue) {
-					if(previousEnum.Value == Entity.PaymentType) {
+					if(previousEnum.Value == Entity.PaymentAdapterType) {
 						enumPaymentType.SelectedItem = previousEnum.Value;
 					} else if(Entity.Id == 0 || hideEnums.Contains(Entity.PaymentType)) {
 						enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;

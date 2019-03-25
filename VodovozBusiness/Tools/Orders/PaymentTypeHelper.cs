@@ -4,7 +4,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Tools.Orders
 {
-	public static class OrderHelper
+	public static class PaymentTypeHelper
 	{
 		public static PaymentType ConvertToPaymentType(PaymentAdapterType type)
 		{
