@@ -32,7 +32,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public Car Car => OldRoute != null ? OldRoute.Car : atWorkDriver.Car;
 
-		public GeographicGroup GeographicGroup => atWorkDriver.GeographicGroup;
+		public GeographicGroup GeographicGroup => OldRoute != null ? OldRoute.GeographicGroups.FirstOrDefault() : atWorkDriver.GeographicGroup;
 
 		/// <summary>
 		/// Если маршрут добавлен в ручную, то используем максимальный приоритет, чтобы этому водителю с большей вероятностью достались адреса.

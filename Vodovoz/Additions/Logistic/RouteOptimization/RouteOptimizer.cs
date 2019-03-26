@@ -300,14 +300,18 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Info("Закрываем модель...");
 
 			if(WarningMessages.Any() &&
-				!MessageDialogHelper.RunQuestionDialog("При построении транспортной модели обнаружены следующие проблемы:\n{0}\nПродолжить?",
-													 string.Join("\n", WarningMessages.Select(x => "⚠ " + x))))
+				!MessageDialogHelper.RunQuestionDialog(
+														"При построении транспортной модели обнаружены следующие проблемы:\n{0}\nПродолжить?",
+														string.Join("\n", WarningMessages.Select(x => "⚠ " + x))
+													)
+												) {
+				distanceCalculator.Canceled = true;
 				return;
+			}
 
 			logger.Info("Рассчет расстояний между точками...");
 			routing.CloseModelWithParameters(search_parameters);
-
-#if DEBUG
+#if !DEBUG
 			PrintMatrixCount(distanceCalculator.matrixcount);
 #endif
 			//Записывем возможно не схраненый кеш в базу.
@@ -327,7 +331,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			PerformanceHelper.AddTimePoint(logger, $"Получили решение.");
 			logger.Info("Готово. Заполняем.");
 			MainClass.progressBarWin.ProgressAdd();
-#if DEBUG
+#if !DEBUG
 			PrintMatrixCount(distanceCalculator.matrixcount);
 #endif
 			Console.WriteLine("Status = {0}", routing.Status());
@@ -376,7 +380,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				}
 			}
 
-#if DEBUG
+#if !DEBUG
 			logger.Debug("SGoToBase:{0}", string.Join(", ", CallbackDistanceDistrict.SGoToBase.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
 			logger.Debug("SFromExistPenality:{0}", string.Join(", ", CallbackDistanceDistrict.SFromExistPenality.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
 			logger.Debug("SUnlikeDistrictPenality:{0}", string.Join(", ", CallbackDistanceDistrict.SUnlikeDistrictPenality.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));

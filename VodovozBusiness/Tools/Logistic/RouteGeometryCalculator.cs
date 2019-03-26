@@ -306,7 +306,6 @@ namespace Vodovoz.Tools.Logistic
 				var result = OsrmMain.GetRoute(points, false, GeometryOverview.Full);
 				ok = result?.Code == "Ok";
 				if(ok && result.Routes.Any()) {
-					distance.Created = DateTime.Now;
 					distance.DistanceMeters = result.Routes.First().TotalDistance;
 					distance.TravelTimeSec = result.Routes.First().TotalTimeSeconds;
 					distance.PolylineGeometry = result.Routes.First().RouteGeometry;
@@ -315,7 +314,6 @@ namespace Vodovoz.Tools.Logistic
 				var result = SputnikMain.GetRoute(points, false, true);
 				ok = result.Status == 0;
 				if(ok) {
-					distance.Created = DateTime.Now;
 					distance.DistanceMeters = result.RouteSummary.TotalDistance;
 					distance.TravelTimeSec = result.RouteSummary.TotalTimeSeconds;
 					distance.PolylineGeometry = result.RouteGeometry;

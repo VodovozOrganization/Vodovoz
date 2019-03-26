@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using QSOrmProject;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;
@@ -15,6 +16,7 @@ namespace Vodovoz.Domain.Employees
 		NominativePlural = "сотрудники",
 		Nominative = "сотрудник")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class Employee : Personnel, ISpecialRowsRender, IEmployee
 	{
 		#region Свойства

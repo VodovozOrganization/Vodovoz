@@ -664,6 +664,7 @@ namespace Vodovoz
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
 			var routesQuery = routesQuery1
 				.Fetch(SelectMode.Fetch, x => x.Addresses)
+				???.Fetch(SelectMode.Fetch, x => x.GeographicGroups)
 				.Future();
 
 			var routesQuery2 = RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
@@ -973,18 +974,18 @@ namespace Vodovoz
 		{
 			List<Order> orders = new List<Order>();
 			//Добавление заказов из кликов по маркеру
-			orders.AddRange(selectedMarkers.Select(m => m.Tag).Cast<Order>().ToList());
+			orders.AddRange(selectedMarkers.Select(m => m.Tag).OfType<Order>().ToList());
 			//Добавление заказов из квадратного выделения
 			orders.AddRange(addressesOverlay.Markers
 				.Where(m => gmapWidget.SelectedArea.Contains(m.Position))
-				.Select(x => x.Tag).Cast<Order>().ToList());
+				.Select(x => x.Tag).OfType<Order>().ToList());
 			//Добавление закзаво через непрямоугольную область
 			GMapOverlay overlay = gmapWidget.Overlays.FirstOrDefault(o => o.Id.Contains(selectionOverlay.Id));
 			GMapPolygon polygons = overlay?.Polygons.FirstOrDefault(p => p.Name.ToLower().Contains("выделение"));
 			if(polygons != null) {
 				var temp = addressesOverlay.Markers
 					.Where(m => polygons.IsInside(m.Position))
-					.Select(x => x.Tag).Cast<Order>().ToList();
+					.Select(x => x.Tag).OfType<Order>().ToList();
 				orders.AddRange(temp);
 			}
 
@@ -1272,8 +1273,10 @@ namespace Vodovoz
 					rl.Date = CurDate;
 					rl.Logistican = logistican;
 
-					rl.GeographicGroups.Clear();
-					rl.GeographicGroups.Add(propose.Trip.GeographicGroup);
+					if(propose.Trip.OldRoute == null) {
+						rl.GeographicGroups.Clear();
+						rl.GeographicGroups.Add(propose.Trip.GeographicGroup);
+					}
 
 					foreach(var order in propose.Orders) {
 						var address = rl.AddAddressFromOrder(order.Order);

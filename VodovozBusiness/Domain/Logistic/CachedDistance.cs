@@ -20,8 +20,6 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual string PolylineGeometry { get; set; }
 
-		public virtual DateTime Created { get; set; }
-
 		public CachedDistance() { }
 
 		#region Static

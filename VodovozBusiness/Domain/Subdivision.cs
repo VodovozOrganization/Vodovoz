@@ -6,10 +6,11 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using QS.Project.Domain;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz
 {
@@ -17,6 +18,7 @@ namespace Vodovoz
 		NominativePlural = "подразделения",
 		Nominative = "подразделение")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
