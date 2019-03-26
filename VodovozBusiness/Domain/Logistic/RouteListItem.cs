@@ -599,13 +599,13 @@ namespace Vodovoz.Domain.Logistic
 				Status = RouteListItemStatus.Completed;
 
 			foreach(var item in Order.OrderItems)
-				item.ActualCount = IsDelivered() ? (int?)item.Count : 0;
+				item.ActualCount = IsDelivered() ? item.Count : 0;
 
 			foreach(var equip in Order.OrderEquipments)
-				equip.ActualCount = IsDelivered() ? (int?)equip.Count : 0;
+				equip.ActualCount = IsDelivered() ? equip.Count : 0;
 
 			foreach(var deposit in Order.OrderDepositItems)
-				deposit.ActualCount = IsDelivered() ? (int?)deposit.Count : 0;
+				deposit.ActualCount = IsDelivered() ? deposit.Count : 0;
 
 			PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
 			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
