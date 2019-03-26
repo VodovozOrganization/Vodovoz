@@ -149,18 +149,20 @@ namespace Vodovoz.Representations
 					)).WithAlias(() => resultAlias.BottleAmount)
 				   .Select(Projections.Sum(
 						Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2 - ?3"),
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?2, ?1) * ?3 - ?4"),
 							NHibernateUtil.Decimal,
 							Projections.Property(() => orderItemAlias.Count),
+							Projections.Property(() => orderItemAlias.ActualCount),
 							Projections.Property(() => orderItemAlias.Price),
 							Projections.Property(() => orderItemAlias.DiscountMoney)
 						   )
 					)).WithAlias(() => resultAlias.OrderSum)
 				   .Select(Projections.Sum(
 						Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2"),
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?2, ?1) * ?3"),
 							NHibernateUtil.Decimal,
 							Projections.Property(() => orderDepositItemAlias.Count),
+							Projections.Property(() => orderItemAlias.ActualCount),
 							Projections.Property(() => orderDepositItemAlias.Deposit)
 						   )
 					)).WithAlias(() => resultAlias.OrderReturnSum)
@@ -198,17 +200,6 @@ namespace Vodovoz.Representations
 			};
 			menuItemInvoices.Sensitive = isOneSelected && selectedOrder.OrderStatus == OrderStatus.WaitForPayment;
 			popupMenu.Add(menuItemInvoices);
-
-			MenuItem menuItemEditOrder = new MenuItem("Изменение товаров в заказе");
-			menuItemEditOrder.Activated += (sender, e) => {
-				MainClass.MainWin.TdiMain.OpenTab(
-					"edit_selfdelivery_" + DialogHelper.GenerateDialogHashName<VodovozOrder>(selectedNode.Id),
-					() => new SelfDeliveryOrderEditDlg(selectedNode.Id)
-				);
-			};
-			//Закрыт до уточнения работы кассы по самовывозу
-			menuItemEditOrder.Visible = isOneSelected && false;
-			popupMenu.Add(menuItemEditOrder);
 
 			return popupMenu;
 		}
@@ -272,11 +263,7 @@ namespace Vodovoz.Representations
 
 		public decimal TotalCashDiff => OrderCashSumTotal - CashTotal;
 
-		public bool HaveCashDiff {
-			get {
-				return OrderCashSumTotal != CashTotal;
-			}
-		}
+		public bool HasCashDiff => OrderCashSumTotal != CashTotal;
 
 		public string AuthorLastName { get; set; }
 		public string AuthorName { get; set; }
@@ -288,11 +275,11 @@ namespace Vodovoz.Representations
 
 		public string RowColor {
 			get {
-				if(CashPaid > 0 && HaveCashDiff) {
+				if(CashPaid > 0 && HasCashDiff) {
 					//light red
 					return "#f97777";
 				}
-				if(StatusEnum == OrderStatus.Closed && HaveCashDiff) {
+				if(StatusEnum == OrderStatus.Closed && HasCashDiff) {
 					//red
 					return "#ee0000";
 				}

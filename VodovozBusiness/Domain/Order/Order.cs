@@ -2782,15 +2782,23 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(var item in OrderItems) {
 				if(loadedList.ContainsKey(item.Nomenclature.Id)) {
-					item.ActualCount = (int)loadedList[item.Nomenclature.Id];
-					loadedList.Remove(item.Nomenclature.Id);
+					//разбрасываем количества отгруженных по актуальным количествам в позициях заказа.
+					int loadedCnt = (int)loadedList[item.Nomenclature.Id];
+					item.ActualCount = Math.Min(item.Count, loadedCnt);
+					loadedList[item.Nomenclature.Id] -= loadedCnt;
+					if(loadedList[item.Nomenclature.Id] <= 0)
+						loadedList.Remove(item.Nomenclature.Id);
 				}
 			}
 
 			foreach(var item in OrderEquipments) {
 				if(loadedList.ContainsKey(item.Nomenclature.Id)) {
-					item.ActualCount = (int)loadedList[item.Nomenclature.Id];
-					loadedList.Remove(item.Nomenclature.Id);
+					//разбрасываем количества отгруженных по актуальным количествам в позициях заказа.
+					int loadedCnt = (int)loadedList[item.Nomenclature.Id];
+					item.ActualCount = Math.Min(item.Count, loadedCnt);
+					loadedList[item.Nomenclature.Id] -= loadedCnt;
+					if(loadedList[item.Nomenclature.Id] <= 0)
+						loadedList.Remove(item.Nomenclature.Id);
 				}
 			}
 		}
