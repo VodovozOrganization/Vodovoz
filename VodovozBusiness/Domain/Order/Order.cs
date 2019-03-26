@@ -300,6 +300,8 @@ namespace Vodovoz.Domain.Orders
 			get => paymentType;
 			set {
 				if(value != paymentType && SetField(ref paymentType, value, () => PaymentType)) {
+					if(PaymentAdapterType != PaymentAdapterType.ByCard)
+						OnlineOrder = null;
 					if(PaymentType != PaymentType.cash)
 						NeedCheque = null;
 					else
@@ -318,7 +320,7 @@ namespace Vodovoz.Domain.Orders
 			get => paymentAdapterType;
 			set {
 				SetField(ref paymentAdapterType, value, () => PaymentAdapterType);
-				paymentType = this.ConvertToPaymentType();
+				PaymentType = this.ConvertToPaymentType();
 			}
 		}
 
