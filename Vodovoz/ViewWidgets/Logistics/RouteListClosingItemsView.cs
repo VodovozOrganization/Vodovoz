@@ -14,6 +14,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
 using QS.Dialog.GtkUI;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
@@ -180,7 +181,7 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, -1000000, 1000000, 1, 1, 1))
 				.AddColumn("№ оплаты")
 					.AddTextRenderer(node => node.TerminalPaymentNumber).Editable()
-					.AddSetter((cell, node) => cell.BackgroundGdk = node.Order.PaymentType == Domain.Client.PaymentType.CourierByCard ? colorLightBlue : colorWhite)
+					.AddSetter((cell, node) => cell.BackgroundGdk = node.Order.PaymentType == PaymentType.CourierByCard ? colorLightBlue : colorWhite)
 				.AddColumn("Итого\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.TotalCash)
 				.AddColumn ("Комментарий\nкассира")
