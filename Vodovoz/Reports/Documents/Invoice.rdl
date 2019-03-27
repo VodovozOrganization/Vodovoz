@@ -31,7 +31,8 @@
 	CASE orders.payment_type 
 		WHEN 'cash' THEN 'НАЛ'
 		WHEN 'cashless' THEN 'БЕЗНАЛ'
-		WHEN 'ByCard' THEN IF(orders.online_order IS NOT NULL, 'ПО КАРТЕ' , 'ПО КАРТЕ КУРЬЕРУ')
+		WHEN 'ByCard' THEN 'ПО КАРТЕ'
+        WHEN 'CourierByCard' THEN 'ПО КАРТЕ КУРЬЕРУ'
 		ELSE orders.payment_type
 	END AS pay_type,
 	orders.payment_type AS order_payment_type,
@@ -1418,7 +1419,7 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>18.2pt</Left>
-        <Top>254.3pt</Top>
+        <Top>263.1pt</Top>
         <Visibility>
           <Hidden>
           </Hidden>
@@ -1781,7 +1782,7 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>23.0pt</Left>
-        <Top>385.0pt</Top>
+        <Top>393.8pt</Top>
       </Table>
       <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>19.50pt</Height>
@@ -1901,7 +1902,7 @@ WHERE stored_resource.id = @id1</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox1">
                       <Value>=Iif(
-    Convert.ToBoolean( ({order_payment_type}!='ByCard') * Fields!order_online_number.IsMissing) ,
+    {order_payment_type} != 'ByCard',
     "",
     "Тинькоф\\"
 ) + {org_name} + ', ' + {org_address}</Value>
@@ -2153,13 +2154,13 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>11.1pt</Left>
-        <Top>144.1pt</Top>
+        <Top>152.9pt</Top>
       </Table>
       <Image Name="Image8">
         <Height>51.20pt</Height>
         <Width>183.72pt</Width>
-        <Left>25.70pt</Left>
-        <Top>585.30pt</Top>
+        <Left>25.7pt</Left>
+        <Top>585.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2176,8 +2177,8 @@ WHERE stored_resource.id = @id1</CommandText>
       <List Name="List1">
         <Height>36.24pt</Height>
         <Width>135.53pt</Width>
-        <Left>443.7pt</Left>
-        <Top>90.5pt</Top>
+        <Left>443.70pt</Left>
+        <Top>92.90pt</Top>
         <ReportItems>
           <Image Name="Image7">
             <Height>33.19pt</Height>
@@ -2198,7 +2199,7 @@ WHERE stored_resource.id = @id1</CommandText>
             <Height>24.89pt</Height>
             <Width>59.55pt</Width>
             <Left>4.8pt</Left>
-            <Top>7.6pt</Top>
+            <Top>6.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2261,7 +2262,7 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>15.9pt</Left>
-        <Top>389.9pt</Top>
+        <Top>398.7pt</Top>
       </Table>
       <Table Name="Table6">
         <DataSetName>Order</DataSetName>
@@ -2325,7 +2326,7 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>24.0pt</Left>
-        <Top>217.2pt</Top>
+        <Top>226.0pt</Top>
       </Table>
       <Table Name="Table7">
         <DataSetName>Order</DataSetName>
@@ -2389,13 +2390,13 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>25.4pt</Left>
-        <Top>398.5pt</Top>
+        <Top>407.3pt</Top>
       </Table>
       <Image Name="Image2">
-        <Height>75.50pt</Height>
+        <Height>67.50pt</Height>
         <Width>520.00pt</Width>
-        <Left>24.8pt</Left>
-        <Top>432.9pt</Top>
+        <Left>25.0pt</Left>
+        <Top>514.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2404,7 +2405,7 @@ WHERE stored_resource.id = @id1</CommandText>
         </Style>
         <Source>Database</Source>
         <Value>=First( {IM5} , "Image" )</Value>
-        <Sizing>FitProportional</Sizing>
+        <Sizing>Fit</Sizing>
         <Visibility>
           <Hidden>={?without_advertising}</Hidden>
         </Visibility>
@@ -2466,9 +2467,9 @@ WHERE stored_resource.id = @id1</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox39">
                       <Value>=Iif(Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund') &gt;= 0,
-    Iif( Convert.ToBoolean( (First({order_payment_type}, "Order")!='ByCard') * Fields!order_online_number.IsMissing  ) , "Итого к оплате по карте курьеру: " , "Всего получить от клиента: " ) +Code.SummaString_Val(
+   Iif( First({order_payment_type}, "Order")='CourierByCard' , "Итого к оплате по карте курьеру: ", "Всего получить от клиента: ") +Code.SummaString_Val(
         Convert.ToString(
-            Iif(  Convert.ToBoolean( (First({order_payment_type}, "Order")!='ByCard') * Fields!order_online_number.IsMissing  ),
+            Iif(First({order_payment_type}, "Order")!='ByCard',
                 Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
                 0
             )
@@ -2476,7 +2477,7 @@ WHERE stored_resource.id = @id1</CommandText>
     )
     +"    ("+
     Format(
-        Iif( Convert.ToBoolean( (First({order_payment_type}, "Order")!='ByCard') * Fields!order_online_number.IsMissing ),
+        Iif(First({order_payment_type}, "Order")!='ByCard',
             Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
             0
         )
@@ -2485,7 +2486,7 @@ WHERE stored_resource.id = @id1</CommandText>
     + "р.)",
    "Всего вернуть клиенту: "+Code.SummaString_Val(
         Convert.ToString(
-            Iif( Convert.ToBoolean( (First({order_payment_type}, "Order")!='ByCard')* Fields!order_online_number.IsMissing ) ,
+            Iif(First({order_payment_type}, "Order")!='ByCard',
                 -Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
                 0
             )
@@ -2493,7 +2494,7 @@ WHERE stored_resource.id = @id1</CommandText>
     )
     +"    ("+
     Format(
-        Iif( Convert.ToBoolean( (First({order_payment_type}, "Order")!='ByCard') * Fields!order_online_number.IsMissing ) ,
+        Iif(First({order_payment_type}, "Order")!='ByCard',
             -Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
             0
         )
@@ -2528,14 +2529,14 @@ WHERE stored_resource.id = @id1</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>17.1pt</Left>
-        <Top>345.7pt</Top>
+        <Left>20.3pt</Left>
+        <Top>358.5pt</Top>
       </Table>
       <Image Name="Image3">
         <Height>57.98pt</Height>
         <Width>93.37pt</Width>
-        <Left>22.6pt</Left>
-        <Top>65.3pt</Top>
+        <Left>24.2pt</Left>
+        <Top>70.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2550,7 +2551,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>70.50pt</Height>
         <Width>520.00pt</Width>
         <Left>24.7pt</Left>
-        <Top>505.6pt</Top>
+        <Top>441.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2558,7 +2559,7 @@ WHERE stored_resource.id = @id1</CommandText>
         </Style>
         <Source>Database</Source>
         <Value>=First( {IM8} , "Image" )</Value>
-        <Sizing>FitProportional</Sizing>
+        <Sizing>Fit</Sizing>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
       <Table Name="Table9">
@@ -2789,13 +2790,13 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>17.0pt</Left>
-        <Top>308.3pt</Top>
+        <Top>317.9pt</Top>
       </Table>
       <Image Name="Image5">
         <Height>59.41pt</Height>
         <Width>112.14pt</Width>
-        <Left>121.9pt</Left>
-        <Top>66.2pt</Top>
+        <Left>125.7pt</Left>
+        <Top>70.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3218,7 +3219,7 @@ WHERE stored_resource.id = @id1</CommandText>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>432096</Value>
+          <Value>432099</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -3254,7 +3255,7 @@ WHERE stored_resource.id = @id1</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
