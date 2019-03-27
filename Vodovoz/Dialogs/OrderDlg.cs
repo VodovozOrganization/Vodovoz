@@ -303,8 +303,8 @@ namespace Vodovoz
 			labelSum.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.TotalSum), w => w.LabelProp).InitializeFromSource();
 			labelCashToReceive.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderCashSum), w => w.LabelProp).InitializeFromSource();
 
-			enumPaymentType.ItemsEnum = typeof(PaymentAdapterType);
-			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentAdapterType, w => w.SelectedItem).InitializeFromSource();
+			enumPaymentType.ItemsEnum = typeof(PaymentType);
+			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
 			SetSensitivityOfPaymentType();
 
 			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
@@ -1692,14 +1692,14 @@ namespace Vodovoz
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 				referenceContract.RepresentationModel = new ViewModel.ContractsVM(UoW, Entity.Client);
 
-				PaymentAdapterType? previousEnum = enumPaymentType.SelectedItem is PaymentAdapterType ? ((PaymentAdapterType?)enumPaymentType.SelectedItem) : null;
-				var hideEnums = new Enum[] { PaymentAdapterType.cashless };
+				PaymentType? previousEnum = enumPaymentType.SelectedItem is PaymentType ? ((PaymentType?)enumPaymentType.SelectedItem) : null;
+				var hideEnums = new Enum[] { PaymentType.cashless };
 				if(Entity.Client.PersonType == PersonType.natural)
 					enumPaymentType.AddEnumToHideList(hideEnums);
 				else
 					enumPaymentType.ClearEnumHideList();
 				if(previousEnum.HasValue) {
-					if(previousEnum.Value == Entity.PaymentAdapterType) {
+					if(previousEnum.Value == Entity.PaymentType) {
 						enumPaymentType.SelectedItem = previousEnum.Value;
 					} else if(Entity.Id == 0 || hideEnums.Contains(Entity.PaymentType)) {
 						enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;
@@ -1813,7 +1813,7 @@ namespace Vodovoz
 				(Entity.Client != null &&
 				 (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)
 				);
-			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (Entity.PaymentAdapterType == PaymentAdapterType.ByCard);
+			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (Entity.PaymentType == PaymentType.ByCard);
 			if(treeItems.Columns.Any())
 				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -38,24 +39,8 @@ namespace Vodovoz.Domain.Client
 		barter,
 		[Display(Name = "По карте", ShortName = "карта")]
 		ByCard,
-		[Display(Name = "Контрактная документация", ShortName = "контрактн.")]
-		ContractDoc
-	}
-
-	public enum PaymentAdapterType
-	{
-		[Display(Name = "Наличная", ShortName = "нал.")]
-		cash,
-		[Display(Name = "Мир напитков", ShortName = "нал.")]
-		BeveragesWorld,
-		[Display(Name = "Безналичная", ShortName = "б/н.")]
-		cashless,
-		[Display(Name = "Бартер", ShortName = "бар.")]
-		barter,
-		[Display(Name = "По карте", ShortName = "карта")]
-		ByCard,
 		[Display(Name = "Оплата по карте курьеру", ShortName = "карта, курьер")]
-		CourierCard,
+		CourierByCard,
 		[Display(Name = "Контрактная документация", ShortName = "контрактн.")]
 		ContractDoc
 	}

@@ -300,8 +300,6 @@ namespace Vodovoz.Domain.Orders
 			get => paymentType;
 			set {
 				if(value != paymentType && SetField(ref paymentType, value, () => PaymentType)) {
-					if(PaymentAdapterType != PaymentAdapterType.ByCard)
-						OnlineOrder = null;
 					if(PaymentType != PaymentType.cash)
 						NeedCheque = null;
 					else
@@ -309,18 +307,7 @@ namespace Vodovoz.Domain.Orders
 					//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
 					if(Client != null && OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
 						OnChangePaymentType();
-					paymentAdapterType = this.ConvertToPaymentAdapterType();
 				}
-			}
-		}
-
-		PaymentAdapterType paymentAdapterType;
-
-		public virtual PaymentAdapterType PaymentAdapterType {
-			get => paymentAdapterType;
-			set {
-				SetField(ref paymentAdapterType, value, () => PaymentAdapterType);
-				PaymentType = this.ConvertToPaymentType();
 			}
 		}
 
@@ -908,7 +895,7 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
-			if(PaymentAdapterType == PaymentAdapterType.ByCard && OnlineOrder == null)
+			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 
@@ -2502,7 +2489,7 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery) {
 				return;
 			}
-			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard) {
+			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard ) {
 				return;
 			}
 
