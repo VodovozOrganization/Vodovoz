@@ -1,7 +1,6 @@
 ﻿using Vodovoz.Domain.Client;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools.Logistic;
-using System;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -27,8 +26,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public void OnCurrentObjectChanged(object changedObject)
 		{
-			var deliveryPoint = changedObject as DeliveryPoint;
-			if(deliveryPoint != null) {
+			if(changedObject is DeliveryPoint deliveryPoint) {
 				DeliveryPoint = deliveryPoint;
 				Refresh();
 			}
@@ -43,7 +41,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			var deliveryPrice = DeliveryPriceCalculator.Calculate(DeliveryPoint);
 			labelError.Visible = deliveryPrice.HasError;
-			labelError.Markup = String.Format("<span foreground=\"red\"><b>{0}</b></span>", deliveryPrice.ErrorMessage);
+			labelError.Markup = string.Format("<span foreground=\"red\"><b>{0}</b></span>", deliveryPrice.ErrorMessage);
 			deliverypriceview.Visible = !deliveryPrice.HasError;
 			deliverypriceview.DeliveryPrice = deliveryPrice;
 		}

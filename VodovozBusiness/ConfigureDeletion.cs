@@ -482,6 +482,7 @@ namespace Vodovoz
 			#region ScheduleRestriction
 
 			DeleteConfig.AddHibernateDeleteInfo<ScheduleRestriction>()
+				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionToday)
 				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionMonday)
 				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionTuesday)
 				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionWednesday)
