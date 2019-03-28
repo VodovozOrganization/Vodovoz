@@ -95,7 +95,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public TextBuffer DebugBuffer;
 		public List<string> WarningMessages = new List<string>();
 
-		public bool Cancel = false;
+		public virtual bool Cancel { get; set; } = false;
 
 		/// <summary>
 		/// Максимальное время работы механизма оптимизации после вызова <c>Solve()</c>. Это время именно оптимизации, время создания модели при этом не учитывается.
@@ -176,7 +176,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					else if(possibleRoutes.SelectMany(x => x.Districts).Any(x => x.District.Id == area.Id)) {
 						var cOrder = new CalculatedOrder(order, area);
 						//if(possibleRoutes.Any(r => r.GeographicGroup.Id == cOrder.ShippingBase.Id))//убрать, если в автоформировании должны учавствовать заказы из всех частей города вне зависимости от того какие части города выбраны в диалоге
-							calculatedOrders.Add(cOrder);
+						calculatedOrders.Add(cOrder);
 					} else if(!unusedDistricts.Contains(area))
 						unusedDistricts.Add(area);
 				}

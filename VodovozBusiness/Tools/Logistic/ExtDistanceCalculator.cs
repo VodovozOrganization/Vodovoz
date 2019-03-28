@@ -56,18 +56,12 @@ namespace Vodovoz.Tools.Logistic
 		// Поэтому код относящийся к потоку сильно не задокументирован. Его лучше переписать на более простой.
 		long[] hashes;
 		Dictionary<long, int> hashPos;
-		Thread[] Threads;
-		Task[] tasks;     
-		List<WayHash> inWorkWays = new List<WayHash>();
 		WayHash? waitDistance;
-		NextPos NextThreadsPos = new NextPos();
 
 		int unsavedItems = 0;
 
-
-		ConcurrentQueue<long> cQueue;// = new ConcurrentQueue<long>();
-
-
+		Task<int>[] tasks;
+		ConcurrentQueue<long> cQueue;
 
 #if DEBUG
 		CachedDistance[,] matrix;
@@ -97,12 +91,7 @@ namespace Vodovoz.Tools.Logistic
 						   .Distinct()
 						   .ToArray();
 
-
-
 			cQueue = new ConcurrentQueue<long>(hashes);
-
-
-
 
 			totalPoints = hashes.Length;
 			proposeNeedCached = hashes.Length * (hashes.Length - 1);
@@ -149,19 +138,23 @@ namespace Vodovoz.Tools.Logistic
 		private void RunPreCalculation()
 		{
 			startLoadTime = DateTime.Now;
-			tasks = new Task[ThreadCount];
+			tasks = new Task<int>[ThreadCount];
 			foreach(var ix in Enumerable.Range(0, ThreadCount)) {
-				tasks[ix] = new Task(DoBackground);
+				tasks[ix] = new Task<int>(DoBackground);
 				tasks[ix].Start();
 			}
-			разобраться   Task.WaitAll(tasks);
+
+			while(MultiThreadLoad) {
+				Gtk.Main.Iteration();
+			}
 		}
 
 		/// <summary>
 		/// Метод содержащий работу одного многопоточного воркера.
 		/// </summary>
-		private void DoBackground()
+		private int DoBackground()
 		{
+			int result = 0;
 			while(cQueue.TryDequeue(out long fromHash)) {
 				if(waitDistance != null) {
 					long fromHash2 = waitDistance.Value.FromHash;
@@ -173,25 +166,30 @@ namespace Vodovoz.Tools.Logistic
 				foreach(var toHash in hashes) {
 					if(Canceled) {
 						MultiThreadLoad = false;
-						Thread.CurrentThread.Abort();
+						result = -1;
 						break;
 					}
 					if(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash))
 						LoadDistanceFromService(fromHash, toHash);
+					result = 1;
 				}
+				Gtk.Application.Invoke(delegate {
+					UpdateText();
+				});
 			}
 
 			Gtk.Application.Invoke(delegate {
-				CheckAndDisableThreads();
+				CheckAndDisableTasks();
 			});
+			return result;
 		}
 
 		/// <summary>
-		/// Метод отключающий режим многопоточного скачивания, при завершении работы всех потоков.
+		/// Метод отключающий режим многопоточного скачивания, при завершении работы всех задач.
 		/// </summary>
-		private void CheckAndDisableThreads()
+		void CheckAndDisableTasks()
 		{
-			if(tasks.All(x => !x.IsCompleted))
+			//if(tasks.All(x => x.Result == 1))
 				MultiThreadLoad = false;
 		}
 
@@ -305,7 +303,6 @@ namespace Vodovoz.Tools.Logistic
 				logger.Warn("Повторный запрос дистанции с ошибкой расчета. Пропускаем...");
 				return null;
 			}
-			//if(MultiThreadLoad && Threads.Any(x => x != null && x.IsAlive)) {
 			if(MultiThreadLoad) {
 				waitDistance = new WayHash(fromHash, toHash);
 				while(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash)) {

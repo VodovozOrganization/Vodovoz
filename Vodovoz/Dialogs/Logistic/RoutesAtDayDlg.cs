@@ -663,8 +663,7 @@ namespace Vodovoz
 			if(!checkShowCompleted.Active)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
 			var routesQuery = routesQuery1
-				.Fetch(SelectMode.Fetch, x => x.Addresses)
-				???.Fetch(SelectMode.Fetch, x => x.GeographicGroups)
+				.Fetch(SelectMode.Undefined, x => x.Addresses)
 				.Future();
 
 			var routesQuery2 = RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
