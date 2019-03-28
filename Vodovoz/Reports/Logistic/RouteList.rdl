@@ -1014,7 +1014,7 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontStyle>=Iif(
-    {payment_type} = 'courier_card',
+    {payment_type} = 'CourierByCard',
     'Italic',
     'Normal'
 )</FontStyle>
@@ -1117,7 +1117,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="txtTotal">
-                      <Value>={online_order_nr}</Value>
+                      <Value/>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1878,7 +1878,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
@@ -1940,11 +1940,7 @@ CONCAT_WS(
 #База в запросе выше на проде пустая, залоги гребутся из той, что в запросе ниже.
 IF(route_list_addresses.deposits_collected IS NULL, 0, route_list_addresses.deposits_collected) AS BottlesDeposit,
 route_list_addresses.status AS Status,
-orders.online_order AS online_order_nr,
-CASE
-WHEN orders.payment_type = 'ByCard' AND orders.online_order IS NULL THEN 'courier_card'
-ELSE orders.payment_type
-END AS payment_type
+orders.payment_type AS payment_type
 
 <!--sql_select-->
 FROM route_list_addresses
@@ -2047,7 +2043,7 @@ ORDER BY order_in_route
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="RouteListId">
           <DataField>RouteListId</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2115,10 +2111,6 @@ ORDER BY order_in_route
         <Field Name="order_and_daily_nr">
           <DataField>order_and_daily_nr</DataField>
           <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="online_order_nr">
-          <DataField>online_order_nr</DataField>
-          <TypeName>System.Int32</TypeName>
         </Field>
         <Field Name="payment_type">
           <DataField>payment_type</DataField>
