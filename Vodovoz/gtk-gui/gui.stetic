@@ -27,7 +27,7 @@
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
     <widget-library name="../../../VodovozService/EmailService/bin/Debug/Email.dll" />
     <widget-library name="../../../QSProjects/QS.Project.Gtk/bin/Debug/QS.Project.Gtk.dll" />
-    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -1518,7 +1518,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -24188,7 +24187,8 @@
                       </widget>
                       <packing>
                         <property name="Position">2</property>
-                        <property name="AutoSize">False</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
                         <property name="Fill">False</property>
                       </packing>
                     </child>
@@ -24196,12 +24196,13 @@
                   <packing>
                     <property name="TopAttach">1</property>
                     <property name="BottomAttach">2</property>
-                    <property name="RightAttach">2</property>
+                    <property name="LeftAttach">2</property>
+                    <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
-                    <property name="XOptions">0</property>
+                    <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
                     <property name="XExpand">False</property>
-                    <property name="XFill">False</property>
+                    <property name="XFill">True</property>
                     <property name="XShrink">False</property>
                     <property name="YExpand">False</property>
                     <property name="YFill">True</property>
@@ -24257,8 +24258,7 @@
                       </widget>
                       <packing>
                         <property name="Position">2</property>
-                        <property name="AutoSize">True</property>
-                        <property name="Expand">False</property>
+                        <property name="AutoSize">False</property>
                         <property name="Fill">False</property>
                       </packing>
                     </child>
@@ -24266,13 +24266,12 @@
                   <packing>
                     <property name="TopAttach">1</property>
                     <property name="BottomAttach">2</property>
-                    <property name="LeftAttach">2</property>
-                    <property name="RightAttach">4</property>
+                    <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
+                    <property name="XOptions">0</property>
                     <property name="YOptions">Fill</property>
                     <property name="XExpand">False</property>
-                    <property name="XFill">True</property>
+                    <property name="XFill">False</property>
                     <property name="XShrink">False</property>
                     <property name="YExpand">False</property>
                     <property name="YFill">True</property>
@@ -54281,6 +54280,24 @@ not tooltip</property>
                                 <property name="MemberName" />
                                 <property name="Spacing">6</property>
                                 <child>
+                                  <widget class="Gtk.RadioButton" id="btnToday">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="Label" translatable="yes">ДД</property>
+                                    <property name="Active">True</property>
+                                    <property name="DrawIndicator">False</property>
+                                    <property name="HasLabel">True</property>
+                                    <property name="Group">group1</property>
+                                    <signal name="Clicked" handler="OnBtnTodayClicked" />
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">0</property>
+                                    <property name="AutoSize">True</property>
+                                    <property name="Expand">False</property>
+                                    <property name="Fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
                                   <widget class="Gtk.RadioButton" id="btnMonday">
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
@@ -54291,7 +54308,7 @@ not tooltip</property>
                                     <signal name="Clicked" handler="OnBtnMondayClicked" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">0</property>
+                                    <property name="Position">1</property>
                                     <property name="AutoSize">False</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -54308,7 +54325,7 @@ not tooltip</property>
                                     <signal name="Clicked" handler="OnBtnTuesdayClicked" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">1</property>
+                                    <property name="Position">2</property>
                                     <property name="AutoSize">False</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -54325,7 +54342,7 @@ not tooltip</property>
                                     <signal name="Clicked" handler="OnBtnWednesdayClicked" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">2</property>
+                                    <property name="Position">3</property>
                                     <property name="AutoSize">False</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -54342,7 +54359,7 @@ not tooltip</property>
                                     <signal name="Clicked" handler="OnBtnThursdayClicked" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">3</property>
+                                    <property name="Position">4</property>
                                     <property name="AutoSize">False</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -54359,7 +54376,7 @@ not tooltip</property>
                                     <signal name="Clicked" handler="OnBtnFridayClicked" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">4</property>
+                                    <property name="Position">5</property>
                                     <property name="AutoSize">False</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -54376,7 +54393,7 @@ not tooltip</property>
                                     <signal name="Clicked" handler="OnBtnSaturdayClicked" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">5</property>
+                                    <property name="Position">6</property>
                                     <property name="AutoSize">False</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -54393,7 +54410,7 @@ not tooltip</property>
                                     <signal name="Clicked" handler="OnBtnSundayClicked" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">6</property>
+                                    <property name="Position">7</property>
                                     <property name="AutoSize">False</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>

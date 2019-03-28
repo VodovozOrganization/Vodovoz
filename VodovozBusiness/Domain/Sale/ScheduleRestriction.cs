@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
@@ -15,12 +14,12 @@ namespace Vodovoz.Domain.Sale
 		WeekDayName weekDay;
 
 		public virtual WeekDayName WeekDay {
-			get { return weekDay; }
-			set { SetField(ref weekDay, value, () => WeekDay); }
+			get => weekDay;
+			set => SetField(ref weekDay, value, () => WeekDay);
 		}
 
 		public virtual string SchedulesStr {
-			get{
+			get {
 				string result = "";
 				foreach(var item in Schedules) {
 					if(!string.IsNullOrWhiteSpace(result)) {
@@ -36,8 +35,8 @@ namespace Vodovoz.Domain.Sale
 
 		[Display(Name = "Графики доставки")]
 		public virtual IList<DeliverySchedule> Schedules {
-			get { return schedules; }
-			set { SetField(ref schedules, value, () => Schedules); }
+			get => schedules;
+			set => SetField(ref schedules, value, () => Schedules);
 		}
 
 		GenericObservableList<DeliverySchedule> observableSchedules;
@@ -64,27 +63,26 @@ namespace Vodovoz.Domain.Sale
 
 	public enum WeekDayName
 	{
+		[Display(Name = "Сегодня")]
+		today = 0,
 		[Display(Name = "Понедельник")]
-		monday,
+		monday = 1,
 		[Display(Name = "Вторник")]
-		tuesday,
+		tuesday = 2,
 		[Display(Name = "Среда")]
-		wednesday,
+		wednesday = 3,
 		[Display(Name = "Четверг")]
-		thursday,
+		thursday = 4,
 		[Display(Name = "Пятница")]
-		friday,
+		friday = 5,
 		[Display(Name = "Суббота")]
-		saturday,
+		saturday = 6,
 		[Display(Name = "Воскресенье")]
-		sunday
+		sunday = 7
 	}
 
-	public class WeekDayNameStringType: NHibernate.Type.EnumStringType
+	public class WeekDayNameStringType : NHibernate.Type.EnumStringType
 	{
-		public WeekDayNameStringType ():base(typeof(WeekDayName))
-		{
-			
-		}
+		public WeekDayNameStringType() : base(typeof(WeekDayName)) { }
 	}
 }
