@@ -1111,6 +1111,21 @@
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.BottleDebtorsFilter.cs" />
     <Compile Include="JournalFilters\TaskFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.TaskFilter.cs" />
+    <Compile Include="Dialogs\Cash\CashTransfer\IncomeCashTransferDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashTransfer.IncomeCashTransferDlg.cs" />
+    <Compile Include="Dialogs\Cash\CashTransfer\IncomeCashTransferDocumentViewModel.cs" />
+    <Compile Include="Representations\CashTransferDocumentVM.cs" />
+    <Compile Include="JournalFilters\QueryFilterViews\CashIncomeFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.QueryFilterViews.CashIncomeFilterView.cs" />
+    <Compile Include="JournalFilters\QueryFilterViews\CashExpenseFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.QueryFilterViews.CashExpenseFilterView.cs" />
+    <Compile Include="Dialogs\Cash\TransferIncomeDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.TransferIncomeDlg.cs" />
+    <Compile Include="Dialogs\Cash\TransferExpenseDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.TransferExpenseDlg.cs" />
+    <Compile Include="Dialogs\Cash\CashTransfer\CommonCashTransferDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashTransfer.CommonCashTransferDlg.cs" />
+    <Compile Include="Dialogs\Cash\CashTransfer\CommonCashTransferDocumentViewModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1299,6 +1314,8 @@
     <Folder Include="ReportsParameters\Payments\" />
     <Folder Include="Core\Journal\" />
     <Folder Include="Additions\Printing\" />
+    <Folder Include="Dialogs\Cash\CashTransfer\" />
+    <Folder Include="JournalFilters\QueryFilterViews\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1671,6 +1688,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\NotFullyLoadedRouteLists.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\IncomeCashTransfer.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\CommonCashTransfer.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

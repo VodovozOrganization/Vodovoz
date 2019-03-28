@@ -42,6 +42,8 @@ using QS.Permissions;
 using QS.Widgets.Gtk;
 using QS.Print;
 using Vodovoz.Domain.StoredResources;
+using Vodovoz.Domain.Cash.CashTransfer;
+using Vodovoz.Dialogs.Cash.CashTransfer;
 
 namespace Vodovoz
 {
@@ -202,6 +204,8 @@ namespace Vodovoz
 				OrmObjectMapping<AdvanceReport>.Create ().Dialog<AdvanceReportDlg> (),
 				OrmObjectMapping<Fine>.Create ().Dialog<FineDlg> (),
 				OrmObjectMapping<Premium>.Create ().Dialog<PremiumDlg> (),
+				OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferDlg>(),
+				OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferDlg>(),
 				//Банкинг
 				OrmObjectMapping<AccountIncome>.Create (),
 				OrmObjectMapping<AccountExpense>.Create (),

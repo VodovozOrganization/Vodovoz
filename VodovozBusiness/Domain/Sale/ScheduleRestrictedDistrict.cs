@@ -25,20 +25,21 @@ namespace Vodovoz.Domain.Sale
 
 		[Required(ErrorMessage = "Имя района обязательно")]
 		public virtual string DistrictName {
-			get { return districtName; }
-			set { SetField(ref districtName, value, () => DistrictName); }
+			get => districtName;
+			set => SetField(ref districtName, value, () => DistrictName);
 		}
 
 		int minBottles;
 
 		public virtual int MinBottles {
-			get { return minBottles; }
-			set { SetField(ref minBottles, value, () => MinBottles); }
+			get => minBottles;
+			set => SetField(ref minBottles, value, () => MinBottles);
 		}
 
 		public virtual bool HaveRestrictions {
 			get {
 				return
+					(ScheduleRestrictionToday != null && ScheduleRestrictionToday.Schedules.Any()) ||
 					(ScheduleRestrictionMonday != null && ScheduleRestrictionMonday.Schedules.Any()) ||
 					(ScheduleRestrictionTuesday != null && ScheduleRestrictionTuesday.Schedules.Any()) ||
 					(ScheduleRestrictionWednesday != null && ScheduleRestrictionWednesday.Schedules.Any()) ||
@@ -49,75 +50,82 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
+		ScheduleRestriction scheduleRestrictionToday;
+
+		public virtual ScheduleRestriction ScheduleRestrictionToday {
+			get => scheduleRestrictionToday;
+			set => SetField(ref scheduleRestrictionToday, value, () => ScheduleRestrictionToday);
+		}
+
 		private ScheduleRestriction scheduleRestrictionMonday;
 
 		public virtual ScheduleRestriction ScheduleRestrictionMonday {
-			get { return scheduleRestrictionMonday; }
-			set { SetField(ref scheduleRestrictionMonday, value, () => ScheduleRestrictionMonday); }
+			get => scheduleRestrictionMonday;
+			set => SetField(ref scheduleRestrictionMonday, value, () => ScheduleRestrictionMonday);
 		}
 
 		private ScheduleRestriction scheduleRestrictionTuesday;
 
 		public virtual ScheduleRestriction ScheduleRestrictionTuesday {
-			get { return scheduleRestrictionTuesday; }
-			set { SetField(ref scheduleRestrictionTuesday, value, () => ScheduleRestrictionTuesday); }
+			get => scheduleRestrictionTuesday;
+			set => SetField(ref scheduleRestrictionTuesday, value, () => ScheduleRestrictionTuesday);
 		}
 
 		private ScheduleRestriction scheduleRestrictionWednesday;
 
 		public virtual ScheduleRestriction ScheduleRestrictionWednesday {
-			get { return scheduleRestrictionWednesday; }
-			set { SetField(ref scheduleRestrictionWednesday, value, () => ScheduleRestrictionWednesday); }
+			get => scheduleRestrictionWednesday;
+			set => SetField(ref scheduleRestrictionWednesday, value, () => ScheduleRestrictionWednesday);
 		}
 
 		private ScheduleRestriction scheduleRestrictionThursday;
 
 		public virtual ScheduleRestriction ScheduleRestrictionThursday {
-			get { return scheduleRestrictionThursday; }
-			set { SetField(ref scheduleRestrictionThursday, value, () => ScheduleRestrictionThursday); }
+			get => scheduleRestrictionThursday;
+			set => SetField(ref scheduleRestrictionThursday, value, () => ScheduleRestrictionThursday);
 		}
 
 		private ScheduleRestriction scheduleRestrictionFriday;
 
 		public virtual ScheduleRestriction ScheduleRestrictionFriday {
-			get { return scheduleRestrictionFriday; }
-			set { SetField(ref scheduleRestrictionFriday, value, () => ScheduleRestrictionFriday); }
+			get => scheduleRestrictionFriday;
+			set => SetField(ref scheduleRestrictionFriday, value, () => ScheduleRestrictionFriday);
 		}
 
 		private ScheduleRestriction scheduleRestrictionSaturday;
 
 		public virtual ScheduleRestriction ScheduleRestrictionSaturday {
-			get { return scheduleRestrictionSaturday; }
-			set { SetField(ref scheduleRestrictionSaturday, value, () => ScheduleRestrictionSaturday); }
+			get => scheduleRestrictionSaturday;
+			set => SetField(ref scheduleRestrictionSaturday, value, () => ScheduleRestrictionSaturday);
 		}
 
 		private ScheduleRestriction scheduleRestrictionSunday;
 
 		public virtual ScheduleRestriction ScheduleRestrictionSunday {
-			get { return scheduleRestrictionSunday; }
-			set { SetField(ref scheduleRestrictionSunday, value, () => ScheduleRestrictionSunday); }
+			get => scheduleRestrictionSunday;
+			set => SetField(ref scheduleRestrictionSunday, value, () => ScheduleRestrictionSunday);
 		}
 
 		private IGeometry districtBorder;
 
 		public virtual IGeometry DistrictBorder {
-			get { return districtBorder; }
-			set { SetField(ref districtBorder, value, () => DistrictBorder); }
+			get => districtBorder;
+			set => SetField(ref districtBorder, value, () => DistrictBorder);
 		}
 
 		private decimal waterPrice;
 
 		[Display(Name = "Цена на воду")]
 		public virtual decimal WaterPrice {
-			get { return waterPrice; }
-			set { SetField(ref waterPrice, value, () => WaterPrice); }
+			get => waterPrice;
+			set => SetField(ref waterPrice, value, () => WaterPrice);
 		}
 
 		private DistrictWaterPrice priceType;
 
 		[Display(Name = "Вид цены")]
 		public virtual DistrictWaterPrice PriceType {
-			get { return priceType; }
+			get => priceType;
 			set {
 				SetField(ref priceType, value, () => PriceType);
 				if(WaterPrice != 0 && PriceType != DistrictWaterPrice.FixForDistrict)
@@ -128,8 +136,8 @@ namespace Vodovoz.Domain.Sale
 		IList<ScheduleRestrictedDistrictRuleItem> scheduleRestrictedDistrictRuleItems = new List<ScheduleRestrictedDistrictRuleItem>();
 		[Display(Name = "Правила цены доставки")]
 		public virtual IList<ScheduleRestrictedDistrictRuleItem> ScheduleRestrictedDistrictRuleItems {
-			get { return scheduleRestrictedDistrictRuleItems; }
-			set { SetField(ref scheduleRestrictedDistrictRuleItems, value, () => ScheduleRestrictedDistrictRuleItems); }
+			get => scheduleRestrictedDistrictRuleItems;
+			set => SetField(ref scheduleRestrictedDistrictRuleItems, value, () => ScheduleRestrictedDistrictRuleItems);
 		}
 
 		GenericObservableList<ScheduleRestrictedDistrictRuleItem> observableScheduleRestrictedDistrictRuleItems;
@@ -167,7 +175,10 @@ namespace Vodovoz.Domain.Sale
 		public virtual string GetSchedulesString()
 		{
 			string result = String.Empty;
-			if(scheduleRestrictionMonday != null) {
+			if(ScheduleRestrictionToday != null) {
+				result += ScheduleRestrictionToday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionToday.SchedulesStr + "; ";
+			}
+			if(ScheduleRestrictionMonday != null) {
 				result += ScheduleRestrictionMonday.WeekDay.GetEnumTitle() + " " + ScheduleRestrictionMonday.SchedulesStr + "; ";
 			}
 			if(ScheduleRestrictionTuesday != null) {
@@ -204,6 +215,10 @@ namespace Vodovoz.Domain.Sale
 
 		void RemoveUnusedRestriction(IUnitOfWork UoW)
 		{
+			if(ScheduleRestrictionToday != null && !ScheduleRestrictionToday.Schedules.Any()) {
+				ScheduleRestrictionToday.Remove(UoW);
+				ScheduleRestrictionToday = null;
+			}
 			if(ScheduleRestrictionMonday != null && !ScheduleRestrictionMonday.Schedules.Any()) {
 				ScheduleRestrictionMonday.Remove(UoW);
 				ScheduleRestrictionMonday = null;
@@ -237,6 +252,13 @@ namespace Vodovoz.Domain.Sale
 		public virtual void CreateScheduleRestriction(WeekDayName weekday)
 		{
 			switch(weekday) {
+				case WeekDayName.today:
+					if(ScheduleRestrictionToday == null) {
+						ScheduleRestrictionToday = new ScheduleRestriction {
+							WeekDay = weekday
+						};
+					}
+					break;
 				case WeekDayName.monday:
 					if(ScheduleRestrictionMonday == null) {
 						ScheduleRestrictionMonday = new ScheduleRestriction();

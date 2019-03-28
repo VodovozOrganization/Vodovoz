@@ -16,6 +16,8 @@ using Vodovoz.JournalViewers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
+using QS.RepresentationModel.GtkUI;
+using Vodovoz.Domain.Cash.CashTransfer;
 
 public partial class MainWindow : Window
 {
@@ -70,6 +72,7 @@ public partial class MainWindow : Window
 	Action ActionTransferOperationJournal;
 	Action ActionScheduleRestrictedDistricts;
 	Action ActionLogisticAreas;
+	Action ActionCashTransferDocuments;
 
 	public void BuildToolbarActions()
 	{
@@ -107,6 +110,8 @@ public partial class MainWindow : Window
 		ActionUnclosedAdvances = new Action("ActionUnclosedAdvances", "Незакрытые авансы", null, "table");
 		ActionCashFlow = new Action("ActionCashFlow", "Доходы и расходы", null, "table");
 		ActionSelfdeliveryOrders = new Action("ActionSelfdeliveryOrders", "Журнал самовывозов", null, "table");
+		ActionCashTransferDocuments = new Action("ActionCashTransferDocuments", "Журнал перемещения д/с", null, "table");
+
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с", null, "table");
@@ -161,6 +166,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionUnclosedAdvances, null);
 		w1.Add(ActionCashFlow, null);
 		w1.Add(ActionSelfdeliveryOrders, null);
+		w1.Add(ActionCashTransferDocuments, null);
 		w1.Add(ActionFinesJournal, null);
 		w1.Add(ActionPremiumJournal, null);
 		w1.Add(ActionCarProxiesJournal, null);
@@ -215,6 +221,7 @@ public partial class MainWindow : Window
 		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
 		ActionCashFlow.Activated += ActionCashFlow_Activated;
 		ActionSelfdeliveryOrders.Activated += ActionSelfdeliveryOrders_Activated;
+		ActionCashTransferDocuments.Activated += ActionCashTransferDocuments_Activated;
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
 		ActionCarProxiesJournal.Activated += ActionCarProxiesJournal_Activated;
@@ -367,6 +374,17 @@ public partial class MainWindow : Window
 				SelfDeliveriesVM vm = new SelfDeliveriesVM(filterOrders);
 				return new ReferenceRepresentation(vm).CustomTabName("Журнал самовывозов")
 													  .Buttons(ReferenceButtonMode.None);
+			}
+		);
+	}
+
+	void ActionCashTransferDocuments_Activated(object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			RepresentationJournalDialog.GenerateHashName<CashTransferDocumentVM>(),
+			() => {
+				var vm = new CashTransferDocumentVM();
+				return new MultipleEntityJournal("Журнал перемещения д/с", vm, vm);
 			}
 		);
 	}

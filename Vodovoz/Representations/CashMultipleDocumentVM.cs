@@ -182,6 +182,16 @@ namespace Vodovoz.Representations
 				(CashDocumentVMNode node) => new CashIncomeDlg(node.DocumentId)
 			);
 
+			incomeConfig.AddDocumentConfigurationWithoutCreation<TransferIncomeDlg>(
+				//функция идентификации документа 
+				(CashDocumentVMNode node) => {
+					return node.DocTypeEnum == CashDocumentType.Income
+					&& node.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeTransferDocument;
+				},
+				//функция диалога открытия документа
+				(CashDocumentVMNode node) => new TransferIncomeDlg(node.DocumentId)
+			);
+
 			incomeConfig.AddDocumentConfiguration<CashIncomeSelfDeliveryDlg>(
 				(CashDocumentVMNode node) => {
 					return node.DocTypeEnum == CashDocumentType.IncomeSelfDelivery && node.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery;
@@ -275,6 +285,16 @@ namespace Vodovoz.Representations
 				() => new CashExpenseDlg(),
 				//функция диалога открытия документа
 				(CashDocumentVMNode node) => new CashExpenseDlg(node.DocumentId)
+			);
+
+			expenseConfig.AddDocumentConfigurationWithoutCreation<TransferExpenseDlg>(
+				//функция идентификации документа 
+				(CashDocumentVMNode node) => {
+					return node.DocTypeEnum == CashDocumentType.Expense
+					&& node.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseTransferDocument;
+				},
+				//функция диалога открытия документа
+				(CashDocumentVMNode node) => new TransferExpenseDlg(node.DocumentId)
 			);
 
 			expenseConfig.AddDocumentConfiguration<CashExpenseSelfDeliveryDlg>(

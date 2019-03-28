@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -156,6 +157,20 @@ namespace Vodovoz.Domain.Cash
 			{
 				SetField(ref routeListClosing, value, () => RouteListClosing);
 			}
+		}
+
+		private IncomeCashTransferedItem transferedBy;
+		[Display(Name = "Перемещен")]
+		public virtual IncomeCashTransferedItem TransferedBy {
+			get => transferedBy;
+			set => SetField(ref transferedBy, value, () => TransferedBy);
+		}
+
+		private CashTransferDocumentBase cashTransferDocument;
+		[Display(Name = "Документ перемещения")]
+		public virtual CashTransferDocumentBase CashTransferDocument {
+			get => cashTransferDocument;
+			set => SetField(ref cashTransferDocument, value, () => CashTransferDocument);
 		}
 
 		#endregion
@@ -340,6 +355,8 @@ namespace Vodovoz.Domain.Cash
 	{
 		[Display(Name = "Приходный ордер")]
 		IncomeInvoice,
+		[Display(Name = "Приходный ордер для документа перемещения ДС")]
+		IncomeTransferDocument,
 		[Display(Name = "Приходный ордер для самовывоза")]
 		IncomeInvoiceSelfDelivery,
 	}
