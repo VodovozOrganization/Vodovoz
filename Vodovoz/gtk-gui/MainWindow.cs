@@ -1081,7 +1081,7 @@ public partial class MainWindow
 		{
 			this.Child.ShowAll();
 		}
-		this.DefaultWidth = 998;
+		this.DefaultWidth = 1000;
 		this.DefaultHeight = 530;
 		this.progressStatus.Hide();
 		this.Show();

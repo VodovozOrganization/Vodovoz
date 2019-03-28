@@ -18,6 +18,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.WaterPrice).Column("water_price");
 			Map(x => x.PriceType).Column("price_type").CustomType<DistrictWaterPriceStringType>();
 
+			References(x => x.ScheduleRestrictionToday).Column("today_restriction_id").Cascade.All();
 			References(x => x.ScheduleRestrictionMonday).Column("monday_restriction_id").Cascade.All();
 			References(x => x.ScheduleRestrictionTuesday).Column("tuesday_restriction_id").Cascade.All();
 			References(x => x.ScheduleRestrictionWednesday).Column("wednesday_restriction_id").Cascade.All();

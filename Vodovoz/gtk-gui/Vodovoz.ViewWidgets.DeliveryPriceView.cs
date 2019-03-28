@@ -146,7 +146,7 @@ namespace Vodovoz.ViewWidgets
 			this.label11 = new global::Gtk.Label();
 			this.label11.Name = "label11";
 			this.label11.Xalign = 1F;
-			this.label11.LabelProp = global::Mono.Unix.Catalog.GetString("Склад отгр.:");
+			this.label11.LabelProp = global::Mono.Unix.Catalog.GetString("Часть гор.:");
 			this.label11.Justify = ((global::Gtk.Justification)(1));
 			this.hbox7.Add(this.label11);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.label11]));

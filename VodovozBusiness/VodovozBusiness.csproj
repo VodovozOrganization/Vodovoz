@@ -574,6 +574,25 @@
     <Compile Include="Repositories\Client\CallTasksRepository.cs" />
     <Compile Include="Repositories\ResidueRepository.cs" />
     <Compile Include="Domain\Logistic\Discrepancy.cs" />
+    <Compile Include="Domain\Operations\CashTransferOperation.cs" />
+    <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentBase.cs" />
+    <Compile Include="Domain\Cash\CashTransfer\ExpenseCashTransferedItem.cs" />
+    <Compile Include="Domain\Cash\CashTransfer\IncomeCashTransferedItem.cs" />
+    <Compile Include="Domain\Cash\CashTransfer\CommonCashTransferDocument.cs" />
+    <Compile Include="Domain\Cash\CashTransfer\IncomeCashTransferDocument.cs" />
+    <Compile Include="HibernateMapping\Cash\Transfer\CashTransferDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Cash\Transfer\CashTransferOperationMap.cs" />
+    <Compile Include="HibernateMapping\Cash\Transfer\IncomeCashTransferedItemMap.cs" />
+    <Compile Include="HibernateMapping\Cash\Transfer\ExpenseCashTransferedItemMap.cs" />
+    <Compile Include="ViewModelBased\ViewModelBase.cs" />
+    <Compile Include="ViewModelBased\PropertySubscribedCommandBase.cs" />
+    <Compile Include="ViewModelBased\DelegateCommandGeneric.cs" />
+    <Compile Include="ViewModelBased\DelegateCommand.cs" />
+    <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />
+    <Compile Include="ViewModelBased\ViewModelGeneric.cs" />
+    <Compile Include="ViewModelBased\EntityOpenOption.cs" />
+    <Compile Include="Filters\IncomeFilter.cs" />
+    <Compile Include="Filters\ExpenseFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -607,6 +626,11 @@
     <Folder Include="Repositories\Permissions\" />
     <Folder Include="Repositories\Orders\" />
     <Folder Include="Domain\StoredResources\" />
+    <Folder Include="Domain\Cash\CashTransfer\" />
+    <Folder Include="ViewModels\" />
+    <Folder Include="HibernateMapping\Cash\Transfer\" />
+    <Folder Include="ViewModelBased\" />
+    <Folder Include="Filters\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
@@ -672,6 +696,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
       <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
       <Name>QS.HistoryLog</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj">
+      <Project>{E2228A2B-4883-4DD8-8A05-23501F7B8A33}</Project>
+      <Name>QS.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

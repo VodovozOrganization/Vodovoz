@@ -71,6 +71,8 @@ namespace Vodovoz.Dialogs.Logistic
 				.Finish();
 			yTreeGeographicGroups.Selection.Changed += (sender, e) => ControlsAccessibility();
 
+			btnToday.TooltipText = "День в день.\nГрафик доставки при создании заказа сегодня и на сегодняшнюю дату доставки.";
+
 			ControlsAccessibility();
 
 			// Пока кнопочки всё равно не работают.
@@ -113,7 +115,7 @@ namespace Vodovoz.Dialogs.Logistic
 			currentDistrict = ytreeDistricts.GetSelectedObject() as ScheduleRestrictedDistrict;
 
 			if(currentDistrict != null) {
-				btnMonday.Click();
+				btnToday.Click();
 				yTreeGeographicGroups.ItemsDataSource = currentDistrict.ObservableGeographicGroups;
 			}
 
@@ -351,13 +353,20 @@ namespace Vodovoz.Dialogs.Logistic
 			IList<Coordinate> coords = new List<Coordinate>();
 
 			foreach(PointLatLng point in currentBorderVertice) {
-				coords.Add(new Coordinate() {
+				coords.Add(new Coordinate {
 					X = point.Lat,
 					Y = point.Lng
 				});
 			}
 
 			return coords.ToArray();
+		}
+
+		protected void OnBtnTodayClicked(object sender, EventArgs e)
+		{
+			currentDistrict.CreateScheduleRestriction(WeekDayName.today);
+			ytreeSchedules.ItemsDataSource = currentDistrict.ScheduleRestrictionToday.ObservableSchedules;
+			ytreeSchedules.QueueDraw();
 		}
 
 		protected void OnBtnMondayClicked(object sender, EventArgs e)

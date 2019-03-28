@@ -6,6 +6,7 @@ using QSSupportLib;
 using System.Linq;
 using Vodovoz.Domain.Store;
 using QS.Project.Domain;
+using Vodovoz.Domain.Permissions;
 
 namespace Vodovoz.Repositories.HumanResources
 {
@@ -70,6 +71,21 @@ namespace Vodovoz.Repositories.HumanResources
 							.Where(w => w.OwningSubdivision == subdivision)
 							.OrderBy(w => w.Name);
 			return orderByDescending ? query.Desc().List() : query.Asc().List();
+		}
+
+		public static IEnumerable<Subdivision> GetAvailableSubdivionsForUser(IUnitOfWork uow, Type[] documentsTypes)
+		{
+			var validationResult = EntitySubdivisionForUserPermissionValidator.Validate(uow, documentsTypes);
+
+			var subdivisionsList = new List<Subdivision>();
+			foreach(var item in documentsTypes) {
+				subdivisionsList.AddRange(validationResult
+					.Where(x => x.GetPermission(item).Read)
+					.Select(x => x.Subdivision)
+				);
+			}
+
+			return subdivisionsList.Distinct();
 		}
 	}
 }

@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using QS.Utilities.Text;
 using QSOrmProject;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;
@@ -265,7 +266,13 @@ namespace Vodovoz.Domain.Employees
 
 		#endregion
 
-		#region Функции 
+		#region Функции
+
+		public virtual string GetPersonNameWithInitials()
+		{
+			return PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
+		}
+
 		private void CheckDistrictsPriorities()
 		{
 			for(int i = 0; i < Districts.Count; i++) {

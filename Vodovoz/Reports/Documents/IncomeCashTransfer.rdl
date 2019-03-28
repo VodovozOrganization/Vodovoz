@@ -1,0 +1,1979 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>11.69in</PageHeight>
+  <PageWidth>8.27in</PageWidth>
+  <Width>.1pt</Width>
+  <TopMargin>0mm</TopMargin>
+  <LeftMargin>0mm</LeftMargin>
+  <RightMargin>0mm</RightMargin>
+  <BottomMargin>0mm</BottomMargin>
+  <DataSets>
+    <DataSet Name="CashTransferDocument">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	cash_transfer_documents.id as cash_transfer_document_id,
+    cash_transfer_documents.creation_date as cash_transfer_document_date,
+    cash_transfer_documents.transfered_sum as transfered_sum,
+    CONCAT_WS('', CONCAT(authtors.last_name, ' '), if(authtors.name = '', '', CONCAT(LEFT(authtors.name, 1),'.')), if(authtors.patronymic = '', '', CONCAT(LEFT(authtors.patronymic, 1),'.'))) as authtor_fio,
+    CONCAT_WS('', CONCAT(drivers.last_name, ' '), if(drivers.name = '', '', CONCAT(LEFT(drivers.name, 1),'.')), if(drivers.patronymic = '', '', CONCAT(LEFT(drivers.patronymic, 1),'.'))) as driver_fio,
+	CONCAT_WS('', CONCAT(senders.last_name, ' '), if(senders.name = '', '', CONCAT(LEFT(senders.name, 1),'.')), if(senders.patronymic = '', '', CONCAT(LEFT(senders.patronymic, 1),'.'))) as sender_fio,
+    CONCAT_WS('', CONCAT(receivers.last_name, ' '), if(receivers.name = '', '', CONCAT(LEFT(receivers.name, 1),'.')), if(receivers.patronymic = '', '', CONCAT(LEFT(receivers.patronymic, 1),'.'))) as receiver_fio,
+    subdivisions_from.name as subdivision_from,
+    subdivisions_to.name as subdivision_to,
+    CONCAT(cars.model, ' (', cars.reg_number, ')') as car_title
+FROM
+	cash_transfer_documents
+		LEFT JOIN
+	employees as drivers ON drivers.id = cash_transfer_documents.driver_id
+    	LEFT JOIN
+	employees as authtors ON authtors.id = cash_transfer_documents.authtor_id
+    	LEFT JOIN
+	employees as senders ON senders.id = cash_transfer_documents.cashier_sender_id
+    	LEFT JOIN
+	employees as receivers ON receivers.id = cash_transfer_documents.cashier_receiver_id    
+    	LEFT JOIN
+	subdivisions as subdivisions_from ON subdivisions_from.id = cash_transfer_documents.cash_subdivision_from_id
+    	LEFT JOIN
+	subdivisions as subdivisions_to ON subdivisions_to.id = cash_transfer_documents.cash_subdivision_to_id
+    	LEFT JOIN
+	cars ON cars.id = cash_transfer_documents.car_id
+WHERE
+	cash_transfer_documents.id = @transfer_document_id
+GROUP BY cash_transfer_documents.id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="transfer_document_id">
+            <Value>=Parameters!transfer_document_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="cash_transfer_document_id">
+          <DataField>cash_transfer_document_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="cash_transfer_document_date">
+          <DataField>cash_transfer_document_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="transfered_sum">
+          <DataField>transfered_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="authtor_fio">
+          <DataField>authtor_fio</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="driver_fio">
+          <DataField>driver_fio</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="sender_fio">
+          <DataField>sender_fio</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="receiver_fio">
+          <DataField>receiver_fio</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="subdivision_from">
+          <DataField>subdivision_from</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="subdivision_to">
+          <DataField>subdivision_to</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="car_title">
+          <DataField>car_title</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="CashTransferDocumentItems">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	CONCAT('Приходный ордер №', cash_income.id, ' от ', DATE_FORMAT(cash_income.date, '%d.%m.%Y %H:%i')) as cash_transfer_document_item,
+    cash_income.money as cash_transfer_document_item_money,
+	cash_income_transfered_items.comment as cash_transfer_document_item_comment
+FROM
+	cash_income_transfered_items
+		LEFT JOIN 
+	cash_income ON cash_income.id = cash_income_transfered_items.cash_income_id
+WHERE cash_income_transfered_items.cash_transfered_document_id = @transfer_document_id
+UNION ALL
+SELECT
+	CONCAT('Расходный ордер №', cash_expense.id, ' от ', DATE_FORMAT(cash_expense.date, '%d.%m.%Y %H:%i')) as cash_transfer_document_item,
+    cash_expense.money as cash_transfer_document_item_money,
+	cash_expense_transfered_items.comment as cash_transfer_document_item_comment
+FROM
+	cash_expense_transfered_items
+		LEFT JOIN 
+	cash_expense ON cash_expense.id = cash_expense_transfered_items.cash_expense_id
+WHERE cash_expense_transfered_items.cash_transfered_document_id = @transfer_document_id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="transfer_document_id">
+            <Value>=Parameters!transfer_document_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="cash_transfer_document_item">
+          <DataField>cash_transfer_document_item</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="cash_transfer_document_item_money">
+          <DataField>cash_transfer_document_item_money</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="cash_transfer_document_item_comment">
+          <DataField>cash_transfer_document_item_comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>550.0pt</Height>
+    <Columns>1</Columns>
+    <ReportItems>
+      <Table Name="TableItems">
+        <DataSetName>CashTransferDocumentItems</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <PaddingTop>0pt</PaddingTop>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>24.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>166.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>228.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>109.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>№</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Кассовый ордер</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingTop>0pt</PaddingTop>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>Комментарий</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>Сумма</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>=RowNumber()</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>={cash_transfer_document_item}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>={cash_transfer_document_item_comment}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format># ##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>={cash_transfer_document_item_money}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format># ##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>20.3pt</Left>
+        <Top>192.6pt</Top>
+        <Visibility>
+          <Hidden>
+          </Hidden>
+        </Visibility>
+      </Table>
+      <Textbox Name="Textbox32">
+        <Height>12.00pt</Height>
+        <Width>150.27pt</Width>
+        <Value>='Итого к перемещению: ' + First({transfered_sum}, "CashTransferDocument") + 'руб.'</Value>
+        <ZIndex>1</ZIndex>
+        <Left>20.0pt</Left>
+        <Top>233.3pt</Top>
+        <Style>
+          <TextAlign>Left</TextAlign>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Table Name="TableResponsiblePersons">
+        <DataSetName>CashTransferDocument</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>58.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>9.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>187.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>13.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>115.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>19.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>124.1pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>27.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>Отправил:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>={sender_fio}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox80">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox74">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>13.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Value>ФИО</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <TextDecoration>None</TextDecoration>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <TextDecoration>None</TextDecoration>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Value>ДАТА</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox81">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox75">
+                      <Value>ПОДПИСЬ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>30.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>Водитель:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>={driver_fio}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox83">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox76">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>11.7pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox64">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox65">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox66">
+                      <Value>ФИО</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox67">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox68">
+                      <Value>ДАТА</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox84">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox77">
+                      <Value>ПОДПИСЬ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>30.5pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>Принял:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox58">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>={receiver_fio}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox85">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox78">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>16.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox69">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox70">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox71">
+                      <Value>ФИО</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox72">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox73">
+                      <Value>ДАТА</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox86">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox79">
+                      <Value>ПОДПИСЬ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>19.3pt</Left>
+        <Top>258.8pt</Top>
+        <Visibility>
+          <Hidden>
+          </Hidden>
+        </Visibility>
+      </Table>
+      <Table Name="TableInfo" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>CashTransferDocument</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>159.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>70.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>59.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>48.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>86.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>99.6pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>64.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>='Документ перемещения денежных средств
+№' + {cash_transfer_document_id} + ' от ' + Format({cash_transfer_document_date}, "dd.MM.yyyy")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                        <FontSize>14pt</FontSize>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>6</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>28.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Траспортное стредство, осуществляющее перевозку :</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Bottom</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>={car_title}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Bottom</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>5</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>Откуда:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>={subdivision_from}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>5</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>Куда:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value>={subdivision_to}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>5</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>28.1pt</Left>
+        <Top>44.9pt</Top>
+      </Table>
+      <Table Name="TableAuthor">
+        <DataSetName>CashTransferDocument</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>439.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>= "Автор: " + {authtor_fio}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>23.9pt</Left>
+        <Top>22.2pt</Top>
+      </Table>
+      <Textbox Name="Textbox43" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>347.52pt</Width>
+        <Value>Рассчитан по ордерам:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>18.7pt</Left>
+        <Top>173.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <Code>Public Function SummaString_Val(ByVal Summa As String) As String
+        Dim T1Str As String
+        Dim T2Str As String
+        Dim T3Str As String
+        Dim T4Str As String
+        Dim KStr As String
+        Dim Cel As String
+        Dim KNameStr As String
+ 
+        Summa = Trim$(Summa) 'Удалить пробелы
+        Summa = Replace(Summa, ",", ".", , , vbBinaryCompare) 'Заменить запятые на точки
+        If InStr(1, Summa, ".", vbBinaryCompare) = 0 Then Summa = Summa &amp; ".00" 'Дописать копейки
+        If Mid$(Summa, Len(Summa) - 1, 1) = "." Then Summa = Summa &amp; "0" '
+        'Проверка длины числа
+        If Len(Summa) &gt; 15 Then
+            MsgBox("Слишком длинное число.", vbInformation, "Мультивалютная сумма прописью")
+            Return "Invalid value!"
+            Exit Function
+        End If
+ 
+        If Len(Summa) &lt; 15 Then Summa = New String("0", 15 - Len(Summa)) &amp; Summa
+ 
+        'Анализ первой триады
+        T1Str = TrStr(Left(Summa, 3), 0)
+        If T1Str &lt;&gt; "" Then
+            Select Case Right$(Left(Summa, 3), 1)
+                Case Is = "0"
+                    T1Str = T1Str &amp; "миллиардов "
+                Case Is = "1"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиард "
+                    End If
+                Case Is = "2"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиарда "
+                    End If
+                Case Is = "3"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиарда "
+                    End If
+                Case Is = "4"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиарда "
+                    End If
+                Case Else
+                    T1Str = T1Str &amp; "миллиардов "
+            End Select
+        End If
+ 
+        'Анализ второй триады
+        T2Str = TrStr(Mid$(Summa, 4, 3), 0)
+        If T2Str &lt;&gt; "" Then
+            Select Case Right$(Mid$(Summa, 4, 3), 1)
+                Case Is = "0"
+                    T2Str = T2Str &amp; "миллионов "
+                Case Is = "1"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллион "
+                    End If
+                Case Is = "2"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллиона "
+                    End If
+                Case Is = "3"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллиона "
+                    End If
+                Case Is = "4"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллиона "
+                    End If
+                Case Else
+                    T2Str = T2Str &amp; "миллионов "
+            End Select
+        End If
+ 
+        'Анализ третьей триады
+        T3Str = TrStr(Mid$(Summa, 7, 3), 1)
+        If T3Str &lt;&gt; "" Then
+            Select Case Right$(Mid$(Summa, 7, 3), 1)
+                Case Is = "0"
+                    T3Str = T3Str &amp; "тысяч "
+                Case Is = "1"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысяча "
+                    End If
+                Case Is = "2"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысячи "
+                    End If
+                Case Is = "3"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысячи "
+                    End If
+                Case Is = "4"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысячи "
+                    End If
+                Case Else
+                    T3Str = T3Str &amp; "тысяч "
+            End Select
+        End If
+ 
+        'Анализ четвертой триады
+        T4Str = TrStr(Mid$(Summa, 10, 3), 0)
+  
+        If Len(T1Str &amp; T2Str &amp; T3Str &amp; T4Str) = 0 Then
+            Cel = "ноль "
+        Else
+            Cel = T1Str &amp; T2Str &amp; T3Str &amp; T4Str
+        End If
+ 
+        '========= Приписать валюту =========
+        'Рубли
+        If Val(Mid$(Summa, 11, 1)) &lt;&gt; 1 Then
+            Select Case Mid$(Summa, 12, 1)
+                Case Is = "0"
+                    Cel = Cel &amp; "рублей "
+                Case Is = "1"
+                    Cel = Cel &amp; "рубль "
+                Case Is = "2"
+                    Cel = Cel &amp; "рубля "
+                Case Is = "3"
+                    Cel = Cel &amp; "рубля "
+                Case Is = "4"
+                    Cel = Cel &amp; "рубля "
+                Case Else
+                    Cel = Cel &amp; "рублей "
+            End Select
+        End If
+ 
+        Select Case Mid$(Summa, 11, 2)
+            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
+                Cel = Cel &amp; "рублей "
+        End Select
+ 
+        'Копейки
+        If Val(Mid$(Summa, 14, 1)) &lt;&gt; 1 Then
+            Select Case Right$(Summa, 1)
+                Case Is = "0"
+	    KNameStr = " копеек"
+                Case Is = "1"
+	    KNameStr = " копейка"
+                Case Is = "2"
+                    KNameStr = " копейки"
+                Case Is = "3"
+	    KNameStr = " копейки"
+                Case Is = "4"
+	    KNameStr = " копейки"
+                Case Else
+	    KNameStr = " копеек"
+            End Select
+        End If
+ 
+        Select Case Right$(Summa, 2)
+            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
+	KNameStr = " копеек"
+        End Select
+ 
+        Return Strings.Left(Cel &amp; KStr, 1).ToUpper &amp; Strings.Right(Cel &amp; Right$(Summa, 2) &amp; KNameStr, Len(Cel &amp; Right$(Summa, 2) &amp; KNameStr) - 1)
+
+    End Function
+    Private Function TrStr(ByVal Triada As String, ByVal Rod As Integer) As String
+        TrStr = ""
+        If Rod = 0 Then
+            Select Case Left$(Triada, 1)
+                Case Is = "1"
+                    TrStr = TrStr &amp; "сто "
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двести "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "триста "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "четыреста "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьсот "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьсот "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьсот "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьсот "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девятьсот "
+            End Select
+ 
+            Select Case Mid$(Triada, 2, 1)
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двадцать "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "тридцать "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "сорок "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьдесят "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьдесят "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьдесят "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьдесят "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девяносто "
+            End Select
+ 
+            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
+                Select Case Right$(Triada, 1)
+                    Case Is = "1"
+                        TrStr = TrStr &amp; "один "
+                    Case Is = "2"
+                        TrStr = TrStr &amp; "два "
+                    Case Is = "3"
+                        TrStr = TrStr &amp; "три "
+                    Case Is = "4"
+                        TrStr = TrStr &amp; "четыре "
+                    Case Is = "5"
+                        TrStr = TrStr &amp; "пять "
+                    Case Is = "6"
+                        TrStr = TrStr &amp; "шесть "
+                    Case Is = "7"
+                        TrStr = TrStr &amp; "семь "
+                    Case Is = "8"
+                        TrStr = TrStr &amp; "восемь "
+                    Case Is = "9"
+                        TrStr = TrStr &amp; "девять "
+                End Select
+            End If
+ 
+            Select Case Right$(Triada, 2)
+                Case Is = "01"
+                    TrStr = TrStr &amp; "один "
+                Case Is = "02"
+                    TrStr = TrStr &amp; "два "
+                Case Is = "03"
+                    TrStr = TrStr &amp; "три "
+                Case Is = "04"
+                    TrStr = TrStr &amp; "четыре "
+                Case Is = "05"
+                    TrStr = TrStr &amp; "пять "
+                Case Is = "06"
+                    TrStr = TrStr &amp; "шесть "
+                Case Is = "07"
+                    TrStr = TrStr &amp; "семь "
+                Case Is = "08"
+                    TrStr = TrStr &amp; "восемь "
+                Case Is = "09"
+                    TrStr = TrStr &amp; "девять "
+                Case Is = "10"
+                    TrStr = TrStr &amp; "десять "
+                Case Is = "11"
+                    TrStr = TrStr &amp; "одиннадцать "
+                Case Is = "12"
+                    TrStr = TrStr &amp; "двенадцать "
+                Case Is = "13"
+                    TrStr = TrStr &amp; "тринадцать "
+                Case Is = "14"
+                    TrStr = TrStr &amp; "четырнадцать "
+                Case Is = "15"
+                    TrStr = TrStr &amp; "пятнадцать "
+                Case Is = "16"
+                    TrStr = TrStr &amp; "шестнадцать "
+                Case Is = "17"
+                    TrStr = TrStr &amp; "семьнадцать "
+                Case Is = "18"
+                    TrStr = TrStr &amp; "восемнадцать "
+                Case Is = "19"
+                    TrStr = TrStr &amp; "девятнадцать "
+            End Select
+        Else
+            Select Case Left$(Triada, 1)
+                Case Is = "1"
+                    TrStr = TrStr &amp; "сто "
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двести "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "триста "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "четыреста "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьсот "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьсот "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьсот "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьсот "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девятьсот "
+            End Select
+ 
+            Select Case Mid$(Triada, 2, 1)
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двадцать "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "тридцать "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "сорок "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьдесят "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьдесят "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьдесят "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьдесят "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девяносто "
+            End Select
+ 
+            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
+                Select Case Right$(Triada, 1)
+                    Case Is = "1"
+                        TrStr = TrStr &amp; "одна "
+                    Case Is = "2"
+                        TrStr = TrStr &amp; "две "
+                    Case Is = "3"
+                        TrStr = TrStr &amp; "три "
+                    Case Is = "4"
+                        TrStr = TrStr &amp; "четыре "
+                    Case Is = "5"
+                        TrStr = TrStr &amp; "пять "
+                    Case Is = "6"
+                        TrStr = TrStr &amp; "шесть "
+                    Case Is = "7"
+                        TrStr = TrStr &amp; "семь "
+                    Case Is = "8"
+                        TrStr = TrStr &amp; "восемь "
+                    Case Is = "9"
+                        TrStr = TrStr &amp; "девять "
+                End Select
+            End If
+ 
+            Select Case Right$(Triada, 2)
+                Case Is = "01"
+                    TrStr = TrStr &amp; "одна "
+                Case Is = "02"
+                    TrStr = TrStr &amp; "две "
+                Case Is = "03"
+                    TrStr = TrStr &amp; "три "
+                Case Is = "04"
+                    TrStr = TrStr &amp; "четыре "
+                Case Is = "05"
+                    TrStr = TrStr &amp; "пять "
+                Case Is = "06"
+                    TrStr = TrStr &amp; "шесть "
+                Case Is = "07"
+                    TrStr = TrStr &amp; "семь "
+                Case Is = "08"
+                    TrStr = TrStr &amp; "восемь "
+                Case Is = "09"
+                    TrStr = TrStr &amp; "девять "
+                Case Is = "10"
+                    TrStr = TrStr &amp; "десять "
+                Case Is = "11"
+                    TrStr = TrStr &amp; "одиннадцать "
+                Case Is = "12"
+                    TrStr = TrStr &amp; "двенадцать "
+                Case Is = "13"
+                    TrStr = TrStr &amp; "тринадцать "
+                Case Is = "14"
+                    TrStr = TrStr &amp; "четырнадцать "
+                Case Is = "15"
+                    TrStr = TrStr &amp; "пятнадцать "
+                Case Is = "16"
+                    TrStr = TrStr &amp; "шестнадцать "
+                Case Is = "17"
+                    TrStr = TrStr &amp; "семьнадцать "
+                Case Is = "18"
+                    TrStr = TrStr &amp; "восемнадцать "
+                Case Is = "19"
+                    TrStr = TrStr &amp; "девятнадцать "
+            End Select
+        End If
+    End Function</Code>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_dev_beta;user=enzogord;password=Direihoom1;port=3306;server=vod.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="transfer_document_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

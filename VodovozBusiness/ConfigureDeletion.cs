@@ -7,6 +7,7 @@ using QSContacts;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -481,6 +482,7 @@ namespace Vodovoz
 			#region ScheduleRestriction
 
 			DeleteConfig.AddHibernateDeleteInfo<ScheduleRestriction>()
+				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionToday)
 				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionMonday)
 				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionTuesday)
 				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionWednesday)
@@ -799,6 +801,25 @@ namespace Vodovoz
 						.AddDeleteCascadeDependence(x => x.Operation);
 
 			DeleteConfig.AddHibernateDeleteInfo<FineNomenclature>();
+
+			DeleteConfig.AddHibernateDeleteInfo<CommonCashTransferDocument>()
+				.AddDeleteCascadeDependence(item => item.CashTransferOperation)
+				.AddDeleteCascadeDependence(item => item.IncomeOperation)
+				.AddDeleteCascadeDependence(item => item.ExpenseOperation);
+
+			DeleteConfig.AddHibernateDeleteInfo<IncomeCashTransferDocument>()
+				.AddDeleteCascadeDependence(item => item.CashTransferOperation)
+				.AddDeleteCascadeDependence(item => item.IncomeOperation)
+				.AddDeleteCascadeDependence(item => item.ExpenseOperation)
+				.AddDeleteDependenceFromCollection(item => item.CashTransferDocumentIncomeItems)
+				.AddDeleteDependenceFromCollection(item => item.CashTransferDocumentExpenseItems);
+
+			DeleteConfig.AddHibernateDeleteInfo<IncomeCashTransferedItem>()
+				.AddClearDependence<Income>(x => x.TransferedBy);
+			DeleteConfig.AddHibernateDeleteInfo<ExpenseCashTransferedItem>()
+				.AddClearDependence<Expense>(x => x.TransferedBy);
+
+			DeleteConfig.AddHibernateDeleteInfo<CashTransferOperation>();
 
 			#endregion
 

@@ -93,10 +93,7 @@ namespace Vodovoz.Tools.Logistic
 				var point = new Point((double)latitude, (double)longitude);
 				var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
 				result.DistrictName = district?.DistrictName ?? string.Empty;
-				result.GeographicGroups = string.Join(
-					", ",
-					district.GeographicGroups.Select(g => g.Name)
-				);
+				result.GeographicGroups = string.Join(", ", district.GeographicGroups.Select(w => w.Name));
 				result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
 				result.WithPrice = (
 					(district != null && district.PriceType != DistrictWaterPrice.ByDistance)
@@ -122,10 +119,7 @@ namespace Vodovoz.Tools.Logistic
 			return result;
 		}
 
-		static double PriceByDistance(int bootles)
-		{
-			return ((distance * 2 / 100) * 20 * fuelCost) / bootles + 125;
-		}
+		static double PriceByDistance(int bootles) => ((distance * 2 / 100) * 20 * fuelCost) / bootles + 125;
 	}
 
 	public class DeliveryPriceNode
