@@ -985,12 +985,12 @@
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>=Iif(({Status} = "EnRoute") or ({Status} = "Completed"), White, Lightgrey)</BackgroundColor>
-                        <FontStyle >=Iif(
-    {payment_type} = 'courier_card',
+                        <FontStyle>=Iif(
+    {payment_type} = 'CourierByCard',
     'Italic',
     'Normal'
 )</FontStyle>
-                        <FontWeight >=Iif(
+                        <FontWeight>=Iif(
     {payment_type} = 'courier_card',
     'Bold',
     'Normal'
@@ -1125,7 +1125,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox79">
-                      <Value>={online_order_nr}</Value>
+                      <Value/>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1716,7 +1716,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
 SELECT 
@@ -1763,11 +1763,8 @@ CONCAT_WS(
 #База в запросе выше на проде пустая, залоги гребутся из той, что в запросе ниже.
 IF(route_list_addresses.deposits_collected IS NULL, 0, route_list_addresses.deposits_collected) AS BottlesDeposit,
 IF(route_list_addresses.equipment_deposits_collected IS NULL, 0, route_list_addresses.equipment_deposits_collected) AS EquipmentDeposit,
-orders.online_order AS online_order_nr,
-CASE
-WHEN orders.payment_type = 'ByCard' AND orders.online_order IS NULL THEN 'courier_card'
-ELSE orders.payment_type
-END AS payment_type
+orders.payment_type AS payment_type
+
 
 <!--sql_select-->
 FROM route_list_addresses
@@ -1853,7 +1850,7 @@ ORDER BY route_list_addresses.order_in_route;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="DeliveryTime">
           <DataField>DeliveryTime</DataField>
           <TypeName>System.String</TypeName>
@@ -1901,10 +1898,6 @@ ORDER BY route_list_addresses.order_in_route;
         <Field Name="payment_type">
           <DataField>payment_type</DataField>
           <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="online_order_nr">
-          <DataField>online_order_nr</DataField>
-          <TypeName>System.Int32</TypeName>
         </Field>
         <!--fields-->
       </Fields>
