@@ -1690,7 +1690,6 @@ namespace Vodovoz.Domain.Orders
 						Price = orderItem.Price,
 						IsUserPrice = orderItem.IsUserPrice,
 						Count = orderItem.Count,
-						ActualCount = orderItem.ActualCount,
 						IncludeNDS = orderItem.IncludeNDS,
 						IsDiscountInMoney = orderItem.IsDiscountInMoney,
 						Discount = orderItem.Discount,
@@ -1725,7 +1724,6 @@ namespace Vodovoz.Domain.Orders
 						Reason = orderEquipment.Reason,
 						Confirmed = orderEquipment.Confirmed,
 						ConfirmedComment = orderEquipment.ConfirmedComment,
-						ActualCount = orderEquipment.ActualCount,
 						Count = orderEquipment.Count
 					}
 				);
@@ -1746,7 +1744,6 @@ namespace Vodovoz.Domain.Orders
 					new OrderDepositItem {
 						Order = this,
 						Count = oDepositItem.Count,
-						ActualCount = oDepositItem.ActualCount,
 						Deposit = oDepositItem.Deposit,
 						DepositType = oDepositItem.DepositType,
 						EquipmentNomenclature = oDepositItem.EquipmentNomenclature
