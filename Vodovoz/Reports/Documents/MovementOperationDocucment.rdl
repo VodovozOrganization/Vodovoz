@@ -358,7 +358,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>={?Wagon}</Value>
+                      <Value>=First({WagonName}, "DocumentInfo")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -405,7 +405,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>={?WarehouseFrom}</Value>
+                      <Value>=First({WareFrom}, "DocumentInfo")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -469,7 +469,7 @@
                         <FontSize>12pt</FontSize>
                         <TextDecoration>Underline</TextDecoration>
                       </Style>
-                      <Value>={?WarehouseTo}</Value>
+                      <Value>=First({WareTo}, "DocumentInfo")</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -513,10 +513,10 @@
                         <TextAlign>Left</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -534,15 +534,15 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <TextDecoration >Underline</TextDecoration>
+                        <TextDecoration>Underline</TextDecoration>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -555,10 +555,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -575,10 +575,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -605,13 +605,13 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -623,10 +623,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -645,10 +645,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -666,10 +666,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -692,10 +692,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -712,10 +712,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -732,10 +732,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -752,10 +752,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -784,13 +784,13 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -802,10 +802,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -823,10 +823,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -843,10 +843,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -869,10 +869,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -889,10 +889,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -908,10 +908,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -927,10 +927,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -952,13 +952,13 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -970,10 +970,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -990,10 +990,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -1011,10 +1011,10 @@
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -1103,6 +1103,39 @@ GROUP BY store_movement_document_items.id</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="DocumentInfo">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+IFNULL( store_movement_wagon.name , "Внутреннее перемещение") AS WagonName,
+wareFrom.name AS WareFrom,
+wareTo.name AS WareTo
+FROM store_movement_document
+LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
+LEFT JOIN warehouses AS wareFrom ON wareFrom.id = store_movement_document.warehouse_from_id
+LEFT JOIN warehouses AS wareTo ON wareTo.id = store_movement_document.warehouse_to_id
+WHERE store_movement_document.id = @documentId</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="documentId">
+            <Value>={?documentId}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="WagonName">
+          <DataField>WagonName</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="WareFrom">
+          <DataField>WareFrom</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="WareTo">
+          <DataField>WareTo</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <DataSources>
     <DataSource Name="DS1">
@@ -1113,7 +1146,7 @@ GROUP BY store_movement_document_items.id</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="documentId">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -1134,69 +1167,6 @@ GROUP BY store_movement_document_items.id</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
-    </ReportParameter>
-    <ReportParameter Name="WarehouseFrom">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <DataSetReference>
-          <DataSetName>movement_document</DataSetName>
-          <ValueField>WarehouseFromName</ValueField>
-        </DataSetReference>
-      </DefaultValue>
-      <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
-      <ValidValues>
-        <DataSetReference>
-          <DataSetName>movement_document</DataSetName>
-          <ValueField>WarehouseFromName</ValueField>
-          <LabelField>WarehouseFromName</LabelField>
-        </DataSetReference>
-      </ValidValues>
-    </ReportParameter>
-    <ReportParameter Name="WarehouseTo">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <DataSetReference>
-          <DataSetName>movement_document</DataSetName>
-          <ValueField>WarehouseToName</ValueField>
-        </DataSetReference>
-      </DefaultValue>
-      <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
-      <ValidValues>
-        <DataSetReference>
-          <DataSetName>movement_document</DataSetName>
-          <ValueField>WarehouseToName</ValueField>
-          <LabelField>WarehouseToName</LabelField>
-        </DataSetReference>
-      </ValidValues>
-    </ReportParameter>
-    <ReportParameter Name="Wagon">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <DataSetReference>
-          <DataSetName>movement_document</DataSetName>
-          <ValueField>WagonName</ValueField>
-        </DataSetReference>
-      </DefaultValue>
-      <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
-      <ValidValues>
-        <DataSetReference>
-          <DataSetName>movement_document</DataSetName>
-          <ValueField>WarehouseToName</ValueField>
-          <LabelField>WarehouseToName</LabelField>
-        </DataSetReference>
-      </ValidValues>
     </ReportParameter>
   </ReportParameters>
 </Report>
