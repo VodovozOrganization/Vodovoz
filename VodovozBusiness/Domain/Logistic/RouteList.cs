@@ -13,7 +13,6 @@ using QSProjectsLib;
 using QSSupportLib;
 using QSValidation;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -452,14 +451,6 @@ namespace Vodovoz.Domain.Logistic
 				decimal payedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue).Sum(x => x.PayedForFuel.Value);
 
 				return Total - payedForFuel;
-			}
-		}
-
-		public virtual decimal ByTerminalTotal {
-			get {
-				decimal terminalSum = 0;
-				Addresses.Where((arg) => arg.Order.PaymentType == PaymentType.CourierByCard).ForEach((item) => terminalSum += item.Order.ActualTotalSum);
-				return terminalSum;
 			}
 		}
 
