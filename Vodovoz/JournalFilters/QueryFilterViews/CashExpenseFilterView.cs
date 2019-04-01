@@ -31,7 +31,7 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			entryEmployee.ChangedByUser += (sender, e) => Refilter();
 
 			var expenseCategoryVM = new EntityCommonRepresentationModelConstructor<ExpenseCategory>(UoW)
-				.AddSearchColumn("Имя", x => x.Name)
+				.AddColumn("Имя", x => x.Name).AddSearch(x => x.Name)
 				.AddColumn("Тип документа", x => x.ExpenseDocumentType.GetEnumTitle())
 				.OrderBy(x => x.Name)
 				.Finish();
