@@ -106,7 +106,7 @@ namespace Vodovoz
 
 		private void UpdateListsSentivity()
 		{
-			ytreeToClient.Sensitive = 
+			ytreeToClient.Sensitive =
 			orderEquipmentItemsView.Sensitive =
 			depositrefunditemsview1.Sensitive = routeListItem.IsDelivered();
 		}
@@ -252,13 +252,50 @@ namespace Vodovoz
 
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(routeListItem.Order, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+
+			routeListItem.Order.ObservableOrderItems.ElementAdded += (aList, aIdx) => ActualCountsOfOrderItemsFromNullToZero();
+			routeListItem.Order.ObservableOrderEquipments.ElementAdded += (aList, aIdx) => ActualCountsOfOrderEqupmentFromNullToZero();
+			routeListItem.Order.ObservableOrderDepositItems.ElementAdded += (aList, aIdx) => ActualCountsOfOrderDepositsFromNullToZero();
+
 			OnlineOrderVisible();
 		}
 
-		int GetMaxCount(OrderItemReturnsNode node){
+		public void FixActualCounts()
+		{
+			ActualCountsOfOrderItemsFromNullToZero();
+			ActualCountsOfOrderEqupmentFromNullToZero();
+			ActualCountsOfOrderDepositsFromNullToZero();
+		}
+
+		void ActualCountsOfOrderDepositsFromNullToZero()
+		{
+			foreach(var dep in routeListItem.Order.OrderDepositItems) {
+				if(dep.ActualCount == null)
+					dep.ActualCount = 0;
+			}
+		}
+
+		void ActualCountsOfOrderEqupmentFromNullToZero()
+		{
+			foreach(var equip in routeListItem.Order.OrderEquipments) {
+				if(equip.ActualCount == null)
+					equip.ActualCount = 0;
+			}
+		}
+
+		void ActualCountsOfOrderItemsFromNullToZero()
+		{
+			foreach(var item in routeListItem.Order.OrderItems) {
+				if(item.ActualCount == null)
+					item.ActualCount = 0;
+			}
+		}
+
+		int GetMaxCount(OrderItemReturnsNode node)
+		{
 			var count = (node.Nomenclature.Category == NomenclatureCategory.service
-			             || node.Nomenclature.Category == NomenclatureCategory.master
-			             || node.Nomenclature.Category == NomenclatureCategory.deposit) ? 1 : 9999;
+						 || node.Nomenclature.Category == NomenclatureCategory.master
+						 || node.Nomenclature.Category == NomenclatureCategory.deposit) ? 1 : 9999;
 			return count;
 		}
 
@@ -490,7 +527,7 @@ namespace Vodovoz
 			}
 		}
 
-		public bool IsDiscountInMoney{
+		public bool IsDiscountInMoney {
 			get {
 				if(IsEquipment)
 					return orderEquipment.OrderItem != null && orderEquipment.OrderItem.IsDiscountInMoney;
@@ -505,14 +542,14 @@ namespace Vodovoz
 			}
 		}
 
-		public decimal DiscountForPrewiev{
-			get{
+		public decimal DiscountForPrewiev {
+			get {
 				if(IsEquipment)
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountForPreview : 0;
 				return orderItem.DiscountForPreview;
 			}
 
-			set{
+			set {
 				if(IsEquipment) {
 					if(orderEquipment.OrderItem != null)
 						orderEquipment.OrderItem.DiscountForPreview = value;
@@ -522,7 +559,7 @@ namespace Vodovoz
 		}
 
 		public decimal Discount {
-			get { 
+			get {
 				if(IsEquipment)
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.Discount : 0m;
 				return orderItem.Discount;

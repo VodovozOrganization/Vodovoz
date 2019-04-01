@@ -24188,7 +24188,8 @@
                       </widget>
                       <packing>
                         <property name="Position">2</property>
-                        <property name="AutoSize">False</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
                         <property name="Fill">False</property>
                       </packing>
                     </child>
@@ -24196,12 +24197,13 @@
                   <packing>
                     <property name="TopAttach">1</property>
                     <property name="BottomAttach">2</property>
-                    <property name="RightAttach">2</property>
+                    <property name="LeftAttach">2</property>
+                    <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
-                    <property name="XOptions">0</property>
+                    <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
                     <property name="XExpand">False</property>
-                    <property name="XFill">False</property>
+                    <property name="XFill">True</property>
                     <property name="XShrink">False</property>
                     <property name="YExpand">False</property>
                     <property name="YFill">True</property>
@@ -24257,8 +24259,7 @@
                       </widget>
                       <packing>
                         <property name="Position">2</property>
-                        <property name="AutoSize">True</property>
-                        <property name="Expand">False</property>
+                        <property name="AutoSize">False</property>
                         <property name="Fill">False</property>
                       </packing>
                     </child>
@@ -24266,13 +24267,12 @@
                   <packing>
                     <property name="TopAttach">1</property>
                     <property name="BottomAttach">2</property>
-                    <property name="LeftAttach">2</property>
-                    <property name="RightAttach">4</property>
+                    <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
+                    <property name="XOptions">0</property>
                     <property name="YOptions">Fill</property>
                     <property name="XExpand">False</property>
-                    <property name="XFill">True</property>
+                    <property name="XFill">False</property>
                     <property name="XShrink">False</property>
                     <property name="YExpand">False</property>
                     <property name="YFill">True</property>
@@ -67674,217 +67674,6 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Cash.SelfDeliveryOrderEditDlg" design-size="750 483">
-    <property name="MemberName" />
-    <property name="Visible">False</property>
-    <child>
-      <widget class="Gtk.VBox" id="vbox2">
-        <property name="MemberName" />
-        <property name="Spacing">6</property>
-        <child>
-          <widget class="Gtk.HBox" id="hbox2">
-            <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <child>
-              <widget class="Gtk.Button" id="buttonSave">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Type">TextAndIcon</property>
-                <property name="Icon">stock:gtk-save Menu</property>
-                <property name="Label" translatable="yes">Сохранить</property>
-                <property name="UseUnderline">True</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.Button" id="buttonCancel">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Type">TextAndIcon</property>
-                <property name="Icon">stock:gtk-revert-to-saved Menu</property>
-                <property name="Label" translatable="yes">Отменить</property>
-                <property name="UseUnderline">True</property>
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <placeholder />
-            </child>
-          </widget>
-          <packing>
-            <property name="Position">0</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gtk.HBox" id="hbox1">
-            <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <child>
-              <widget class="Gtk.Label" id="labelClient">
-                <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">Клиент</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceClient">
-                <property name="MemberName" />
-                <property name="Events">ButtonPressMask</property>
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">False</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="Position">1</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gtk.VBox" id="vboxItems">
-            <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <child>
-              <widget class="Gtk.Label" id="labelItems">
-                <property name="MemberName" />
-                <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes">Товары</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
-                <property name="MemberName" />
-                <property name="ShadowType">In</property>
-                <child>
-                  <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewItems">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="ShowScrollbars">True</property>
-                  </widget>
-                </child>
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">True</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="Position">2</property>
-            <property name="AutoSize">True</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gtk.VBox" id="vboxEquipments">
-            <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <child>
-              <widget class="Gtk.Label" id="labelEquipments">
-                <property name="MemberName" />
-                <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes">Оборудование</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
-                <property name="MemberName" />
-                <property name="ShadowType">In</property>
-                <child>
-                  <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewEquipments">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="ShowScrollbars">True</property>
-                  </widget>
-                </child>
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">True</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="Position">3</property>
-            <property name="AutoSize">True</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gtk.VBox" id="vbox5">
-            <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <child>
-              <widget class="Gtk.Label" id="labelDepositReturns">
-                <property name="MemberName" />
-                <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes">Возврат залогов</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow2">
-                <property name="MemberName" />
-                <property name="ShadowType">In</property>
-                <child>
-                  <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewDepositReturns">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="ShowScrollbars">True</property>
-                  </widget>
-                </child>
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">True</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="Position">4</property>
-            <property name="AutoSize">True</property>
-          </packing>
-        </child>
-      </widget>
-    </child>
-  </widget>
   <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Logistic.OrdersByDistrictsAndDeliverySchedulesReport" design-size="157 138">
     <property name="MemberName" />
     <property name="Visible">False</property>
@@ -71850,6 +71639,7 @@ not tooltip</property>
                                 <property name="ShowScrollbars">True</property>
                                 <property name="Editable">False</property>
                                 <property name="Text" translatable="yes" />
+                                <property name="WrapMode">WordChar</property>
                               </widget>
                             </child>
                           </widget>
@@ -71964,6 +71754,7 @@ not tooltip</property>
                                 <property name="CanFocus">True</property>
                                 <property name="ShowScrollbars">True</property>
                                 <property name="Text" translatable="yes" />
+                                <property name="WrapMode">WordChar</property>
                               </widget>
                             </child>
                           </widget>

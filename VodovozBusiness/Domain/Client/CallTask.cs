@@ -8,8 +8,6 @@ namespace Vodovoz.Domain.Client
 {
 	public class CallTask : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		public virtual bool IsOpen { get; set; } //FIXME : переделать на хеш
-
 		public virtual int Id { get; set; }
 
 		public virtual int DebtByAddress { get; set; }
@@ -98,18 +96,35 @@ namespace Vodovoz.Domain.Client
 
 		public virtual CallTask CreateCopy() //TODO : Возможно переделать на фабрику
 		{
-			CallTask copy = new CallTask();
-			copy.Address = Address;
-			copy.AssignedEmployee = AssignedEmployee;
-			copy.Comment = Comment;
-			copy.DateOfTaskCreation = DateOfTaskCreation;
-			copy.Deadline = Deadline;
-			copy.DebtByAddress = DebtByAddress;
-			copy.DebtByClient = DebtByClient;
-			copy.Id = Id;
-			copy.IsTaskComplete = IsTaskComplete;
-			copy.TaskState = TaskState;
+			CallTask copy = new CallTask {
+				Address = Address,
+				AssignedEmployee = AssignedEmployee,
+				Comment = Comment,
+				DateOfTaskCreation = DateOfTaskCreation,
+				Deadline = Deadline,
+				DebtByAddress = DebtByAddress,
+				DebtByClient = DebtByClient,
+				Id = Id,
+				IsTaskComplete = IsTaskComplete,
+				TaskState = TaskState
+			};
 			return copy;
+		}
+
+		public virtual void LoadPreviousState(CallTask prevState)
+		{
+			if(prevState == null)
+				return;
+
+			Address = prevState.Address;
+			AssignedEmployee = prevState.AssignedEmployee;
+			Comment = prevState.Comment;
+			DateOfTaskCreation = prevState.DateOfTaskCreation;
+			Deadline = prevState.Deadline;
+			DebtByAddress = prevState.DebtByAddress;
+			DebtByClient = prevState.DebtByClient;
+			IsTaskComplete = prevState.IsTaskComplete;
+			TaskState = prevState.TaskState;
 		}
 	}
 

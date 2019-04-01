@@ -22,9 +22,9 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		public override bool HasChanges => BottlesReceptionList.Sum(x => x.Amount) >= 0 
-		                                                       || GoodsReceptionList.Sum(x => x.Amount) >= 0 
-		                                                       || base.HasChanges;
+		public override bool HasChanges => BottlesReceptionList.Sum(x => x.Amount) >= 0
+															   || GoodsReceptionList.Sum(x => x.Amount) >= 0
+															   || base.HasChanges;
 
 		GenericObservableList<GoodsReceptionVMNode> BottlesReceptionList;
 		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
@@ -78,7 +78,7 @@ namespace Vodovoz
 			yentryrefOrder.RepresentationModel = new ViewModel.OrdersVM(filter);
 			yentryrefOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			yentryrefOrder.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
-			              
+
 			UpdateOrderInfo();
 			Entity.UpdateStockAmount(UoW);
 			Entity.UpdateAlreadyUnloaded(UoW);
@@ -205,21 +205,17 @@ namespace Vodovoz
 
 		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
 		{
+			Entity.FillByOrder();
 			Entity.UpdateStockAmount(UoW);
+			Entity.UpdateAlreadyUnloaded(UoW);
 			UpdateAmounts();
 			UpdateWidgets();
 		}
 
 		void UpdateAmounts()
 		{
-			foreach(var item in Entity.Items) {
-				if(item.OrderItem != null)
-					item.Amount = item.OrderItem.Count - item.AmountUnloaded;
-				else
-					item.Amount = 1;
-				if(item.Amount > item.AmountInStock)
-					item.Amount = item.AmountInStock;
-			}
+			foreach(var item in Entity.Items)
+				item.Amount = Math.Min(Entity.GetNomenclaturesCountInOrder(item.Nomenclature) - item.AmountUnloaded, item.AmountInStock);
 		}
 
 		void UpdateWidgets()

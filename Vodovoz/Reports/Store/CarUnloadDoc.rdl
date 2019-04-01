@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     nomenclature.name AS nomenclature,
@@ -48,7 +48,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -68,7 +68,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Doc">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     store_car_unload_documents.id,
@@ -125,7 +125,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -187,8 +187,8 @@ WHERE
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -196,7 +196,7 @@ WHERE
           </TableColumn>
           <TableColumn>
             <Width>110.8pt</Width>
-            <Visibility >
+            <Visibility>
               <Hidden>=!First(Fields!can_receive_equipment, 'Doc')</Hidden>
             </Visibility>
           </TableColumn>
@@ -352,7 +352,7 @@ WHERE
         </TableColumns>
         <Details>
           <TableRows>
-            <TableRow >
+            <TableRow>
               <Height>17.6pt</Height>
               <TableCells>
                 <TableCell>
@@ -428,7 +428,7 @@ WHERE
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>17.6pt</Height>
+              <Height>16.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -461,6 +461,7 @@ WHERE
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -495,6 +496,7 @@ WHERE
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -610,7 +612,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>Экпедитор:</Value>
+                      <Value>Экcпедитор:</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>

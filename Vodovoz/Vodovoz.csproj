@@ -1051,8 +1051,6 @@
     <Compile Include="Representations\SelfDeliveriesVM.cs" />
     <Compile Include="Dialogs\Cash\CashExpenseSelfDeliveryDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashExpenseSelfDeliveryDlg.cs" />
-    <Compile Include="Dialogs\Cash\SelfDeliveryOrderEditDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.SelfDeliveryOrderEditDlg.cs" />
     <Compile Include="ReportsParameters\Logistic\OrdersByDistrictsAndDeliverySchedulesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.OrdersByDistrictsAndDeliverySchedulesReport.cs" />
     <Compile Include="Dialogs\Employees\EmployeeDocDlg.cs" />

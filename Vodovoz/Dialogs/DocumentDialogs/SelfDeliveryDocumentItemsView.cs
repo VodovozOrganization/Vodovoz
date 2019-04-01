@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Gamma.GtkWidgets;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
 
@@ -17,7 +17,7 @@ namespace Vodovoz
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<SelfDeliveryDocumentItem>()
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInStock))
-				.AddColumn("В заказе").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.OrderItem != null ? x.OrderItem.Count : x.OrderEquipment != null ? x.OrderEquipment.Count : 0))
+				.AddColumn("В заказе").AddTextRenderer(x => GetItemsCount(x))
 				.AddColumn("Уже отгружено").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountUnloaded))
 				.AddColumn("Количество").AddNumericRenderer(x => x.Amount).Editing()
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
@@ -27,13 +27,18 @@ namespace Vodovoz
 				.Finish();
 
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
-
 		}
 
-		void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
+		void YtreeviewItems_Selection_Changed(object sender, EventArgs e)
 		{
 			var selected = ytreeviewItems.GetSelectedObject<SelfDeliveryDocumentItem>();
 			buttonDelete.Sensitive = selected != null;
+		}
+
+		string GetItemsCount(SelfDeliveryDocumentItem item)
+		{
+			decimal cnt = item.Document.GetNomenclaturesCountInOrder(item.Nomenclature);
+			return item.Nomenclature.Unit.MakeAmountShortStr(cnt);
 		}
 
 		private IUnitOfWorkGeneric<SelfDeliveryDocument> documentUoW;
@@ -41,11 +46,11 @@ namespace Vodovoz
 		public IUnitOfWorkGeneric<SelfDeliveryDocument> DocumentUoW {
 			get { return documentUoW; }
 			set {
-				if (documentUoW == value)
+				if(documentUoW == value)
 					return;
 				documentUoW = value;
-				if (DocumentUoW.Root.Items == null)
-					DocumentUoW.Root.Items = new List<SelfDeliveryDocumentItem> ();
+				if(DocumentUoW.Root.Items == null)
+					DocumentUoW.Root.Items = new List<SelfDeliveryDocumentItem>();
 
 				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableItems;
 			}
@@ -53,32 +58,23 @@ namespace Vodovoz
 
 		string CalculateAmountColor(SelfDeliveryDocumentItem item)
 		{
-			if (item.Amount > item.AmountInStock)
+			if(item.Amount > item.AmountInStock)
 				return "red";
-			if(item.OrderItem != null)
-			{
-				if (item.OrderItem.Count < item.AmountUnloaded + item.Amount)
-					return "orange";
-				if (item.OrderItem.Count == item.AmountUnloaded + item.Amount)
-					return "green";
-				if (item.OrderItem.Count > item.AmountUnloaded + item.Amount)
-					return "blue";
-			}
-			if(item.OrderEquipment != null)
-			{
-				if (item.OrderEquipment.Count < item.AmountUnloaded + item.Amount)
-					return "orange";
-				if (item.OrderEquipment.Count == item.AmountUnloaded + item.Amount)
-					return "green";
-				if (item.OrderEquipment.Count > item.AmountUnloaded + item.Amount)
-					return "blue";
-			}
+
+			var cnt = item.Document.GetNomenclaturesCountInOrder(item.Nomenclature);
+			if(cnt < item.AmountUnloaded + item.Amount)
+				return "orange";
+			if(cnt == item.AmountUnloaded + item.Amount)
+				return "green";
+			if(cnt > item.AmountUnloaded + item.Amount)
+				return "blue";
+
 			return "black";
 		}
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			DocumentUoW.Root.ObservableItems.Remove (ytreeviewItems.GetSelectedObject<SelfDeliveryDocumentItem>());
+			DocumentUoW.Root.ObservableItems.Remove(ytreeviewItems.GetSelectedObject<SelfDeliveryDocumentItem>());
 		}
 	}
 }

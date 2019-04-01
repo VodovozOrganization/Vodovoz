@@ -38,6 +38,8 @@ namespace Vodovoz.Domain.Client
 		barter,
 		[Display(Name = "По карте", ShortName = "карта")]
 		ByCard,
+		[Display(Name = "Оплата по карте курьеру", ShortName = "карта, курьер")]
+		CourierByCard,
 		[Display(Name = "Контрактная документация", ShortName = "контрактн.")]
 		ContractDoc
 	}

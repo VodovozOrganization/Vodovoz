@@ -32,23 +32,22 @@ namespace Vodovoz.JournalFilters
 
 		protected void OnButtonExpiredClicked(object sender, EventArgs e)
 		{
-			StartDate = DateTime.MinValue;
+			StartDate = DateTime.Now.AddDays(-15);
 			EndDate = DateTime.Now;
-			checkbuttonHideCompleted.Active = true;
 			FilterChanged?.Invoke();
 		}
 
 		protected void OnButtonTodayClicked(object sender, EventArgs e)
 		{
-			StartDate = DateTime.Now;
-			EndDate = DateTime.Now.AddDays(1);
+			StartDate = DateTime.Now.Date;
+			EndDate = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(59);
 			FilterChanged?.Invoke();
 		}
 
 		protected void OnButtonTomorrowClicked(object sender, EventArgs e)
 		{
-			StartDate = DateTime.Now.AddDays(1);
-			EndDate = DateTime.Now.AddDays(2);
+			StartDate = DateTime.Now.Date.AddDays(1);
+			EndDate = DateTime.Now.Date.AddDays(1).AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(59);
 			FilterChanged?.Invoke();
 		}
 

@@ -37,7 +37,6 @@ namespace Vodovoz
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
 		private bool editing = UserPermissionRepository.CurrentUserPresetPermissions["money_manage_cash"];
-		private bool canCloseRoutelist = false;
 		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;
 
@@ -93,7 +92,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			canCloseRoutelist = PermissionRepository.HasAccessToClosingRoutelist();
+			routelistdiscrepancyview.RouteList = Entity;
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 			referenceCar.SubjectType = typeof(Car);
@@ -196,7 +195,6 @@ namespace Vodovoz
 
 			expander1.Expanded = false;
 
-			routelistdiscrepancyview.RouteList = Entity;
 			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures();
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
@@ -461,8 +459,7 @@ namespace Vodovoz
 		{
 			buttonAccept.Sensitive = 
 				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck) 
-				&& Entity.IsConsistentWithUnloadDocument()
-				&& canCloseRoutelist;
+				&& Entity.IsConsistentWithUnloadDocument();
 		}
 
 		private bool buttonFineEditState;
@@ -635,7 +632,7 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			if(!IsConsistentWithUnloadDocument() || !canCloseRoutelist) {
+			if(!IsConsistentWithUnloadDocument()) {
 				return;
 			}
 
