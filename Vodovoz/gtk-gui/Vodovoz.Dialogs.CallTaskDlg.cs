@@ -408,6 +408,7 @@ namespace Vodovoz.Dialogs
 			this.ytextviewComments.CanFocus = true;
 			this.ytextviewComments.Name = "ytextviewComments";
 			this.ytextviewComments.Editable = false;
+			this.ytextviewComments.WrapMode = ((global::Gtk.WrapMode)(3));
 			this.GtkScrolledWindow.Add(this.ytextviewComments);
 			this.vboxComments.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxComments[this.GtkScrolledWindow]));
@@ -492,6 +493,7 @@ namespace Vodovoz.Dialogs
 			this.ytextviewOldComments.WidthRequest = 400;
 			this.ytextviewOldComments.CanFocus = true;
 			this.ytextviewOldComments.Name = "ytextviewOldComments";
+			this.ytextviewOldComments.WrapMode = ((global::Gtk.WrapMode)(3));
 			this.GtkScrolledWindow2.Add(this.ytextviewOldComments);
 			this.vboxOldComments.Add(this.GtkScrolledWindow2);
 			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vboxOldComments[this.GtkScrolledWindow2]));

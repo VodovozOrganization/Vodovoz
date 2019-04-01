@@ -1690,7 +1690,6 @@ namespace Vodovoz.Domain.Orders
 						Price = orderItem.Price,
 						IsUserPrice = orderItem.IsUserPrice,
 						Count = orderItem.Count,
-						ActualCount = orderItem.ActualCount,
 						IncludeNDS = orderItem.IncludeNDS,
 						IsDiscountInMoney = orderItem.IsDiscountInMoney,
 						Discount = orderItem.Discount,
@@ -1725,7 +1724,6 @@ namespace Vodovoz.Domain.Orders
 						Reason = orderEquipment.Reason,
 						Confirmed = orderEquipment.Confirmed,
 						ConfirmedComment = orderEquipment.ConfirmedComment,
-						ActualCount = orderEquipment.ActualCount,
 						Count = orderEquipment.Count
 					}
 				);
@@ -1746,7 +1744,6 @@ namespace Vodovoz.Domain.Orders
 					new OrderDepositItem {
 						Order = this,
 						Count = oDepositItem.Count,
-						ActualCount = oDepositItem.ActualCount,
 						Deposit = oDepositItem.Deposit,
 						DepositType = oDepositItem.DepositType,
 						EquipmentNomenclature = oDepositItem.EquipmentNomenclature
@@ -2628,11 +2625,9 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual void SetDepositsActualCounts()
 		{
-			if(OrderItems.All(x => x.Nomenclature.Id == 157)) {
-				foreach(var oi in orderItems) {
-					oi.ActualCount = oi.Count;
-				}
-			}
+			if(OrderItems.All(x => x.Nomenclature.Id == 157))
+				foreach(var oi in orderItems)
+					oi.ActualCount = oi.Count > 0 ? oi.Count : oi.ActualCount ?? 0;
 		}
 
 		public virtual void AcceptOrder()
@@ -2727,70 +2722,69 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsFullyShippedSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument = null)
 		{
-			if(!SelfDelivery) {
+			if(!SelfDelivery)
 				return false;
+
+			var categoriesForShipping = Nomenclature.GetCategoriesForShipment();
+			var oItemsGrps = OrderItems.Where(x => categoriesForShipping.Contains(x.Nomenclature.Category))
+								  	  .GroupBy(i => i.Nomenclature.Id, i => i.Count);
+			var oEquipmentGrps = OrderEquipments.Where(x => categoriesForShipping.Contains(x.Nomenclature.Category))
+											   .Where(x => x.Direction == Direction.Deliver)
+											   .GroupBy(i => i.Nomenclature.Id, i => i.Count);
+			var nomGrp = oItemsGrps.ToDictionary(g => g.Key, g => g.Sum());
+
+			foreach(var g in oEquipmentGrps) {
+				if(nomGrp.ContainsKey(g.Key))
+					nomGrp[g.Key] += g.Sum();
+				else
+					nomGrp.Add(g.Key, g.Sum());
 			}
 
 			// Закрывает заказ и создает операцию движения бутылей если все товары в заказе отгружены
-			var unloadedItems = SelfDeliveryRepository.OrderItemUnloaded(uow, this, closingDocument);
-			var unloadedEquipments = SelfDeliveryRepository.OrderEquipmentsUnloaded(uow, this, closingDocument);
 			bool canCloseOrder = true;
-			var shipmentCats = Nomenclature.GetCategoriesForShipment();
-			foreach(var item in OrderItems.Where(x => shipmentCats.Contains(x.Nomenclature.Category))) {
+			var unloadedNoms = SelfDeliveryRepository.OrderNomenclaturesUnloaded(uow, this, closingDocument);
+			foreach(var nGrp in nomGrp) {
 				decimal totalCount = default(decimal);
-				if(closingDocument != null) {
-					var deliveryItem = closingDocument.Items
-													  .Where(x => x.OrderItem != null)
-													  .FirstOrDefault(x => x.OrderItem.Id == item.Id);
-					if(deliveryItem != null) {
-						totalCount += deliveryItem.Amount;
-					}
-				}
-
-				if(unloadedItems.ContainsKey(item.Id)) {
-					totalCount += unloadedItems[item.Id];
-				}
-				if((int)totalCount != item.Count) {
+				if(unloadedNoms.ContainsKey(nGrp.Key))
+					totalCount += unloadedNoms[nGrp.Key];
+				if((int)totalCount != nGrp.Value)
 					canCloseOrder = false;
-				}
-			}
-
-			foreach(var equipment in orderEquipments.Where(x => shipmentCats.Contains(x.Nomenclature.Category))) {
-				decimal totalCount = default(decimal);
-				if(closingDocument != null) {
-					var deliveryItem = closingDocument.Items
-												  .Where(x => x.OrderEquipment != null)
-												  .FirstOrDefault(x => x.OrderEquipment.Id == equipment.Id);
-					if(deliveryItem != null) {
-						totalCount += deliveryItem.Amount;
-					}
-				}
-				if(unloadedEquipments.ContainsKey(equipment.Id)) {
-					totalCount += unloadedEquipments[equipment.Id];
-				}
-				if((int)totalCount != equipment.Count) {
-					canCloseOrder = false;
-				}
 			}
 
 			return canCloseOrder;
 		}
 
-		private void UpdateSelfDeliveryActualCounts()
+		private void UpdateSelfDeliveryActualCounts(SelfDeliveryDocument notSavedDocument = null)
 		{
-			var loadedList = SelfDeliveryRepository.OrderNomenclaturesLoaded(UoW, this);
+			var loadedDictionary = SelfDeliveryRepository.OrderNomenclaturesLoaded(UoW, this);
+			if(notSavedDocument != null && notSavedDocument.Id <= 0) {//если id > 0, то такой документ был учтён при получении словаря из репозитория
+				foreach(var item in notSavedDocument.Items) {
+					if(loadedDictionary.ContainsKey(item.Nomenclature.Id))
+						loadedDictionary[item.Nomenclature.Id] += item.Amount;
+					else
+						loadedDictionary.Add(item.Nomenclature.Id, item.Amount);
+				}
+			}
 
 			foreach(var item in OrderItems) {
-				if(loadedList.ContainsKey(item.Nomenclature.Id)) {
-					item.ActualCount = (int)loadedList[item.Nomenclature.Id];
-					loadedList.Remove(item.Nomenclature.Id);
+				if(loadedDictionary.ContainsKey(item.Nomenclature.Id)) {
+					//разбрасываем количества отгруженных по актуальным количествам в позициях заказа.
+					int loadedCnt = (int)loadedDictionary[item.Nomenclature.Id];
+					item.ActualCount = Math.Min(item.Count, loadedCnt);
+					loadedDictionary[item.Nomenclature.Id] -= loadedCnt;
+					if(loadedDictionary[item.Nomenclature.Id] <= 0)
+						loadedDictionary.Remove(item.Nomenclature.Id);
 				}
 			}
 
 			foreach(var item in OrderEquipments) {
-				if(loadedList.ContainsKey(item.Nomenclature.Id)) {
-					item.ActualCount = (int)loadedList[item.Nomenclature.Id];
-					loadedList.Remove(item.Nomenclature.Id);
+				if(loadedDictionary.ContainsKey(item.Nomenclature.Id)) {
+					//разбрасываем количества отгруженных по актуальным количествам в позициях заказа.
+					int loadedCnt = (int)loadedDictionary[item.Nomenclature.Id];
+					item.ActualCount = Math.Min(item.Count, loadedCnt);
+					loadedDictionary[item.Nomenclature.Id] -= loadedCnt;
+					if(loadedDictionary[item.Nomenclature.Id] <= 0)
+						loadedDictionary.Remove(item.Nomenclature.Id);
 				}
 			}
 		}
@@ -2811,26 +2805,20 @@ namespace Vodovoz.Domain.Orders
 			switch(PaymentType) {
 				case PaymentType.cash:
 				case PaymentType.BeveragesWorld:
-					if(isFullyPaid) {
-						ChangeStatus(OrderStatus.Closed);
-					} else {
-						ChangeStatus(OrderStatus.WaitForPayment);
-					}
+					ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment);
 					break;
 				case PaymentType.cashless:
 				case PaymentType.ByCard:
-					if(PayAfterShipment) {
-						ChangeStatus(OrderStatus.WaitForPayment);
-					} else {
-						ChangeStatus(OrderStatus.Closed);
-					}
+					ChangeStatus(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed);
 					break;
 				case PaymentType.barter:
 				case PaymentType.ContractDoc:
 					ChangeStatus(OrderStatus.Closed);
 					break;
 			}
-			UpdateSelfDeliveryActualCounts();
+			//обновление актуальных кол-в из документов самовывоза, включая не сохранённый
+			//документ, откуда был вызов метода
+			UpdateSelfDeliveryActualCounts(closingDocument);
 			return true;
 		}
 

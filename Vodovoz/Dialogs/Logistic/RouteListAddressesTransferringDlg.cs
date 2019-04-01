@@ -13,6 +13,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
 using QS.Project.Repositories;
+using QS.Dialog.GtkUI;
+using QS.Dialog.Gtk;
 
 namespace Vodovoz
 {
@@ -147,16 +149,16 @@ namespace Vodovoz
 
 			if (DomainHelper.EqualDomainObjects(routeListFrom, routeListTo)) {
 				yentryreferenceRLFrom.Subject = null;
-				MessageDialogWorks.RunErrorDialog ("Вы дурачёк?", "Вы не можете забирать адреса из того же МЛ, в который собираетесь передавать.");
+				MessageDialogHelper.RunErrorDialog ("Вы дурачёк?", "Вы не можете забирать адреса из того же МЛ, в который собираетесь передавать.");
 				return;
 			}
 
 			if (TabParent != null) {
-				var tab = TabParent.FindTab (OrmMain.GenerateDialogHashName<RouteList> (routeListFrom.Id));
+				var tab = TabParent.FindTab (DialogHelper.GenerateDialogHashName<RouteList> (routeListFrom.Id));
 
 				if (!(tab is RouteListClosingDlg)) { 
 					if (tab != null) {
-						MessageDialogWorks.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
+						MessageDialogHelper.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
 						yentryreferenceRLFrom.Subject = null;
 						return;
 					}
@@ -185,15 +187,15 @@ namespace Vodovoz
 			if(DomainHelper.EqualDomainObjects (routeListFrom, routeListTo))
 			{
 				yentryreferenceRLTo.Subject = null;
-				MessageDialogWorks.RunErrorDialog ("Вы дурачёк?", "Вы не можете передавать адреса в тот же МЛ, из которого забираете.");
+				MessageDialogHelper.RunErrorDialog ("Вы дурачёк?", "Вы не можете передавать адреса в тот же МЛ, из которого забираете.");
 				return;
 			}
 
 			if (TabParent != null) {
-				var tab = TabParent.FindTab (OrmMain.GenerateDialogHashName<RouteList> (routeListTo.Id));
+				var tab = TabParent.FindTab (DialogHelper.GenerateDialogHashName<RouteList> (routeListTo.Id));
 				if (!(tab is RouteListClosingDlg)) {
 					if (tab != null) {
-						MessageDialogWorks.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
+						MessageDialogHelper.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
 						yentryreferenceRLTo.Subject = null;
 						return;
 					}
@@ -272,11 +274,11 @@ namespace Vodovoz
 			uow.Commit ();
 
 			if(needReloadNotSet.Count > 0)
-				MessageDialogWorks.RunWarningDialog("Для следующих адресов не была указана необходимость загрузки, поэтому они не были перенесены:\n * " +
+				MessageDialogHelper.RunWarningDialog("Для следующих адресов не была указана необходимость загрузки, поэтому они не были перенесены:\n * " +
 				                                    String.Join("\n * ", needReloadNotSet.Select(x => x.Address))
 												   );
 			if(messages.Count > 0)
-				MessageDialogWorks.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
+				MessageDialogHelper.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
 
 			UpdateNodes();
 			CheckSensitivities ();
@@ -298,7 +300,7 @@ namespace Vodovoz
 			{
 				if(address.Status == RouteListItemStatus.Transfered)
 				{
-					MessageDialogWorks.RunWarningDialog (String.Format ("Адрес {0} сам перенесен в МЛ №{1}. Отмена этого переноса не возможна. Сначала нужно отменить перенос в {1} МЛ.", address?.Order?.DeliveryPoint.ShortAddress, address.TransferedTo?.RouteList.Id));
+					MessageDialogHelper.RunWarningDialog (String.Format ("Адрес {0} сам перенесен в МЛ №{1}. Отмена этого переноса не возможна. Сначала нужно отменить перенос в {1} МЛ.", address?.Order?.DeliveryPoint.ShortAddress, address.TransferedTo?.RouteList.Id));
 					continue;
 				}
 

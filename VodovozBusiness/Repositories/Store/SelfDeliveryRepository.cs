@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
-using NHibernate.Transform;
 
 namespace Vodovoz.Repository.Store
 {
@@ -51,61 +51,40 @@ namespace Vodovoz.Repository.Store
 		}
 
 		/// <summary>
-		/// Выводит список id товара в заказе и количество отгруженное со склада 
-		/// по документам отгрузки, исключая указанный документ открузки
+		/// Выводит список id номенклатур в заказе и количество отгруженное со склада 
+		/// по документам отгрузки, включая документ отгрузки, который ещё не сохранён
 		/// </summary>
 		/// <returns>Id товара и сколько его отгружено</returns>
 		/// <param name="order">Заказ по которому необходимо найти отгрузку товаров</param>
-		/// <param name="excludeDoc">Исключаемый документ отгрузки</param>
-		public static Dictionary<int, decimal> OrderItemUnloaded(IUnitOfWork UoW, Order order, SelfDeliveryDocument excludeDoc)
+		/// <param name="notSavedDoc">Не сохранённый документ для включения в расчёт</param>
+		public static Dictionary<int, decimal> OrderNomenclaturesUnloaded(IUnitOfWork UoW, Order order, SelfDeliveryDocument notSavedDoc = null)
 		{
-			SelfDeliveryDocument docAlias = null;
 			SelfDeliveryDocumentItem docItemsAlias = null;
-
 			ItemInStock inUnload = null;
-			var unloadedQuery = UoW.Session.QueryOver<SelfDeliveryDocument>(() => docAlias)
-								  .JoinAlias(d => d.Items, () => docItemsAlias)
-								  .Where(d => d.Order.Id == order.Id)
-								  .WhereRestrictionOn(() => docItemsAlias.OrderItem).IsNotNull;
-			if(excludeDoc != null && excludeDoc.Id != 0) {
-				unloadedQuery.Where(d => d.Id != excludeDoc.Id);
-			}
 
-			var unloadedlist = unloadedQuery.SelectList(list => list
-				   .SelectGroup(() => docItemsAlias.OrderItem.Id).WithAlias(() => inUnload.Id)
+			var unloadedQuery = UoW.Session.QueryOver<SelfDeliveryDocument>()
+								  .JoinAlias(d => d.Items, () => docItemsAlias)
+								  .Where(d => d.Order.Id == order.Id);
+
+			var unloadedDict = unloadedQuery.SelectList(list => list
+				   .SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inUnload.Id)
 				   .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inUnload.Added)
-				).TransformUsing(Transformers.PassThrough).List<object[]>();
+				)
+				.TransformUsing(Transformers.PassThrough)
+				.List<object[]>()
+				.GroupBy(o => (int)o[0], o => (decimal)o[1])
+				.ToDictionary(g => g.Key, g => g.Sum());
 
-			var result = new Dictionary<int, decimal>();
-			foreach(var unloadedItem in unloadedlist) {
-				result.Add((int)unloadedItem[0], (decimal)unloadedItem[1]);
+			if(notSavedDoc != null && notSavedDoc.Id <= 0) {
+				foreach(var i in notSavedDoc.Items) {
+					if(unloadedDict.ContainsKey(i.Nomenclature.Id))
+						unloadedDict[i.Nomenclature.Id] += i.Amount;
+					else
+						unloadedDict.Add(i.Nomenclature.Id, i.Amount);
+				}
 			}
-			return result;
-		}
 
-		public static Dictionary<int, decimal> OrderEquipmentsUnloaded(IUnitOfWork UoW, Order order, SelfDeliveryDocument excludeDoc)
-		{
-			SelfDeliveryDocument docAlias = null;
-			SelfDeliveryDocumentItem docItemsAlias = null;
-
-			ItemInStock inUnload = null;
-			var unloadedQuery = UoW.Session.QueryOver<SelfDeliveryDocument>(() => docAlias)
-								  .JoinAlias(d => d.Items, () => docItemsAlias)
-								  .Where(d => d.Order.Id == order.Id)
-								  .WhereRestrictionOn(() => docItemsAlias.OrderEquipment).IsNotNull;
-			if(excludeDoc != null && excludeDoc.Id != 0) {
-				unloadedQuery.Where(d => d.Id != excludeDoc.Id);
-			}
-			var unloadedlist = unloadedQuery.SelectList(list => list
-			                                  .SelectGroup(() => docItemsAlias.OrderEquipment.Id).WithAlias(() => inUnload.Id)
-			                                  .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inUnload.Added)
-			                                 ).TransformUsing(Transformers.PassThrough).List<object[]>();
-			var result = new Dictionary<int, decimal>();
-			foreach(var unloadedItem in unloadedlist) {
-				result.Add((int)unloadedItem[0], (decimal)unloadedItem[1]);
-			}
-			return result;
+			return unloadedDict;
 		}
 	}
 }
-

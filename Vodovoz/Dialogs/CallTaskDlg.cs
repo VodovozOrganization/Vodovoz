@@ -25,9 +25,10 @@ namespace Vodovoz.Dialogs
 			this.Build();
 			UoW = uow;
 			TabName = "Новый обзвон";
-			Entity = new CallTask();
-			Entity.DateOfTaskCreation = DateTime.Now;
-			Entity.Deadline = DateTime.Now.AddDays(1);
+			Entity = new CallTask {
+				DateOfTaskCreation = DateTime.Now,
+				Deadline = DateTime.Now.AddDays(1)
+			};
 			createTaskButton.Sensitive = false;
 			ConfigureDlg();
 		}

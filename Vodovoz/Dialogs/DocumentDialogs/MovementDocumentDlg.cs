@@ -212,10 +212,7 @@ namespace Vodovoz
 				Parameters = new Dictionary<string, object>
 				{
 					{ "documentId" , Document.Id} ,
-					{ "date" , Document.TimeStamp.ToString("dd/MM/yyyy")} ,
-					{ "WarehouseFrom" , Document.FromWarehouse.Name} ,
-					{ "WarehouseTo" , Document.ToWarehouse.Name} ,
-					{ "Wagon" , Document.MovementWagon.Name} ,
+					{ "date" , Document.TimeStamp.ToString("dd/MM/yyyy")} 
 				}
 			};
 		}

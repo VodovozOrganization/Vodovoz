@@ -11,6 +11,7 @@ using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Tdi.Gtk;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -49,9 +50,7 @@ namespace Vodovoz.JournalViewers
 			.AddColumn("Ответственный").AddTextRenderer(node => node.AssignedEmployee != null ? node.AssignedEmployee.ShortName : String.Empty)
 			.AddColumn("Выполнить до").AddTextRenderer(node => node.Deadline.ToString("dd / MM / yyyy  HH:mm"))
 			.RowCells().AddSetter<CellRendererText>((c, n) => {
-				if(n.IsOpen)
-					c.Foreground = "blue";
-				else if(n.IsTaskComplete)
+				if(n.IsTaskComplete)
 					c.Foreground = "green";
 				else if(DateTime.Now > n.Deadline)
 					c.Foreground = "red";
@@ -83,15 +82,20 @@ namespace Vodovoz.JournalViewers
 
 		public void UpdateNodes()
 		{
+			if(tasksMemento.Any()) 
+			{
+				MessageDialogHelper.RunInfoDialog("Для обновления необходимо закрыть подчиненные вкладки");
+				return;
+			}
 			DeliveryPoint deliveryPointAlias = null;
 			BottlesMovementOperation bottlesMovementAlias = null;
 			CallTask resultAlias = null;
 			Counterparty counterpartyAlias = null;
 			Employee employeeAlias = null;
 
-			var tasksQuery = UoW.Session.QueryOver<CallTask>(() => resultAlias);
+			var tasksQuery = UoW.Session.QueryOver(() => resultAlias);
 
-			var bottleDebtByAddressQuery = UoW.Session.QueryOver<BottlesMovementOperation>(() => bottlesMovementAlias)
+			var bottleDebtByAddressQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
 			.Where(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
@@ -100,7 +104,7 @@ namespace Vodovoz.JournalViewers
 								Projections.Sum(() => bottlesMovementAlias.Delivered)}
 				));
 
-			var bottleDebtByClientQuery = UoW.Session.QueryOver<BottlesMovementOperation>(() => bottlesMovementAlias)
+			var bottleDebtByClientQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
 			.Where(() => bottlesMovementAlias.Counterparty.Id == deliveryPointAlias.Counterparty.Id)
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
@@ -149,31 +153,39 @@ namespace Vodovoz.JournalViewers
 		protected void OnAddTaskButtonClicked(object sender, EventArgs e)
 		{
 			CallTaskDlg dlg = new CallTaskDlg(UoW);
+			dlg.Removed += (o, args) => {
+				if(dlg.SaveDlgState)
+					observableTasks.Add(dlg.Entity);
+			}; 
 			OpenSlaveTab(dlg);
 		}
 
 		protected void OnDebtorsTreeViewRowActivated(object o, RowActivatedArgs args) => buttonEdit.Click();
 
-		protected void OnButtonEditClicked(object sender, EventArgs e) //FIXME : Переделать на ( ref / указатель )
+		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			CallTask callTask = (CallTask)ytreeviewTasks.GetSelectedObjects()[0];
-			tasksMemento.Add(callTask.Id, callTask.CreateCopy());
-			if(callTask != null) {
-				callTask.IsOpen = true;
-				CallTaskDlg dlg = new CallTaskDlg(UoW , callTask);
-				dlg.Removed += (sender2 , e2) => {
-					callTask.IsOpen = false;
-					if(!dlg.SaveDlgState) {
-						for(int i = 0; i < Tasks.Count; i++) { 
-							if(Tasks[i].Id == callTask.Id) {
-								Tasks[i] = tasksMemento[callTask.Id];
-							}
-						}
-					}
-					tasksMemento.Remove(callTask.Id);
-				};
-				OpenSlaveTab(dlg);
+			List<CallTask> selected = ytreeviewTasks.GetSelectedObjects().OfType<CallTask>().ToList();
+			CallTask callTask = selected.Any() ? selected[0] : null;
+
+			if(callTask == null)
+				return;
+			if(tasksMemento.ContainsKey(callTask.Id))
+			{
+				MessageDialogHelper.RunInfoDialog("Задача уже открыта в подчиненной вкладке");
+				return;
 			}
+
+			tasksMemento.Add(callTask.Id, callTask.CreateCopy());
+			CallTaskDlg dlg = new CallTaskDlg(UoW , callTask);
+
+			dlg.Removed += (o, args) => 
+			{
+				if(!dlg.SaveDlgState)
+					callTask.LoadPreviousState(tasksMemento[callTask.Id]);
+				tasksMemento.Remove(callTask.Id);
+			};
+
+			OpenSlaveTab(dlg);
 		}
 
 		protected void OnCheckShowFilterClicked(object sender, EventArgs e) => taskfilter.Visible = !taskfilter.Visible;
@@ -209,8 +221,10 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnEntryreferencevmEmployeeFilterChangedByUser(object sender, EventArgs e)
 		{
-			ytreeviewTasks.GetSelectedObjects().OfType<CallTask>().ToList().ForEach((task) => {
-				if(CheckOpedDlg(task)) {
+			ytreeviewTasks.GetSelectedObjects().OfType<CallTask>().ToList().ForEach((task) => 
+			{
+				if(CheckOpedDlg(task)) 
+				{
 					task.AssignedEmployee = entryreferencevmEmployeeFilter.Subject as Employee;
 					UoW.Save(task);
 					UoW.Commit();
@@ -220,8 +234,10 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnCompleteTaskButtonClicked(object sender, EventArgs e)
 		{
-			ytreeviewTasks.GetSelectedObjects().OfType<CallTask>().ToList().ForEach((task) => {
-				if(CheckOpedDlg(task)) {
+			ytreeviewTasks.GetSelectedObjects().OfType<CallTask>().ToList().ForEach((task) => 
+			{
+				if(CheckOpedDlg(task)) 
+				{
 					task.IsTaskComplete = true;
 					UoW.Save(task);
 					UoW.Commit();
@@ -231,8 +247,10 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnTaskstateButtonEnumItemClicked(object sender, EventArgs e)
 		{
-			ytreeviewTasks.GetSelectedObjects().OfType<CallTask>().ToList().ForEach((task) => {
-				if(CheckOpedDlg(task)) {
+			ytreeviewTasks.GetSelectedObjects().OfType<CallTask>().ToList().ForEach((task) => 
+			{
+				if(CheckOpedDlg(task)) 
+				{
 					task.TaskState = (CallTaskStatus)taskStatusComboBox.SelectedItem;
 					UoW.Save(task);
 					UoW.Commit();
@@ -242,9 +260,11 @@ namespace Vodovoz.JournalViewers
 
 		private bool CheckOpedDlg(CallTask callTask)
 		{
-			if(callTask.IsOpen)
+			bool isOpen = tasksMemento.ContainsKey(callTask.Id);
+			if(isOpen)
 				MessageDialogHelper.RunInfoDialog(String.Format("Невозможно изменить задачу №{0} , т.к. задача открыта в отдельном окне ",callTask.Id));
-			return !callTask.IsOpen;
+
+			return !isOpen;
 		}
 
 		#endregion
