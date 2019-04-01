@@ -303,8 +303,8 @@ namespace Vodovoz
 			labelSum.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.TotalSum), w => w.LabelProp).InitializeFromSource();
 			labelCashToReceive.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderCashSum), w => w.LabelProp).InitializeFromSource();
 
-			enumPaymentType.ItemsEnum = typeof(PaymentType);
-			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			enumPaymentType.ItemsEnum = typeof(PaymentAdapterType);
+			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentAdapterType, w => w.SelectedItem).InitializeFromSource();
 			SetSensitivityOfPaymentType();
 
 			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
@@ -1813,7 +1813,7 @@ namespace Vodovoz
 				(Entity.Client != null &&
 				 (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)
 				);
-			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (Entity.PaymentType == PaymentType.ByCard);
+			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (Entity.PaymentAdapterType == PaymentAdapterType.ByCard);
 			if(treeItems.Columns.Any())
 				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
