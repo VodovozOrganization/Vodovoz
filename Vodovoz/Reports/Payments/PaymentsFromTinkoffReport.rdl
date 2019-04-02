@@ -1128,7 +1128,7 @@
 		END
 	) AS underpayment_number,
 	o.delivery_date &gt; CURDATE() AS is_future_order
-	#для отладки на тестовых БД. Для того, чтоб увидеть заказы на будущие даты
+	#для отладки на тестовых БД. Для того, чтоб увидеть заказы набудущие даты
 	#o.delivery_date &gt; '2018-10-03' AS is_future_order
 FROM
 	orders o

@@ -14,7 +14,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
 using QS.Dialog.GtkUI;
-using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
@@ -179,13 +178,10 @@ namespace Vodovoz
 				.AddColumn("Доп.\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.ExtraCash).Editing()
 					.Adjustment(new Adjustment(0, -1000000, 1000000, 1, 1, 1))
-				.AddColumn("№ оплаты")
-					.AddTextRenderer(node => node.TerminalPaymentNumber).Editable()
-					.AddSetter((cell, node) => cell.BackgroundGdk = node.Order.PaymentType == PaymentType.CourierByCard ? colorLightBlue : colorWhite)
 				.AddColumn("Итого\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.TotalCash)
 				.AddColumn ("Комментарий\nкассира")
-					.AddTextRenderer (node => node.CashierComment).EditedEvent (CommentCellEdited).Editable()
+				.AddTextRenderer (node => node.CashierComment).EditedEvent (CommentCellEdited).Editable()
 				// Комментарий менеджера ответственного за водительский телефон
 				.AddColumn("Вод. телефон").HeaderAlignment(0.5f)
 					.AddTextRenderer()
@@ -228,6 +224,7 @@ namespace Vodovoz
 						color = colorYellow;
 					}
 					cell.CellBackgroundGdk = color;
+
 					//Выделение цветом ячейки с заказом, если валидация этого заказа не пройдет при сохранении
 					if(!node.AddressIsValid) {
 						var column = ytreeviewItems.Columns.FirstOrDefault(x => x.Title == "Заказ");
@@ -305,7 +302,7 @@ namespace Vodovoz
 				cell.Foreground = "Black";
 			}
 		}
-
+			
 		public string WaterToClientString(RouteListItem item, int id)
 		{
 			var planned = item.GetGoodsAmountForColumn(id);

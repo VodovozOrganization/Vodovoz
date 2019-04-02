@@ -83,7 +83,7 @@ namespace Vodovoz.Repository
 
 		public static PaymentType[] GetPaymentTypesForCash() => new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld };
 
-		public static PaymentType[] GetPaymentTypesForCashless() => new PaymentType[] { PaymentType.cashless, PaymentType.ByCard ,PaymentType.CourierByCard, PaymentType.barter, PaymentType.ContractDoc };
+		public static PaymentType[] GetPaymentTypesForCashless() => new PaymentType[] { PaymentType.cashless, PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
 
 		public static bool IsCashPayment(PaymentType payment) => GetPaymentTypesForCash().Contains(payment);
 
