@@ -148,12 +148,13 @@ namespace Vodovoz.Tools.Orders
 			var cashless = (key.PaymentType == PaymentType.cashless && key.IsPriceOfAllOrderItemsZero)
 				&& (!key.NeedToRefundDepositToClient || key.NeedToReturnBottles);
 			var byCard = key.PaymentType == PaymentType.ByCard && key.HasOrderItems;
+			var courierByCard = key.PaymentType == PaymentType.CourierByCard&& key.HasOrderItems;
 			var cash = (key.PaymentType == PaymentType.cash || key.PaymentType == PaymentType.BeveragesWorld);
 
 			if(key.IsSelfDelivery) {
 				return (cashless || byCard || cash) && waitForPayment;
 			} else {
-				return (cashless || byCard || cash) && accepted;
+				return (cashless || byCard || cash || courierByCard) && accepted;
 			}
 		}
 
@@ -300,7 +301,7 @@ namespace Vodovoz.Tools.Orders
 				return false;
 			}
 
-			if(key.PaymentType == PaymentType.ByCard &&
+			if((key.PaymentType == PaymentType.ByCard || key.PaymentType == PaymentType.CourierByCard) &&
 			   (key.HasOrderEquipment || (!key.HasOrderEquipment && key.NeedToReturnBottles))) {
 				result = true;
 			}

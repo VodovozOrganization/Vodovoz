@@ -32,6 +32,7 @@
 		WHEN 'cash' THEN 'НАЛ'
 		WHEN 'cashless' THEN 'БЕЗНАЛ'
 		WHEN 'ByCard' THEN 'ПО КАРТЕ'
+        WHEN 'CourierByCard' THEN 'ПО КАРТЕ КУРЬЕРУ'
 		ELSE orders.payment_type
 	END AS pay_type,
 	orders.payment_type AS order_payment_type,
@@ -1650,7 +1651,7 @@ WHERE stored_resource.id = @id1</CommandText>
       <Image Name="Image1">
         <Height>57.44pt</Height>
         <Width>80.87pt</Width>
-        <Left>33.9pt</Left>
+        <Left>31.5pt</Left>
         <Top>12.3pt</Top>
         <Style>
           <BorderStyle />
@@ -1797,6 +1798,7 @@ WHERE stored_resource.id = @id1</CommandText>
           <FontWeight>Bold</FontWeight>
           <FontSize>14pt</FontSize>
         </Style>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox56" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>13.50pt</Height>
@@ -2181,8 +2183,8 @@ WHERE stored_resource.id = @id1</CommandText>
           <Image Name="Image7">
             <Height>33.19pt</Height>
             <Width>58.78pt</Width>
-            <Left>76.80pt</Left>
-            <Top>2.30pt</Top>
+            <Left>76.8pt</Left>
+            <Top>0.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2196,8 +2198,8 @@ WHERE stored_resource.id = @id1</CommandText>
           <Image Name="Image12">
             <Height>24.89pt</Height>
             <Width>59.55pt</Width>
-            <Left>4.80pt</Left>
-            <Top>5.20pt</Top>
+            <Left>4.8pt</Left>
+            <Top>6.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2465,7 +2467,7 @@ WHERE stored_resource.id = @id1</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox39">
                       <Value>=Iif(Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund') &gt;= 0,
-    "Всего получить от клиента: "+Code.SummaString_Val(
+   Iif( First({order_payment_type}, "Order")='CourierByCard' , "Итого к оплате по карте курьеру: ", "Всего получить от клиента: ") +Code.SummaString_Val(
         Convert.ToString(
             Iif(First({order_payment_type}, "Order")!='ByCard',
                 Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
@@ -2533,8 +2535,8 @@ WHERE stored_resource.id = @id1</CommandText>
       <Image Name="Image3">
         <Height>57.98pt</Height>
         <Width>93.37pt</Width>
-        <Left>24.20pt</Left>
-        <Top>82.90pt</Top>
+        <Left>24.2pt</Left>
+        <Top>70.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2794,7 +2796,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>59.41pt</Height>
         <Width>112.14pt</Width>
         <Left>125.7pt</Left>
-        <Top>81.3pt</Top>
+        <Top>70.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3217,7 +3219,7 @@ WHERE stored_resource.id = @id1</CommandText>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>320446</Value>
+          <Value>432099</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -3253,7 +3255,7 @@ WHERE stored_resource.id = @id1</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

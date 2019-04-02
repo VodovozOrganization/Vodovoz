@@ -2489,7 +2489,7 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery) {
 				return;
 			}
-			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard) {
+			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard ) {
 				return;
 			}
 
