@@ -1098,7 +1098,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="txtTotal">
-                      <Value/>
+                      <Value />
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1579,7 +1579,7 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox82">
+                    <Textbox Name="Textbox3">
                       <Value>="Логист: " + {LogisticanLastname} + " " + {LogisticanName}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -1601,7 +1601,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox86">
+                    <Textbox Name="Textbox5">
                       <Value>="Погрузка на складе с " + Format({on_load_start}, "hh\:mm") + " по " + Format({on_load_end}, "hh\\:mm")
 
 +
@@ -1679,7 +1679,7 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox83">
+                    <Textbox Name="Textbox23">
                       <Value>При возникновении проблем звонить в офис по тел. 8(981)701-57-32. СВЕРЬ НАКЛАДНЫЕ С МАРШРУТНЫМ ЛИСТОМ ОБЯЗАТЕЛЬНО!</Value>
                       <Style>
                         <BorderStyle>
@@ -1704,7 +1704,7 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox84">
+                    <Textbox Name="Textbox26">
                       <Value>По окончании доставки отзвон в офис 8(981)701-57-32 ОБЯЗАТЕЛЬНО!</Value>
                       <Style>
                         <BorderStyle>
@@ -1770,10 +1770,10 @@
             <Width>133.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>447.8pt</Width>
+            <Width>370.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>121.4pt</Width>
+            <Width>230.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -1807,7 +1807,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox89">
-                      <Value>ПОДПИСЬ КЛАДОВЩИКА</Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1836,7 +1837,7 @@
                           <Left>None</Left>
                           <Right>None</Right>
                           <Top>None</Top>
-                          <Bottom>Solid</Bottom>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -1889,7 +1890,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox103">
-                      <Value>ПОДПИСЬ ВОДИТЕЛЯ</Value>
+                      <Value>Кладовщик</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1971,7 +1972,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox99">
-                      <Value>Нач. склада</Value>
+                      <Value>Водитель</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -2054,9 +2055,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox114">
-                      <Value>Водитель</Value>
-                      <Style>
+                    <Textbox Name="Textbox34" >
+                      <Value>Нач. склада</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -2213,7 +2214,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
@@ -2378,7 +2379,7 @@ ORDER BY order_in_route
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="RouteListId">
           <DataField>RouteListId</DataField>
           <TypeName>System.UInt32</TypeName>
