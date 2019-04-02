@@ -228,6 +228,14 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref extraCash, value, () => ExtraCash);
 		}
 
+		private string terminalPaymentNumber;
+
+		[Display(Name = "№ оплаты(по терминалу)")]
+		public virtual string TerminalPaymentNumber{
+			get { return terminalPaymentNumber; }
+			set { SetField(ref terminalPaymentNumber, value, () => TerminalPaymentNumber); }
+		}
+
 		decimal driverWage;
 		[Display(Name = "ЗП водителя")]
 		public virtual decimal DriverWage {
