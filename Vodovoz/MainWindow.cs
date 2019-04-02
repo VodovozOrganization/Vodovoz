@@ -477,8 +477,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnAction14Activated(object sender, EventArgs e)
 	{
 		var vm = new EntityCommonRepresentationModelConstructor<IncomeCategory>()
-			.AddSearchColumn("Имя", x => x.Name)
-			.AddSearchColumn("Тип", x => x.IncomeDocumentType.GetEnumTitle())
+			.AddColumn("Имя", x => x.Name).AddSearch(x => x.Name)
+			.AddColumn("Тип", x => x.IncomeDocumentType.GetEnumTitle())
 			.OrderBy(x => x.Name)
 			.Finish();
 		tdiMain.AddTab(new PermissionControlledRepresentationJournal(vm));
@@ -487,8 +487,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnAction15Activated(object sender, EventArgs e)
 	{
 		var vm = new EntityCommonRepresentationModelConstructor<ExpenseCategory>()
-			.AddSearchColumn("Имя", x => x.Name)
-			.AddSearchColumn("Тип", x => x.ExpenseDocumentType.GetEnumTitle())
+			.AddColumn("Имя", x => x.Name).AddSearch(x => x.Name)
+			.AddColumn("Тип", x => x.ExpenseDocumentType.GetEnumTitle())
 			.OrderBy(x => x.Name)
 			.Finish();
 		tdiMain.AddTab(new PermissionControlledRepresentationJournal(vm));
