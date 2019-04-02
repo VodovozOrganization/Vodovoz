@@ -52,7 +52,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 			var filterDriver = new EmployeeFilter(ViewModel.UoW);
 			filterDriver.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false
 			);
 			entryDriver.RepresentationModel = new EmployeesVM(filterDriver);
@@ -60,8 +59,8 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			entryDriver.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			var carVM = new EntityCommonRepresentationModelConstructor<Car>(ViewModel.UoW)
-				.AddSearchColumn("Название", x => x.Title)
-				.AddSearchColumn("Номер", x => x.RegistrationNumber)
+				.AddColumn("Название", x => x.Title).AddSearch(x => x.Title)
+				.AddColumn("Номер", x => x.RegistrationNumber).AddSearch(x => x.RegistrationNumber)
 				.SetFixedRestriction(Restrictions.Where<Car>(x => !x.IsArchive))
 				.Finish();
 			entryCar.RepresentationModel = carVM;

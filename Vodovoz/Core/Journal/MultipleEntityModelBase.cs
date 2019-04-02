@@ -253,6 +253,13 @@ namespace Vodovoz.Core.Journal
 				if(map != null)
 					map.ObjectUpdated -= OnExternalUpdateCommon;
 			}
+
+			foreach(var type in registeredTypes) {
+				IEntityConfig entityConfig = DomainConfiguration.GetEntityConfig(type);
+				if(entityConfig != null) {
+					entityConfig.EntityUpdated -= EntityConfig_EntityUpdated;
+				}
+			}
 		}
 	}
 

@@ -22425,13 +22425,36 @@
                   </packing>
                 </child>
                 <child>
+                  <widget class="Gtk.Label" id="labelTerminalSum">
+                    <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes">По терминалу</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">6</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.VSeparator" id="vseparator11">
+                    <property name="MemberName" />
+                  </widget>
+                  <packing>
+                    <property name="Position">7</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
                   <widget class="Gtk.Label" id="labelOrderEarly">
                     <property name="MemberName" />
                     <property name="Xalign">1</property>
                     <property name="LabelProp" translatable="yes">Сдано ранее:</property>
                   </widget>
                   <packing>
-                    <property name="Position">6</property>
+                    <property name="Position">8</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -22443,7 +22466,7 @@
                     <property name="LabelProp" translatable="yes">Итого сдано</property>
                   </widget>
                   <packing>
-                    <property name="Position">7</property>
+                    <property name="Position">9</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -22458,7 +22481,7 @@
                     <property name="UseMarkup">True</property>
                   </widget>
                   <packing>
-                    <property name="Position">9</property>
+                    <property name="Position">11</property>
                     <property name="AutoSize">False</property>
                   </packing>
                 </child>
@@ -22474,7 +22497,7 @@
                   </widget>
                   <packing>
                     <property name="PackType">End</property>
-                    <property name="Position">10</property>
+                    <property name="Position">12</property>
                     <property name="AutoSize">False</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -22492,7 +22515,7 @@
                   </widget>
                   <packing>
                     <property name="PackType">End</property>
-                    <property name="Position">11</property>
+                    <property name="Position">13</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>

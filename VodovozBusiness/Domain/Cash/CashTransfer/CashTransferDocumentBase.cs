@@ -223,7 +223,7 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 					ExpenseCategory = ExpenseCategory,
 					TypeOperation = ExpenseType.Expense,
 					Money = TransferedSum,
-					RelatedToSubdivision = CashSubdivisionTo,
+					RelatedToSubdivision = CashSubdivisionFrom,
 					CashTransferDocument = this
 				};
 
