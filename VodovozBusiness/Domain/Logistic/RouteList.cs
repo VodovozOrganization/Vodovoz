@@ -13,6 +13,7 @@ using QSProjectsLib;
 using QSSupportLib;
 using QSValidation;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -451,6 +452,14 @@ namespace Vodovoz.Domain.Logistic
 				decimal payedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue).Sum(x => x.PayedForFuel.Value);
 
 				return Total - payedForFuel;
+			}
+		}
+
+		public virtual decimal ByTerminalTotal {
+			get {
+				decimal terminalSum = 0;
+				Addresses.Where((arg) => arg.Order.PaymentType == PaymentType.CourierByCard).ForEach((item) => terminalSum += item.Order.ActualTotalSum);
+				return terminalSum;
 			}
 		}
 
@@ -1044,11 +1053,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual List<BottlesMovementOperation> UpdateBottlesMovementOperation()
 		{
+			const int forfeitId = 33;
+
 			var result = new List<BottlesMovementOperation>();
-			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
+			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered && x.Status != RouteListItemStatus.Canceled).ToList();
 			foreach(RouteListItem address in addresesDelivered) {
 				int amountDelivered = address.Order.OrderItems
-												   .Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
+												   .Where(item => (item.Nomenclature.Category == NomenclatureCategory.water) && !item.Nomenclature.IsDisposableTare)
 												   .Sum(item => item.ActualCount ?? 0);
 				var bottlesMovementOperation = address.Order.BottlesMovementOperation;
 				if(amountDelivered != 0 || address.BottlesReturned != 0) {
@@ -1062,6 +1073,9 @@ namespace Vodovoz.Domain.Logistic
 					bottlesMovementOperation.OperationTime = address.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 					bottlesMovementOperation.Delivered = amountDelivered;
 					bottlesMovementOperation.Returned = address.BottlesReturned;
+					bottlesMovementOperation.Returned += address.Order.OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
+																				 .Select(arg => arg.ActualCount.Value)
+																				 .Sum();
 					address.Order.BottlesMovementOperation = bottlesMovementOperation;
 					result.Add(bottlesMovementOperation);
 

@@ -37,6 +37,7 @@ namespace Vodovoz
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
 		private bool editing = UserPermissionRepository.CurrentUserPresetPermissions["money_manage_cash"];
+		private bool canCloseRoutelist = false;
 		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;
 
@@ -92,7 +93,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			routelistdiscrepancyview.RouteList = Entity;
+			canCloseRoutelist = PermissionRepository.HasAccessToClosingRoutelist();
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 			referenceCar.SubjectType = typeof(Car);
@@ -182,6 +183,12 @@ namespace Vodovoz
 						Amount = 0
 					});
 			}
+
+			routelistdiscrepancyview.RouteList = Entity;
+			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures();
+			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
+			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
+
 			PerformanceHelper.AddTimePoint("Получили возврат на склад");
 			//FIXME Убрать из этого места первоначальное заполнение. Сейчас оно вызывается при переводе статуса на сдачу. После того как не нормально не переведенных в закрытие маршрутников, тут заполение можно убрать.
 			if(!Entity.ClosingFilled)
@@ -195,9 +202,6 @@ namespace Vodovoz
 
 			expander1.Expanded = false;
 
-			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures();
-			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
-			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
 			PerformanceHelper.AddTimePoint("Заполнили расхождения");
 
 			ytreeviewFuelDocuments.ItemsDataSource = Entity.ObservableFuelDocuments;
@@ -459,7 +463,8 @@ namespace Vodovoz
 		{
 			buttonAccept.Sensitive = 
 				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck) 
-				&& Entity.IsConsistentWithUnloadDocument();
+				&& Entity.IsConsistentWithUnloadDocument()
+				&& canCloseRoutelist;
 		}
 
 		private bool buttonFineEditState;
@@ -510,13 +515,18 @@ namespace Vodovoz
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotalCollected.Text = string.Format(
-				"Итоговая сумма: {0} {1}",
+				"Итоговая сумма(нал.): {0} {1}",
 				totalCollected - Entity.PhoneSum,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotal.Markup = string.Format(
 				"Итого сдано: <b>{0:F2}</b> {1}",
 				Entity.MoneyToReturn - GetCashOrder() - (decimal)advanceSpinbutton.Value,
+				CurrencyWorks.CurrencyShortName
+			);
+			labelTerminalSum.Markup = string.Format(
+				"По терминалу: <b>{0:F2}</b> {1}",
+				Entity.ByTerminalTotal,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = string.Format(
@@ -632,7 +642,7 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			if(!IsConsistentWithUnloadDocument()) {
+			if(!IsConsistentWithUnloadDocument() || !canCloseRoutelist) {
 				return;
 			}
 

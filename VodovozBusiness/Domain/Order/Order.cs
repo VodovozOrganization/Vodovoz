@@ -2447,6 +2447,8 @@ namespace Vodovoz.Domain.Orders
 		private void OnChangeStatusToClosed()
 		{
 			SetDepositsActualCounts();
+			if(SelfDelivery)
+				UpdateDepositOperations(UoW);
 		}
 
 		/// <summary>
@@ -2487,7 +2489,7 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery) {
 				return;
 			}
-			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard) {
+			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard ) {
 				return;
 			}
 
@@ -2836,6 +2838,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow)
 		{
+			const int forfeitId = 33;
 			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
 			//не должны создаваться операции перемещения тары
 			if(IsContractCloser)
@@ -2864,6 +2867,9 @@ namespace Vodovoz.Domain.Orders
 				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 				BottlesMovementOperation.Delivered = amountDelivered;
 				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
+				BottlesMovementOperation.Returned += OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
+															   .Select(arg => arg.ActualCount.Value)
+															   .Sum();
 				uow.Save(BottlesMovementOperation);
 			} else if(BottlesMovementOperation != null) {
 				uow.Delete(BottlesMovementOperation);
