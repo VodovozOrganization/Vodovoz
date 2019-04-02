@@ -2447,8 +2447,12 @@ namespace Vodovoz.Domain.Orders
 		private void OnChangeStatusToClosed()
 		{
 			SetDepositsActualCounts();
-			if(SelfDelivery)
+			if(SelfDelivery) 
+			{
 				UpdateDepositOperations(UoW);
+				SetActualCountToSelfDelivery();
+			}
+
 		}
 
 		/// <summary>
@@ -2478,6 +2482,21 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus == OrderStatus.Accepted && UserPermissionRepository.CurrentUserPresetPermissions["allow_load_selfdelivery"]) {
 				ChangeStatus(OrderStatus.OnLoading);
 				LoadAllowedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			}
+		}
+
+		public virtual void SetActualCountToSelfDelivery()
+		{
+			if(!SelfDelivery)
+				return;
+			if(!(OrderStatus == OrderStatus.Closed))
+				return;
+			if(!(OrderStatus == OrderStatus.DeliveryCanceled))
+				return;
+				
+			foreach(var item in OrderItems) 
+			{
+				item.ActualCount = OrderStatus == OrderStatus.Closed ? item.Count : 0;
 			}
 		}
 
