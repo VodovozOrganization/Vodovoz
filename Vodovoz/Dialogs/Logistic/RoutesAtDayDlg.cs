@@ -66,7 +66,7 @@ namespace Vodovoz
 			private set {
 				hasNoChanges = value;
 
-				ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = ytimeToDelivery.Sensitive
+				ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = ytimeToDelivery.Sensitive = ySpnMin19Btls.Sensitive
 					= hasNoChanges;
 			}
 		}
@@ -639,10 +639,13 @@ namespace Vodovoz
 													(withoutLocation.Any() ? ("\n* У заказов отсутствуют координаты: " + string.Join(", ", withoutLocation.Select(x => x.Id.ToString()))) : "")
 												   );
 
+			int.TryParse(ySpnMin19Btls.Text, out int minBtls);
 			ordersAtDay = ordersQuery.Where(x => x.DeliverySchedule != null)
 									 .Where(x => x.DeliverySchedule.To <= ytimeToDelivery.Time)
 									 .Where(x => x.DeliveryPoint != null)
-									 .ToList();
+									 .Where(o => o.TotalDeliveredBottles >= minBtls)
+									 .ToList()
+									 ;
 
 			var outLogisticAreas = ordersAtDay
 				.Where(
@@ -833,7 +836,7 @@ namespace Vodovoz
 				progressOrders.Adjustment.Upper = ordersAtDay.Count;
 				progressOrders.Adjustment.Value = ordersAtDay.Count - addressesWithoutRoutes;
 			}
-			if(ordersAtDay.Count == 0)
+			if(!ordersAtDay.Any())
 				progressOrders.Text = string.Empty;
 			else if(addressesWithoutRoutes == 0)
 				progressOrders.Text = "Готово.";
@@ -1383,7 +1386,7 @@ namespace Vodovoz
 			FillItems();
 		}
 
-		protected void OnYtimeToDeliveryWidgetEvent(object o, WidgetEventArgs args)
+		protected void OnFilterWidgetEvent(object o, WidgetEventArgs args)
 		{
 			if(args.Event.Type == EventType.KeyPress) {
 				EventKey eventKey = args.Args.OfType<EventKey>().FirstOrDefault();
