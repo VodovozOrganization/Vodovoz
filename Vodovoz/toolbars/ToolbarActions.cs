@@ -84,7 +84,7 @@ public partial class MainWindow : Window
 		ActionDeliveryPrice = new Action("ActionDeliveryPrice", "Стоимость доставки", null, null);
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
 		//CRM
-		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач" , null , "table");
+		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
@@ -398,10 +398,10 @@ public partial class MainWindow : Window
 				vm.Filter.SetAndRefilterAtOnce(f => f.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
 				return new ReferenceRepresentation(vm).CustomTabName("Журнал штрафов")
 													  .Buttons(
-						                                  UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"]
-						                                  ? ReferenceButtonMode.CanAll
-						                                  : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
-						                                 );
+														  UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"]
+														  ? ReferenceButtonMode.CanAll
+														  : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
+														 );
 			}
 		);
 	}
@@ -479,8 +479,8 @@ public partial class MainWindow : Window
 				var vm = new RouteListsVM();
 				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
 				return new ReferenceRepresentation(vm).Buttons(
-					UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] 
-					? ReferenceButtonMode.CanAll 
+					UserPermissionRepository.CurrentUserPresetPermissions["can_delete"]
+					? ReferenceButtonMode.CanAll
 					: (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
 				);
 			}
@@ -565,8 +565,12 @@ public partial class MainWindow : Window
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<StockBalanceView>(),
-			() => new StockBalanceView()
+			RepresentationJournalDialog.GenerateHashName<StockBalanceVM>(),
+			() => {
+				var filter = new StockBalanceFilter();
+				filter.SetAndRefilterAtOnce(x => x.ShowArchive = true);
+				return new PermissionControlledRepresentationJournal(new StockBalanceVM(filter));
+			}
 		);
 	}
 
@@ -599,7 +603,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<UndeliveriesView>(),
-			() => { 
+			() => {
 				var view = new UndeliveriesView();
 				view.ButtonMode = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_undeliveries"] ? ReferenceButtonMode.CanAll : ReferenceButtonMode.CanAdd;
 				return view;
