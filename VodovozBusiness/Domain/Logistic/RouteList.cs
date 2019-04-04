@@ -1070,8 +1070,6 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual List<BottlesMovementOperation> UpdateBottlesMovementOperation()
 		{
-			const int forfeitId = 33;
-
 			var result = new List<BottlesMovementOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered && x.Status != RouteListItemStatus.Canceled).ToList();
 			foreach(RouteListItem address in addresesDelivered) {
@@ -1090,9 +1088,14 @@ namespace Vodovoz.Domain.Logistic
 					bottlesMovementOperation.OperationTime = address.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 					bottlesMovementOperation.Delivered = amountDelivered;
 					bottlesMovementOperation.Returned = address.BottlesReturned;
-					bottlesMovementOperation.Returned += address.Order.OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
-																				 .Select(arg => arg.ActualCount.Value)
-																				 .Sum();
+					if(MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) 
+					{
+						if(int.TryParse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"], out int forfeitId)) 
+						{
+							bottlesMovementOperation.Returned += address.Order.OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
+																			   .Select(arg => arg.ActualCount.Value).Sum();
+						}
+					}
 					address.Order.BottlesMovementOperation = bottlesMovementOperation;
 					result.Add(bottlesMovementOperation);
 
