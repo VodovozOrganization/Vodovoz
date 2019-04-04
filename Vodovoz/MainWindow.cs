@@ -89,7 +89,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = UserPermissionRepository.CurrentUserPresetPermissions["access_to_fines_bonuses"];
 		ActionReports.Sensitive = false;
-		ActionServices.Visible = false;
+		//ActionServices.Visible = false;
 		ActionDocTemplates.Visible = QSMain.User.Admin;
 		ActionService.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["database_maintenance"];
 

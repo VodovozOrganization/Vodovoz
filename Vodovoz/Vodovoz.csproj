@@ -501,7 +501,6 @@
     <Compile Include="ViewWidgets\ContactsView.cs" />
     <Compile Include="Dialogs\OrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.StockBalanceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyView.cs" />
     <Compile Include="Representations\StockBalanceVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockBalanceFilter.cs" />
@@ -543,7 +542,6 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimsView.cs" />
     <Compile Include="JournalViewers\WarehouseDocumentsView.cs" />
-    <Compile Include="JournalViewers\StockBalanceView.cs" />
     <Compile Include="JournalViewers\ReadyForShipmentView.cs" />
     <Compile Include="JournalViewers\ServiceClaimsView.cs" />
     <Compile Include="JournalFilters\EmployeeFilter.cs" />
