@@ -592,6 +592,8 @@
     <Compile Include="ViewModelBased\EntityOpenOption.cs" />
     <Compile Include="Filters\IncomeFilter.cs" />
     <Compile Include="Filters\ExpenseFilter.cs" />
+    <Compile Include="Domain\Sale\TariffZone.cs" />
+    <Compile Include="HibernateMapping\Sale\TariffZoneMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

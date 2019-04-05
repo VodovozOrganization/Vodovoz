@@ -1126,6 +1126,8 @@
     <Compile Include="Dialogs\Cash\CashTransfer\CommonCashTransferDocumentViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\FirstClientsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.FirstClientsReport.cs" />
+    <Compile Include="ReportsParameters\TariffZoneDebts.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.TariffZoneDebts.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1698,6 +1700,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Orders\FirstClients.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Client\TariffZoneDebts.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -50,6 +50,12 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
+		TariffZone tariffZone;
+		public virtual TariffZone TariffZone {
+			get => tariffZone;
+			set => SetField(ref tariffZone, value, () => TariffZone);
+		}
+
 		ScheduleRestriction scheduleRestrictionToday;
 
 		public virtual ScheduleRestriction ScheduleRestrictionToday {

@@ -1198,4 +1198,20 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new FirstClientsReport())
 		);
 	}
+	
+	protected void OnActionTariffZoneDebtsReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<TariffZoneDebts>(),
+			() => new QSReport.ReportViewDlg(new TariffZoneDebts())
+		);
+	}
+
+	protected void OnActionTariffZonesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<TariffZone>(),
+			() => new OrmReference(typeof(TariffZone))
+		);
+	}
 }
