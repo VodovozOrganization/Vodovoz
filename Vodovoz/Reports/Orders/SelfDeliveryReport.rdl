@@ -915,8 +915,8 @@ FROM
 WHERE
 	self_delivery = 1
 		AND delivery_date = DATE(@date)
-		AND orders.order_status NOT IN ('Canceled' , 'WaitForPayment')
-		AND warehouses.id != 4 #Не Псков
+		AND orders.order_status NOT IN ('Canceled')
+		AND (warehouses.id != 4 OR warehouses.id IS NULL ) #Не Псков
 GROUP BY orders.id
 ;</CommandText>
         <QueryParameters>
