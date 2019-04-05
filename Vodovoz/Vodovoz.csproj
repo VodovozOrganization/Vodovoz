@@ -1124,6 +1124,8 @@
     <Compile Include="Dialogs\Cash\CashTransfer\CommonCashTransferDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashTransfer.CommonCashTransferDlg.cs" />
     <Compile Include="Dialogs\Cash\CashTransfer\CommonCashTransferDocumentViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\FirstClientsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.FirstClientsReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1314,6 +1316,7 @@
     <Folder Include="Additions\Printing\" />
     <Folder Include="Dialogs\Cash\CashTransfer\" />
     <Folder Include="JournalFilters\QueryFilterViews\" />
+    <Folder Include="ReportsParameters\Orders\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1692,6 +1695,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\CommonCashTransfer.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\FirstClients.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
