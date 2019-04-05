@@ -1539,7 +1539,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -30146,7 +30145,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">3</property>
             <child>
               <widget class="Gtk.VBox" id="vboxInfo">
                 <property name="MemberName" />
@@ -35986,7 +35985,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.SidePanel.InfoViews.CounterpartyPanelView" design-size="268 395">
+  <widget class="Gtk.Bin" id="Vodovoz.SidePanel.InfoViews.CounterpartyPanelView" design-size="315 395">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -36241,7 +36240,6 @@
             <child>
               <widget class="Vodovoz.WrapLabel" id="labelDebt">
                 <property name="MemberName" />
-                <property name="Visible">False</property>
                 <property name="Xalign">0</property>
                 <property name="Yalign">0</property>
                 <property name="LabelProp" translatable="yes">wraplabel3</property>
@@ -36326,8 +36324,7 @@
             <child>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelDebtInfo">
                 <property name="MemberName" />
-                <property name="Visible">False</property>
-                <property name="LabelProp" translatable="yes">Баланс:</property>
+                <property name="LabelProp" translatable="yes">Долг(по клиенту):</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -36389,7 +36386,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.SidePanel.InfoViews.DeliveryPointPanelView" design-size="300 351">
+  <widget class="Gtk.Bin" id="Vodovoz.SidePanel.InfoViews.DeliveryPointPanelView" design-size="340 397">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -36438,10 +36435,25 @@
         <child>
           <widget class="Gtk.Table" id="table2">
             <property name="MemberName" />
-            <property name="NRows">3</property>
+            <property name="NRows">5</property>
             <property name="NColumns">3</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
             <child>
               <widget class="Gtk.Button" id="btnAddPhone">
                 <property name="MemberName" />
@@ -36467,6 +36479,46 @@
               </packing>
             </child>
             <child>
+              <widget class="Vodovoz.WrapLabel" id="debtByClientLabel">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">wraplabel1</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label4">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes"> Долг:</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.Label" id="label5">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
@@ -36475,8 +36527,8 @@
                 <property name="Justify">Center</property>
               </widget>
               <packing>
-                <property name="TopAttach">2</property>
-                <property name="BottomAttach">3</property>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -36495,13 +36547,14 @@
                 <property name="Selectable">True</property>
               </widget>
               <packing>
-                <property name="TopAttach">2</property>
-                <property name="BottomAttach">3</property>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
                 <property name="LeftAttach">1</property>
-                <property name="RightAttach">3</property>
-                <property name="AutoSize">False</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -36546,16 +36599,18 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="lblBottles">
+              <widget class="Vodovoz.WrapLabel" id="lblBottlesQty">
                 <property name="MemberName" />
-                <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Бутылей:</property>
+                <property name="LabelProp" translatable="yes">wraplabel1</property>
                 <property name="Wrap">True</property>
                 <property name="Justify">Center</property>
+                <property name="Selectable">True</property>
               </widget>
               <packing>
-                <property name="TopAttach">1</property>
-                <property name="BottomAttach">2</property>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -36568,21 +36623,36 @@
               </packing>
             </child>
             <child>
-              <widget class="Vodovoz.WrapLabel" id="lblBottlesQty">
+              <widget class="Gamma.GtkWidgets.yLabel" id="ylabel1">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">wraplabel1</property>
-                <property name="Wrap">True</property>
-                <property name="Justify">Center</property>
-                <property name="Selectable">True</property>
+                <property name="LabelProp" translatable="yes">По клиенту :</property>
               </widget>
               <packing>
-                <property name="TopAttach">1</property>
-                <property name="BottomAttach">2</property>
-                <property name="LeftAttach">1</property>
-                <property name="RightAttach">3</property>
-                <property name="AutoSize">False</property>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.GtkWidgets.yLabel" id="ylabel2">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">По адресу:</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
