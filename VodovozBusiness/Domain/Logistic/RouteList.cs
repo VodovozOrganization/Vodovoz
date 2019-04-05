@@ -56,6 +56,8 @@ namespace Vodovoz.Domain.Logistic
 				Employee oldDriver = driver;
 				if(SetField(ref driver, value, () => Driver)) {
 					ChangeFuelDocumentsOnChangeDriver(oldDriver);
+					if(Id == 0 || oldDriver != driver)
+						Forwarder = GetDefaultForwarder(driver);
 				}
 			}
 		}
@@ -482,6 +484,21 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#region Функции
+
+		/// <summary>
+		/// Возврат экспедитора по умолчанию для водителя <paramref name="driver"/>
+		/// </summary>
+		/// <returns>Экспедитор по умолчание если не уволен</returns>
+		/// <param name="driver">Водитель</param>
+		Employee GetDefaultForwarder(Employee driver)
+		{
+			if(driver?.DefaultForwarder?.IsFired == false)
+				return driver.DefaultForwarder;
+			//если больше не с нами,то не нужно его держать умолчальным в водителе
+			if(driver?.DefaultForwarder != null)
+				driver.DefaultForwarder = null;
+			return null;
+		}
 
 		public virtual void ChangeFuelDocumentsChangeCar(Car oldCar)
 		{
