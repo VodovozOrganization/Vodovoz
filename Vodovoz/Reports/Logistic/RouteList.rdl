@@ -2055,7 +2055,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox34" >
+                    <Textbox Name="Textbox34">
                       <Value>Нач. склада</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -2112,21 +2112,26 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="RouteList">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-driver.name AS DriverName, driver.last_name AS DriverLastname, driver_phone.number AS DriverPhone, 
-cars.model AS CarModel,
-cars.reg_number AS CarRegNumber,
-cars.fuel_consumption AS FuelConsumption,
-cars.max_weight,
-fuel_types.name AS FuelType, 
-forwarder.name AS ForwarderName, forwarder.last_name AS ForwarderLastname, forwarder_phone.number AS ForwarderPhone, 
-logistican.name AS LogisticanName, logistican.last_name AS LogisticanLastname,
-route_lists.date as Date,
-route_lists.on_load_start,
-route_lists.on_load_end,
-route_lists.plan_distance
+	driver.name AS DriverName,
+	driver.last_name AS DriverLastname,
+	driver_phone.number AS DriverPhone,
+	cars.model AS CarModel,
+	cars.reg_number AS CarRegNumber,
+	cars.fuel_consumption AS FuelConsumption,
+	cars.max_weight,
+	fuel_types.name AS FuelType,
+	forwarder.name AS ForwarderName,
+	forwarder.last_name AS ForwarderLastname,
+	forwarder_phone.number AS ForwarderPhone,
+	logistican.name AS LogisticanName,
+	logistican.last_name AS LogisticanLastname,
+	route_lists.date AS Date,
+	route_lists.on_load_start,
+	route_lists.on_load_end,
+	route_lists.plan_distance
 FROM route_lists
 LEFT JOIN employees driver ON route_lists.driver_id = driver.id
 LEFT JOIN phones driver_phone ON driver.id = driver_phone.employee_id
@@ -2135,14 +2140,16 @@ LEFT JOIN fuel_types ON fuel_types.id = cars.fuel_type_id
 LEFT JOIN employees forwarder ON route_lists.forwarder_id = forwarder.id
 LEFT JOIN employees logistican ON route_lists.logistican_id = logistican.id
 LEFT JOIN phones forwarder_phone ON forwarder.id = forwarder_phone.employee_id
-WHERE route_lists.id = @route_list_id;</CommandText>
+WHERE route_lists.id = @route_list_id
+LIMIT 1
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="@route_list_id">
             <Value>={?RouteListId}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="DriverName">
           <DataField>DriverName</DataField>
           <TypeName>System.String</TypeName>
