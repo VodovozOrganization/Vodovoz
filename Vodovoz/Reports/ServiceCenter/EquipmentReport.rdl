@@ -19,7 +19,12 @@
       <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.04pt</Height>
         <Width>814.47pt</Width>
-        <Value>="Отчет по оборудованию с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
+        <Value>='Отчет по оборудованию ' +
+Iif(
+    Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") = Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"),
+    'за ' + Format(CDate({?start_date}), "dd.MM.yyyy"),
+    'с ' + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy")
+)</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
@@ -57,19 +62,16 @@
             <Width>126.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>114.9pt</Width>
+            <Width>122.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>107.5pt</Width>
+            <Width>117.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.1pt</Width>
+            <Width>53.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>27.4pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>223.4pt</Width>
+            <Width>226.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -80,7 +82,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>Номер</Value>
+                      <Value>='№ зак.'+'\n'+'Еж.ном.'</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -181,24 +183,6 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox15">
-                      <Value>Еж. ном.</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                      <CanShrink>true</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox17">
                       <Value>Номенклатуры</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -227,7 +211,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>=Fields!order_id.Value</Value>
+                      <Value>={both_numbers}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -253,6 +237,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -269,6 +255,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -285,6 +273,9 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -301,6 +292,9 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -318,22 +312,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox16">
-                      <Value>=Fields!dailynum.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -348,7 +327,11 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
+                        <FontSize >8pt</FontSize>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -390,16 +373,28 @@
 	delivery_points.compiled_address_short AS address,
 	CONCAT_WS(
 		', ',
-		NULLIF(CONCAT_WS(
-			' ', 
-			orders.to_client_text,
-			GROUP_CONCAT(
-				IF(nomenclature.category = 'additional', 
-					CONCAT(nomenclature.official_name, IF(order_items.count &gt; 1, CONCAT(': ', order_items.count, ' шт.'), '')),
-					''
-				) 
-			SEPARATOR ' ')
-		), ' '),
+		NULLIF(
+			CONCAT_WS(
+				' ',
+				orders.to_client_text,
+				GROUP_CONCAT(
+					IF(
+						nomenclature.category = 'additional', 
+						CONCAT(
+							nomenclature.official_name,
+							IF(
+								order_items.count &gt; 1,
+								CONCAT(': ', order_items.count, ' шт.'),
+								''
+							)
+						),
+						''
+					)
+					SEPARATOR ' '
+				)
+			),
+			' '
+		),
 		equipments.equipment_to_client
 	) AS to_client,
 	CONCAT_WS(
@@ -409,8 +404,9 @@
 	) AS from_client,
 	orders.order_status AS status,
 	orders.daily_number_1c AS dailynum,
-	IF(nomenclature.category != 'water', GROUP_CONCAT(DISTINCT CONCAT_WS(' ', nomenclature.name, '-', order_items.count, 'шт.') SEPARATOR ',\n'), '') as nomenclatures,
-	GROUP_CONCAT(gg.name SEPARATOR ', ')
+	CONCAT_WS('\n', orders.id, orders.daily_number_1c) AS both_numbers,
+	IF(nomenclature.category != 'water', GROUP_CONCAT(DISTINCT CONCAT_WS(' ', nomenclature.name, '-', order_items.count, 'шт.') SEPARATOR ',\n'), '') AS nomenclatures,
+	GROUP_CONCAT(DISTINCT gg.name SEPARATOR ', ')
 FROM
 	orders
 		LEFT JOIN
@@ -422,61 +418,65 @@ FROM
 		LEFT JOIN
 		(
 			SELECT
-				order_equipment.order_id as order_id,
+				order_equipment.order_id AS order_id,
 				GROUP_CONCAT(
 					IF(order_equipment.direction = 'Deliver',
 						CONCAT(
 							IFNULL(equip_nomenclature.name, equip_nomenclature.official_name),
+							' ',
+							CONCAT(IFNULL(order_equipment.actual_count, order_equipment.count), 'шт.'),
 							' (',
-							Case
-								when order_equipment.direction_reason = 'Rent' then 'Аренда'
-								when order_equipment.direction_reason = 'Repair' then 'Ремонт'
-								when order_equipment.direction_reason = 'Cleaning' then 'Санобработка'
-								when order_equipment.direction_reason = 'RepairAndCleaning' then 'Ремонт и санобработка'
-								else ''
-							end,
+							CASE
+								WHEN order_equipment.direction_reason = 'Rent' THEN 'Аренда'
+								WHEN order_equipment.direction_reason = 'Repair' THEN 'Ремонт'
+								WHEN order_equipment.direction_reason = 'Cleaning' THEN 'Санобработка'
+								WHEN order_equipment.direction_reason = 'RepairAndCleaning' THEN 'Ремонт и санобработка'
+								ELSE ''
+							END,
 							', ',
-							Case
-								when order_equipment.own_type = 'Client' then 'Клиент'
-								when order_equipment.own_type = 'Duty' then 'Дежурный'
-								when order_equipment.own_type = 'Rent' then 'Аренда'
-								else ''
-							end,
+							CASE
+								WHEN order_equipment.own_type = 'Client' THEN 'Клиент'
+								WHEN order_equipment.own_type = 'Duty' THEN 'Дежурный'
+								WHEN order_equipment.own_type = 'Rent' THEN 'Аренда'
+								ELSE ''
+							END,
 							')'
-						), null)
+						), NULL)
 					SEPARATOR ', '
-				) as equipment_to_client,
+				) AS equipment_to_client,
 				
 				GROUP_CONCAT(
 					IF(order_equipment.direction = 'PickUp',
 						CONCAT(
 							IFNULL(equip_nomenclature.name, equip_nomenclature.official_name),
+							' ',
+							CONCAT(IFNULL(order_equipment.actual_count, order_equipment.count), 'шт.'),
 							' (',
-							Case
-								when order_equipment.direction_reason = 'Rent' then 'Аренда, '
-								when order_equipment.direction_reason = 'Repair' then 'Ремонт, '
-								when order_equipment.direction_reason = 'Cleaning' then 'Санобработка, '
-								when order_equipment.direction_reason = 'RepairAndCleaning' then 'Ремонт и санобработка, '
-								else ''
-							end,
-							Case
-								when order_equipment.own_type = 'Client' then 'Клиент'
-								when order_equipment.own_type = 'Duty' then 'Дежурный'
-								when order_equipment.own_type = 'Rent' then 'Аренда'
-								else ''
-							end,
+							CASE
+								WHEN order_equipment.direction_reason = 'Rent' THEN 'Аренда, '
+								WHEN order_equipment.direction_reason = 'Repair' THEN 'Ремонт, '
+								WHEN order_equipment.direction_reason = 'Cleaning' THEN 'Санобработка, '
+								WHEN order_equipment.direction_reason = 'RepairAndCleaning' THEN 'Ремонт и санобработка, '
+								ELSE ''
+							END,
+							CASE
+								WHEN order_equipment.own_type = 'Client' THEN 'Клиент'
+								WHEN order_equipment.own_type = 'Duty' THEN 'Дежурный'
+								WHEN order_equipment.own_type = 'Rent' THEN 'Аренда'
+								ELSE ''
+							END,
 							')'
 						)
-					, null)
+					, NULL)
 					SEPARATOR ', '
-				) as equipment_from_client
+				) AS equipment_from_client
 			FROM 
 				order_equipment
-				LEFT JOIN
-				nomenclature as equip_nomenclature ON equip_nomenclature.id = order_equipment.nomenclature_id
+			LEFT JOIN
+				nomenclature AS equip_nomenclature ON equip_nomenclature.id = order_equipment.nomenclature_id
 			WHERE equip_nomenclature.category = 'equipment'
 			GROUP BY order_equipment.order_id
-		) as equipments ON equipments.order_id = orders.id
+		) AS equipments ON equipments.order_id = orders.id
 		LEFT JOIN
 	nomenclature ON nomenclature.id = order_items.nomenclature_id
 LEFT JOIN schedule_restricted_districts distr ON delivery_points.schedule_restricted_district_id = distr.id
@@ -550,6 +550,10 @@ GROUP BY orders.id
         </Field>
         <Field Name="nomenclatures">
           <DataField>nomenclatures</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="both_numbers">
+          <DataField>both_numbers</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

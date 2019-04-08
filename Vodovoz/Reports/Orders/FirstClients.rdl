@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>296.926mm</PageHeight>
-  <PageWidth>209.804mm</PageWidth>
+  <PageHeight>209.804mm</PageHeight>
+  <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>5mm</TopMargin>
   <LeftMargin>5mm</LeftMargin>
@@ -20,9 +20,9 @@
     <Height>81.3pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Height>24.05pt</Height>
-        <Width>568.40pt</Width>
-        <Value>='Отчет по не полностью погруженным МЛ ' + Iif(Parameters!start_date = Parameters!end_date, 'за ' + Format(CDate(Parameters!start_date), "dd.MM.yy"), 'с ' + Format(CDate(Parameters!start_date), "dd.MM.yy") + ' по ' + Format(CDate(Parameters!end_date), "dd.MM.yy"))</Value>
+        <Height>24.04pt</Height>
+        <Width>814.59pt</Width>
+        <Value>='Отчет по первичным клиентам ' + Iif({?start_date} = {?end_date}, 'за ' + Format(CDate({?start_date}), "dd.MM.yy"), 'с ' + Format(CDate({?start_date}), "dd.MM.yy") + ' по ' + Format(CDate({?end_date}), "dd.MM.yy"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
@@ -44,16 +44,25 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>233.4pt</Width>
+            <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>211.0pt</Width>
+            <Width>59.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>31.4pt</Width>
+            <Width>180.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>91.6pt</Width>
+            <Width>188.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>97.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>110.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>154.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -63,8 +72,42 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>Заказ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>Склад</Value>
+                      <Value>Наименование клиента</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -81,7 +124,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>Номенклатура</Value>
+                      <Value>Адрес доставки</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -98,28 +141,43 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox2">
-                      <Value>(код)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                    <Textbox Name="Textbox8">
+                      <Value>Контактный телефон</Value>
+                      <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Left>None</Left>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox8">
-                      <Value>Кол-во отгружено</Value>
-                      <Style>
+                    <Textbox Name="Textbox13">
+                      <Value>Основание для скидки </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Комментарий к заказу</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -144,8 +202,43 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>={order_id}+" от "+ Format({delivery_date}, "dd.MM.yy")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>=Iif({wh_name} = null, '(Не в документе погрузки)', {wh_name})</Value>
+                      <Value>={client_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -154,7 +247,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontWeight>=Iif({wh_name} = null, 'Bold', 'Normal')</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -162,7 +255,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>={nom_name}</Value>
+                      <Value>={address_of_delivery}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -178,30 +271,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox3">
-                      <Value>='('+{nom_id}+')'</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>None</Left>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>=Iif(
-    {wh_name} = null,
-    'не отгруж. ' + {count_total} + 'ед.',
-    Format({count_loaded}, '#,##0')+' из '+{count_total}
-)</Value>
+                      <Value>={phone}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -215,58 +286,50 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>={discount}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>={comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
         <Top>28.9pt</Top>
-        <TableGroups>
-          <TableGroup>
-            <Grouping Name="RL">
-              <PageBreakAtStart>false</PageBreakAtStart>
-              <PageBreakAtEnd>false</PageBreakAtEnd>
-              <GroupExpressions>
-                <GroupExpression>={rl_id}</GroupExpression>
-              </GroupExpressions>
-            </Grouping>
-            <Header>
-              <RepeatOnNewPage>false</RepeatOnNewPage>
-              <TableRows>
-                <TableRow>
-                  <Height>.2in</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox16">
-                          <Style>
-                            <BorderStyle>
-                              <Default>None</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>None</Top>
-                              <Bottom>None</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <VerticalAlign>Middle</VerticalAlign>
-                          </Style>
-                          <Value>= 'МЛ №' + {rl_id}
-+ ' от ' + Format({rl_date}, 'dd.MM.yy')
-+ ' (' + {driver_name} + ')'
-</Value>
-                        </Textbox>
-                      </ReportItems>
-                      <ColSpan>4</ColSpan>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Header>
-          </TableGroup>
-        </TableGroups>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -277,8 +340,8 @@
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.05pt</Height>
-        <Width>565.41pt</Width>
+        <Height>11.38pt</Height>
+        <Width>816.84pt</Width>
         <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
@@ -297,86 +360,43 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	rl.date AS rl_date,
-	rl.id AS rl_id,
-	TRIM(
-		BOTH '.'
-		FROM CONCAT_WS(
-			'.',
-			NULLIF(LEFT(drv.name, 1), ''),
-			NULLIF(LEFT(drv.patronymic, 1), ''),
-			drv.last_name
+	o.id AS order_id,
+	o.delivery_date AS delivery_date,
+	c.full_name AS client_name,
+	dp.compiled_address_short AS address_of_delivery,
+	IFNULL(
+		GROUP_CONCAT(
+			DISTINCT
+			CONCAT(dp_ph.number, ' ', IFNULL(dp_ph.name,''))
+			SEPARATOR '\n'
+		),
+		GROUP_CONCAT(
+			DISTINCT
+			CONCAT(c_ph.number, ' ', IFNULL(c_ph.name,''))
+			SEPARATOR '\n'
 		)
-	) AS driver_name,
-	w.name AS wh_name,
-	n.name AS nom_name,
-	nomenclatures_from_rl.nom_id,
-	doc_items.count AS count_loaded,
-	nomenclatures_from_rl.count AS count_total
-FROM route_lists rl
-LEFT JOIN employees drv ON drv.id = rl.driver_id
-LEFT JOIN (
-	SELECT
-		T.nom_id AS nom_id,
-		SUM(T.count) AS count,
-		T.rl_id AS rl_id
-	FROM (
-		SELECT
-			n.id AS nom_id,
-			oi.count AS count,
-			rl.id AS rl_id
-		FROM route_list_addresses rla
-		LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
-		LEFT JOIN orders o ON rla.order_id = o.id
-		LEFT JOIN order_items oi ON oi.order_id = o.id
-		LEFT JOIN nomenclature n ON oi.nomenclature_id = n.id
-		WHERE rl.not_fully_loaded
-			AND rl.date BETWEEN @start_date AND @end_date
-			AND (!rla.was_transfered OR rla.need_to_reload)
-			AND n.category IN (
-				'additional',
-				'equipment',
-				'water',
-				'bottle',
-				'spare_parts',
-				'material'
-			)
-		UNION ALL
-		SELECT
-			oe.nomenclature_id AS nom_id,
-			oe.count AS count,
-			rl.id AS rl_id
-		FROM route_list_addresses rla
-		LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
-		LEFT JOIN orders o ON rla.order_id = o.id
-		LEFT JOIN order_equipment oe ON oe.order_id = o.id
-		LEFT JOIN nomenclature n ON oe.nomenclature_id = n.id
-		WHERE rl.not_fully_loaded
-		AND rl.date BETWEEN @start_date AND @end_date
-		AND (!rla.was_transfered OR rla.need_to_reload)
-			AND oe.direction = 'Deliver'
-	) AS T
-	GROUP BY T.rl_id, T.nom_id
-) AS nomenclatures_from_rl ON nomenclatures_from_rl.rl_id = rl.id
-LEFT JOIN nomenclature n ON n.id = nomenclatures_from_rl.nom_id
-LEFT JOIN (
-	SELECT
-		i.nomenclature_id AS nom_id,
-		SUM(IFNULL(i.amount, 0)) AS count,
-		doc.warehouse_id,
-		doc.route_list_id
-	FROM store_car_load_document_items i
-	LEFT JOIN store_car_load_documents doc ON doc.id = i.car_load_document_id
-	GROUP BY doc.route_list_id, i.nomenclature_id
-) AS doc_items ON doc_items.route_list_id = rl.id AND nomenclatures_from_rl.nom_id = doc_items.nom_id
-LEFT JOIN warehouses w ON w.id = doc_items.warehouse_id
-WHERE rl.not_fully_loaded 
-	AND rl.date BETWEEN @start_date AND @end_date
-	AND (w.id IS NULL OR @warehouse_id = 0 OR w.id = @warehouse_id)
-	AND IFNULL(doc_items.count, -1) != nomenclatures_from_rl.count
+	) AS phone,
+	#GROUP_CONCAT(DISTINCT d.name SEPARATOR ', ') AS discount,
+	(
+		SELECT GROUP_CONCAT(DISTINCT d.name SEPARATOR ', ')
+		FROM order_items i
+		JOIN discount_reasons d ON i.discount_reason_id = d.id
+		WHERE i.order_id = o.id
+	) AS discount,
+	o.comment AS comment
+FROM orders o
+JOIN order_items i ON o.id = i.order_id
+JOIN discount_reasons d ON i.discount_reason_id = d.id
+JOIN counterparty c ON o.id = c.first_order_id
+JOIN delivery_points dp ON dp.id = o.delivery_point_id
+LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
+LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id
+WHERE o.delivery_date BETWEEN @start_date AND @end_date
+AND (@discount_id = 0 OR d.id = @discount_id)
+GROUP BY o.id DESC
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -385,43 +405,39 @@ WHERE rl.not_fully_loaded
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
-          <QueryParameter Name="warehouse_id">
-            <Value>=Parameters!warehouse_id</Value>
+          <QueryParameter Name="discount_id">
+            <Value>=Parameters!discount_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
-        <Field Name="rl_date">
-          <DataField>rl_date</DataField>
+      <Fields >
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
-        <Field Name="rl_id">
-          <DataField>rl_id</DataField>
-          <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="driver_name">
-          <DataField>driver_name</DataField>
+        <Field Name="client_name">
+          <DataField>client_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="wh_name">
-          <DataField>wh_name</DataField>
+        <Field Name="address_of_delivery">
+          <DataField>address_of_delivery</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="nom_name">
-          <DataField>nom_name</DataField>
+        <Field Name="phone">
+          <DataField>phone</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="nom_id">
-          <DataField>nom_id</DataField>
-          <TypeName>System.UInt32</TypeName>
+        <Field Name="discount">
+          <DataField>discount</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="count_loaded">
-          <DataField>count_loaded</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="count_total">
-          <DataField>count_total</DataField>
-          <TypeName>System.Decimal</TypeName>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -433,7 +449,7 @@ WHERE rl.not_fully_loaded
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2019-03-05</Value>
+          <Value>2019-04-04</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -446,7 +462,7 @@ WHERE rl.not_fully_loaded
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2019-03-06</Value>
+          <Value>2019-04-04</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -455,17 +471,18 @@ WHERE rl.not_fully_loaded
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="warehouse_id">
+    <ReportParameter Name="discount_id">
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>0</Value>
+          <Value>16</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
   <DataSources>

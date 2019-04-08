@@ -26,6 +26,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.ScheduleRestrictionFriday).Column("friday_restriction_id").Cascade.All();
 			References(x => x.ScheduleRestrictionSaturday).Column("saturday_restriction_id").Cascade.All();
 			References(x => x.ScheduleRestrictionSunday).Column("sunday_restriction_id").Cascade.All();
+			References(x => x.TariffZone).Column("tariff_zone_id");
 
 			HasMany(x => x.ScheduleRestrictedDistrictRuleItems).Cascade.AllDeleteOrphan().Inverse().KeyColumn("district_id");
 			HasManyToMany(x => x.GeographicGroups).Table("geographic_groups_to_entities")

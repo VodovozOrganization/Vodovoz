@@ -494,8 +494,11 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<ScheduleRestrictedDistrict>()
 				.AddClearDependence<DeliveryPoint>(i => i.District)
-				.AddDeleteDependence<ScheduleRestrictedDistrictRuleItem>(item => item.ScheduleRestrictedDistrict)
-				;
+				.AddDeleteDependence<ScheduleRestrictedDistrictRuleItem>(item => item.ScheduleRestrictedDistrict);
+
+			DeleteConfig.AddHibernateDeleteInfo<TariffZone>()
+				.AddClearDependence<ScheduleRestrictedDistrict>(i => i.TariffZone);
+
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPriceRule>();
 
 			DeleteConfig.AddHibernateDeleteInfo<ScheduleRestrictedDistrictRuleItem>();

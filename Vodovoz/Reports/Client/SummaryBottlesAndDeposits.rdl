@@ -471,30 +471,7 @@ FROM counterparty WHERE id = @client_id;</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    SUM(CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) - IFNULL((SELECT 
-                    SUM(IFNULL(order_items.actual_count, 0))
-                FROM
-                    order_items
-                        LEFT JOIN
-                    orders ON orders.id = order_items.order_id
-                WHERE
-                    orders.client_id = @client_id
-	    AND (@delivery_point_id = - 1
-	    OR orders.delivery_point_id = @delivery_point_id)
-                    AND(order_items.nomenclature_id = (SELECT 
-                              CAST(str_value AS UNSIGNED)
-                           FROM
-                               base_parameters
-                           WHERE
-                               base_parameters.name = 'forfeit_nomenclature_id')
-	      OR order_items.nomenclature_id = (SELECT 
-                 	     CAST(str_value AS UNSIGNED)
-                	   FROM
-                   	     base_parameters
-              	 	   WHERE
-                   	  base_parameters.name = 'forfeit1с_nomenclature_id'))
-	  GROUP BY client_id),
-            0) AS bottle_balance                    
+    SUM(CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) AS bottle_balance                    
 FROM
     bottles_movement_operations
 WHERE
@@ -1014,7 +991,7 @@ WHERE
                             <BorderColor />
                             <BorderWidth />
                           </Style>
-                          <CanGrow >true</CanGrow>
+                          <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -1259,7 +1236,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox41">
-                          <Value>=Sum(Fields!delivered.Value) - Sum(Fields!returned.Value) - Sum(Fields!forfeitCount.Value)</Value>
+                          <Value>=Sum(Fields!delivered.Value) - Sum(Fields!returned.Value) </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
