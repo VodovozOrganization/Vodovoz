@@ -97,6 +97,7 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("accept_cashless_paid_selfdelivery", new PresetUserPermissionSource("accept_cashless_paid_selfdelivery", "Разрешение отметки оплаты самовывоза", "Пользователь может отмечать заказ с самовывозом по безналу как оплаченный"));
 			PermissionsSettings.PresetPermissions.Add("can_edit_logistic_areas", new PresetUserPermissionSource("can_edit_logistic_areas", "Доступ к редактированию логистических районов", "Пользователь может редактировать логистические районы"));
 			PermissionsSettings.PresetPermissions.Add("can_send_not_loaded_route_lists_en_route", new PresetUserPermissionSource("can_send_not_loaded_route_lists_en_route", "Разрешение отправки недогруженых МЛ в путь", "Пользователь может отправлять недогруженные маршрутные листы в путь"));
+			PermissionsSettings.PresetPermissions.Add("can_confirm_mileage_for_our_GAZelles_Larguses", new PresetUserPermissionSource("can_confirm_mileage_for_our_GAZelles_Larguses", "Разрешение подтверждать киллометраж для наших ГАЗелей и Ларгусов", "Разрешение подтверждать киллометраж для наших ГАЗелей и Ларгусов"));
 
 			UserDialog.UserPermissionViewsCreator = delegate {
 				return new List<IUserPermissionTab>() {
