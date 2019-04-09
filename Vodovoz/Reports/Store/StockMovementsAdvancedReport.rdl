@@ -1,0 +1,700 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>296.926mm</PageHeight>
+  <PageWidth>209.804mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>135.0pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Height>24.05pt</Height>
+        <Width>568.40pt</Width>
+        <Value>='Развернутые движения ТМЦ ' + Iif(Parameters!start_date = Parameters!end_date, 'за ' + Format(CDate(Parameters!start_date), "dd.MM.yyyy"), 'с ' + Format(CDate(Parameters!start_date), "dd.MM.yyyy") + ' по ' + Format(CDate(Parameters!end_date), "dd.MM.yyyy"))</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>0.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Table Name="Table1">
+        <DataSetName>Movements</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>389.8pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>37.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>63.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>64.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>={nom_name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right >None</Right>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>='('+{nom_id}+')'</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left >None</Left>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <FontSize >8pt</FontSize>
+                        <TextAlign >Right</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>={unloaded_amount}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <Format >0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>={loaded_amount}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <Format >0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>11.3pt</Left>
+        <Top>26.6pt</Top>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="RLGroup">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression>={route_list_id}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>true</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>27.8pt</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox23">
+                          <Value>= 'МЛ№' + {route_list_id} + ' от ' + Format({date}, 'dd.MM.yyyy') + ' – ' + {driver_name} + ' (' + {reg_number} + ')'</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>None</Default>
+                              <Left>None</Left>
+                              <Right>None</Right>
+                              <Top>None</Top>
+                              <Bottom>None</Bottom>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>11pt</FontSize>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <TextAlign >Center</TextAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>4</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+                <TableRow>
+                  <Height>12.0pt</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox11">
+                          <Value>Номенклатура</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Right >None</Right>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>10pt</FontSize>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>1</ColSpan>
+                    </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox4">
+                          <Value>(код)</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Left >None</Left>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>8pt</FontSize>
+                            <TextAlign>Right</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox17">
+                          <Value>Возврат (+)</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>10pt</FontSize>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox16">
+                          <Value>Отгрузка (-)</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>10pt</FontSize>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>12.1pt</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox14">
+                          <Style>
+                            <BorderStyle>
+                              <Default>None</Default>
+                              <Left>None</Left>
+                              <Right>None</Right>
+                              <Top>None</Top>
+                              <Bottom>None</Bottom>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                          </Style>
+                          <Value>Всего по МЛ:</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan >2</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox15">
+                          <Value>=Sum({unloaded_amount})</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <TextAlign >Center</TextAlign>
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <Format >0</Format>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox13">
+                          <Value>=Sum({loaded_amount})</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <TextAlign >Center</TextAlign>
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <Format >0</Format>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+          </TableGroup>
+        </TableGroups>
+        <Footer >
+          <TableRows>
+            <TableRow>
+              <Height>39.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Bottom</VerticalAlign>
+                        <FontSize>12pt</FontSize>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <Value>='Итого по отчёту отгружено ' + Format(Sum({loaded_amount}), '0') + ' ед., сдано ' + Format(Sum({unloaded_amount}), '0') + ' ед.'</Value>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>4</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+    </ReportItems>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>13.2pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+    <ReportItems>
+      <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.05pt</Height>
+        <Width>565.41pt</Width>
+        <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>0.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <CanShrink>true</CanShrink>
+      </Textbox>
+    </ReportItems>
+  </PageFooter>
+  <DataSets>
+    <DataSet Name="Movements">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>30</Timeout>
+        <CommandText>SELECT
+	noms_from_op.route_list_id,
+	rl.date,
+	CONCAT_WS(
+		'.',
+		NULLIF(SUBSTR(drv.name,1,1),''),
+		NULLIF(SUBSTR(drv.patronymic,1,1),''),
+		drv.last_name
+	) AS driver_name,
+	cars.reg_number,
+	noms_from_op.nom_id,
+	IFNULL(n.name, n.official_name) AS nom_name,
+	noms_from_op.loaded_amount,
+	noms_from_op.unloaded_amount,
+	noms_from_op.wh_id AS warehouse_id
+FROM(
+	#симуляция FULL OUTER JOIN при помощи UNION (начало)
+	SELECT
+		IFNULL(loadings.route_list_id, unloadings.route_list_id) AS route_list_id,
+		IFNULL(loadings.nom_id, unloadings.nom_id) AS nom_id,
+		IFNULL(loadings.amount, 0) AS loaded_amount,
+		IFNULL(unloadings.amount, 0) AS unloaded_amount,
+		IFNULL(unloadings.wh_id, loadings.wh_id) AS wh_id
+	FROM(
+		SELECT
+			ld.route_list_id AS route_list_id,
+			op.nomenclature_id AS nom_id,
+			SUM(op.amount) AS amount,
+			op.writeoff_warehouse_id AS wh_id,
+			'CarLoadDocument' AS type
+		FROM store_car_load_documents ld
+		JOIN store_car_load_document_items ldi ON ld.id = ldi.car_load_document_id
+		JOIN warehouse_movement_operations op ON op.id = ldi.warehouse_movement_operation_id
+		LEFT JOIN route_lists rl ON rl.id = ld.route_list_id
+		WHERE rl.date BETWEEN @start_date AND @end_date
+			AND (
+				(('CarLoadDocument' IN (@doctype_include) AND '0' IN (@doctype_exclude) )
+				OR
+				('CarLoadDocument' NOT IN (@doctype_exclude) AND '0' IN (@doctype_include)))
+				OR ('0' IN (@doctype_include) AND '0' IN (@doctype_exclude))
+			)
+		GROUP BY ld.route_list_id, op.nomenclature_id, op.writeoff_warehouse_id
+	) AS loadings
+	LEFT JOIN (
+		SELECT
+			unld.route_list_id AS route_list_id,
+			op.nomenclature_id AS nom_id,
+			SUM(op.amount) AS amount,
+			op.incoming_warehouse_id AS wh_id,
+			'CarUnloadDocument' AS type
+		FROM store_car_unload_documents unld
+		JOIN store_car_unload_document_items unldi ON unld.id = unldi.car_unload_document_id
+		JOIN warehouse_movement_operations op ON op.id = unldi.warehouse_movement_operation_id
+		LEFT JOIN route_lists rl ON rl.id = unld.route_list_id
+		WHERE rl.date BETWEEN @start_date AND @end_date
+			AND (
+				(('CarUnloadDocument' IN (@doctype_include) AND '0' IN (@doctype_exclude) )
+				OR
+				('CarUnloadDocument' NOT IN (@doctype_exclude) AND '0' IN (@doctype_include)))
+				OR ('0' IN (@doctype_include) AND '0' IN (@doctype_exclude))
+			)
+		GROUP BY unld.route_list_id, op.nomenclature_id, op.incoming_warehouse_id
+	) AS unloadings ON loadings.nom_id = unloadings.nom_id
+		AND loadings.wh_id = unloadings.wh_id
+		AND loadings.route_list_id = unloadings.route_list_id
+	UNION
+	SELECT
+		IFNULL(loadings.route_list_id, unloadings.route_list_id) AS route_list_id,
+		IFNULL(loadings.nom_id, unloadings.nom_id) AS nom_id,
+		IFNULL(loadings.amount, 0) AS loaded_amount,
+		IFNULL(unloadings.amount, 0) AS unloaded_amount,
+		IFNULL(unloadings.wh_id, loadings.wh_id) AS wh_id
+	FROM(
+		SELECT
+			ld.route_list_id AS route_list_id,
+			op.nomenclature_id AS nom_id,
+			SUM(op.amount) AS amount,
+			op.writeoff_warehouse_id AS wh_id,
+			'CarLoadDocument' AS type
+		FROM store_car_load_documents ld
+		JOIN store_car_load_document_items ldi ON ld.id = ldi.car_load_document_id
+		JOIN warehouse_movement_operations op ON op.id = ldi.warehouse_movement_operation_id
+		LEFT JOIN route_lists rl ON rl.id = ld.route_list_id
+		WHERE rl.date BETWEEN @start_date AND @end_date
+			AND (
+				(('CarLoadDocument' IN (@doctype_include) AND '0' IN (@doctype_exclude) )
+				OR
+				('CarLoadDocument' NOT IN (@doctype_exclude) AND '0' IN (@doctype_include)))
+				OR ('0' IN (@doctype_include) AND '0' IN (@doctype_exclude))
+			)
+		GROUP BY ld.route_list_id, op.nomenclature_id, op.writeoff_warehouse_id
+	) AS loadings
+	RIGHT JOIN (
+		SELECT
+			unld.route_list_id AS route_list_id,
+			op.nomenclature_id AS nom_id,
+			SUM(op.amount) AS amount,
+			op.incoming_warehouse_id AS wh_id,
+			'CarUnloadDocument' AS type
+		FROM store_car_unload_documents unld
+		JOIN store_car_unload_document_items unldi ON unld.id = unldi.car_unload_document_id
+		JOIN warehouse_movement_operations op ON op.id = unldi.warehouse_movement_operation_id
+		LEFT JOIN route_lists rl ON rl.id = unld.route_list_id
+		WHERE rl.date BETWEEN @start_date AND @end_date
+			AND (
+				(('CarUnloadDocument' IN (@doctype_include) AND '0' IN (@doctype_exclude) )
+				OR
+				('CarUnloadDocument' NOT IN (@doctype_exclude) AND '0' IN (@doctype_include)))
+				OR ('0' IN (@doctype_include) AND '0' IN (@doctype_exclude))
+			)
+		GROUP BY unld.route_list_id, op.nomenclature_id, op.incoming_warehouse_id
+	) AS unloadings ON loadings.nom_id = unloadings.nom_id
+		AND loadings.wh_id = unloadings.wh_id
+		AND loadings.route_list_id = unloadings.route_list_id
+	#симуляция FULL OUTER JOIN при помощи UNION (конец)
+) AS noms_from_op
+LEFT JOIN route_lists rl ON rl.id = noms_from_op.route_list_id
+LEFT JOIN nomenclature n ON n.id = noms_from_op.nom_id
+LEFT JOIN employees drv ON drv.id = rl.driver_id
+LEFT JOIN cars ON cars.id = rl.car_id
+WHERE (
+			((noms_from_op.wh_id IN (@wh_include) AND 0 IN (@wh_exclude) )
+			OR
+			(noms_from_op.wh_id NOT IN (@wh_exclude) AND 0 IN (@wh_include)))
+			OR (0 IN (@wh_include) AND 0 IN (@wh_exclude))
+		)
+	AND (
+			((noms_from_op.nom_id IN (@nomen_include) AND 0 IN (@nomen_exclude) )
+			OR
+			(noms_from_op.nom_id NOT IN (@nomen_exclude) AND 0 IN (@nomen_include)))
+			OR (0 IN (@nomen_include) AND 0 IN (@nomen_exclude))
+		)
+	AND (
+			((n.category IN (@nomcat_include) AND '0' IN (@nomcat_exclude) )
+			OR
+			(n.category NOT IN (@nomcat_exclude) AND '0' IN (@nomcat_include)))
+			OR ('0' IN (@nomcat_include) AND '0' IN (@nomcat_exclude))
+		)
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomen_include">
+            <Value>=Parameters!nomen_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomen_exclude">
+            <Value>=Parameters!nomen_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomcat_include">
+            <Value>=Parameters!nomcat_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomcat_exclude">
+            <Value>=Parameters!nomcat_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="wh_include">
+            <Value>=Parameters!wh_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="wh_exclude">
+            <Value>=Parameters!wh_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="doctype_include">
+            <Value>=Parameters!doctype_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="doctype_exclude">
+            <Value>=Parameters!doctype_exclude</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="route_list_id">
+          <DataField>route_list_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="driver_name">
+          <DataField>driver_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="reg_number">
+          <DataField>reg_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="nom_id">
+          <DataField>nom_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="nom_name">
+          <DataField>nom_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="loaded_amount">
+          <DataField>loaded_amount</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="unloaded_amount">
+          <DataField>unloaded_amount</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="warehouse_id">
+          <DataField>warehouse_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomen_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomen_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomcat_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomcat_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="wh_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="wh_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="doctype_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="doctype_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_dev_alpha;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+</Report>

@@ -49,6 +49,9 @@ namespace Vodovoz.Dialogs.Logistic
 			TabName = "Районы с графиками доставки";
 			ytreeDistricts.ColumnsConfig = FluentColumnsConfig<ScheduleRestrictedDistrict>.Create()
 				.AddColumn("Название").AddTextRenderer(x => x.DistrictName).Editable()
+				.AddColumn("Тарифная зона").AddComboRenderer(x => x.TariffZone)
+					.SetDisplayFunc(x => x.Name)
+					.FillItems(uow.GetAll<TariffZone>().ToList(), "Нет").Editing()
 				.AddColumn("Мин. бутылей").AddNumericRenderer(x => x.MinBottles)
 				.Adjustment(new Adjustment(1, 0, 1000, 1, 100, 1)).Editing()
 				.AddColumn("Ценообразование").AddEnumRenderer(x => x.PriceType).Editing()

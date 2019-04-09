@@ -4,7 +4,7 @@ namespace Vodovoz
 {
 	public partial class RouteListMileageCheckDlg
 	{
-		private global::Gtk.VBox vbox3;
+		private global::Gtk.VBox vbxMain;
 
 		private global::Gtk.HBox hboxHeader;
 
@@ -69,10 +69,10 @@ namespace Vodovoz
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.RouteListMileageCheckDlg";
 			// Container child Vodovoz.RouteListMileageCheckDlg.Gtk.Container+ContainerChild
-			this.vbox3 = new global::Gtk.VBox();
-			this.vbox3.Name = "vbox3";
-			this.vbox3.Spacing = 6;
-			// Container child vbox3.Gtk.Box+BoxChild
+			this.vbxMain = new global::Gtk.VBox();
+			this.vbxMain.Name = "vbxMain";
+			this.vbxMain.Spacing = 6;
+			// Container child vbxMain.Gtk.Box+BoxChild
 			this.hboxHeader = new global::Gtk.HBox();
 			this.hboxHeader.Name = "hboxHeader";
 			this.hboxHeader.Spacing = 6;
@@ -104,12 +104,12 @@ namespace Vodovoz
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
-			this.vbox3.Add(this.hboxHeader);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hboxHeader]));
+			this.vbxMain.Add(this.hboxHeader);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.hboxHeader]));
 			w5.Position = 0;
 			w5.Expand = false;
 			w5.Fill = false;
-			// Container child vbox3.Gtk.Box+BoxChild
+			// Container child vbxMain.Gtk.Box+BoxChild
 			this.vboxRouteList = new global::Gtk.VBox();
 			this.vboxRouteList.Name = "vboxRouteList";
 			this.vboxRouteList.Spacing = 6;
@@ -393,10 +393,10 @@ namespace Vodovoz
 			w30.Position = 2;
 			w30.Expand = false;
 			w30.Fill = false;
-			this.vbox3.Add(this.vboxRouteList);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.vboxRouteList]));
+			this.vbxMain.Add(this.vboxRouteList);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.vboxRouteList]));
 			w31.Position = 1;
-			this.Add(this.vbox3);
+			this.Add(this.vbxMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

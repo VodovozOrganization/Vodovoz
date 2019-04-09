@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Linq;
+using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QS.Project.Repositories;
+using QS.RepresentationModel.GtkUI;
 using QS.Tdi.Gtk;
 using QSBanks;
 using QSBusinessCommon.Domain;
@@ -30,6 +34,7 @@ using Vodovoz.JournalViewers;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bottles;
 using Vodovoz.ReportsParameters.Logistic;
+using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Representations;
@@ -37,10 +42,6 @@ using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
-using QS.Project.Dialogs.GtkUI;
-using QS.Project.Repositories;
-using QS.RepresentationModel.GtkUI;
-using Gamma.Utilities;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -1187,6 +1188,38 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
 			() => new QSReport.ReportViewDlg(new NotFullyLoadedRouteListsReport())
+		);
+	}
+
+	protected void OnActionFirstClientsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
+			() => new QSReport.ReportViewDlg(new FirstClientsReport())
+		);
+	}
+	
+	protected void OnActionTariffZoneDebtsReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<TariffZoneDebts>(),
+			() => new QSReport.ReportViewDlg(new TariffZoneDebts())
+		);
+	}
+
+	protected void OnActionTariffZonesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<TariffZone>(),
+			() => new OrmReference(typeof(TariffZone))
+		);
+	}
+
+	protected void OnActionStockMovementsAdvancedReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<StockMovementsAdvancedReport>(),
+			() => new QSReport.ReportViewDlg(new StockMovementsAdvancedReport())
 		);
 	}
 }

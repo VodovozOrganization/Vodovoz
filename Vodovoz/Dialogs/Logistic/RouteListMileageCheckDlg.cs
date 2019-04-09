@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dialogs.Logistic;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Repositories;
 using QSValidation;
 using Vodovoz.Domain.Logistic;
-using QS.Project.Repositories;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 
@@ -28,7 +29,10 @@ namespace Vodovoz
 			this.Build();
 			editing = UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
-			TabName = String.Format("Контроль за километражом маршрутного листа №{0}", Entity.Id);
+			TabName = string.Format("Контроль за километражом маршрутного листа №{0}", Entity.Id);
+			var canConfirmMileage = UserPermissionRepository.CurrentUserPresetPermissions["can_confirm_mileage_for_our_GAZelles_Larguses"];
+			editing &= canConfirmMileage || !(Entity.Car.TypeOfUse.HasValue && Entity.Car.IsCompanyHavings && new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Largus }.Contains(Entity.Car.TypeOfUse.Value));
+
 			ConfigureDlg();
 		}
 
@@ -36,6 +40,12 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			if(!editing) {
+				MessageDialogHelper.RunWarningDialog("Не достаточно прав. Обратитесь к руководителю.");
+				UoWGeneric.CanCheckIfDirty = false;
+				HasChanges = false;
+				vbxMain.Sensitive = false;
+			}
 			referenceCar.SubjectType = typeof(Car);
 			referenceCar.ItemsQuery = CarRepository.ActiveCarsQuery();
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
@@ -44,8 +54,9 @@ namespace Vodovoz
 
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 
-			var filterLogistican = new EmployeeFilter(UoW);
-			filterLogistican.ShowFired = false;
+			var filterLogistican = new EmployeeFilter(UoW) {
+				ShowFired = false
+			};
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 
@@ -85,33 +96,6 @@ namespace Vodovoz
 
 			ytreeviewAddresses.ItemsDataSource = items;
 			entryMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Text).InitializeFromSource();
-		}
-
-		private void UpdateSensitivity()
-		{
-			if(Entity.Status != RouteListStatus.MileageCheck) {
-				vboxRouteList.Sensitive = false;
-				buttonSave.Sensitive = false;
-
-				HasChanges = false;
-
-				return;
-			}
-
-			referenceCar.Sensitive = false;
-			referenceDriver.Sensitive = false;
-			referenceForwarder.Sensitive = false;
-			speccomboShift.Sensitive = false;
-
-			referenceLogistican.Sensitive = editing;
-			datePickerDate.Sensitive = editing;
-			yspinConfirmedDistance.Sensitive = editing && Entity.Status != RouteListStatus.Closed;
-
-			if(Entity.Status == RouteListStatus.MileageCheck) {
-				buttonAccept.Sensitive = editing;
-			} else {
-				buttonAccept.Sensitive = false;
-			}
 		}
 
 		#endregion

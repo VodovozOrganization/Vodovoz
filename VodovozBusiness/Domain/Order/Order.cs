@@ -2857,7 +2857,6 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow)
 		{
-			const int forfeitId = 33;
 			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
 			//не должны создаваться операции перемещения тары
 			if(IsContractCloser)
@@ -2886,9 +2885,14 @@ namespace Vodovoz.Domain.Orders
 				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 				BottlesMovementOperation.Delivered = amountDelivered;
 				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
-				BottlesMovementOperation.Returned += OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
-															   .Select(arg => arg.ActualCount.Value)
-															   .Sum();
+				if(MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) 
+				{
+					if(int.TryParse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"], out int forfeitId)) 
+					{
+						BottlesMovementOperation.Returned += OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
+																		   .Select(arg => arg.ActualCount.Value).Sum();
+					}
+				}
 				uow.Save(BottlesMovementOperation);
 			} else if(BottlesMovementOperation != null) {
 				uow.Delete(BottlesMovementOperation);
