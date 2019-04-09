@@ -70,7 +70,12 @@ namespace Vodovoz.Dialogs
 			var valid = new QSValidator<CallTask>(Entity);
 			valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel);
 			if(valid.IsValid) {
-				UoW.Save(Entity);
+				if(Entity.Id > 0) {
+					UoW.Session.Merge(Entity);
+					UoW.Save(UoW.GetById<CallTask>(Entity.Id));
+				} else {
+					UoW.Save(Entity);
+				}
 				UoW.Commit();
 				SaveDlgState = true;
 				OnCloseTab(false);
