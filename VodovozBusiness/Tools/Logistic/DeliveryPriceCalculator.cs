@@ -90,7 +90,7 @@ namespace Vodovoz.Tools.Logistic
 				var point = new Point((double)latitude, (double)longitude);
 				var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
 				result.DistrictName = district?.DistrictName ?? string.Empty;
-				result.WarehousesList = string.Join(", ", district.GeographicGroups.Select(w => w.Name));
+				result.WarehousesList = district != null ? string.Join(", ", district.GeographicGroups.Select(w => w.Name)) : "Неизвестно";
 				result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
 				result.WithPrice = (
 					(district != null && district.PriceType != DistrictWaterPrice.ByDistance)
