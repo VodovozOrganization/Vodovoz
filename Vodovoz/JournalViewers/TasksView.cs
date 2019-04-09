@@ -226,7 +226,8 @@ namespace Vodovoz.JournalViewers
 				if(CheckOpedDlg(task)) 
 				{
 					task.AssignedEmployee = entryreferencevmEmployeeFilter.Subject as Employee;
-					UoW.Save(task);
+					UoW.Session.Merge(task);
+					UoW.Save(UoW.GetById<CallTask>(task.Id));
 					UoW.Commit();
 				}
 			});
@@ -239,7 +240,8 @@ namespace Vodovoz.JournalViewers
 				if(CheckOpedDlg(task)) 
 				{
 					task.IsTaskComplete = true;
-					UoW.Save(task);
+					UoW.Session.Merge(task);
+					UoW.Save(UoW.GetById<CallTask>(task.Id));
 					UoW.Commit();
 				}
 			});
@@ -252,7 +254,8 @@ namespace Vodovoz.JournalViewers
 				if(CheckOpedDlg(task)) 
 				{
 					task.TaskState = (CallTaskStatus)taskStatusComboBox.SelectedItem;
-					UoW.Save(task);
+					UoW.Session.Merge(task);
+					UoW.Save(UoW.GetById<CallTask>(task.Id));
 					UoW.Commit();
 				}
 			});
