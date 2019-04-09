@@ -336,7 +336,6 @@ namespace Vodovoz.Tools.Logistic
 				ok = result?.Code == "Ok";
 				if(ok && result.Routes.Any()) {
 					cachedValue = new CachedDistance {
-						Created = DateTime.Now,
 						DistanceMeters = result.Routes.First().TotalDistance,
 						TravelTimeSec = result.Routes.First().TotalTimeSeconds,
 						FromGeoHash = fromHash,
@@ -348,7 +347,6 @@ namespace Vodovoz.Tools.Logistic
 				ok = result.Status == 0;
 				if(ok){
 					cachedValue = new CachedDistance {
-						Created = DateTime.Now,
 						DistanceMeters = result.RouteSummary.TotalDistance,
 						TravelTimeSec = result.RouteSummary.TotalTimeSeconds,
 						FromGeoHash = fromHash,
