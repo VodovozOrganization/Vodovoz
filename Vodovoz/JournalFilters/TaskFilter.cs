@@ -14,8 +14,8 @@ namespace Vodovoz.JournalFilters
 		{
 			this.Build();
 			FilterChanged += () => {
-				if(StartDate != null) dateperiodpickerFilter.StartDate = StartDate.Value;
-				if(StartDate != null) dateperiodpickerFilter.EndDate = EndDate.Value;
+				if(StartActivePerionDate != null) dateperiodpickerFilter.StartDate = StartActivePerionDate.Value;
+				if(StartActivePerionDate != null) dateperiodpickerFilter.EndDate = EndActivePeriodDate.Value;
 			};
 			EmployeesVM employeeVM = new EmployeesVM();
 			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
@@ -26,47 +26,62 @@ namespace Vodovoz.JournalFilters
 
 		public Employee Employee { get { return entryreferencevmEmployee.Subject as Employee; } }
 
-		public DateTime? StartDate;
+		public DateTime? StartActivePerionDate;
 
-		public DateTime? EndDate;
+		public DateTime? EndActivePeriodDate;
+
+		public DateTime? StartTaskCreateDate;
+
+		public DateTime? EndTaskCreateDate;
 
 		protected void OnButtonExpiredClicked(object sender, EventArgs e)
 		{
-			StartDate = DateTime.Now.AddDays(-15);
-			EndDate = DateTime.Now;
+			StartActivePerionDate = DateTime.Now.AddDays(-15);
+			EndActivePeriodDate = DateTime.Now;
 			FilterChanged?.Invoke();
 		}
 
 		protected void OnButtonTodayClicked(object sender, EventArgs e)
 		{
-			StartDate = DateTime.Now.Date;
-			EndDate = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(59);
+			StartActivePerionDate = DateTime.Now.Date;
+			EndActivePeriodDate = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(59);
 			FilterChanged?.Invoke();
 		}
 
 		protected void OnButtonTomorrowClicked(object sender, EventArgs e)
 		{
-			StartDate = DateTime.Now.Date.AddDays(1);
-			EndDate = DateTime.Now.Date.AddDays(1).AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(59);
+			StartActivePerionDate = DateTime.Now.Date.AddDays(1);
+			EndActivePeriodDate = DateTime.Now.Date.AddDays(1).AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(59);
 			FilterChanged?.Invoke();
 		}
 
 		protected void OnButtonThisWeekClicked(object sender, EventArgs e)
 		{
-			DateHelper.GetWeekPeriod(out StartDate, out EndDate, 0);
+			DateHelper.GetWeekPeriod(out StartActivePerionDate, out EndActivePeriodDate, 0);
 			FilterChanged?.Invoke();
 		}
 	
 		protected void OnButtonNextWeekClicked(object sender, EventArgs e)
 		{
-			DateHelper.GetWeekPeriod(out StartDate, out EndDate, 1);
+			DateHelper.GetWeekPeriod(out StartActivePerionDate, out EndActivePeriodDate, 1);
 			FilterChanged?.Invoke();
 		}
 
 		protected void OnDateperiodpickerFilterPeriodChangedByUser(object sender, EventArgs e)
 		{
-			StartDate = dateperiodpickerFilter.StartDateOrNull;
-			EndDate = dateperiodpickerFilter.EndDateOrNull;
+			StartTaskCreateDate = null;
+			EndTaskCreateDate = null;
+			StartActivePerionDate = dateperiodpickerFilter.StartDateOrNull;
+			EndActivePeriodDate = dateperiodpickerFilter.EndDateOrNull?.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(59);
+			FilterChanged?.Invoke();
+		}
+
+		protected void OnDateperiodpickerCompleteDateStartDateChanged(object sender, EventArgs e)
+		{
+			StartActivePerionDate = null;
+			EndActivePeriodDate = null;
+			StartTaskCreateDate = dateperiodpickerFilter.StartDateOrNull;
+			EndTaskCreateDate = dateperiodpickerFilter.EndDateOrNull?.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(59);
 			FilterChanged?.Invoke();
 		}
 

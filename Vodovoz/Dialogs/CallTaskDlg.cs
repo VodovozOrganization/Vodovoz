@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -24,10 +25,10 @@ namespace Vodovoz.Dialogs
 		{
 			this.Build();
 			UoW = uow;
-			TabName = "Новый обзвон";
+			TabName = "Новая задача";
 			Entity = new CallTask {
-				DateOfTaskCreation = DateTime.Now,
-				Deadline = DateTime.Now.AddDays(1)
+				CreationDate = DateTime.Now,
+				EndActivePeriod = DateTime.Now.AddDays(1)
 			};
 			createTaskButton.Sensitive = false;
 			ConfigureDlg();
@@ -38,7 +39,7 @@ namespace Vodovoz.Dialogs
 			this.Build();
 			UoW = uow;
 			Entity =callTask;
-			TabName = Entity.Address.Counterparty.Name;
+			TabName = Entity.Client?.Name;
 			ConfigureDlg();
 		}
 
@@ -47,8 +48,11 @@ namespace Vodovoz.Dialogs
 			TaskStateComboBox.ItemsEnum = typeof(CallTaskStatus);
 			TaskStateComboBox.Binding.AddBinding(Entity, s => s.TaskState, w => w.SelectedItemOrNull).InitializeFromSource();
 			IsTaskCompleteButton.Binding.AddBinding(Entity, s => s.IsTaskComplete, w => w.Active).InitializeFromSource();
-			deadlineYdatepicker.Binding.AddBinding(Entity, s => s.Deadline, w => w.Date).InitializeFromSource();
+			IsTaskCompleteButton.Label += Entity.CompleteDate?.ToString("dd / MM / yyyy  HH:mm");
+			deadlineYdatepicker.Binding.AddBinding(Entity, s => s.EndActivePeriod, w => w.Date).InitializeFromSource();
 			ytextviewComments.Binding.AddBinding(Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
+			yentryTareReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			yentryTareReturn.Binding.AddBinding(Entity, s => s.TareReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			EmployeesVM employeeVM = new EmployeesVM();
 			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
@@ -56,7 +60,7 @@ namespace Vodovoz.Dialogs
 			EmployeeyEntryreferencevm.Binding.AddBinding(Entity, s => s.AssignedEmployee, w => w.Subject).InitializeFromSource();
 
 			deliveryPointYentryreferencevm.RepresentationModel = new DeliveryPointsVM();
-			deliveryPointYentryreferencevm.Binding.AddBinding(Entity, s => s.Address, w => w.Subject).InitializeFromSource();
+			deliveryPointYentryreferencevm.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
 			employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			ClientPhonesview.UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -69,8 +73,10 @@ namespace Vodovoz.Dialogs
 		{
 			var valid = new QSValidator<CallTask>(Entity);
 			valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel);
+			Entity.TaskCreator = employee;
 			if(valid.IsValid) {
-				UoW.Save(Entity);
+				UoW.Session.Merge(Entity);
+				UoW.Save(UoW.GetById<CallTask>(Entity.Id));
 				UoW.Commit();
 				SaveDlgState = true;
 				OnCloseTab(false);
@@ -80,15 +86,17 @@ namespace Vodovoz.Dialogs
 
 		private void UpdateAddressFields()
 		{
-			if(Entity.Address != null) {
-				yentryCounterparty.Text = Entity.Address.Counterparty.Name;
-				debtByAddressEntry.Text = BottlesRepository.GetBottlesAtDeliveryPoint(UoW, Entity.Address).ToString();
-				debtByClientEntry.Text = BottlesRepository.GetBottlesAtCounterparty(UoW, Entity.Address.Counterparty).ToString();
-				entryReserve.Text = Entity.Address.BottleReserv.ToString();
-				ClientPhonesview.Phones = Entity.Address.Phones;
-				ytextviewOldComments.Buffer.Text = CallTasksRepository.GetCommentsByDeliveryPoint(UoW, Entity.Address, Entity);
+			if(Entity.DeliveryPoint != null) 
+			{
+				yentryCounterparty.Text = Entity.Client?.Name;
+				debtByAddressEntry.Text = BottlesRepository.GetBottlesAtDeliveryPoint(UoW, Entity.DeliveryPoint).ToString();
+				debtByClientEntry.Text = BottlesRepository.GetBottlesAtCounterparty(UoW, Entity.Client).ToString();
+				entryReserve.Text = Entity.DeliveryPoint.BottleReserv.ToString();
+				ClientPhonesview.Phones = Entity.DeliveryPoint.Phones;
+				ytextviewOldComments.Buffer.Text = CallTasksRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
 			} 
-			else {
+			else 
+			{
 				debtByAddressEntry.Text = String.Empty;
 				debtByClientEntry.Text = String.Empty;
 				entryReserve.Text = String.Empty;
@@ -132,7 +140,7 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonCreateOrderClicked(object sender, EventArgs e)
 		{
-			if(Entity.Address == null)
+			if(Entity.DeliveryPoint == null)
 				return;
 			OrderDlg orderDlg = new OrderDlg();
 			TabParent.AddSlaveTab(this, orderDlg);

@@ -6,7 +6,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Client
 {
-	public class CallTask : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class CallTask : PropertyChangedBase, ITask
 	{
 		public virtual int Id { get; set; }
 
@@ -14,18 +14,18 @@ namespace Vodovoz.Domain.Client
 
 		public virtual int DebtByClient { get; set; }
 
-		public virtual int ClientId { get { return Address.Counterparty.Id; } }
+		public virtual int ClientId { get { return Client != null ? Client.Id : -1; } }
 
 		public virtual string Phones { get {
 				string phones = null;
-				foreach(var phone in Address.Phones) {
+				foreach(var phone in DeliveryPoint.Phones) {
 					if(phones == null)
 						phones = phone.Number;
 					else
-						phones +=Environment.NewLine + phone.Number;
+						phones += Environment.NewLine + phone.Number;
 				}
 				return phones;
-			} 
+			}
 		}
 
 		string comment;
@@ -35,13 +35,15 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref comment, value, () => Comment); }
 		}
 
-		DeliveryPoint address;
+		DeliveryPoint deliveryPoint;
 		[Display(Name = "Aдрес клиента")]
-		public virtual DeliveryPoint Address {
-			get { return address; }
-			set { SetField(ref address, value, () => Address); }
+		public virtual DeliveryPoint DeliveryPoint {
+			get { return deliveryPoint; }
+			set { SetField(ref deliveryPoint, value, () => DeliveryPoint); }
 		}
 
+		[Display(Name = "Клиент")]
+		public virtual Counterparty Client { get { return DeliveryPoint?.Counterparty; } set { } }
 
 		CallTaskStatus taskState;
 		[Display(Name = "Статус")]
@@ -50,18 +52,28 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref taskState, value, () => TaskState); }
 		}
 
-		DateTime dateOfTaskCreation;
+		DateTime creationDate;
 		[Display(Name = "Дата создания задачи")]
-		public virtual DateTime DateOfTaskCreation {
-			get { return dateOfTaskCreation; }
-			set { SetField(ref dateOfTaskCreation, value, () => DateOfTaskCreation); }
+		public virtual DateTime CreationDate {
+			get { return creationDate; }
+			set { SetField(ref creationDate, value, () => CreationDate); }
 		}
 
-		DateTime deadline;
+		DateTime? completeDate;
+		[Display(Name = "Дата выполнения задачи")]
+		public virtual DateTime? CompleteDate {
+			get { return completeDate; }
+			set { SetField(ref completeDate, value, () => CompleteDate); }
+		}
+
+		[Display(Name = "Период активности задачи (начало)")]
+		public virtual DateTime StartActivePeriod { get { return EndActivePeriod.AddDays(-1); } set { } }
+
+		DateTime endActivePeriod;
 		[Display(Name = "Срок выполнения задачи")]
-		public virtual DateTime Deadline {
-			get { return deadline; }
-			set { SetField(ref deadline, value, () => Deadline); }
+		public virtual DateTime EndActivePeriod {
+			get { return endActivePeriod; }
+			set { SetField(ref endActivePeriod, value, () => EndActivePeriod); }
 		}
 
 		Employee assignedEmployee;
@@ -71,37 +83,55 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref assignedEmployee, value, () => AssignedEmployee); }
 		}
 
+		Employee taskCreator;
+		[Display(Name = "Создатель задачи")]
+		public virtual Employee TaskCreator {
+			get { return taskCreator; }
+			set { SetField(ref taskCreator, value, () => TaskCreator); }
+		}
+
 		bool isTaskComplete;
 		[Display(Name = "Статус выполнения задачи")]
 		public virtual bool IsTaskComplete {
 			get { return isTaskComplete; }
-			set { SetField(ref isTaskComplete, value, () => IsTaskComplete); }
-		}		
+			set { 
+				SetField(ref isTaskComplete, value, () => IsTaskComplete);
+				completeDate =  isTaskComplete ? DateTime.Now as DateTime?  : null ;
+			}
+		}
+
+		int tareReturn;
+		[Display(Name = "Количество тары на сдачу")]
+		public virtual int TareReturn {
+			get { return tareReturn; }
+			set { SetField(ref tareReturn, value, () => TareReturn); }
+		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Address == null)
+			if(DeliveryPoint == null)
 				yield return new ValidationResult("Должна быть выбрана точка доставки", new[] { "Address" });
 		}
 
-		public virtual CallTask CreateNewTask() //TODO : Возможно переделать на фабрику
+		public virtual CallTask CreateNewTask()
 		{
-			CallTask task = new CallTask();
-			task.Address = Address;
-			task.DateOfTaskCreation = DateTime.Now;
-			task.Deadline = DateTime.Now.AddDays(1);
-			task.AssignedEmployee = AssignedEmployee;
+			CallTask task = new CallTask {
+				DeliveryPoint = DeliveryPoint,
+				CreationDate = DateTime.Now,
+				EndActivePeriod = DateTime.Now.AddDays(1),
+				AssignedEmployee = AssignedEmployee
+			};
 			return task;
 		}
 
-		public virtual CallTask CreateCopy() //TODO : Возможно переделать на фабрику
+		public virtual CallTask CreateCopy()
 		{
 			CallTask copy = new CallTask {
-				Address = Address,
+				DeliveryPoint = DeliveryPoint,
 				AssignedEmployee = AssignedEmployee,
 				Comment = Comment,
-				DateOfTaskCreation = DateOfTaskCreation,
-				Deadline = Deadline,
+				CreationDate = CreationDate,
+				EndActivePeriod = EndActivePeriod,
 				DebtByAddress = DebtByAddress,
 				DebtByClient = DebtByClient,
 				Id = Id,
@@ -116,11 +146,11 @@ namespace Vodovoz.Domain.Client
 			if(prevState == null)
 				return;
 
-			Address = prevState.Address;
+			DeliveryPoint = prevState.DeliveryPoint;
 			AssignedEmployee = prevState.AssignedEmployee;
 			Comment = prevState.Comment;
-			DateOfTaskCreation = prevState.DateOfTaskCreation;
-			Deadline = prevState.Deadline;
+			CreationDate = prevState.CreationDate;
+			EndActivePeriod = prevState.EndActivePeriod;
 			DebtByAddress = prevState.DebtByAddress;
 			DebtByClient = prevState.DebtByClient;
 			IsTaskComplete = prevState.IsTaskComplete;
@@ -143,5 +173,30 @@ namespace Vodovoz.Domain.Client
 		public CallTaskStatusStringType() : base(typeof(CallTaskStatus))
 		{
 		}
+	}
+
+	public interface ITask : IDomainObject
+	{
+		Counterparty Client { get; set; }
+
+		DeliveryPoint DeliveryPoint { get; set; }
+
+		DateTime CreationDate { get; set; }
+
+		DateTime? CompleteDate { get; set; }
+
+		DateTime StartActivePeriod { get; set; }
+
+		DateTime EndActivePeriod{ get; set; }
+
+		bool IsTaskComplete { get; set; }
+
+		Employee AssignedEmployee { get; set; }
+
+		Employee TaskCreator { get; set; }
+
+		string Comment { get; set; }
+
+		string Phones { get; }
 	}
 }

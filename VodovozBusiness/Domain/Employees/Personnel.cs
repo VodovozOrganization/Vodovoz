@@ -8,6 +8,7 @@ using System.Reflection;
 using NLog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Utilities.Text;
 using QSBanks;
 using QSProjectsLib;
 
@@ -238,7 +239,7 @@ namespace Vodovoz.Domain.Employees
 
 		[Display(Name = "Фамилия и инициалы")]
 		public virtual string ShortName {
-			get { return StringWorks.PersonNameWithInitials(LastName, Name, Patronymic); }
+			get { return PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic); }
 		}
 
 		public virtual string Title {

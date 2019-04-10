@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
@@ -14,6 +13,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.JournalFilters;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Representations
 {
@@ -35,10 +35,10 @@ namespace Vodovoz.Representations
 			CallTask taskAlias = null;
 			Domain.Orders.Order orderAlias = null;
 
-			var pointsQuery = UoW.Session.QueryOver<DeliveryPoint>(() => deliveryPointAlias)
+			var pointsQuery = UoW.Session.QueryOver(() => deliveryPointAlias)
 			.Where(() => deliveryPointAlias.IsActive == true);
 
-			var bottleDebtByAddressQuery = UoW.Session.QueryOver<BottlesMovementOperation>(() => bottlesMovementAlias)
+			var bottleDebtByAddressQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
 			.Where(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
@@ -47,12 +47,12 @@ namespace Vodovoz.Representations
 					Projections.Sum(() => bottlesMovementAlias.Delivered)}
 				));
 
-			var residueQuery = UoW.Session.QueryOver<Residue>(() => residueAlias)
+			var residueQuery = UoW.Session.QueryOver(() => residueAlias)
 			.Where(() => residueAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 			.Select((res) => res.Id) 
 			.Take(1);
 
-			var bottleDebtByClientQuery = UoW.Session.QueryOver<BottlesMovementOperation>(() => bottlesMovementAlias)
+			var bottleDebtByClientQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
 			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
@@ -61,15 +61,15 @@ namespace Vodovoz.Representations
 								Projections.Sum(() => bottlesMovementAlias.Delivered)}
 				));
 
-			var LastOrderQuery = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias)
+			var LastOrderQuery = UoW.Session.QueryOver(() => orderAlias)
 				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointOrderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where((x) => x.DeliveryPoint.Id == deliveryPointAlias.Id)
 				.Select((x) => x.DeliveryDate)
 				.OrderBy(() => orderAlias.Id).Desc
 				.Take(1);
 
-			var TaskExistQuery = UoW.Session.QueryOver<CallTask>(() => taskAlias)
-				.Where(x => x.Address.Id == deliveryPointAlias.Id)
+			var TaskExistQuery = UoW.Session.QueryOver(() => taskAlias)
+				.Where(x => x.DeliveryPoint.Id == deliveryPointAlias.Id)
 				.Select(x => x.Id)
 				.Take(1);
 
@@ -146,11 +146,14 @@ namespace Vodovoz.Representations
 
 		public void CreateTask(BottleDebtorsVMNode[] bottleDebtors)
 		{
-			foreach(var item in bottleDebtors) {
-				CallTask task = new CallTask();
-				task.Address = UoW.GetById<DeliveryPoint>(item.AddressId);
-				task.DateOfTaskCreation = DateTime.Now;
-				task.Deadline = DateTime.Now.AddDays(1);
+			foreach(var item in bottleDebtors) 
+			{
+				CallTask task = new CallTask {
+					TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(UoW),
+					DeliveryPoint = UoW.GetById<DeliveryPoint>(item.AddressId),
+					CreationDate = DateTime.Now,
+					EndActivePeriod = DateTime.Now.AddDays(1)
+				};
 				UoW.Save(task);
 			}
 			UoW.Commit();
