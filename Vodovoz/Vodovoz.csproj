@@ -1128,6 +1128,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.FirstClientsReport.cs" />
     <Compile Include="ReportsParameters\TariffZoneDebts.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.TariffZoneDebts.cs" />
+    <Compile Include="ReportsParameters\Store\StockMovementsAdvancedReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.StockMovementsAdvancedReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1703,6 +1705,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Client\TariffZoneDebts.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\StockMovementsAdvancedReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

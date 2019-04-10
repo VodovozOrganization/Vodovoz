@@ -28,6 +28,7 @@ namespace Vodovoz.Dialogs
 			TabName = "Новая задача";
 			Entity = new CallTask {
 				CreationDate = DateTime.Now,
+				TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(UoW) ,
 				EndActivePeriod = DateTime.Now.AddDays(1)
 			};
 			createTaskButton.Sensitive = false;
@@ -52,7 +53,7 @@ namespace Vodovoz.Dialogs
 			deadlineYdatepicker.Binding.AddBinding(Entity, s => s.EndActivePeriod, w => w.Date).InitializeFromSource();
 			ytextviewComments.Binding.AddBinding(Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
 			yentryTareReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			yentryTareReturn.Binding.AddBinding(Entity, s => s.TareReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			yentryTareReturn.Text = Entity.TareReturn.ToString();
 
 			EmployeesVM employeeVM = new EmployeesVM();
 			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
@@ -75,8 +76,12 @@ namespace Vodovoz.Dialogs
 			valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel);
 			Entity.TaskCreator = employee;
 			if(valid.IsValid) {
-				UoW.Session.Merge(Entity);
-				UoW.Save(UoW.GetById<CallTask>(Entity.Id));
+				if(Entity.Id > 0) {
+					UoW.Session.Merge(Entity);
+					UoW.Save(UoW.GetById<CallTask>(Entity.Id));
+				} else {
+					UoW.Save(Entity);
+				}
 				UoW.Commit();
 				SaveDlgState = true;
 				OnCloseTab(false);
@@ -152,5 +157,13 @@ namespace Vodovoz.Dialogs
 			CallTaskDlg newTask = new CallTaskDlg(UnitOfWorkFactory.CreateWithoutRoot(), task);
 			OpenSlaveTab(newTask);
 		}
+
+		protected void OnYentryTareReturnChanged(object sender, EventArgs e)
+		{
+			if(Int32.TryParse(yentryTareReturn.Text, out int result)) {
+				Entity.TareReturn = result;
+			}
+		}
+
 	}
 }
