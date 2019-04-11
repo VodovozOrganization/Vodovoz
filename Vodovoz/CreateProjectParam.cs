@@ -235,11 +235,24 @@ namespace Vodovoz
 			#endregion
 
 			#region Простые справочники
-			OrmMain.AddObjectDescription<DiscountReason>().DefaultTableView().SearchColumn("Название", x => x.Name).End();
+			OrmMain.AddObjectDescription<DiscountReason>()
+				   .DefaultTableView()
+				   .SearchColumn("Название", x => x.Name)
+				   .End();
 			OrmMain.AddObjectDescription<GeographicGroup>()
 				   .DefaultTableView()
 				   .SearchColumn("Название", x => x.Name)
 				   .Column("Код", x => x.Id.ToString())
+				   .End();
+			OrmMain.AddObjectDescription<TariffZone>()
+				   .DefaultTableView()
+				   .SearchColumn("Номер", x => x.Id.ToString())
+				   .SearchColumn("Название", x => x.Name)
+				   .End();
+			OrmMain.AddObjectDescription<NonReturnReason>()
+				   .DefaultTableView()
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .SearchColumn("Название", x => x.Name)
 				   .End();
 			#endregion
 
@@ -283,10 +296,6 @@ namespace Vodovoz
 				   .OrderAsc(x => x.Id)
 				   .End();
 			OrmMain.AddObjectDescription<StoredImageResource>().Dialog<ImageLoaderDlg>().DefaultTableView()
-				   .SearchColumn("Номер", x => x.Id.ToString())
-				   .SearchColumn("Название", x => x.Name)
-				   .End();
-			OrmMain.AddObjectDescription<TariffZone>().DefaultTableView()
 				   .SearchColumn("Номер", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();

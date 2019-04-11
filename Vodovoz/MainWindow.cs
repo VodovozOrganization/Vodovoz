@@ -1222,4 +1222,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new StockMovementsAdvancedReport())
 		);
 	}
+
+	protected void OnActionNonReturnReasonsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<NonReturnReason>(),
+			() => new OrmReference(typeof(NonReturnReason))
+		);
+	}
 }

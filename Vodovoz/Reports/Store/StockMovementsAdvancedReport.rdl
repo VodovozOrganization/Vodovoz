@@ -48,7 +48,7 @@
           <TableColumn>
             <Width>389.8pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>37.0pt</Width>
           </TableColumn>
           <TableColumn>
@@ -70,29 +70,29 @@
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Right >None</Right>
+                          <Right>None</Right>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
                       <Value>='('+{nom_id}+')'</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Left >None</Left>
+                          <Left>None</Left>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontSize >8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -107,9 +107,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <Format >0</Format>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -122,11 +122,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <Format >0</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -169,7 +169,7 @@
                             <FontWeight>Bold</FontWeight>
                             <FontSize>11pt</FontSize>
                             <VerticalAlign>Bottom</VerticalAlign>
-                            <TextAlign >Center</TextAlign>
+                            <TextAlign>Center</TextAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -187,7 +187,7 @@
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Right >None</Right>
+                              <Right>None</Right>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
@@ -200,14 +200,14 @@
                       </ReportItems>
                       <ColSpan>1</ColSpan>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox4">
                           <Value>(код)</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Left >None</Left>
+                              <Left>None</Left>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
@@ -284,7 +284,7 @@
                           <Value>Всего по МЛ:</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan >2</ColSpan>
+                      <ColSpan>2</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -297,9 +297,9 @@
                             <BorderColor />
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
-                            <TextAlign >Center</TextAlign>
-                            <VerticalAlign >Middle</VerticalAlign>
-                            <Format >0</Format>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <Format>0</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -315,9 +315,9 @@
                             <BorderColor />
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
-                            <TextAlign >Center</TextAlign>
-                            <VerticalAlign >Middle</VerticalAlign>
-                            <Format >0</Format>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <Format>0</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -328,7 +328,7 @@
             </Footer>
           </TableGroup>
         </TableGroups>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>39.9pt</Height>
@@ -389,7 +389,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Movements">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -564,7 +564,7 @@ WHERE (
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -688,11 +688,11 @@ WHERE (
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_dev_alpha;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

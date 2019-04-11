@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
 using QS.Dialog;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
-using QSProjectsLib;
 using QSReport;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -26,19 +26,13 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчёт по движению бутылей";
-			}
-		}
+		public string Title => "Отчёт по движению бутылей";
 
 		#endregion
 
 		void OnUpdate(bool hide = false)
 		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
 		ReportInfo GetReportInfo()
@@ -56,11 +50,10 @@ namespace Vodovoz.ReportsParameters.Bottles
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
 			if(dateperiodpicker.StartDateOrNull == null) {
-				MessageDialogWorks.RunErrorDialog("Необходимо выбрать период.");
+				MessageDialogHelper.RunErrorDialog("Необходимо выбрать период.");
 				return;
 			}
 			OnUpdate(true);
 		}
-
 	}
 }
