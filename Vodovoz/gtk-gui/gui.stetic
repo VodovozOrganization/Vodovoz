@@ -21669,7 +21669,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.VBox" id="vbox3">
+                      <widget class="Gtk.VBox" id="vbxFuelTickets">
                         <property name="MemberName" />
                         <property name="Spacing">6</property>
                         <child>

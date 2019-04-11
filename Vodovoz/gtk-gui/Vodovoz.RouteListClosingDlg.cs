@@ -54,7 +54,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.ySpecComboBox speccomboShift;
 
-		private global::Gtk.VBox vbox3;
+		private global::Gtk.VBox vbxFuelTickets;
 
 		private global::Gtk.Label GtkLabel19;
 
@@ -444,21 +444,21 @@ namespace Vodovoz
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.vbox3 = new global::Gtk.VBox();
-			this.vbox3.Name = "vbox3";
-			this.vbox3.Spacing = 6;
-			// Container child vbox3.Gtk.Box+BoxChild
+			this.vbxFuelTickets = new global::Gtk.VBox();
+			this.vbxFuelTickets.Name = "vbxFuelTickets";
+			this.vbxFuelTickets.Spacing = 6;
+			// Container child vbxFuelTickets.Gtk.Box+BoxChild
 			this.GtkLabel19 = new global::Gtk.Label();
 			this.GtkLabel19.Name = "GtkLabel19";
 			this.GtkLabel19.Xalign = 0F;
 			this.GtkLabel19.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Выдача топлива</b>");
 			this.GtkLabel19.UseMarkup = true;
-			this.vbox3.Add(this.GtkLabel19);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.GtkLabel19]));
+			this.vbxFuelTickets.Add(this.GtkLabel19);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbxFuelTickets[this.GtkLabel19]));
 			w26.Position = 0;
 			w26.Expand = false;
 			w26.Fill = false;
-			// Container child vbox3.Gtk.Box+BoxChild
+			// Container child vbxFuelTickets.Gtk.Box+BoxChild
 			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
 			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -468,10 +468,10 @@ namespace Vodovoz
 			this.ytreeviewFuelDocuments.Events = ((global::Gdk.EventMask)(256));
 			this.ytreeviewFuelDocuments.Name = "ytreeviewFuelDocuments";
 			this.GtkScrolledWindow3.Add(this.ytreeviewFuelDocuments);
-			this.vbox3.Add(this.GtkScrolledWindow3);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.GtkScrolledWindow3]));
+			this.vbxFuelTickets.Add(this.GtkScrolledWindow3);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbxFuelTickets[this.GtkScrolledWindow3]));
 			w28.Position = 1;
-			// Container child vbox3.Gtk.Box+BoxChild
+			// Container child vbxFuelTickets.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox();
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
@@ -505,13 +505,13 @@ namespace Vodovoz
 			w32.Position = 1;
 			w32.Expand = false;
 			w32.Fill = false;
-			this.vbox3.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox2]));
+			this.vbxFuelTickets.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbxFuelTickets[this.hbox2]));
 			w33.Position = 2;
 			w33.Expand = false;
 			w33.Fill = false;
-			this.table1.Add(this.vbox3);
-			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1[this.vbox3]));
+			this.table1.Add(this.vbxFuelTickets);
+			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1[this.vbxFuelTickets]));
 			w34.BottomAttach = ((uint)(7));
 			w34.LeftAttach = ((uint)(4));
 			w34.RightAttach = ((uint)(5));
