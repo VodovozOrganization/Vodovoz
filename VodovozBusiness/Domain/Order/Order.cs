@@ -504,14 +504,6 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref onRouteEditReason, value, () => OnRouteEditReason); }
 		}
 
-		/*ReasonType reasonType;
-
-		[Display(Name = "Тип причины")]
-		public virtual ReasonType ReasonType {
-			get { return reasonType; }
-			set { SetField(ref reasonType, value, () => ReasonType); }
-		}*/
-
 		DriverCallType driverCallType;
 
 		[Display(Name = "Водитель отзвонился")]
