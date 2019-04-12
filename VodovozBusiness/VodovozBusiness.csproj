@@ -596,6 +596,10 @@
     <Compile Include="HibernateMapping\Sale\TariffZoneMap.cs" />
     <Compile Include="Domain\Order\NonReturnReason.cs" />
     <Compile Include="HibernateMapping\Order\NonReturnReasonMap.cs" />
+    <Compile Include="Domain\Order\PromotionalSet.cs" />
+    <Compile Include="Domain\Order\PromotionalSetItem.cs" />
+    <Compile Include="HibernateMapping\Order\PromotionalSetMap.cs" />
+    <Compile Include="HibernateMapping\Order\PromotionalSetItemMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
