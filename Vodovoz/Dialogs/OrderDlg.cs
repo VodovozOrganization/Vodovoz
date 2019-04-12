@@ -136,7 +136,7 @@ namespace Vodovoz
 			Entity.CommentLogist = templateOrder.CommentLogist;
 			Entity.PaymentType = templateOrder.PaymentType;
 			Entity.ClientPhone = templateOrder.ClientPhone;
-			Entity.ReasonType = templateOrder.ReasonType;
+			Entity.TareNonReturnReason = templateOrder.TareNonReturnReason;
 			Entity.BillDate = templateOrder.BillDate;
 			Entity.BottlesReturn = templateOrder.BottlesReturn;
 			Entity.CollectBottles = templateOrder.CollectBottles;
@@ -312,8 +312,10 @@ namespace Vodovoz
 			enumDiverCallType.Binding.AddBinding(Entity, s => s.DriverCallType, w => w.SelectedItem).InitializeFromSource();
 
 			referenceDriverCallId.Binding.AddBinding(Entity, e => e.DriverCallId, w => w.Subject).InitializeFromSource();
-			enumReasonType.ItemsEnum = typeof(ReasonType);
-			enumReasonType.Binding.AddBinding(Entity, s => s.ReasonType, w => w.SelectedItem).InitializeFromSource();
+
+			ySpecCmbNonReturnReason.ItemsList = UoW.Session.QueryOver<NonReturnReason>().List();
+			ySpecCmbNonReturnReason.Binding.AddBinding(Entity, e => e.TareNonReturnReason, w => w.SelectedItem).InitializeFromSource();
+			ySpecCmbNonReturnReason.ItemSelected += (sender, e) => Entity.IsTareNonReturnReasonChangedByUser = true;
 
 			if(Entity.DeliveryPoint == null && !string.IsNullOrWhiteSpace(Entity.Address1c)) {
 				var deliveryPoint = Counterparty.DeliveryPoints.FirstOrDefault(d => d.Address1c == Entity.Address1c);
@@ -1945,11 +1947,6 @@ namespace Vodovoz
 				var max = UoW.Session.QueryOver<Order>().Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DriverCallId)).SingleOrDefault<int>();
 				Entity.DriverCallId = max != 0 ? max + 1 : 1;
 			}
-		}
-
-		protected void OnEnumReasonTypeChangedByUser(object sender, EventArgs e)
-		{
-			Entity.IsReasonTypeChangedByUser = true;
 		}
 
 		protected void OnEntryBottlesReturnChanged(object sender, EventArgs e)

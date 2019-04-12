@@ -15,167 +15,126 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    byOrders.*,
-    (SELECT 
-            COUNT(*) = 0
-        FROM
-            route_lists
-        WHERE
-            route_lists.date = byOrders.date
-                AND route_lists.status &lt;&gt; 'Closed') AS all_closed,
-    (SELECT 
-            IFNULL(SUM(warehouse_movement_operations.amount), 0)
-        FROM
-            route_lists
-                INNER JOIN
-            store_car_load_documents ON store_car_load_documents.route_list_id = route_lists.id
-                INNER JOIN
-            store_car_load_document_items ON store_car_load_document_items.car_load_document_id = store_car_load_documents.id
-                INNER JOIN
-            warehouse_movement_operations ON store_car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-                INNER JOIN
-            nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-        WHERE
-            route_lists.date = byOrders.date
-                AND ((nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare)
-                OR nomenclature.category = 'bottle')
-                AND nomenclature.is_new_bottle = 0
-                AND nomenclature.is_defective_bottle = 0) AS car_load_count,
-    (SELECT 
-            IFNULL(SUM(warehouse_movement_operations.amount), 0)
-        FROM
-            route_lists
-                INNER JOIN
-            store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
-                INNER JOIN
-            store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-                INNER JOIN
-            warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-                INNER JOIN
-            nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-        WHERE
-            route_lists.date = byOrders.date
-                AND ((nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare)
-                OR nomenclature.category = 'bottle')
-                AND nomenclature.is_new_bottle = 0
-                AND nomenclature.is_defective_bottle = 0) AS car_unload_count,
-    (SELECT 
-            IFNULL(SUM(warehouse_movement_operations.amount),
-                        0)
-        FROM
-            route_lists
-                INNER JOIN
-            store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
-                INNER JOIN
-            store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-                INNER JOIN
-            warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-                INNER JOIN
-            nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-        WHERE
-            route_lists.date = byOrders.date
-                AND nomenclature.category = 'bottle'
-                AND nomenclature.is_defective_bottle = 1) + (SELECT 
-            IFNULL(SUM(warehouse_movement_operations.amount),
-                        0)
-        FROM
-            store_incoming_invoice
-                INNER JOIN
-            store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
-                INNER JOIN
-            warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
-                INNER JOIN
-            nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-        WHERE
-            store_incoming_invoice.time_stamp &gt;= byOrders.date
-                AND store_incoming_invoice.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
-                AND nomenclature.category = 'bottle'
-                AND nomenclature.is_defective_bottle = 1) + (SELECT 
-            IFNULL(SUM(warehouse_movement_operations.amount),
-                        0)
-        FROM
-            store_inventory
-                INNER JOIN
-            store_inventory_item ON store_inventory_item.store_inventory_id = store_inventory.id
-                INNER JOIN
-            warehouse_movement_operations ON store_inventory_item.warehouse_movement_operation_id = warehouse_movement_operations.id
-                INNER JOIN
-            nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-        WHERE
-            store_inventory.time_stamp &gt;= byOrders.date
-                AND store_inventory.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
-                AND nomenclature.category = 'bottle'
-                AND nomenclature.is_defective_bottle = 1) + (SELECT 
-            IFNULL(SUM(warehouse_movement_operations.amount),
-                        0)
-        FROM
-            store_regrading_of_goods
-                INNER JOIN
-            store_regrading_of_goods_items ON store_regrading_of_goods_items.store_regrading_of_goods_id = store_regrading_of_goods.id
-                INNER JOIN
-            warehouse_movement_operations ON store_regrading_of_goods_items.warehouse_income_operation_id = warehouse_movement_operations.id
-                INNER JOIN
-            nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-        WHERE
-            store_regrading_of_goods.time_stamp &gt;= byOrders.date
-                AND store_regrading_of_goods.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
-                AND nomenclature.category = 'bottle'
-                AND nomenclature.is_defective_bottle = 1) AS defective_count,
-    (SELECT 
-            IFNULL(SUM(warehouse_movement_operations.amount),
-                        0)
-        FROM
-            route_lists
-                INNER JOIN
-            store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
-                INNER JOIN
-            store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-                INNER JOIN
-            warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-                INNER JOIN
-            nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-        WHERE
-            route_lists.date = byOrders.date
-                AND nomenclature.category = 'bottle'
-                AND nomenclature.is_new_bottle = 1) + (SELECT 
-            IFNULL(SUM(warehouse_movement_operations.amount),
-                        0)
-        FROM
-            store_incoming_invoice
-                INNER JOIN
-            store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
-                INNER JOIN
-            warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
-                INNER JOIN
-            nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-        WHERE
-            store_incoming_invoice.time_stamp &gt;= byOrders.date
-                AND store_incoming_invoice.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
-                AND nomenclature.category = 'bottle'
-                AND nomenclature.is_new_bottle = 1) AS new_bottle_count
-FROM
-    (SELECT 
-        route_lists.date,
-            SUM(IF(orders.reason_type = 'NewAddress' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.delivered, 0)) AS delivered_NewAddress,
-            SUM(IF(orders.reason_type = 'NewAddress' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.returned, 0)) AS returned_NewAddress,
-            SUM(IF(orders.reason_type = 'OrderIncrease' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.delivered, 0)) AS delivered_OrderIncrease,
-            SUM(IF(orders.reason_type = 'OrderIncrease' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.returned, 0)) AS returned_OrderIncrease,
-            SUM(IF(orders.reason_type = 'FirstOrder' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.delivered, 0)) AS delivered_FirstOrder,
-            SUM(IF(orders.reason_type = 'FirstOrder' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.returned, 0)) AS returned_FirstOrder,
-            SUM(IF(orders.reason_type = 'Unknown' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.delivered, 0)) AS delivered_Unknown,
-            SUM(IF(orders.reason_type = 'Unknown' AND bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.returned, 0)) AS returned_Unknown,
-            SUM(IF(bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.delivered, 0)) AS delivered_All,
-            SUM(If(bottles_movement_operations.delivered &gt; bottles_movement_operations.returned, bottles_movement_operations.returned, 0)) AS returned_All
-    FROM
-        route_lists
-     LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-    LEFT JOIN orders ON route_list_addresses.order_id = orders.id AND route_list_addresses.was_transfered = 0
-    LEFT JOIN bottles_movement_operations ON orders.bottles_movement_operation_id = bottles_movement_operations.id
-    WHERE
-        route_lists.date &gt;= @start_date
-            AND route_lists.date &lt;= @end_date
-    GROUP BY route_lists.date) byOrders</CommandText>
+        <CommandText>SELECT
+	byOrders.*,
+	(
+		SELECT COUNT(*) = 0
+		FROM route_lists
+		WHERE route_lists.date = byOrders.date AND route_lists.status != 'Closed'
+	) AS all_closed,
+	(
+		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		FROM route_lists
+		INNER JOIN store_car_load_documents ON store_car_load_documents.route_list_id = route_lists.id
+		INNER JOIN store_car_load_document_items ON store_car_load_document_items.car_load_document_id = store_car_load_documents.id
+		INNER JOIN warehouse_movement_operations ON store_car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		WHERE route_lists.date = byOrders.date
+			AND (nomenclature.category = 'water' AND !nomenclature.is_disposable_tare OR nomenclature.category = 'bottle')
+			AND nomenclature.is_new_bottle = 0
+			AND nomenclature.is_defective_bottle = 0
+	) AS car_load_count,
+	(
+		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		FROM route_lists
+		INNER JOIN store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
+		INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+		INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		WHERE route_lists.date = byOrders.date
+			AND (nomenclature.category = 'water' AND !nomenclature.is_disposable_tare OR nomenclature.category = 'bottle')
+			AND nomenclature.is_new_bottle = 0
+			AND nomenclature.is_defective_bottle = 0
+	) AS car_unload_count,
+	(
+		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		FROM route_lists
+		INNER JOIN store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
+		INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+		INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		WHERE route_lists.date = byOrders.date
+			AND nomenclature.category = 'bottle'
+			AND nomenclature.is_defective_bottle = 1
+	) +
+	(
+		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		FROM store_incoming_invoice
+		INNER JOIN store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
+		INNER JOIN warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
+		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		WHERE store_incoming_invoice.time_stamp &gt;= byOrders.date
+			AND store_incoming_invoice.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
+			AND nomenclature.category = 'bottle'
+			AND nomenclature.is_defective_bottle = 1
+	) +
+	(
+		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		FROM store_inventory
+		INNER JOIN store_inventory_item ON store_inventory_item.store_inventory_id = store_inventory.id
+		INNER JOIN warehouse_movement_operations ON store_inventory_item.warehouse_movement_operation_id = warehouse_movement_operations.id
+		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		WHERE store_inventory.time_stamp &gt;= byOrders.date
+			AND store_inventory.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
+			AND nomenclature.category = 'bottle'
+			AND nomenclature.is_defective_bottle = 1
+	) +
+	(
+		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		FROM store_regrading_of_goods
+		INNER JOIN store_regrading_of_goods_items ON store_regrading_of_goods_items.store_regrading_of_goods_id = store_regrading_of_goods.id
+		INNER JOIN warehouse_movement_operations ON store_regrading_of_goods_items.warehouse_income_operation_id = warehouse_movement_operations.id
+		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		WHERE store_regrading_of_goods.time_stamp &gt;= byOrders.date
+			AND store_regrading_of_goods.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
+			AND nomenclature.category = 'bottle'
+			AND nomenclature.is_defective_bottle = 1
+	) AS defective_count,
+	(
+		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		FROM route_lists
+		INNER JOIN store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
+		INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+		INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		WHERE route_lists.date = byOrders.date
+			AND nomenclature.category = 'bottle'
+			AND nomenclature.is_new_bottle = 1
+	) +
+	(
+		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		FROM store_incoming_invoice
+		INNER JOIN store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
+		INNER JOIN warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
+		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		WHERE store_incoming_invoice.time_stamp &gt;= byOrders.date
+			AND store_incoming_invoice.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
+			AND nomenclature.category = 'bottle'
+			AND nomenclature.is_new_bottle = 1
+	) AS new_bottle_count
+FROM(
+		SELECT
+			route_lists.date,
+			r.name,
+			SUM(IF(
+					bottles_movement_operations.delivered &gt; bottles_movement_operations.returned,
+					bottles_movement_operations.delivered,
+					0
+			)) AS delivered,
+			SUM(IF(
+					bottles_movement_operations.delivered &gt; bottles_movement_operations.returned,
+					bottles_movement_operations.returned,
+					0
+			)) AS returned
+		FROM route_lists
+		LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+		JOIN orders ON route_list_addresses.order_id = orders.id AND route_list_addresses.was_transfered = 0
+		LEFT JOIN non_return_reasons r ON orders.tare_non_return_reason_id = r.id
+		LEFT JOIN bottles_movement_operations ON orders.bottles_movement_operation_id = bottles_movement_operations.id
+		WHERE route_lists.date BETWEEN @start_date AND @end_date
+		GROUP BY route_lists.date, r.id
+) byOrders
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
@@ -190,44 +149,16 @@ FROM
           <DataField>date</DataField>
           <rd:TypeName>System.DateTime</rd:TypeName>
         </Field>
-        <Field Name="delivered_NewAddress">
-          <DataField>delivered_NewAddress</DataField>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="delivered">
+          <DataField>delivered</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
-        <Field Name="returned_NewAddress">
-          <DataField>returned_NewAddress</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="delivered_OrderIncrease">
-          <DataField>delivered_OrderIncrease</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="returned_OrderIncrease">
-          <DataField>returned_OrderIncrease</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="delivered_FirstOrder">
-          <DataField>delivered_FirstOrder</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="returned_FirstOrder">
-          <DataField>returned_FirstOrder</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="delivered_Unknown">
-          <DataField>delivered_Unknown</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="returned_Unknown">
-          <DataField>returned_Unknown</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="delivered_All">
-          <DataField>delivered_All</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="returned_All">
-          <DataField>returned_All</DataField>
+        <Field Name="returned">
+          <DataField>returned</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
         <Field Name="all_closed">
@@ -249,6 +180,175 @@ FROM
         <Field Name="new_bottle_count">
           <DataField>new_bottle_count</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Totals">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	date,
+	car_unload_count-car_load_count-SUM(T1.returned - T1.delivered) AS total_came,
+	car_unload_count-car_load_count AS wh_delta,
+	defective_count AS defective_total,
+	car_unload_count-car_load_count-defective_count AS total_lost,
+	new_bottle_count AS new_bottles_total
+FROM(
+	SELECT
+		byOrders.*,
+		(
+			SELECT COUNT(*) = 0
+			FROM route_lists
+			WHERE route_lists.date = byOrders.date AND route_lists.status != 'Closed'
+		) AS all_closed,
+		(
+			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			FROM route_lists
+			INNER JOIN store_car_load_documents ON store_car_load_documents.route_list_id = route_lists.id
+			INNER JOIN store_car_load_document_items ON store_car_load_document_items.car_load_document_id = store_car_load_documents.id
+			INNER JOIN warehouse_movement_operations ON store_car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			WHERE route_lists.date = byOrders.date
+				AND (nomenclature.category = 'water' AND !nomenclature.is_disposable_tare OR nomenclature.category = 'bottle')
+				AND nomenclature.is_new_bottle = 0
+				AND nomenclature.is_defective_bottle = 0
+		) AS car_load_count,
+		(
+			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			FROM route_lists
+			INNER JOIN store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
+			INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+			INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			WHERE route_lists.date = byOrders.date
+				AND (nomenclature.category = 'water' AND !nomenclature.is_disposable_tare OR nomenclature.category = 'bottle')
+				AND nomenclature.is_new_bottle = 0
+				AND nomenclature.is_defective_bottle = 0
+		) AS car_unload_count,
+		(
+			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			FROM route_lists
+			INNER JOIN store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
+			INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+			INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			WHERE route_lists.date = byOrders.date
+				AND nomenclature.category = 'bottle'
+				AND nomenclature.is_defective_bottle = 1
+		) +
+		(
+			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			FROM store_incoming_invoice
+			INNER JOIN store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
+			INNER JOIN warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
+			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			WHERE store_incoming_invoice.time_stamp &gt;= byOrders.date
+				AND store_incoming_invoice.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
+				AND nomenclature.category = 'bottle'
+				AND nomenclature.is_defective_bottle = 1
+		) +
+		(
+			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			FROM store_inventory
+			INNER JOIN store_inventory_item ON store_inventory_item.store_inventory_id = store_inventory.id
+			INNER JOIN warehouse_movement_operations ON store_inventory_item.warehouse_movement_operation_id = warehouse_movement_operations.id
+			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			WHERE store_inventory.time_stamp &gt;= byOrders.date
+				AND store_inventory.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
+				AND nomenclature.category = 'bottle'
+				AND nomenclature.is_defective_bottle = 1
+		) +
+		(
+			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			FROM store_regrading_of_goods
+			INNER JOIN store_regrading_of_goods_items ON store_regrading_of_goods_items.store_regrading_of_goods_id = store_regrading_of_goods.id
+			INNER JOIN warehouse_movement_operations ON store_regrading_of_goods_items.warehouse_income_operation_id = warehouse_movement_operations.id
+			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			WHERE store_regrading_of_goods.time_stamp &gt;= byOrders.date
+				AND store_regrading_of_goods.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
+				AND nomenclature.category = 'bottle'
+				AND nomenclature.is_defective_bottle = 1
+		) AS defective_count,
+		(
+			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			FROM route_lists
+			INNER JOIN store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
+			INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+			INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			WHERE route_lists.date = byOrders.date
+				AND nomenclature.category = 'bottle'
+				AND nomenclature.is_new_bottle = 1
+		) +
+		(
+			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			FROM store_incoming_invoice
+			INNER JOIN store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
+			INNER JOIN warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
+			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			WHERE store_incoming_invoice.time_stamp &gt;= byOrders.date
+				AND store_incoming_invoice.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
+				AND nomenclature.category = 'bottle'
+				AND nomenclature.is_new_bottle = 1
+		) AS new_bottle_count
+	FROM(
+			SELECT
+				route_lists.date,
+				r.name,
+				SUM(IF(
+						bottles_movement_operations.delivered &gt; bottles_movement_operations.returned,
+						bottles_movement_operations.delivered,
+						0
+				)) AS delivered,
+				SUM(IF(
+						bottles_movement_operations.delivered &gt; bottles_movement_operations.returned,
+						bottles_movement_operations.returned,
+						0
+				)) AS returned
+			FROM route_lists
+			LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+			JOIN orders ON route_list_addresses.order_id = orders.id AND route_list_addresses.was_transfered = 0
+			LEFT JOIN non_return_reasons r ON orders.tare_non_return_reason_id = r.id
+			LEFT JOIN bottles_movement_operations ON orders.bottles_movement_operation_id = bottles_movement_operations.id
+			WHERE route_lists.date BETWEEN @start_date AND @end_date
+			GROUP BY route_lists.date, r.id
+	) byOrders
+) AS T1
+GROUP BY T1.date
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="total_came">
+          <DataField>total_came</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="wh_delta">
+          <DataField>wh_delta</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="defective_total">
+          <DataField>defective_total</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="total_lost">
+          <DataField>total_lost</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="new_bottles_total">
+          <DataField>new_bottles_total</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -289,10 +389,7 @@ FROM
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>30.8pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>77.7pt</Width>
+            <Width>96.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.4pt</Width>
@@ -332,24 +429,6 @@ FROM
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox2">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox3">
                       <Value>Клиенты</Value>
                       <Style>
@@ -360,6 +439,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -378,6 +458,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -394,6 +475,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -413,6 +495,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -430,6 +513,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -447,6 +531,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -456,23 +541,6 @@ FROM
             <TableRow>
               <Height>12pt</Height>
               <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox19">
-                      <Value>Дата</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
@@ -485,6 +553,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -501,6 +570,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -517,6 +587,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -533,6 +604,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -550,6 +622,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -566,6 +639,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -582,6 +656,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -598,6 +673,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -615,6 +691,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -632,6 +709,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -649,6 +727,7 @@ FROM
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -665,473 +744,8 @@ FROM
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="date">
-                      <Value>
-                      </Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Format>d</Format>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="delivered_NewAddress">
-                      <Value>новый адрес</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="returned_NewAddress">
-                      <Value>=Fields!delivered_NewAddress.Value</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="delivered_OrderIncrease">
-                      <Value>=Fields!returned_NewAddress.Value</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="returned_OrderIncrease">
-                      <Value>={returned_NewAddress}-{delivered_NewAddress}</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="delivered_All">
-                      <Value>
-                      </Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="car_load_count">
-                      <Value>
-                      </Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="car_unload_count">
-                      <Value>
-                      </Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox9">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="defective_count">
-                      <Value>
-                      </Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox27">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="new_bottle_count">
-                      <Value>
-                      </Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox4">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Format>d</Format>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value>увелич. заказа</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox6">
-                      <Value>=Fields!delivered_OrderIncrease.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox35">
-                      <Value>=Fields!returned_OrderIncrease.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox36">
-                      <Value>={returned_OrderIncrease}-{delivered_OrderIncrease}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox41">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox44">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox45">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox10">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox46">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox47">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox48">
-                      <Value>=Fields!date.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Format>d MMM</Format>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>первый заказ</Value>
+                      <Value>={name}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1140,6 +754,7 @@ FROM
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1147,15 +762,16 @@ FROM
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
-                      <Value>=Fields!delivered_FirstOrder.Value</Value>
+                      <Value>={delivered}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1163,15 +779,16 @@ FROM
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>=Fields!returned_FirstOrder.Value</Value>
+                      <Value>={returned}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1179,15 +796,16 @@ FROM
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
-                      <Value>={returned_FirstOrder}-{delivered_FirstOrder}</Value>
+                      <Value>={returned}-{delivered}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1195,7 +813,8 @@ FROM
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>=({car_unload_count}-{car_load_count})-({returned_All}-{delivered_All})</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1203,10 +822,11 @@ FROM
                           <Bottom>None</Bottom>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <Format>N0</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1214,7 +834,8 @@ FROM
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value>=Fields!car_load_count.Value</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1222,10 +843,11 @@ FROM
                           <Bottom>None</Bottom>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <Format>N0</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1233,7 +855,8 @@ FROM
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>=Fields!car_unload_count.Value</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1241,10 +864,11 @@ FROM
                           <Bottom>None</Bottom>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <Format>N0</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1252,7 +876,8 @@ FROM
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>={car_unload_count}-{car_load_count}</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1260,10 +885,11 @@ FROM
                           <Bottom>None</Bottom>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <Format>N0</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1271,7 +897,8 @@ FROM
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>=Fields!defective_count.Value</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1279,10 +906,11 @@ FROM
                           <Bottom>None</Bottom>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <Format>N0</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1290,7 +918,8 @@ FROM
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>=({car_unload_count}-{car_load_count})- {defective_count}</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1298,11 +927,12 @@ FROM
                           <Bottom>None</Bottom>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <Format>N0</Format>
                         <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1310,7 +940,8 @@ FROM
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
-                      <Value>=Fields!new_bottle_count.Value</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1318,449 +949,11 @@ FROM
                           <Bottom>None</Bottom>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <Format>N0</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox64">
-                      <Value>= Iif({all_closed}, '', '*')</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>12pt</FontSize>
-                        <Color>Red</Color>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox65">
-                      <Value>неизвестно</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox66">
-                      <Value>=Fields!delivered_Unknown.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox67">
-                      <Value>=Fields!returned_Unknown.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox68">
-                      <Value>={returned_Unknown}-{delivered_Unknown}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox73">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox76">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox77">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox13">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox78">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox79">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox80">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Format>d</Format>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox81">
-                      <Value>Итого:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox82">
-                      <Value>=Fields!delivered_All.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox83">
-                      <Value>=Fields!returned_All.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox84">
-                      <Value>={returned_All}-{delivered_All}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox89">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox92">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox93">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox24">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox94">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox38">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox95">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1776,25 +969,6 @@ FROM
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>
-                      </Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox15">
                       <Style>
                         <BorderStyle>
@@ -1806,6 +980,7 @@ FROM
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>
                       </Value>
@@ -1825,6 +1000,7 @@ FROM
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>
                       </Value>
@@ -1846,6 +1022,7 @@ FROM
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>Итого:</Value>
                     </Textbox>
@@ -1860,8 +1037,10 @@ FROM
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
-                      <Value>=Sum({returned_All}-{delivered_All})</Value>
+                      <Value>=Sum({returned}-{delivered})</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1875,8 +1054,10 @@ FROM
                         <BorderColor />
                         <BorderWidth />
                         <Format>N0</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
-                      <Value>=Sum(({car_unload_count}-{car_load_count})-({returned_All}-{delivered_All}))</Value>
+                      <Value>=Sum({total_came}, 'Totals')</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1887,6 +1068,10 @@ FROM
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>
                       </Value>
@@ -1900,6 +1085,10 @@ FROM
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>
                       </Value>
@@ -1916,8 +1105,10 @@ FROM
                         <BorderColor />
                         <BorderWidth />
                         <Format>N0</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
-                      <Value>=Sum({car_unload_count}-{car_load_count})</Value>
+                      <Value>=Sum({wh_delta}, 'Totals')</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1931,8 +1122,10 @@ FROM
                         <BorderColor />
                         <BorderWidth />
                         <Format>N0</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
-                      <Value>=Sum(Fields!defective_count.Value)</Value>
+                      <Value>=Sum({defective_total}, 'Totals')</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1946,8 +1139,10 @@ FROM
                         <BorderColor />
                         <BorderWidth />
                         <Format>N0</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
-                      <Value>=Sum(({car_unload_count}-{car_load_count})- {defective_count})</Value>
+                      <Value>=Sum({total_lost}, 'Totals')</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1961,8 +1156,10 @@ FROM
                         <BorderColor />
                         <BorderWidth />
                         <Format>N0</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
-                      <Value>=Sum(Fields!new_bottle_count.Value)</Value>
+                      <Value>=Sum({new_bottles_total}, 'Totals')</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1972,16 +1169,263 @@ FROM
         </Footer>
         <Left>0.0pt</Left>
         <Top>1.6pt</Top>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="date">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression>={date}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox71">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>10pt</FontSize>
+                            <TextDecoration>None</TextDecoration>
+                          </Style>
+                          <Value>=Iif({all_closed}, '', '***') + Format({date}, 'd MMM')</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>11</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox98">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <TextAlign>Right</TextAlign>
+                          </Style>
+                          <Value>Итого:</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox99">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>N0</Format>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>=Sum({delivered})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox100">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>N0</Format>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>=Sum({returned})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox101">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>N0</Format>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                          </Style>
+                          <Value>=Sum({returned}-{delivered})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox102">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>N0</Format>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>=({car_unload_count}-{car_load_count})-Sum({returned}-{delivered})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox103">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>N0</Format>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>={car_load_count}</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox104">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>N0</Format>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>={car_unload_count}</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox105">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>N0</Format>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>={car_unload_count}-{car_load_count}</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox106">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>N0</Format>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>={defective_count}</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox107">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>N0</Format>
+                            <FontWeight>Bold</FontWeight>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>=({car_unload_count}-{car_load_count})- {defective_count}</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox108">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>N0</Format>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>={new_bottle_count}</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+          </TableGroup>
+        </TableGroups>
       </Table>
       <Textbox Name="Textbox69" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>50.38pt</Height>
         <Width>568.35pt</Width>
-        <Value>Даты отмеченные * имеют незакрытые маршрутные листы.
+        <Value>Даты отмеченные "***" имеют незакрытые маршрутные листы.
 В колонках склада: Отгружено, Принято и Дельта учет идет и по полным и по пустым бутылям. Иными словами считаются так же отгруженные пустые бутыли и принятые с возврата полные.
 Колонка "Пришло больше" считается как разность дельты по складу и дельты по клиентам.</Value>
         <ZIndex>0</ZIndex>
         <Left>2.4pt</Left>
-        <Top>116.1pt</Top>
+        <Top>98.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1990,7 +1434,8 @@ FROM
         </Style>
       </Textbox>
     </ReportItems>
-    <Height>169.4pt</Height>
+    <Height>146.7pt</Height>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -2013,21 +1458,14 @@ FROM
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
   <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-03-08</Value>
+          <Value>2019-04-01</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2040,7 +1478,7 @@ FROM
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-03-10</Value>
+          <Value>2019-04-14</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2050,4 +1488,13 @@ FROM
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

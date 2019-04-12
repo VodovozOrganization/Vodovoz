@@ -740,14 +740,15 @@ namespace Vodovoz
 					paymentType = PaymentType.cashless;
 			}
 
-			ReasonType reasonType = ReasonType.Unknown;
+			var reasons = UoW.Session.QueryOver<NonReturnReason>().OrderBy(x => x.Name).Asc.List();
+			NonReturnReason reasonType = reasons.FirstOrDefault(x => x.Name.ToUpper() == "ПРИЧИНА НЕИЗВЕСТНА");
 			if(commentNode != null) {
-				if(commentNode.InnerText.ToUpper().Contains(newAddressString))
-					reasonType = ReasonType.NewAddress;
-				if(commentNode.InnerText.ToUpper().Contains(orderIncreaseString))
-					reasonType = ReasonType.OrderIncrease;
-				if(commentNode.InnerText.ToUpper().Contains(firstOrderString))
-					reasonType = ReasonType.FirstOrder;
+				if(commentNode.InnerText.ToUpper().Contains(newAddressString) && reasons.Any(x => x.Name.ToUpper() == newAddressString))
+					reasonType = reasons.FirstOrDefault(x => x.Name.ToUpper() == newAddressString);
+				if(commentNode.InnerText.ToUpper().Contains(orderIncreaseString) && reasons.Any(x => x.Name.ToUpper() == orderIncreaseString))
+					reasonType = reasons.FirstOrDefault(x => x.Name.ToUpper() == orderIncreaseString);
+				if(commentNode.InnerText.ToUpper().Contains(firstOrderString) && reasons.Any(x => x.Name.ToUpper() == firstOrderString))
+					reasonType = reasons.FirstOrDefault(x => x.Name.ToUpper() == firstOrderString);
 			}
 
 			logger.Debug($"Создаем заказ {code1cNode?.InnerText}");
@@ -765,7 +766,7 @@ namespace Vodovoz
 					Address1cCode 		= addressCodeNode?.InnerText,
 					PaymentType 		= paymentType,
 					ClientPhone			= clientPhone?.InnerText,
-				    ReasonType 			= reasonType,
+				    TareNonReturnReason	= reasonType,
 					ToClientText 		= toClient?.InnerText,
 					FromClientText 		= fromClient?.InnerText
 				};

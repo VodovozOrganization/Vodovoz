@@ -13,7 +13,7 @@ namespace Vodovoz.HibernateMapping
 			OptimisticLock.Version();
 			Version(x => x.Version)						.Column("version");
 
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Id(x => x.Id)								.Column("id").GeneratedBy.Native();
 
 			Map(x => x.CreateDate)						.Column("create_date");
 			Map(x => x.IsFirstOrder)					.Column("is_first_order");
@@ -47,7 +47,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.FromClientText)					.Column("from_client_text");
 			Map(x => x.IsContractCloser)				.Column("is_contract_closer");
 			Map(x => x.BillDate)						.Column("bill_date");
-			Map(x => x.IsReasonTypeChangedByUser)		.Column("is_reason_type_changed_by_user");
+			Map(x => x.IsTareNonReturnReasonChangedByUser).Column("is_reason_type_changed_by_user");
 			Map(x => x.HasCommentForDriver)				.Column("has_comment_for_driver");
 			Map(x => x.TimeDelivered)               	.Column("time_delivered");
 			Map(x => x.AddCertificates)					.Column("add_certificates");
@@ -57,7 +57,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.SignatureType)					.Column("signature_type").CustomType<OrderSignatureTypeStringType> ();
 			Map(x => x.PaymentType)						.Column("payment_type").CustomType<PaymentTypeStringType> ();
 			Map(x => x.DocumentType)					.Column("document_type").CustomType<DefaultDocumentTypeStringType> ();
-			Map(x => x.ReasonType)						.Column("reason_type").CustomType<ReasonTypeStringType> (); 
 			Map(x => x.DriverCallType)					.Column("driver_call_type").CustomType<DriverCallTypeStringType>();
 			Map(x => x.OrderSource)						.Column("order_source").CustomType<OrderSourceStringType>();
 
@@ -71,6 +70,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.MoneyMovementOperation)	.Column("money_movement_operation_id");
 			References(x => x.LastEditor)				.Column("editor_employee_id");
 			References(x => x.LoadAllowedBy)			.Column("load_allowed_employee_id");
+			References(x => x.TareNonReturnReason)		.Column("tare_non_return_reason_id");
 
 			HasMany(x => x.OrderDocuments)		.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("attached_to_order_id");
 			HasMany (x => x.OrderDepositItems)	.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.UoW;
 using QS.Dialog;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -22,6 +23,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			var filter = new EmployeeFilter(UoW);
 			filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryDriver.RepresentationModel = new EmployeesVM(filter);
+			ySpecCmbNonReturnReason.ItemsList = UoW.Session.QueryOver<NonReturnReason>().List();
 		}
 
 		#region IOrmDialog implementation
@@ -34,69 +36,18 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get	{
-				return "Отчет о несданных бутылях";
-			}
-		}
+		public string Title => "Отчет о несданных бутылях";
 
 		#endregion
 
 		private ReportInfo GetReportInfo()
 		{
-			var parameters = new Dictionary<string, object>();
-
-			if(checkReason.Active) {
-				if(radiobuttonNewAddress.Active) {
-					parameters.Clear();
-					parameters.Add("reason", "NewAddress");
-				}
-
-				if(radiobuttonOrderIncrease.Active) {
-					parameters.Clear();
-					parameters.Add("reason", "OrderIncrease");
-				}
-
-				if(radiobuttonFirstOrder.Active) {
-					parameters.Clear();
-					parameters.Add("reason", "FirstOrder");
-				}
-
-				if(radiobuttonUnknown.Active) {
-					parameters.Clear();
-					parameters.Add("reason", "Unknown");
-				}
-			}
-			else
-				parameters.Add("reason", -1);
-
-			parameters.Add("date", ydatepicker.Date);
-
-			if(checkOneDriver.Active && yentryDriver.Subject != null)
-				parameters.Add("driver_id", (yentryDriver.Subject as Employee).Id);
-			else {
-				parameters.Add("driver_id", -1);
-			}
-
-			switch((Drivers)comboboxDriver.SelectedItem) {
-				case Drivers.AllDriver:
-					parameters.Add("driver_call", -1);
-					break;
-				case Drivers.CallFromAnywhere:
-					parameters.Add("driver_call", 3);
-					break;
-				case Drivers.NoCall:
-					parameters.Add("driver_call", 2);
-					break;
-				case Drivers.Largus:
-					parameters.Add("driver_call", 1);
-					break;
-				case Drivers.Hirelings:
-					parameters.Add("driver_call", 0);
-					break;
-				default:
-					break;
-			}
+			var parameters = new Dictionary<string, object> {
+				{ "reason_id", (ySpecCmbNonReturnReason.SelectedItem as NonReturnReason)?.Id ?? -1 },
+				{ "driver_id", (yentryDriver.Subject as Employee)?.Id ?? -1 },
+				{ "driver_call", (int)comboboxDriver.SelectedItem },
+				{ "date", ydatepicker.Date }
+			};
 
 			return new ReportInfo {
 				Identifier = "Bottles.ShortfallBattlesReport",
@@ -121,28 +72,18 @@ namespace Vodovoz.ReportsParameters.Bottles
 			yentryDriver.Sensitive = sensitive;
 		}
 
-		protected void OnCheckReasonToggled(object sender, EventArgs e)
-		{
-			var sensitive = checkReason.Active;
-			radiobuttonNewAddress.Sensitive = sensitive;
-			radiobuttonOrderIncrease.Sensitive = sensitive;
-			radiobuttonFirstOrder.Sensitive = sensitive;
-			radiobuttonUnknown.Sensitive = sensitive;
-		}
-
 		enum Drivers
 		{
 			[Display(Name = "Все")]
-			AllDriver,
+			AllDriver = -1,
 			[Display(Name = "Отзвон не с адреса")]
-			CallFromAnywhere,
+			CallFromAnywhere = 3,
 			[Display(Name = "Без отзвона")]
-			NoCall,
+			NoCall = 2,
 			[Display(Name = "Ларгусы")]
-			Largus,
+			Largus = 1,
 			[Display(Name = "Наемники")]
-			Hirelings
+			Hirelings = 0
 		}
 	}
 }
-

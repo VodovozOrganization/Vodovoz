@@ -32,11 +32,13 @@ namespace Vodovoz.JournalViewers
 
 		private global::Gtk.Button buttonCompleteSelected;
 
+		private global::QSWidgetLib.DatePicker datepickerDeadlineChange;
+
 		private global::Vodovoz.JournalFilters.TaskFilter taskfilter;
 
 		private global::Gtk.VBox vbox2;
 
-		private global::Gtk.HBox hbox3;
+		private global::Gtk.HBox hbox5;
 
 		private global::Gtk.Label label2;
 
@@ -47,6 +49,24 @@ namespace Vodovoz.JournalViewers
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewTasks;
+
+		private global::Gtk.HBox hbox7;
+
+		private global::Gtk.Label callTaskCountLabel;
+
+		private global::Gtk.VSeparator vseparator4;
+
+		private global::Gtk.Label taskTypeCountLabel;
+
+		private global::Gtk.VSeparator vseparator3;
+
+		private global::Gtk.Label DifClientCountLabel;
+
+		private global::Gtk.VSeparator vseparator2;
+
+		private global::Gtk.Label tareReturnLabel;
+
+		private global::Gtk.VSeparator vseparator1;
 
 		private global::Gtk.Label taskCountLabel;
 
@@ -213,63 +233,76 @@ namespace Vodovoz.JournalViewers
 			w18.Position = 2;
 			w18.Expand = false;
 			w18.Fill = false;
-			this.vboxJournal.Add(this.hboxEditSelected);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.hboxEditSelected]));
-			w19.Position = 1;
+			// Container child hboxEditSelected.Gtk.Box+BoxChild
+			this.datepickerDeadlineChange = new global::QSWidgetLib.DatePicker();
+			this.datepickerDeadlineChange.Events = ((global::Gdk.EventMask)(256));
+			this.datepickerDeadlineChange.Name = "datepickerDeadlineChange";
+			this.datepickerDeadlineChange.WithTime = false;
+			this.datepickerDeadlineChange.Date = new global::System.DateTime(0);
+			this.datepickerDeadlineChange.IsEditable = false;
+			this.datepickerDeadlineChange.AutoSeparation = false;
+			this.hboxEditSelected.Add(this.datepickerDeadlineChange);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hboxEditSelected[this.datepickerDeadlineChange]));
+			w19.Position = 3;
 			w19.Expand = false;
 			w19.Fill = false;
+			this.vboxJournal.Add(this.hboxEditSelected);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.hboxEditSelected]));
+			w20.Position = 1;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child vboxJournal.Gtk.Box+BoxChild
 			this.taskfilter = new global::Vodovoz.JournalFilters.TaskFilter();
 			this.taskfilter.Events = ((global::Gdk.EventMask)(256));
 			this.taskfilter.Name = "taskfilter";
 			this.vboxJournal.Add(this.taskfilter);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.taskfilter]));
-			w20.Position = 2;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.taskfilter]));
+			w21.Position = 2;
+			w21.Expand = false;
+			w21.Fill = false;
 			// Container child vboxJournal.Gtk.Box+BoxChild
 			this.vbox2 = new global::Gtk.VBox();
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			// Container child hbox3.Gtk.Box+BoxChild
+			this.hbox5 = new global::Gtk.HBox();
+			this.hbox5.Name = "hbox5";
+			this.hbox5.Spacing = 6;
+			// Container child hbox5.Gtk.Box+BoxChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Поиск:");
-			this.hbox3.Add(this.label2);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label2]));
-			w21.Position = 0;
-			w21.Expand = false;
-			w21.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
+			this.hbox5.Add(this.label2);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.label2]));
+			w22.Position = 0;
+			w22.Expand = false;
+			w22.Fill = false;
+			// Container child hbox5.Gtk.Box+BoxChild
 			this.yentrySearch = new global::Gamma.GtkWidgets.yEntry();
 			this.yentrySearch.CanFocus = true;
 			this.yentrySearch.Name = "yentrySearch";
 			this.yentrySearch.IsEditable = true;
 			this.yentrySearch.InvisibleChar = '.';
-			this.hbox3.Add(this.yentrySearch);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentrySearch]));
-			w22.Position = 1;
-			// Container child hbox3.Gtk.Box+BoxChild
+			this.hbox5.Add(this.yentrySearch);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.yentrySearch]));
+			w23.Position = 1;
+			// Container child hbox5.Gtk.Box+BoxChild
 			this.buttonSearch = new global::Gtk.Button();
 			this.buttonSearch.CanFocus = true;
 			this.buttonSearch.Name = "buttonSearch";
 			this.buttonSearch.UseStock = true;
 			this.buttonSearch.UseUnderline = true;
 			this.buttonSearch.Label = "gtk-find";
-			this.hbox3.Add(this.buttonSearch);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonSearch]));
-			w23.Position = 2;
-			w23.Expand = false;
-			w23.Fill = false;
-			this.vbox2.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox3]));
-			w24.Position = 0;
+			this.hbox5.Add(this.buttonSearch);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonSearch]));
+			w24.Position = 2;
 			w24.Expand = false;
 			w24.Fill = false;
+			this.vbox2.Add(this.hbox5);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox5]));
+			w25.Position = 0;
+			w25.Expand = false;
+			w25.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -280,20 +313,97 @@ namespace Vodovoz.JournalViewers
 			this.ytreeviewTasks.Name = "ytreeviewTasks";
 			this.GtkScrolledWindow.Add(this.ytreeviewTasks);
 			this.vbox2.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
-			w26.Position = 1;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
+			w27.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbox7 = new global::Gtk.HBox();
+			this.hbox7.Name = "hbox7";
+			this.hbox7.Spacing = 6;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.callTaskCountLabel = new global::Gtk.Label();
+			this.callTaskCountLabel.Name = "callTaskCountLabel";
+			this.callTaskCountLabel.LabelProp = global::Mono.Unix.Catalog.GetString("label5");
+			this.hbox7.Add(this.callTaskCountLabel);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.callTaskCountLabel]));
+			w28.Position = 0;
+			w28.Expand = false;
+			w28.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.vseparator4 = new global::Gtk.VSeparator();
+			this.vseparator4.Name = "vseparator4";
+			this.hbox7.Add(this.vseparator4);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.vseparator4]));
+			w29.Position = 1;
+			w29.Expand = false;
+			w29.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.taskTypeCountLabel = new global::Gtk.Label();
+			this.taskTypeCountLabel.Name = "taskTypeCountLabel";
+			this.taskTypeCountLabel.LabelProp = global::Mono.Unix.Catalog.GetString("label4");
+			this.hbox7.Add(this.taskTypeCountLabel);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.taskTypeCountLabel]));
+			w30.Position = 2;
+			w30.Expand = false;
+			w30.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.vseparator3 = new global::Gtk.VSeparator();
+			this.vseparator3.Name = "vseparator3";
+			this.hbox7.Add(this.vseparator3);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.vseparator3]));
+			w31.Position = 3;
+			w31.Expand = false;
+			w31.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.DifClientCountLabel = new global::Gtk.Label();
+			this.DifClientCountLabel.Name = "DifClientCountLabel";
+			this.DifClientCountLabel.LabelProp = global::Mono.Unix.Catalog.GetString("label3");
+			this.hbox7.Add(this.DifClientCountLabel);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.DifClientCountLabel]));
+			w32.Position = 4;
+			w32.Expand = false;
+			w32.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.vseparator2 = new global::Gtk.VSeparator();
+			this.vseparator2.Name = "vseparator2";
+			this.hbox7.Add(this.vseparator2);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.vseparator2]));
+			w33.Position = 5;
+			w33.Expand = false;
+			w33.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.tareReturnLabel = new global::Gtk.Label();
+			this.tareReturnLabel.Name = "tareReturnLabel";
+			this.tareReturnLabel.LabelProp = global::Mono.Unix.Catalog.GetString("label2");
+			this.hbox7.Add(this.tareReturnLabel);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.tareReturnLabel]));
+			w34.Position = 6;
+			w34.Expand = false;
+			w34.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.hbox7.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.vseparator1]));
+			w35.Position = 7;
+			w35.Expand = false;
+			w35.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
 			this.taskCountLabel = new global::Gtk.Label();
 			this.taskCountLabel.Name = "taskCountLabel";
 			this.taskCountLabel.LabelProp = global::Mono.Unix.Catalog.GetString("label3");
-			this.vbox2.Add(this.taskCountLabel);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.taskCountLabel]));
-			w27.Position = 2;
-			w27.Expand = false;
-			w27.Fill = false;
+			this.hbox7.Add(this.taskCountLabel);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.taskCountLabel]));
+			w36.Position = 8;
+			w36.Expand = false;
+			w36.Fill = false;
+			this.vbox2.Add(this.hbox7);
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
+			w37.Position = 2;
+			w37.Expand = false;
+			w37.Fill = false;
 			this.vboxJournal.Add(this.vbox2);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.vbox2]));
-			w28.Position = 3;
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.vbox2]));
+			w38.Position = 3;
 			this.Add(this.vboxJournal);
 			if ((this.Child != null))
 			{
@@ -313,6 +423,7 @@ namespace Vodovoz.JournalViewers
 			this.entryreferencevmEmployeeFilter.ChangedByUser += new global::System.EventHandler(this.OnEntryreferencevmEmployeeFilterChangedByUser);
 			this.taskStatusComboBox.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnTaskstateButtonEnumItemClicked);
 			this.buttonCompleteSelected.Clicked += new global::System.EventHandler(this.OnCompleteTaskButtonClicked);
+			this.datepickerDeadlineChange.DateChangedByUser += new global::System.EventHandler(this.OnDatepickerDeadlineChangeDateChangedByUser);
 			this.yentrySearch.KeyReleaseEvent += new global::Gtk.KeyReleaseEventHandler(this.OnYentrySearchKeyReleaseEvent);
 			this.buttonSearch.Clicked += new global::System.EventHandler(this.OnButtonSearchClicked);
 			this.ytreeviewTasks.RowActivated += new global::Gtk.RowActivatedHandler(this.OnDebtorsTreeViewRowActivated);

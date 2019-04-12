@@ -12,17 +12,17 @@
   <RightMargin>5mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
   <PageHeader>
-    <Height>26.5pt</Height>
+    <Height>20.9pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox2">
-        <Height>18.81pt</Height>
-        <Width>247.64pt</Width>
-        <Value>Отчет о недосданных бутылях</Value>
+        <Height>20.30pt</Height>
+        <Width>816.03pt</Width>
+        <Value>='Отчет о недосданных бутылях за ' + Format(Cdate({?date}), "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>154.9pt</Left>
-        <Top>5.8pt</Top>
+        <Left>0.00pt</Left>
+        <Top>0.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -35,25 +35,10 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox28">
-        <Height>15.00pt</Height>
-        <Width>85.80pt</Width>
-        <Value>=Format(Cdate(Parameters!date), "dd/MM/yyyy")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>397.8pt</Left>
-        <Top>8.2pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <VerticalAlign>Middle</VerticalAlign>
-        </Style>
-      </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>158.2pt</Height>
+    <Height>145.1pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Orders</DataSetName>
@@ -67,10 +52,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>28.1pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>45.2pt</Width>
+            <Width>74.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>95.6pt</Width>
@@ -109,13 +91,10 @@
             <Width>48.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.1pt</Width>
+            <Width>52.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>34.2pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>32.8pt</Width>
+            <Width>55.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.8pt</Width>
@@ -124,31 +103,12 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>45.8pt</Height>
+              <Height>38.7pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox3">
-                      <Value>№ Заказа</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                      <CanShrink>true</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox67">
-                      <Value>Автор заказа</Value>
+                      <Value>Автор и номер заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -158,6 +118,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -175,6 +136,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -194,6 +156,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -213,6 +176,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -232,6 +196,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -251,6 +216,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -270,6 +236,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -289,6 +256,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -308,6 +276,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -327,6 +296,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -344,6 +314,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -361,6 +332,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -380,6 +352,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -399,6 +372,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -408,7 +382,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>Инф. об отзвоне вод.</Value>
+                      <Value>Место и № звонка водителя</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -418,25 +392,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                      <CanShrink>true</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox53">
-                      <Value>Номер звонка вод.</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -456,6 +412,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -474,26 +431,9 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox9">
-                      <Value>=Fields!ordersIdAlias.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                      <CanShrink>true</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>={author}</Value>
+                      <Value>={author} + '
+' + {ordersIdAlias}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -502,6 +442,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -519,6 +460,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -537,6 +479,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -555,6 +498,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -573,6 +517,7 @@
                         <BorderWidth />
                         <Format>0</Format>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -592,6 +537,7 @@
                         <BorderWidth />
                         <Format>0</Format>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -611,6 +557,7 @@
                         <BorderWidth />
                         <Format>0</Format>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -630,6 +577,7 @@
                         <BorderWidth />
                         <Format>0</Format>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -648,6 +596,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -666,6 +615,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -682,6 +632,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -699,6 +650,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -716,6 +668,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -734,6 +687,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -743,7 +697,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>=Fields!driver_call_string.Value</Value>
+                      <Value>={driver_call_full}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -752,24 +706,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                      <CanShrink>true</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox54">
-                      <Value>=Fields!driver_call_id.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -788,6 +725,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -805,25 +743,6 @@
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox22">
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>
-                      </Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox69">
@@ -886,12 +805,17 @@
                     <Textbox Name="Textbox25">
                       <Style>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>Всего:</Value>
                     </Textbox>
@@ -903,10 +827,16 @@
                       <Value>=Sum(Fields!actual_count.Value)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -917,10 +847,16 @@
                       <Value>=Sum({bottles_return})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -931,10 +867,16 @@
                       <Value>=Sum(Fields!returned.Value)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -945,10 +887,16 @@
                       <Value>=Sum(Fields!bottles.Value)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -968,6 +916,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1088,25 +1038,6 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox55">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox61">
                       <Value>
                       </Value>
@@ -1129,21 +1060,6 @@
           </TableRows>
         </Footer>
       </Table>
-      <Textbox Name="Textbox15">
-        <Height>19.51pt</Height>
-        <Width>561.61pt</Width>
-        <Value>Не закрытые маршрутные листы</Value>
-        <ZIndex>1</ZIndex>
-        <Left>4.7pt</Left>
-        <Top>104.6pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <FontSize>14pt</FontSize>
-        </Style>
-      </Textbox>
       <Table Name="Table2">
         <DataSetName>RouteLists</DataSetName>
         <NoRows>Нет незакрытых маршрутных листов</NoRows>
@@ -1167,6 +1083,34 @@
         </TableColumns>
         <Header>
           <TableRows>
+            <TableRow>
+              <Height>20.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Не закрытые маршрутные листы</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>16pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>3</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
@@ -1279,7 +1223,7 @@
           </TableRows>
         </Details>
         <Left>4.7pt</Left>
-        <Top>126.5pt</Top>
+        <Top>96.1pt</Top>
       </Table>
       <Table Name="Table3">
         <DataSetName>Orders</DataSetName>
@@ -1301,7 +1245,7 @@
             <Width>58.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>175.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1325,6 +1269,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1345,6 +1290,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1358,7 +1304,7 @@
         <Top>2.1pt</Top>
         <Filters>
           <Filter>
-            <FilterExpression>={?reason}</FilterExpression>
+            <FilterExpression>={?reason_id}</FilterExpression>
             <Operator>NotEqual</Operator>
             <FilterValues>
               <FilterValue>-1</FilterValue>
@@ -1397,14 +1343,20 @@
         <CommandText>SELECT 
 	bottles_movement_operations.delivery_point_id AS pointid,
 	orders.id AS ordersIdAlias,
-	IF(
-		orders.author_employee_id IS NOT NULL,
-		CONCAT(employees_author.last_name, ' ', LEFT(employees_author.name, 1), '.', LEFT(employees_author.patronymic, 1), '.'),
-		''
+	CONCAT_WS(
+		'.',
+		NULLIF(SUBSTR(employees_author.name,1,1),''),
+		NULLIF(SUBSTR(employees_author.patronymic,1,1),''),
+		CONCAT(' ', employees_author.last_name)
 	) AS author,
 	TRIM(counterparty.full_name) AS counterparty,
 	delivery_points.compiled_address_short AS address,
-	CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
+	CONCAT_WS(
+		'.',
+		NULLIF(SUBSTR(employees.name,1,1),''),
+		NULLIF(SUBSTR(employees.patronymic,1,1),''),
+		CONCAT(' ', employees.last_name)
+	) AS driver_name,
 	orders.comment AS comment,
 	(
 		SELECT 
@@ -1447,12 +1399,7 @@
 			(IFNULL(received_deposit,0)-IFNULL(refund_deposit,0)
 		)
 	) AS forfeitAndDeposit,
-	CASE reason_type
-		WHEN 'Unknown' THEN 'неизв.'
-		WHEN 'NewAddress' THEN 'новый адрес'
-		WHEN 'OrderIncrease' THEN 'увелич. заказа'
-		WHEN 'FirstOrder' THEN 'первый заказ'
-	END AS reason_type_status,
+	r.name AS reason_type_status,
 	bottles_return,
 	information_on_tara,
 	driver_call_id,
@@ -1461,9 +1408,17 @@
 		WHEN 'CallFromAddress' THEN 'с адреса'
 		WHEN 'CallFromAnywhere' THEN 'не с адреса'
 	END AS driver_call_string,
+    CONCAT_WS('\n',
+		(CASE driver_call_type
+			WHEN 'NoCall'  THEN 'не звонил'
+			WHEN 'CallFromAddress' THEN 'с адреса'
+			WHEN 'CallFromAnywhere' THEN 'не с адреса'
+		END),
+		driver_call_id
+	) AS driver_call_full,
 	comment_manager,
 	bottle_reserv,
-   	IF(delivery_points.have_residue = 0, "Нет", "Да") AS enteredresidue,
+IF(delivery_points.have_residue = 0, "Нет", "Да") AS enteredresidue,
 	(
 		SELECT 
 			SUM(delivered) - SUM(returned)
@@ -1474,6 +1429,8 @@
 	) AS debt
 FROM
 	orders
+LEFT JOIN
+	non_return_reasons r ON tare_non_return_reason_id = r.id
 LEFT JOIN
 	order_items ON order_id = orders.id
 LEFT JOIN
@@ -1501,7 +1458,7 @@ WHERE
 	AND(route_lists.status = 'Closed'
 		OR route_lists.status = 'MileageCheck')
 	AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
-	AND (@reason = -1 OR @reason = reason_type)
+	AND (@reason_id = -1 OR @reason_id = tare_non_return_reason_id)
 	AND (@driver_id = -1 OR @driver_id = employees.id)
 	AND (	
 		(	
@@ -1537,13 +1494,14 @@ WHERE
 	)
 	AND NOT (orders.order_status = 'Canceled' OR orders.order_status = 'DeliveryCanceled' OR orders.order_status = 'NotDelivered')
 GROUP BY ordersIdAlias
-ORDER BY reason_type_status</CommandText>
+ORDER BY reason_type_status
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>={?date}</Value>
           </QueryParameter>
-          <QueryParameter Name="reason">
-            <Value>={?reason}</Value>
+          <QueryParameter Name="reason_id">
+            <Value>={?reason_id}</Value>
           </QueryParameter>
           <QueryParameter Name="driver_id">
             <Value>={?driver_id}</Value>
@@ -1598,13 +1556,9 @@ ORDER BY reason_type_status</CommandText>
           <DataField>information_on_tara</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="driver_call_string">
-          <DataField>driver_call_string</DataField>
+        <Field Name="driver_call_full">
+          <DataField>driver_call_full</DataField>
           <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="driver_call_id">
-          <DataField>driver_call_id</DataField>
-          <TypeName>System.Int32</TypeName>
         </Field>
         <Field Name="comment_manager">
           <DataField>comment_manager</DataField>
@@ -1681,7 +1635,7 @@ WHERE
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-03-10</Value>
+          <Value>2019-01-02</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1690,8 +1644,13 @@ WHERE
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="reason">
-      <DataType>String</DataType>
+    <ReportParameter Name="reason_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1700,6 +1659,11 @@ WHERE
     </ReportParameter>
     <ReportParameter Name="driver_id">
       <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1708,6 +1672,11 @@ WHERE
     </ReportParameter>
     <ReportParameter Name="driver_call">
       <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1715,11 +1684,11 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
