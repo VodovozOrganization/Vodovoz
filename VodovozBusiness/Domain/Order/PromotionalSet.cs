@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Data.Bindings.Utilities;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -45,11 +47,11 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isArchive, value, () => IsArchive);
 		}
 
-		IList<PromotionalSetItem> PromoSetItems = new List<PromotionalSetItem>();
+		IList<PromotionalSetItem> promotionalSetItems = new List<PromotionalSetItem>();
 		[Display(Name = "Строки рекламного набора")]
 		public virtual IList<PromotionalSetItem> PromotionalSetItems {
-			get => PromoSetItems;
-			set => SetField(ref PromoSetItems, value, () => PromotionalSetItems);
+			get => promotionalSetItems;
+			set => SetField(ref promotionalSetItems, value, () => PromotionalSetItems);
 		}
 
 		GenericObservableList<PromotionalSetItem> observablePromotionalSetItems;
@@ -57,7 +59,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual GenericObservableList<PromotionalSetItem> ObservablePromotionalSetItems {
 			get {
 				if(observablePromotionalSetItems == null)
-					observablePromotionalSetItems = new GenericObservableList<PromotionalSetItem>(PromoSetItems);
+					observablePromotionalSetItems = new GenericObservableList<PromotionalSetItem>(promotionalSetItems);
 				return observablePromotionalSetItems;
 			}
 		}
@@ -71,10 +73,19 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			return null;
+			if(PromoSetName == null)
+				yield return new ValidationResult(
+					"Необходимо выбрать скидку",
+					new[] { this.GetPropertyName(o => o.PromoSetName) }
+				);
+
+			if(!PromotionalSetItems.Any() || PromotionalSetItems.Any(i => i.Count <= 0))
+				yield return new ValidationResult(
+					"Выберите номенклатуры и укажите их количества",
+					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
+				);
 		}
 
 		#endregion
-
 	}
 }

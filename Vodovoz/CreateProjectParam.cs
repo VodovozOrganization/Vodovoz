@@ -5,10 +5,13 @@ using Gamma.Utilities;
 using NHibernate.AdoNet;
 using NHibernate.Cfg;
 using QS.HistoryLog;
+using QS.Permissions;
+using QS.Print;
 using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Repositories;
+using QS.Widgets.Gtk;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
 using QSContacts;
@@ -20,15 +23,18 @@ using QSSupportLib;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Cash;
+using Vodovoz.Dialogs.Cash.CashTransfer;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Dialogs.Goods;
 using Vodovoz.Dialogs.Logistic;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -38,12 +44,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using QS.Permissions;
-using QS.Widgets.Gtk;
-using QS.Print;
 using Vodovoz.Domain.StoredResources;
-using Vodovoz.Domain.Cash.CashTransfer;
-using Vodovoz.Dialogs.Cash.CashTransfer;
 
 namespace Vodovoz
 {
@@ -291,13 +292,21 @@ namespace Vodovoz
 				   .SearchColumn("Номер", x => x.Id.ToString())
 				   .SearchColumn("Начало срока", x => x.StartDate.HasValue ? x.StartDate.Value.ToString("dd.MM.yyyy") : "Ошибка!")
 				   .SearchColumn("Окончание срока", x => x.ExpirationDate.HasValue ? x.ExpirationDate.Value.ToString("dd.MM.yyyy") : "Бессрочно")
-				   .Column("Архивный?", x => x.IsArchive ? "Да" : String.Empty)
+				   .Column("Архивный?", x => x.IsArchive ? "Да" : string.Empty)
 				   .OrderAsc(x => x.IsArchive)
 				   .OrderAsc(x => x.Id)
 				   .End();
 			OrmMain.AddObjectDescription<StoredImageResource>().Dialog<ImageLoaderDlg>().DefaultTableView()
 				   .SearchColumn("Номер", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
+				   .End();
+			OrmMain.AddObjectDescription<PromotionalSet>().Dialog<PromotionalSetDlg>().DefaultTableView()
+				   .SearchColumn("Номер", x => x.Id.ToString())
+				   .SearchColumn("Имя", x => x.PromoSetName.Name)
+				   .Column("Дата создания", x => x.CreateDate.ToString("dd.MM.yyyy"))
+				   .Column("Архивный?", x => x.IsArchive ? "Да" : string.Empty)
+				   .OrderAsc(x => x.IsArchive)
+				   .OrderAsc(x => x.Id)
 				   .End();
 			#endregion
 
