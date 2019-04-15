@@ -265,7 +265,7 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 				throw new InvalidOperationException($"Невозможно принять документ транспортировки денег не из статуса \"{CashTransferDocumentStatuses.Sent.GetEnumTitle()}\"");
 			}
 
-			if(IncomeOperation != null && CashTransferOperation.ReceiveTime.HasValue) {
+			if(IncomeOperation != null || CashTransferOperation.ReceiveTime.HasValue) {
 				throw new InvalidOperationException($"Денежные средства уже были приняты ранее, изменить данные о факте принятия денег невозможно");
 			}
 
