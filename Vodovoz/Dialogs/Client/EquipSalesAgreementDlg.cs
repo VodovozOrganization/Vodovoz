@@ -2,14 +2,14 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
-using QS.DomainModel.UoW;
 using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Project.Repositories;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using QS.Project.Repositories;
 
 namespace Vodovoz.Dialogs.Client
 {
@@ -20,16 +20,7 @@ namespace Vodovoz.Dialogs.Client
 
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 
-		bool isEditable = true;
-
-		public bool IsEditable
-		{
-			get { return isEditable; }
-			set
-			{
-				isEditable = value;
-			}
-		}
+		public bool IsEditable { get; set; } = true;
 
 		public EquipSalesAgreementDlg(CounterpartyContract contract)
 		{
@@ -43,16 +34,15 @@ namespace Vodovoz.Dialogs.Client
 			this.Build();
 			UoWGeneric = SalesEquipmentAgreement.Create(contract);
 			UoWGeneric.Root.DeliveryPoint = point;
-			if (IssueDate.HasValue)
+			if(IssueDate.HasValue)
 				UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate.Value;
-			if (nomenclature != null)
-			{
+			if(nomenclature != null) {
 				Entity.AddEquipment(nomenclature);
 			}
 			ConfigureDlg();
 		}
 
-		public EquipSalesAgreementDlg(SalesEquipmentAgreement sub) : this (sub.Id)
+		public EquipSalesAgreementDlg(SalesEquipmentAgreement sub) : this(sub.Id)
 		{
 		}
 
@@ -82,17 +72,14 @@ namespace Vodovoz.Dialogs.Client
 			referenceDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 
-			if (Entity.DocumentTemplate == null && Entity.Contract != null)
+			if(Entity.DocumentTemplate == null && Entity.Contract != null)
 				Entity.UpdateContractTemplate(UoW);
 
-			if (Entity.DocumentTemplate != null)
-			{
+			if(Entity.DocumentTemplate != null) {
 				(Entity.DocumentTemplate.DocParser as EquipmentAgreementParser).RootObject = Entity;
 			}
-			templatewidget1.BeforeOpen += (sender, e) =>
-			{
-				if (Entity.DocumentTemplate != null)
-				{
+			templatewidget1.BeforeOpen += (sender, e) => {
+				if(Entity.DocumentTemplate != null) {
 					(Entity.DocumentTemplate.DocParser as EquipmentAgreementParser).AddPricesTable(Entity.SalesEqipments.ToList());
 				}
 			};
@@ -105,22 +92,22 @@ namespace Vodovoz.Dialogs.Client
 		public override bool Save()
 		{
 			var valid = new QSValidator<SalesEquipmentAgreement>(UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
 			logger.Info("Сохраняем доп. соглашение...");
 			UoWGeneric.Save();
 			logger.Info("Ok");
-			if (AgreementSaved != null)
-				AgreementSaved(this, new AgreementSavedEventArgs(UoWGeneric.Root));
+			AgreementSaved?.Invoke(this, new AgreementSavedEventArgs(UoWGeneric.Root));
 			return true;
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var addNewNomenclature = new OrmReference(Repository.NomenclatureRepository.NomenclatureEquipOnlyQuery());
-			addNewNomenclature.Mode = OrmReferenceMode.Select;
-			addNewNomenclature.TabName = "Выберите номенклатуру";
+			var addNewNomenclature = new OrmReference(Repository.NomenclatureRepository.NomenclatureEquipOnlyQuery()) {
+				Mode = OrmReferenceMode.Select,
+				TabName = "Выберите номенклатуру"
+			};
 			addNewNomenclature.ObjectSelected += AddNewNomenclature_ObjectSelected; ;
 			TabParent.AddSlaveTab(this, addNewNomenclature);
 		}

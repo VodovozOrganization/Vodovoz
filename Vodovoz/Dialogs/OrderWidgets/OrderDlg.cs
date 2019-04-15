@@ -33,6 +33,7 @@ using QSSupportLib;
 using QSValidation;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
+using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -331,6 +332,10 @@ namespace Vodovoz
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
 
+			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
+			yCmbPromoSets.ItemsList = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
+			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
+
 			enumNeedOfCheque.ItemsEnum = typeof(ChequeResponse);
 			enumNeedOfCheque.Binding.AddBinding(Entity, c => c.NeedCheque, w => w.SelectedItemOrNull).InitializeFromSource();
 
@@ -352,6 +357,29 @@ namespace Vodovoz
 			HasChanges = true;
 			UoW.CanCheckIfDirty = false;
 		}
+
+		void YCmbPromoSets_ItemSelected(object sender, ItemSelectedEventArgs e)
+		{
+			if(Entity.Client == null) {
+				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				return;
+			}
+
+			if(Entity.DeliveryPoint == null) {
+				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должна быть выбрана точка доставки.");
+				return;
+			}
+
+			if(Entity.DeliveryDate == null) {
+				MessageDialogHelper.RunWarningDialog("Введите дату доставки");
+				return;
+			}
+
+			if(e.SelectedItem is PromotionalSet proSet) {
+				AddNomenclaturesFromPromotionalSet(proSet);
+			}
+		}
+
 
 		private void ConfigureTrees()
 		{
@@ -1082,6 +1110,18 @@ namespace Vodovoz
 
 		}
 
+		#region Рекламные наборы
+
+		void AddNomenclaturesFromPromotionalSet(PromotionalSet proSet)
+		{
+			if(proSet != null && !proSet.IsArchive && proSet.PromotionalSetItems.Any()) {
+				foreach(var proSetItem in proSet.PromotionalSetItems)
+					AddNomenclature(proSetItem.Nomenclature, proSetItem.Count, proSetItem.Discount, proSetItem.Discount > 0 ? proSet.PromoSetName : null);
+			}
+		}
+
+		#endregion
+
 		void NomenclatureForSaleSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
 			AddNomenclature(UoWGeneric.Session.Get<Nomenclature>(e.ObjectId));
@@ -1092,7 +1132,7 @@ namespace Vodovoz
 			AddNomenclature(e.Subject as Nomenclature);
 		}
 
-		void AddNomenclature(Nomenclature nomenclature, int count = 0)
+		void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
 		{
 			if(Entity.IsLoadedFrom1C) {
 				return;
@@ -1112,7 +1152,7 @@ namespace Vodovoz
 
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.equipment://Оборудование
-					RunAdditionalAgreementSalesEquipmentDialog(nomenclature);
+					CreateAdditionalAgreementAndAddNomenclature(nomenclature, count, discount, discountReason);
 					break;
 				case NomenclatureCategory.water:
 					CounterpartyContract contract = Entity.Contract;
@@ -1143,7 +1183,7 @@ namespace Vodovoz
 						contract.AdditionalAgreements.Add(wsa);
 						Entity.CreateOrderAgreementDocument(wsa);
 					}
-					Entity.AddWaterForSale(nomenclature, wsa, count);
+					Entity.AddWaterForSale(nomenclature, wsa, count, discount, discountReason);
 					break;
 				case NomenclatureCategory.master:
 					contract = null;
@@ -1161,7 +1201,14 @@ namespace Vodovoz
 					break;
 				case NomenclatureCategory.deposit://Залог
 				default://rest
-					Entity.AddAnyGoodsNomenclatureForSale(nomenclature);
+					var oi = new OrderItem {
+						Count = count,
+						DiscountForPreview = discount,
+						DiscountReason = discountReason,
+						Nomenclature = nomenclature,
+						Price = nomenclature.GetPrice(1)
+					};
+					Entity.AddItemWithNomenclatureForSale(oi);
 					break;
 			}
 		}
@@ -1610,6 +1657,43 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
+		protected void CreateAdditionalAgreementAndAddNomenclature(Nomenclature nom, int count, decimal discount, DiscountReason reason)
+		{
+			CounterpartyContract contract = null;
+			if(Entity.Contract == null) {
+				contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
+				if(contract == null) {
+					contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate);
+					Entity.Contract = contract;
+					Entity.AddContractDocument(contract);
+				}
+			} else {
+				contract = Entity.Contract;
+			}
+
+			var ag = new SalesEquipmentAgreement {
+				Contract = contract,
+				AgreementNumber = AdditionalAgreement.GetNumberWithType(contract, AgreementType.EquipmentSales),
+				DeliveryPoint = Entity.DeliveryPoint
+			};
+			if(Entity.DeliveryDate.HasValue)
+				ag.IssueDate = ag.StartDate = Entity.DeliveryDate.Value;
+			if(nom != null)
+				ag.AddEquipment(nom);
+			if(ag.DocumentTemplate == null && ag.Contract != null)
+				ag.UpdateContractTemplate(UoW);
+			if(ag.DocumentTemplate != null)
+				(ag.DocumentTemplate.DocParser as EquipmentAgreementParser).RootObject = ag;
+
+			UoW.Save(ag);
+			Entity.CreateOrderAgreementDocument(ag);
+			Entity.FillItemsFromAgreement(ag, count, discount, reason);
+			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType)
+										  .AdditionalAgreements
+										  .Add(ag);
+		}
+
+		[Obsolete("Использовать CreateAdditionalAgreementAndAddNomenclature. Этот метод удалить, когда точно поймём что не понадобится.", true)]
 		protected void RunAdditionalAgreementSalesEquipmentDialog(Nomenclature nom = null)
 		{
 			CounterpartyContract contract = null;
@@ -1633,7 +1717,6 @@ namespace Vodovoz
 			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 			TabParent.AddSlaveTab(this, dlg);
 		}
-
 		#endregion
 
 		#region Изменение диалога
@@ -1834,11 +1917,14 @@ namespace Vodovoz
 
 		protected void OnPickerDeliveryDateDateChangedByUser(object sender, EventArgs e)
 		{
-			if(Entity.DeliveryDate.HasValue && Entity.DeliveryDate.Value.Date == DateTime.Today.Date) {
-				MessageDialogHelper.RunWarningDialog("Сегодня? Уверены?");
+			if(Entity.DeliveryDate.HasValue) {
+				if(Entity.DeliveryDate.Value.Date != DateTime.Today.Date || MessageDialogHelper.RunWarningDialog("Подтвердите дату доставки", "Доставка сегодня? Вы уверены?")) {
+					CheckSameOrders();
+					Entity.ChangeOrderContract();
+					return;
+				}
+				Entity.DeliveryDate = null;
 			}
-			CheckSameOrders();
-			Entity.ChangeOrderContract();
 		}
 
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)

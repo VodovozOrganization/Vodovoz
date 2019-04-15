@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
 	[HistoryTrace]
-	public class OrderItem : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class OrderItem : PropertyChangedBase, IDomainObject
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -471,15 +471,6 @@ namespace Vodovoz.Domain.Orders
 			uow.Delete(this.PaidRentEquipment);
 			this.PaidRentEquipment = null;
 			uow.Save();
-		}
-
-		#endregion
-
-		#region IValidatableObject implementation
-
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			return null;
 		}
 
 		#endregion

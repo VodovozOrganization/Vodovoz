@@ -1507,8 +1507,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature, bool isChangeOrder = false, int? cnt = null)
 		{
-			var acceptCategories = Nomenclature.GetCategoriesForSale();
-			if(!acceptCategories.Contains(nomenclature.Category)) {
+			var acceptableCategories = Nomenclature.GetCategoriesForSale();
+			if(!acceptableCategories.Contains(nomenclature.Category)) {
 				return;
 			}
 
@@ -1526,6 +1526,16 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)
 			});
+		}
+
+		public virtual void AddItemWithNomenclatureForSale(OrderItem orderItem)
+		{
+			var acceptableCategories = Nomenclature.GetCategoriesForSale();
+			if(orderItem?.Nomenclature == null || !acceptableCategories.Contains(orderItem.Nomenclature.Category))
+				return;
+
+			orderItem.Order = this;
+			ObservableOrderItems.Add(orderItem);
 		}
 
 		/// <summary>
@@ -1555,7 +1565,7 @@ namespace Vodovoz.Domain.Orders
 				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
 		}
 
-		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count)
+		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count, decimal discount, DiscountReason reason = null)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 				return;
@@ -1572,14 +1582,18 @@ namespace Vodovoz.Domain.Orders
 				price = nomenclature.GetPrice(GetTotalWater19LCount());
 			}
 
-			ObservableOrderItems.Add(new OrderItem {
-				Order = this,
-				AdditionalAgreement = wsa,
-				Count = count,
-				Equipment = null,
-				Nomenclature = nomenclature,
-				Price = price
-			});
+			ObservableOrderItems.Add(
+				new OrderItem {
+					Order = this,
+					AdditionalAgreement = wsa,
+					Count = count,
+					Equipment = null,
+					Nomenclature = nomenclature,
+					Price = price,
+					DiscountForPreview = discount,
+					DiscountReason = reason
+				}
+			);
 		}
 
 		public virtual bool CalculateDeliveryPrice()
@@ -2025,23 +2039,23 @@ namespace Vodovoz.Domain.Orders
 			return waterItemsCount - BottlesReturn ?? 0;
 		}
 
-		public virtual void FillItemsFromAgreement(AdditionalAgreement a)
+		public virtual void FillItemsFromAgreement(AdditionalAgreement a, int count = -1, decimal discount = -1, DiscountReason reason = null)
 		{
 			if(a.Type == AgreementType.DailyRent || a.Type == AgreementType.NonfreeRent) {
 				IList<PaidRentEquipment> paidRentEquipmentList;
-				bool IsDaily = false;
-				int RentCount = 0;
+				bool isDaily = false;
+				int rentCount = 0;
 				if(a.Type == AgreementType.DailyRent) {
 					paidRentEquipmentList = (a.Self as DailyRentAgreement).Equipment;
-					RentCount = (a.Self as DailyRentAgreement).RentDays;
-					IsDaily = true;
+					rentCount = (a.Self as DailyRentAgreement).RentDays;
+					isDaily = true;
 				} else {
 					paidRentEquipmentList = (a.Self as NonfreeRentAgreement).PaidRentEquipments;
-					RentCount = (a.Self as NonfreeRentAgreement).RentMonths ?? 0;
+					rentCount = (a.Self as NonfreeRentAgreement).RentMonths ?? 0;
 				}
 
 				foreach(PaidRentEquipment paidRentEquipment in paidRentEquipmentList) {
-					int ItemId;
+					int itemId;
 					//Добавляем номенклатуру залога
 					OrderItem orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
@@ -2066,18 +2080,18 @@ namespace Vodovoz.Domain.Orders
 					orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
 							item => item.AdditionalAgreement?.Id == a.Self.Id &&
-						item.Nomenclature.Id == (IsDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily.Id : paidRentEquipment.PaidRentPackage.RentServiceMonthly.Id)
+						item.Nomenclature.Id == (isDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily.Id : paidRentEquipment.PaidRentPackage.RentServiceMonthly.Id)
 							)) != null) {
-						orderItem.Count = paidRentEquipment.Count * RentCount;
+						orderItem.Count = paidRentEquipment.Count * rentCount;
 						orderItem.Price = paidRentEquipment.Price;
-						ItemId = ObservableOrderItems.IndexOf(orderItem);
+						itemId = ObservableOrderItems.IndexOf(orderItem);
 					} else {
-						Nomenclature nomenclature = IsDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily : paidRentEquipment.PaidRentPackage.RentServiceMonthly;
-						ItemId = ObservableOrderItems.AddWithReturn(
+						Nomenclature nomenclature = isDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily : paidRentEquipment.PaidRentPackage.RentServiceMonthly;
+						itemId = ObservableOrderItems.AddWithReturn(
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = a.Self,
-								Count = paidRentEquipment.Count * RentCount,
+								Count = paidRentEquipment.Count * rentCount,
 								Equipment = null,
 								Nomenclature = nomenclature,
 								Price = paidRentEquipment.Price,
@@ -2095,17 +2109,17 @@ namespace Vodovoz.Domain.Orders
 						orderEquip.Count = paidRentEquipment.Count;
 					} else {
 						ObservableOrderEquipments.Add(
-						new OrderEquipment {
-							Order = this,
-							Direction = Direction.Deliver,
-							Count = paidRentEquipment.Count,
-							Equipment = paidRentEquipment.Equipment,
-							Nomenclature = paidRentEquipment.Nomenclature,
-							Reason = Reason.Rent,
-							DirectionReason = DirectionReason.Rent,
-							OrderItem = ObservableOrderItems[ItemId],
-							OwnType = OwnTypes.Rent
-						}
+							new OrderEquipment {
+								Order = this,
+								Direction = Direction.Deliver,
+								Count = paidRentEquipment.Count,
+								Equipment = paidRentEquipment.Equipment,
+								Nomenclature = paidRentEquipment.Nomenclature,
+								Reason = Reason.Rent,
+								DirectionReason = DirectionReason.Rent,
+								OrderItem = ObservableOrderItems[itemId],
+								OwnType = OwnTypes.Rent
+							}
 						);
 					}
 
@@ -2115,9 +2129,9 @@ namespace Vodovoz.Domain.Orders
 			} else if(a.Type == AgreementType.FreeRent) {
 				FreeRentAgreement agreement = a.Self as FreeRentAgreement;
 				foreach(FreeRentEquipment equipment in agreement.Equipment) {
-					int ItemId;
+					int itemId;
 					//Добавляем номенклатуру залога.
-					ItemId = ObservableOrderItems.AddWithReturn(
+					itemId = ObservableOrderItems.AddWithReturn(
 						new OrderItem {
 							Order = this,
 							AdditionalAgreement = agreement,
@@ -2138,7 +2152,7 @@ namespace Vodovoz.Domain.Orders
 							Nomenclature = equipment.Nomenclature,
 							Reason = Reason.Rent,
 							DirectionReason = DirectionReason.Rent,
-							OrderItem = ObservableOrderItems[ItemId],
+							OrderItem = ObservableOrderItems[itemId],
 							OwnType = OwnTypes.Rent
 						}
 					);
@@ -2153,18 +2167,20 @@ namespace Vodovoz.Domain.Orders
 						oi.Price = equipment.Price;
 						oi.Price = equipment.Count;
 					} else {
-						int ItemId;
+						int itemId;
 						//Добавляем номенклатуру продажи оборудования.
-						ItemId = ObservableOrderItems.AddWithReturn(
+						itemId = ObservableOrderItems.AddWithReturn(
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = agreement,
-								Count = equipment.Count,
+								Count = count < 0 ? equipment.Count : count,
+								DiscountForPreview = discount < 0 ? 0 : discount,
+								DiscountReason = reason,
 								Equipment = null,
 								Nomenclature = equipment.Nomenclature,
 								Price = equipment.Price
 							}
-							);
+						);
 					}
 				}
 			}

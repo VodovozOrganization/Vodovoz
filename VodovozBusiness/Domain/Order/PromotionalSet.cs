@@ -67,7 +67,7 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		public virtual string Title => string.Format("Рекламный набор №{0} \"{1}\"", Id, PromoSetName.Name);
-		public virtual string ShortTitle => string.Format("Промо-набор \"{0}\")", PromoSetName.Name);
+		public virtual string ShortTitle => string.Format("Промо-набор \"{0}\"", PromoSetName.Name);
 
 		#region IValidatableObject implementation
 

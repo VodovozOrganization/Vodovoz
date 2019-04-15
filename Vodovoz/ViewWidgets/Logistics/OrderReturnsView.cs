@@ -168,7 +168,7 @@ namespace Vodovoz
 					if(wsa == null) {
 						MessageDialogHelper.RunErrorDialog("Невозможно добавить воду, потому что нет дополнительного соглашения о продаже воды");
 					}
-					routeListItem.Order.AddWaterForSale(nomenclature, wsa, 0);
+					routeListItem.Order.AddWaterForSale(nomenclature, wsa, 0, 0);
 					break;
 				case NomenclatureCategory.master:
 					routeListItem.Order.AddMasterNomenclature(nomenclature, 0);
