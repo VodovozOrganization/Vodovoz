@@ -71035,7 +71035,7 @@ not tooltip</property>
               <widget class="QSWidgetLib.DatePicker" id="datepickerDeadlineChange">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="WithTime">False</property>
+                <property name="WithTime">True</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
