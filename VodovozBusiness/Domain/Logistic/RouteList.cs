@@ -1077,6 +1077,15 @@ namespace Vodovoz.Domain.Logistic
 												   .Where(item => (item.Nomenclature.Category == NomenclatureCategory.water) && !item.Nomenclature.IsDisposableTare)
 												   .Sum(item => item.ActualCount ?? 0);
 				var bottlesMovementOperation = address.Order.BottlesMovementOperation;
+
+				int forfeitCount = 0;
+				if(MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) {
+					if(int.TryParse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"], out int forfeitId)) {
+						forfeitCount += address.Order.OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
+																		   .Select(arg => arg.ActualCount.Value).Sum();
+					}
+				}
+
 				if(amountDelivered != 0 || address.BottlesReturned != 0) {
 					if(bottlesMovementOperation == null) {
 						bottlesMovementOperation = new BottlesMovementOperation {
@@ -1087,15 +1096,7 @@ namespace Vodovoz.Domain.Logistic
 					}
 					bottlesMovementOperation.OperationTime = address.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 					bottlesMovementOperation.Delivered = amountDelivered;
-					bottlesMovementOperation.Returned = address.BottlesReturned;
-					if(MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) 
-					{
-						if(int.TryParse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"], out int forfeitId)) 
-						{
-							bottlesMovementOperation.Returned += address.Order.OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
-																			   .Select(arg => arg.ActualCount.Value).Sum();
-						}
-					}
+					bottlesMovementOperation.Returned = address.BottlesReturned + forfeitCount;
 					address.Order.BottlesMovementOperation = bottlesMovementOperation;
 					result.Add(bottlesMovementOperation);
 
