@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSValidation;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
-using QS.Dialog.GtkUI;
 
 namespace Vodovoz
 {
@@ -72,8 +74,15 @@ namespace Vodovoz
 		{
 			cashier = FuelDocument.GetActualCashier(UoW);
 			if(cashier == null) {
-				MessageDialogHelper.RunErrorDialog(
+				MessageDialogHelper.RunWarningDialog(
 					"Ваш пользователь не привязан к действующему сотруднику, Вы не можете выдавать денежные средства и топливо, так как некого указывать в качестве кассира.");
+				return false;
+			}
+			var cashSubdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			if(!cashSubdivisions.Contains(cashier.Subdivision)) {
+				MessageDialogHelper.RunWarningDialog(
+					"Выдать топливо может только подразделение кассы"
+				);
 				return false;
 			}
 			return true;

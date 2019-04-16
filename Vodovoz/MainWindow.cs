@@ -1214,4 +1214,20 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new OrmReference(typeof(TariffZone))
 		);
 	}
+
+	protected void OnActionStockMovementsAdvancedReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<StockMovementsAdvancedReport>(),
+			() => new QSReport.ReportViewDlg(new StockMovementsAdvancedReport())
+		);
+	}
+
+	protected void OnActionNonReturnReasonsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<NonReturnReason>(),
+			() => new OrmReference(typeof(NonReturnReason))
+		);
+	}
 }

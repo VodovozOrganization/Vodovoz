@@ -594,6 +594,8 @@
     <Compile Include="Filters\ExpenseFilter.cs" />
     <Compile Include="Domain\Sale\TariffZone.cs" />
     <Compile Include="HibernateMapping\Sale\TariffZoneMap.cs" />
+    <Compile Include="Domain\Order\NonReturnReason.cs" />
+    <Compile Include="HibernateMapping\Order\NonReturnReasonMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

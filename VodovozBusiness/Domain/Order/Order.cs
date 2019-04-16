@@ -401,6 +401,12 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref fromClientText, value, () => FromClientText); }
 		}
 
+		NonReturnReason tareNonReturnReason;
+		[Display(Name = "Причина несдачи тары")]
+		public virtual NonReturnReason TareNonReturnReason {
+			get { return tareNonReturnReason; }
+			set { SetField(ref tareNonReturnReason, value, () => TareNonReturnReason); }
+		}
 
 		[Display(Name = "Колонка МЛ от клиента")]
 		public virtual string EquipmentsFromClient {
@@ -498,14 +504,6 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref onRouteEditReason, value, () => OnRouteEditReason); }
 		}
 
-		ReasonType resonType;
-
-		[Display(Name = "Тип причины")]
-		public virtual ReasonType ReasonType {
-			get { return resonType; }
-			set { SetField(ref resonType, value, () => ReasonType); }
-		}
-
 		DriverCallType driverCallType;
 
 		[Display(Name = "Водитель отзвонился")]
@@ -554,12 +552,12 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref isContractCloser, value, () => IsContractCloser); }
 		}
 
-		bool isReasonTypeChangedByUser;
+		bool isTareNonReturnReasonChangedByUser;
 		[Display(Name = "Причина невозврата тары указана пользователем")]
 		[IgnoreHistoryTrace]
-		public virtual bool IsReasonTypeChangedByUser {
-			get => isReasonTypeChangedByUser;
-			set { SetField(ref isReasonTypeChangedByUser, value, () => IsReasonTypeChangedByUser); }
+		public virtual bool IsTareNonReturnReasonChangedByUser {
+			get => isTareNonReturnReasonChangedByUser;
+			set { SetField(ref isTareNonReturnReasonChangedByUser, value, () => IsTareNonReturnReasonChangedByUser); }
 		}
 
 		bool hasCommentForDriver;
@@ -1133,15 +1131,16 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void ParseTareReason()
 		{
-			if(!IsReasonTypeChangedByUser) {
-				ReasonType = ReasonType.Unknown;
+			if(!IsTareNonReturnReasonChangedByUser) {
+				var reasons = UoW.Session.QueryOver<NonReturnReason>().OrderBy(x => x.Name).Asc.List();
+				TareNonReturnReason = reasons.FirstOrDefault(x => x.Name.ToUpper() == "ПРИЧИНА НЕИЗВЕСТНА");
 				if(!string.IsNullOrWhiteSpace(Comment)) {
-					if(Comment.ToUpper().Contains("НОВЫЙ АДРЕС"))
-						ReasonType = ReasonType.NewAddress;
-					if(Comment.ToUpper().Contains("УВЕЛИЧЕНИЕ ЗАКАЗА"))
-						ReasonType = ReasonType.OrderIncrease;
-					if(Comment.ToUpper().Contains("ПЕРВЫЙ ЗАКАЗ"))
-						ReasonType = ReasonType.FirstOrder;
+					if(Comment.ToUpper().Contains("НОВЫЙ АДРЕС") && reasons.Any(x => x.Name.ToUpper() == "НОВЫЙ АДРЕС"))
+						TareNonReturnReason = reasons.FirstOrDefault(x => x.Name.ToUpper() == "НОВЫЙ АДРЕС");
+					if(Comment.ToUpper().Contains("УВЕЛИЧЕНИЕ ЗАКАЗА") && reasons.Any(x => x.Name.ToUpper() == "УВЕЛИЧЕНИЕ ЗАКАЗА"))
+						TareNonReturnReason = reasons.FirstOrDefault(x => x.Name.ToUpper() == "УВЕЛИЧЕНИЕ ЗАКАЗА");
+					if(Comment.ToUpper().Contains("ПЕРВЫЙ ЗАКАЗ") && reasons.Any(x => x.Name.ToUpper() == "ПЕРВЫЙ ЗАКАЗ"))
+						TareNonReturnReason = reasons.FirstOrDefault(x => x.Name.ToUpper() == "ПЕРВЫЙ ЗАКАЗ");
 				}
 			}
 		}
@@ -2874,8 +2873,19 @@ namespace Vodovoz.Domain.Orders
 									.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 									.Sum(item => item.ActualCount.Value);
 
-			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
-				if(BottlesMovementOperation == null) {
+			int forfeitCount = 0;
+			if(MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) 
+			{
+				if(int.TryParse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"], out int forfeitId)) 
+				{
+					forfeitCount = OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
+																	   .Select(arg => arg.ActualCount.Value).Sum();
+				}
+			}
+
+			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null) || forfeitCount > 0) {
+				if(BottlesMovementOperation == null) 
+				{
 					BottlesMovementOperation = new BottlesMovementOperation {
 						Order = this,
 						Counterparty = Client,
@@ -2884,15 +2894,7 @@ namespace Vodovoz.Domain.Orders
 				}
 				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 				BottlesMovementOperation.Delivered = amountDelivered;
-				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
-				if(MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) 
-				{
-					if(int.TryParse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"], out int forfeitId)) 
-					{
-						BottlesMovementOperation.Returned += OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
-																		   .Select(arg => arg.ActualCount.Value).Sum();
-					}
-				}
+				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault() + forfeitCount;
 				uow.Save(BottlesMovementOperation);
 			} else if(BottlesMovementOperation != null) {
 				uow.Delete(BottlesMovementOperation);

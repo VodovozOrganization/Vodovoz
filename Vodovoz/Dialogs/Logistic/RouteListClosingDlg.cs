@@ -251,7 +251,7 @@ namespace Vodovoz
 			}
 
 			speccomboShift.Sensitive = false;
-
+			vbxFuelTickets.Sensitive = CheckIfCashier();
 			referenceCar.Sensitive = editing;
 			referenceDriver.Sensitive = editing;
 			referenceForwarder.Sensitive = editing;
@@ -982,6 +982,12 @@ namespace Vodovoz
 
 			Entity.Cashier = cashier;
 			return true;
+		}
+
+		bool CheckIfCashier()
+		{
+			var cashSubdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			return cashSubdivisions.Contains(EmployeeRepository.GetEmployeeForCurrentUser(UoW)?.Subdivision);
 		}
 
 		protected void OnAdvanceCheckboxToggled(object sender, EventArgs e)

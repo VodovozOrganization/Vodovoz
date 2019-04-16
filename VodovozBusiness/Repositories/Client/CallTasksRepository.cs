@@ -11,7 +11,7 @@ namespace Vodovoz.Repositories.Client
 		{
 			CallTask callTaskAlias = null;
 			var tasks = UoW.Session.QueryOver<CallTask>(() => callTaskAlias)
-										  .Where(() => callTaskAlias.Address.Id == deliveryPoint.Id)
+										  .Where(() => callTaskAlias.DeliveryPoint.Id == deliveryPoint.Id)
 										  .Take(count)
 										  .List();
 			return tasks;
@@ -21,7 +21,7 @@ namespace Vodovoz.Repositories.Client
 		{
 			CallTask callTaskAlias = null;
 			var tasks = UoW.Session.QueryOver<CallTask>(() => callTaskAlias)
-										  .Where(() => callTaskAlias.Address.Counterparty.Id == counterparty.Id)
+										  .Where(() => callTaskAlias.DeliveryPoint.Counterparty.Id == counterparty.Id)
 										  .Take(count)
 										  .List();
 			return tasks;
@@ -31,7 +31,7 @@ namespace Vodovoz.Repositories.Client
 		{
 			CallTask callTaskAlias = null;
 			var tasks = UoW.Session.QueryOver<CallTask>(() => callTaskAlias)
-										  .Where(() => callTaskAlias.Deadline >= startDate && callTaskAlias.Deadline <= endDate)
+										  .Where(() => callTaskAlias.EndActivePeriod >= startDate && callTaskAlias.EndActivePeriod <= endDate)
 										  .List();
 			return tasks;
 		}
@@ -41,7 +41,7 @@ namespace Vodovoz.Repositories.Client
 			CallTask callTaskAlias = null;
 			string comments = String.Empty;
 			var tasks = UoW.Session.QueryOver<CallTask>(() => callTaskAlias)
-				.Where(x => x.Address.Id == deliveryPoint.Id)
+				.Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
 				.List();
 			foreach(var task in tasks)
 				comments += task.Comment;
@@ -53,7 +53,7 @@ namespace Vodovoz.Repositories.Client
 			CallTask callTaskAlias = null;
 			string comments = String.Empty;
 			var tasks = UoW.Session.QueryOver<CallTask>(() => callTaskAlias)
-				.Where(x => x.Address.Id == deliveryPoint.Id)
+				.Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
 				.And(x => x.Id != callTask.Id)
 				.List();
 			foreach(var task in tasks)

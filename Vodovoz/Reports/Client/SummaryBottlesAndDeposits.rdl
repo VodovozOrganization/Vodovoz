@@ -1087,7 +1087,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="gf_returned">
-                          <Value>=Sum(Fields!returned.Value)</Value>
+                          <Value>=Sum(Fields!returned.Value -Iif( Fields!forfeitCount.IsMissing , 0 , {forfeitCount}))</Value>
                           <CanGrow>false</CanGrow>
                           <Style>
                             <BorderStyle>
@@ -1487,7 +1487,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="returned">
-                      <Value>=Fields!returned.Value</Value>
+                      <Value>=Fields!returned.Value - Iif( Fields!forfeitCount.IsMissing , 0 , {forfeitCount})</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1675,7 +1675,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="tf_returned">
-                      <Value>=Sum(Fields!returned.Value)</Value>
+                      <Value>=Sum(Fields!returned.Value - Iif( Fields!forfeitCount.IsMissing , 0 , {forfeitCount}))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
