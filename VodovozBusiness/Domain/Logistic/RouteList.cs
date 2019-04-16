@@ -1086,7 +1086,7 @@ namespace Vodovoz.Domain.Logistic
 					}
 				}
 
-				if(amountDelivered != 0 || address.BottlesReturned != 0) {
+				if(amountDelivered != 0 || address.BottlesReturned != 0 || forfeitCount > 0) {
 					if(bottlesMovementOperation == null) {
 						bottlesMovementOperation = new BottlesMovementOperation {
 							Order = address.Order,
