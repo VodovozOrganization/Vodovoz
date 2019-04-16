@@ -18,7 +18,7 @@ namespace Vodovoz.JournalFilters
 					dateperiodpickerDeadlineFilter.StartDate = StartActivePerionDate.Value;
 					dateperiodpickerDeadlineFilter.EndDate = EndActivePeriodDate.Value;
 				}
-				if(StartActivePerionDate != null) {
+				if(StartTaskCreateDate != null) {
 					dateperiodpickerCreateDateFilter.StartDate = StartTaskCreateDate.Value;
 					dateperiodpickerCreateDateFilter.EndDate = EndActivePeriodDate.Value;
 				} 
