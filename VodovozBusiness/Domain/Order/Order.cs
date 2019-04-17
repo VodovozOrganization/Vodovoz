@@ -2873,8 +2873,19 @@ namespace Vodovoz.Domain.Orders
 									.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 									.Sum(item => item.ActualCount.Value);
 
-			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null)) {
-				if(BottlesMovementOperation == null) {
+			int forfeitCount = 0;
+			if(MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) 
+			{
+				if(int.TryParse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"], out int forfeitId)) 
+				{
+					forfeitCount = OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
+																	   .Select(arg => arg.ActualCount.Value).Sum();
+				}
+			}
+
+			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null) || forfeitCount > 0) {
+				if(BottlesMovementOperation == null) 
+				{
 					BottlesMovementOperation = new BottlesMovementOperation {
 						Order = this,
 						Counterparty = Client,
@@ -2883,15 +2894,7 @@ namespace Vodovoz.Domain.Orders
 				}
 				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 				BottlesMovementOperation.Delivered = amountDelivered;
-				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault();
-				if(MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) 
-				{
-					if(int.TryParse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"], out int forfeitId)) 
-					{
-						BottlesMovementOperation.Returned += OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
-																		   .Select(arg => arg.ActualCount.Value).Sum();
-					}
-				}
+				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault() + forfeitCount;
 				uow.Save(BottlesMovementOperation);
 			} else if(BottlesMovementOperation != null) {
 				uow.Delete(BottlesMovementOperation);

@@ -237,9 +237,9 @@ namespace Vodovoz.JournalViewers
 			this.datepickerDeadlineChange = new global::QSWidgetLib.DatePicker();
 			this.datepickerDeadlineChange.Events = ((global::Gdk.EventMask)(256));
 			this.datepickerDeadlineChange.Name = "datepickerDeadlineChange";
-			this.datepickerDeadlineChange.WithTime = false;
+			this.datepickerDeadlineChange.WithTime = true;
 			this.datepickerDeadlineChange.Date = new global::System.DateTime(0);
-			this.datepickerDeadlineChange.IsEditable = false;
+			this.datepickerDeadlineChange.IsEditable = true;
 			this.datepickerDeadlineChange.AutoSeparation = false;
 			this.hboxEditSelected.Add(this.datepickerDeadlineChange);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hboxEditSelected[this.datepickerDeadlineChange]));

@@ -71059,7 +71059,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.JournalViewers.TasksView" design-size="811 466">
+  <widget class="Gtk.Bin" id="Vodovoz.JournalViewers.TasksView" design-size="842 466">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -71272,9 +71272,9 @@ not tooltip</property>
               <widget class="QSWidgetLib.DatePicker" id="datepickerDeadlineChange">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="WithTime">False</property>
+                <property name="WithTime">True</property>
                 <property name="Date">0</property>
-                <property name="IsEditable">False</property>
+                <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
                 <signal name="DateChangedByUser" handler="OnDatepickerDeadlineChangeDateChangedByUser" />
               </widget>
