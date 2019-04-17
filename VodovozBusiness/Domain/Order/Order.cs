@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Repositories;
 using QSSupportLib;
+using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -1565,10 +1566,13 @@ namespace Vodovoz.Domain.Orders
 				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
 		}
 
-		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count, decimal discount, DiscountReason reason = null)
+		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count, decimal discount = 0, DiscountReason reason = null)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 				return;
+
+			if(discount > 0 && reason == null)
+				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
 
 			decimal price;
 			//влияющая номенклатура
@@ -1676,6 +1680,111 @@ namespace Vodovoz.Domain.Orders
 				Price = orderItem.Price
 			});
 			//UpdateDocuments();
+		}
+
+		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
+		{
+			switch(nomenclature.Category) {
+				case NomenclatureCategory.equipment://Оборудование
+					CreateSalesEquipmentAgreementAndAddEquipment(nomenclature, count, discount, discountReason);
+					break;
+				case NomenclatureCategory.water:
+					CounterpartyContract contract = CreateWaterSalesAgreementAndAddWater(nomenclature, count, discount, discountReason);
+					break;
+				case NomenclatureCategory.master:
+					contract = CreateServiceContractAddMasterNomenclature(nomenclature);
+					break;
+				case NomenclatureCategory.deposit://Залог
+				default://rest
+					var oi = new OrderItem {
+						Count = count,
+						DiscountForPreview = discount,
+						DiscountReason = discountReason,
+						Nomenclature = nomenclature,
+						Price = nomenclature.GetPrice(1)
+					};
+					AddItemWithNomenclatureForSale(oi);
+					break;
+			}
+		}
+
+		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
+		{
+			CounterpartyContract contract = null;
+			if(Contract == null) {
+				contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				if(contract == null) {
+					contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
+					Contract = contract;
+					AddContractDocument(contract);
+				}
+			} else {
+				contract = Contract;
+			}
+			AddMasterNomenclature(nomenclature, 1, 1);
+			return contract;
+		}
+
+		private CounterpartyContract CreateWaterSalesAgreementAndAddWater(Nomenclature nom, int count, decimal discount, DiscountReason reason)
+		{
+			CounterpartyContract contract = Contract;
+			if(contract == null) {
+				contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				Contract = contract;
+			}
+
+			WaterSalesAgreement ag = contract.GetWaterSalesAgreement(DeliveryPoint, nom);
+			if(ag == null) {
+				ag = new WaterSalesAgreement {
+					Contract = contract,
+					AgreementNumber = AdditionalAgreement.GetNumberWithType(contract, AgreementType.WaterSales),
+					DeliveryPoint = deliveryPoint,
+				};
+				if(DeliveryDate.HasValue)
+					ag.IssueDate = ag.StartDate = DeliveryDate.Value;
+				ag.FillFixedPricesFromDeliveryPoint(UoW);
+				UoW.Save(ag);
+				contract.AdditionalAgreements.Add(ag);
+				CreateOrderAgreementDocument(ag);
+			}
+			AddWaterForSale(nom, ag, count, discount, reason);
+			return contract;
+		}
+
+		void CreateSalesEquipmentAgreementAndAddEquipment(Nomenclature nom, int count, decimal discount, DiscountReason reason)
+		{
+			CounterpartyContract contract = null;
+			if(Contract == null) {
+				contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				if(contract == null) {
+					contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
+					Contract = contract;
+					AddContractDocument(contract);
+				}
+			} else {
+				contract = Contract;
+			}
+
+			var ag = new SalesEquipmentAgreement {
+				Contract = contract,
+				AgreementNumber = AdditionalAgreement.GetNumberWithType(contract, AgreementType.EquipmentSales),
+				DeliveryPoint = DeliveryPoint
+			};
+			if(DeliveryDate.HasValue)
+				ag.IssueDate = ag.StartDate = DeliveryDate.Value;
+			if(nom != null)
+				ag.AddEquipment(nom);
+			/*if(ag.DocumentTemplate == null && ag.Contract != null)
+				ag.UpdateContractTemplate(UoW);
+			if(ag.DocumentTemplate != null)
+				(ag.DocumentTemplate.DocParser as EquipmentAgreementParser).RootObject = ag;*/
+
+			UoW.Save(ag);
+			CreateOrderAgreementDocument(ag);
+			FillItemsFromAgreement(ag, count, discount, reason);
+			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType)
+										  .AdditionalAgreements
+										  .Add(ag);
 		}
 
 		public virtual void ClearOrderItemsList()
@@ -2165,7 +2274,7 @@ namespace Vodovoz.Domain.Orders
 																 && x.Nomenclature.Id == equipment.Nomenclature.Id);
 					if(oi != null) {
 						oi.Price = equipment.Price;
-						oi.Price = equipment.Count;
+						oi.Count = equipment.Count;
 					} else {
 						int itemId;
 						//Добавляем номенклатуру продажи оборудования.
@@ -2174,6 +2283,7 @@ namespace Vodovoz.Domain.Orders
 								Order = this,
 								AdditionalAgreement = agreement,
 								Count = count < 0 ? equipment.Count : count,
+								IsDiscountInMoney = false,
 								DiscountForPreview = discount < 0 ? 0 : discount,
 								DiscountReason = reason,
 								Equipment = null,
@@ -2824,6 +2934,53 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 		}
+
+		/// <summary>
+		/// Проверка на наличие воды по умолчанию в заказе для выбранной
+		/// точки доставки и формирование сообщения о возможном штрафе
+		/// </summary>
+		/// <returns><c>false</c> если для точки доставки не указана вода по
+		/// умолчанию, или если в заказе есть какая-либо 19л вода, среди которой
+		/// имеется вода по умолчанию <c>true</c> если в точке доставки указана
+		/// вода по умолчанию и в заказе есть какая-либо 19л вода, среди которой
+		/// этой умолчальной нет <c>null</c> если проверка не может быть
+		/// выполнена ввиду отсутствия каких-либо данных</returns>
+		public virtual bool? IsWrongWater(out string title, out string msg)
+		{
+			title = msg = string.Empty;
+			if(DeliveryPoint == null)
+				return null;
+			Nomenclature defaultWater = DeliveryPoint.DefaultWaterNomenclature;
+			var orderWaters = ObservableOrderItems.Where(w => w.Nomenclature.Category == NomenclatureCategory.water && !w.Nomenclature.IsDisposableTare);
+
+			//Если имеется для точки доставки номенклатура по умолчанию, 
+			//если имеется вода в заказе и ни одна 19 литровая вода в заказе
+			//не совпадает с номенклатурой по умолчанию, то сообщение о штрафе!
+			if(defaultWater != null
+			   && orderWaters.Any()
+			   && !ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.water && !i.Nomenclature.IsDisposableTare
+												   && i.Nomenclature == defaultWater)) {
+
+				//список вод в заказе за исключением дефолтной для сообщения о штрафе
+				string waterInOrder = string.Empty;
+				foreach(var item in orderWaters) {
+					if(item.Nomenclature != defaultWater)
+						waterInOrder += string.Format(",\n\t'{0}'", item.Nomenclature.ShortOrFullName);
+				}
+				waterInOrder = waterInOrder.TrimStart(',');
+				title = "Внимание!";
+				string header = "Есть риск получить <span foreground=\"Red\" size=\"x-large\">ШТРАФ</span>!\n";
+				string text = string.Format("Клиент '{0}' для адреса '{1}' заказывает фиксировано воду \n'{2}'.\nВ заказе же вы указали: {3}. \nДля подтверждения что это не ошибка, нажмите 'Да'.",
+											Client.Name,
+											DeliveryPoint.ShortAddress,
+											defaultWater.ShortOrFullName,
+											waterInOrder);
+				msg = header + text;
+				return true;
+			}
+			return false;
+		}
+
 
 		/// <summary>
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со склада все отгружено, и произведена оплата

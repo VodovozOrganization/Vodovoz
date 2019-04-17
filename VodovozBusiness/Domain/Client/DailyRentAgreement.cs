@@ -5,7 +5,6 @@ using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
 {

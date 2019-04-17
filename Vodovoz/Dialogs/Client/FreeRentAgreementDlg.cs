@@ -1,12 +1,13 @@
 ﻿using System;
 using NLog;
-using QS.DomainModel.UoW;
 using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Project.Repositories;
 using QSValidation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using QS.Project.Repositories;
+using Vodovoz.ViewModelBased;
 
 namespace Vodovoz
 {
@@ -68,6 +69,22 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<FreeRentAgreement> (id);
 			ConfigureDlg ();
+		}
+
+		public FreeRentAgreementDlg(IUnitOfWork baseUoW, IEntityOpenOption option)
+		{
+			this.Build();
+			if(!option.NeedCreateNew) {
+				UoWGeneric = option.UseChildUoW
+					? UnitOfWorkFactory.CreateForChildRoot(baseUoW.GetById<FreeRentAgreement>(option.EntityId), baseUoW)
+					: UnitOfWorkFactory.CreateForRoot<FreeRentAgreement>(option.EntityId);
+			} else {
+				UoWGeneric = option.UseChildUoW
+					? UnitOfWorkFactory.CreateWithNewChildRoot<FreeRentAgreement>(baseUoW)
+					: UnitOfWorkFactory.CreateWithNewRoot<FreeRentAgreement>();
+			}
+
+			ConfigureDlg();
 		}
 
 		private void ConfigureDlg ()

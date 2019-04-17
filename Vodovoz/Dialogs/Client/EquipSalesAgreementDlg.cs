@@ -10,6 +10,7 @@ using QSValidation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.Dialogs.Client
 {
@@ -50,6 +51,22 @@ namespace Vodovoz.Dialogs.Client
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<SalesEquipmentAgreement>(id);
+			ConfigureDlg();
+		}
+
+		public EquipSalesAgreementDlg(IUnitOfWork baseUoW, IEntityOpenOption option)
+		{
+			this.Build();
+			if(!option.NeedCreateNew) {
+				UoWGeneric = option.UseChildUoW
+					? UnitOfWorkFactory.CreateForChildRoot(baseUoW.GetById<SalesEquipmentAgreement>(option.EntityId), baseUoW)
+					: UnitOfWorkFactory.CreateForRoot<SalesEquipmentAgreement>(option.EntityId);
+			} else {
+				UoWGeneric = option.UseChildUoW
+					? UnitOfWorkFactory.CreateWithNewChildRoot<SalesEquipmentAgreement>(baseUoW)
+					: UnitOfWorkFactory.CreateWithNewRoot<SalesEquipmentAgreement>();
+			}
+
 			ConfigureDlg();
 		}
 

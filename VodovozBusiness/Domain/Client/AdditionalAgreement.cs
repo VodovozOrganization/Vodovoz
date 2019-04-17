@@ -7,7 +7,6 @@ using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
 {
@@ -26,7 +25,7 @@ namespace Vodovoz.Domain.Client
 		/// (a as WaterSalesAgreement).IsFixedPrice
 		/// где IsFixedPrice доступно только для WaterSalesAgreement
 		/// </summary> 
-		public virtual AdditionalAgreement Self { get { return this; } }
+		public virtual AdditionalAgreement Self => this;
 
 		public virtual int Id { get; set; }
 
@@ -34,17 +33,17 @@ namespace Vodovoz.Domain.Client
 
 		[Display (Name = "Номер")]
 		[PropertyChangedAlso("FullNumberText")]
-		public virtual int AgreementNumber { 
-			get { return agreementNumber; } 
-			set { SetField (ref agreementNumber, value, () => AgreementNumber); }
+		public virtual int AgreementNumber {
+			get => agreementNumber;
+			set => SetField(ref agreementNumber, value, () => AgreementNumber);
 		}
 
 		DocTemplate agreeemntTemplate;
 
 		[Display (Name = "Шаблон договора")]
 		public virtual DocTemplate DocumentTemplate {
-			get { return agreeemntTemplate; }
-			protected set { SetField (ref agreeemntTemplate, value, () => DocumentTemplate); }
+			get => agreeemntTemplate;
+			protected set => SetField(ref agreeemntTemplate, value, () => DocumentTemplate);
 		}
 
 		byte[] changedTemplateFile;
@@ -52,8 +51,8 @@ namespace Vodovoz.Domain.Client
 		[Display (Name = "Измененное соглашение")]
 		//[PropertyChangedAlso("FileSize")]
 		public virtual byte[] ChangedTemplateFile {
-			get { return changedTemplateFile; }
-			set { SetField (ref changedTemplateFile, value, () => ChangedTemplateFile); }
+			get => changedTemplateFile;
+			set => SetField(ref changedTemplateFile, value, () => ChangedTemplateFile);
 		}
 
 		[Display (Name = "Тип доп. соглашения")]
@@ -96,19 +95,15 @@ namespace Vodovoz.Domain.Client
 
 		#region Вычисляемые
 
-		public virtual string AgreementDeliveryPoint { get { return DeliveryPoint != null ? DeliveryPoint.CompiledAddress : "Не указана"; } }
+		public virtual string AgreementDeliveryPoint => DeliveryPoint != null ? DeliveryPoint.CompiledAddress : "Не указана";
 
-		public virtual string AgreementTypeTitle { get { return Type.GetEnumTitle (); } }
+		public virtual string AgreementTypeTitle => Type.GetEnumTitle();
 
-		public virtual string Title { get { return String.Format ("Доп. соглашение №{0} от {1}", FullNumberText, StartDate.ToShortDateString ()); } }
+		public virtual string Title => string.Format("Доп. соглашение №{0} от {1}", FullNumberText, StartDate.ToShortDateString());
 
 		[Display(Name = "Полный номер")]
-		public virtual string FullNumberText {
-			get{
-				return String.Format("{0}-{1}/{2}{3}", Contract.Counterparty.VodovozInternalId, Contract.ContractSubNumber, GetTypePrefix(Type), AgreementNumber);
-			}
-		}
-	
+		public virtual string FullNumberText => string.Format("{0}-{1}/{2}{3}", Contract.Counterparty.VodovozInternalId, Contract.ContractSubNumber, GetTypePrefix(Type), AgreementNumber);
+
 		#endregion
 
 		public AdditionalAgreement ()
@@ -163,11 +158,7 @@ namespace Vodovoz.Domain.Client
 			var additionalAgreements = contract.AdditionalAgreements;
 			var numbers = additionalAgreements.Where(x => x.Type == type).Select(x => x.AgreementNumber).ToList();
 			numbers.Sort();
-
-			if (numbers.Count > 0) {
-				return numbers.Last() + 1;
-			} else
-				return 1;
+			return numbers.Any() ? numbers.Last() + 1 : 1;
 		}
 
 		public static int GetNumberWithTypeFromDB<TAgreement>(CounterpartyContract contract) 
@@ -199,7 +190,7 @@ namespace Vodovoz.Domain.Client
 				case AgreementType.EquipmentSales:
 					return "П";
 				default:
-					throw new InvalidOperationException(String.Format("Тип {0} не поддерживается.", type));
+					throw new InvalidOperationException(string.Format("Тип {0} не поддерживается.", type));
 			}
 		}
 			
@@ -221,11 +212,9 @@ namespace Vodovoz.Domain.Client
 				case AgreementType.EquipmentSales:
 					return TemplateType.AgEquip;
 				default:
-					throw new InvalidOperationException(String.Format("Тип {0} не поддерживается.", type));
+					throw new InvalidOperationException(string.Format("Тип {0} не поддерживается.", type));
 			}
 		}
-			
-			
 
 		#endregion
 
@@ -293,4 +282,3 @@ namespace Vodovoz.Domain.Client
 		}
 	}
 }
-

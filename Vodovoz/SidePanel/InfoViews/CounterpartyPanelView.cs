@@ -12,6 +12,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -121,14 +122,15 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
-			var dlg = new CounterpartyDlg(InfoProvider.UoW, Counterparty.Id);
-			dlg.ActivateContactsTab();
 			TDIMain.MainNotebook.OpenTab(
 				DialogHelper.GenerateDialogHashName<Counterparty>(Counterparty.Id),
-				() => dlg
+				() => {
+					var dlg = new CounterpartyDlg(InfoProvider.UoW, EntityOpenOption.Open(Counterparty.Id, true));
+					dlg.ActivateContactsTab();
+					return dlg;
+				}
 			);
 		}
 		#endregion
 	}
 }
-

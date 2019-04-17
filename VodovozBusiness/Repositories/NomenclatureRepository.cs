@@ -154,7 +154,7 @@ namespace Vodovoz.Repository
 		{
 			var followingNomenclaure = "номенклатура_для_выезда_с_мастером";
 			if(!MainSupport.BaseParameters.All.ContainsKey(followingNomenclaure))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура для добавления в заказа типа \"Выезд мастера\"");
+				throw new InvalidProgramException("В параметрах базы не указана номенклатура \"номенклатура_для_выезда_с_мастером\" для добавления в заказ типа \"Выезд мастера\"");
 			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[followingNomenclaure]));
 		}
 
