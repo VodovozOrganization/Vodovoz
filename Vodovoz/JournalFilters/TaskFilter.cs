@@ -14,13 +14,13 @@ namespace Vodovoz.JournalFilters
 		{
 			this.Build();
 			FilterChanged += () => {
-				if(StartActivePerionDate != null) {
+				if(StartActivePerionDate != null && EndActivePeriodDate != null) {
 					dateperiodpickerDeadlineFilter.StartDate = StartActivePerionDate.Value;
 					dateperiodpickerDeadlineFilter.EndDate = EndActivePeriodDate.Value;
 				}
-				if(StartTaskCreateDate != null) {
+				if(StartTaskCreateDate != null && EndTaskCreateDate != null) {
 					dateperiodpickerCreateDateFilter.StartDate = StartTaskCreateDate.Value;
-					dateperiodpickerCreateDateFilter.EndDate = EndActivePeriodDate.Value;
+					dateperiodpickerCreateDateFilter.EndDate = EndTaskCreateDate.Value;
 				} 
 			};
 			EmployeesVM employeeVM = new EmployeesVM();
