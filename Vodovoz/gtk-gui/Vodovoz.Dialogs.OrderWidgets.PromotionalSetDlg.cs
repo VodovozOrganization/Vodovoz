@@ -134,7 +134,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			this.lblName = new global::Gtk.Label();
 			this.lblName.Name = "lblName";
 			this.lblName.Xalign = 1F;
-			this.lblName.LabelProp = global::Mono.Unix.Catalog.GetString("Тип сертификата:");
+			this.lblName.LabelProp = global::Mono.Unix.Catalog.GetString("Тип набора:");
 			this.table2.Add(this.lblName);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table2[this.lblName]));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));

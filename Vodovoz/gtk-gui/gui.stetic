@@ -75884,7 +75884,7 @@ not tooltip</property>
               <widget class="Gtk.Label" id="lblName">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Тип сертификата:</property>
+                <property name="LabelProp" translatable="yes">Тип набора:</property>
               </widget>
               <packing>
                 <property name="AutoSize">False</property>

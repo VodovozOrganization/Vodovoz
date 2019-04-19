@@ -35,6 +35,7 @@ namespace Vodovoz.Domain.Orders
 
 		DateTime createDate;
 		[Display(Name = "Дата создания")]
+		[IgnoreHistoryTrace]
 		public virtual DateTime CreateDate {
 			get => createDate;
 			set => SetField(ref createDate, value, () => CreateDate);
