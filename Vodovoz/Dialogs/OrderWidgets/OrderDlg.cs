@@ -1302,12 +1302,12 @@ namespace Vodovoz
 			var agreement = item.AdditionalAgreement.Self;
 
 			var deletedOrderItems = Entity.ObservableOrderItems.Where(x => x.AdditionalAgreement != null
-																   && x.AdditionalAgreement.Self == agreement)
-															.ToList();
+																			&& x.AdditionalAgreement.Self == agreement)
+															   .ToList();
 			var deletedOrderDocuments = Entity.ObservableOrderDocuments.OfType<OrderAgreement>()
-																.Where(x => x.AdditionalAgreement != null
-																	   && x.AdditionalAgreement.Self == agreement)
-																.ToList();
+																	   .Where(x => x.AdditionalAgreement != null
+																					&& x.AdditionalAgreement.Self == agreement)
+																	   .ToList();
 
 			if(Entity.Id != 0) {
 				var valid = new QSValidator<Order>(
@@ -1339,7 +1339,7 @@ namespace Vodovoz
 						return;
 				}
 
-				var deletionObjects = OrmMain.GetDeletionObjects(agreementType, agreement.Id);
+				var deletionObjects = OrmMain.GetDeletionObjects(agreementType, agreement.Id, UoW);
 
 				var delAgreement = deletionObjects.FirstOrDefault(x => x.Type == agreementType && x.Id == agreement.Id);
 				if(delAgreement != null) {
