@@ -357,29 +357,6 @@ namespace Vodovoz
 			UoW.CanCheckIfDirty = false;
 		}
 
-		void YCmbPromoSets_ItemSelected(object sender, ItemSelectedEventArgs e)
-		{
-			if(Entity.Client == null) {
-				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
-				return;
-			}
-
-			if(Entity.DeliveryPoint == null) {
-				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должна быть выбрана точка доставки.");
-				return;
-			}
-
-			if(Entity.DeliveryDate == null) {
-				MessageDialogHelper.RunWarningDialog("Введите дату доставки");
-				return;
-			}
-
-			if(e.SelectedItem is PromotionalSet proSet) {
-				AddNomenclaturesFromPromotionalSet(proSet);
-			}
-		}
-
-
 		private void ConfigureTrees()
 		{
 			var colorBlack = new Gdk.Color(0, 0, 0);
@@ -1056,22 +1033,41 @@ namespace Vodovoz
 			);
 		}
 
-
 		#endregion
 
 		#region Добавление номенклатур
 
-		protected void OnButtonAddMasterClicked(object sender, EventArgs e)
+		void YCmbPromoSets_ItemSelected(object sender, ItemSelectedEventArgs e)
+		{
+			if(e.SelectedItem is PromotionalSet proSet && CanAddNomenclaturesToOrder())
+				AddNomenclaturesFromPromotionalSet(proSet);
+			if(!yCmbPromoSets.IsSelectedNot)
+				yCmbPromoSets.SelectedItem = SpecialComboState.Not;
+		}
+
+		bool CanAddNomenclaturesToOrder()
 		{
 			if(Entity.Client == null) {
 				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
-				return;
+				return false;
+			}
+
+			if(Entity.DeliveryPoint == null) {
+				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должна быть выбрана точка доставки.");
+				return false;
 			}
 
 			if(Entity.DeliveryDate == null) {
-				MessageDialogHelper.RunErrorDialog("Введите дату доставки");
-				return;
+				MessageDialogHelper.RunWarningDialog("Введите дату доставки");
+				return false;
 			}
+			return true;
+		}
+
+		protected void OnButtonAddMasterClicked(object sender, EventArgs e)
+		{
+			if(!CanAddNomenclaturesToOrder())
+				return;
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
 			nomenclatureFilter.SetAndRefilterAtOnce(
@@ -1089,20 +1085,8 @@ namespace Vodovoz
 
 		protected void OnButtonAddForSaleClicked(object sender, EventArgs e)
 		{
-			if(Entity.Client == null) {
-				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+			if(!CanAddNomenclaturesToOrder())
 				return;
-			}
-
-			if(Entity.DeliveryPoint == null) {
-				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должна быть выбрана точка доставки.");
-				return;
-			}
-
-			if(Entity.DeliveryDate == null) {
-				MessageDialogHelper.RunWarningDialog("Введите дату доставки");
-				return;
-			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
 			nomenclatureFilter.SetAndRefilterAtOnce(
@@ -1124,9 +1108,14 @@ namespace Vodovoz
 
 		void AddNomenclaturesFromPromotionalSet(PromotionalSet proSet)
 		{
-			if(proSet != null && !proSet.IsArchive && proSet.PromotionalSetItems.Any()) {
-				foreach(var proSetItem in proSet.PromotionalSetItems)
-					TryAddNomenclature(proSetItem.Nomenclature, proSetItem.Count, proSetItem.Discount, proSetItem.Discount > 0 ? proSet.PromoSetName : null);
+			if(!Entity.ObservablePromotionalSets.Contains(proSet)) {
+				if(!Entity.CanAddPromotionalSet(proSet, out string msg) && !MessageDialogHelper.RunQuestionWithTitleDialog("Повтор промо-набора", msg))
+					return;
+				if(proSet != null && !proSet.IsArchive && proSet.PromotionalSetItems.Any()) {
+					foreach(var proSetItem in proSet.PromotionalSetItems)
+						TryAddNomenclature(proSetItem.Nomenclature, proSetItem.Count, proSetItem.Discount, proSetItem.Discount > 0 ? proSet.PromoSetName : null);
+				}
+				Entity.ObservablePromotionalSets.Add(proSet);
 			}
 		}
 
@@ -1144,9 +1133,8 @@ namespace Vodovoz
 
 		void TryAddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
 		{
-			if(Entity.IsLoadedFrom1C) {
+			if(Entity.IsLoadedFrom1C)
 				return;
-			}
 
 			if(Entity.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
 			   && nomenclature.Category == NomenclatureCategory.master) {
@@ -1161,52 +1149,6 @@ namespace Vodovoz
 			}
 
 			Entity.AddNomenclature(nomenclature, count, discount, discountReason);
-
-			/*switch(nomenclature.Category) {
-				case NomenclatureCategory.equipment://Оборудование
-					CreateAdditionalAgreementAndAddNomenclature(nomenclature, count, discount, discountReason);
-					break;
-				case NomenclatureCategory.water:
-					CounterpartyContract contract = Entity.Contract;
-					if(contract == null) {
-						contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-						Entity.Contract = contract;
-					}
-					UoWGeneric.Session.Refresh(contract);
-					WaterSalesAgreement wsa = contract.GetWaterSalesAgreement(Entity.DeliveryPoint, nomenclature);
-					if(wsa == null) {
-						wsa = ClientDocumentsRepository.CreateDefaultWaterAgreement(UoW, Entity.DeliveryPoint, Entity.DeliveryDate, contract);
-						contract.AdditionalAgreements.Add(wsa);
-						Entity.CreateOrderAgreementDocument(wsa);
-					}
-					Entity.AddWaterForSale(nomenclature, wsa, count, discount, discountReason);
-					break;
-				case NomenclatureCategory.master:
-					contract = null;
-					if(Entity.Contract == null) {
-						contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-						if(contract == null) {
-							contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate);
-							Entity.Contract = contract;
-							Entity.AddContractDocument(contract);
-						}
-					} else {
-						contract = Entity.Contract;
-					}
-					Entity.AddMasterNomenclature(nomenclature, 1, 1);
-					break;
-				case NomenclatureCategory.deposit://Залог
-				default://rest
-					var oi = new OrderItem {
-						Count = count,
-						DiscountForPreview = discount,
-						DiscountReason = discountReason,
-						Nomenclature = nomenclature,
-						Price = nomenclature.GetPrice(1)
-					};
-					Entity.AddItemWithNomenclatureForSale(oi);
-					break;
-			}*/
 		}
 
 		private void AddRentAgreement(OrderAgreementType type)
@@ -1251,10 +1193,8 @@ namespace Vodovoz
 
 		protected void OnButtonbuttonAddEquipmentToClientClicked(object sender, EventArgs e)
 		{
-			if(Entity.Client == null) {
-				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+			if(!CanAddNomenclaturesToOrder())
 				return;
-			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
 			nomenclatureFilter.SetAndRefilterAtOnce(
@@ -1282,10 +1222,8 @@ namespace Vodovoz
 
 		protected void OnButtonAddEquipmentFromClientClicked(object sender, EventArgs e)
 		{
-			if(Entity.Client == null) {
-				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+			if(!CanAddNomenclaturesToOrder())
 				return;
-			}
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
 			nomenclatureFilter.SetAndRefilterAtOnce(
@@ -1463,12 +1401,12 @@ namespace Vodovoz
 		{
 			if(treeItems.GetSelectedObject() is OrderItem orderItem) {
 				RemoveOrderItem(orderItem);
+				Entity.TryToRemovePromotionalSet(orderItem);
 				//при удалении номенклатуры выделение снимается и при последующем удалении exception
 				//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
 				buttonDelete1.Sensitive = treeItems.GetSelectedObject() != null;
 			}
 		}
-
 		#endregion
 
 		#region Создание договоров, доп соглашений
@@ -1584,11 +1522,13 @@ namespace Vodovoz
 
 		protected int AskCreateContract()
 		{
-			MessageDialog md = new MessageDialog(null,
+			MessageDialog md = new MessageDialog(
+				null,
 				DialogFlags.Modal,
 				MessageType.Question,
 				ButtonsType.YesNo,
-												 $"Отсутствует договор с клиентом для формы оплаты '{Entity.PaymentType.GetEnumTitle()}'. Создать?");
+				$"Отсутствует договор с клиентом для формы оплаты '{Entity.PaymentType.GetEnumTitle()}'. Создать?"
+			);
 			md.SetPosition(WindowPosition.Center);
 			md.AddButton("Автоматически", ResponseType.Accept);
 			md.ShowAll();
@@ -1652,31 +1592,6 @@ namespace Vodovoz
 				};
 			TabParent.AddSlaveTab(this, dlg);
 		}
-
-		//[Obsolete("Использовать CreateAdditionalAgreementAndAddNomenclature. Этот метод удалить, когда точно поймём что не понадобится.", true)]
-		//protected void RunAdditionalAgreementSalesEquipmentDialog(Nomenclature nom = null)
-		//{
-		//	CounterpartyContract contract = null;
-		//	if(Entity.Contract == null) {
-		//		contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-		//		if(contract == null) {
-		//			contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate);
-		//			Entity.Contract = contract;
-		//			Entity.AddContractDocument(contract);
-		//		}
-		//	} else {
-		//		contract = Entity.Contract;
-		//	}
-		//	ITdiDialog dlg = new EquipSalesAgreementDlg(
-		//		contract,
-		//		Entity.DeliveryPoint,
-		//		Entity.DeliveryDate,
-		//		nom
-		//	);
-
-		//	(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
-		//	TabParent.AddSlaveTab(this, dlg);
-		//}
 		#endregion
 
 		#region Изменение диалога

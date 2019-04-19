@@ -2151,7 +2151,6 @@ namespace Vodovoz
 			this.enumDiverCallType.Changed += new global::System.EventHandler(this.OnEnumDiverCallTypeChanged);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler(this.OnButtonAddForSaleClicked);
 			this.buttonAddMaster.Clicked += new global::System.EventHandler(this.OnButtonAddMasterClicked);
-			this.yCmbPromoSets.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYcomboboxReasonItemSelected);
 			this.buttonDelete1.Clicked += new global::System.EventHandler(this.OnButtonDelete1Clicked);
 			this.entryBottlesToReturn.Changed += new global::System.EventHandler(this.OnEntryBottlesReturnChanged);
 			this.entryTareReturned.Changed += new global::System.EventHandler(this.OnEntryBottlesReturnChanged);

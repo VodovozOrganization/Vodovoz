@@ -14,6 +14,10 @@ namespace Vodovoz.HibernateMapping.Orders
 			Map(x => x.IsArchive).Column("is_archive");
 			References(x => x.PromoSetName).Column("discount_reason_id");
 			HasMany(x => x.PromotionalSetItems).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("promotional_set_id");
+			HasManyToMany(x => x.Orders).Table("promotional_sets_to_orders")
+								.ParentKeyColumn("promotional_set_id")
+								.ChildKeyColumn("order_id")
+								.LazyLoad();
 		}
 	}
 }

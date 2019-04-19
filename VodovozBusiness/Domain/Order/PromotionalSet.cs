@@ -64,6 +64,23 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		IList<Order> orders = new List<Order>();
+		[Display(Name = "Использован для заказов")]
+		public virtual IList<Order> Orders {
+			get => orders;
+			set => SetField(ref orders, value, () => Orders);
+		}
+
+		GenericObservableList<Order> observableOrders;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Order> ObservableOrders {
+			get {
+				if(observableOrders == null)
+					observableOrders = new GenericObservableList<Order>(Orders);
+				return observableOrders;
+			}
+		}
+
 		#endregion
 
 		public virtual string Title => string.Format("Рекламный набор №{0} \"{1}\"", Id, PromoSetName.Name);
@@ -82,6 +99,12 @@ namespace Vodovoz.Domain.Orders
 			if(!PromotionalSetItems.Any() || PromotionalSetItems.Any(i => i.Count <= 0))
 				yield return new ValidationResult(
 					"Выберите номенклатуры и укажите их количества",
+					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
+				);
+
+			if(PromotionalSetItems.Any(i => i.Discount < 0 || i.Discount > 100))
+				yield return new ValidationResult(
+					"Скидка не может быть меньше 0 или больше 100%",
 					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
 				);
 		}

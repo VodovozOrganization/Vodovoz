@@ -44,7 +44,13 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Процент скидки на товар")]
 		public virtual decimal Discount {
 			get => discount;
-			set => SetField(ref discount, value, () => Discount);
+			set {
+				if(value > 100)
+					value = 100;
+				if(value < 0)
+					value = 0;
+				SetField(ref discount, value, () => Discount);
+			}
 		}
 
 		#endregion

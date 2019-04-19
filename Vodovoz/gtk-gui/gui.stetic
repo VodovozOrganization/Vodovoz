@@ -1560,7 +1560,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -29221,6 +29220,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -30997,7 +30997,6 @@
                                     <property name="DefaultFirst">False</property>
                                     <property name="ShowSpecialStateAll">False</property>
                                     <property name="ShowSpecialStateNot">True</property>
-                                    <signal name="ItemSelected" handler="OnYcomboboxReasonItemSelected" />
                                   </widget>
                                   <packing>
                                     <property name="Position">3</property>

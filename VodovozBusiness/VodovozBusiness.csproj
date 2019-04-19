@@ -600,6 +600,7 @@
     <Compile Include="Domain\Order\PromotionalSetItem.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetMap.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetItemMap.cs" />
+    <Compile Include="Repositories\Orders\PromotionalSetRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
