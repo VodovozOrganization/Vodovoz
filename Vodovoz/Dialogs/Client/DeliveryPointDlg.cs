@@ -139,7 +139,7 @@ namespace Vodovoz
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding(Entity,
 				entity => entity.CoordinatesExist
-				? String.Format("<span foreground='{1}'>{0}</span>", entity.СoordinatesText,
+				? String.Format("<span foreground='{1}'>{0}</span>", entity.CoordinatesText,
 					(entity.FoundOnOsm ? "green" : "blue"))
 				: "<span foreground='red'>Не найден на карте.</span>",
 				widget => widget.LabelProp)
@@ -380,7 +380,7 @@ namespace Vodovoz
 			var valid = new QSValidator<DeliveryPoint>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
-			if(!Entity.FindAndAssociateDistrict(UoW) && !MessageDialogHelper.RunWarningDialog(
+			if(Entity.District == null && !MessageDialogHelper.RunWarningDialog(
 								"Проверьте координаты!",
 								"Район доставки не найден. Это приведёт к невозможности отображения заказа на эту точку доставки у логистов при составлении маршрутного листа. Укажите правильные координаты.\nПродолжить сохранение точки доставки?",
 								Gtk.ButtonsType.YesNo
@@ -478,7 +478,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.SetСoordinates(latitude, longitude);
+			Entity.SetСoordinates(latitude, longitude, UoW);
 			Entity.СoordsLastChangeUser = Repositories.HumanResources.UserRepository.GetCurrentUser(UnitOfWorkFactory.CreateWithoutRoot());
 		}
 

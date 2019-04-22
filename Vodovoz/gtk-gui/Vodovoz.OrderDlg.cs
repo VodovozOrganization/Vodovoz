@@ -212,7 +212,7 @@ namespace Vodovoz
 
 		private global::Gtk.VSeparator vseparator2;
 
-		private global::Gtk.Button buttonDelete1;
+		private global::Gtk.Button btnDeleteOrderItem;
 
 		private global::Gtk.HBox hbox6;
 
@@ -493,7 +493,6 @@ namespace Vodovoz
 			w14.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport1.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(16)), ((uint)(4)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -1453,16 +1452,16 @@ namespace Vodovoz
 			w103.Expand = false;
 			w103.Fill = false;
 			// Container child hbox12.Gtk.Box+BoxChild
-			this.buttonDelete1 = new global::Gtk.Button();
-			this.buttonDelete1.CanFocus = true;
-			this.buttonDelete1.Name = "buttonDelete1";
-			this.buttonDelete1.UseUnderline = true;
-			this.buttonDelete1.Label = global::Mono.Unix.Catalog.GetString("Удалить");
+			this.btnDeleteOrderItem = new global::Gtk.Button();
+			this.btnDeleteOrderItem.CanFocus = true;
+			this.btnDeleteOrderItem.Name = "btnDeleteOrderItem";
+			this.btnDeleteOrderItem.UseUnderline = true;
+			this.btnDeleteOrderItem.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			global::Gtk.Image w104 = new global::Gtk.Image();
 			w104.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
-			this.buttonDelete1.Image = w104;
-			this.hbox12.Add(this.buttonDelete1);
-			global::Gtk.Box.BoxChild w105 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.buttonDelete1]));
+			this.btnDeleteOrderItem.Image = w104;
+			this.hbox12.Add(this.btnDeleteOrderItem);
+			global::Gtk.Box.BoxChild w105 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.btnDeleteOrderItem]));
 			w105.Position = 5;
 			w105.Expand = false;
 			w105.Fill = false;
@@ -2151,7 +2150,7 @@ namespace Vodovoz
 			this.enumDiverCallType.Changed += new global::System.EventHandler(this.OnEnumDiverCallTypeChanged);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler(this.OnButtonAddForSaleClicked);
 			this.buttonAddMaster.Clicked += new global::System.EventHandler(this.OnButtonAddMasterClicked);
-			this.buttonDelete1.Clicked += new global::System.EventHandler(this.OnButtonDelete1Clicked);
+			this.btnDeleteOrderItem.Clicked += new global::System.EventHandler(this.OnBtnDeleteOrderItemClicked);
 			this.entryBottlesToReturn.Changed += new global::System.EventHandler(this.OnEntryBottlesReturnChanged);
 			this.entryTareReturned.Changed += new global::System.EventHandler(this.OnEntryBottlesReturnChanged);
 			this.ycomboboxReason.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYcomboboxReasonItemSelected);
