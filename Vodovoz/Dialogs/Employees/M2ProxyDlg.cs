@@ -4,9 +4,10 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
-using QS.DomainModel.UoW;
 using QS.Dialog;
-using QSProjectsLib;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
+using QS.Project.Repositories;
 using QSValidation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
@@ -15,7 +16,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.ViewModel;
-using QS.Project.Repositories;
+using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -24,29 +25,19 @@ namespace Vodovoz.Dialogs.Employees
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private List<OrderEquipment> equipmentList;
-		public IUnitOfWorkGeneric<Order> UoWOrder { get; private set; }
+		public IUnitOfWork UoWOrder { get; private set; }
 
-		bool isEditable = true;
-
-		public bool IsEditable {
-			get => isEditable;
-			set {
-				isEditable = value;
-			}
-		}
-
+		public bool IsEditable { get; set; } = true;
 
 		public M2ProxyDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
-			//Entity.Date = DateTime.Now;
 			TabName = "Новая доверенность М-2";
 			ConfigureDlg();
 		}
 
-		public M2ProxyDlg(M2ProxyDocument sub) : this(sub.Id)
-		{ }
+		public M2ProxyDlg(M2ProxyDocument sub) : this(sub.Id) { }
 
 		public M2ProxyDlg(int id)
 		{
@@ -56,15 +47,27 @@ namespace Vodovoz.Dialogs.Employees
 			ConfigureDlg();
 		}
 
-		public M2ProxyDlg(IUnitOfWorkGeneric<Order> uow) : this()
+		public M2ProxyDlg(IUnitOfWork baseUoW, IEntityOpenOption option)
 		{
-			UoWOrder = uow;
-			Entity.Order = UoWOrder.Root;
+			this.Build();
+			if(option.NeedCreateNew) {
+				UoWGeneric = option.UseChildUoW
+					? UnitOfWorkFactory.CreateWithNewChildRoot<M2ProxyDocument>(baseUoW)
+					: UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
+			} else {
+				UoWGeneric = option.UseChildUoW
+					? UnitOfWorkFactory.CreateForChildRoot(baseUoW.GetById<M2ProxyDocument>(option.EntityId), baseUoW)
+					: UnitOfWorkFactory.CreateForRoot<M2ProxyDocument>(option.EntityId);
+			}
+			UoWOrder = baseUoW;
+			Entity.Order = UoWOrder.RootObject as Order;
+
+			ConfigureDlg();
 		}
 
 		void ConfigureDlg()
 		{
-			if(Entity.EmployeeDocument == null && Entity.Employee!=null)
+			if(Entity.EmployeeDocument == null && Entity.Employee != null)
 				GetDocument();
 
 			ylabelNumber.Binding.AddBinding(Entity, x => x.Title, x => x.LabelProp).InitializeFromSource();
@@ -75,7 +78,7 @@ namespace Vodovoz.Dialogs.Employees
 				FillForOrder();
 			};
 			yEForOrder.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
-			          
+
 			yentryOrganization.SubjectType = typeof(Organization);
 			yentryOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
 			yentryOrganization.Changed += (sender, e) => {
@@ -97,7 +100,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			yETicketNr.Binding.AddBinding(Entity, x => x.TicketNumber, w => w.Text).InitializeFromSource();
 
-			yDTicketDate.Binding.AddBinding(Entity, x => x.TicketDate, x => x.Date).InitializeFromSource();
+			yDTicketDate.Binding.AddBinding(Entity, x => x.TicketDate, x => x.DateOrNull).InitializeFromSource();
 
 			RefreshParserRootObject();
 
@@ -121,7 +124,7 @@ namespace Vodovoz.Dialogs.Employees
 		void GetDocument()
 		{
 			var doc = Entity.Employee.GetMainDocuments();
-			if(doc.Count > 0)
+			if(doc.Any())
 				Entity.EmployeeDocument = doc[0];
 		}
 
@@ -138,13 +141,13 @@ namespace Vodovoz.Dialogs.Employees
 			} else {
 				yDPDatesRange.StartDateOrNull = DateTime.Today;
 				yDPDatesRange.EndDateOrNull = DateTime.Today.AddDays(10);
-				}
+			}
 		}
 
 		void Templatewidget_BeforeOpen(object sender, EventArgs e)
 		{
 			if(UoW.HasChanges) {
-				if(MessageDialogWorks.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
+				if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
 					UoWGeneric.Save();
 					RefreshParserRootObject();
 				} else {
@@ -177,19 +180,20 @@ namespace Vodovoz.Dialogs.Employees
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<M2ProxyDocument>(UoWGeneric.Root);
+			var valid = new QSValidator<M2ProxyDocument>(Entity);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 			UoWGeneric.Save();
 
 			if(Entity.Order != null) {
-				List<OrderDocument> list = new List<OrderDocument>();
-				list.Add(new OrderM2Proxy {
-					AttachedToOrder = Entity.Order,
-					M2Proxy = Entity,
-					Order = Entity.Order
-				});
-				UoWOrder.Root.AddAdditionalDocuments(list);
+				List<OrderDocument> list = new List<OrderDocument> {
+					new OrderM2Proxy {
+						AttachedToOrder = Entity.Order,
+						M2Proxy = Entity,
+						Order = Entity.Order
+					}
+				};
+				(UoWOrder.RootObject as Order).AddAdditionalDocuments(list);
 			}
 
 			return true;

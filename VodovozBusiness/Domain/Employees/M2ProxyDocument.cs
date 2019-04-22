@@ -72,9 +72,9 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref ticketNumber, value, () => TicketNumber); }
 		}
 
-		DateTime ticketDate;
+		DateTime? ticketDate;
 		[Display(Name = "Дата наряда")]
-		public virtual DateTime TicketDate {
+		public virtual DateTime? TicketDate {
 			get { return ticketDate; }
 			set { SetField(ref ticketDate, value, () => TicketDate); }
 		}
@@ -116,9 +116,6 @@ namespace Vodovoz.Domain.Employees
 
 			if(DocumentTemplate == null)
 				yield return new ValidationResult(String.Format("Не выбран шаблон доверенности"));
-
-			if(TicketDate == null)
-				yield return new ValidationResult(String.Format("Не указана дата наряда"));
 		}
 
 		#endregion

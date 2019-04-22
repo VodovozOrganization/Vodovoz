@@ -1230,4 +1230,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new OrmReference(typeof(NonReturnReason))
 		);
 	}
+
+	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<PromotionalSet>(),
+			() => new OrmReference(typeof(PromotionalSet))
+		);
+	}
 }

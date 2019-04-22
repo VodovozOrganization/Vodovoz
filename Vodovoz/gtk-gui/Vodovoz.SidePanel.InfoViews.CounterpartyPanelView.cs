@@ -276,7 +276,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelDebtInfo = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDebtInfo.Name = "ylabelDebtInfo";
-			this.ylabelDebtInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Баланс:");
+			this.ylabelDebtInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Долг(по клиенту):");
 			this.table1.Add(this.ylabelDebtInfo);
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelDebtInfo]));
 			w23.TopAttach = ((uint)(2));
@@ -298,8 +298,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.label6.Hide();
 			this.labelLatestOrderDate.Hide();
 			this.label4.Hide();
-			this.labelDebt.Hide();
-			this.ylabelDebtInfo.Hide();
 			this.Hide();
 			this.btnAddPhone.Clicked += new global::System.EventHandler(this.OnBtnAddPhoneClicked);
 			this.buttonSaveComment.Clicked += new global::System.EventHandler(this.OnButtonSaveCommentClicked);

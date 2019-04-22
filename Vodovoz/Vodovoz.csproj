@@ -497,7 +497,6 @@
     <Compile Include="ViewWidgets\FreeRentPackagesView.cs" />
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
     <Compile Include="ViewWidgets\ContactsView.cs" />
-    <Compile Include="Dialogs\OrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyView.cs" />
     <Compile Include="Representations\StockBalanceVM.cs" />
@@ -1130,6 +1129,9 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.TariffZoneDebts.cs" />
     <Compile Include="ReportsParameters\Store\StockMovementsAdvancedReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.StockMovementsAdvancedReport.cs" />
+    <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
+    <Compile Include="Dialogs\OrderWidgets\PromotionalSetDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderWidgets.PromotionalSetDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1321,6 +1323,7 @@
     <Folder Include="Dialogs\Cash\CashTransfer\" />
     <Folder Include="JournalFilters\QueryFilterViews\" />
     <Folder Include="ReportsParameters\Orders\" />
+    <Folder Include="Dialogs\OrderWidgets\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

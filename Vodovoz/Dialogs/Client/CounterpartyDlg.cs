@@ -19,6 +19,7 @@ using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModelBased;
 
 namespace Vodovoz
 {
@@ -55,17 +56,23 @@ namespace Vodovoz
 
 		public CounterpartyDlg(Counterparty sub) : this(sub.Id) { }
 
-		public CounterpartyDlg(IUnitOfWork baseUoW, int id)
+		public CounterpartyDlg(IUnitOfWork baseUoW, IEntityOpenOption option)
 		{
 			this.Build();
-			var rootObject = baseUoW.GetById<Counterparty>(id);
-			UoWGeneric = UnitOfWorkFactory.CreateForChildRoot<Counterparty>(rootObject, baseUoW);
+			if(option.NeedCreateNew) {
+				UoWGeneric = option.UseChildUoW
+					? UnitOfWorkFactory.CreateWithNewChildRoot<Counterparty>(baseUoW)
+					: UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			} else {
+				UoWGeneric = option.UseChildUoW
+					? UnitOfWorkFactory.CreateForChildRoot(baseUoW.GetById<Counterparty>(option.EntityId), baseUoW)
+					: UnitOfWorkFactory.CreateForRoot<Counterparty>(option.EntityId);
+			}
+
 			ConfigureDlg();
 		}
 
-		public CounterpartyDlg(IUnitOfWork baseUoW, Counterparty sub) : this(baseUoW, sub.Id) { }
-
-		private void ConfigureDlg()
+		void ConfigureDlg()
 		{
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;

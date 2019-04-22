@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Gamma.Utilities;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
@@ -268,11 +269,11 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref signatureType, value, () => SignatureType); }
 		}
 
-		private Decimal extraMoney;
+		private decimal extraMoney;
 
 		[Display(Name = "Доплата\\Переплата")]
 		[PropertyChangedAlso(nameof(OrderCashSum))]
-		public virtual Decimal ExtraMoney {
+		public virtual decimal ExtraMoney {
 			get { return extraMoney; }
 			set { SetField(ref extraMoney, value, () => ExtraMoney); }
 		}
@@ -712,12 +713,29 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		IList<PromotionalSet> promotionalSets = new List<PromotionalSet>();
+		[Display(Name = "Промонаборы заказа")]
+		public virtual IList<PromotionalSet> PromotionalSets {
+			get => promotionalSets;
+			set => SetField(ref promotionalSets, value, () => PromotionalSets);
+		}
+
+		GenericObservableList<PromotionalSet> observablePromotionalSets;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<PromotionalSet> ObservablePromotionalSets {
+			get {
+				if(observablePromotionalSets == null)
+					observablePromotionalSets = new GenericObservableList<PromotionalSet>(PromotionalSets);
+				return observablePromotionalSets;
+			}
+		}
+
 		public Order()
 		{
-			Comment = String.Empty;
+			Comment = string.Empty;
 			OrderStatus = OrderStatus.NewOrder;
-			SumDifferenceReason = String.Empty;
-			ClientPhone = String.Empty;
+			SumDifferenceReason = string.Empty;
+			ClientPhone = string.Empty;
 		}
 
 		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author)
@@ -800,13 +818,13 @@ namespace Vodovoz.Domain.Orders
 						decimal nomenclaturePrice = GetNomenclaturePrice(item);
 						if(fixedPrice > 0m) {
 							if(item.Price < fixedPrice) {
-								incorrectPriceItems.Add(String.Format("{0} - цена: {1}, должна быть: {2}\n",
+								incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
 																	  item.NomenclatureString,
 																	  item.Price,
 																	  fixedPrice));
 							}
 						} else if(nomenclaturePrice > default(decimal) && item.Price < nomenclaturePrice) {
-							incorrectPriceItems.Add(String.Format("{0} - цена: {1}, должна быть: {2}\n",
+							incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
 																  item.NomenclatureString,
 																  item.Price,
 																  nomenclaturePrice));
@@ -837,7 +855,7 @@ namespace Vodovoz.Domain.Orders
 						   && ordersForDeliveryPoints.Any()
 						   && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) {
 							yield return new ValidationResult(
-								String.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже создан заказ №{0}", ordersForDeliveryPoints.First().Id),
+								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже создан заказ №{0}", ordersForDeliveryPoints.First().Id),
 								new[] { this.GetPropertyName(o => o.OrderEquipments) });
 						}
 					}
@@ -858,9 +876,9 @@ namespace Vodovoz.Domain.Orders
 
 				if(newStatus == OrderStatus.Closed) {
 					foreach(var equipment in OrderEquipments.Where(x => x.Direction == Direction.PickUp)) {
-						if(!equipment.Confirmed && String.IsNullOrWhiteSpace(equipment.ConfirmedComment))
+						if(!equipment.Confirmed && string.IsNullOrWhiteSpace(equipment.ConfirmedComment))
 							yield return new ValidationResult(
-								String.Format("Забор оборудования {0} по заказу {1} не произведен, а в комментарии не указана причина.",
+								string.Format("Забор оборудования {0} по заказу {1} не произведен, а в комментарии не указана причина.",
 									equipment.NameString, Id),
 								new[] { this.GetPropertyName(o => o.OrderEquipments) });
 					}
@@ -945,9 +963,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsLoadedFrom1C => !string.IsNullOrEmpty(Code1c);
 
-		public override string ToString() => String.Format("Заказ №{0}({1})", Id, Code1c);
+		public override string ToString() => string.Format("Заказ №{0}({1})", Id, Code1c);
 
-		public virtual string Title => String.Format("Заказ №{0} от {1:d}", Id, DeliveryDate);
+		public virtual string Title => string.Format("Заказ №{0} от {1:d}", Id, DeliveryDate);
 
 		public virtual int TotalDeliveredBottles => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 
@@ -960,7 +978,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual string RowColor => PreviousOrder == null ? "black" : "red";
 
 		[Display(Name = "Наличных к получению")]
-		public virtual Decimal OrderCashSum {
+		public virtual decimal OrderCashSum {
 			get {
 				if(PaymentType != PaymentType.cash && PaymentType != PaymentType.BeveragesWorld) {
 					return 0;
@@ -978,7 +996,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal OrderSum {
 			get {
-				Decimal sum = 0;
+				decimal sum = 0;
 				foreach(OrderItem item in ObservableOrderItems) {
 					sum += item.ActualSum;
 				}
@@ -998,7 +1016,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal OrderSumReturn {
 			get {
-				Decimal sum = 0;
+				decimal sum = 0;
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
 					sum += dep.Total;
 				}
@@ -1507,8 +1525,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature, bool isChangeOrder = false, int? cnt = null)
 		{
-			var acceptCategories = Nomenclature.GetCategoriesForSale();
-			if(!acceptCategories.Contains(nomenclature.Category)) {
+			var acceptableCategories = Nomenclature.GetCategoriesForSale();
+			if(!acceptableCategories.Contains(nomenclature.Category)) {
 				return;
 			}
 
@@ -1526,6 +1544,16 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)
 			});
+		}
+
+		public virtual void AddItemWithNomenclatureForSale(OrderItem orderItem)
+		{
+			var acceptableCategories = Nomenclature.GetCategoriesForSale();
+			if(orderItem?.Nomenclature == null || !acceptableCategories.Contains(orderItem.Nomenclature.Category))
+				return;
+
+			orderItem.Order = this;
+			ObservableOrderItems.Add(orderItem);
 		}
 
 		/// <summary>
@@ -1555,10 +1583,13 @@ namespace Vodovoz.Domain.Orders
 				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
 		}
 
-		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count)
+		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count, decimal discount = 0, DiscountReason reason = null)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 				return;
+
+			if(discount > 0 && reason == null)
+				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
 
 			decimal price;
 			//влияющая номенклатура
@@ -1572,14 +1603,18 @@ namespace Vodovoz.Domain.Orders
 				price = nomenclature.GetPrice(GetTotalWater19LCount());
 			}
 
-			ObservableOrderItems.Add(new OrderItem {
-				Order = this,
-				AdditionalAgreement = wsa,
-				Count = count,
-				Equipment = null,
-				Nomenclature = nomenclature,
-				Price = price
-			});
+			ObservableOrderItems.Add(
+				new OrderItem {
+					Order = this,
+					AdditionalAgreement = wsa,
+					Count = count,
+					Equipment = null,
+					Nomenclature = nomenclature,
+					Price = price,
+					DiscountForPreview = discount,
+					DiscountReason = reason
+				}
+			);
 		}
 
 		public virtual bool CalculateDeliveryPrice()
@@ -1662,6 +1697,166 @@ namespace Vodovoz.Domain.Orders
 				Price = orderItem.Price
 			});
 			//UpdateDocuments();
+		}
+
+		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
+		{
+			switch(nomenclature.Category) {
+				case NomenclatureCategory.equipment://Оборудование
+					CreateSalesEquipmentAgreementAndAddEquipment(nomenclature, count, discount, discountReason);
+					break;
+				case NomenclatureCategory.water:
+					CounterpartyContract contract = CreateWaterSalesAgreementAndAddWater(nomenclature, count, discount, discountReason);
+					break;
+				case NomenclatureCategory.master:
+					contract = CreateServiceContractAddMasterNomenclature(nomenclature);
+					break;
+				case NomenclatureCategory.deposit://Залог
+				default://rest
+					var oi = new OrderItem {
+						Count = count,
+						DiscountForPreview = discount,
+						DiscountReason = discountReason,
+						Nomenclature = nomenclature,
+						Price = nomenclature.GetPrice(1)
+					};
+					AddItemWithNomenclatureForSale(oi);
+					break;
+			}
+		}
+
+		/// <summary>
+		/// Попытка найти и удалить промо-набор, если нет больше позиций
+		/// заказа со скидкой как в промо-наборе
+		/// </summary>
+		/// <param name="orderItem">Позиция заказа</param>
+		public virtual void TryToRemovePromotionalSet(OrderItem orderItem)
+		{
+			var discountReason = orderItem.DiscountReason;
+			if(discountReason != null) {
+				var proSet = ObservablePromotionalSets.FirstOrDefault(s => s.PromoSetName == discountReason);
+				if(proSet != null && !OrderItems.Any(i => i.DiscountReason == discountReason))
+					//если в заказе не осталось номенклатур с причиной скидки как в промо-наборе, то удаляем этот промо-набор
+					ObservablePromotionalSets.Remove(proSet);
+			}
+		}
+
+		/// <summary>
+		/// Чистка списка промо-наборов заказа, если вручную удалили, изменили
+		/// причину скидки или что-то ещё.
+		/// </summary>
+		void ClearPromotionSets()
+		{
+			var oigrp = OrderItems.GroupBy(x => x.DiscountReason);
+			var rem = PromotionalSets.Where(s => !oigrp.Select(g => g.Key).Contains(s.PromoSetName)).ToArray();
+			foreach(var r in rem) {
+				var ps = PromotionalSets.FirstOrDefault(s => s == r);
+				PromotionalSets.Remove(ps);
+			}
+		}
+
+		/// <summary>
+		/// Проверка на возможность добавления промо-набора в заказ и, если
+		/// не возможно, то генерирование сообщения.
+		/// </summary>
+		/// <returns><c>true</c>, если можно добавить промо-набор,
+		/// <c>false</c> если нельзя.</returns>
+		/// <param name="proSet">Рекламный набор (промо-набор)</param>
+		/// <param name="msg">Сообщение (в случае повторения адреса)</param>
+		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, out string msg)
+		{
+			msg = string.Empty;
+			var proSetDict = PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
+			if(!proSetDict.Any())
+				return true;
+			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
+			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n", address));
+			foreach(var d in proSetDict) {
+				var proSetTitle = UoW.GetById<PromotionalSet>(d.Key).ShortTitle;
+				var orders = string.Join(
+					" ,",
+					UoW.GetById<Order>(d.Value).Select(o => o.Title)
+				);
+				sb.AppendLine(string.Format("– {0}: {1}", proSetTitle, orders));
+			}
+			sb.AppendLine(string.Format("Вы уверены, что хотите добавить \"{0}\"", proSet.Title));
+			msg = sb.ToString();
+			return false;
+		}
+
+		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
+		{
+			CounterpartyContract contract = null;
+			if(Contract == null) {
+				contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				if(contract == null) {
+					contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
+					Contract = contract;
+					AddContractDocument(contract);
+				}
+			} else {
+				contract = Contract;
+			}
+			AddMasterNomenclature(nomenclature, 1, 1);
+			return contract;
+		}
+
+		private CounterpartyContract CreateWaterSalesAgreementAndAddWater(Nomenclature nom, int count, decimal discount, DiscountReason reason)
+		{
+			CounterpartyContract contract = Contract;
+			if(contract == null) {
+				contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				Contract = contract;
+			}
+
+			WaterSalesAgreement ag = contract.GetWaterSalesAgreement(DeliveryPoint, nom);
+			if(ag == null) {
+				ag = new WaterSalesAgreement {
+					Contract = contract,
+					AgreementNumber = AdditionalAgreement.GetNumberWithType(contract, AgreementType.WaterSales),
+					DeliveryPoint = deliveryPoint,
+				};
+				if(DeliveryDate.HasValue)
+					ag.IssueDate = ag.StartDate = DeliveryDate.Value;
+				ag.FillFixedPricesFromDeliveryPoint(UoW);
+				UoW.Save(ag);
+				contract.AdditionalAgreements.Add(ag);
+				CreateOrderAgreementDocument(ag);
+			}
+			AddWaterForSale(nom, ag, count, discount, reason);
+			return contract;
+		}
+
+		void CreateSalesEquipmentAgreementAndAddEquipment(Nomenclature nom, int count, decimal discount, DiscountReason reason)
+		{
+			CounterpartyContract contract = null;
+			if(Contract == null) {
+				contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				if(contract == null) {
+					contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
+					Contract = contract;
+					AddContractDocument(contract);
+				}
+			} else {
+				contract = Contract;
+			}
+
+			var ag = new SalesEquipmentAgreement {
+				Contract = contract,
+				AgreementNumber = AdditionalAgreement.GetNumberWithType(contract, AgreementType.EquipmentSales),
+				DeliveryPoint = DeliveryPoint
+			};
+			if(DeliveryDate.HasValue)
+				ag.IssueDate = ag.StartDate = DeliveryDate.Value;
+			if(nom != null)
+				ag.AddEquipment(nom);
+
+			UoW.Save(ag);
+			CreateOrderAgreementDocument(ag);
+			FillItemsFromAgreement(ag, count, discount, reason);
+			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType)
+										  .AdditionalAgreements
+										  .Add(ag);
 		}
 
 		public virtual void ClearOrderItemsList()
@@ -2025,23 +2220,23 @@ namespace Vodovoz.Domain.Orders
 			return waterItemsCount - BottlesReturn ?? 0;
 		}
 
-		public virtual void FillItemsFromAgreement(AdditionalAgreement a)
+		public virtual void FillItemsFromAgreement(AdditionalAgreement a, int count = -1, decimal discount = -1, DiscountReason reason = null)
 		{
 			if(a.Type == AgreementType.DailyRent || a.Type == AgreementType.NonfreeRent) {
 				IList<PaidRentEquipment> paidRentEquipmentList;
-				bool IsDaily = false;
-				int RentCount = 0;
+				bool isDaily = false;
+				int rentCount = 0;
 				if(a.Type == AgreementType.DailyRent) {
 					paidRentEquipmentList = (a.Self as DailyRentAgreement).Equipment;
-					RentCount = (a.Self as DailyRentAgreement).RentDays;
-					IsDaily = true;
+					rentCount = (a.Self as DailyRentAgreement).RentDays;
+					isDaily = true;
 				} else {
 					paidRentEquipmentList = (a.Self as NonfreeRentAgreement).PaidRentEquipments;
-					RentCount = (a.Self as NonfreeRentAgreement).RentMonths ?? 0;
+					rentCount = (a.Self as NonfreeRentAgreement).RentMonths ?? 0;
 				}
 
 				foreach(PaidRentEquipment paidRentEquipment in paidRentEquipmentList) {
-					int ItemId;
+					int itemId;
 					//Добавляем номенклатуру залога
 					OrderItem orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
@@ -2066,18 +2261,18 @@ namespace Vodovoz.Domain.Orders
 					orderItem = null;
 					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
 							item => item.AdditionalAgreement?.Id == a.Self.Id &&
-						item.Nomenclature.Id == (IsDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily.Id : paidRentEquipment.PaidRentPackage.RentServiceMonthly.Id)
+						item.Nomenclature.Id == (isDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily.Id : paidRentEquipment.PaidRentPackage.RentServiceMonthly.Id)
 							)) != null) {
-						orderItem.Count = paidRentEquipment.Count * RentCount;
+						orderItem.Count = paidRentEquipment.Count * rentCount;
 						orderItem.Price = paidRentEquipment.Price;
-						ItemId = ObservableOrderItems.IndexOf(orderItem);
+						itemId = ObservableOrderItems.IndexOf(orderItem);
 					} else {
-						Nomenclature nomenclature = IsDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily : paidRentEquipment.PaidRentPackage.RentServiceMonthly;
-						ItemId = ObservableOrderItems.AddWithReturn(
+						Nomenclature nomenclature = isDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily : paidRentEquipment.PaidRentPackage.RentServiceMonthly;
+						itemId = ObservableOrderItems.AddWithReturn(
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = a.Self,
-								Count = paidRentEquipment.Count * RentCount,
+								Count = paidRentEquipment.Count * rentCount,
 								Equipment = null,
 								Nomenclature = nomenclature,
 								Price = paidRentEquipment.Price,
@@ -2095,17 +2290,17 @@ namespace Vodovoz.Domain.Orders
 						orderEquip.Count = paidRentEquipment.Count;
 					} else {
 						ObservableOrderEquipments.Add(
-						new OrderEquipment {
-							Order = this,
-							Direction = Direction.Deliver,
-							Count = paidRentEquipment.Count,
-							Equipment = paidRentEquipment.Equipment,
-							Nomenclature = paidRentEquipment.Nomenclature,
-							Reason = Reason.Rent,
-							DirectionReason = DirectionReason.Rent,
-							OrderItem = ObservableOrderItems[ItemId],
-							OwnType = OwnTypes.Rent
-						}
+							new OrderEquipment {
+								Order = this,
+								Direction = Direction.Deliver,
+								Count = paidRentEquipment.Count,
+								Equipment = paidRentEquipment.Equipment,
+								Nomenclature = paidRentEquipment.Nomenclature,
+								Reason = Reason.Rent,
+								DirectionReason = DirectionReason.Rent,
+								OrderItem = ObservableOrderItems[itemId],
+								OwnType = OwnTypes.Rent
+							}
 						);
 					}
 
@@ -2115,9 +2310,9 @@ namespace Vodovoz.Domain.Orders
 			} else if(a.Type == AgreementType.FreeRent) {
 				FreeRentAgreement agreement = a.Self as FreeRentAgreement;
 				foreach(FreeRentEquipment equipment in agreement.Equipment) {
-					int ItemId;
+					int itemId;
 					//Добавляем номенклатуру залога.
-					ItemId = ObservableOrderItems.AddWithReturn(
+					itemId = ObservableOrderItems.AddWithReturn(
 						new OrderItem {
 							Order = this,
 							AdditionalAgreement = agreement,
@@ -2138,7 +2333,7 @@ namespace Vodovoz.Domain.Orders
 							Nomenclature = equipment.Nomenclature,
 							Reason = Reason.Rent,
 							DirectionReason = DirectionReason.Rent,
-							OrderItem = ObservableOrderItems[ItemId],
+							OrderItem = ObservableOrderItems[itemId],
 							OwnType = OwnTypes.Rent
 						}
 					);
@@ -2151,20 +2346,23 @@ namespace Vodovoz.Domain.Orders
 																 && x.Nomenclature.Id == equipment.Nomenclature.Id);
 					if(oi != null) {
 						oi.Price = equipment.Price;
-						oi.Price = equipment.Count;
+						oi.Count = equipment.Count;
 					} else {
-						int ItemId;
+						int itemId;
 						//Добавляем номенклатуру продажи оборудования.
-						ItemId = ObservableOrderItems.AddWithReturn(
+						itemId = ObservableOrderItems.AddWithReturn(
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = agreement,
-								Count = equipment.Count,
+								Count = count < 0 ? equipment.Count : count,
+								IsDiscountInMoney = false,
+								DiscountForPreview = discount < 0 ? 0 : discount,
+								DiscountReason = reason,
 								Equipment = null,
 								Nomenclature = equipment.Nomenclature,
 								Price = equipment.Price
 							}
-							);
+						);
 					}
 				}
 			}
@@ -2421,7 +2619,7 @@ namespace Vodovoz.Domain.Orders
 
 			var undeliveries = UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 			if(undeliveries.Any()) {
-				var text = String.Format(
+				var text = string.Format(
 					"сменил(а) статус заказа\nс \"{0}\" на \"{1}\"",
 					initialStatus.GetEnumTitle(),
 					newStatus.GetEnumTitle()
@@ -2446,8 +2644,7 @@ namespace Vodovoz.Domain.Orders
 		private void OnChangeStatusToClosed()
 		{
 			SetDepositsActualCounts();
-			if(SelfDelivery) 
-			{
+			if(SelfDelivery) {
 				UpdateDepositOperations(UoW);
 				SetActualCountToSelfDelivery();
 			}
@@ -2492,9 +2689,8 @@ namespace Vodovoz.Domain.Orders
 				return;
 			if(!(OrderStatus == OrderStatus.DeliveryCanceled))
 				return;
-				
-			foreach(var item in OrderItems) 
-			{
+
+			foreach(var item in OrderItems) {
 				item.ActualCount = OrderStatus == OrderStatus.Closed ? item.Count : 0;
 			}
 		}
@@ -2507,7 +2703,7 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery) {
 				return;
 			}
-			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard ) {
+			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard) {
 				return;
 			}
 
@@ -2747,7 +2943,7 @@ namespace Vodovoz.Domain.Orders
 
 			var categoriesForShipping = Nomenclature.GetCategoriesForShipment();
 			var oItemsGrps = OrderItems.Where(x => categoriesForShipping.Contains(x.Nomenclature.Category))
-								  	  .GroupBy(i => i.Nomenclature.Id, i => i.Count);
+										.GroupBy(i => i.Nomenclature.Id, i => i.Count);
 			var oEquipmentGrps = OrderEquipments.Where(x => categoriesForShipping.Contains(x.Nomenclature.Category))
 											   .Where(x => x.Direction == Direction.Deliver)
 											   .GroupBy(i => i.Nomenclature.Id, i => i.Count);
@@ -2808,6 +3004,53 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 		}
+
+		/// <summary>
+		/// Проверка на наличие воды по умолчанию в заказе для выбранной
+		/// точки доставки и формирование сообщения о возможном штрафе
+		/// </summary>
+		/// <returns><c>false</c> если для точки доставки не указана вода по
+		/// умолчанию, или если в заказе есть какая-либо 19л вода, среди которой
+		/// имеется вода по умолчанию <c>true</c> если в точке доставки указана
+		/// вода по умолчанию и в заказе есть какая-либо 19л вода, среди которой
+		/// этой умолчальной нет <c>null</c> если проверка не может быть
+		/// выполнена ввиду отсутствия каких-либо данных</returns>
+		public virtual bool? IsWrongWater(out string title, out string msg)
+		{
+			title = msg = string.Empty;
+			if(DeliveryPoint == null)
+				return null;
+			Nomenclature defaultWater = DeliveryPoint.DefaultWaterNomenclature;
+			var orderWaters = ObservableOrderItems.Where(w => w.Nomenclature.Category == NomenclatureCategory.water && !w.Nomenclature.IsDisposableTare);
+
+			//Если имеется для точки доставки номенклатура по умолчанию, 
+			//если имеется вода в заказе и ни одна 19 литровая вода в заказе
+			//не совпадает с номенклатурой по умолчанию, то сообщение о штрафе!
+			if(defaultWater != null
+			   && orderWaters.Any()
+			   && !ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.water && !i.Nomenclature.IsDisposableTare
+												   && i.Nomenclature == defaultWater)) {
+
+				//список вод в заказе за исключением дефолтной для сообщения о штрафе
+				string waterInOrder = string.Empty;
+				foreach(var item in orderWaters) {
+					if(item.Nomenclature != defaultWater)
+						waterInOrder += string.Format(",\n\t'{0}'", item.Nomenclature.ShortOrFullName);
+				}
+				waterInOrder = waterInOrder.TrimStart(',');
+				title = "Внимание!";
+				string header = "Есть риск получить <span foreground=\"Red\" size=\"x-large\">ШТРАФ</span>!\n";
+				string text = string.Format("Клиент '{0}' для адреса '{1}' заказывает фиксировано воду \n'{2}'.\nВ заказе же вы указали: {3}. \nДля подтверждения что это не ошибка, нажмите 'Да'.",
+											Client.Name,
+											DeliveryPoint.ShortAddress,
+											defaultWater.ShortOrFullName,
+											waterInOrder);
+				msg = header + text;
+				return true;
+			}
+			return false;
+		}
+
 
 		/// <summary>
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со склада все отгружено, и произведена оплата
@@ -2874,18 +3117,15 @@ namespace Vodovoz.Domain.Orders
 									.Sum(item => item.ActualCount.Value);
 
 			int forfeitCount = 0;
-			if(MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) 
-			{
-				if(int.TryParse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"], out int forfeitId)) 
-				{
+			if(MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) {
+				if(int.TryParse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"], out int forfeitId)) {
 					forfeitCount = OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
 																	   .Select(arg => arg.ActualCount.Value).Sum();
 				}
 			}
 
 			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null) || forfeitCount > 0) {
-				if(BottlesMovementOperation == null) 
-				{
+				if(BottlesMovementOperation == null) {
 					BottlesMovementOperation = new BottlesMovementOperation {
 						Order = this,
 						Counterparty = Client,
@@ -3079,6 +3319,7 @@ namespace Vodovoz.Domain.Orders
 			LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();
+			ClearPromotionSets();
 			uow.Save();
 		}
 
